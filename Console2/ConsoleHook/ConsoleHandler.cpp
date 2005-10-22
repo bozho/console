@@ -198,6 +198,9 @@ DWORD ConsoleHandler::MonitorThread() {
 
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
 
+	// set console window handle
+	m_startupParams->hwndConsoleWindow = ::GetConsoleWindow();
+
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr };

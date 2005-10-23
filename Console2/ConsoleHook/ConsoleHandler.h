@@ -43,8 +43,6 @@ class ConsoleHandler {
 		shared_ptr<void>			m_hMonitorThread;
 		shared_ptr<void>			m_hMonitorThreadExit;
 
-//		CONSOLE_SCREEN_BUFFER_INFO	m_csbiConsole;
-//		shared_array<CHAR_INFO>		m_pScreenBuffer;
 		DWORD						m_dwScreenBufferSize;
 };
 

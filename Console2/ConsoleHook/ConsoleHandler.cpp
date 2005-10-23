@@ -22,8 +22,7 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleBuffer()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
-//, m_pScreenBuffer(new CHAR_INFO[1])
-, m_dwScreenBufferSize(sizeof(CHAR_INFO))
+, m_dwScreenBufferSize(0)
 {
 }
 
@@ -200,6 +199,7 @@ DWORD ConsoleHandler::MonitorThread() {
 
 	// set console window handle
 	m_startupParams->hwndConsoleWindow = ::GetConsoleWindow();
+	m_startupParams.SetEvent();
 
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);

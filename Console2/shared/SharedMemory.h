@@ -16,11 +16,11 @@ class SharedMemory {
 	public:
 
 		SharedMemory();
-		SharedMemory(const wstring& strName, DWORD dwSize, bool bSync = true, bool bCreate = true);
+		SharedMemory(const wstring& strName, DWORD dwSize, bool bSyncObjects = true, bool bCreate = true);
 
 		~SharedMemory();
 
-		void Create(const wstring& strName, DWORD dwSize, bool bSync = true);
+		void Create(const wstring& strName, DWORD dwSize, bool bSyncObjects = true);
 		void Open(const wstring& strName, bool bSync = true);
 
 		inline void Lock();
@@ -98,14 +98,14 @@ SharedMemory<T>::SharedMemory()
 
 
 template<typename T>
-SharedMemory<T>::SharedMemory(const wstring& strName, DWORD dwSize, bool bSync, bool bCreate)
+SharedMemory<T>::SharedMemory(const wstring& strName, DWORD dwSize, bool bSyncObjects, bool bCreate)
 : m_strName(strName)
 , m_dwSize(dwSize)
 {
 	if (bCreate) {
-		Create(strName, dwSize);
+		Create(strName, dwSize, bSyncObjects);
 	} else {
-		Open(strName);
+		Open(strName, bSyncObjects);
 	}
 }
 
@@ -125,7 +125,7 @@ SharedMemory<T>::~SharedMemory() {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSync) {
+void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSyncObjects) {
 
 	m_strName	= strName;
 	m_dwSize	= dwSize;
@@ -150,7 +150,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSync) {
 													0)),
 												::UnmapViewOfFile);
 
-	if (bSync) CreateSyncObjects(strName);
+	if (bSyncObjects) CreateSyncObjects(strName);
 
 	//if (m_pSharedMem.get() == NULL) return false;
 }
@@ -161,7 +161,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSync) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::Open(const wstring& strName, bool bSync) {
+void SharedMemory<T>::Open(const wstring& strName, bool bSyncObjects) {
 
 	m_strName	= strName;
 
@@ -182,7 +182,7 @@ void SharedMemory<T>::Open(const wstring& strName, bool bSync) {
 													0)),
 												::UnmapViewOfFile);
 
-	if (bSync) CreateSyncObjects(strName);
+	if (bSyncObjects) CreateSyncObjects(strName);
 
 	//if (m_pSharedMem.get() == NULL) return false;
 }

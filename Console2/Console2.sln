@@ -7,7 +7,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleTest", "ConsoleTest\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinTest", "WinTest\WinTest.vcproj", "{22D02029-9E19-47CA-B473-97E61A9AB937}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinTest", "WinTest\WinTest.vcproj", "{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -45,10 +45,10 @@ Global
 		{F3D668FC-2829-4A6A-8844-DE2DD8421931}.Debug.Build.0 = Debug|Win32
 		{F3D668FC-2829-4A6A-8844-DE2DD8421931}.Release.ActiveCfg = Release|Win32
 		{F3D668FC-2829-4A6A-8844-DE2DD8421931}.Release.Build.0 = Release|Win32
-		{22D02029-9E19-47CA-B473-97E61A9AB937}.Debug.ActiveCfg = Debug|Win32
-		{22D02029-9E19-47CA-B473-97E61A9AB937}.Debug.Build.0 = Debug|Win32
-		{22D02029-9E19-47CA-B473-97E61A9AB937}.Release.ActiveCfg = Release|Win32
-		{22D02029-9E19-47CA-B473-97E61A9AB937}.Release.Build.0 = Release|Win32
+		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Debug.ActiveCfg = Debug|Win32
+		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Debug.Build.0 = Debug|Win32
+		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Release.ActiveCfg = Release|Win32
+		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

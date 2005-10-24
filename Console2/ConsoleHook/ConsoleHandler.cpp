@@ -197,11 +197,33 @@ DWORD ConsoleHandler::MonitorThread() {
 
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
 
+	COORD coordConsoleSize;
+	coordConsoleSize.X = (SHORT)m_startupParams->dwColumns;
+	coordConsoleSize.Y = (SHORT)m_startupParams->dwRows;
+
+	SMALL_RECT	srConsoleRect;
+	srConsoleRect.Top	= srConsoleRect.Left =0;
+	srConsoleRect.Right	= m_startupParams->dwColumns - 1;
+	srConsoleRect.Bottom= m_startupParams->dwRows - 1;
+
+	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
+
+	if ((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_startupParams->dwColumns * m_startupParams->dwRows) {
+		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
+		::SetConsoleScreenBufferSize(hStdOut, coordConsoleSize);
+	} else if (((DWORD)csbi.dwSize.X < m_startupParams->dwColumns) || ((DWORD)csbi.dwSize.Y < m_startupParams->dwRows) || ((DWORD)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1) != m_startupParams->dwRows)) {
+		::SetConsoleScreenBufferSize(hStdOut, coordConsoleSize);
+		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
+	}
+
+
 	// set console window handle
 	m_startupParams->hwndConsoleWindow = ::GetConsoleWindow();
 	m_startupParams.SetEvent();
 
-	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr };
 	DWORD	dwWaitRes		= 0;

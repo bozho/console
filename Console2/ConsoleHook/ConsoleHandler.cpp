@@ -119,7 +119,6 @@ void ConsoleHandler::ReadConsoleBuffer() {
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
 	COORD						coordBufferSize;
 	COORD						coordStart;
-//	SMALL_RECT					srRegion;
 
 	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
 
@@ -128,8 +127,6 @@ void ConsoleHandler::ReadConsoleBuffer() {
 
 	coordBufferSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
 	coordBufferSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
-
-//	::CopyMemory(&srRegion, &csbiConsole.srWindow, sizeof(SMALL_RECT));
 
 //	TRACE(L"console window rect: (%i, %i) - (%i, %i)\n", csbiConsole.srWindow.Top, csbiConsole.srWindow.Left, csbiConsole.srWindow.Bottom, csbiConsole.srWindow.Right);
 

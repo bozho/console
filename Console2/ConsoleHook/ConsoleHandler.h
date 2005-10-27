@@ -27,6 +27,8 @@ class ConsoleHandler {
 
 		void ReadConsoleBuffer();
 
+		void ResizeConsoleWindow(HANDLE hStdOut);
+
 	private:
 
 		static DWORD WINAPI MonitorThreadStatic(LPVOID lpParameter);

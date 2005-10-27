@@ -165,6 +165,59 @@ void ConsoleHandler::ReadConsoleBuffer() {
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut) {
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
+
+	COORD		coordBuffersSize;
+	coordBuffersSize.X = static_cast<SHORT>(m_startupParams->dwColumns);
+	coordBuffersSize.Y = static_cast<SHORT>(m_startupParams->dwBufferRows);
+	
+	SMALL_RECT	srConsoleRect;
+	srConsoleRect.Top	= 0;
+	srConsoleRect.Left	= 0;
+	srConsoleRect.Right	= static_cast<SHORT>(m_startupParams->dwColumns - 1);
+	srConsoleRect.Bottom= static_cast<SHORT>(m_startupParams->dwRows - 1);
+
+//	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
+	
+	// order of setting window size and screen buffer size depends on current and desired dimensions
+	if ((m_startupParams->dwColumns < (DWORD) csbi.dwSize.X) ||
+		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_startupParams->dwColumns * m_startupParams->dwBufferRows)) {
+		
+//		TRACE(L"Console 1\n");
+		if ((m_startupParams->dwBufferRows > m_startupParams->dwRows) && 
+			(static_cast<DWORD>(csbi.dwSize.Y) > m_startupParams->dwBufferRows)) {
+			
+			coordBuffersSize.Y				= csbi.dwSize.Y;
+			m_startupParams->dwBufferRows	= static_cast<DWORD>(csbi.dwSize.Y);
+		}
+		
+		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
+		::SetConsoleScreenBufferSize(hStdOut, coordBuffersSize);
+		
+		//	} else if (((DWORD)csbi.dwSize.X < m_dwColumns) || ((DWORD)csbi.dwSize.Y < m_dwBufferRows) || ((DWORD)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1) != m_dwRows)) {
+	} else if ((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) m_startupParams->dwColumns * m_startupParams->dwBufferRows) {
+
+		// why did we need this???
+/*
+		if (csbi.dwSize.Y < m_startupParams->dwBufferRows) {
+			m_startupParams->dwBufferRows = coordBuffersSize.Y = csbi.dwSize.Y;
+		}
+*/
+//		TRACE(L"Console 2\n");
+		
+		::SetConsoleScreenBufferSize(hStdOut, coordBuffersSize);
+		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -197,34 +250,15 @@ DWORD ConsoleHandler::MonitorThread() {
 
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
 
-	COORD coordConsoleSize;
-	coordConsoleSize.X = (SHORT)m_startupParams->dwColumns;
-	coordConsoleSize.Y = (SHORT)m_startupParams->dwRows;
-
-	SMALL_RECT	srConsoleRect;
-	srConsoleRect.Top	= srConsoleRect.Left =0;
-	srConsoleRect.Right	= m_startupParams->dwColumns - 1;
-	srConsoleRect.Bottom= m_startupParams->dwRows - 1;
-
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 
-	CONSOLE_SCREEN_BUFFER_INFO csbi;
-	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
-
-	if ((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_startupParams->dwColumns * m_startupParams->dwRows) {
-		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
-		::SetConsoleScreenBufferSize(hStdOut, coordConsoleSize);
-	} else if (((DWORD)csbi.dwSize.X < m_startupParams->dwColumns) || ((DWORD)csbi.dwSize.Y < m_startupParams->dwRows) || ((DWORD)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1) != m_startupParams->dwRows)) {
-		::SetConsoleScreenBufferSize(hStdOut, coordConsoleSize);
-		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
-	}
-
+	ResizeConsoleWindow(hStdOut);
 
 	// set console window handle
 	m_startupParams->hwndConsoleWindow = ::GetConsoleWindow();
 	m_startupParams.SetEvent();
 
-	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr };
 	DWORD	dwWaitRes		= 0;
 

@@ -215,6 +215,35 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut) {
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
+
+	// get max console size
+	COORD		coordMaxSize;
+	coordMaxSize = ::GetLargestConsoleWindowSize(hStdOut);
+
+	m_startupParams->dwMaxColumns	= coordMaxSize.X;
+	m_startupParams->dwMaxRows		= coordMaxSize.Y;
+
+//	TRACE(L"Max columns: %i, max rows: %i\n", coordMaxSize.X, coordMaxSize.Y);
+
+	// check rows and columns
+	if (m_startupParams->dwColumns > static_cast<DWORD>(coordMaxSize.X)) m_startupParams->dwColumns = coordMaxSize.X;
+	if (m_startupParams->dwRows > static_cast<DWORD>(coordMaxSize.Y)) m_startupParams->dwRows = coordMaxSize.Y;
+
+	// buffer rows cannot be smaller than max size
+	if (m_startupParams->dwBufferRows < static_cast<DWORD>(coordMaxSize.X)) m_startupParams->dwBufferRows = coordMaxSize.X;
+
+	// set console window handle
+	m_startupParams->hwndConsoleWindow = ::GetConsoleWindow();
+
+	m_startupParams.SetEvent();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -250,11 +279,8 @@ DWORD ConsoleHandler::MonitorThread() {
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 
+	SetConsoleParams(hStdOut);
 	ResizeConsoleWindow(hStdOut);
-
-	// set console window handle
-	m_startupParams->hwndConsoleWindow = ::GetConsoleWindow();
-	m_startupParams.SetEvent();
 
 	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr };
 	DWORD	dwWaitRes		= 0;

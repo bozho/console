@@ -28,6 +28,7 @@ class ConsoleHandler {
 		void ReadConsoleBuffer();
 
 		void ResizeConsoleWindow(HANDLE hStdOut);
+		void SetConsoleParams(HANDLE hStdOut);
 
 	private:
 

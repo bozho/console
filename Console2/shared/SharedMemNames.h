@@ -6,9 +6,10 @@ class SharedMemNames {
 
 	public:
 
-		static wformat formatConsoleStartupParams;
+		static wformat formatConsoleParams;
 		static wformat formatInfo;
 		static wformat formatBuffer;
+		static wformat formatNewConsoleSize;
 
 };
 
@@ -22,8 +23,9 @@ class SharedMemNames {
 
 //////////////////////////////////////////////////////////////////////////////
 
-wformat SharedMemNames::formatConsoleStartupParams(L"Console2_startupParams_%1%");
+wformat SharedMemNames::formatConsoleParams(L"Console2_params_%1%");
 wformat SharedMemNames::formatInfo(L"Console2_consoleInfo_%1%");
 wformat SharedMemNames::formatBuffer(L"Console2_consoleBuffer_%1%");
+wformat SharedMemNames::formatNewConsoleSize(L"Console2_newConsoleSize_%1%");
 
 //////////////////////////////////////////////////////////////////////////////

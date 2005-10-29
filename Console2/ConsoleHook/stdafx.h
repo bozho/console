@@ -33,7 +33,7 @@ using namespace boost;
 #pragma warning(pop)
 
 #include "../shared/SharedMemory.h"
-#include "../shared/ConsoleStartupParams.h"
+#include "../shared/Structures.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

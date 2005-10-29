@@ -153,9 +153,6 @@
 				RelativePath=".\ConsoleHook.h">
 			</File>
 			<File
-				RelativePath="..\shared\ConsoleStartupParams.h">
-			</File>
-			<File
 				RelativePath="..\shared\SharedMemNames.h">
 			</File>
 			<File
@@ -163,6 +160,9 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath="..\shared\Structures.h">
 			</File>
 		</Filter>
 		<Filter

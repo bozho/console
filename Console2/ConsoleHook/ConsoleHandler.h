@@ -27,7 +27,7 @@ class ConsoleHandler {
 
 		void ReadConsoleBuffer();
 
-		void ResizeConsoleWindow(HANDLE hStdOut);
+		void ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows);
 		void SetConsoleParams(HANDLE hStdOut);
 
 	private:
@@ -37,16 +37,18 @@ class ConsoleHandler {
 
 	private:
 
-		shared_ptr<void>			m_hParentProcess;
+		shared_ptr<void>							m_hParentProcess;
 
-		SharedMemory<ConsoleStartupParams>			m_startupParams;
+		SharedMemory<ConsoleParams>					m_consoleParams;
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>	m_consoleInfo;
-		SharedMemory<CHAR_INFO>		m_consoleBuffer;
+		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 
-		shared_ptr<void>			m_hMonitorThread;
-		shared_ptr<void>			m_hMonitorThreadExit;
+		SharedMemory<ConsoleSize>					m_newConsoleSize;
 
-		DWORD						m_dwScreenBufferSize;
+		shared_ptr<void>							m_hMonitorThread;
+		shared_ptr<void>							m_hMonitorThreadExit;
+
+		DWORD										m_dwScreenBufferSize;
 };
 
 //////////////////////////////////////////////////////////////////////////////

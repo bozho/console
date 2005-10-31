@@ -153,6 +153,12 @@ void ConsoleHandler::ReadConsoleBuffer() {
 
 		SharedMemoryLock memLock(m_consoleBuffer);
 
+		// update row and column count
+/*
+		m_consoleParams->dwColumns	= coordBufferSize.X;
+		m_consoleParams->dwRows		= coordBufferSize.Y;
+*/
+
 		// update screen buffer variables
 		m_dwScreenBufferSize = dwScreenBufferSize;
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));

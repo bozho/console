@@ -12,6 +12,7 @@
 // User-defined message for notifying ConsoleViewContainer
 
 #define UM_CONSOLE_RESIZED	WM_USER + 0x1000
+#define UM_CONSOLE_CLOSED	WM_USER + 0x1001
 
 //////////////////////////////////////////////////////////////////////////////
 

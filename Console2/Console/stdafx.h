@@ -14,13 +14,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <atlbase.h>
-/*
 #include <atlcoll.h>
 #include <atlstr.h>
 #include <atltypes.h>
 #define _WTL_NO_CSTRING
 #define _WTL_NO_WTYPES
-*/
 
 #include <atlapp.h>
 
@@ -35,16 +33,14 @@ extern CAppModule _Module;
 #include <atlctrlw.h>
 #include <atlctrlx.h>
 
-/*
-#include "atlgdix.h"
+#include "WtlTabbing/atlgdix.h"
 
-#include "CustomTabCtrl.h"
-#include "DotNetTabCtrl.h"
-//#include "SimpleTabCtrls.h"
-//#include "SimpleDlgTabCtrls.h"
-#include "TabbedFrame.h"
-//#include "TabbedMDI.h"
-*/
+#include "WtlTabbing/CustomTabCtrl.h"
+#include "WtlTabbing/DotNetTabCtrl.h"
+//#include "WtlTabbing/SimpleTabCtrls.h"
+//#include "WtlTabbing/SimpleDlgTabCtrls.h"
+#include "WtlTabbing/TabbedFrame.h"
+//#include "WtlTabbing/TabbedMDI.h"
 
 
 #include <iostream>

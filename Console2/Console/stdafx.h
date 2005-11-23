@@ -33,6 +33,8 @@ extern CAppModule _Module;
 #include <atlctrlw.h>
 #include <atlctrlx.h>
 
+#pragma warning(push)
+#pragma warning(disable: 4189)
 #include "WtlTabbing/atlgdix.h"
 
 #include "WtlTabbing/CustomTabCtrl.h"
@@ -41,7 +43,7 @@ extern CAppModule _Module;
 //#include "WtlTabbing/SimpleDlgTabCtrls.h"
 #include "WtlTabbing/TabbedFrame.h"
 //#include "WtlTabbing/TabbedMDI.h"
-
+#pragma warning(pop)
 
 #include <iostream>
 #include <string>

@@ -262,7 +262,7 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 
 void ConsoleView::OnConsoleClose() {
 
-	if (::IsWindow(m_hWnd)) ::PostMessage(GetParent(), UM_CONSOLE_CLOSED, 0, 0);
+	if (::IsWindow(m_hWnd)) ::PostMessage(GetParent(), UM_CONSOLE_CLOSED, 0, reinterpret_cast<LPARAM>(m_hWnd));
 }
 
 //////////////////////////////////////////////////////////////////////////////

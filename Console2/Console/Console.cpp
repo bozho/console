@@ -7,19 +7,31 @@
 
 #include "ConsoleView.h"
 #include "aboutdlg.h"
-#include "MainFrm.h"
+#include "MainFrameTabbed.h"
+
+//////////////////////////////////////////////////////////////////////////////
 
 CAppModule _Module;
 
-int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
-{
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
+
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-	CMainFrame wndMain;
+	// TODO: Handle other window types
+	MainFrameTabbed wndMain;
 
-	if(wndMain.CreateEx() == NULL)
-	{
+	if(wndMain.CreateEx() == NULL) {
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;
 	}
@@ -32,8 +44,13 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	return nRet;
 }
 
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
-{
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow) {
+
 	HRESULT hRes = ::CoInitialize(NULL);
 // If you are running on NT 4.0 or higher you can use the following call instead to 
 // make the EXE free threaded. This means that calls come in on a random RPC thread.
@@ -55,3 +72,5 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	return nRet;
 }
+
+//////////////////////////////////////////////////////////////////////////////

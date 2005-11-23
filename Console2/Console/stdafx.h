@@ -45,6 +45,7 @@ extern CAppModule _Module;
 
 #include <iostream>
 #include <string>
+#include <map>
 using namespace std;
 
 #pragma warning(push)

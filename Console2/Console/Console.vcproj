@@ -146,7 +146,7 @@
 				RelativePath=".\ConsoleView.cpp">
 			</File>
 			<File
-				RelativePath=".\MainFrm.cpp">
+				RelativePath=".\MainFrameTabbed.cpp">
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp">
@@ -186,7 +186,7 @@
 				RelativePath=".\FastDelegate.h">
 			</File>
 			<File
-				RelativePath=".\MainFrm.h">
+				RelativePath=".\MainFrameTabbed.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">

@@ -24,7 +24,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 	public:
 		DECLARE_WND_CLASS(NULL)
 
-		ConsoleView();
+		ConsoleView(const ConsoleParams& consoleStartupParams);
 
 		BOOL PreTranslateMessage(MSG* pMsg);
 
@@ -59,6 +59,8 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool GetMaxRect(RECT& maxClientRect);
 		void AdjustRectAndResize(RECT& clientRect);
 
+		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
+
 	private:
 
 		void OnConsoleChange(bool bResize);
@@ -79,6 +81,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		bool	m_bInitializing;
 
+		ConsoleParams	m_consoleStartupParams;
 		ConsoleHandler	m_consoleHandler;
 
 		CDC		m_dcOffscreen;
@@ -102,11 +105,6 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		COLORREF	m_crConsoleBackground;
 
 		int			m_nInsideBorder;
-
-/*
-		DWORD		m_dwRows;
-		DWORD		m_dwColumns;
-*/
 
 		bool		m_bUseFontColor;
 		COLORREF	m_crFontColor;

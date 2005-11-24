@@ -12,16 +12,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView()
+ConsoleView::ConsoleView(const ConsoleParams& consoleStartupParams)
 : m_bInitializing(true)
+, m_consoleStartupParams(consoleStartupParams)
+, m_consoleHandler()
 , m_nCharHeight(0)
 , m_nCharWidth(0)
 , m_screenBuffer()
 , m_bImageBackground(false)
 , m_crConsoleBackground(RGB(0, 0, 0))
 , m_nInsideBorder(1)
-//, m_dwRows(25)
-//, m_dwColumns(80)
 , m_bUseFontColor(false)
 , m_crFontColor(RGB(0, 0, 0))
 {
@@ -58,7 +58,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
-	m_consoleHandler.StartShellProcess();
+	m_consoleHandler.StartShellProcess(m_consoleStartupParams);
 	m_bInitializing = false;
 
 	CreateOffscreenBuffers();
@@ -207,6 +207,7 @@ bool ConsoleView::GetMaxRect(RECT& maxClientRect) {
 void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 	GetWindowRect(&clientRect);
+	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 
 	// TODO: handle variable fonts
 	DWORD dwColumns	= (clientRect.right - clientRect.left - 2*m_nInsideBorder) / m_nCharWidth;

@@ -59,7 +59,7 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess() {
+bool ConsoleHandler::StartShellProcess(const ConsoleParams& consoleStartupParams) {
 
 	wstring	strShell;
 	wchar_t	szComspec[MAX_PATH];
@@ -80,8 +80,10 @@ bool ConsoleHandler::StartShellProcess() {
 	// setup the startup info struct
 	STARTUPINFO si;
 	::ZeroMemory(&si, sizeof(STARTUPINFO));
-	si.cb		= sizeof(STARTUPINFO);
-	si.lpTitle	= (wchar_t*)(strConsoleTitle.c_str());
+	si.dwFlags		= STARTF_USESHOWWINDOW;
+	si.cb			= sizeof(STARTUPINFO);
+	si.wShowWindow	= SW_NORMAL;
+	si.lpTitle		= (wchar_t*)(strConsoleTitle.c_str());
 
 	PROCESS_INFORMATION pi;
 
@@ -107,8 +109,8 @@ bool ConsoleHandler::StartShellProcess() {
 	m_consoleParams->dwParentProcessId		= ::GetCurrentProcessId();
 	m_consoleParams->dwNotificationTimeout	= 5;
 	m_consoleParams->dwRefreshInterval		= 50;
-	m_consoleParams->dwRows					= 25;
-	m_consoleParams->dwColumns				= 80;
+	m_consoleParams->dwRows					= consoleStartupParams.dwRows;
+	m_consoleParams->dwColumns				= consoleStartupParams.dwColumns;
 	m_consoleParams->dwBufferRows			= 1111;
 
 	m_hConsoleProcess = shared_ptr<void>(pi.hProcess, ::CloseHandle);
@@ -181,6 +183,11 @@ bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId) {
 
 	// new console size
 	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str(), 1);
+
+	// TODO: separate function for default settings
+	m_consoleParams->dwRows		= 25;
+	m_consoleParams->dwColumns	= 80;
+
 
 	return true;
 }

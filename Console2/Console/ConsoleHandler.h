@@ -24,7 +24,7 @@ class ConsoleHandler {
 	public:
 
 		void SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate);
-		bool StartShellProcess();
+		bool StartShellProcess(const ConsoleParams& consoleStartupParams);
 
 		DWORD StartMonitorThread();
 		void StopMonitorThread();

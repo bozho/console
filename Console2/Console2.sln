@@ -3,17 +3,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleHook", "ConsoleHook\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WinTest", "WinTest\WinTest.vcproj", "{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Console\Console.vcproj", "{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
 Global
 	GlobalSection(SourceCodeControl) = preSolution
-		SccNumberOfProjects = 4
+		SccNumberOfProjects = 3
 		SccProjectName0 = \u0022$/Console2\u0022,\u0020QDAAAAAA
 		SccLocalPath0 = .
 		SccProvider0 = MSSCCI:Microsoft\u0020Visual\u0020SourceSafe
@@ -23,14 +19,10 @@ Global
 		SccLocalPath1 = .
 		CanCheckoutShared = false
 		SccProjectFilePathRelativizedFromConnection1 = ConsoleHook\\
-		SccProjectUniqueName2 = WinTest\\WinTest.vcproj
+		SccProjectUniqueName2 = Console\\Console.vcproj
 		SccLocalPath2 = .
 		CanCheckoutShared = false
-		SccProjectFilePathRelativizedFromConnection2 = WinTest\\
-		SccProjectUniqueName3 = Console\\Console.vcproj
-		SccLocalPath3 = .
-		CanCheckoutShared = false
-		SccProjectFilePathRelativizedFromConnection3 = Console\\
+		SccProjectFilePathRelativizedFromConnection2 = Console\\
 	EndGlobalSection
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -41,10 +33,6 @@ Global
 		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Debug.Build.0 = Debug|Win32
 		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Release.ActiveCfg = Release|Win32
 		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Release.Build.0 = Release|Win32
-		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Debug.ActiveCfg = Debug|Win32
-		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Debug.Build.0 = Debug|Win32
-		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Release.ActiveCfg = Release|Win32
-		{3A048A39-1F72-4E87-95F0-B9DE04DCFEF3}.Release.Build.0 = Release|Win32
 		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Debug.ActiveCfg = Debug|Win32
 		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Debug.Build.0 = Debug|Win32
 		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release.ActiveCfg = Release|Win32

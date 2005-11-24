@@ -4,6 +4,19 @@
 
 struct ConsoleParams {
 
+	ConsoleParams()
+	: dwParentProcessId(0)
+	, dwNotificationTimeout(0)
+	, dwRefreshInterval(0)
+	, dwRows(0)
+	, dwColumns(0)
+	, dwBufferRows(0)
+	, dwMaxRows(0)
+	, dwMaxColumns(0)
+	, hwndConsoleWindow(NULL)
+	{
+	}
+
 	ConsoleParams(DWORD parentProcessId, DWORD notificationTimeout, DWORD refreshInterval, DWORD rows, DWORD columns, DWORD bufferRows)
 	: dwParentProcessId(parentProcessId)
 	, dwNotificationTimeout(notificationTimeout)
@@ -11,7 +24,22 @@ struct ConsoleParams {
 	, dwRows(rows)
 	, dwColumns(columns)
 	, dwBufferRows(bufferRows)
+	, dwMaxRows(0)
+	, dwMaxColumns(0)
 	, hwndConsoleWindow(NULL)
+	{
+	}
+
+	ConsoleParams(const ConsoleParams& other)
+	: dwParentProcessId(other.dwParentProcessId)
+	, dwNotificationTimeout(other.dwNotificationTimeout)
+	, dwRefreshInterval(other.dwRefreshInterval)
+	, dwRows(other.dwRows)
+	, dwColumns(other.dwColumns)
+	, dwBufferRows(other.dwBufferRows)
+	, dwMaxRows(other.dwMaxRows)
+	, dwMaxColumns(other.dwMaxColumns)
+	, hwndConsoleWindow(other.hwndConsoleWindow)
 	{
 	}
 

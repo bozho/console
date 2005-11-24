@@ -192,7 +192,16 @@
 				RelativePath=".\resource.h">
 			</File>
 			<File
+				RelativePath="..\shared\SharedMemNames.h">
+			</File>
+			<File
+				RelativePath="..\shared\SharedMemory.h">
+			</File>
+			<File
 				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath="..\shared\Structures.h">
 			</File>
 		</Filter>
 		<Filter

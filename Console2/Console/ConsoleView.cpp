@@ -69,7 +69,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
 
 	m_consoleHandler.StartMonitorThread();
-	//RepaintText();
 
 	return 0;
 }
@@ -125,18 +124,15 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 //////////////////////////////////////////////////////////////////////////////
 
-/*
-LRESULT ConsoleView::OnSize(UINT / *uMsg* /, WPARAM / *wParam* /, LPARAM / *lParam* /, BOOL& / *bHandled* /) {
+LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
 
-/ *
-	CreateOffscreenBuffers();
-	RepaintText();
-	BitBltOffscreen();
-* /
+	WINDOWPOS* pWinPos = reinterpret_cast<WINDOWPOS*>(lParam);
+
+	// showing the view, repaint
+	if (pWinPos->flags & SWP_SHOWWINDOW) Repaint();
 
 	return 0;
 }
-*/
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -243,17 +239,14 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
 		::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
 
-		// TODO: notify parent about resize
+		// notify parent about resize
 		GetParent().SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
-	if (GetBufferDifference() > 15) {
-		RepaintText();
-	} else {
-		RepaintTextChanges();
-	}
+	// if the view is not visible, don't repaint
+	if (!IsWindowVisible()) return;
 
-	BitBltOffscreen();
+	Repaint();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -393,6 +386,22 @@ void ConsoleView::SetDefaultConsoleColors() {
 
 /////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::Repaint() {
+
+	// repaint text layer
+	if (GetBufferDifference() > 15) {
+		RepaintText();
+	} else {
+		RepaintTextChanges();
+	}
+
+	BitBltOffscreen();
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////

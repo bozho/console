@@ -220,6 +220,9 @@
 				RelativePath=".\res\toolbar.bmp">
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\Todo.txt">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

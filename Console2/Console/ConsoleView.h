@@ -33,7 +33,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 			MESSAGE_HANDLER(WM_CLOSE, OnClose)
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
-//			MESSAGE_HANDLER(WM_SIZE, OnSize)
+			MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
 			MESSAGE_HANDLER(WM_SYSKEYDOWN, OnSysKey)
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnSysKey)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
@@ -49,7 +49,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-//		LRESULT OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 
@@ -73,8 +73,11 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		DWORD GetBufferDifference();
 		void SetDefaultConsoleColors();
 
+		void Repaint();
+
 		void RepaintText();
 		void RepaintTextChanges();
+
 		void BitBltOffscreen();
 
 	private:

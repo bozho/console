@@ -1,0 +1,12 @@
+- handle maximize
+
+- cursor rendering
+
+- options
+
+- image handler
+
+- background rendering
+
+- non-tabbed windows
+

@@ -126,6 +126,9 @@ void ConsoleHandler::ReadConsoleBuffer() {
 
 	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
 
+	TRACE(L"ReadConsoleBuffer console buffer size: %ix%i\n", csbiConsole.dwSize.X, csbiConsole.dwSize.Y);
+	TRACE(L"ReadConsoleBuffer console rect: %ix%i - %ix%i\n", csbiConsole.srWindow.Left, csbiConsole.srWindow.Top, csbiConsole.srWindow.Right, csbiConsole.srWindow.Bottom);
+
 	coordStart.X		= 0;
 	coordStart.Y		= 0;
 
@@ -217,7 +220,13 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		
 		::SetConsoleScreenBufferSize(hStdOut, coordBuffersSize);
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
+
 	}
+
+	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
+
+	TRACE(L"console buffer size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
+	TRACE(L"console rect: %ix%i - %ix%i\n", csbi.srWindow.Left, csbi.srWindow.Top, csbi.srWindow.Right, csbi.srWindow.Bottom);
 }
 
 //////////////////////////////////////////////////////////////////////////////

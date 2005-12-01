@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Cursors.h"
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -38,6 +40,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnSysKey)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
 			MESSAGE_HANDLER(WM_KEYUP, OnKey)
+			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -52,6 +55,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	public:
 
@@ -61,6 +65,8 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 
+		void SetAppActiveStatus(bool bAppActive);
+
 	private:
 
 		void OnConsoleChange(bool bResize);
@@ -68,6 +74,9 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap);
+
+		// creates the cursor
+		void CreateCursor(const CRect& cursorRect);
 
 		void GetTextSize();
 		DWORD GetBufferDifference();
@@ -83,16 +92,19 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 	private:
 
 		bool	m_bInitializing;
+		bool	m_bAppActive;
 
 		ConsoleParams	m_consoleStartupParams;
 		ConsoleHandler	m_consoleHandler;
 
 		CDC		m_dcOffscreen;
 		CDC		m_dcText;
+		CDC		m_dcCursor;
 		CDC		m_dcBackground;
 
 		CBitmap	m_bmpOffscreen;
 		CBitmap	m_bmpText;
+		CBitmap	m_bmpCursor;
 		CBitmap	m_bmpBackground;
 
 		CFont	m_fontText;
@@ -112,6 +124,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool		m_bUseFontColor;
 		COLORREF	m_crFontColor;
 
+		scoped_ptr<Cursor>	m_cursor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

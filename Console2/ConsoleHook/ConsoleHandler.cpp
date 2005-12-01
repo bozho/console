@@ -19,6 +19,7 @@ ConsoleHandler::ConsoleHandler()
 : m_hParentProcess()
 , m_consoleParams()
 , m_consoleInfo()
+, m_cursorInfo()
 , m_consoleBuffer()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
@@ -87,9 +88,13 @@ bool ConsoleHandler::OpenSharedMemory() {
 	m_consoleParams.Open((SharedMemNames::formatConsoleParams % dwProcessId).str());
 	TRACE(L"Parent process id: %i\n", m_consoleParams->dwParentProcessId);
 
-	// create console info shared memory object
+	// open console info shared memory object
 	m_consoleInfo.Open((SharedMemNames::formatInfo % dwProcessId).str());
 	TRACE(L"Console info address: 0x%08X\n", (void*)m_consoleInfo.Get());
+
+	// open console info shared memory object
+	m_cursorInfo.Open((SharedMemNames::formatCursorInfo % dwProcessId).str());
+	TRACE(L"Cursor info address: 0x%08X\n", (void*)m_cursorInfo.Get());
 
 	// open console buffer shared memory object
 	m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str());
@@ -160,6 +165,7 @@ void ConsoleHandler::ReadConsoleBuffer() {
 		m_dwScreenBufferSize = dwScreenBufferSize;
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
 		::CopyMemory(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+		::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
 
 		m_consoleBuffer.SetEvent();
 	}

@@ -178,6 +178,9 @@ bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId) {
 	// create console info shared memory
 	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str(), 1);
 
+	// create console info shared memory
+	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str(), 1);
+
 	// TODO: max console size
 	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200);
 

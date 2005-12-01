@@ -31,6 +31,7 @@ class ConsoleHandler {
 
 		SharedMemory<ConsoleParams>& GetConsoleParams() { return m_consoleParams; }
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& GetConsoleInfo() { return m_consoleInfo; }
+		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo() { return m_cursorInfo; }
 		SharedMemory<CHAR_INFO>& GetConsoleBuffer() { return m_consoleBuffer; }
 		SharedMemory<ConsoleSize>& GetNewConsoleSize() { return m_newConsoleSize; }
 
@@ -60,6 +61,7 @@ class ConsoleHandler {
 
 		SharedMemory<ConsoleParams>					m_consoleParams;
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>	m_consoleInfo;
+		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;

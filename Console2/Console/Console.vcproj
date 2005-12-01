@@ -146,6 +146,9 @@
 				RelativePath=".\ConsoleView.cpp">
 			</File>
 			<File
+				RelativePath=".\Cursors.cpp">
+			</File>
+			<File
 				RelativePath=".\MainFrameTabbed.cpp">
 			</File>
 			<File
@@ -181,6 +184,9 @@
 			</File>
 			<File
 				RelativePath=".\ConsoleViewContainer.h">
+			</File>
+			<File
+				RelativePath=".\Cursors.h">
 			</File>
 			<File
 				RelativePath=".\FastDelegate.h">

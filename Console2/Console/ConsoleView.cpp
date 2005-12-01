@@ -14,6 +14,7 @@
 
 ConsoleView::ConsoleView(const ConsoleParams& consoleStartupParams)
 : m_bInitializing(true)
+, m_bAppActive(true)
 , m_consoleStartupParams(consoleStartupParams)
 , m_consoleHandler()
 , m_nCharHeight(0)
@@ -24,6 +25,7 @@ ConsoleView::ConsoleView(const ConsoleParams& consoleStartupParams)
 , m_nInsideBorder(1)
 , m_bUseFontColor(false)
 , m_crFontColor(RGB(0, 0, 0))
+, m_cursor()
 {
 }
 
@@ -50,9 +52,10 @@ BOOL ConsoleView::PreTranslateMessage(MSG* pMsg) {
 
 LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
-	m_dcText.CreateCompatibleDC(NULL);
-	m_dcBackground.CreateCompatibleDC(NULL);
 	m_dcOffscreen.CreateCompatibleDC(NULL);
+	m_dcText.CreateCompatibleDC(NULL);
+	m_dcCursor.CreateCompatibleDC(NULL);
+	m_dcBackground.CreateCompatibleDC(NULL);
 
 	m_consoleHandler.SetupDelegates(
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
@@ -161,6 +164,22 @@ LRESULT ConsoleView::OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHan
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+
+	if (wParam == CURSOR_TIMER) {
+		m_cursor->PrepareNext();
+		m_cursor->Draw(m_bAppActive);
+		BitBltOffscreen();
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -224,6 +243,19 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::SetAppActiveStatus(bool bAppActive) {
+
+	m_bAppActive = bAppActive;
+	m_cursor->Draw(m_bAppActive);
+	BitBltOffscreen();
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -267,7 +299,7 @@ void ConsoleView::OnConsoleClose() {
 void ConsoleView::CreateOffscreenBuffers() {
 
 	CPaintDC	dcWindow(m_hWnd);
-	RECT		rectWindow;
+	RECT		windowRect;
 
 	// initial paint brush
 	CBrush brushBackground;
@@ -293,21 +325,26 @@ void ConsoleView::CreateOffscreenBuffers() {
 
 	// set text DC stuff
 	m_dcText.SetBkMode(OPAQUE);
-	m_dcText.FillRect(&rectWindow, brushBackground);
+	m_dcText.FillRect(&windowRect, brushBackground);
 	m_dcText.SelectFont(m_fontText);
 
 	// get window info based on font and console size
 	GetTextSize();
-	GetMaxRect(rectWindow);
+	GetMaxRect(windowRect);
+
+	RECT	cursorRect = { 0, 0, m_nCharWidth, m_nCharHeight };
 
 	// create offscreen bitmaps
-	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcOffscreen, m_bmpOffscreen);
-	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcBackground, m_bmpBackground);
-	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcText, m_bmpText);
+	CreateOffscreenBitmap(dcWindow, windowRect, m_dcOffscreen, m_bmpOffscreen);
+	CreateOffscreenBitmap(dcWindow, windowRect, m_dcText, m_bmpText);
+	CreateOffscreenBitmap(dcWindow, cursorRect, m_dcCursor, m_bmpCursor);
+	CreateOffscreenBitmap(dcWindow, windowRect, m_dcBackground, m_bmpBackground);
 
-	m_dcOffscreen.FillRect(&rectWindow, brushBackground);
-	m_dcBackground.FillRect(&rectWindow, brushBackground);
+	m_dcOffscreen.FillRect(&windowRect, brushBackground);
+	m_dcBackground.FillRect(&windowRect, brushBackground);
 
+	CreateCursor(cursorRect);
+	m_cursor->Draw(m_bAppActive);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -323,6 +360,60 @@ void ConsoleView::CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& re
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::CreateCursor(const CRect& cursorRect) {
+	
+/*
+	switch (m_dwCursorStyle) {
+		case CURSOR_STYLE_XTERM :
+*/
+			m_cursor.reset(dynamic_cast<Cursor*>(new XTermCursor(m_hWnd, m_dcCursor, cursorRect, RGB(255, 255, 255))));
+//			break;
+//		case CURSOR_STYLE_BLOCK :
+//			m_cursor.reset(dynamic_cast<Cursor*>(new BlockCursor(m_hWnd, m_dcCursor, cursorRect, RGB(255, 255, 255))));
+//			break;
+//		case CURSOR_STYLE_NBBLOCK :
+//			m_cursor.reset(dynamic_cast<Cursor*>(new NBBlockCursor(m_hWnd, m_dcCursor, cursorRect, RGB(255, 255, 255))));
+//			m_pCursor = (Cursor*)new NBBlockCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_PULSEBLOCK :
+//			m_cursor.reset(dynamic_cast<Cursor*>(new PulseBlockCursor(m_hWnd, m_dcCursor, cursorRect, RGB(255, 255, 255))));
+//			m_pCursor = (Cursor*)new PulseBlockCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_BAR :
+//			m_pCursor = (Cursor*)new BarCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_CONSOLE :
+//			m_pCursor = (Cursor*)new ConsoleCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_NBHLINE :
+//			m_pCursor = (Cursor*)new NBHLineCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_HLINE :
+//			m_pCursor = (Cursor*)new HLineCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_VLINE :
+//			m_pCursor = (Cursor*)new VLineCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_RECT :
+//			m_pCursor = (Cursor*)new RectCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_NBRECT :
+//			m_pCursor = (Cursor*)new NBRectCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_PULSERECT :
+//			m_pCursor = (Cursor*)new PulseRectCursor(m_hWnd, m_hdcConsole, m_crCursorColor);
+//			break;
+//		case CURSOR_STYLE_FADEBLOCK :
+//			m_pCursor = (Cursor*)new FadeBlockCursor(m_hWnd, m_hdcConsole, m_crCursorColor, m_crBackground);
+//			break;
+//	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -756,6 +847,17 @@ void ConsoleView::BitBltOffscreen() {
 						0, 
 						0, 
 						SRCCOPY);
+	}
+
+	// draw cursor
+	if (m_consoleHandler.GetCursorInfo()->bVisible) {
+
+		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+
+		m_cursor->BitBlt(
+			m_dcOffscreen, 
+			consoleInfo->dwCursorPosition.X * m_nCharWidth + m_nInsideBorder, 
+			(consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder);
 	}
 
 	InvalidateRect(NULL, FALSE);

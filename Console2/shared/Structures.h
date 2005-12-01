@@ -55,7 +55,6 @@ struct ConsoleParams {
 	DWORD	dwMaxRows;
 	DWORD	dwMaxColumns;
 	HWND	hwndConsoleWindow;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -75,9 +75,6 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap);
 
-		// creates the cursor
-		void CreateCursor(const CRect& cursorRect);
-
 		void GetTextSize();
 		DWORD GetBufferDifference();
 		void SetDefaultConsoleColors();
@@ -124,7 +121,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool		m_bUseFontColor;
 		COLORREF	m_crFontColor;
 
-		scoped_ptr<Cursor>	m_cursor;
+		shared_ptr<Cursor>	m_cursor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

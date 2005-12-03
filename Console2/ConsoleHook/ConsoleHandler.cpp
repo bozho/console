@@ -261,6 +261,10 @@ void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
 	// set console window handle
 	m_consoleParams->hwndConsoleWindow = ::GetConsoleWindow();
 
+	// get initial window and cursor info
+	::GetConsoleScreenBufferInfo(hStdOut, m_consoleInfo.Get());
+	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
+
 	m_consoleParams.SetEvent();
 }
 

@@ -152,6 +152,9 @@
 				RelativePath=".\MainFrameTabbed.cpp">
 			</File>
 			<File
+				RelativePath=".\SelectionHandler.cpp">
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -196,6 +199,9 @@
 			</File>
 			<File
 				RelativePath=".\resource.h">
+			</File>
+			<File
+				RelativePath=".\SelectionHandler.h">
 			</File>
 			<File
 				RelativePath="..\shared\SharedMemNames.h">

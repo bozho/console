@@ -20,7 +20,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor) {
+shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor) {
 
 	shared_ptr<Cursor> newCursor;
 
@@ -28,40 +28,40 @@ shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppAc
 		case cstyleXTerm :
 			newCursor.reset(dynamic_cast<Cursor*>(new XTermCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleBlock :
 			newCursor.reset(dynamic_cast<Cursor*>(new BlockCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleNBBlock :
 			newCursor.reset(dynamic_cast<Cursor*>(new NBBlockCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstylePulseBlock :
 			newCursor.reset(dynamic_cast<Cursor*>(new PulseBlockCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleBar :
 			newCursor.reset(dynamic_cast<Cursor*>(new BarCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 /*		case cstyleConsole :
@@ -71,56 +71,56 @@ shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppAc
 		case cstyleNBHline :
 			newCursor.reset(dynamic_cast<Cursor*>(new NBHLineCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleHLine :
 			newCursor.reset(dynamic_cast<Cursor*>(new HLineCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleVLine :
 			newCursor.reset(dynamic_cast<Cursor*>(new VLineCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleRect :
 			newCursor.reset(dynamic_cast<Cursor*>(new RectCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleNBRect :
 			newCursor.reset(dynamic_cast<Cursor*>(new NBRectCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstylePulseRect :
 			newCursor.reset(dynamic_cast<Cursor*>(new PulseRectCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 
 		case cstyleFadeBlock :
 			newCursor.reset(dynamic_cast<Cursor*>(new FadeBlockCursor(
 															hwndConsoleView, 
-															cursorDC, 
-															cursorRect, 
+															dcConsoleView, 
+															rectCursor, 
 															crCursorColor)));
 			break;
 	}
@@ -140,8 +140,8 @@ shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppAc
 //////////////////////////////////////////////////////////////////////////////
 // XTermCursor
 
-XTermCursor::XTermCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 {
 	m_paintBrush.CreateSolidBrush(crCursorColor);
 }
@@ -157,10 +157,10 @@ XTermCursor::~XTermCursor() {
 void XTermCursor::Draw(bool bActive /* = true */) {
 
 	if (bActive) {
-		m_cursorDC.FillRect(&m_cursorRect, m_paintBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
 	} else {
-		m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
-		m_cursorDC.FrameRect(&m_cursorRect, m_paintBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
+		m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
 	}
 }
 
@@ -174,15 +174,14 @@ void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -196,8 +195,8 @@ void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 //////////////////////////////////////////////////////////////////////////////
 // BlockCursor
 
-BlockCursor::BlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+BlockCursor::BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_bVisible(true)
 {
 	m_paintBrush.CreateSolidBrush(crCursorColor);
@@ -217,9 +216,9 @@ BlockCursor::~BlockCursor() {
 void BlockCursor::Draw(bool bActive /* = true */) {
 	
 	if (bActive && m_bVisible) {
-		m_cursorDC.FillRect(&m_cursorRect, m_paintBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
 	} else {
-		m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
 }
 
@@ -235,13 +234,13 @@ void BlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -266,8 +265,8 @@ void BlockCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // NBBlockCursor
 
-NBBlockCursor::NBBlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+NBBlockCursor::NBBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 {
 }
 
@@ -282,7 +281,7 @@ NBBlockCursor::~NBBlockCursor() {
 
 void NBBlockCursor::Draw(bool /*bActive = true */) {
 	
-	m_cursorDC.FillRect(&m_cursorRect, m_paintBrush);
+	m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -295,9 +294,9 @@ void NBBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.BitBlt(
 		x, 
 		y, 
-		m_cursorRect.right - m_cursorRect.left, 
-		m_cursorRect.bottom - m_cursorRect.top, 
-		m_cursorDC, 
+		m_rectCursor.right - m_rectCursor.left, 
+		m_rectCursor.bottom - m_rectCursor.top, 
+		m_dcCursor, 
 		0, 
 		0, 
 		SRCCOPY);
@@ -314,17 +313,17 @@ void NBBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 //////////////////////////////////////////////////////////////////////////////
 // PulseBlockCursor
 
-PulseBlockCursor::PulseBlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+PulseBlockCursor::PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_nSize(0)
 , m_nMaxSize(0)
 , m_nStep(0)
 {
 	// set the max size of the cursor
-	if ((m_cursorRect.right - m_cursorRect.left) < (m_cursorRect.bottom - m_cursorRect.top)) {
-		m_nMaxSize = (m_cursorRect.right - m_cursorRect.left) >> 1;
+	if ((m_rectCursor.right - m_rectCursor.left) < (m_rectCursor.bottom - m_rectCursor.top)) {
+		m_nMaxSize = (m_rectCursor.right - m_rectCursor.left) >> 1;
 	} else {
-		m_nMaxSize = (m_cursorRect.bottom - m_cursorRect.top) >> 1;
+		m_nMaxSize = (m_rectCursor.bottom - m_rectCursor.top) >> 1;
 	}
 
 	m_uiTimer = ::SetTimer(m_hwndConsoleView, CURSOR_TIMER, 100, NULL);
@@ -342,17 +341,17 @@ PulseBlockCursor::~PulseBlockCursor() {
 
 void PulseBlockCursor::Draw(bool bActive /* = true */) {
 	
-	m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive) {
 		RECT rect;
-		::CopyMemory(&rect, &m_cursorRect, sizeof(CRect));
+		::CopyMemory(&rect, &m_rectCursor, sizeof(CRect));
 		rect.left	+= m_nSize;
 		rect.top	+= m_nSize;
 		rect.right	-= m_nSize;
 		rect.bottom	-= m_nSize;
 
-		m_cursorDC.FillRect(&rect, m_paintBrush);
+		m_dcCursor.FillRect(&rect, m_paintBrush);
 	}
 }
 
@@ -366,13 +365,13 @@ void PulseBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -403,12 +402,12 @@ void PulseBlockCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // BarCursor
 
-BarCursor::BarCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+BarCursor::BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_pen(::CreatePen(PS_SOLID, 1, crCursorColor))
 , m_bVisible(true)
 {
-	m_cursorDC.SelectPen(m_pen);
+	m_dcCursor.SelectPen(m_pen);
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
 }
 
@@ -425,10 +424,10 @@ BarCursor::~BarCursor() {
 void BarCursor::Draw(bool bActive /* = true */) {
 	
 	if (bActive && m_bVisible) {
-		m_cursorDC.MoveTo(m_cursorRect.left, m_cursorRect.top + 2, NULL);
-		m_cursorDC.LineTo(m_cursorRect.left, m_cursorRect.bottom - 2);
+		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.top + 2, NULL);
+		m_dcCursor.LineTo(m_rectCursor.left, m_rectCursor.bottom - 2);
 	} else {
-		m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
 }
 
@@ -442,13 +441,13 @@ void BarCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -531,11 +530,11 @@ void ConsoleCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // NBHLineCursor
 
-NBHLineCursor::NBHLineCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+NBHLineCursor::NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_pen(::CreatePen(PS_SOLID, 1, crCursorColor))
 {
-	m_cursorDC.SelectPen(m_pen);
+	m_dcCursor.SelectPen(m_pen);
 }
 
 NBHLineCursor::~NBHLineCursor() {
@@ -549,8 +548,8 @@ NBHLineCursor::~NBHLineCursor() {
 
 void NBHLineCursor::Draw(bool /*bActive = true */) {
 	
-	m_cursorDC.MoveTo(m_cursorRect.left, m_cursorRect.bottom - 1, NULL);
-	m_cursorDC.LineTo(m_cursorRect.right, m_cursorRect.bottom - 1);
+	m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.bottom - 1, NULL);
+	m_dcCursor.LineTo(m_rectCursor.right, m_rectCursor.bottom - 1);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -563,13 +562,13 @@ void NBHLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -584,21 +583,21 @@ void NBHLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 //////////////////////////////////////////////////////////////////////////////
 // HLineCursor
 
-HLineCursor::HLineCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+HLineCursor::HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_pen(::CreatePen(PS_SOLID, 1, crCursorColor))
 , m_nSize(0)
 , m_nPosition(0)
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_cursorRect.bottom - m_cursorRect.top - 1)) {
-		m_nSize = m_cursorRect.bottom - m_cursorRect.top - 1;
+	if (m_nSize != (m_rectCursor.bottom - m_rectCursor.top - 1)) {
+		m_nSize = m_rectCursor.bottom - m_rectCursor.top - 1;
 		m_nPosition = 0;
 		m_nStep = 1;
 	}
 
-	m_cursorDC.SelectPen(m_pen);
+	m_dcCursor.SelectPen(m_pen);
 
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
 }
@@ -615,11 +614,11 @@ HLineCursor::~HLineCursor() {
 
 void HLineCursor::Draw(bool bActive /* = true */) {
 
-	m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive) {
-		m_cursorDC.MoveTo(m_cursorRect.left, m_cursorRect.top + m_nPosition, NULL);
-		m_cursorDC.LineTo(m_cursorRect.right, m_cursorRect.top + m_nPosition);
+		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.top + m_nPosition, NULL);
+		m_dcCursor.LineTo(m_rectCursor.right, m_rectCursor.top + m_nPosition);
 	}
 }
 
@@ -633,13 +632,13 @@ void HLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -670,21 +669,21 @@ void HLineCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // VLineCursor
 
-VLineCursor::VLineCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+VLineCursor::VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_pen(::CreatePen(PS_SOLID, 1, crCursorColor))
 , m_nSize(0)
 , m_nPosition(0)
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_cursorRect.right - m_cursorRect.left - 1)) {
-		m_nSize = m_cursorRect.right - m_cursorRect.left - 1;
+	if (m_nSize != (m_rectCursor.right - m_rectCursor.left - 1)) {
+		m_nSize = m_rectCursor.right - m_rectCursor.left - 1;
 		m_nPosition = 0;
 		m_nStep = 1;
 	}
 
-	m_cursorDC.SelectPen(m_pen);
+	m_dcCursor.SelectPen(m_pen);
 
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
 }
@@ -701,11 +700,11 @@ VLineCursor::~VLineCursor() {
 
 void VLineCursor::Draw(bool bActive /* = true */) {
 	
-	m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive) {
-		m_cursorDC.MoveTo(m_cursorRect.left + m_nPosition, m_cursorRect.top + 2, NULL);
-		m_cursorDC.LineTo(m_cursorRect.left + m_nPosition, m_cursorRect.bottom - 2);
+		m_dcCursor.MoveTo(m_rectCursor.left + m_nPosition, m_rectCursor.top + 2, NULL);
+		m_dcCursor.LineTo(m_rectCursor.left + m_nPosition, m_rectCursor.bottom - 2);
 	}
 }
 
@@ -719,13 +718,13 @@ void VLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -756,8 +755,8 @@ void VLineCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // RectCursor
 
-RectCursor::RectCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+RectCursor::RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_bVisible(true)
 {
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
@@ -775,10 +774,10 @@ RectCursor::~RectCursor() {
 
 void RectCursor::Draw(bool bActive /* = true */) {
 	
-	m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive && m_bVisible) {
-		m_cursorDC.FrameRect(&m_cursorRect, m_paintBrush);
+		m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
 	}
 }
 
@@ -792,13 +791,13 @@ void RectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -823,8 +822,8 @@ void RectCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // NBRectCursor
 
-NBRectCursor::NBRectCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+NBRectCursor::NBRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 {
 }
 
@@ -842,13 +841,13 @@ void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -859,7 +858,7 @@ void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 void NBRectCursor::Draw(bool /* bActive = true */) {
 	
-	m_cursorDC.FrameRect(&m_cursorRect, m_paintBrush);
+	m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -873,17 +872,17 @@ void NBRectCursor::Draw(bool /* bActive = true */) {
 //////////////////////////////////////////////////////////////////////////////
 // PulseRectCursor
 
-PulseRectCursor::PulseRectCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+PulseRectCursor::PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_nSize(0)
 , m_nMaxSize(0)
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if ((m_cursorRect.right - m_cursorRect.left) < (m_cursorRect.bottom - m_cursorRect.top)) {
-		m_nMaxSize = (m_cursorRect.right - m_cursorRect.left) >> 1;
+	if ((m_rectCursor.right - m_rectCursor.left) < (m_rectCursor.bottom - m_rectCursor.top)) {
+		m_nMaxSize = (m_rectCursor.right - m_rectCursor.left) >> 1;
 	} else {
-		m_nMaxSize = (m_cursorRect.bottom - m_cursorRect.top) >> 1;
+		m_nMaxSize = (m_rectCursor.bottom - m_rectCursor.top) >> 1;
 	}
 
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
@@ -901,16 +900,16 @@ PulseRectCursor::~PulseRectCursor() {
 
 void PulseRectCursor::Draw(bool bActive /* = true */) {
 	
-	m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive) {
 		RECT rect;
-		::CopyMemory(&rect, m_cursorRect, sizeof(RECT));
+		::CopyMemory(&rect, m_rectCursor, sizeof(RECT));
 		rect.left	+= m_nSize;
 		rect.top	+= m_nSize;
 		rect.right	-= m_nSize;
 		rect.bottom	-= m_nSize;
-		m_cursorDC.FrameRect(&rect, m_paintBrush);
+		m_dcCursor.FrameRect(&rect, m_paintBrush);
 	}
 }
 
@@ -924,13 +923,13 @@ void PulseRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
-					m_cursorDC, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
+					m_dcCursor, 
 					0, 
 					0, 
-					m_cursorRect.right - m_cursorRect.left, 
-					m_cursorRect.bottom - m_cursorRect.top, 
+					m_rectCursor.right - m_rectCursor.left, 
+					m_rectCursor.bottom - m_rectCursor.top, 
 					RGB(0, 0, 0));
 }
 
@@ -961,8 +960,8 @@ void PulseRectCursor::PrepareNext() {
 //////////////////////////////////////////////////////////////////////////////
 // FadeBlockCursor
 
-FadeBlockCursor::FadeBlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, cursorDC, cursorRect, crCursorColor)
+FadeBlockCursor::FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_nStep(-ALPHA_STEP)
 {
 	m_blendFunction.BlendOp				= AC_SRC_OVER;
@@ -986,9 +985,9 @@ FadeBlockCursor::~FadeBlockCursor() {
 void FadeBlockCursor::Draw(bool bActive /* = true */) {
 
 	if (bActive) {
-		m_cursorDC.FillRect(&m_cursorRect, m_paintBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
 	} else {
-		m_cursorDC.FillRect(&m_cursorRect, m_backgroundBrush);
+		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
 }
 
@@ -1002,13 +1001,13 @@ void FadeBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.AlphaBlend(
 					x,
 					y,
-					m_cursorRect.right - m_cursorRect.left,
-					m_cursorRect.bottom - m_cursorRect.top,
-					m_cursorDC,
+					m_rectCursor.right - m_rectCursor.left,
+					m_rectCursor.bottom - m_rectCursor.top,
+					m_dcCursor,
 					0,
 					0,
-					m_cursorRect.right - m_cursorRect.left,
-					m_cursorRect.bottom - m_cursorRect.top,
+					m_rectCursor.right - m_rectCursor.left,
+					m_rectCursor.bottom - m_rectCursor.top,
 					m_blendFunction);
 }
 

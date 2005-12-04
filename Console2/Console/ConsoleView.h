@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Cursors.h"
+#include "SelectionHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,9 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnSysKey)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
 			MESSAGE_HANDLER(WM_KEYUP, OnKey)
+			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
+			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 		END_MSG_MAP()
 
@@ -55,7 +59,11 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
 
 	public:
 
@@ -96,12 +104,10 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		CDC		m_dcOffscreen;
 		CDC		m_dcText;
-		CDC		m_dcCursor;
 		CDC		m_dcBackground;
 
 		CBitmap	m_bmpOffscreen;
 		CBitmap	m_bmpText;
-		CBitmap	m_bmpCursor;
 		CBitmap	m_bmpBackground;
 
 		CFont	m_fontText;
@@ -121,7 +127,11 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool		m_bUseFontColor;
 		COLORREF	m_crFontColor;
 
-		shared_ptr<Cursor>	m_cursor;
+		bool		m_bMouseDragable;
+		bool		m_bInverseShift;
+
+		shared_ptr<Cursor>				m_cursor;
+		shared_ptr<SelectionHandler>	m_selectionHandler;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -45,14 +45,16 @@ enum CursorStyle {
 
 class Cursor {
 	public:
-		Cursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor) 
+		Cursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 		: m_hwndConsoleView(hwndConsoleView)
-		, m_cursorDC(cursorDC)
-		, m_cursorRect(cursorRect)
+		, m_dcCursor(::CreateCompatibleDC(NULL))
+		, m_bmpCursor(::CreateCompatibleBitmap(dcConsoleView, rectCursor.right - rectCursor.left, rectCursor.bottom - rectCursor.top))
+		, m_rectCursor(rectCursor)
 		, m_crCursorColor(crCursorColor)
 		, m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 		{
-			m_cursorDC.SetBkColor(RGB(0, 0, 0));
+			m_dcCursor.SelectBitmap(m_bmpCursor);
+			m_dcCursor.SetBkColor(RGB(0, 0, 0));
 		}
 		
 		virtual ~Cursor(){};
@@ -69,8 +71,11 @@ class Cursor {
 	protected:
 
 		HWND		m_hwndConsoleView;
-		CDC&		m_cursorDC;
-		CRect		m_cursorRect;
+
+		CDC			m_dcCursor;
+		CBitmap		m_bmpCursor;
+
+		CRect		m_rectCursor;
 		COLORREF	m_crCursorColor;
 
 		CBrush		m_paintBrush;
@@ -93,7 +98,7 @@ class Cursor {
 class CursorFactory {
 
 	public:
-		static shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		static shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -109,7 +114,7 @@ class CursorFactory {
 
 class XTermCursor : public Cursor {
 	public:
-		XTermCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~XTermCursor();
 
 		void Draw(bool bActive = true);
@@ -126,7 +131,7 @@ class XTermCursor : public Cursor {
 
 class BlockCursor : public Cursor {
 	public:
-		BlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~BlockCursor();
 		
 		void Draw(bool bActive = true);
@@ -148,7 +153,7 @@ class BlockCursor : public Cursor {
 
 class NBBlockCursor : public Cursor {
 	public:
-		NBBlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		NBBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~NBBlockCursor();
 		
 		void Draw(bool bActive = true);
@@ -166,7 +171,7 @@ class NBBlockCursor : public Cursor {
 
 class PulseBlockCursor : public Cursor {
 	public:
-		PulseBlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~PulseBlockCursor();
 		
 		void Draw(bool bActive = true);
@@ -189,7 +194,7 @@ class PulseBlockCursor : public Cursor {
 
 class BarCursor : public Cursor {
 	public:
-		BarCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~BarCursor();
 		
 		void Draw(bool bActive = true);
@@ -211,7 +216,7 @@ class BarCursor : public Cursor {
 
 class ConsoleCursor : public Cursor {
 	public:
-		ConsoleCursor(HWND hwndParent, HDC hdcWindow, COLORREF crCursorColor);
+		ConsoleCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~ConsoleCursor();
 		
 		void Draw(LPRECT pRect);
@@ -231,7 +236,7 @@ class ConsoleCursor : public Cursor {
 
 class NBHLineCursor : public Cursor {
 	public:
-		NBHLineCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~NBHLineCursor();
 		
 		void Draw(bool bActive = true);
@@ -250,7 +255,7 @@ class NBHLineCursor : public Cursor {
 
 class HLineCursor : public Cursor {
 	public:
-		HLineCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~HLineCursor();
 			
 		void Draw(bool bActive = true);
@@ -274,7 +279,7 @@ class HLineCursor : public Cursor {
 
 class VLineCursor : public Cursor {
 	public:
-		VLineCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~VLineCursor();
 		
 		void Draw(bool bActive = true);
@@ -298,7 +303,7 @@ class VLineCursor : public Cursor {
 
 class RectCursor : public Cursor {
 	public:
-		RectCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~RectCursor();
 		
 		void Draw(bool bActive = true);
@@ -319,7 +324,7 @@ class RectCursor : public Cursor {
 
 class NBRectCursor : public Cursor {
 	public:
-		NBRectCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		NBRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~NBRectCursor();
 		
 		void Draw(bool bActive = true);
@@ -337,7 +342,7 @@ class NBRectCursor : public Cursor {
 
 class PulseRectCursor : public Cursor {
 	public:
-		PulseRectCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~PulseRectCursor();
 		
 		void Draw(bool bActive = true);
@@ -362,7 +367,7 @@ class PulseRectCursor : public Cursor {
 
 class FadeBlockCursor : public Cursor {
 	public:
-		FadeBlockCursor(HWND hwndConsoleView, CDC& cursorDC, const CRect& cursorRect, COLORREF crCursorColor);
+		FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~FadeBlockCursor();
 
 		void Draw(bool bActive = true);

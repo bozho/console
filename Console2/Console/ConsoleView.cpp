@@ -25,6 +25,8 @@ ConsoleView::ConsoleView(const ConsoleParams& consoleStartupParams)
 , m_nInsideBorder(1)
 , m_bUseFontColor(false)
 , m_crFontColor(RGB(0, 0, 0))
+, m_bMouseDragable(false)
+, m_bInverseShift(false)
 , m_cursor()
 {
 }
@@ -54,7 +56,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	m_dcOffscreen.CreateCompatibleDC(NULL);
 	m_dcText.CreateCompatibleDC(NULL);
-	m_dcCursor.CreateCompatibleDC(NULL);
 	m_dcBackground.CreateCompatibleDC(NULL);
 
 	m_consoleHandler.SetupDelegates(
@@ -158,6 +159,88 @@ LRESULT ConsoleView::OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*b
 LRESULT ConsoleView::OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
 
 	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	UINT	uiFlags = static_cast<UINT>(wParam);
+	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+
+	if (!m_bMouseDragable || (m_bInverseShift == !(uiFlags & MK_SHIFT))) {
+		
+		if (m_nCharWidth) {
+
+			if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
+
+			m_selectionHandler->StartSelection(point, static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwColumns - 1), static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwRows - 1));
+			BitBltOffscreen();
+		}
+		
+	} else {
+		// TODO: drag window
+/*
+		if (m_nTextSelection) {
+			return;
+		} else if (m_bMouseDragable) {
+			// start to drag window
+			::SetCapture(m_hWnd);
+		}
+*/
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+
+	if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) {
+		
+		// TODO: copy on select
+
+		m_selectionHandler->CopySelection(point, m_consoleHandler.GetConsoleBuffer());
+        
+		m_selectionHandler->ClearSelection();
+		BitBltOffscreen();
+	} else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting) {
+		m_selectionHandler->EndSelection();
+
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	UINT	uiFlags = static_cast<UINT>(wParam);
+	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+
+	if (uiFlags & MK_LBUTTON) {
+
+		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting) {
+
+			m_selectionHandler->UpdateSelection(point);
+			BitBltOffscreen();
+		}
+	}
+
 	return 0;
 }
 
@@ -300,7 +383,7 @@ void ConsoleView::OnConsoleClose() {
 void ConsoleView::CreateOffscreenBuffers() {
 
 	CPaintDC	dcWindow(m_hWnd);
-	RECT		windowRect;
+	RECT		rectWindow;
 
 	// initial paint brush
 	CBrush brushBackground;
@@ -327,26 +410,29 @@ void ConsoleView::CreateOffscreenBuffers() {
 
 	// set text DC stuff
 	m_dcText.SetBkMode(OPAQUE);
-	m_dcText.FillRect(&windowRect, brushBackground);
+	m_dcText.FillRect(&rectWindow, brushBackground);
 	m_dcText.SelectFont(m_fontText);
 
 	// get window info based on font and console size
 	GetTextSize();
-	GetMaxRect(windowRect);
+	GetMaxRect(rectWindow);
 
-	RECT	cursorRect = { 0, 0, m_nCharWidth, m_nCharHeight };
+	RECT	rectCursor = { 0, 0, m_nCharWidth, m_nCharHeight };
 
 	// create offscreen bitmaps
-	CreateOffscreenBitmap(dcWindow, windowRect, m_dcOffscreen, m_bmpOffscreen);
-	CreateOffscreenBitmap(dcWindow, windowRect, m_dcText, m_bmpText);
-	CreateOffscreenBitmap(dcWindow, cursorRect, m_dcCursor, m_bmpCursor);
-	CreateOffscreenBitmap(dcWindow, windowRect, m_dcBackground, m_bmpBackground);
+	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcOffscreen, m_bmpOffscreen);
+	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcText, m_bmpText);
+	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcBackground, m_bmpBackground);
 
-	m_dcOffscreen.FillRect(&windowRect, brushBackground);
-	m_dcBackground.FillRect(&windowRect, brushBackground);
+	m_dcOffscreen.FillRect(&rectWindow, brushBackground);
+	m_dcBackground.FillRect(&rectWindow, brushBackground);
 
 	// create and initialize cursor
-	m_cursor = CursorFactory::CreateCursor(m_hWnd, m_bAppActive, cstyleFadeBlock, m_dcCursor, cursorRect, RGB(255, 255, 255));
+	m_cursor.reset();
+	m_cursor = CursorFactory::CreateCursor(m_hWnd, m_bAppActive, cstyleXTerm, dcWindow, rectCursor, RGB(255, 255, 255));
+
+	// create 
+	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindow, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -797,7 +883,7 @@ void ConsoleView::BitBltOffscreen() {
 						SRCCOPY);
 	}
 
-	// draw cursor
+	// blit cursor
 	if (m_consoleHandler.GetCursorInfo()->bVisible) {
 
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
@@ -807,6 +893,9 @@ void ConsoleView::BitBltOffscreen() {
 			consoleInfo->dwCursorPosition.X * m_nCharWidth + m_nInsideBorder, 
 			(consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder);
 	}
+
+	// blit selection
+	m_selectionHandler->BitBlt(m_dcOffscreen);
 
 	InvalidateRect(NULL, FALSE);
 }

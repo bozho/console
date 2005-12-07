@@ -51,6 +51,7 @@ class Cursor {
 		, m_bmpCursor(::CreateCompatibleBitmap(dcConsoleView, rectCursor.right - rectCursor.left, rectCursor.bottom - rectCursor.top))
 		, m_rectCursor(rectCursor)
 		, m_crCursorColor(crCursorColor)
+		, m_paintBrush(::CreateSolidBrush(crCursorColor))
 		, m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 		{
 			m_dcCursor.SelectBitmap(m_bmpCursor);

@@ -155,6 +155,9 @@
 				RelativePath=".\SelectionHandler.cpp">
 			</File>
 			<File
+				RelativePath=".\SettingsHandler.cpp">
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -204,6 +207,9 @@
 				RelativePath=".\SelectionHandler.h">
 			</File>
 			<File
+				RelativePath=".\SettingsHandler.h">
+			</File>
+			<File
 				RelativePath="..\shared\SharedMemNames.h">
 			</File>
 			<File
@@ -232,6 +238,9 @@
 				RelativePath=".\res\toolbar.bmp">
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\console.xml">
+		</File>
 		<File
 			RelativePath=".\Todo.txt">
 		</File>

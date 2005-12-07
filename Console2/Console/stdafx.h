@@ -51,7 +51,7 @@ extern CAppModule _Module;
 using namespace std;
 
 #pragma warning(push)
-#pragma warning(disable: 4244 4267 4511 4512 4702)
+#pragma warning(disable: 4244 4267 4511 4512 4701 4702)
 #include <boost/smart_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>

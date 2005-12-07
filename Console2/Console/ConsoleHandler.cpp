@@ -1,5 +1,7 @@
 #include "stdafx.h"
 
+#include "Console.h"
+
 #include "../shared/SharedMemNames.h"
 #include "ConsoleHandler.h"
 
@@ -107,8 +109,8 @@ bool ConsoleHandler::StartShellProcess(const ConsoleParams& consoleStartupParams
 
 	// write startup params
 	m_consoleParams->dwParentProcessId		= ::GetCurrentProcessId();
-	m_consoleParams->dwNotificationTimeout	= 5;
-	m_consoleParams->dwRefreshInterval		= 50;
+	m_consoleParams->dwNotificationTimeout	= g_pSettingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
+	m_consoleParams->dwRefreshInterval		= g_pSettingsHandler->GetConsoleSettings().dwRefreshInterval;
 	m_consoleParams->dwRows					= consoleStartupParams.dwRows;
 	m_consoleParams->dwColumns				= consoleStartupParams.dwColumns;
 	m_consoleParams->dwBufferRows			= 1111;

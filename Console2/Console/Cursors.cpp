@@ -123,6 +123,13 @@ shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppAc
 															rectCursor, 
 															crCursorColor)));
 			break;
+
+		default :
+			newCursor.reset(dynamic_cast<Cursor*>(new NBBlockCursor(
+															hwndConsoleView, 
+															dcConsoleView, 
+															rectCursor, 
+															crCursorColor)));
 	}
 
 	if (newCursor.get() != NULL) newCursor->Draw(bAppActive);
@@ -143,7 +150,6 @@ shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppAc
 XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 {
-	m_paintBrush.CreateSolidBrush(crCursorColor);
 }
 
 XTermCursor::~XTermCursor() {
@@ -199,7 +205,6 @@ BlockCursor::BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_bVisible(true)
 {
-	m_paintBrush.CreateSolidBrush(crCursorColor);
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
 }
 
@@ -408,6 +413,7 @@ BarCursor::BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect
 , m_bVisible(true)
 {
 	m_dcCursor.SelectPen(m_pen);
+
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
 }
 

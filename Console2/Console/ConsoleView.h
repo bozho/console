@@ -85,7 +85,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		void GetTextSize();
 		DWORD GetBufferDifference();
-		void SetDefaultConsoleColors();
+//		void SetDefaultConsoleColors();
 
 		void Repaint();
 
@@ -117,7 +117,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		shared_array<CHAR_INFO>	m_screenBuffer;
 		// console colors
-		COLORREF	m_arrConsoleColors[16];
+//		COLORREF	m_arrConsoleColors[16];
 
 		bool		m_bImageBackground;
 		COLORREF	m_crConsoleBackground;

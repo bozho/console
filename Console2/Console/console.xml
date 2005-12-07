@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<console change_refresh="5" refresh="50">
+
+	<font name="FixedMedium7x14" size="8" bold="0" italic="0" >
+
+		<colors>
+			<color id="00" r="0" g="0" b="0" />
+			<color id="01" r="0" g="0" b="128" />
+			<color id="02" r="0" g="150" b="0" />
+			<color id="03" r="0" g="150" b="150" />
+			<color id="04" r="170" g="25" b="25" />
+			<color id="05" r="128" g="0" b="128" />
+			<color id="06" r="128" g="128" b="0" />
+			<color id="07" r="192" g="192" b="192" />
+			<color id="08" r="128" g="128" b="128" />
+			<color id="09" r="0" g="100" b="255" />
+			<color id="10" r="0" g="255" b="0" />
+			<color id="11" r="0" g="255" b="255" />
+			<color id="12" r="255" g="50" b="50" />
+			<color id="13" r="255" g="0" b="255" />
+			<color id="14" r="255" g="255" b="0" />
+			<color id="15" r="255" g="255" b="255" />
+		</colors>
+	</font>
+	
+	<tabs>
+		<tab id="default">
+			<cursor style="2" r="255" g="255" b="255" />
+		</tab>
+		<tab id="default2">
+			<cursor style="1" r="255" g="255" b="255" />
+		</tab>
+	</tabs>
+
+</console>

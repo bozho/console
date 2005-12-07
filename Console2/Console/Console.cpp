@@ -8,10 +8,21 @@
 #include "ConsoleView.h"
 #include "aboutdlg.h"
 #include "MainFrameTabbed.h"
+#include "Console.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
-CAppModule _Module;
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Global variables
+
+CAppModule					_Module;
+shared_ptr<SettingsHandler>	g_pSettingsHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +41,12 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 
 	// TODO: Handle other window types
 	MainFrameTabbed wndMain;
+
+
+	if (!g_pSettingsHandler->LoadOptions(L"console.xml")) {
+		//TODO: error handling
+		return -1;
+	}
 
 	if(wndMain.CreateEx() == NULL) {
 		ATLTRACE(_T("Main window creation failed!\n"));
@@ -57,6 +74,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 //	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
 
+	g_pSettingsHandler.reset(new SettingsHandler());
+
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);
 
@@ -68,6 +87,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();
+	g_pSettingsHandler.reset();
+
 	::CoUninitialize();
 
 	return nRet;

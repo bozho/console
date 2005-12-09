@@ -59,6 +59,7 @@ bool SettingsHandler::LoadOptions(const wstring& strOptionsFileName) {
 	// load settings' sections
 	LoadConsoleSettings();
 	LoadFontSettings();
+	LoadHotKeys();
 	LoadTabSettings();
 
 	return true;
@@ -99,7 +100,6 @@ void SettingsHandler::LoadConsoleSettings() {
 
 	GetAttribute(pConsoleElement, CComBSTR(L"refresh"), m_consoleSettings.dwRefreshInterval, 100);
 	GetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), m_consoleSettings.dwChangeRefreshInterval, 10);
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -128,6 +128,58 @@ void SettingsHandler::LoadFontSettings() {
 
 		GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
 		GetRGBAttribute(pFontColorElement, m_fontSettings.consoleColors[id], m_fontSettings.consoleColors[i]);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void SettingsHandler::LoadHotKeys() {
+
+	HRESULT						hr = S_OK;
+	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
+
+	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"console/hotkeys/hotkey"), &pHotKeyNodes);
+	if (FAILED(hr)) return;
+
+	WORD	wHotKeyCommand = ID_HOTKEY_FIRST;
+	long	lListLength;
+	pHotKeyNodes->get_length(&lListLength);
+
+	for (long i = 0; i < lListLength; ++i) {
+
+		CComPtr<IXMLDOMNode>	pHotKeyNode;
+		CComPtr<IXMLDOMElement>	pHotKeyElement;
+
+		pHotKeyNodes->get_item(i, &pHotKeyNode);
+		if (FAILED(pHotKeyNode.QueryInterface(&pHotKeyElement))) continue;
+
+		bool	bShift;
+		bool	bCtrl;
+		bool	bAlt;
+		bool	bVirtKey;
+		DWORD	dwKeyCode;
+
+		GetAttribute(pHotKeyElement, CComBSTR(L"shift"), bShift, false);
+		GetAttribute(pHotKeyElement, CComBSTR(L"ctrl"), bCtrl, false);
+		GetAttribute(pHotKeyElement, CComBSTR(L"alt"), bAlt, false);
+		GetAttribute(pHotKeyElement, CComBSTR(L"virtkey"), bVirtKey, false);
+		GetAttribute(pHotKeyElement, CComBSTR(L"code"), dwKeyCode, 0);
+
+		shared_ptr<HotKey>	newHotKey(new HotKey);
+		if (bShift)		newHotKey->hotKey.fVirt |= FSHIFT;
+		if (bCtrl)		newHotKey->hotKey.fVirt |= FCONTROL;
+		if (bAlt)		newHotKey->hotKey.fVirt |= FALT;
+		if (bVirtKey)	newHotKey->hotKey.fVirt |= FVIRTKEY;
+
+		newHotKey->hotKey.key	= static_cast<WORD>(dwKeyCode);
+		newHotKey->hotKey.cmd	= wHotKeyCommand++;
+
+		GetAttribute(pHotKeyElement, CComBSTR(L"command"), newHotKey->strCommand, wstring(L""));
+
+		m_hotKeys.push_back(newHotKey);
 	}
 }
 

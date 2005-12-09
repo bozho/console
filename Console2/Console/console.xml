@@ -23,6 +23,10 @@
 		</colors>
 	</font>
 	
+	<hotkeys>
+		<hotkey shift="1" ctrl="0" alt="1" virtkey="0" code="5" command="paste" />
+	</hotkeys>
+	
 	<tabs>
 		<tab id="default">
 			<cursor style="2" r="255" g="255" b="255" />

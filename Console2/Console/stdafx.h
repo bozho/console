@@ -45,10 +45,14 @@ extern CAppModule _Module;
 //#include "WtlTabbing/TabbedMDI.h"
 #pragma warning(pop)
 
+#pragma warning(push)
+#pragma warning(disable: 4702)
 #include <iostream>
 #include <string>
 #include <map>
+#include <vector>
 using namespace std;
+#pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable: 4244 4267 4511 4512 4701 4702)

@@ -391,30 +391,27 @@ void ConsoleView::CreateOffscreenBuffers() {
 	brushBackground.CreateSolidBrush(m_crConsoleBackground);
 
 	// create font
-	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
-	m_fontText.CreateFont(
-		-::MulDiv(g_pSettingsHandler->GetFontSettings().dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
-		0,
-		0,
-		0,
-		g_pSettingsHandler->GetFontSettings().bBold ? FW_BOLD : 0,
-		g_pSettingsHandler->GetFontSettings().bItalic,
-		FALSE,
-		FALSE,
-		DEFAULT_CHARSET,						
-		OUT_DEFAULT_PRECIS,
-		CLIP_DEFAULT_PRECIS,
-		DEFAULT_QUALITY,
-		DEFAULT_PITCH,
-		g_pSettingsHandler->GetFontSettings().strName.c_str());
+	TEXTMETRIC	textMetric;
 
-	// set text DC stuff
-	m_dcText.SetBkMode(OPAQUE);
-	m_dcText.FillRect(&rectWindow, brushBackground);
+	CreateFont(g_pSettingsHandler->GetFontSettings().strName);
 	m_dcText.SelectFont(m_fontText);
+	m_dcText.GetTextMetrics(&textMetric);
+
+	if (!(textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
+		// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
+		m_nCharWidth = textMetric.tmAveCharWidth;
+		m_nCharHeight = textMetric.tmHeight;
+	} else {
+		// variable pitch font, create Courier New font
+		CreateFont(wstring(L"Courier New"));
+		m_dcText.SelectFont(m_fontText);
+		m_dcText.GetTextMetrics(&textMetric);
+
+		m_nCharWidth = textMetric.tmAveCharWidth;
+		m_nCharHeight = textMetric.tmHeight;
+	}
 
 	// get window info based on font and console size
-	GetTextSize();
 	GetMaxRect(rectWindow);
 
 	RECT	rectCursor = { 0, 0, m_nCharWidth, m_nCharHeight };
@@ -426,6 +423,11 @@ void ConsoleView::CreateOffscreenBuffers() {
 
 	m_dcOffscreen.FillRect(&rectWindow, brushBackground);
 	m_dcBackground.FillRect(&rectWindow, brushBackground);
+
+	// set text DC stuff
+	m_dcText.SetBkMode(OPAQUE);
+	m_dcText.FillRect(&rectWindow, brushBackground);
+
 
 	// create and initialize cursor
 	// TODO: handle tab ids
@@ -461,17 +463,24 @@ void ConsoleView::CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& re
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::GetTextSize() {
+void ConsoleView::CreateFont(const wstring& strFontName) {
 
-	TEXTMETRIC	textMetric;
-	m_dcText.GetTextMetrics(&textMetric);
-
-	m_nCharHeight = textMetric.tmHeight;
-
-	if (!(textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
-		// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
-		m_nCharWidth = textMetric.tmAveCharWidth;
-	}
+	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
+	m_fontText.CreateFont(
+		-::MulDiv(g_pSettingsHandler->GetFontSettings().dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		0,
+		0,
+		0,
+		g_pSettingsHandler->GetFontSettings().bBold ? FW_BOLD : 0,
+		g_pSettingsHandler->GetFontSettings().bItalic,
+		FALSE,
+		FALSE,
+		DEFAULT_CHARSET,						
+		OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		DEFAULT_PITCH,
+		strFontName.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////

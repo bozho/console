@@ -74,6 +74,29 @@ struct FontSettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
+#define ID_HOTKEY_FIRST		40000
+
+struct HotKey {
+
+	HotKey()
+	: strCommand(L"")
+	{
+		::ZeroMemory(&hotKey, sizeof(ACCEL));
+	}
+
+	ACCEL	hotKey;
+	wstring	strCommand;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+typedef vector<shared_ptr<HotKey> >		HotKeys;
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct TabSettings {
 
 	TabSettings()
@@ -109,12 +132,14 @@ class SettingsHandler {
 
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		FontSettings& GetFontSettings() { return m_fontSettings; }
+		HotKeys& GetHotKeys() { return m_hotKeys; }
 		shared_ptr<TabSettings> GetTabSettings(const wstring& strId);
 
 	private:
 
 		void LoadConsoleSettings();
 		void LoadFontSettings();
+		void LoadHotKeys();
 		void LoadTabSettings();
 
 	private:
@@ -135,6 +160,7 @@ class SettingsHandler {
 
 		ConsoleSettings	m_consoleSettings;
 		FontSettings	m_fontSettings;
+		HotKeys			m_hotKeys;
 
 		TabSettingsMap	m_tabSettings;
 };

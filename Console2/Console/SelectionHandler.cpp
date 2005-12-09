@@ -211,15 +211,17 @@ void SelectionHandler::CopySelection(const CPoint& point, const SharedMemory<CHA
 		}
 
 		// last row
-		Y = coordEnd.Y;
+		if (coordEnd.Y > coordStart.Y) {
+			Y = coordEnd.Y;
 
-		for (X = 0; X <= coordEnd.X; ++X) {
-			pszText[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
-		}
+			for (X = 0; X <= coordEnd.X; ++X) {
+				pszText[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
+			}
 
-		if (coordEnd.X == m_sXMax) {
-			pszText[dwOffset++] = L'\r';
-			pszText[dwOffset++] = L'\n';
+			if (coordEnd.X == m_sXMax) {
+				pszText[dwOffset++] = L'\r';
+				pszText[dwOffset++] = L'\n';
+			}
 		}
 
 		pszText[dwOffset++] = L'\x0';

@@ -82,8 +82,8 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap);
+		void CreateFont(const wstring& strFontName);
 
-		void GetTextSize();
 		DWORD GetBufferDifference();
 //		void SetDefaultConsoleColors();
 

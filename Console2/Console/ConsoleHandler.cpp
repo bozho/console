@@ -84,7 +84,7 @@ bool ConsoleHandler::StartShellProcess(const ConsoleParams& consoleStartupParams
 	::ZeroMemory(&si, sizeof(STARTUPINFO));
 	si.dwFlags		= STARTF_USESHOWWINDOW;
 	si.cb			= sizeof(STARTUPINFO);
-	si.wShowWindow	= SW_NORMAL;
+	si.wShowWindow	= SW_HIDE;
 	si.lpTitle		= (wchar_t*)(strConsoleTitle.c_str());
 
 	PROCESS_INFORMATION pi;

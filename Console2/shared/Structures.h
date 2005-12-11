@@ -5,7 +5,8 @@
 struct ConsoleParams {
 
 	ConsoleParams()
-	: dwParentProcessId(0)
+	: dwConsoleMainThreadId(0)
+	, dwParentProcessId(0)
 	, dwNotificationTimeout(0)
 	, dwRefreshInterval(0)
 	, dwRows(0)
@@ -17,8 +18,9 @@ struct ConsoleParams {
 	{
 	}
 
-	ConsoleParams(DWORD parentProcessId, DWORD notificationTimeout, DWORD refreshInterval, DWORD rows, DWORD columns, DWORD bufferRows)
-	: dwParentProcessId(parentProcessId)
+	ConsoleParams(DWORD consoleMainThreadId, DWORD parentProcessId, DWORD notificationTimeout, DWORD refreshInterval, DWORD rows, DWORD columns, DWORD bufferRows)
+	: dwConsoleMainThreadId(consoleMainThreadId)
+	, dwParentProcessId(parentProcessId)
 	, dwNotificationTimeout(notificationTimeout)
 	, dwRefreshInterval(refreshInterval)
 	, dwRows(rows)
@@ -31,7 +33,8 @@ struct ConsoleParams {
 	}
 
 	ConsoleParams(const ConsoleParams& other)
-	: dwParentProcessId(other.dwParentProcessId)
+	: dwConsoleMainThreadId(other.dwConsoleMainThreadId)
+	, dwParentProcessId(other.dwParentProcessId)
 	, dwNotificationTimeout(other.dwNotificationTimeout)
 	, dwRefreshInterval(other.dwRefreshInterval)
 	, dwRows(other.dwRows)
@@ -44,6 +47,7 @@ struct ConsoleParams {
 	}
 
 	// startup stuff
+	DWORD	dwConsoleMainThreadId;
 	DWORD	dwParentProcessId;
 	DWORD	dwNotificationTimeout;
 	DWORD	dwRefreshInterval;

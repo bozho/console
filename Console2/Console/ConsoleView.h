@@ -73,7 +73,13 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 
+		bool GetConsoleWindowVisible() const { return m_bConsoleWindowVisible; }
+		void SetConsoleWindowVisible(bool bVisible);
+
 		void SetAppActiveStatus(bool bAppActive);
+
+		void Copy(const CPoint* pPoint = NULL);
+		void Paste();
 
 	private:
 
@@ -85,7 +91,6 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		void CreateFont(const wstring& strFontName);
 
 		DWORD GetBufferDifference();
-//		void SetDefaultConsoleColors();
 
 		void Repaint();
 
@@ -94,10 +99,15 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		void BitBltOffscreen();
 
+		// sends text to the windows console
+		void SendTextToConsole(const wchar_t* pszText);
+
+
 	private:
 
 		bool	m_bInitializing;
 		bool	m_bAppActive;
+		bool	m_bConsoleWindowVisible;
 
 		ConsoleParams	m_consoleStartupParams;
 		ConsoleHandler	m_consoleHandler;

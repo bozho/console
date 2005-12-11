@@ -28,7 +28,7 @@ class SelectionHandler {
 
 		void StartSelection(const CPoint& pointInitial, SHORT sXMax, SHORT sYMax);
 		void UpdateSelection(const CPoint& point);
-		void CopySelection(const CPoint& point, const SharedMemory<CHAR_INFO>& consoleBuffer);
+		void CopySelection(const CPoint* pPoint, const SharedMemory<CHAR_INFO>& consoleBuffer);
 		void EndSelection();
 		void ClearSelection();
 

@@ -16,6 +16,7 @@
 ConsoleView::ConsoleView(const ConsoleParams& consoleStartupParams)
 : m_bInitializing(true)
 , m_bAppActive(true)
+, m_bConsoleWindowVisible(false)
 , m_consoleStartupParams(consoleStartupParams)
 , m_consoleHandler()
 , m_nCharHeight(0)
@@ -68,7 +69,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	m_bInitializing = false;
 
 	CreateOffscreenBuffers();
-//	SetDefaultConsoleColors();
 
 	// TODO: put this in console size change handler
 	m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -210,11 +210,7 @@ LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 	if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) {
 		
 		// TODO: copy on select
-
-		m_selectionHandler->CopySelection(point, m_consoleHandler.GetConsoleBuffer());
-        
-		m_selectionHandler->ClearSelection();
-		BitBltOffscreen();
+		Copy(&point);
 	} else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting) {
 		m_selectionHandler->EndSelection();
 
@@ -329,12 +325,59 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::SetConsoleWindowVisible(bool bVisible) {
+	m_bConsoleWindowVisible = bVisible;
+	::ShowWindow(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, bVisible ? SW_SHOW : SW_HIDE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::SetAppActiveStatus(bool bAppActive) {
 
 	m_bAppActive = bAppActive;
 	if (m_cursor.get() != NULL) m_cursor->Draw(m_bAppActive);
 	BitBltOffscreen();
 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::Copy(const CPoint* pPoint /* = NULL */) {
+
+	if ((m_selectionHandler->GetState() != SelectionHandler::selstateSelecting) &&
+		(m_selectionHandler->GetState() != SelectionHandler::selstateSelected)) {
+
+		return;
+	}
+
+	m_selectionHandler->CopySelection(pPoint, m_consoleHandler.GetConsoleBuffer());
+	m_selectionHandler->ClearSelection();
+	BitBltOffscreen();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::Paste() {
+
+	if (!IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
+	
+	if (::OpenClipboard(m_hWnd)) {
+		HANDLE	hData = ::GetClipboardData(CF_UNICODETEXT);
+
+		SendTextToConsole(reinterpret_cast<wchar_t*>(::GlobalLock(hData)));
+
+		::GlobalUnlock(hData);
+		::CloseClipboard();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -504,33 +547,6 @@ DWORD ConsoleView::GetBufferDifference() {
 
 /////////////////////////////////////////////////////////////////////////////
 
-/*
-
-/////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::SetDefaultConsoleColors() {
-
-	g_pSettingsHandler->GetFontSettings().consoleColors[0]	= 0x000000;
-	g_pSettingsHandler->GetFontSettings().consoleColors[1]	= 0x800000;
-	g_pSettingsHandler->GetFontSettings().consoleColors[2]	= 0x008000;
-	g_pSettingsHandler->GetFontSettings().consoleColors[3]	= 0x808000;
-	g_pSettingsHandler->GetFontSettings().consoleColors[4]	= 0x000080;
-	g_pSettingsHandler->GetFontSettings().consoleColors[5]	= 0x800080;
-	g_pSettingsHandler->GetFontSettings().consoleColors[6]	= 0x008080;
-	g_pSettingsHandler->GetFontSettings().consoleColors[7]	= 0xC0C0C0;
-	g_pSettingsHandler->GetFontSettings().consoleColors[8]	= 0x808080;
-	g_pSettingsHandler->GetFontSettings().consoleColors[9]	= 0xFF0000;
-	g_pSettingsHandler->GetFontSettings().consoleColors[10]	= 0x00FF00;
-	g_pSettingsHandler->GetFontSettings().consoleColors[11]	= 0xFFFF00;
-	g_pSettingsHandler->GetFontSettings().consoleColors[12]	= 0x0000FF;
-	g_pSettingsHandler->GetFontSettings().consoleColors[13]	= 0xFF00FF;
-	g_pSettingsHandler->GetFontSettings().consoleColors[14]	= 0x00FFFF;
-	g_pSettingsHandler->GetFontSettings().consoleColors[15]	= 0xFFFFFF;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-*/
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -920,6 +936,54 @@ void ConsoleView::BitBltOffscreen() {
 	m_selectionHandler->BitBlt(m_dcOffscreen);
 
 	InvalidateRect(NULL, FALSE);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::SendTextToConsole(const wchar_t* pszText) {
+
+	if (!pszText || (wcslen(pszText) == 0)) return;
+
+	DWORD				dwInputOffset = 0;
+	scoped_array<INPUT> pInput(new INPUT[wcslen(pszText)*2]);
+
+	for (size_t i = 0; i < wcslen(pszText); ++i) {
+
+		SHORT sVkKey = VkKeyScan(pszText[i]);
+
+		pInput[dwInputOffset].type			= INPUT_KEYBOARD;
+		pInput[dwInputOffset].ki.wVk		= sVkKey;
+		pInput[dwInputOffset].ki.wScan		= 0;
+		pInput[dwInputOffset].ki.dwFlags	= 0;
+		pInput[dwInputOffset].ki.time		= 0;
+		pInput[dwInputOffset].ki.dwExtraInfo= 0;
+
+		++dwInputOffset;
+
+		pInput[dwInputOffset].type			= INPUT_KEYBOARD;
+		pInput[dwInputOffset].ki.wVk		= sVkKey;
+		pInput[dwInputOffset].ki.wScan		= 0;
+		pInput[dwInputOffset].ki.dwFlags	= KEYEVENTF_KEYUP;
+		pInput[dwInputOffset].ki.time		= 0;
+		pInput[dwInputOffset].ki.dwExtraInfo= 0;
+
+		++dwInputOffset;
+	}
+
+	::AttachThreadInput(
+		::GetCurrentThreadId(), 
+		m_consoleHandler.GetConsoleParams()->dwConsoleMainThreadId, 
+		TRUE);
+
+	::SendInput(wcslen(pszText)*2, pInput.get(), sizeof(INPUT));
+
+	::AttachThreadInput(
+		::GetCurrentThreadId(), 
+		m_consoleHandler.GetConsoleParams()->dwConsoleMainThreadId, 
+		FALSE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -141,31 +141,37 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::CopySelection(const CPoint& point, const SharedMemory<CHAR_INFO>& consoleBuffer) {
+void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CHAR_INFO>& consoleBuffer) {
 
 	if (m_selectionState == selstateNoSelection) return;
 
-	COORD	coordCurrent = { static_cast<SHORT>(point.x / m_nCharWidth), static_cast<SHORT>(point.y / m_nCharHeight) };
+	bool	bCopy = false;
 	COORD	coordStart;
 	COORD	coordEnd;
 
 	GetSelectionCoordinates(coordStart, coordEnd);
 
-	bool bCopy = false;
+	if (pPoint != NULL) {
+		
+		COORD	coordCurrent = { static_cast<SHORT>(pPoint->x / m_nCharWidth), static_cast<SHORT>(pPoint->y / m_nCharHeight) };
 
-	// verbose tests, just to make things a bit easier to follow :-)
-	if (coordStart.Y == coordEnd.Y) {
-		// single line selected, click must be inside the selection rectangle
-		if ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X) && (coordCurrent.X <= coordEnd.X)) {
+		// verbose tests, just to make things a bit easier to follow :-)
+		if (coordStart.Y == coordEnd.Y) {
+			// single line selected, click must be inside the selection rectangle
+			if ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X) && (coordCurrent.X <= coordEnd.X)) {
 
-			bCopy = true;
+				bCopy = true;
+			}
+
+			// multiple lines selected
+		} else if ( ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X)) ||	// first line
+			((coordCurrent.Y > coordStart.Y)  && (coordCurrent.Y < coordEnd.Y))    ||	// lines between the first and the last lines
+			((coordCurrent.Y == coordEnd.Y)   && (coordCurrent.X <= coordEnd.X))) {		// last line
+
+				bCopy = true;
 		}
 
-	// multiple lines selected
-	} else if ( ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X)) ||	// first line
-				((coordCurrent.Y > coordStart.Y)  && (coordCurrent.Y < coordEnd.Y))    ||	// lines between the first and the last lines
-				((coordCurrent.Y == coordEnd.Y)   && (coordCurrent.X <= coordEnd.X))) {		// last line
-
+	} else {
 		bCopy = true;
 	}
 
@@ -247,6 +253,7 @@ void SelectionHandler::EndSelection() {
 	if (m_selectionState != selstateSelecting) return;
 
 	m_selectionState = selstateSelected;
+	::ReleaseCapture();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -266,8 +273,6 @@ void SelectionHandler::ClearSelection() {
 	m_sYMax			= 0;
 
 	m_selectionState = selstateNoSelection;
-
-	::ReleaseCapture();
 
 	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
 }

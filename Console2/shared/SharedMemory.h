@@ -20,7 +20,7 @@ class SharedMemory {
 
 		~SharedMemory();
 
-		void Create(const wstring& strName, DWORD dwSize, bool bSyncObjects = true);
+		void Create(const wstring& strName, DWORD dwSize = 1, bool bSyncObjects = true);
 		void Open(const wstring& strName, bool bSync = true);
 
 		inline void Lock();

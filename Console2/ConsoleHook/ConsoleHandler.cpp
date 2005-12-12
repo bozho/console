@@ -86,23 +86,21 @@ bool ConsoleHandler::OpenSharedMemory() {
 
 	// TODO: error handling
 	m_consoleParams.Open((SharedMemNames::formatConsoleParams % dwProcessId).str());
-	TRACE(L"Parent process id: %i\n", m_consoleParams->dwParentProcessId);
 
 	// open console info shared memory object
 	m_consoleInfo.Open((SharedMemNames::formatInfo % dwProcessId).str());
-	TRACE(L"Console info address: 0x%08X\n", (void*)m_consoleInfo.Get());
 
 	// open console info shared memory object
 	m_cursorInfo.Open((SharedMemNames::formatCursorInfo % dwProcessId).str());
-	TRACE(L"Cursor info address: 0x%08X\n", (void*)m_cursorInfo.Get());
 
 	// open console buffer shared memory object
 	m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str());
-	TRACE(L"Console buffer address: 0x%08X\n", (void*)m_consoleBuffer.Get());
+
+	// paste info 
+	m_consolePaste.Open((SharedMemNames::formatPasteInfo % dwProcessId).str());
 
 	// open new console size shared memory object
 	m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str());
-	TRACE(L"New console size address: 0x%08X\n", (void*)m_newConsoleSize.Get());
 
 	return true;
 }
@@ -131,8 +129,10 @@ void ConsoleHandler::ReadConsoleBuffer() {
 
 	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
 
+/*
 	TRACE(L"ReadConsoleBuffer console buffer size: %ix%i\n", csbiConsole.dwSize.X, csbiConsole.dwSize.Y);
 	TRACE(L"ReadConsoleBuffer console rect: %ix%i - %ix%i\n", csbiConsole.srWindow.Left, csbiConsole.srWindow.Top, csbiConsole.srWindow.Right, csbiConsole.srWindow.Bottom);
+*/
 
 	coordStart.X		= 0;
 	coordStart.Y		= 0;
@@ -240,6 +240,34 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText) {
+
+	size_t	textLen			= wcslen(pszText.get());
+	DWORD	dwTextWritten	= 0;
+	
+	scoped_array<INPUT_RECORD> pKeyEvents(new INPUT_RECORD[textLen]);
+	::ZeroMemory(pKeyEvents.get(), sizeof(INPUT_RECORD)*textLen);
+	
+	for (size_t i = 0; i < textLen; ++i) {
+
+		if ((pszText.get()[i] == L'\r') && (pszText.get()[i+1] == L'\n')) continue;
+
+		pKeyEvents[i].EventType							= KEY_EVENT;
+		pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
+		pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
+		pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= 0;
+		pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
+		pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText.get()[i];
+		pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
+	}
+	::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(textLen), &dwTextWritten);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
 
 	// get max console size
@@ -305,12 +333,13 @@ DWORD ConsoleHandler::MonitorThread() {
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
 
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
+	HANDLE	hStdIn			= ::GetStdHandle(STD_INPUT_HANDLE);
 	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 
 	SetConsoleParams(hStdOut);
 	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows);
 
-	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr, m_newConsoleSize.GetEvent() };
+	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr, m_consolePaste.GetEvent(), m_newConsoleSize.GetEvent() };
 	DWORD	dwWaitRes		= 0;
 
 	while ((dwWaitRes = ::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0) {
@@ -329,11 +358,22 @@ DWORD ConsoleHandler::MonitorThread() {
 				break;
 			}
 
+			// paste request
 			case WAIT_OBJECT_0 + 3 : {
+
+				shared_ptr<wchar_t>	pszPasteBuffer(
+										reinterpret_cast<wchar_t*>(*m_consolePaste.Get()),
+										bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
+
+				PasteConsoleText(hStdIn, pszPasteBuffer);
+				break;
+			}
+
+			// console resize request
+			case WAIT_OBJECT_0 + 4 : {
 
 				SharedMemoryLock memLock(m_newConsoleSize);
 
-				TRACE(L"hua!\n");
 				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
 
 				ReadConsoleBuffer();

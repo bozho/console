@@ -29,11 +29,14 @@ class ConsoleHandler {
 		DWORD StartMonitorThread();
 		void StopMonitorThread();
 
-		SharedMemory<ConsoleParams>& GetConsoleParams() { return m_consoleParams; }
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& GetConsoleInfo() { return m_consoleInfo; }
-		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo() { return m_cursorInfo; }
-		SharedMemory<CHAR_INFO>& GetConsoleBuffer() { return m_consoleBuffer; }
-		SharedMemory<ConsoleSize>& GetNewConsoleSize() { return m_newConsoleSize; }
+		shared_ptr<void> GetConsoleHandle() const					{ return m_hConsoleProcess; }
+
+		SharedMemory<ConsoleParams>& GetConsoleParams()				{ return m_consoleParams; }
+		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& GetConsoleInfo()	{ return m_consoleInfo; }
+		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
+		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
+		SharedMemory<UINT_PTR>& GetConsolePasteInfo()				{ return m_consolePaste; }
+		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
 
 	private:
 
@@ -63,6 +66,7 @@ class ConsoleHandler {
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>	m_consoleInfo;
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
+		SharedMemory<UINT_PTR>						m_consolePaste;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;
 

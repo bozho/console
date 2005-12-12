@@ -674,8 +674,8 @@ void ConsoleView::RepaintText() {
 
 				if (bTextOut) {
 
-					m_dcText.TextOut(dwX, dwY, strText.c_str(), strText.length());
-					dwX += strText.length() * m_nCharWidth;
+					m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
+					dwX += static_cast<int>(strText.length() * m_nCharWidth);
 
 //					m_dcText.SetBkMode(nBkMode);
 					m_dcText.SetBkColor(crBkColor);
@@ -691,7 +691,7 @@ void ConsoleView::RepaintText() {
 			}
 
 			if (strText.length() > 0) {
-				m_dcText.TextOut(dwX, dwY, strText.c_str(), strText.length());
+				m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
 			}
 		}
 
@@ -947,43 +947,28 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText) {
 
 	if (!pszText || (wcslen(pszText) == 0)) return;
 
-	DWORD				dwInputOffset = 0;
-	scoped_array<INPUT> pInput(new INPUT[wcslen(pszText)*2]);
+	void* pRemoteMemory = ::VirtualAllocEx(
+								m_consoleHandler.GetConsoleHandle().get(),
+								NULL, 
+								(wcslen(pszText)+1)*sizeof(wchar_t), 
+								MEM_COMMIT, 
+								PAGE_READWRITE);
 
-	for (size_t i = 0; i < wcslen(pszText); ++i) {
+	if (pRemoteMemory == NULL) return;
 
-		SHORT sVkKey = VkKeyScan(pszText[i]);
+	if (!::WriteProcessMemory(
+				m_consoleHandler.GetConsoleHandle().get(),
+				pRemoteMemory, 
+				(PVOID)pszText, 
+				(wcslen(pszText)+1)*sizeof(wchar_t), 
+				NULL)) {
 
-		pInput[dwInputOffset].type			= INPUT_KEYBOARD;
-		pInput[dwInputOffset].ki.wVk		= sVkKey;
-		pInput[dwInputOffset].ki.wScan		= 0;
-		pInput[dwInputOffset].ki.dwFlags	= 0;
-		pInput[dwInputOffset].ki.time		= 0;
-		pInput[dwInputOffset].ki.dwExtraInfo= 0;
-
-		++dwInputOffset;
-
-		pInput[dwInputOffset].type			= INPUT_KEYBOARD;
-		pInput[dwInputOffset].ki.wVk		= sVkKey;
-		pInput[dwInputOffset].ki.wScan		= 0;
-		pInput[dwInputOffset].ki.dwFlags	= KEYEVENTF_KEYUP;
-		pInput[dwInputOffset].ki.time		= 0;
-		pInput[dwInputOffset].ki.dwExtraInfo= 0;
-
-		++dwInputOffset;
+		::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
+		return;
 	}
 
-	::AttachThreadInput(
-		::GetCurrentThreadId(), 
-		m_consoleHandler.GetConsoleParams()->dwConsoleMainThreadId, 
-		TRUE);
-
-	::SendInput(wcslen(pszText)*2, pInput.get(), sizeof(INPUT));
-
-	::AttachThreadInput(
-		::GetCurrentThreadId(), 
-		m_consoleHandler.GetConsoleParams()->dwConsoleMainThreadId, 
-		FALSE);
+	m_consoleHandler.GetConsolePasteInfo() = reinterpret_cast<UINT_PTR>(pRemoteMemory);
+	m_consoleHandler.GetConsolePasteInfo().SetEvent();
 }
 
 /////////////////////////////////////////////////////////////////////////////

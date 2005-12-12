@@ -202,7 +202,7 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 		}
 
 		if (coordStart.Y < coordEnd.Y) {
-			pszText[dwOffset++] = L'\r';
+//			pszText[dwOffset++] = L'\r';
 			pszText[dwOffset++] = L'\n';
 		}
 
@@ -212,7 +212,7 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 				pszText[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
 			}
 
-			pszText[dwOffset++] = L'\r';
+//			pszText[dwOffset++] = L'\r';
 			pszText[dwOffset++] = L'\n';
 		}
 
@@ -225,7 +225,7 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 			}
 
 			if (coordEnd.X == m_sXMax) {
-				pszText[dwOffset++] = L'\r';
+//				pszText[dwOffset++] = L'\r';
 				pszText[dwOffset++] = L'\n';
 			}
 		}

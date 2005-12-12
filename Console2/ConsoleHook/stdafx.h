@@ -28,6 +28,7 @@ using namespace std;
 #pragma warning(disable: 4244 4267 4511 4512 4702)
 #include <boost/format.hpp>
 #include <boost/mem_fn.hpp>
+#include <boost/bind.hpp>
 #include <boost/smart_ptr.hpp>
 using namespace boost;
 #pragma warning(pop)

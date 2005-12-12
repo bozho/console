@@ -34,7 +34,7 @@ extern CAppModule _Module;
 #include <atlctrlx.h>
 
 #pragma warning(push)
-#pragma warning(disable: 4189)
+#pragma warning(disable: 4189 4267)
 #include "WtlTabbing/atlgdix.h"
 
 #include "WtlTabbing/CustomTabCtrl.h"

@@ -82,7 +82,7 @@ class Cursor {
 		CBrush		m_paintBrush;
 		CBrush		m_backgroundBrush;
 
-		UINT		m_uiTimer;
+		UINT_PTR	m_uiTimer;
 };
 
 //////////////////////////////////////////////////////////////////////////////

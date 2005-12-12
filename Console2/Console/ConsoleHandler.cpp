@@ -176,19 +176,22 @@ void ConsoleHandler::StopMonitorThread() {
 bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId) {
 
 	// create startup params shared memory
-	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str(), 1);
+	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str());
 
 	// create console info shared memory
-	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str(), 1);
+	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str());
 
 	// create console info shared memory
-	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str(), 1);
+	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str());
 
 	// TODO: max console size
 	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200);
 
+	// paste info 
+	m_consolePaste.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str());
+
 	// new console size
-	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str(), 1);
+	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str());
 
 	// TODO: separate function for default settings
 	m_consoleParams->dwRows		= 25;

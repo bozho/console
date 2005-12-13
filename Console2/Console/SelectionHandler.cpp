@@ -57,6 +57,7 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 	m_sXMax			= sXMax;
 	m_sYMax			= sYMax;
 
+/*
 	CRect rect;
 	rect.left	= m_coordCurrent.X * m_nCharWidth + 1;
 	rect.top	= m_coordCurrent.Y * m_nCharHeight + 1;
@@ -64,8 +65,9 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 	rect.bottom = (m_coordCurrent.Y + 1) * m_nCharHeight + 1;
 
 	m_dcSelection.FillRect(&rect, m_paintBrush);
+*/
 
-	m_selectionState = selstateSelecting;
+	m_selectionState = selstateStartedSelecting;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -75,7 +77,13 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 
 void SelectionHandler::UpdateSelection(const CPoint& point) {
 
-	if (m_selectionState != selstateSelecting) return;
+	if ((m_selectionState != selstateStartedSelecting) &&
+		(m_selectionState != selstateSelecting)) {
+	
+		return;
+	}
+
+	m_selectionState = selstateSelecting;
 
 	COORD	coordCurrent = { static_cast<SHORT>(point.x / m_nCharWidth), static_cast<SHORT>(point.y / m_nCharHeight) };
 
@@ -143,7 +151,7 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 
 void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CHAR_INFO>& consoleBuffer) {
 
-	if (m_selectionState == selstateNoSelection) return;
+	if (m_selectionState < selstateSelecting) return;
 
 	bool	bCopy = false;
 	COORD	coordStart;
@@ -249,8 +257,6 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 //////////////////////////////////////////////////////////////////////////////
 
 void SelectionHandler::EndSelection() {
-
-	if (m_selectionState != selstateSelecting) return;
 
 	m_selectionState = selstateSelected;
 	::ReleaseCapture();

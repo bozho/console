@@ -181,7 +181,7 @@ LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 			if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
 
 			m_selectionHandler->StartSelection(point, static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwColumns - 1), static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwRows - 1));
-			BitBltOffscreen();
+//			BitBltOffscreen();
 		}
 		
 	} else {
@@ -208,13 +208,18 @@ LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 
 	CPoint	point(LOWORD(lParam), HIWORD(lParam));
 
-	if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) {
+	if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) {
+
+		m_selectionHandler->EndSelection();
+		m_selectionHandler->ClearSelection();
+
+	} else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) {
 		
 		// TODO: copy on select
 		Copy(&point);
+
 	} else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting) {
 		m_selectionHandler->EndSelection();
-
 	}
 
 	return 0;
@@ -232,7 +237,8 @@ LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
 	if (uiFlags & MK_LBUTTON) {
 
-		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting) {
+		if ((m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) ||
+			(m_selectionHandler->GetState() == SelectionHandler::selstateSelecting)) {
 
 			m_selectionHandler->UpdateSelection(point);
 			BitBltOffscreen();

@@ -15,9 +15,10 @@ class SelectionHandler {
 	public:
 
 		enum SelectionState {
-			selstateNoSelection	= 0x00,
-			selstateSelecting	= 0x01,
-			selstateSelected	= 0x02
+			selstateNoSelection		= 0x00,
+			selstateStartedSelecting= 0x01,
+			selstateSelecting		= 0x02,
+			selstateSelected		= 0x03
 		};
 
 	public:

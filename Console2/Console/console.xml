@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<console change_refresh="5" refresh="50">
+<settings>
 
-	<font name="FixedMedium7x14" size="8" bold="0" italic="0" >
+	<console change_refresh="5" refresh="50" rows="25" columns="80" buffer_rows="1000">
 
 		<colors>
 			<color id="00" r="0" g="0" b="0" />
@@ -21,7 +21,10 @@
 			<color id="14" r="255" g="255" b="0" />
 			<color id="15" r="255" g="255" b="255" />
 		</colors>
-	</font>
+
+	</console>
+
+	<font name="FixedMedium7x14" size="8" bold="0" italic="0" />
 	
 	<hotkeys>
 		<hotkey shift="1" ctrl="0" alt="1" virtkey="0" code="5" command="paste" />
@@ -29,11 +32,11 @@
 	
 	<tabs>
 		<tab id="default">
-			<cursor style="2" r="255" g="255" b="255" />
+			<cursor style="0" r="255" g="255" b="255" />
 		</tab>
 		<tab id="default2">
 			<cursor style="1" r="255" g="255" b="255" />
 		</tab>
 	</tabs>
 
-</console>
+</settings>

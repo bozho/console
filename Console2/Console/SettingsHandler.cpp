@@ -96,10 +96,25 @@ void SettingsHandler::LoadConsoleSettings() {
 
 	CComPtr<IXMLDOMElement>	pConsoleElement;
 
-	if (FAILED(GetDomElement(NULL, CComBSTR(L"console"), pConsoleElement))) return;
+	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/console"), pConsoleElement))) return;
 
 	GetAttribute(pConsoleElement, CComBSTR(L"refresh"), m_consoleSettings.dwRefreshInterval, 100);
 	GetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), m_consoleSettings.dwChangeRefreshInterval, 10);
+	GetAttribute(pConsoleElement, CComBSTR(L"rows"), m_consoleSettings.dwRows, 25);
+	GetAttribute(pConsoleElement, CComBSTR(L"columns"), m_consoleSettings.dwColumns, 80);
+	GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), m_consoleSettings.dwBufferRows, 200);
+
+	for (DWORD i = 0; i < 16; ++i) {
+
+		CComPtr<IXMLDOMElement>	pFontColorElement;
+
+		if (FAILED(GetDomElement(NULL, CComBSTR(str(wformat(L"settings/console/colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
+
+		DWORD id;
+
+		GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
+		GetRGBAttribute(pFontColorElement, m_consoleSettings.consoleColors[id], m_consoleSettings.consoleColors[i]);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -111,24 +126,12 @@ void SettingsHandler::LoadFontSettings() {
 
 	CComPtr<IXMLDOMElement>	pFontElement;
 
-	if (FAILED(GetDomElement(NULL, CComBSTR(L"console/font"), pFontElement))) return;
+	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/font"), pFontElement))) return;
 
 	GetAttribute(pFontElement, CComBSTR(L"name"), m_fontSettings.strName, wstring(L"Courier New"));
 	GetAttribute(pFontElement, CComBSTR(L"size"), m_fontSettings.dwSize, 10);
 	GetAttribute(pFontElement, CComBSTR(L"bold"), m_fontSettings.bBold, false);
 	GetAttribute(pFontElement, CComBSTR(L"italic"), m_fontSettings.bItalic, false);
-
-	for (DWORD i = 0; i < 16; ++i) {
-
-		CComPtr<IXMLDOMElement>	pFontColorElement;
-
-		if (FAILED(GetDomElement(NULL, CComBSTR(str(wformat(L"console/font/colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
-
-		DWORD id;
-
-		GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
-		GetRGBAttribute(pFontColorElement, m_fontSettings.consoleColors[id], m_fontSettings.consoleColors[i]);
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -141,7 +144,7 @@ void SettingsHandler::LoadHotKeys() {
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
 
-	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"console/hotkeys/hotkey"), &pHotKeyNodes);
+	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"settings/hotkeys/hotkey"), &pHotKeyNodes);
 	if (FAILED(hr)) return;
 
 	WORD	wHotKeyCommand = ID_HOTKEY_FIRST;
@@ -193,7 +196,7 @@ void SettingsHandler::LoadTabSettings() {
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pTabNodes;
 
-	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"console/tabs/tab"), &pTabNodes);
+	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"settings/tabs/tab"), &pTabNodes);
 	if (FAILED(hr)) return;
 
 	long	lListLength;

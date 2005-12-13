@@ -27,7 +27,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 	public:
 		DECLARE_WND_CLASS(NULL)
 
-		ConsoleView(const ConsoleParams& consoleStartupParams);
+		ConsoleView(DWORD dwRows, DWORD dwColumns);
 
 		BOOL PreTranslateMessage(MSG* pMsg);
 
@@ -109,7 +109,9 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool	m_bAppActive;
 		bool	m_bConsoleWindowVisible;
 
-		ConsoleParams	m_consoleStartupParams;
+		DWORD	m_dwStartupRows;
+		DWORD	m_dwStartupColumns;
+
 		ConsoleHandler	m_consoleHandler;
 
 		CDC		m_dcOffscreen;

@@ -13,11 +13,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(const ConsoleParams& consoleStartupParams)
+ConsoleView::ConsoleView(DWORD dwRows, DWORD dwColumns)
 : m_bInitializing(true)
 , m_bAppActive(true)
 , m_bConsoleWindowVisible(false)
-, m_consoleStartupParams(consoleStartupParams)
+, m_dwStartupRows(dwRows)
+, m_dwStartupColumns(dwColumns)
 , m_consoleHandler()
 , m_nCharHeight(0)
 , m_nCharWidth(0)
@@ -65,7 +66,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// TODO: error handling
-	m_consoleHandler.StartShellProcess(m_consoleStartupParams);
+	m_consoleHandler.StartShellProcess(m_dwStartupRows, m_dwStartupColumns);
 	m_bInitializing = false;
 
 	CreateOffscreenBuffers();
@@ -636,11 +637,11 @@ void ConsoleView::RepaintText() {
 			}
 */
 
-			crBkColor	= g_pSettingsHandler->GetFontSettings().consoleColors[attrBG];
-			m_dcText.SetBkColor(g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
+			crBkColor	= g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG];
+			m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
 			
-			m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-			crTxtColor		= m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+			m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+			crTxtColor		= m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 			
 			strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
 			++dwOffset;
@@ -661,14 +662,14 @@ void ConsoleView::RepaintText() {
 						bTextOut = true;
 					}
 */
-					if (crBkColor != g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]) {
-						crBkColor = g_pSettingsHandler->GetFontSettings().consoleColors[attrBG];
+					if (crBkColor != g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]) {
+						crBkColor = g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG];
 						bTextOut = true;
 					}
 //				}
 
-				if (crTxtColor != (m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF])) {
-					crTxtColor = m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+				if (crTxtColor != (m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF])) {
+					crTxtColor = m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 					bTextOut = true;
 				}
 
@@ -714,10 +715,10 @@ void ConsoleView::RepaintText() {
 				} else {
 					m_dcText.SetBkMode(OPAQUE);
 */
-					m_dcText.SetBkColor(g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
+					m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
 //				}
 				
-				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 				int nWidth;
 				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
@@ -799,8 +800,8 @@ void ConsoleView::RepaintTextChanges() {
 					}
 */
 					
-					m_dcText.SetBkColor(g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
-					m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+					m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+					m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 					m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 
 //					::InvalidateRect(m_hWnd, &rect, FALSE);
@@ -854,8 +855,8 @@ void ConsoleView::RepaintTextChanges() {
 				}
 */
 
-				m_dcText.SetBkColor(g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
-				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetFontSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 				int nWidth;
 				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);

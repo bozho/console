@@ -61,7 +61,7 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(const ConsoleParams& consoleStartupParams) {
+bool ConsoleHandler::StartShellProcess(DWORD dwStartupRows, DWORD dwStartupColumns) {
 
 	wstring	strShell;
 	wchar_t	szComspec[MAX_PATH];
@@ -112,9 +112,9 @@ bool ConsoleHandler::StartShellProcess(const ConsoleParams& consoleStartupParams
 	m_consoleParams->dwParentProcessId		= ::GetCurrentProcessId();
 	m_consoleParams->dwNotificationTimeout	= g_pSettingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
 	m_consoleParams->dwRefreshInterval		= g_pSettingsHandler->GetConsoleSettings().dwRefreshInterval;
-	m_consoleParams->dwRows					= consoleStartupParams.dwRows;
-	m_consoleParams->dwColumns				= consoleStartupParams.dwColumns;
-	m_consoleParams->dwBufferRows			= 1111;
+	m_consoleParams->dwRows					= dwStartupRows;
+	m_consoleParams->dwColumns				= dwStartupColumns;
+	m_consoleParams->dwBufferRows			= g_pSettingsHandler->GetConsoleSettings().dwBufferRows;
 
 	m_hConsoleProcess = shared_ptr<void>(pi.hProcess, ::CloseHandle);
 

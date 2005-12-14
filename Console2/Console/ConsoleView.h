@@ -27,7 +27,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 	public:
 		DECLARE_WND_CLASS(NULL)
 
-		ConsoleView(DWORD dwRows, DWORD dwColumns);
+		ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns);
 
 		BOOL PreTranslateMessage(MSG* pMsg);
 
@@ -109,6 +109,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool	m_bAppActive;
 		bool	m_bConsoleWindowVisible;
 
+		DWORD	m_dwTabIndex;
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
 

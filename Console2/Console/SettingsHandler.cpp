@@ -70,22 +70,6 @@ bool SettingsHandler::LoadOptions(const wstring& strOptionsFileName) {
 
 
 //////////////////////////////////////////////////////////////////////////////
-
-shared_ptr<TabSettings> SettingsHandler::GetTabSettings(const wstring& strId) {
-
-	shared_ptr<TabSettings> tabSettings;
-
-	TabSettingsMap::iterator it = m_tabSettings.find(strId);
-
-	if (it != m_tabSettings.end()) tabSettings = it->second;
-	
-	return tabSettings;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -210,19 +194,20 @@ void SettingsHandler::LoadTabSettings() {
 		pTabNodes->get_item(i, &pTabNode);
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
-		wstring strId;
-		GetAttribute(pTabElement, CComBSTR(L"id"), strId, L"default");
-
 		shared_ptr<TabSettings>	tabSettings(new TabSettings);
+		wstring					strId;
+
 		CComPtr<IXMLDOMElement>	pCursorElement;
+
+		GetAttribute(pTabElement, CComBSTR(L"id"), tabSettings->strId, L"N/A");
 
 		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"cursor"), pCursorElement))) {
 
-			GetAttribute(pCursorElement, CComBSTR(L"style"), tabSettings->dwStyle, 0);
-			GetRGBAttribute(pCursorElement, tabSettings->crColor, RGB(255, 255, 255));
+			GetAttribute(pCursorElement, CComBSTR(L"style"), tabSettings->dwCursorStyle, 0);
+			GetRGBAttribute(pCursorElement, tabSettings->crCursorColor, RGB(255, 255, 255));
 		}
 
-		m_tabSettings.insert(TabSettingsMap::value_type(strId, tabSettings));
+		m_tabSettings.push_back(tabSettings);
 	}
 }
 

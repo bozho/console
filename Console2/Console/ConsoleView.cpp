@@ -13,10 +13,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 : m_bInitializing(true)
 , m_bAppActive(true)
 , m_bConsoleWindowVisible(false)
+, m_dwTabIndex(dwTabIndex)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
 , m_consoleHandler()
@@ -481,16 +482,16 @@ void ConsoleView::CreateOffscreenBuffers() {
 
 	// create and initialize cursor
 	// TODO: handle tab ids
-	shared_ptr<TabSettings> tabSettings(g_pSettingsHandler->GetTabSettings(wstring(L"default")));
+	shared_ptr<TabSettings> tabSettings(g_pSettingsHandler->GetTabSettings()[m_dwTabIndex]);
 
 	m_cursor.reset();
 	m_cursor = CursorFactory::CreateCursor(
 								m_hWnd, 
 								m_bAppActive, 
-								tabSettings.get() ? static_cast<CursorStyle>(tabSettings->dwStyle) : cstyleConsole, 
+								tabSettings.get() ? static_cast<CursorStyle>(tabSettings->dwCursorStyle) : cstyleConsole, 
 								dcWindow, 
 								rectCursor, 
-								tabSettings.get() ? static_cast<CursorStyle>(tabSettings->crColor) : RGB(255, 255, 255));
+								tabSettings.get() ? static_cast<CursorStyle>(tabSettings->crCursorColor) : RGB(255, 255, 255));
 
 	// create 
 	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindow, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));

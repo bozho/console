@@ -31,10 +31,10 @@
 	</hotkeys>
 	
 	<tabs>
-		<tab id="default">
+		<tab id="Default">
 			<cursor style="0" r="255" g="255" b="255" />
 		</tab>
-		<tab id="default2">
+		<tab id="Tab 2">
 			<cursor style="1" r="255" g="255" b="255" />
 		</tab>
 	</tabs>

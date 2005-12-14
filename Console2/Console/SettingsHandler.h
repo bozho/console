@@ -106,18 +106,20 @@ typedef vector<shared_ptr<HotKey> >		HotKeys;
 struct TabSettings {
 
 	TabSettings()
-	: dwStyle(0)
-	, crColor(RGB(255, 255, 255))
+	: strId(L"")
+	, dwCursorStyle(0)
+	, crCursorColor(RGB(255, 255, 255))
 	{
 	}
 
-	DWORD		dwStyle;
-	COLORREF	crColor;
+	wstring		strId;
+	DWORD		dwCursorStyle;
+	COLORREF	crCursorColor;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-typedef map<wstring, shared_ptr<TabSettings> >	TabSettingsMap;
+typedef vector<shared_ptr<TabSettings> >	TabSettingsVector;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -139,7 +141,7 @@ class SettingsHandler {
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		FontSettings& GetFontSettings() { return m_fontSettings; }
 		HotKeys& GetHotKeys() { return m_hotKeys; }
-		shared_ptr<TabSettings> GetTabSettings(const wstring& strId);
+		TabSettingsVector& GetTabSettings() { return m_tabSettings; }
 
 	private:
 
@@ -164,11 +166,11 @@ class SettingsHandler {
 
 	private:
 
-		ConsoleSettings	m_consoleSettings;
-		FontSettings	m_fontSettings;
-		HotKeys			m_hotKeys;
+		ConsoleSettings		m_consoleSettings;
+		FontSettings		m_fontSettings;
+		HotKeys				m_hotKeys;
 
-		TabSettingsMap	m_tabSettings;
+		TabSettingsVector	m_tabSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

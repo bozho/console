@@ -35,14 +35,14 @@ extern CAppModule _Module;
 
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)
-#include "WtlTabbing/atlgdix.h"
+#include "atlgdix.h"
 
-#include "WtlTabbing/CustomTabCtrl.h"
-#include "WtlTabbing/DotNetTabCtrl.h"
-//#include "WtlTabbing/SimpleTabCtrls.h"
-//#include "WtlTabbing/SimpleDlgTabCtrls.h"
-#include "WtlTabbing/TabbedFrame.h"
-//#include "WtlTabbing/TabbedMDI.h"
+#include "CustomTabCtrl.h"
+#include "DotNetTabCtrl.h"
+//#include "SimpleTabCtrls.h"
+//#include "SimpleDlgTabCtrls.h"
+#include "TabbedFrame.h"
+//#include "TabbedMDI.h"
 #pragma warning(pop)
 
 #pragma warning(push)

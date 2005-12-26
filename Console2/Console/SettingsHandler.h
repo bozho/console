@@ -80,6 +80,51 @@ struct FontSettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum TransparencyStyle {
+
+	transNone		= 0,
+	transAlpha		= 1,
+	transColorKey	= 2,
+	transFake		= 3
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct TransparencySettings {
+
+	TransparencySettings()
+	: transStyle(transNone)
+	, byActiveAlpha(255)
+	, byInactiveAlpha(255)
+	{
+	}
+
+	TransparencyStyle	transStyle;
+	BYTE				byActiveAlpha;
+	BYTE				byInactiveAlpha;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct AppearanceSettings {
+
+	AppearanceSettings() {}
+
+	FontSettings			fontSettings;
+	TransparencySettings	transparencySettings;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 #define ID_HOTKEY_FIRST		40000
 
 struct HotKey {
@@ -139,22 +184,26 @@ class SettingsHandler {
 		bool LoadOptions(const wstring& strOptionsFileName);
 
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
-		FontSettings& GetFontSettings() { return m_fontSettings; }
+		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
 		HotKeys& GetHotKeys() { return m_hotKeys; }
 		TabSettingsVector& GetTabSettings() { return m_tabSettings; }
 
 	private:
 
 		void LoadConsoleSettings();
-		void LoadFontSettings();
+		void LoadAppearanceSettings();
 		void LoadHotKeys();
 		void LoadTabSettings();
+
+		void LoadFontSettings();
+		void LoadTransparencySettings();
 
 	private:
 
 		HRESULT GetDomElement(const CComPtr<IXMLDOMNode>& pRootNode, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement);
 
 		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue);
+		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue);
 		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool& bValue, bool bDefaultValue);
 		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, wstring& strValue, const wstring& strDefaultValue);
 
@@ -167,7 +216,7 @@ class SettingsHandler {
 	private:
 
 		ConsoleSettings		m_consoleSettings;
-		FontSettings		m_fontSettings;
+		AppearanceSettings	m_appearanceSettings;
 		HotKeys				m_hotKeys;
 
 		TabSettingsVector	m_tabSettings;

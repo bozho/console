@@ -58,7 +58,7 @@ bool SettingsHandler::LoadOptions(const wstring& strOptionsFileName) {
 
 	// load settings' sections
 	LoadConsoleSettings();
-	LoadFontSettings();
+	LoadAppearanceSettings();
 	LoadHotKeys();
 	LoadTabSettings();
 
@@ -106,16 +106,10 @@ void SettingsHandler::LoadConsoleSettings() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SettingsHandler::LoadFontSettings() {
+void SettingsHandler::LoadAppearanceSettings() {
 
-	CComPtr<IXMLDOMElement>	pFontElement;
-
-	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/font"), pFontElement))) return;
-
-	GetAttribute(pFontElement, CComBSTR(L"name"), m_fontSettings.strName, wstring(L"Courier New"));
-	GetAttribute(pFontElement, CComBSTR(L"size"), m_fontSettings.dwSize, 10);
-	GetAttribute(pFontElement, CComBSTR(L"bold"), m_fontSettings.bBold, false);
-	GetAttribute(pFontElement, CComBSTR(L"italic"), m_fontSettings.bItalic, false);
+	LoadFontSettings();
+	LoadTransparencySettings();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -215,6 +209,39 @@ void SettingsHandler::LoadTabSettings() {
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void SettingsHandler::LoadFontSettings() {
+
+	CComPtr<IXMLDOMElement>	pFontElement;
+
+	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/appearance/font"), pFontElement))) return;
+
+	GetAttribute(pFontElement, CComBSTR(L"name"), m_appearanceSettings.fontSettings.strName, wstring(L"Courier New"));
+	GetAttribute(pFontElement, CComBSTR(L"size"), m_appearanceSettings.fontSettings.dwSize, 10);
+	GetAttribute(pFontElement, CComBSTR(L"bold"), m_appearanceSettings.fontSettings.bBold, false);
+	GetAttribute(pFontElement, CComBSTR(L"italic"), m_appearanceSettings.fontSettings.bItalic, false);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void SettingsHandler::LoadTransparencySettings() {
+
+	CComPtr<IXMLDOMElement>	pTransElement;
+
+	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/appearance/transparency"), pTransElement))) return;
+
+	GetAttribute(pTransElement, CComBSTR(L"style"), (DWORD&)m_appearanceSettings.transparencySettings.transStyle, static_cast<DWORD>(transNone));
+	GetAttribute(pTransElement, CComBSTR(L"active_alpha"), m_appearanceSettings.transparencySettings.byActiveAlpha, 255);
+	GetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), m_appearanceSettings.transparencySettings.byInactiveAlpha, 255);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -232,6 +259,8 @@ HRESULT SettingsHandler::GetDomElement(const CComPtr<IXMLDOMNode>& pRootNode, co
 		hr = pRootNode->selectSingleNode(bstrPath, &pNode);
 	}
 	if (FAILED(hr)) return hr;
+
+	if (hr == S_FALSE) return E_FAIL;
 
 	return pNode.QueryInterface(&pElement);
 }
@@ -252,6 +281,25 @@ void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, cons
 		dwValue = _wtol(varValue.bstrVal);
 	} else {
 		dwValue = dwDefaultValue;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue) {
+
+	CComVariant	varValue;
+	HRESULT		hr = S_OK;
+
+	hr = pElement->getAttribute(bstrName, &varValue);
+
+	if (SUCCEEDED(hr)) {
+		byValue = static_cast<BYTE>(_wtoi(varValue.bstrVal));
+	} else {
+		byValue = byDefaultValue;
 	}
 }
 

@@ -16,6 +16,7 @@
 ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 : m_bInitializing(true)
 , m_bAppActive(true)
+, m_bViewActive(true)
 , m_bConsoleWindowVisible(false)
 , m_dwTabIndex(dwTabIndex)
 , m_dwStartupRows(dwRows)
@@ -412,7 +413,8 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 	}
 
 	// if the view is not visible, don't repaint
-	if (!IsWindowVisible()) return;
+//	if (!IsWindowVisible()) return;
+	if (!m_bViewActive) return;
 
 	Repaint();
 }
@@ -444,7 +446,7 @@ void ConsoleView::CreateOffscreenBuffers() {
 	// create font
 	TEXTMETRIC	textMetric;
 
-	CreateFont(g_pSettingsHandler->GetFontSettings().strName);
+	CreateFont(g_pSettingsHandler->GetAppearanceSettings().fontSettings.strName);
 	m_dcText.SelectFont(m_fontText);
 	m_dcText.GetTextMetrics(&textMetric);
 
@@ -518,12 +520,12 @@ void ConsoleView::CreateFont(const wstring& strFontName) {
 
 	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
 	m_fontText.CreateFont(
-		-::MulDiv(g_pSettingsHandler->GetFontSettings().dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(g_pSettingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		g_pSettingsHandler->GetFontSettings().bBold ? FW_BOLD : 0,
-		g_pSettingsHandler->GetFontSettings().bItalic,
+		g_pSettingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
+		g_pSettingsHandler->GetAppearanceSettings().fontSettings.bItalic,
 		FALSE,
 		FALSE,
 		DEFAULT_CHARSET,						

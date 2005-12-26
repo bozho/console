@@ -78,6 +78,8 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		void SetAppActiveStatus(bool bAppActive);
 
+		void SetViewActive(bool bActive) { m_bViewActive = bActive; }
+
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();
 
@@ -107,6 +109,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		bool	m_bInitializing;
 		bool	m_bAppActive;
+		bool	m_bViewActive;
 		bool	m_bConsoleWindowVisible;
 
 		DWORD	m_dwTabIndex;
@@ -129,8 +132,6 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		int		m_nCharWidth;
 
 		shared_array<CHAR_INFO>	m_screenBuffer;
-		// console colors
-//		COLORREF	m_arrConsoleColors[16];
 
 		bool		m_bImageBackground;
 		COLORREF	m_crConsoleBackground;

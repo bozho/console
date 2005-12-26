@@ -23,8 +23,15 @@
 		</colors>
 
 	</console>
+	
+	<appearance>
+	
+		<font name="FixedMedium7x14" size="8" bold="0" italic="0" />
+		
+		<transparency style="1" active_alpha="200" inactive_alpha="80" />
+	
+	</appearance>
 
-	<font name="FixedMedium7x14" size="8" bold="0" italic="0" />
 	
 	<hotkeys>
 		<hotkey shift="1" ctrl="0" alt="1" virtkey="0" code="5" command="paste" />
@@ -40,3 +47,4 @@
 	</tabs>
 
 </settings>
+

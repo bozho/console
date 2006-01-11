@@ -349,7 +349,7 @@ void ConsoleView::OwnerWindowMoving() {
 
 	TRACE(L"OwnerWindowMoving\n");
 	// for relative backgrounds, re-blit
-	if (m_tabSettings->tabBackground->bRelative) BitBltOffscreen();
+	if ((m_tabSettings->tabBackground.get() != NULL) && m_tabSettings->tabBackground->bRelative) BitBltOffscreen();
 
 }
 

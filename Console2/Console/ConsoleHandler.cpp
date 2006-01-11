@@ -110,11 +110,11 @@ bool ConsoleHandler::StartShellProcess(DWORD dwStartupRows, DWORD dwStartupColum
 	// write startup params
 	m_consoleParams->dwConsoleMainThreadId	= pi.dwThreadId;
 	m_consoleParams->dwParentProcessId		= ::GetCurrentProcessId();
-	m_consoleParams->dwNotificationTimeout	= g_pSettingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
-	m_consoleParams->dwRefreshInterval		= g_pSettingsHandler->GetConsoleSettings().dwRefreshInterval;
+	m_consoleParams->dwNotificationTimeout	= g_settingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
+	m_consoleParams->dwRefreshInterval		= g_settingsHandler->GetConsoleSettings().dwRefreshInterval;
 	m_consoleParams->dwRows					= dwStartupRows;
 	m_consoleParams->dwColumns				= dwStartupColumns;
-	m_consoleParams->dwBufferRows			= g_pSettingsHandler->GetConsoleSettings().dwBufferRows;
+	m_consoleParams->dwBufferRows			= g_settingsHandler->GetConsoleSettings().dwBufferRows;
 
 	m_hConsoleProcess = shared_ptr<void>(pi.hProcess, ::CloseHandle);
 

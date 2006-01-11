@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <settings>
 
-	<console change_refresh="5" refresh="50" rows="25" columns="80" buffer_rows="1000">
+	<console change_refresh="10" refresh="50" rows="43" columns="120" buffer_rows="1000">
 
 		<colors>
 			<color id="00" r="0" g="0" b="0" />
@@ -28,7 +28,7 @@
 	
 		<font name="FixedMedium7x14" size="8" bold="0" italic="0" />
 		
-		<transparency style="1" active_alpha="200" inactive_alpha="80" />
+		<transparency style="0" active_alpha="255" inactive_alpha="255" />
 	
 	</appearance>
 
@@ -38,11 +38,23 @@
 	</hotkeys>
 	
 	<tabs>
-		<tab id="Default">
+		<tab name="Console2">
 			<cursor style="0" r="255" g="255" b="255" />
+			<background image="0" r="0" g="0" b="0">
+				<image file="F:\Smece\back.bmp" relative="0" resize="0">
+					<tint r="0" g="0" b="0" opacity="65" />
+				</image>
+			</background>
 		</tab>
-		<tab id="Tab 2">
+		
+		<tab name="Tab 2" icon="F:\Smece\a.ico">
+
 			<cursor style="1" r="255" g="255" b="255" />
+			<background image="1" r="0" g="0" b="0">
+				<image file="F:\Smece\back.bmp" relative="0" resize="0">
+					<tint r="0" g="0" b="0" opacity="65" />
+				</image>
+			</background>
 		</tab>
 	</tabs>
 

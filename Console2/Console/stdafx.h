@@ -32,6 +32,7 @@ extern CAppModule _Module;
 #include <atldlgs.h>
 #include <atlctrlw.h>
 #include <atlctrlx.h>
+#include <atlscrl.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)
@@ -63,6 +64,8 @@ using namespace boost;
 #pragma warning(pop)
 
 #include "ConsoleHandler.h"
+#include "ImageHandler.h"
+#include "SettingsHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

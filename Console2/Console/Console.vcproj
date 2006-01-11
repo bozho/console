@@ -35,6 +35,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
@@ -92,6 +93,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib"
 				LinkIncremental="1"
 				SubSystem="2"
 				TargetMachine="1"/>
@@ -151,7 +153,13 @@
 				RelativePath=".\Cursors.cpp">
 			</File>
 			<File
+				RelativePath=".\ImageHandler.cpp">
+			</File>
+			<File
 				RelativePath=".\MainFrameTabbed.cpp">
+			</File>
+			<File
+				RelativePath=".\MainWnd.cpp">
 			</File>
 			<File
 				RelativePath=".\SelectionHandler.cpp">
@@ -200,7 +208,13 @@
 				RelativePath=".\FastDelegate.h">
 			</File>
 			<File
+				RelativePath=".\ImageHandler.h">
+			</File>
+			<File
 				RelativePath=".\MainFrameTabbed.h">
+			</File>
+			<File
+				RelativePath=".\MainWnd.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">

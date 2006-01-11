@@ -151,15 +151,25 @@ typedef vector<shared_ptr<HotKey> >		HotKeys;
 struct TabSettings {
 
 	TabSettings()
-	: strId(L"")
+	: strName(L"Console")
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
+	, bImageBackground(false)
+	, crBackgroundColor(RGB(0, 0, 0))
+	, tabIcon()
+	, tabBackground()
 	{
 	}
 
-	wstring		strId;
-	DWORD		dwCursorStyle;
-	COLORREF	crCursorColor;
+	wstring							strName;
+	DWORD							dwCursorStyle;
+	COLORREF						crCursorColor;
+
+	bool							bImageBackground;
+	COLORREF						crBackgroundColor;
+
+	shared_ptr<CIcon>				tabIcon;
+	shared_ptr<ImageData>			tabBackground;
 };
 
 //////////////////////////////////////////////////////////////////////////////

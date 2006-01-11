@@ -8,6 +8,7 @@
 #include "ConsoleView.h"
 #include "aboutdlg.h"
 #include "MainFrameTabbed.h"
+#include "MainWnd.h"
 #include "Console.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -22,7 +23,8 @@
 // Global variables
 
 CAppModule					_Module;
-shared_ptr<SettingsHandler>	g_pSettingsHandler;
+shared_ptr<SettingsHandler>	g_settingsHandler;
+shared_ptr<ImageHandler>	g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,9 +43,10 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 
 	// TODO: Handle other window types
 	MainFrameTabbed wndMain;
+//	MainWnd wndMain;
 
 
-	if (!g_pSettingsHandler->LoadOptions(L"console.xml")) {
+	if (!g_settingsHandler->LoadOptions(L"console.xml")) {
 		//TODO: error handling
 		return -1;
 	}
@@ -52,6 +55,13 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;
 	}
+
+/*
+	if(wndMain.Create(NULL) == NULL) {
+		ATLTRACE(_T("Main window creation failed!\n"));
+		return 0;
+	}
+*/
 
 	wndMain.ShowWindow(nCmdShow);
 
@@ -74,7 +84,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 //	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
 
-	g_pSettingsHandler.reset(new SettingsHandler());
+	g_settingsHandler.reset(new SettingsHandler());
+	g_imageHandler.reset(new ImageHandler());
 
 	// this resolves ATL window thunking problem when Microsoft Layer for Unicode (MSLU) is used
 	::DefWindowProc(NULL, 0, 0, 0L);
@@ -87,7 +98,7 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 
 	_Module.Term();
-	g_pSettingsHandler.reset();
+	g_settingsHandler.reset();
 
 	::CoUninitialize();
 

@@ -18,22 +18,24 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_bAppActive(true)
 , m_bViewActive(true)
 , m_bConsoleWindowVisible(false)
-, m_dwTabIndex(dwTabIndex)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
 , m_consoleHandler()
 , m_nCharHeight(0)
 , m_nCharWidth(0)
 , m_screenBuffer()
-, m_bImageBackground(false)
-, m_crConsoleBackground(RGB(0, 0, 0))
 , m_nInsideBorder(1)
 , m_bUseFontColor(false)
 , m_crFontColor(RGB(0, 0, 0))
 , m_bMouseDragable(false)
 , m_bInverseShift(false)
+, m_tabSettings(g_settingsHandler->GetTabSettings()[dwTabIndex])
 , m_cursor()
+, m_selectionHandler()
 {
+}
+
+ConsoleView::~ConsoleView() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -61,17 +63,25 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	m_dcOffscreen.CreateCompatibleDC(NULL);
 	m_dcText.CreateCompatibleDC(NULL);
-	m_dcBackground.CreateCompatibleDC(NULL);
+
+//	SetScrollSize(0, 100);
+
+	// set view title
+	SetWindowText(m_tabSettings->strName.c_str());
 
 	m_consoleHandler.SetupDelegates(
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
+
+	// load background image
+	if (m_tabSettings->bImageBackground) g_imageHandler->LoadImage(m_tabSettings->tabBackground);
 
 	// TODO: error handling
 	m_consoleHandler.StartShellProcess(m_dwStartupRows, m_dwStartupColumns);
 	m_bInitializing = false;
 
 	CreateOffscreenBuffers();
+
 
 	// TODO: put this in console size change handler
 	m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -115,6 +125,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	GetClientRect(&rectWindow);
 
+	TRACE(L"OnPaint\n");
 	dc.BitBlt(
 		0, 
 		0, 
@@ -334,6 +345,19 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::OwnerWindowMoving() {
+
+	TRACE(L"OwnerWindowMoving\n");
+	// for relative backgrounds, re-blit
+	if (m_tabSettings->tabBackground->bRelative) BitBltOffscreen();
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::SetConsoleWindowVisible(bool bVisible) {
 	m_bConsoleWindowVisible = bVisible;
 	::ShowWindow(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, bVisible ? SW_SHOW : SW_HIDE);
@@ -413,7 +437,6 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 	}
 
 	// if the view is not visible, don't repaint
-//	if (!IsWindowVisible()) return;
 	if (!m_bViewActive) return;
 
 	Repaint();
@@ -437,16 +460,13 @@ void ConsoleView::OnConsoleClose() {
 void ConsoleView::CreateOffscreenBuffers() {
 
 	CPaintDC	dcWindow(m_hWnd);
-	RECT		rectWindow;
-
-	// initial paint brush
-	CBrush brushBackground;
-	brushBackground.CreateSolidBrush(m_crConsoleBackground);
+	RECT		rectWindowMax;
+//	RECT		rectWindow;
 
 	// create font
 	TEXTMETRIC	textMetric;
 
-	CreateFont(g_pSettingsHandler->GetAppearanceSettings().fontSettings.strName);
+	CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName);
 	m_dcText.SelectFont(m_fontText);
 	m_dcText.GetTextMetrics(&textMetric);
 
@@ -464,39 +484,40 @@ void ConsoleView::CreateOffscreenBuffers() {
 		m_nCharHeight = textMetric.tmHeight;
 	}
 
-	// get window info based on font and console size
-	GetMaxRect(rectWindow);
+	// get max window rect based on font and console size
+	GetMaxRect(rectWindowMax);
+//	GetWindowRect(&rectWindow);
 
 	RECT	rectCursor = { 0, 0, m_nCharWidth, m_nCharHeight };
 
-	// create offscreen bitmaps
-	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcOffscreen, m_bmpOffscreen);
-	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcText, m_bmpText);
-	CreateOffscreenBitmap(dcWindow, rectWindow, m_dcBackground, m_bmpBackground);
+	// initial paint brush
+	CBrush brushBackground;
+	brushBackground.CreateSolidBrush(m_tabSettings->crBackgroundColor);
 
-	m_dcOffscreen.FillRect(&rectWindow, brushBackground);
-	m_dcBackground.FillRect(&rectWindow, brushBackground);
+	// create offscreen bitmaps
+	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
+	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
+
+	m_dcOffscreen.FillRect(&rectWindowMax, brushBackground);
 
 	// set text DC stuff
 	m_dcText.SetBkMode(OPAQUE);
-	m_dcText.FillRect(&rectWindow, brushBackground);
-
+	m_dcText.FillRect(&rectWindowMax, brushBackground);
 
 	// create and initialize cursor
 	// TODO: handle tab ids
-	shared_ptr<TabSettings> tabSettings(g_pSettingsHandler->GetTabSettings()[m_dwTabIndex]);
 
 	m_cursor.reset();
 	m_cursor = CursorFactory::CreateCursor(
 								m_hWnd, 
 								m_bAppActive, 
-								tabSettings.get() ? static_cast<CursorStyle>(tabSettings->dwCursorStyle) : cstyleConsole, 
+								m_tabSettings.get() ? static_cast<CursorStyle>(m_tabSettings->dwCursorStyle) : cstyleConsole, 
 								dcWindow, 
 								rectCursor, 
-								tabSettings.get() ? static_cast<CursorStyle>(tabSettings->crCursorColor) : RGB(255, 255, 255));
+								m_tabSettings.get() ? static_cast<CursorStyle>(m_tabSettings->crCursorColor) : RGB(255, 255, 255));
 
 	// create 
-	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindow, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
+	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindowMax, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -520,12 +541,12 @@ void ConsoleView::CreateFont(const wstring& strFontName) {
 
 	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
 	m_fontText.CreateFont(
-		-::MulDiv(g_pSettingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		g_pSettingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
-		g_pSettingsHandler->GetAppearanceSettings().fontSettings.bItalic,
+		g_settingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
+		g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic,
 		FALSE,
 		FALSE,
 		DEFAULT_CHARSET,						
@@ -589,7 +610,7 @@ void ConsoleView::RepaintText() {
 	bitmapRect.right	= bitmapSize.cx;
 	bitmapRect.bottom	= bitmapSize.cy;
 
-	bkgdBrush.CreateSolidBrush(m_crConsoleBackground);
+	bkgdBrush.CreateSolidBrush(m_tabSettings->crBackgroundColor);
 	m_dcText.FillRect(&bitmapRect, bkgdBrush);
 	
 	DWORD dwX			= m_nInsideBorder;
@@ -635,22 +656,22 @@ void ConsoleView::RepaintText() {
 			
 			// here we decide how to paint text over the background
 /*
-			if (g_pSettingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
+			if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 				m_dcText.SetBkMode(TRANSPARENT);
 				nBkMode		= TRANSPARENT;
 			} else {
 				m_dcText.SetBkMode(OPAQUE);
 				nBkMode		= OPAQUE;
-				m_dcText.SetBkColor(g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
-				crBkColor	= g_pSettingsHandler->GetFontSettings().consoleColors[attrBG];
+				m_dcText.SetBkColor(g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
+				crBkColor	= g_settingsHandler->GetFontSettings().consoleColors[attrBG];
 			}
 */
 
-			crBkColor	= g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG];
-			m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+			crBkColor	= g_settingsHandler->GetConsoleSettings().consoleColors[attrBG];
+			m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
 			
-			m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-			crTxtColor		= m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+			m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+			crTxtColor		= m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 			
 			strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
 			++dwOffset;
@@ -660,7 +681,7 @@ void ConsoleView::RepaintText() {
 				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
 
 /*
-				if (g_pSettingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
+				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 					if (nBkMode != TRANSPARENT) {
 						nBkMode = TRANSPARENT;
 						bTextOut = true;
@@ -671,14 +692,14 @@ void ConsoleView::RepaintText() {
 						bTextOut = true;
 					}
 */
-					if (crBkColor != g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]) {
-						crBkColor = g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG];
+					if (crBkColor != g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]) {
+						crBkColor = g_settingsHandler->GetConsoleSettings().consoleColors[attrBG];
 						bTextOut = true;
 					}
 //				}
 
-				if (crTxtColor != (m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF])) {
-					crTxtColor = m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+				if (crTxtColor != (m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF])) {
+					crTxtColor = m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 					bTextOut = true;
 				}
 
@@ -719,15 +740,15 @@ void ConsoleView::RepaintText() {
 
 				// here we decide how to paint text over the backgound
 /*
-				if (g_pSettingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
+				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 					m_dcText.SetBkMode(TRANSPARENT);
 				} else {
 					m_dcText.SetBkMode(OPAQUE);
 */
-					m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+					m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
 //				}
 				
-				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 				int nWidth;
 				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
@@ -753,7 +774,7 @@ void ConsoleView::RepaintTextChanges() {
 	CBrush	bkgdBrush;
 
 	m_bmpText.GetSize(bitmapSize);
-	bkgdBrush.CreateSolidBrush(m_crConsoleBackground);
+	bkgdBrush.CreateSolidBrush(m_tabSettings->crBackgroundColor);
 
 	DWORD	dwX			= m_nInsideBorder;
 	DWORD	dwY			= m_nInsideBorder;
@@ -801,16 +822,16 @@ void ConsoleView::RepaintTextChanges() {
 
 					// here we decide how to paint text over the backgound
 /*
-					if (g_pSettingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
+					if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 						::SetBkMode(m_hdcConsole, TRANSPARENT);
 					} else {
 						::SetBkMode(m_hdcConsole, OPAQUE);
-						::SetBkColor(m_hdcConsole, g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
+						::SetBkColor(m_hdcConsole, g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
 					}
 */
 					
-					m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
-					m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+					m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+					m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 					m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 
 //					::InvalidateRect(m_hWnd, &rect, FALSE);
@@ -856,16 +877,16 @@ void ConsoleView::RepaintTextChanges() {
 				
 				// here we decide how to paint text over the backgound
 /*
-				if (g_pSettingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
+				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 					::SetBkMode(m_hdcConsole, TRANSPARENT);
 				} else {
 					::SetBkMode(m_hdcConsole, OPAQUE);
-					::SetBkColor(m_hdcConsole, g_pSettingsHandler->GetFontSettings().consoleColors[attrBG]);
+					::SetBkColor(m_hdcConsole, g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
 				}
 */
 
-				m_dcText.SetBkColor(g_pSettingsHandler->GetConsoleSettings().consoleColors[attrBG]);
-				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_pSettingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 				int nWidth;
 				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
@@ -889,19 +910,25 @@ void ConsoleView::RepaintTextChanges() {
 void ConsoleView::BitBltOffscreen() {
 
 	RECT		rectWindow;
+	POINT		pointClientScreen = {0, 0};
 
 	GetClientRect(&rectWindow);
 
-	if (m_bImageBackground) {
+	ClientToScreen(&pointClientScreen);
+
+	if (m_tabSettings->bImageBackground) {
+		TRACE(L"BitBltOffscreen\n");
+
+		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
 
 		m_dcOffscreen.BitBlt(
 						0, 
 						0, 
 						rectWindow.right, 
 						rectWindow.bottom, 
-						m_dcBackground, 
-						0, 
-						0, 
+						m_tabSettings->tabBackground->dcImage, 
+						m_tabSettings->tabBackground->bRelative ? pointClientScreen.x : 0, 
+						m_tabSettings->tabBackground->bRelative ? pointClientScreen.y : 0, 
 						SRCCOPY);
 
 		m_dcOffscreen.TransparentBlt(
@@ -914,7 +941,7 @@ void ConsoleView::BitBltOffscreen() {
 						0, 
 						rectWindow.right, 
 						rectWindow.bottom, 
-						m_crConsoleBackground);
+						m_tabSettings->crBackgroundColor);
 
 	} else {
 		

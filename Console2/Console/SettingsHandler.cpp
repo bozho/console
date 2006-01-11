@@ -1,8 +1,11 @@
 #include "stdafx.h"
+#include "resource.h"
+
 #include "SettingsHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
+extern shared_ptr<ImageHandler>		g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -189,11 +192,33 @@ void SettingsHandler::LoadTabSettings() {
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
 		shared_ptr<TabSettings>	tabSettings(new TabSettings);
-		wstring					strId;
-
 		CComPtr<IXMLDOMElement>	pCursorElement;
+		CComPtr<IXMLDOMElement>	pBackgroundElement;
+		wstring					strIconFile(L"");
 
-		GetAttribute(pTabElement, CComBSTR(L"id"), tabSettings->strId, L"N/A");
+		GetAttribute(pTabElement, CComBSTR(L"name"), tabSettings->strName, L"Console");
+		GetAttribute(pTabElement, CComBSTR(L"icon"), strIconFile, L"");
+
+		m_tabSettings.push_back(tabSettings);
+
+		// load icon
+		if (strIconFile.length() > 0) {
+			tabSettings->tabIcon.reset(new CIcon(static_cast<HICON>(::LoadImage(
+															NULL, 
+															strIconFile.c_str(), 
+															IMAGE_ICON, 
+															16, 
+															16, 
+															LR_DEFAULTCOLOR|LR_LOADFROMFILE))));
+		} else {
+			tabSettings->tabIcon.reset(new CIcon(static_cast<HICON>(::LoadImage(
+															::GetModuleHandle(NULL), 
+															MAKEINTRESOURCE(IDR_MAINFRAME), 
+															IMAGE_ICON, 
+															16, 
+															16, 
+															LR_DEFAULTCOLOR))));
+		}
 
 		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"cursor"), pCursorElement))) {
 
@@ -201,7 +226,39 @@ void SettingsHandler::LoadTabSettings() {
 			GetRGBAttribute(pCursorElement, tabSettings->crCursorColor, RGB(255, 255, 255));
 		}
 
-		m_tabSettings.push_back(tabSettings);
+		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"background"), pBackgroundElement))) {
+
+			GetAttribute(pBackgroundElement, CComBSTR(L"image"), tabSettings->bImageBackground, false);
+			GetRGBAttribute(pBackgroundElement, tabSettings->crBackgroundColor, RGB(0, 0, 0));
+
+			if (tabSettings->bImageBackground) {
+
+				// load image settings and let ImageHandler return appropriate bitmap
+				CComPtr<IXMLDOMElement>	pImageElement;
+				CComPtr<IXMLDOMElement>	pTintElement;
+
+				wstring		strFilename(L"");
+				bool		bRelative	= false;
+				bool		bResize		= false;
+				bool		bExtend		= false;
+				COLORREF	crTint		= RGB(0, 0, 0);
+				BYTE		byTintOpacity = 0;
+
+				if (FAILED(GetDomElement(pTabNode, CComBSTR(L"background/image"), pImageElement))) return;
+
+				GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
+				GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
+				GetAttribute(pImageElement, CComBSTR(L"resize"), bResize, false);
+				GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
+
+				if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"background/image/tint"), pTintElement))) {
+					GetRGBAttribute(pTintElement, crTint, RGB(0, 0, 0));
+					GetAttribute(pTintElement, CComBSTR(L"opacity"), byTintOpacity, 0);
+				}
+
+				tabSettings->tabBackground = g_imageHandler->GetImageData(strFilename, bRelative, bResize, bExtend, crTint, byTintOpacity);
+			}
+		}
 	}
 }
 
@@ -258,9 +315,8 @@ HRESULT SettingsHandler::GetDomElement(const CComPtr<IXMLDOMNode>& pRootNode, co
 	} else {
 		hr = pRootNode->selectSingleNode(bstrPath, &pNode);
 	}
-	if (FAILED(hr)) return hr;
 
-	if (hr == S_FALSE) return E_FAIL;
+	if (hr != S_OK) return E_FAIL;
 
 	return pNode.QueryInterface(&pElement);
 }
@@ -273,11 +329,8 @@ HRESULT SettingsHandler::GetDomElement(const CComPtr<IXMLDOMNode>& pRootNode, co
 void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue) {
 
 	CComVariant	varValue;
-	HRESULT		hr = S_OK;
 
-	hr = pElement->getAttribute(bstrName, &varValue);
-
-	if (SUCCEEDED(hr)) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
 		dwValue = _wtol(varValue.bstrVal);
 	} else {
 		dwValue = dwDefaultValue;
@@ -292,11 +345,8 @@ void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, cons
 void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue) {
 
 	CComVariant	varValue;
-	HRESULT		hr = S_OK;
 
-	hr = pElement->getAttribute(bstrName, &varValue);
-
-	if (SUCCEEDED(hr)) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
 		byValue = static_cast<BYTE>(_wtoi(varValue.bstrVal));
 	} else {
 		byValue = byDefaultValue;
@@ -311,11 +361,8 @@ void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, cons
 void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool& bValue, bool bDefaultValue) {
 
 	CComVariant	varValue;
-	HRESULT		hr = S_OK;
 
-	hr = pElement->getAttribute(bstrName, &varValue);
-
-	if (SUCCEEDED(hr)) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
 		bValue = (_wtol(varValue.bstrVal) > 0);
 	} else {
 		bValue = bDefaultValue;
@@ -330,11 +377,8 @@ void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, cons
 void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, wstring& strValue, const wstring& strDefaultValue) {
 
 	CComVariant	varValue;
-	HRESULT		hr = S_OK;
 
-	hr = pElement->getAttribute(bstrName, &varValue);
-
-	if (SUCCEEDED(hr)) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
 		strValue = varValue.bstrVal;
 	} else {
 		strValue = strDefaultValue;

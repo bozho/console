@@ -22,12 +22,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleView : public CWindowImpl<ConsoleView> {
+class ConsoleView : public CWindowImpl<ConsoleView>, public CScrollImpl<ConsoleView> {
 
 	public:
 		DECLARE_WND_CLASS(NULL)
 
 		ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns);
+		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
 
@@ -45,6 +46,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
+			CHAIN_MSG_MAP(CScrollImpl<ConsoleView>)
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -70,6 +72,7 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		void GetRect(RECT& clientRect);
 		bool GetMaxRect(RECT& maxClientRect);
 		void AdjustRectAndResize(RECT& clientRect);
+		void OwnerWindowMoving();
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 
@@ -79,6 +82,8 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		void SetAppActiveStatus(bool bAppActive);
 
 		void SetViewActive(bool bActive) { m_bViewActive = bActive; }
+
+		shared_ptr<CIcon> GetIcon() const { return m_tabSettings->tabIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();
@@ -112,7 +117,6 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 		bool	m_bViewActive;
 		bool	m_bConsoleWindowVisible;
 
-		DWORD	m_dwTabIndex;
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
 
@@ -120,11 +124,9 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		CDC		m_dcOffscreen;
 		CDC		m_dcText;
-		CDC		m_dcBackground;
 
 		CBitmap	m_bmpOffscreen;
 		CBitmap	m_bmpText;
-		CBitmap	m_bmpBackground;
 
 		CFont	m_fontText;
 
@@ -133,9 +135,6 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		shared_array<CHAR_INFO>	m_screenBuffer;
 
-		bool		m_bImageBackground;
-		COLORREF	m_crConsoleBackground;
-
 		int			m_nInsideBorder;
 
 		bool		m_bUseFontColor;
@@ -143,6 +142,8 @@ class ConsoleView : public CWindowImpl<ConsoleView> {
 
 		bool		m_bMouseDragable;
 		bool		m_bInverseShift;
+
+		shared_ptr<TabSettings>			m_tabSettings;
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;

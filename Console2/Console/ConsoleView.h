@@ -22,7 +22,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleView : public CWindowImpl<ConsoleView>, public CScrollImpl<ConsoleView> {
+class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> > {
 
 	public:
 		DECLARE_WND_CLASS(NULL)
@@ -42,11 +42,12 @@ class ConsoleView : public CWindowImpl<ConsoleView>, public CScrollImpl<ConsoleV
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnSysKey)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
 			MESSAGE_HANDLER(WM_KEYUP, OnKey)
+			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
+			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
-			CHAIN_MSG_MAP(CScrollImpl<ConsoleView>)
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -61,6 +62,8 @@ class ConsoleView : public CWindowImpl<ConsoleView>, public CScrollImpl<ConsoleV
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
@@ -97,6 +100,9 @@ class ConsoleView : public CWindowImpl<ConsoleView>, public CScrollImpl<ConsoleV
 		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap);
 		void CreateFont(const wstring& strFontName);
 
+		void InitializeScrollbars();
+		void DoScroll(int nType, int nScrollCode, int nThumbPos);
+
 		DWORD GetBufferDifference();
 
 		void Repaint();
@@ -119,6 +125,11 @@ class ConsoleView : public CWindowImpl<ConsoleView>, public CScrollImpl<ConsoleV
 
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
+
+		bool	m_bShowVScroll;
+		bool	m_bShowHScroll;
+		int		m_nVScrollWidth;
+		int		m_nHScrollWidth;
 
 		ConsoleHandler	m_consoleHandler;
 

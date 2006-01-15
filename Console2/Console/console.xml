@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <settings>
 
-	<console change_refresh="10" refresh="50" rows="43" columns="120" buffer_rows="1000">
+	<console change_refresh="10" refresh="50" rows="50" columns="80" buffer_rows="1000" buffer_columns="200">
 
 		<colors>
 			<color id="00" r="0" g="0" b="0" />
@@ -40,8 +40,8 @@
 	<tabs>
 		<tab name="Console2">
 			<cursor style="0" r="255" g="255" b="255" />
-			<background image="0" r="0" g="0" b="0">
-				<image file="F:\Smece\back.bmp" relative="0" resize="0">
+			<background image="1" r="0" g="0" b="0">
+				<image file="F:\Smece\back.bmp" relative="1" resize="0">
 					<tint r="0" g="0" b="0" opacity="65" />
 				</image>
 			</background>

@@ -20,6 +20,10 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
+, m_bShowVScroll(false)
+, m_bShowHScroll(false)
+, m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
+, m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
 , m_consoleHandler()
 , m_nCharHeight(0)
 , m_nCharWidth(0)
@@ -64,8 +68,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	m_dcOffscreen.CreateCompatibleDC(NULL);
 	m_dcText.CreateCompatibleDC(NULL);
 
-//	SetScrollSize(0, 100);
-
 	// set view title
 	SetWindowText(m_tabSettings->strName.c_str());
 
@@ -80,8 +82,11 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	m_consoleHandler.StartShellProcess(m_dwStartupRows, m_dwStartupColumns);
 	m_bInitializing = false;
 
-	CreateOffscreenBuffers();
+	// scrollbar stuff
+	InitializeScrollbars();
 
+	// finally, create offscreen buffers
+	CreateOffscreenBuffers();
 
 	// TODO: put this in console size change handler
 	m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -125,7 +130,20 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	GetClientRect(&rectWindow);
 
-	TRACE(L"OnPaint\n");
+/*
+	dc.TransparentBlt(
+					0, 
+					0, 
+					rectWindow.right, 
+					rectWindow.bottom, 
+					m_dcOffscreen, 
+					0, 
+					0, 
+					rectWindow.right, 
+					rectWindow.bottom, 
+					m_tabSettings->crBackgroundColor);
+*/
+
 	dc.BitBlt(
 		0, 
 		0, 
@@ -174,6 +192,28 @@ LRESULT ConsoleView::OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*b
 LRESULT ConsoleView::OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
 
 	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+
+	DoScroll(SB_VERT, LOWORD(wParam), HIWORD(wParam));
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+
+	DoScroll(SB_HORZ, LOWORD(wParam), HIWORD(wParam));
 	return 0;
 }
 
@@ -294,6 +334,9 @@ void ConsoleView::GetRect(RECT& clientRect) {
 	clientRect.top		= 0;
 	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns*m_nCharWidth + 2*m_nInsideBorder;
 	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows*m_nCharHeight + 2*m_nInsideBorder;
+
+	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
+	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -311,6 +354,9 @@ bool ConsoleView::GetMaxRect(RECT& maxClientRect) {
 	maxClientRect.top	= 0;
 	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*m_nInsideBorder;
 	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*m_nInsideBorder;
+
+	if (m_bShowVScroll) maxClientRect.right	+= m_nVScrollWidth;
+	if (m_bShowHScroll) maxClientRect.bottom+= m_nHScrollWidth;
 
 	return true;
 }
@@ -332,9 +378,12 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 	clientRect.right	= clientRect.left + dwColumns*m_nCharWidth + 2*m_nInsideBorder;
 	clientRect.bottom	= clientRect.top + dwRows*m_nCharHeight + 2*m_nInsideBorder;
 
+	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
+	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
+
 	SharedMemoryLock memLock(m_consoleHandler.GetNewConsoleSize());
 
-	m_consoleHandler.GetNewConsoleSize()->dwColumns = dwColumns;
+	m_consoleHandler.GetNewConsoleSize()->dwColumns	= dwColumns;
 	m_consoleHandler.GetNewConsoleSize()->dwRows	= dwRows;
 
 	m_consoleHandler.GetNewConsoleSize().SetEvent();
@@ -427,6 +476,8 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 
 	// console size changed, resize offscreen buffers
 	if (bResize) {
+	
+		InitializeScrollbars();
 		CreateOffscreenBuffers();
 		// TODO: put this in console size change handler
 		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -438,6 +489,24 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 
 	// if the view is not visible, don't repaint
 	if (!m_bViewActive) return;
+
+	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+
+	if (m_bShowVScroll) {
+		SCROLLINFO si;
+		si.cbSize = sizeof(si); 
+		si.fMask  = SIF_POS; 
+		si.nPos   = consoleInfo->srWindow.Top; 
+		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+	}
+
+	if (m_bShowHScroll) {
+		SCROLLINFO si;
+		si.cbSize = sizeof(si); 
+		si.fMask  = SIF_POS; 
+		si.nPos   = consoleInfo->srWindow.Left; 
+		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
+	}
 
 	Repaint();
 }
@@ -558,6 +627,126 @@ void ConsoleView::CreateFont(const wstring& strFontName) {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::InitializeScrollbars() {
+
+	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
+
+	m_bShowVScroll = consoleParams->dwBufferRows > consoleParams->dwRows;
+	m_bShowHScroll = consoleParams->dwBufferColumns > consoleParams->dwColumns;
+
+//	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
+	::InitializeFlatSB(m_hWnd);
+
+	if (m_bShowVScroll) {
+		// set vertical scrollbar stuff
+		SCROLLINFO	si ;
+
+		si.cbSize	= sizeof(SCROLLINFO) ;
+		si.fMask	= SIF_PAGE | SIF_RANGE ;
+		si.nPage	= consoleParams->dwRows;
+		si.nMax		= consoleParams->dwBufferRows - 1;
+		si.nMin		= 0 ;
+
+		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+	}
+
+	if (m_bShowHScroll) {
+		// set vertical scrollbar stuff
+		SCROLLINFO	si ;
+
+		si.cbSize	= sizeof(SCROLLINFO) ;
+		si.fMask	= SIF_PAGE | SIF_RANGE ;
+		si.nPage	= consoleParams->dwColumns;
+		si.nMax		= consoleParams->dwBufferColumns - 1;
+		si.nMin		= 0 ;
+
+		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE) ;
+	}
+
+	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
+	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
+
+/*
+	// set scrollbar properties
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, m_nScrollbarStyle, FALSE);
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VBKGCOLOR, m_crScrollbarColor, FALSE);
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CXVSCROLL , m_nScrollbarWidth, FALSE);
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CYVSCROLL, m_nScrollbarButtonHeight, FALSE);
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CYVTHUMB, m_nScrollbarThunmbHeight, TRUE);
+*/
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos) {
+
+	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
+	int nCurrentPos = ::GetScrollPos(m_hWnd, nType);
+	int nDelta = 0;
+	
+	switch(nScrollCode) { 
+		
+		case SB_PAGEUP: /* SB_PAGELEFT */
+			nDelta = -5; 
+			break; 
+			
+		case SB_PAGEDOWN: /* SB_PAGERIGHT */
+			nDelta = 5; 
+			break; 
+			
+		case SB_LINEUP: /* SB_LINELEFT */
+			nDelta = -1; 
+			break; 
+			
+		case SB_LINEDOWN: /* SB_LINERIGHT */
+			nDelta = 1; 
+			break; 
+			
+		case SB_THUMBTRACK:
+		case SB_THUMBPOSITION:
+			nDelta = nThumbPos - nCurrentPos; 
+			break;
+			
+		case SB_ENDSCROLL:
+			return;
+			
+		default: 
+			return;
+	}
+	
+	if (nType == SB_VERT) {
+		nDelta = max(-nCurrentPos, min(nDelta, (int)(consoleParams->dwBufferRows-consoleParams->dwRows) - nCurrentPos));
+	} else {
+		nDelta = max(-nCurrentPos, min(nDelta, (int)(consoleParams->dwBufferColumns-consoleParams->dwColumns) - nCurrentPos));
+	}
+
+	if (nDelta != 0) {
+		
+		nCurrentPos += nDelta;
+
+		SharedMemory<SIZE>& newScrollPos = m_consoleHandler.GetNewScrollPos();
+
+		if (nType == SB_VERT) {
+			newScrollPos->cx = 0;
+			newScrollPos->cy = nDelta;
+		} else {
+			newScrollPos->cx = nDelta;
+			newScrollPos->cy = 0;
+		}
+
+		newScrollPos.SetEvent();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -917,7 +1106,6 @@ void ConsoleView::BitBltOffscreen() {
 	ClientToScreen(&pointClientScreen);
 
 	if (m_tabSettings->bImageBackground) {
-		TRACE(L"BitBltOffscreen\n");
 
 		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
 
@@ -964,7 +1152,7 @@ void ConsoleView::BitBltOffscreen() {
 		if (m_cursor.get() != NULL) {
 			m_cursor->BitBlt(
 						m_dcOffscreen, 
-						consoleInfo->dwCursorPosition.X * m_nCharWidth + m_nInsideBorder, 
+						(consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder, 
 						(consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder);
 		}
 	}

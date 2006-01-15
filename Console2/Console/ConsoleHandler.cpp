@@ -29,6 +29,9 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleParams()
 , m_consoleInfo()
 , m_consoleBuffer()
+, m_consolePaste()
+, m_newConsoleSize()
+, m_newScrollPos()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 {
@@ -115,6 +118,7 @@ bool ConsoleHandler::StartShellProcess(DWORD dwStartupRows, DWORD dwStartupColum
 	m_consoleParams->dwRows					= dwStartupRows;
 	m_consoleParams->dwColumns				= dwStartupColumns;
 	m_consoleParams->dwBufferRows			= g_settingsHandler->GetConsoleSettings().dwBufferRows;
+	m_consoleParams->dwBufferColumns		= g_settingsHandler->GetConsoleSettings().dwBufferColumns;
 
 	m_hConsoleProcess = shared_ptr<void>(pi.hProcess, ::CloseHandle);
 
@@ -192,6 +196,9 @@ bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId) {
 
 	// new console size
 	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str());
+
+	// new scroll position
+	m_newScrollPos.Create((SharedMemNames::formatNewScrollPos % dwConsoleProcessId).str());
 
 	// TODO: separate function for default settings
 	m_consoleParams->dwRows		= 25;

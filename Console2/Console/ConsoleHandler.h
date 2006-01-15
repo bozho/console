@@ -37,6 +37,7 @@ class ConsoleHandler {
 		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
 		SharedMemory<UINT_PTR>& GetConsolePasteInfo()				{ return m_consolePaste; }
 		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
+		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
 
 	private:
 
@@ -69,6 +70,7 @@ class ConsoleHandler {
 		SharedMemory<UINT_PTR>						m_consolePaste;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;
+		SharedMemory<SIZE>							m_newScrollPos;
 
 		shared_ptr<void>							m_hMonitorThread;
 		shared_ptr<void>							m_hMonitorThreadExit;

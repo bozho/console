@@ -89,7 +89,8 @@ void SettingsHandler::LoadConsoleSettings() {
 	GetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), m_consoleSettings.dwChangeRefreshInterval, 10);
 	GetAttribute(pConsoleElement, CComBSTR(L"rows"), m_consoleSettings.dwRows, 25);
 	GetAttribute(pConsoleElement, CComBSTR(L"columns"), m_consoleSettings.dwColumns, 80);
-	GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), m_consoleSettings.dwBufferRows, 200);
+	GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), m_consoleSettings.dwBufferRows, m_consoleSettings.dwRows);
+	GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), m_consoleSettings.dwBufferColumns, m_consoleSettings.dwColumns);
 
 	for (DWORD i = 0; i < 16; ++i) {
 

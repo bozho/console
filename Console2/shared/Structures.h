@@ -12,13 +12,14 @@ struct ConsoleParams {
 	, dwRows(0)
 	, dwColumns(0)
 	, dwBufferRows(0)
+	, dwBufferColumns(0)
 	, dwMaxRows(0)
 	, dwMaxColumns(0)
 	, hwndConsoleWindow(NULL)
 	{
 	}
 
-	ConsoleParams(DWORD consoleMainThreadId, DWORD parentProcessId, DWORD notificationTimeout, DWORD refreshInterval, DWORD rows, DWORD columns, DWORD bufferRows)
+	ConsoleParams(DWORD consoleMainThreadId, DWORD parentProcessId, DWORD notificationTimeout, DWORD refreshInterval, DWORD rows, DWORD columns, DWORD bufferRows, DWORD bufferColumns)
 	: dwConsoleMainThreadId(consoleMainThreadId)
 	, dwParentProcessId(parentProcessId)
 	, dwNotificationTimeout(notificationTimeout)
@@ -26,6 +27,7 @@ struct ConsoleParams {
 	, dwRows(rows)
 	, dwColumns(columns)
 	, dwBufferRows(bufferRows)
+	, dwBufferColumns(bufferColumns)
 	, dwMaxRows(0)
 	, dwMaxColumns(0)
 	, hwndConsoleWindow(NULL)
@@ -40,6 +42,7 @@ struct ConsoleParams {
 	, dwRows(other.dwRows)
 	, dwColumns(other.dwColumns)
 	, dwBufferRows(other.dwBufferRows)
+	, dwBufferColumns(other.dwBufferColumns)
 	, dwMaxRows(other.dwMaxRows)
 	, dwMaxColumns(other.dwMaxColumns)
 	, hwndConsoleWindow(other.hwndConsoleWindow)
@@ -54,6 +57,7 @@ struct ConsoleParams {
 	DWORD	dwRows;
 	DWORD	dwColumns;
 	DWORD	dwBufferRows;
+	DWORD	dwBufferColumns;
 
 	// stuff set by console hook
 	DWORD	dwMaxRows;

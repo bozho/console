@@ -21,6 +21,7 @@ struct ConsoleSettings {
 	, dwRows(25)
 	, dwColumns(80)
 	, dwBufferRows(200)
+	, dwBufferColumns(80)
 	{
 		consoleColors[0]	= 0x000000;
 		consoleColors[1]	= 0x800000;
@@ -45,6 +46,7 @@ struct ConsoleSettings {
 	DWORD		dwRows;
 	DWORD		dwColumns;
 	DWORD		dwBufferRows;
+	DWORD		dwBufferColumns;
 
 	COLORREF	consoleColors[16];
 };

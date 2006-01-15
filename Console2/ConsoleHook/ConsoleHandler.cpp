@@ -21,6 +21,9 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleInfo()
 , m_cursorInfo()
 , m_consoleBuffer()
+, m_consolePaste()
+, m_newConsoleSize()
+, m_newScrollPos()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_dwScreenBufferSize(0)
@@ -102,6 +105,9 @@ bool ConsoleHandler::OpenSharedMemory() {
 	// open new console size shared memory object
 	m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str());
 
+	// new scroll position
+	m_newScrollPos.Open((SharedMemNames::formatNewScrollPos % dwProcessId).str());
+
 	return true;
 }
 
@@ -180,14 +186,18 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
+	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
 
 	// check against max size
+	TRACE(L"Columns: %i\n", dwColumns);
+	TRACE(L"Max columns: %i\n", m_consoleParams->dwMaxColumns);
+
 	if (dwColumns > m_consoleParams->dwMaxColumns) dwColumns = m_consoleParams->dwMaxColumns;
 	if (dwRows > m_consoleParams->dwMaxRows) dwRows = m_consoleParams->dwMaxRows;
 
-	COORD		coordBuffersSize;
-	coordBuffersSize.X = static_cast<SHORT>(dwColumns);
-	coordBuffersSize.Y = static_cast<SHORT>(m_consoleParams->dwBufferRows);
+	COORD		coordBufferSize;
+	coordBufferSize.X = static_cast<SHORT>(m_consoleParams->dwBufferColumns);
+	coordBufferSize.Y = static_cast<SHORT>(m_consoleParams->dwBufferRows);
 	
 	SMALL_RECT	srConsoleRect;
 	srConsoleRect.Top	= 0;
@@ -195,19 +205,28 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 	srConsoleRect.Right	= static_cast<SHORT>(dwColumns - 1);
 	srConsoleRect.Bottom= static_cast<SHORT>(dwRows - 1);
 
-//	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
-	
+	TRACE(L"New console size: %ix%i\n", srConsoleRect.Right, srConsoleRect.Bottom);
+	TRACE(L"Buffer size: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
+
+	::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
+	::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
+
+/*
 	// order of setting window size and screen buffer size depends on current and desired dimensions
 	if ((dwColumns < (DWORD) csbi.dwSize.X) ||
 		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) dwColumns * m_consoleParams->dwBufferRows)) {
+//		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 		
 		TRACE(L"Console 1\n");
+/ *
 		if ((m_consoleParams->dwBufferRows > dwRows) && 
 			(static_cast<DWORD>(csbi.dwSize.Y) > m_consoleParams->dwBufferRows)) {
 			
+			TRACE(L"Console 1.1\n");
 			coordBuffersSize.Y				= csbi.dwSize.Y;
 			m_consoleParams->dwBufferRows	= static_cast<DWORD>(csbi.dwSize.Y);
 		}
+* /
 		
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 		::SetConsoleScreenBufferSize(hStdOut, coordBuffersSize);
@@ -215,19 +234,20 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		//	} else if (((DWORD)csbi.dwSize.X < m_dwColumns) || ((DWORD)csbi.dwSize.Y < m_dwBufferRows) || ((DWORD)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1) != m_dwRows)) {
 	} else if ((dwRows < (DWORD) csbi.dwSize.Y) ||
 				((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) dwColumns * m_consoleParams->dwBufferRows)) {
+//				((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 
 		// why did we need this???
-/*
+/ *
 		if (csbi.dwSize.Y < m_consoleParams->dwBufferRows) {
 			m_consoleParams->dwBufferRows = coordBuffersSize.Y = csbi.dwSize.Y;
 		}
-*/
+* /
 		TRACE(L"Console 2\n");
 		
 		::SetConsoleScreenBufferSize(hStdOut, coordBuffersSize);
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
-
 	}
+*/
 
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 
@@ -274,20 +294,24 @@ void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
 	COORD		coordMaxSize;
 	coordMaxSize = ::GetLargestConsoleWindowSize(hStdOut);
 
-	m_consoleParams->dwMaxColumns	= coordMaxSize.X;
 	m_consoleParams->dwMaxRows		= coordMaxSize.Y;
-
-//	TRACE(L"Max columns: %i, max rows: %i\n", coordMaxSize.X, coordMaxSize.Y);
+	m_consoleParams->dwMaxColumns	= coordMaxSize.X;
 
 	// check rows and columns
-	if (m_consoleParams->dwColumns > static_cast<DWORD>(coordMaxSize.X)) m_consoleParams->dwColumns = coordMaxSize.X;
 	if (m_consoleParams->dwRows > static_cast<DWORD>(coordMaxSize.Y)) m_consoleParams->dwRows = coordMaxSize.Y;
+	if (m_consoleParams->dwColumns > static_cast<DWORD>(coordMaxSize.X)) m_consoleParams->dwColumns = coordMaxSize.X;
 
-	// buffer rows cannot be smaller than max size
-	if (m_consoleParams->dwBufferRows < static_cast<DWORD>(coordMaxSize.X)) m_consoleParams->dwBufferRows = coordMaxSize.X;
+	// buffer rows cannot be less than max console size
+//	if (m_consoleParams->dwBufferRows < static_cast<DWORD>(coordMaxSize.Y)) m_consoleParams->dwBufferRows = coordMaxSize.Y;
+//	if (m_consoleParams->dwBufferColumns < static_cast<DWORD>(coordMaxSize.X)) m_consoleParams->dwBufferColumns = coordMaxSize.X;
+
+	if (m_consoleParams->dwMaxRows > m_consoleParams->dwBufferRows) m_consoleParams->dwMaxRows = m_consoleParams->dwBufferRows;
+	if (m_consoleParams->dwMaxColumns > m_consoleParams->dwBufferColumns) m_consoleParams->dwMaxColumns = m_consoleParams->dwBufferColumns;
 
 	// set console window handle
 	m_consoleParams->hwndConsoleWindow = ::GetConsoleWindow();
+
+	TRACE(L"Max columns: %i, max rows: %i\n", m_consoleParams->dwMaxColumns, m_consoleParams->dwMaxRows);
 
 	// get initial window and cursor info
 	::GetConsoleScreenBufferInfo(hStdOut, m_consoleInfo.Get());
@@ -339,7 +363,14 @@ DWORD ConsoleHandler::MonitorThread() {
 	SetConsoleParams(hStdOut);
 	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows);
 
-	HANDLE	arrWaitHandles[]= { m_hMonitorThreadExit.get(), hStdOut, hStdErr, m_consolePaste.GetEvent(), m_newConsoleSize.GetEvent() };
+	HANDLE	arrWaitHandles[]= { 
+				m_hMonitorThreadExit.get(), 
+				hStdOut, 
+				hStdErr, 
+				m_consolePaste.GetEvent(), 
+				m_newConsoleSize.GetEvent(),
+				m_newScrollPos.GetEvent() };
+
 	DWORD	dwWaitRes		= 0;
 
 	while ((dwWaitRes = ::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0) {
@@ -375,6 +406,25 @@ DWORD ConsoleHandler::MonitorThread() {
 				SharedMemoryLock memLock(m_newConsoleSize);
 
 				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
+
+				ReadConsoleBuffer();
+				::ResetEvent(hStdOut);
+				::ResetEvent(hStdErr);
+				break;
+			}
+
+			// console scroll request
+			case WAIT_OBJECT_0 + 5 : {
+
+				SharedMemoryLock memLock(m_newScrollPos);
+
+				SMALL_RECT sr;
+				sr.Top		= static_cast<SHORT>(m_newScrollPos->cy);
+				sr.Bottom	= static_cast<SHORT>(m_newScrollPos->cy);
+				sr.Left		= static_cast<SHORT>(m_newScrollPos->cx);
+				sr.Right	= static_cast<SHORT>(m_newScrollPos->cx);
+
+				::SetConsoleWindowInfo(hStdOut, FALSE, &sr);
 
 				ReadConsoleBuffer();
 				::ResetEvent(hStdOut);

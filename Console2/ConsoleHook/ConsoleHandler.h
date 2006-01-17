@@ -31,6 +31,8 @@ class ConsoleHandler {
 
 		void PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText);
 
+		void ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta);
+
 		void SetConsoleParams(HANDLE hStdOut);
 
 	private:

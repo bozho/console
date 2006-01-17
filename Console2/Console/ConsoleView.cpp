@@ -688,8 +688,7 @@ void ConsoleView::InitializeScrollbars() {
 
 void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos) {
 
-	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
-	int nCurrentPos = ::GetScrollPos(m_hWnd, nType);
+	int nCurrentPos = ::FlatSB_GetScrollPos(m_hWnd, nType);
 	int nDelta = 0;
 	
 	switch(nScrollCode) { 
@@ -722,15 +721,7 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos) {
 			return;
 	}
 	
-	if (nType == SB_VERT) {
-		nDelta = max(-nCurrentPos, min(nDelta, (int)(consoleParams->dwBufferRows-consoleParams->dwRows) - nCurrentPos));
-	} else {
-		nDelta = max(-nCurrentPos, min(nDelta, (int)(consoleParams->dwBufferColumns-consoleParams->dwColumns) - nCurrentPos));
-	}
-
 	if (nDelta != 0) {
-		
-		nCurrentPos += nDelta;
 
 		SharedMemory<SIZE>& newScrollPos = m_consoleHandler.GetNewScrollPos();
 

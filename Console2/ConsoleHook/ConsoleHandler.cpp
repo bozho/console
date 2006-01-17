@@ -118,6 +118,8 @@ bool ConsoleHandler::OpenSharedMemory() {
 
 void ConsoleHandler::ReadConsoleBuffer() {
 
+	// we take a fresh STDOUT handle - seems to work better (in case a program
+	// has opened a new screen output buffer)
 	shared_ptr<void> hStdOut(
 						::CreateFile(
 							L"CONOUT$",
@@ -129,36 +131,91 @@ void ConsoleHandler::ReadConsoleBuffer() {
 							0),
 							::CloseHandle);
 
+	// get total console size
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
-	COORD						coordBufferSize;
-	COORD						coordStart;
+	COORD						coordConsoleSize;
 
 	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
+
+	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
+	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
 
 /*
 	TRACE(L"ReadConsoleBuffer console buffer size: %ix%i\n", csbiConsole.dwSize.X, csbiConsole.dwSize.Y);
 	TRACE(L"ReadConsoleBuffer console rect: %ix%i - %ix%i\n", csbiConsole.srWindow.Left, csbiConsole.srWindow.Top, csbiConsole.srWindow.Right, csbiConsole.srWindow.Bottom);
+	TRACE(L"console window rect: (%i, %i) - (%i, %i)\n", csbiConsole.srWindow.Top, csbiConsole.srWindow.Left, csbiConsole.srWindow.Bottom, csbiConsole.srWindow.Right);
 */
 
+	// do console output buffer reading
+	DWORD					dwScreenBufferSize	= coordConsoleSize.X * coordConsoleSize.Y;
+	DWORD					dwScreenBufferOffset= 0;
+
+	shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
+
+	COORD		coordBufferSize;
+	COORD		coordStart;
+	SMALL_RECT	srBuffer;
+
+//	TRACE(L"===================================================================\n");
+
+	// start coordinates for the buffer are always (0, 0) - we use offset
 	coordStart.X		= 0;
 	coordStart.Y		= 0;
 
+	// ReadConsoleOutput seems to fail for large (around 8k-CHAR_INFO's) buffers
+	// here we calculate max buffer size (row count) for safe reading
 	coordBufferSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
-	coordBufferSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
+	coordBufferSize.Y	= static_cast<SHORT>(8192 / coordBufferSize.X);
 
-//	TRACE(L"console window rect: (%i, %i) - (%i, %i)\n", csbiConsole.srWindow.Top, csbiConsole.srWindow.Left, csbiConsole.srWindow.Bottom, csbiConsole.srWindow.Right);
+	// initialize reading rectangle
+	srBuffer.Top		= csbiConsole.srWindow.Top;
+	srBuffer.Bottom		= csbiConsole.srWindow.Top + coordBufferSize.Y - 1;
+	srBuffer.Left		= csbiConsole.srWindow.Left;
+	srBuffer.Right		= csbiConsole.srWindow.Left + csbiConsole.srWindow.Right - csbiConsole.srWindow.Left;
 
-	DWORD					dwScreenBufferSize = (coordBufferSize.X + 1) * (coordBufferSize.Y + 1);
-	shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
+/*
+	TRACE(L"Buffer size for loop reads: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
+	TRACE(L"-------------------------------------------------------------------\n");
+*/
+
+	// read rows 'chunks'
+	for (SHORT i = 0; i < coordConsoleSize.Y / coordBufferSize.Y; ++i) {
+
+//		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
+
+		::ReadConsoleOutput(
+			hStdOut.get(), 
+			pScreenBuffer.get() + dwScreenBufferOffset, 
+			coordBufferSize, 
+			coordStart, 
+			&srBuffer);
+
+		srBuffer.Top		= srBuffer.Top + static_cast<SHORT>(coordBufferSize.Y);
+		srBuffer.Bottom		= srBuffer.Bottom + static_cast<SHORT>(coordBufferSize.Y);
+
+		dwScreenBufferOffset += coordBufferSize.X * coordBufferSize.Y;
+	}
+
+	// read the last 'chunk', we need to calculate the number of rows in the
+	// last chunk and update bottom coordinate for the region
+	coordBufferSize.Y	= coordConsoleSize.Y - i * coordBufferSize.Y;
+	srBuffer.Bottom		= csbiConsole.srWindow.Bottom;
+
+/*
+	TRACE(L"Buffer size for last read: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
+	TRACE(L"-------------------------------------------------------------------\n");
+	TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
+*/
 
 	::ReadConsoleOutput(
 		hStdOut.get(), 
-		pScreenBuffer.get(), 
+		pScreenBuffer.get() + dwScreenBufferOffset, 
 		coordBufferSize, 
 		coordStart, 
-		&csbiConsole.srWindow);
+		&srBuffer);
 
-//	TRACE(L"Console screen buffer size: %i\n", dwScreenBufferSize);
+
+//	TRACE(L"===================================================================\n");
 
 	// compare previous buffer, and if different notify Console
 	if ((::memcmp(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
@@ -288,6 +345,32 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta) {
+
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
+
+	int nXCurrentPos = csbi.srWindow.Right - m_consoleParams->dwColumns + 1;
+	int nYCurrentPos = csbi.srWindow.Bottom - m_consoleParams->dwRows + 1;
+
+	// limit deltas
+	nXDelta = max(-nXCurrentPos, min(nXDelta, (int)(m_consoleParams->dwBufferColumns-m_consoleParams->dwColumns) - nXCurrentPos));
+	nYDelta = max(-nYCurrentPos, min(nYDelta, (int)(m_consoleParams->dwBufferRows-m_consoleParams->dwRows) - nYCurrentPos));
+
+	SMALL_RECT sr;
+	sr.Top		= static_cast<SHORT>(nYDelta);
+	sr.Bottom	= static_cast<SHORT>(nYDelta);
+	sr.Left		= static_cast<SHORT>(nXDelta);
+	sr.Right	= static_cast<SHORT>(nXDelta);
+
+	::SetConsoleWindowInfo(hStdOut, FALSE, &sr);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
 
 	// get max console size
@@ -406,8 +489,8 @@ DWORD ConsoleHandler::MonitorThread() {
 				SharedMemoryLock memLock(m_newConsoleSize);
 
 				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
-
 				ReadConsoleBuffer();
+
 				::ResetEvent(hStdOut);
 				::ResetEvent(hStdErr);
 				break;
@@ -418,15 +501,9 @@ DWORD ConsoleHandler::MonitorThread() {
 
 				SharedMemoryLock memLock(m_newScrollPos);
 
-				SMALL_RECT sr;
-				sr.Top		= static_cast<SHORT>(m_newScrollPos->cy);
-				sr.Bottom	= static_cast<SHORT>(m_newScrollPos->cy);
-				sr.Left		= static_cast<SHORT>(m_newScrollPos->cx);
-				sr.Right	= static_cast<SHORT>(m_newScrollPos->cx);
-
-				::SetConsoleWindowInfo(hStdOut, FALSE, &sr);
-
+				ScrollConsole(hStdOut, m_newScrollPos->cx, m_newScrollPos->cy);
 				ReadConsoleBuffer();
+
 				::ResetEvent(hStdOut);
 				::ResetEvent(hStdErr);
 				break;

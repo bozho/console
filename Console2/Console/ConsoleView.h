@@ -84,7 +84,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void SetAppActiveStatus(bool bAppActive);
 
-		void SetViewActive(bool bActive) { m_bViewActive = bActive; }
+		void SetViewActive(bool bActive);
 
 		shared_ptr<CIcon> GetIcon() const { return m_tabSettings->tabIcon; }
 
@@ -133,14 +133,6 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		ConsoleHandler	m_consoleHandler;
 
-		CDC		m_dcOffscreen;
-		CDC		m_dcText;
-
-		CBitmap	m_bmpOffscreen;
-		CBitmap	m_bmpText;
-
-		CFont	m_fontText;
-
 		int		m_nCharHeight;
 		int		m_nCharWidth;
 
@@ -158,6 +150,18 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;
+
+// static members
+private:
+
+		static CDC						m_dcOffscreen;
+		static CDC						m_dcText;
+
+		static CBitmap					m_bmpOffscreen;
+		static CBitmap					m_bmpText;
+
+		static CFont					m_fontText;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

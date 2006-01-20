@@ -11,6 +11,15 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+CDC		ConsoleView::m_dcOffscreen(::CreateCompatibleDC(NULL));
+CDC		ConsoleView::m_dcText(::CreateCompatibleDC(NULL));
+
+CBitmap	ConsoleView::m_bmpOffscreen;
+CBitmap	ConsoleView::m_bmpText;
+
+CFont	ConsoleView::m_fontText;
+
+
 //////////////////////////////////////////////////////////////////////////////
 
 ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
@@ -65,8 +74,10 @@ BOOL ConsoleView::PreTranslateMessage(MSG* pMsg) {
 
 LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
+/*
 	m_dcOffscreen.CreateCompatibleDC(NULL);
 	m_dcText.CreateCompatibleDC(NULL);
+*/
 
 	// set view title
 	SetWindowText(m_tabSettings->strName.c_str());
@@ -369,7 +380,14 @@ bool ConsoleView::GetMaxRect(RECT& maxClientRect) {
 void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 	GetWindowRect(&clientRect);
+/*
+	TRACE(L"================================================================\n");
 	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+*/
+
+	// exclude scrollbars from row/col calculation
+	if (m_bShowVScroll) clientRect.right	-= m_nVScrollWidth;
+	if (m_bShowHScroll) clientRect.bottom	-= m_nHScrollWidth;
 
 	// TODO: handle variable fonts
 	DWORD dwColumns	= (clientRect.right - clientRect.left - 2*m_nInsideBorder) / m_nCharWidth;
@@ -378,6 +396,7 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 	clientRect.right	= clientRect.left + dwColumns*m_nCharWidth + 2*m_nInsideBorder;
 	clientRect.bottom	= clientRect.top + dwRows*m_nCharHeight + 2*m_nInsideBorder;
 
+	// adjust for scrollbars
 	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
 
@@ -385,6 +404,11 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 	m_consoleHandler.GetNewConsoleSize()->dwColumns	= dwColumns;
 	m_consoleHandler.GetNewConsoleSize()->dwRows	= dwRows;
+
+/*
+	TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
+	TRACE(L"================================================================\n");
+*/
 
 	m_consoleHandler.GetNewConsoleSize().SetEvent();
 }
@@ -396,7 +420,7 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 void ConsoleView::OwnerWindowMoving() {
 
-	TRACE(L"OwnerWindowMoving\n");
+//	TRACE(L"OwnerWindowMoving\n");
 	// for relative backgrounds, re-blit
 	if ((m_tabSettings->tabBackground.get() != NULL) && m_tabSettings->tabBackground->bRelative) BitBltOffscreen();
 
@@ -422,7 +446,21 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive) {
 	m_bAppActive = bAppActive;
 	if (m_cursor.get() != NULL) m_cursor->Draw(m_bAppActive);
 	BitBltOffscreen();
+}
 
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::SetViewActive(bool bActive) {
+
+	m_bViewActive = bActive;
+
+	if (m_bViewActive) {
+		RepaintText();
+		BitBltOffscreen();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -477,8 +515,19 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 	// console size changed, resize offscreen buffers
 	if (bResize) {
 	
+/*
+		TRACE(L"================================================================\n");
+		TRACE(L"Resizing console wnd: 0x%08X\n", m_hWnd);
+*/
 		InitializeScrollbars();
-		CreateOffscreenBuffers();
+
+		if (m_bViewActive) {
+			m_fontText.DeleteObject();
+			m_bmpOffscreen.DeleteObject();
+			m_bmpText.DeleteObject();
+			CreateOffscreenBuffers();
+		}
+
 		// TODO: put this in console size change handler
 		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
 		::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
@@ -498,6 +547,11 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 		si.fMask  = SIF_POS; 
 		si.nPos   = consoleInfo->srWindow.Top; 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+
+/*
+		TRACE(L"----------------------------------------------------------------\n");
+		TRACE(L"VScroll pos: %i\n", consoleInfo->srWindow.Top);
+*/
 	}
 
 	if (m_bShowHScroll) {
@@ -596,7 +650,7 @@ void ConsoleView::CreateOffscreenBuffers() {
 
 void ConsoleView::CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap) {
 
-	if (!bitmap.IsNull()) bitmap.DeleteObject();
+	if (!bitmap.IsNull()) return;// bitmap.DeleteObject();
 	bitmap.CreateCompatibleBitmap(dcWindow, rect.right, rect.bottom);
 	cdc.SelectBitmap(bitmap);
 }
@@ -608,7 +662,7 @@ void ConsoleView::CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& re
 
 void ConsoleView::CreateFont(const wstring& strFontName) {
 
-	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
+	if (!m_fontText.IsNull()) return;// m_fontText.DeleteObject();
 	m_fontText.CreateFont(
 		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
@@ -640,6 +694,12 @@ void ConsoleView::InitializeScrollbars() {
 
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
 	::InitializeFlatSB(m_hWnd);
+
+/*
+	TRACE(L"InitializeScrollbars, console wnd: 0x%08X\n", m_hWnd);
+	TRACE(L"Sizes: %i, %i    %i, %i\n", consoleParams->dwRows, consoleParams->dwBufferRows - 1, consoleParams->dwColumns, consoleParams->dwBufferColumns - 1);
+	TRACE(L"----------------------------------------------------------------\n");
+*/
 
 	if (m_bShowVScroll) {
 		// set vertical scrollbar stuff

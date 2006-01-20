@@ -80,6 +80,7 @@ BEGIN
     POPUP "&File"
     BEGIN
         MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
+        MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END

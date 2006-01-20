@@ -14,6 +14,50 @@ extern shared_ptr<ImageHandler>		g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
+HotKeys::HotKeys()
+: vecHotKeys()
+{
+	mapCommands.insert(CommandsMap::value_type(L"newtab1",		ID_NEW_TAB_1));
+	mapCommands.insert(CommandsMap::value_type(L"newtab2",		ID_NEW_TAB_1 + 1));
+	mapCommands.insert(CommandsMap::value_type(L"newtab3",		ID_NEW_TAB_1 + 2));
+	mapCommands.insert(CommandsMap::value_type(L"newtab4",		ID_NEW_TAB_1 + 3));
+	mapCommands.insert(CommandsMap::value_type(L"newtab5",		ID_NEW_TAB_1 + 4));
+	mapCommands.insert(CommandsMap::value_type(L"newtab6",		ID_NEW_TAB_1 + 5));
+	mapCommands.insert(CommandsMap::value_type(L"newtab7",		ID_NEW_TAB_1 + 6));
+	mapCommands.insert(CommandsMap::value_type(L"newtab8",		ID_NEW_TAB_1 + 7));
+	mapCommands.insert(CommandsMap::value_type(L"newtab9",		ID_NEW_TAB_1 + 8));
+	mapCommands.insert(CommandsMap::value_type(L"newtab10",		ID_NEW_TAB_1 + 9));
+
+	mapCommands.insert(CommandsMap::value_type(L"switchtab1",	ID_SWITCH_TAB_1));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab2",	ID_SWITCH_TAB_1 + 1));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab3",	ID_SWITCH_TAB_1 + 2));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab4",	ID_SWITCH_TAB_1 + 3));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab5",	ID_SWITCH_TAB_1 + 4));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab6",	ID_SWITCH_TAB_1 + 5));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab7",	ID_SWITCH_TAB_1 + 6));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab8",	ID_SWITCH_TAB_1 + 7));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab9",	ID_SWITCH_TAB_1 + 8));
+	mapCommands.insert(CommandsMap::value_type(L"switchtab10",	ID_SWITCH_TAB_1 + 9));
+
+	mapCommands.insert(CommandsMap::value_type(L"nexttab",		ID_NEXT_TAB));
+	mapCommands.insert(CommandsMap::value_type(L"prevtab",		ID_PREV_TAB));
+
+	mapCommands.insert(CommandsMap::value_type(L"closetab",		ID_FILE_CLOSE_TAB));
+
+	mapCommands.insert(CommandsMap::value_type(L"copy",			ID_COPY));
+	mapCommands.insert(CommandsMap::value_type(L"paste",		ID_PASTE));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 SettingsHandler::SettingsHandler()
 {
 }
@@ -129,7 +173,6 @@ void SettingsHandler::LoadHotKeys() {
 	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"settings/hotkeys/hotkey"), &pHotKeyNodes);
 	if (FAILED(hr)) return;
 
-	WORD	wHotKeyCommand = ID_HOTKEY_FIRST;
 	long	lListLength;
 	pHotKeyNodes->get_length(&lListLength);
 
@@ -141,30 +184,34 @@ void SettingsHandler::LoadHotKeys() {
 		pHotKeyNodes->get_item(i, &pHotKeyNode);
 		if (FAILED(pHotKeyNode.QueryInterface(&pHotKeyElement))) continue;
 
+		wstring	strCommand(L"");
 		bool	bShift;
 		bool	bCtrl;
 		bool	bAlt;
-		bool	bVirtKey;
 		DWORD	dwKeyCode;
+
+		GetAttribute(pHotKeyElement, CComBSTR(L"command"), strCommand, wstring(L""));
+
+		CommandsMap::iterator it = m_hotKeys.mapCommands.find(strCommand);
+		if (it == m_hotKeys.mapCommands.end()) continue;
 
 		GetAttribute(pHotKeyElement, CComBSTR(L"shift"), bShift, false);
 		GetAttribute(pHotKeyElement, CComBSTR(L"ctrl"), bCtrl, false);
 		GetAttribute(pHotKeyElement, CComBSTR(L"alt"), bAlt, false);
-		GetAttribute(pHotKeyElement, CComBSTR(L"virtkey"), bVirtKey, false);
 		GetAttribute(pHotKeyElement, CComBSTR(L"code"), dwKeyCode, 0);
 
-		shared_ptr<HotKey>	newHotKey(new HotKey);
-		if (bShift)		newHotKey->hotKey.fVirt |= FSHIFT;
-		if (bCtrl)		newHotKey->hotKey.fVirt |= FCONTROL;
-		if (bAlt)		newHotKey->hotKey.fVirt |= FALT;
-		if (bVirtKey)	newHotKey->hotKey.fVirt |= FVIRTKEY;
+		ACCEL	newAccel;
+		::ZeroMemory(&newAccel, sizeof(ACCEL));
 
-		newHotKey->hotKey.key	= static_cast<WORD>(dwKeyCode);
-		newHotKey->hotKey.cmd	= wHotKeyCommand++;
+		if (bShift)	newAccel.fVirt |= FSHIFT;
+		if (bCtrl)	newAccel.fVirt |= FCONTROL;
+		if (bAlt)	newAccel.fVirt |= FALT;
 
-		GetAttribute(pHotKeyElement, CComBSTR(L"command"), newHotKey->strCommand, wstring(L""));
+		newAccel.fVirt	|= FVIRTKEY;
+		newAccel.key	= static_cast<WORD>(dwKeyCode);
+		newAccel.cmd	= it->second;
 
-		m_hotKeys.push_back(newHotKey);
+		m_hotKeys.vecHotKeys.push_back(newAccel);
 	}
 }
 

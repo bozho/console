@@ -308,6 +308,9 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 
+	dwColumns	= csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	dwRows		= csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
 	TRACE(L"console buffer size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
 	TRACE(L"console rect: %ix%i - %ix%i\n", csbi.srWindow.Left, csbi.srWindow.Top, csbi.srWindow.Right, csbi.srWindow.Bottom);
 }

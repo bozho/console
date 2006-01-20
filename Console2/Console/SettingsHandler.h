@@ -1,5 +1,7 @@
 #pragma once
 
+#include "resource.h"
+
 #include <msxml.h>
 
 //////////////////////////////////////////////////////////////////////////////
@@ -127,23 +129,15 @@ struct AppearanceSettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define ID_HOTKEY_FIRST		40000
+typedef map<wstring, WORD>	CommandsMap;
 
-struct HotKey {
+struct HotKeys {
 
-	HotKey()
-	: strCommand(L"")
-	{
-		::ZeroMemory(&hotKey, sizeof(ACCEL));
-	}
+	HotKeys();
 
-	ACCEL	hotKey;
-	wstring	strCommand;
+	vector<ACCEL>	vecHotKeys;
+	CommandsMap		mapCommands;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-typedef vector<shared_ptr<HotKey> >		HotKeys;
 
 //////////////////////////////////////////////////////////////////////////////
 

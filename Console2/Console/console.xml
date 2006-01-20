@@ -34,7 +34,34 @@
 
 	
 	<hotkeys>
-		<hotkey shift="1" ctrl="0" alt="1" virtkey="0" code="5" command="paste" />
+		<hotkey shift="0" ctrl="1" alt="0" code="112" command="newtab1" />
+		<hotkey shift="0" ctrl="1" alt="0" code="113" command="newtab2" />
+		<hotkey shift="0" ctrl="1" alt="0" code="114" command="newtab3" />
+		<hotkey shift="0" ctrl="1" alt="0" code="115" command="newtab4" />
+		<hotkey shift="0" ctrl="1" alt="0" code="116" command="newtab5" />
+		<hotkey shift="0" ctrl="1" alt="0" code="117" command="newtab6" />
+		<hotkey shift="0" ctrl="1" alt="0" code="118" command="newtab7" />
+		<hotkey shift="0" ctrl="1" alt="0" code="119" command="newtab8" />
+		<hotkey shift="0" ctrl="1" alt="0" code="120" command="newtab9" />
+		<hotkey shift="0" ctrl="1" alt="0" code="121" command="newtab10" />
+
+		<hotkey shift="0" ctrl="1" alt="0" code="49" command="switchtab1" />
+		<hotkey shift="0" ctrl="1" alt="0" code="50" command="switchtab2" />
+		<hotkey shift="0" ctrl="1" alt="0" code="51" command="switchtab3" />
+		<hotkey shift="0" ctrl="1" alt="0" code="52" command="switchtab4" />
+		<hotkey shift="0" ctrl="1" alt="0" code="53" command="switchtab5" />
+		<hotkey shift="0" ctrl="1" alt="0" code="54" command="switchtab6" />
+		<hotkey shift="0" ctrl="1" alt="0" code="55" command="switchtab7" />
+		<hotkey shift="0" ctrl="1" alt="0" code="56" command="switchtab8" />
+		<hotkey shift="0" ctrl="1" alt="0" code="57" command="switchtab9" />
+		<hotkey shift="0" ctrl="1" alt="0" code="48" command="switchtab10" />
+
+		<hotkey shift="0" ctrl="1" alt="0" code="9" command="nexttab" />
+		<hotkey shift="1" ctrl="1" alt="0" code="9" command="prevtab" />
+		<hotkey shift="0" ctrl="1" alt="0" code="87" command="closetab" />
+
+		<hotkey shift="0" ctrl="1" alt="0" code="67" command="copy" />
+		<hotkey shift="0" ctrl="1" alt="0" code="86" command="paste" />
 	</hotkeys>
 	
 	<tabs>

@@ -64,17 +64,20 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(DWORD dwStartupRows, DWORD dwStartupColumns) {
+bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, DWORD dwStartupRows, DWORD dwStartupColumns) {
 
-	wstring	strShell;
-	wchar_t	szComspec[MAX_PATH];
+	wstring	strShell(strCustomShell);
+	
+	if (strShell.length() == 0) {
+		wchar_t	szComspec[MAX_PATH];
 
-	::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
+		::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
 
-	if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0) {
-		strShell = szComspec;		
-	} else {
-		strShell = L"cmd.exe";
+		if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0) {
+			strShell = szComspec;		
+		} else {
+			strShell = L"cmd.exe";
+		}
 	}
 
 	// TODO: build command line
@@ -100,7 +103,7 @@ bool ConsoleHandler::StartShellProcess(DWORD dwStartupRows, DWORD dwStartupColum
 			FALSE,
 			CREATE_NEW_CONSOLE|CREATE_SUSPENDED,
 			NULL,
-			NULL,
+			(strInitialDir.length() > 0) ? strInitialDir.c_str() : NULL,
 			&si,
 			&pi)) {
 

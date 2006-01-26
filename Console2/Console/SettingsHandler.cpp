@@ -129,6 +129,8 @@ void SettingsHandler::LoadConsoleSettings() {
 
 	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/console"), pConsoleElement))) return;
 
+	GetAttribute(pConsoleElement, CComBSTR(L"shell"), m_consoleSettings.strShell, wstring(L""));
+	GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), m_consoleSettings.strInitialDir, wstring(L""));
 	GetAttribute(pConsoleElement, CComBSTR(L"refresh"), m_consoleSettings.dwRefreshInterval, 100);
 	GetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), m_consoleSettings.dwChangeRefreshInterval, 10);
 	GetAttribute(pConsoleElement, CComBSTR(L"rows"), m_consoleSettings.dwRows, 25);
@@ -240,6 +242,7 @@ void SettingsHandler::LoadTabSettings() {
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
 		shared_ptr<TabSettings>	tabSettings(new TabSettings);
+		CComPtr<IXMLDOMElement>	pConsoleElement;
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;
 		wstring					strIconFile(L"");
@@ -266,6 +269,12 @@ void SettingsHandler::LoadTabSettings() {
 															16, 
 															16, 
 															LR_DEFAULTCOLOR))));
+		}
+
+		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"console"), pConsoleElement))) {
+
+			GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabSettings->strShell, m_consoleSettings.strShell);
+			GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabSettings->strInitialDir, m_consoleSettings.strInitialDir);
 		}
 
 		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"cursor"), pCursorElement))) {

@@ -1,12 +1,23 @@
 - handle maximize
 
-- cursor rendering
+*** done *** - cursor rendering
 
-- options
+- options dialog
 
 - image handler
+  - basic stuff is working
 
 - background rendering
+  - in process
+  - problems with relative backgrounds
 
 - non-tabbed windows
+
+- console: custom shell
+
+- tabs: customize default console settings
+
+- appearance: settings for view toolbar/statusbar on startup
+
+- appearance: settings for view menu on startup ??
 

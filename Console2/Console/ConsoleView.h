@@ -75,7 +75,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void GetRect(RECT& clientRect);
 		bool GetMaxRect(RECT& maxClientRect);
 		void AdjustRectAndResize(RECT& clientRect);
-		void OwnerWindowMoving();
+		void OwnerWindowMoving(int x, int y);
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 

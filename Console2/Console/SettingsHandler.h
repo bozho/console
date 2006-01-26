@@ -18,7 +18,9 @@
 struct ConsoleSettings {
 
 	ConsoleSettings()
-	: dwRefreshInterval(100)
+	: strShell(L"")
+	, strInitialDir(L"")
+	, dwRefreshInterval(100)
 	, dwChangeRefreshInterval(10)
 	, dwRows(25)
 	, dwColumns(80)
@@ -42,6 +44,9 @@ struct ConsoleSettings {
 		consoleColors[14]	= 0x00FFFF;
 		consoleColors[15]	= 0xFFFFFF;
 	}
+
+	wstring		strShell;
+	wstring		strInitialDir;
 
 	DWORD		dwRefreshInterval;
 	DWORD		dwChangeRefreshInterval;
@@ -147,7 +152,9 @@ struct HotKeys {
 struct TabSettings {
 
 	TabSettings()
-	: strName(L"Console")
+	: strShell(L"")
+	, strInitialDir(L"")
+	, strName(L"Console")
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, bImageBackground(false)
@@ -156,6 +163,10 @@ struct TabSettings {
 	, tabBackground()
 	{
 	}
+
+	// custom shell settings
+	wstring							strShell;
+	wstring							strInitialDir;
 
 	wstring							strName;
 	DWORD							dwCursorStyle;

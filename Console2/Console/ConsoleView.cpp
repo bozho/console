@@ -90,7 +90,14 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	if (m_tabSettings->bImageBackground) g_imageHandler->LoadImage(m_tabSettings->tabBackground);
 
 	// TODO: error handling
-	m_consoleHandler.StartShellProcess(m_dwStartupRows, m_dwStartupColumns);
+	if (!m_consoleHandler.StartShellProcess(
+								m_tabSettings->strShell, 
+								m_tabSettings->strInitialDir, 
+								m_dwStartupRows, 
+								m_dwStartupColumns)) {
+									
+		return -1;
+	}
 	m_bInitializing = false;
 
 	// scrollbar stuff
@@ -123,9 +130,8 @@ LRESULT ConsoleView::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) {
+LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
-	bHandled = TRUE;
 	return 0;
 }
 
@@ -418,12 +424,71 @@ void ConsoleView::AdjustRectAndResize(RECT& clientRect) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::OwnerWindowMoving() {
+void ConsoleView::OwnerWindowMoving(int x, int y) {
 
-//	TRACE(L"OwnerWindowMoving\n");
+	TRACE(L"OwnerWindowMoving [%i] %i, %i\n", GetTickCount(), x, y);
+
+	RECT clientRect;
+	::GetClientRect(GetParent(), &clientRect);
+
+	TRACE(L"Client rect: (%i, %i) - (%i, %i)\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+
 	// for relative backgrounds, re-blit
-	if ((m_tabSettings->tabBackground.get() != NULL) && m_tabSettings->tabBackground->bRelative) BitBltOffscreen();
+	if ((m_tabSettings->tabBackground.get() != NULL) && m_tabSettings->tabBackground->bRelative) {
+		BitBltOffscreen();
 
+/*
+
+		RECT		rectWindow;
+		POINT		pointClientScreen = {0, 0};
+
+		GetClientRect(&rectWindow);
+
+		ClientToScreen(&pointClientScreen);
+
+/ *
+		TRACE(L"OwnerWindowMoving: (%i, %i), (%i, %i)\n", x, y, pointClientScreen.x, pointClientScreen.y);
+* /
+
+		if (m_tabSettings->bImageBackground) {
+
+			g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
+
+			TRACE(L"OwnerWindowMoving: (%i, %i), (%i, %i)\n", rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
+
+			m_dcOffscreen.BitBlt(
+							0, 
+							0, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							m_tabSettings->tabBackground->dcImage, 
+							pointClientScreen.x, 
+							pointClientScreen.y, 
+/ *
+							m_tabSettings->tabBackground->bRelative ? pointClientScreen.x : 0, 
+							m_tabSettings->tabBackground->bRelative ? pointClientScreen.y : 0, 
+* /
+							SRCCOPY);
+
+			m_dcOffscreen.TransparentBlt(
+							0, 
+							0, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							m_dcText, 
+							0, 
+							0, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							m_tabSettings->crBackgroundColor);
+
+			// blit selection
+			m_selectionHandler->BitBlt(m_dcOffscreen);
+
+			InvalidateRect(NULL, FALSE);
+		}
+*/
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -695,6 +760,9 @@ void ConsoleView::InitializeScrollbars() {
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
 	::InitializeFlatSB(m_hWnd);
 
+	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
+	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
+
 /*
 	TRACE(L"InitializeScrollbars, console wnd: 0x%08X\n", m_hWnd);
 	TRACE(L"Sizes: %i, %i    %i, %i\n", consoleParams->dwRows, consoleParams->dwBufferRows - 1, consoleParams->dwColumns, consoleParams->dwBufferColumns - 1);
@@ -727,8 +795,8 @@ void ConsoleView::InitializeScrollbars() {
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE) ;
 	}
 
-	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
-	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, FSB_FLAT_MODE, TRUE);
+	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CXVSCROLL , 5, TRUE);
 
 /*
 	// set scrollbar properties
@@ -738,7 +806,6 @@ void ConsoleView::InitializeScrollbars() {
 	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CYVSCROLL, m_nScrollbarButtonHeight, FALSE);
 	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CYVTHUMB, m_nScrollbarThunmbHeight, TRUE);
 */
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1157,6 +1224,8 @@ void ConsoleView::BitBltOffscreen() {
 	ClientToScreen(&pointClientScreen);
 
 	if (m_tabSettings->bImageBackground) {
+
+		TRACE(L"BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
 
 		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
 

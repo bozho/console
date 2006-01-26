@@ -11,6 +11,8 @@
 #define _WIN32_IE		0x0400
 #define _RICHEDIT_VER	0x0100
 
+#define ISOLATION_AWARE_ENABLED 1
+
 //////////////////////////////////////////////////////////////////////////////
 
 #include <atlbase.h>
@@ -32,7 +34,6 @@ extern CAppModule _Module;
 #include <atldlgs.h>
 #include <atlctrlw.h>
 #include <atlctrlx.h>
-#include <atlscrl.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)

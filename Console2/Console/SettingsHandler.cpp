@@ -43,6 +43,7 @@ HotKeys::HotKeys()
 	mapCommands.insert(CommandsMap::value_type(L"prevtab",		ID_PREV_TAB));
 
 	mapCommands.insert(CommandsMap::value_type(L"closetab",		ID_FILE_CLOSE_TAB));
+	mapCommands.insert(CommandsMap::value_type(L"renametab",	ID_EDIT_RENAME_TAB));
 
 	mapCommands.insert(CommandsMap::value_type(L"copy",			ID_COPY));
 	mapCommands.insert(CommandsMap::value_type(L"paste",		ID_PASTE));

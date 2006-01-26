@@ -153,6 +153,9 @@
 				RelativePath=".\Cursors.cpp">
 			</File>
 			<File
+				RelativePath=".\DlgRenameTab.cpp">
+			</File>
+			<File
 				RelativePath=".\ImageHandler.cpp">
 			</File>
 			<File
@@ -209,6 +212,9 @@
 			</File>
 			<File
 				RelativePath=".\Cursors.h">
+			</File>
+			<File
+				RelativePath=".\DlgRenameTab.h">
 			</File>
 			<File
 				RelativePath=".\FastDelegate.h">

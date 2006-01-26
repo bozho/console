@@ -19,6 +19,7 @@
 #include <atlcoll.h>
 #include <atlstr.h>
 #include <atltypes.h>
+
 #define _WTL_NO_CSTRING
 #define _WTL_NO_WTYPES
 
@@ -26,8 +27,9 @@
 
 extern CAppModule _Module;
 
-#include <atlmisc.h>
 #include <atlwin.h>
+#include <atlddx.h>
+#include <atlmisc.h>
 
 #include <atlframe.h>
 #include <atlctrls.h>

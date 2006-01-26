@@ -325,7 +325,7 @@ LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
-	if ((wParam == CURSOR_TIMER) && (m_cursor.get() != NULL)) {
+	if (m_bViewActive && (wParam == CURSOR_TIMER) && (m_cursor.get() != NULL)) {
 		m_cursor->PrepareNext();
 		m_cursor->Draw(m_bAppActive);
 		BitBltOffscreen();
@@ -1223,9 +1223,9 @@ void ConsoleView::BitBltOffscreen() {
 
 	ClientToScreen(&pointClientScreen);
 
-	if (m_tabSettings->bImageBackground) {
+	TRACE(L"[0x%08X] BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", m_hWnd, rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
 
-		TRACE(L"BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
+	if (m_tabSettings->bImageBackground) {
 
 		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
 

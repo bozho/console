@@ -14,36 +14,23 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct SettingsBase {
 
-struct ConsoleSettings {
+	virtual bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
+	virtual bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
+};
 
-	ConsoleSettings()
-	: strShell(L"")
-	, strInitialDir(L"")
-	, dwRefreshInterval(100)
-	, dwChangeRefreshInterval(10)
-	, dwRows(25)
-	, dwColumns(80)
-	, dwBufferRows(200)
-	, dwBufferColumns(80)
-	{
-		consoleColors[0]	= 0x000000;
-		consoleColors[1]	= 0x800000;
-		consoleColors[2]	= 0x008000;
-		consoleColors[3]	= 0x808000;
-		consoleColors[4]	= 0x000080;
-		consoleColors[5]	= 0x800080;
-		consoleColors[6]	= 0x008080;
-		consoleColors[7]	= 0xC0C0C0;
-		consoleColors[8]	= 0x808080;
-		consoleColors[9]	= 0xFF0000;
-		consoleColors[10]	= 0x00FF00;
-		consoleColors[11]	= 0xFFFF00;
-		consoleColors[12]	= 0x0000FF;
-		consoleColors[13]	= 0xFF00FF;
-		consoleColors[14]	= 0x00FFFF;
-		consoleColors[15]	= 0xFFFFFF;
-	}
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct ConsoleSettings : public SettingsBase {
+
+	ConsoleSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	wstring		strShell;
 	wstring		strInitialDir;
@@ -68,15 +55,12 @@ struct ConsoleSettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct FontSettings {
+struct FontSettings : public SettingsBase {
 
-	FontSettings()
-	: strName(L"Courier New")
-	, dwSize(10)
-	, bBold(false)
-	, bItalic(false)
-	{
-	}
+	FontSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	wstring		strName;
 	DWORD		dwSize;
@@ -102,14 +86,12 @@ enum TransparencyStyle {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct TransparencySettings {
+struct TransparencySettings : public SettingsBase {
 
-	TransparencySettings()
-	: transStyle(transNone)
-	, byActiveAlpha(255)
-	, byInactiveAlpha(255)
-	{
-	}
+	TransparencySettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	TransparencyStyle	transStyle;
 	BYTE				byActiveAlpha;
@@ -121,9 +103,12 @@ struct TransparencySettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct AppearanceSettings {
+struct AppearanceSettings : public SettingsBase {
 
-	AppearanceSettings() {}
+	AppearanceSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	FontSettings			fontSettings;
 	TransparencySettings	transparencySettings;
@@ -134,11 +119,15 @@ struct AppearanceSettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
-typedef map<wstring, WORD>	CommandsMap;
-
-struct HotKeys {
+struct HotKeys : public SettingsBase {
 
 	HotKeys();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+
+	typedef map<wstring, WORD>	CommandsMap;
 
 	vector<ACCEL>	vecHotKeys;
 	CommandsMap		mapCommands;
@@ -149,9 +138,9 @@ struct HotKeys {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct TabSettings {
+struct TabData {
 
-	TabSettings()
+	TabData()
 	: strShell(L"")
 	, strInitialDir(L"")
 	, strName(L"Console")
@@ -175,13 +164,29 @@ struct TabSettings {
 	bool							bImageBackground;
 	COLORREF						crBackgroundColor;
 
-	shared_ptr<CIcon>				tabIcon;
+	CIcon							tabIcon;
 	shared_ptr<ImageData>			tabBackground;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-typedef vector<shared_ptr<TabSettings> >	TabSettingsVector;
+
+//////////////////////////////////////////////////////////////////////////////
+
+typedef vector<shared_ptr<TabData> >	TabDataVector;
+
+struct TabSettings : public SettingsBase {
+
+	TabSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	TabDataVector	tabDataVector;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -198,37 +203,17 @@ class SettingsHandler {
 
 	public:
 
-		bool LoadOptions(const wstring& strOptionsFileName);
+		bool LoadSettings(const wstring& strOptionsFileName);
 
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
 		HotKeys& GetHotKeys() { return m_hotKeys; }
-		TabSettingsVector& GetTabSettings() { return m_tabSettings; }
+		TabSettings& GetTabSettings() { return m_tabSettings; }
 
 	private:
 
-		void LoadConsoleSettings();
-		void LoadAppearanceSettings();
-		void LoadHotKeys();
-		void LoadTabSettings();
-
-		void LoadFontSettings();
-		void LoadTransparencySettings();
-
-	private:
-
-		HRESULT GetDomElement(const CComPtr<IXMLDOMNode>& pRootNode, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement);
-
-		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue);
-		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue);
-		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool& bValue, bool bDefaultValue);
-		void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, wstring& strValue, const wstring& strDefaultValue);
-
-		void GetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue, COLORREF crDefaultValue);
-
-	private:
-
-		CComPtr<IXMLDOMDocument> m_pOptionsDocument;
+		CComPtr<IXMLDOMDocument>	m_pOptionsDocument;
+		CComPtr<IXMLDOMElement>		m_pOptionsRoot;
 
 	private:
 
@@ -236,7 +221,7 @@ class SettingsHandler {
 		AppearanceSettings	m_appearanceSettings;
 		HotKeys				m_hotKeys;
 
-		TabSettingsVector	m_tabSettings;
+		TabSettings			m_tabSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

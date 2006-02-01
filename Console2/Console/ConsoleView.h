@@ -86,7 +86,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void SetViewActive(bool bActive);
 
-		shared_ptr<CIcon> GetIcon() const { return m_tabSettings->tabIcon; }
+		CIcon& GetIcon() const { return m_tabData->tabIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();
@@ -146,7 +146,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		bool		m_bMouseDragable;
 		bool		m_bInverseShift;
 
-		shared_ptr<TabSettings>			m_tabSettings;
+		shared_ptr<TabData>			m_tabData;
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;

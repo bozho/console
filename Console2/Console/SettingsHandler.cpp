@@ -1,11 +1,224 @@
 #include "stdafx.h"
 #include "resource.h"
 
+#include "XmlHelper.h"
 #include "SettingsHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
 extern shared_ptr<ImageHandler>		g_imageHandler;
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+ConsoleSettings::ConsoleSettings()
+: strShell(L"")
+, strInitialDir(L"")
+, dwRefreshInterval(100)
+, dwChangeRefreshInterval(10)
+, dwRows(25)
+, dwColumns(80)
+, dwBufferRows(200)
+, dwBufferColumns(80)
+{
+	consoleColors[0]	= 0x000000;
+	consoleColors[1]	= 0x800000;
+	consoleColors[2]	= 0x008000;
+	consoleColors[3]	= 0x808000;
+	consoleColors[4]	= 0x000080;
+	consoleColors[5]	= 0x800080;
+	consoleColors[6]	= 0x008080;
+	consoleColors[7]	= 0xC0C0C0;
+	consoleColors[8]	= 0x808080;
+	consoleColors[9]	= 0xFF0000;
+	consoleColors[10]	= 0x00FF00;
+	consoleColors[11]	= 0xFFFF00;
+	consoleColors[12]	= 0x0000FF;
+	consoleColors[13]	= 0xFF00FF;
+	consoleColors[14]	= 0x00FFFF;
+	consoleColors[15]	= 0xFFFFFF;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pConsoleElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
+
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), strShell, wstring(L""));
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), strInitialDir, wstring(L""));
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"refresh"), dwRefreshInterval, 100);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), dwChangeRefreshInterval, 10);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"rows"), dwRows, 25);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"columns"), dwColumns, 80);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows, dwRows);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns, dwColumns);
+
+	for (DWORD i = 0; i < 16; ++i) {
+
+		CComPtr<IXMLDOMElement>	pFontColorElement;
+
+		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(str(wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
+
+		DWORD id;
+
+		XmlHelper::GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
+		XmlHelper::GetRGBAttribute(pFontColorElement, consoleColors[id], consoleColors[i]);
+	}
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+FontSettings::FontSettings()
+: strName(L"Courier New")
+, dwSize(10)
+, bBold(false)
+, bItalic(false)
+{
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pFontElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
+
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"name"), strName, wstring(L"Courier New"));
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"size"), dwSize, 10);
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold"), bBold, false);
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic"), bItalic, false);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+TransparencySettings::TransparencySettings()
+: transStyle(transNone)
+, byActiveAlpha(255)
+, byInactiveAlpha(255)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pTransElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
+
+	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"style"), (DWORD&)transStyle, static_cast<DWORD>(transNone));
+	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha, 255);
+	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), byInactiveAlpha, 255);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+AppearanceSettings::AppearanceSettings()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	fontSettings.Load(pOptionsRoot);
+	transparencySettings.Load(pOptionsRoot);
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -53,128 +266,14 @@ HotKeys::HotKeys()
 
 
 //////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////
-
-SettingsHandler::SettingsHandler()
-{
-}
-
-SettingsHandler::~SettingsHandler()
-{
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool SettingsHandler::LoadOptions(const wstring& strOptionsFileName) {
-
-	HRESULT hr					= S_OK;
-	VARIANT_BOOL bLoadSuccess	= false;
-	
-	hr = m_pOptionsDocument.CoCreateInstance(__uuidof(DOMDocument));
-	if (FAILED(hr) || (m_pOptionsDocument.p == NULL)) return false;
-
-	if (strOptionsFileName.length() > 0) {
-		hr = m_pOptionsDocument->load(CComVariant(strOptionsFileName.c_str()), &bLoadSuccess);
-	}
-
-	if (FAILED(hr) || (!bLoadSuccess)) {
-
-		wchar_t szModuleFileName[MAX_PATH + 1];
-		::ZeroMemory(szModuleFileName, (MAX_PATH+1)*sizeof(wchar_t));
-		::GetModuleFileName(NULL, szModuleFileName, MAX_PATH);
-
-		wstring strModuleFileName(szModuleFileName);
-		wstring strDefaultOptionsFileName(strModuleFileName.substr(0, strModuleFileName.rfind(L'\\')));
-
-		strDefaultOptionsFileName += L"\\console.xml";
-
-		hr = m_pOptionsDocument->load(CComVariant(strDefaultOptionsFileName.c_str()), &bLoadSuccess);
-		if (FAILED(hr) || (!bLoadSuccess)) return false;
-	}
-
-	// load settings' sections
-	LoadConsoleSettings();
-	LoadAppearanceSettings();
-	LoadHotKeys();
-	LoadTabSettings();
-
-	return true;
-
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::LoadConsoleSettings() {
-
-	CComPtr<IXMLDOMElement>	pConsoleElement;
-
-	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/console"), pConsoleElement))) return;
-
-	GetAttribute(pConsoleElement, CComBSTR(L"shell"), m_consoleSettings.strShell, wstring(L""));
-	GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), m_consoleSettings.strInitialDir, wstring(L""));
-	GetAttribute(pConsoleElement, CComBSTR(L"refresh"), m_consoleSettings.dwRefreshInterval, 100);
-	GetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), m_consoleSettings.dwChangeRefreshInterval, 10);
-	GetAttribute(pConsoleElement, CComBSTR(L"rows"), m_consoleSettings.dwRows, 25);
-	GetAttribute(pConsoleElement, CComBSTR(L"columns"), m_consoleSettings.dwColumns, 80);
-	GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), m_consoleSettings.dwBufferRows, m_consoleSettings.dwRows);
-	GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), m_consoleSettings.dwBufferColumns, m_consoleSettings.dwColumns);
-
-	for (DWORD i = 0; i < 16; ++i) {
-
-		CComPtr<IXMLDOMElement>	pFontColorElement;
-
-		if (FAILED(GetDomElement(NULL, CComBSTR(str(wformat(L"settings/console/colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
-
-		DWORD id;
-
-		GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
-		GetRGBAttribute(pFontColorElement, m_consoleSettings.consoleColors[id], m_consoleSettings.consoleColors[i]);
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::LoadAppearanceSettings() {
-
-	LoadFontSettings();
-	LoadTransparencySettings();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::LoadHotKeys() {
+bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
 
-	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"settings/hotkeys/hotkey"), &pHotKeyNodes);
-	if (FAILED(hr)) return;
+	hr = pOptionsRoot->selectNodes(CComBSTR(L"hotkeys/hotkey"), &pHotKeyNodes);
+	if (FAILED(hr)) return false;
 
 	long	lListLength;
 	pHotKeyNodes->get_length(&lListLength);
@@ -193,15 +292,15 @@ void SettingsHandler::LoadHotKeys() {
 		bool	bAlt;
 		DWORD	dwKeyCode;
 
-		GetAttribute(pHotKeyElement, CComBSTR(L"command"), strCommand, wstring(L""));
+		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"command"), strCommand, wstring(L""));
 
-		CommandsMap::iterator it = m_hotKeys.mapCommands.find(strCommand);
-		if (it == m_hotKeys.mapCommands.end()) continue;
+		CommandsMap::iterator it = mapCommands.find(strCommand);
+		if (it == mapCommands.end()) continue;
 
-		GetAttribute(pHotKeyElement, CComBSTR(L"shift"), bShift, false);
-		GetAttribute(pHotKeyElement, CComBSTR(L"ctrl"), bCtrl, false);
-		GetAttribute(pHotKeyElement, CComBSTR(L"alt"), bAlt, false);
-		GetAttribute(pHotKeyElement, CComBSTR(L"code"), dwKeyCode, 0);
+		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"shift"), bShift, false);
+		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"ctrl"), bCtrl, false);
+		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"alt"), bAlt, false);
+		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"code"), dwKeyCode, 0);
 
 		ACCEL	newAccel;
 		::ZeroMemory(&newAccel, sizeof(ACCEL));
@@ -214,8 +313,10 @@ void SettingsHandler::LoadHotKeys() {
 		newAccel.key	= static_cast<WORD>(dwKeyCode);
 		newAccel.cmd	= it->second;
 
-		m_hotKeys.vecHotKeys.push_back(newAccel);
+		vecHotKeys.push_back(newAccel);
 	}
+
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -223,13 +324,37 @@ void SettingsHandler::LoadHotKeys() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SettingsHandler::LoadTabSettings() {
+bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+TabSettings::TabSettings()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pTabNodes;
 
-	hr = m_pOptionsDocument->selectNodes(CComBSTR(L"settings/tabs/tab"), &pTabNodes);
-	if (FAILED(hr)) return;
+	hr = pOptionsRoot->selectNodes(CComBSTR(L"tabs/tab"), &pTabNodes);
+	if (FAILED(hr)) return false;
 
 	long	lListLength;
 	pTabNodes->get_length(&lListLength);
@@ -242,54 +367,56 @@ void SettingsHandler::LoadTabSettings() {
 		pTabNodes->get_item(i, &pTabNode);
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
-		shared_ptr<TabSettings>	tabSettings(new TabSettings);
+		shared_ptr<TabData>	tabData(new TabData);
 		CComPtr<IXMLDOMElement>	pConsoleElement;
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;
 		wstring					strIconFile(L"");
 
-		GetAttribute(pTabElement, CComBSTR(L"name"), tabSettings->strName, L"Console");
-		GetAttribute(pTabElement, CComBSTR(L"icon"), strIconFile, L"");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"name"), tabData->strName, L"Console");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), strIconFile, L"");
 
-		m_tabSettings.push_back(tabSettings);
+		tabDataVector.push_back(tabData);
 
 		// load icon
 		if (strIconFile.length() > 0) {
-			tabSettings->tabIcon.reset(new CIcon(static_cast<HICON>(::LoadImage(
-															NULL, 
-															strIconFile.c_str(), 
-															IMAGE_ICON, 
-															16, 
-															16, 
-															LR_DEFAULTCOLOR|LR_LOADFROMFILE))));
+
+			tabData->tabIcon = static_cast<HICON>(::LoadImage(
+														NULL, 
+														strIconFile.c_str(), 
+														IMAGE_ICON, 
+														16, 
+														16, 
+														LR_DEFAULTCOLOR|LR_LOADFROMFILE));
 		} else {
-			tabSettings->tabIcon.reset(new CIcon(static_cast<HICON>(::LoadImage(
-															::GetModuleHandle(NULL), 
-															MAKEINTRESOURCE(IDR_MAINFRAME), 
-															IMAGE_ICON, 
-															16, 
-															16, 
-															LR_DEFAULTCOLOR))));
+
+			tabData->tabIcon = static_cast<HICON>(::LoadImage(
+														::GetModuleHandle(NULL), 
+														MAKEINTRESOURCE(IDR_MAINFRAME), 
+														IMAGE_ICON, 
+														16, 
+														16, 
+														LR_DEFAULTCOLOR));
 		}
 
-		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"console"), pConsoleElement))) {
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement))) {
 
-			GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabSettings->strShell, m_consoleSettings.strShell);
-			GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabSettings->strInitialDir, m_consoleSettings.strInitialDir);
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, wstring(L""));
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, wstring(L""));
 		}
 
-		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"cursor"), pCursorElement))) {
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement))) {
 
-			GetAttribute(pCursorElement, CComBSTR(L"style"), tabSettings->dwCursorStyle, 0);
-			GetRGBAttribute(pCursorElement, tabSettings->crCursorColor, RGB(255, 255, 255));
+			XmlHelper::GetAttribute(pCursorElement, CComBSTR(L"style"), tabData->dwCursorStyle, 0);
+			XmlHelper::GetRGBAttribute(pCursorElement, tabData->crCursorColor, RGB(255, 255, 255));
 		}
 
-		if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"background"), pBackgroundElement))) {
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background"), pBackgroundElement))) {
 
-			GetAttribute(pBackgroundElement, CComBSTR(L"image"), tabSettings->bImageBackground, false);
-			GetRGBAttribute(pBackgroundElement, tabSettings->crBackgroundColor, RGB(0, 0, 0));
+			XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"image"), tabData->bImageBackground, false);
+			XmlHelper::GetRGBAttribute(pBackgroundElement, tabData->crBackgroundColor, RGB(0, 0, 0));
 
-			if (tabSettings->bImageBackground) {
+			if (tabData->bImageBackground) {
 
 				// load image settings and let ImageHandler return appropriate bitmap
 				CComPtr<IXMLDOMElement>	pImageElement;
@@ -302,22 +429,30 @@ void SettingsHandler::LoadTabSettings() {
 				COLORREF	crTint		= RGB(0, 0, 0);
 				BYTE		byTintOpacity = 0;
 
-				if (FAILED(GetDomElement(pTabNode, CComBSTR(L"background/image"), pImageElement))) return;
+				if (FAILED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image"), pImageElement))) return false;
 
-				GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
-				GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
-				GetAttribute(pImageElement, CComBSTR(L"resize"), bResize, false);
-				GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
+				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
+				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
+				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"resize"), bResize, false);
+				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
 
-				if (SUCCEEDED(GetDomElement(pTabNode, CComBSTR(L"background/image/tint"), pTintElement))) {
-					GetRGBAttribute(pTintElement, crTint, RGB(0, 0, 0));
-					GetAttribute(pTintElement, CComBSTR(L"opacity"), byTintOpacity, 0);
+				if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image/tint"), pTintElement))) {
+					XmlHelper::GetRGBAttribute(pTintElement, crTint, RGB(0, 0, 0));
+					XmlHelper::GetAttribute(pTintElement, CComBSTR(L"opacity"), byTintOpacity, 0);
 				}
 
-				tabSettings->tabBackground = g_imageHandler->GetImageData(strFilename, bRelative, bResize, bExtend, crTint, byTintOpacity);
+				tabData->tabBackground = g_imageHandler->GetImageData(
+															strFilename, 
+															bRelative, 
+															bResize, 
+															bExtend, 
+															crTint, 
+															byTintOpacity);
 			}
 		}
 	}
+
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -325,32 +460,9 @@ void SettingsHandler::LoadTabSettings() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SettingsHandler::LoadFontSettings() {
+bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
-	CComPtr<IXMLDOMElement>	pFontElement;
-
-	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/appearance/font"), pFontElement))) return;
-
-	GetAttribute(pFontElement, CComBSTR(L"name"), m_appearanceSettings.fontSettings.strName, wstring(L"Courier New"));
-	GetAttribute(pFontElement, CComBSTR(L"size"), m_appearanceSettings.fontSettings.dwSize, 10);
-	GetAttribute(pFontElement, CComBSTR(L"bold"), m_appearanceSettings.fontSettings.bBold, false);
-	GetAttribute(pFontElement, CComBSTR(L"italic"), m_appearanceSettings.fontSettings.bItalic, false);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::LoadTransparencySettings() {
-
-	CComPtr<IXMLDOMElement>	pTransElement;
-
-	if (FAILED(GetDomElement(NULL, CComBSTR(L"settings/appearance/transparency"), pTransElement))) return;
-
-	GetAttribute(pTransElement, CComBSTR(L"style"), (DWORD&)m_appearanceSettings.transparencySettings.transStyle, static_cast<DWORD>(transNone));
-	GetAttribute(pTransElement, CComBSTR(L"active_alpha"), m_appearanceSettings.transparencySettings.byActiveAlpha, 255);
-	GetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), m_appearanceSettings.transparencySettings.byInactiveAlpha, 255);
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -363,103 +475,40 @@ void SettingsHandler::LoadTransparencySettings() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-HRESULT SettingsHandler::GetDomElement(const CComPtr<IXMLDOMNode>& pRootNode, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement) {
+SettingsHandler::SettingsHandler()
+: m_pOptionsDocument()
+, m_pOptionsRoot()
+{
+}
 
-	HRESULT					hr = S_OK;
-	CComPtr<IXMLDOMNode>	pNode;
-	
-	if (pRootNode.p == NULL) {
-		hr = m_pOptionsDocument->selectSingleNode(bstrPath, &pNode);
-	} else {
-		hr = pRootNode->selectSingleNode(bstrPath, &pNode);
-	}
-
-	if (hr != S_OK) return E_FAIL;
-
-	return pNode.QueryInterface(&pElement);
+SettingsHandler::~SettingsHandler()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue) {
-
-	CComVariant	varValue;
-
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
-		dwValue = _wtol(varValue.bstrVal);
-	} else {
-		dwValue = dwDefaultValue;
-	}
-}
-
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue) {
+bool SettingsHandler::LoadSettings(const wstring& strOptionsFileName) {
 
-	CComVariant	varValue;
+	HRESULT hr = S_OK;
 
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
-		byValue = static_cast<BYTE>(_wtoi(varValue.bstrVal));
-	} else {
-		byValue = byDefaultValue;
-	}
-}
+	hr = XmlHelper::OpenXmlDocument(strOptionsFileName, L"console.xml", m_pOptionsDocument, m_pOptionsRoot);
+	if (FAILED(hr)) return false;
 
-//////////////////////////////////////////////////////////////////////////////
+	// load settings' sections
+	m_consoleSettings.Load(m_pOptionsRoot);
+	m_appearanceSettings.Load(m_pOptionsRoot);
+	m_hotKeys.Load(m_pOptionsRoot);
+	m_tabSettings.Load(m_pOptionsRoot);
 
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool& bValue, bool bDefaultValue) {
-
-	CComVariant	varValue;
-
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
-		bValue = (_wtol(varValue.bstrVal) > 0);
-	} else {
-		bValue = bDefaultValue;
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, wstring& strValue, const wstring& strDefaultValue) {
-
-	CComVariant	varValue;
-
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
-		strValue = varValue.bstrVal;
-	} else {
-		strValue = strDefaultValue;
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void SettingsHandler::GetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue, COLORREF crDefaultValue) {
-
-	DWORD r;
-	DWORD g;
-	DWORD b;
-
-	GetAttribute(pElement, CComBSTR(L"r"), r, GetRValue(crDefaultValue));
-	GetAttribute(pElement, CComBSTR(L"g"), g, GetGValue(crDefaultValue));
-	GetAttribute(pElement, CComBSTR(L"b"), b, GetBValue(crDefaultValue));
-
-	crValue = RGB(r, g, b);
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

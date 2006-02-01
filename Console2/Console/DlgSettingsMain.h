@@ -1,34 +1,28 @@
 
 #pragma once
 
-//////////////////////////////////////////////////////////////////////////////
+#include "DlgSettingsConsole.h"
 
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-class DlgRenameTab 
-	: public CDialogImpl<DlgRenameTab>
-	, public CWinDataExchange<DlgRenameTab>
+
+//////////////////////////////////////////////////////////////////////////////
+
+class DlgSettingsMain 
+	: public CDialogImpl<DlgSettingsMain>
 {
-
 	public:
-		enum { IDD = IDD_RENAME_TAB };
+		enum { IDD = IDD_SETTINGS_MAIN };
 
-		DlgRenameTab(const CString& strTabName);
-
-		BEGIN_DDX_MAP(DlgRenameTab)
-			DDX_TEXT(IDC_TAB_NAME, m_strTabName)
-		END_DDX_MAP()
-
-		BEGIN_MSG_MAP(DlgRenameTab)
+		BEGIN_MSG_MAP(DlgSettingsMain)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-			COMMAND_ID_HANDLER(IDOK, OnOK)
-			COMMAND_ID_HANDLER(IDCANCEL, OnCancel)
+			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
+			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -37,12 +31,15 @@ class DlgRenameTab
 //		LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-	public:
+	private:
 
-		CString	m_strTabName;
+		
+
+		CTreeViewCtrl	m_treeCtrl;
+
+		DlgSettingsConsole	dlgSettingsConsole;
 };
 
 //////////////////////////////////////////////////////////////////////////////

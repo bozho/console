@@ -46,7 +46,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 //	MainWnd wndMain;
 
 
-	if (!g_settingsHandler->LoadOptions(L"console.xml")) {
+	if (!g_settingsHandler->LoadSettings(L"console.xml")) {
 		//TODO: error handling
 		return -1;
 	}

@@ -42,7 +42,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_crFontColor(RGB(0, 0, 0))
 , m_bMouseDragable(false)
 , m_bInverseShift(false)
-, m_tabSettings(g_settingsHandler->GetTabSettings()[dwTabIndex])
+, m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
 , m_cursor()
 , m_selectionHandler()
 {
@@ -80,19 +80,19 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 */
 
 	// set view title
-	SetWindowText(m_tabSettings->strName.c_str());
+	SetWindowText(m_tabData->strName.c_str());
 
 	m_consoleHandler.SetupDelegates(
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// load background image
-	if (m_tabSettings->bImageBackground) g_imageHandler->LoadImage(m_tabSettings->tabBackground);
+	if (m_tabData->bImageBackground) g_imageHandler->LoadImage(m_tabData->tabBackground);
 
 	// TODO: error handling
 	if (!m_consoleHandler.StartShellProcess(
-								m_tabSettings->strShell, 
-								m_tabSettings->strInitialDir, 
+								m_tabData->strShell, 
+								m_tabData->strInitialDir, 
 								m_dwStartupRows, 
 								m_dwStartupColumns)) {
 									
@@ -158,7 +158,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 					0, 
 					rectWindow.right, 
 					rectWindow.bottom, 
-					m_tabSettings->crBackgroundColor);
+					m_tabData->crBackgroundColor);
 */
 
 	dc.BitBlt(
@@ -434,7 +434,7 @@ void ConsoleView::OwnerWindowMoving(int x, int y) {
 	TRACE(L"Client rect: (%i, %i) - (%i, %i)\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 
 	// for relative backgrounds, re-blit
-	if ((m_tabSettings->tabBackground.get() != NULL) && m_tabSettings->tabBackground->bRelative) {
+	if ((m_tabData->tabBackground.get() != NULL) && m_tabData->tabBackground->bRelative) {
 		BitBltOffscreen();
 
 /*
@@ -450,9 +450,9 @@ void ConsoleView::OwnerWindowMoving(int x, int y) {
 		TRACE(L"OwnerWindowMoving: (%i, %i), (%i, %i)\n", x, y, pointClientScreen.x, pointClientScreen.y);
 * /
 
-		if (m_tabSettings->bImageBackground) {
+		if (m_tabData->bImageBackground) {
 
-			g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
+			g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
 
 			TRACE(L"OwnerWindowMoving: (%i, %i), (%i, %i)\n", rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
 
@@ -461,12 +461,12 @@ void ConsoleView::OwnerWindowMoving(int x, int y) {
 							0, 
 							rectWindow.right, 
 							rectWindow.bottom, 
-							m_tabSettings->tabBackground->dcImage, 
+							m_tabData->tabBackground->dcImage, 
 							pointClientScreen.x, 
 							pointClientScreen.y, 
 / *
-							m_tabSettings->tabBackground->bRelative ? pointClientScreen.x : 0, 
-							m_tabSettings->tabBackground->bRelative ? pointClientScreen.y : 0, 
+							m_tabData->tabBackground->bRelative ? pointClientScreen.x : 0, 
+							m_tabData->tabBackground->bRelative ? pointClientScreen.y : 0, 
 * /
 							SRCCOPY);
 
@@ -480,7 +480,7 @@ void ConsoleView::OwnerWindowMoving(int x, int y) {
 							0, 
 							rectWindow.right, 
 							rectWindow.bottom, 
-							m_tabSettings->crBackgroundColor);
+							m_tabData->crBackgroundColor);
 
 			// blit selection
 			m_selectionHandler->BitBlt(m_dcOffscreen);
@@ -680,7 +680,7 @@ void ConsoleView::CreateOffscreenBuffers() {
 
 	// initial paint brush
 	CBrush brushBackground;
-	brushBackground.CreateSolidBrush(m_tabSettings->crBackgroundColor);
+	brushBackground.CreateSolidBrush(m_tabData->crBackgroundColor);
 
 	// create offscreen bitmaps
 	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
@@ -699,10 +699,10 @@ void ConsoleView::CreateOffscreenBuffers() {
 	m_cursor = CursorFactory::CreateCursor(
 								m_hWnd, 
 								m_bAppActive, 
-								m_tabSettings.get() ? static_cast<CursorStyle>(m_tabSettings->dwCursorStyle) : cstyleConsole, 
+								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleConsole, 
 								dcWindow, 
 								rectCursor, 
-								m_tabSettings.get() ? static_cast<CursorStyle>(m_tabSettings->crCursorColor) : RGB(255, 255, 255));
+								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->crCursorColor) : RGB(255, 255, 255));
 
 	// create 
 	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindowMax, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
@@ -917,7 +917,7 @@ void ConsoleView::RepaintText() {
 	bitmapRect.right	= bitmapSize.cx;
 	bitmapRect.bottom	= bitmapSize.cy;
 
-	bkgdBrush.CreateSolidBrush(m_tabSettings->crBackgroundColor);
+	bkgdBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 	m_dcText.FillRect(&bitmapRect, bkgdBrush);
 	
 	DWORD dwX			= m_nInsideBorder;
@@ -1081,7 +1081,7 @@ void ConsoleView::RepaintTextChanges() {
 	CBrush	bkgdBrush;
 
 	m_bmpText.GetSize(bitmapSize);
-	bkgdBrush.CreateSolidBrush(m_tabSettings->crBackgroundColor);
+	bkgdBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 
 	DWORD	dwX			= m_nInsideBorder;
 	DWORD	dwY			= m_nInsideBorder;
@@ -1225,18 +1225,18 @@ void ConsoleView::BitBltOffscreen() {
 
 	TRACE(L"[0x%08X] BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", m_hWnd, rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
 
-	if (m_tabSettings->bImageBackground) {
+	if (m_tabData->bImageBackground) {
 
-		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabSettings->tabBackground);
+		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
 
 		m_dcOffscreen.BitBlt(
 						0, 
 						0, 
 						rectWindow.right, 
 						rectWindow.bottom, 
-						m_tabSettings->tabBackground->dcImage, 
-						m_tabSettings->tabBackground->bRelative ? pointClientScreen.x : 0, 
-						m_tabSettings->tabBackground->bRelative ? pointClientScreen.y : 0, 
+						m_tabData->tabBackground->dcImage, 
+						m_tabData->tabBackground->bRelative ? pointClientScreen.x : 0, 
+						m_tabData->tabBackground->bRelative ? pointClientScreen.y : 0, 
 						SRCCOPY);
 
 		m_dcOffscreen.TransparentBlt(
@@ -1249,7 +1249,7 @@ void ConsoleView::BitBltOffscreen() {
 						0, 
 						rectWindow.right, 
 						rectWindow.bottom, 
-						m_tabSettings->crBackgroundColor);
+						m_tabData->crBackgroundColor);
 
 	} else {
 		

@@ -292,5 +292,8 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="Console.rc"/>
 	</Globals>
 </VisualStudioProject>

@@ -42,6 +42,7 @@ struct ConsoleSettings : public SettingsBase {
 	DWORD		dwBufferRows;
 	DWORD		dwBufferColumns;
 
+	COLORREF	defaultConsoleColors[16];
 	COLORREF	consoleColors[16];
 };
 

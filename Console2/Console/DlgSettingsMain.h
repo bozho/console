@@ -19,6 +19,8 @@ class DlgSettingsMain
 	public:
 		enum { IDD = IDD_SETTINGS_MAIN };
 
+		DlgSettingsMain();
+
 		BEGIN_MSG_MAP(DlgSettingsMain)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
@@ -35,11 +37,12 @@ class DlgSettingsMain
 
 	private:
 
-		
-
 		CTreeViewCtrl	m_treeCtrl;
 
 		DlgSettingsConsole	dlgSettingsConsole;
+
+		CComPtr<IXMLDOMDocument>	m_pOptionsDocument;
+		CComPtr<IXMLDOMElement>		m_pOptionsRoot;
 };
 
 //////////////////////////////////////////////////////////////////////////////

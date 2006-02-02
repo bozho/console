@@ -17,11 +17,44 @@
 #define IDC_REFRESH                     1006
 #define IDC_ROWS                        1007
 #define IDC_COLUMNS                     1008
-#define IDC_DEFAULT_BLACK               1009
 #define IDC_BUFFER_ROWS                 1010
 #define IDC_BUFFER_COLUMNS              1011
 #define IDC_SHELL                       1012
 #define IDC_INIT_DIR                    1013
+#define IDC_BTN_BROWSE_SHELL            1015
+#define IDC_BTN_BROWSE_DIR              1016
+#define IDC_CLR_00                      1017
+#define IDC_CLR_01                      1018
+#define IDC_CLR_02                      1019
+#define IDC_CLR_03                      1020
+#define IDC_CLR_04                      1021
+#define IDC_CLR_05                      1022
+#define IDC_CLR_06                      1023
+#define IDC_CLR_07                      1024
+#define IDC_CLR_08                      1025
+#define IDC_CLR_09                      1026
+#define IDC_CLR_10                      1027
+#define IDC_CLR_11                      1028
+#define IDC_CLR_12                      1029
+#define IDC_CLR_13                      1030
+#define IDC_CLR_14                      1031
+#define IDC_CLR_15                      1032
+#define IDC_DEF_00                      1033
+#define IDC_DEF_01                      1034
+#define IDC_DEF_02                      1035
+#define IDC_DEF_03                      1036
+#define IDC_DEF_04                      1037
+#define IDC_DEF_05                      1038
+#define IDC_DEF_06                      1039
+#define IDC_DEF_07                      1040
+#define IDC_DEF_08                      1041
+#define IDC_DEF_09                      1042
+#define IDC_DEF_10                      1043
+#define IDC_DEF_11                      1044
+#define IDC_DEF_12                      1045
+#define IDC_DEF_13                      1046
+#define IDC_DEF_14                      1047
+#define IDC_DEF_15                      1048
 #define ID_SWITCH_TAB_1                 1100
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
@@ -39,7 +72,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        207
 #define _APS_NEXT_COMMAND_VALUE         32784
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

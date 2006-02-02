@@ -226,6 +226,9 @@
 				RelativePath=".\DlgRenameTab.h">
 			</File>
 			<File
+				RelativePath=".\DlgSettingsBase.h">
+			</File>
+			<File
 				RelativePath=".\DlgSettingsConsole.h">
 			</File>
 			<File

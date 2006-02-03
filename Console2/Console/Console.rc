@@ -97,6 +97,7 @@ BEGIN
     BEGIN
         MENUITEM "&Console Window",             ID_VIEW_CONSOLE
         MENUITEM SEPARATOR
+        MENUITEM "&Menu",                       ID_VIEW_MENU
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
     END

@@ -107,6 +107,41 @@ BEGIN
     END
 END
 
+IDR_POPUP_MENU_TAB MENU 
+BEGIN
+    POPUP "_"
+    BEGIN
+        POPUP "&File"
+        BEGIN
+            MENUITEM "&New Tab",                    32775
+            MENUITEM "&Close Tab",                  32779
+            MENUITEM SEPARATOR
+            MENUITEM "E&xit",                       57665
+        END
+        POPUP "&Edit"
+        BEGIN
+            MENUITEM "&Copy",                       57634
+            MENUITEM "&Paste",                      57637
+            MENUITEM SEPARATOR
+            MENUITEM "&Rename Tab",                 32781
+            MENUITEM SEPARATOR
+            MENUITEM "&Settings...",                ID_EDIT_SETTINGS
+        END
+        POPUP "&View"
+        BEGIN
+            MENUITEM "&Console Window",             32777
+            MENUITEM SEPARATOR
+            MENUITEM "&Menu",                       32784
+            MENUITEM "&Toolbar",                    59392
+            MENUITEM "&Status Bar",                 59393
+        END
+        POPUP "&Help"
+        BEGIN
+            MENUITEM "&About Console...",           57664
+        END
+    END
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

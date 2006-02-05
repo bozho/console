@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by Console.rc
 //
+#define IDR_POPUP_MENU_TAB              4
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDI_ICON1                       203
@@ -66,13 +67,16 @@
 #define ID_EDIT_RENAME_TAB              32781
 #define ID_EDIT_SETTINGS                32783
 #define ID_VIEW_MENU                    32784
+#define ID__EDIT                        32786
+#define ID__VIEW                        32787
+#define ID__HELP                        32788
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        207
-#define _APS_NEXT_COMMAND_VALUE         32785
+#define _APS_NEXT_RESOURCE_VALUE        208
+#define _APS_NEXT_COMMAND_VALUE         32789
 #define _APS_NEXT_CONTROL_VALUE         1049
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -217,6 +217,17 @@ LRESULT ConsoleView::OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHan
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT ConsoleView::OnRButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	GetParent().SendMessage(UM_SHOW_POPUP_MENU, wParam, lParam);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT ConsoleView::OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
 	DoScroll(SB_VERT, LOWORD(wParam), HIWORD(wParam));

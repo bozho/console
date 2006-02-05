@@ -16,6 +16,7 @@
 
 #define UM_CONSOLE_RESIZED	WM_USER + 0x1000
 #define UM_CONSOLE_CLOSED	WM_USER + 0x1001
+#define UM_SHOW_POPUP_MENU	WM_USER + 0x1002
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -42,6 +43,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnSysKey)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
 			MESSAGE_HANDLER(WM_KEYUP, OnKey)
+			MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
 			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
@@ -62,6 +64,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);

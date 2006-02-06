@@ -156,6 +156,9 @@
 				RelativePath=".\DlgRenameTab.cpp">
 			</File>
 			<File
+				RelativePath=".\DlgSettingsAppearance.cpp">
+			</File>
+			<File
 				RelativePath=".\DlgSettingsConsole.cpp">
 			</File>
 			<File
@@ -224,6 +227,9 @@
 			</File>
 			<File
 				RelativePath=".\DlgRenameTab.h">
+			</File>
+			<File
+				RelativePath=".\DlgSettingsAppearance.h">
 			</File>
 			<File
 				RelativePath=".\DlgSettingsBase.h">

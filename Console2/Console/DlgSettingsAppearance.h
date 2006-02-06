@@ -10,23 +10,28 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-typedef map<HTREEITEM, shared_ptr<DlgSettingsBase> >	SettingsDlgsMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
-class DlgSettingsMain 
-	: public CDialogImpl<DlgSettingsMain>
+class DlgSettingsAppearance 
+	: public DlgSettingsBase
 {
 	public:
-		enum { IDD = IDD_SETTINGS_MAIN };
 
-		DlgSettingsMain();
+		DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
-		BEGIN_MSG_MAP(DlgSettingsMain)
+		BEGIN_DDX_MAP(DlgSettingsAppearance)
+			DDX_TEXT(IDC_FONT, m_strFontName);
+			DDX_UINT(IDC_FONT_SIZE, m_appearanceSettings.fontSettings.dwSize);
+			DDX_CHECK(IDC_CHECK_BOLD, m_nFontBold);
+			DDX_CHECK(IDC_CHECK_ITALIC, m_nFontItalic);
+		END_DDX_MAP()
+
+		BEGIN_MSG_MAP(DlgSettingsAppearance)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
-			NOTIFY_CODE_HANDLER(TVN_SELCHANGED, OnTreeSelChanged)
+			COMMAND_HANDLER(IDC_BTN_BROWSE_FONT, BN_CLICKED, OnClickedBtnBrowseFont)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -35,22 +40,20 @@ class DlgSettingsMain
 //		LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-
-		LRESULT OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/);
-
-	private:
-
-		void CreateSettingsTree();
-		HTREEITEM AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, RECT& rect);
+		LRESULT OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
 
-		CTreeViewCtrl				m_treeCtrl;
-		SettingsDlgsMap				m_settingsDlgMap;
-		
-		CComPtr<IXMLDOMDocument>	m_pOptionsDocument;
-		CComPtr<IXMLDOMElement>		m_pOptionsRoot;
+		AppearanceSettings			m_appearanceSettings;
+		TransparencySettings		m_transparencySettings;
+
+		CUpDownCtrl					m_spin;
+
+		CString						m_strFontName;
+		int							m_nFontBold;
+		int							m_nFontItalic;
 };
 
 //////////////////////////////////////////////////////////////////////////////

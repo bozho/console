@@ -39,20 +39,9 @@ LRESULT DlgRenameTab::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgRenameTab::OnOK(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+LRESULT DlgRenameTab::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	DoDataExchange(DDX_SAVE);
-	EndDialog(wID);
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT DlgRenameTab::OnCancel(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+	if (wID == IDOK) DoDataExchange(DDX_SAVE);
 	EndDialog(wID);
 	return 0;
 }

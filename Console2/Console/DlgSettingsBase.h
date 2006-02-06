@@ -27,9 +27,6 @@ class DlgSettingsBase
 		{
 		}
 
-		virtual void LoadSettings() = 0;
-		virtual void SaveSettings() = 0;
-
 	protected:
 
 		CComPtr<IXMLDOMElement>&	m_pOptionsRoot;

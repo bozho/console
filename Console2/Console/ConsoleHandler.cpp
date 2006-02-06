@@ -40,7 +40,12 @@ ConsoleHandler::ConsoleHandler()
 ConsoleHandler::~ConsoleHandler() {
 
 	StopMonitorThread();
-	if (m_consoleParams->hwndConsoleWindow) ::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
+	
+	if ((m_consoleParams.Get() != NULL) && 
+		(m_consoleParams->hwndConsoleWindow)) {
+		
+		::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

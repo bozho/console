@@ -141,9 +141,9 @@ struct HotKeys : public SettingsBase {
 
 struct TabData {
 
-	TabData()
-	: strShell(L"")
-	, strInitialDir(L"")
+	TabData(const ConsoleSettings& conSettings)
+	: strShell(conSettings.strShell)
+	, strInitialDir(conSettings.strInitialDir)
 	, strName(L"Console")
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
@@ -151,6 +151,7 @@ struct TabData {
 	, crBackgroundColor(RGB(0, 0, 0))
 	, tabIcon()
 	, tabBackground()
+	, consoleSettings(conSettings)
 	{
 	}
 
@@ -167,6 +168,9 @@ struct TabData {
 
 	CIcon							tabIcon;
 	shared_ptr<ImageData>			tabBackground;
+
+private:
+	const ConsoleSettings&			consoleSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -178,12 +182,15 @@ typedef vector<shared_ptr<TabData> >	TabDataVector;
 
 struct TabSettings : public SettingsBase {
 
-	TabSettings();
+	TabSettings(const ConsoleSettings& conSettings);
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	TabDataVector	tabDataVector;
+
+private:
+	const ConsoleSettings&			consoleSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

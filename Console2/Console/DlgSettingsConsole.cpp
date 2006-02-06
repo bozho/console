@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "resource.h"
 
+#include "Console.h"
 #include "DlgSettingsConsole.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -37,19 +38,47 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_strShell		= m_consoleSettings.strShell.c_str();
 	m_strInitialDir	= m_consoleSettings.strInitialDir.c_str();
 
+	CUpDownCtrl	spin;
+	UDACCEL udAccel;
+
+	spin.Attach(GetDlgItem(IDC_SPIN_CHANGE_REFRESH));
+	spin.SetRange(5, 200);
+	udAccel.nSec = 0;
+	udAccel.nInc = 5;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_REFRESH));
+	spin.SetRange(50, 2000);
+	udAccel.nSec = 0;
+	udAccel.nInc = 10;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_ROWS));
+	spin.SetRange(10, 200);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_BUFFER_ROWS));
+	spin.SetRange(10, 5000);
+	udAccel.nSec = 0;
+	udAccel.nInc = 10;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_COLUMNS));
+	spin.SetRange(10, 200);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_BUFFER_COLUMNS));
+	spin.SetRange(10, 200);
+	udAccel.nSec = 0;
+	udAccel.nInc = 5;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
-	EndDialog(wID);
-	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,6 +128,27 @@ LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARA
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+
+	if (wID == IDOK) {
+		DoDataExchange(DDX_SAVE);
+		m_consoleSettings.strShell		= m_strShell;
+		m_consoleSettings.strInitialDir	= m_strInitialDir;
+		m_consoleSettings.Save(m_pOptionsRoot);
+
+		// set immediate settings
+		::CopyMemory(g_settingsHandler->GetConsoleSettings().consoleColors, m_consoleSettings.consoleColors, sizeof(m_consoleSettings.consoleColors));
+	}
+
+	DestroyWindow();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
 	CFileDialog fileDialog(
@@ -139,6 +189,20 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*w
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+
+	::CopyMemory(m_consoleSettings.consoleColors, m_consoleSettings.defaultConsoleColors, sizeof(m_consoleSettings.defaultConsoleColors));
+
+	DoDataExchange(DDX_LOAD);
+	Invalidate();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT DlgSettingsConsole::OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/) {
 
 	CColorDialog	dlg(m_consoleSettings.consoleColors[wID-IDC_CLR_00], CC_FULLOPEN);
@@ -153,34 +217,4 @@ LRESULT DlgSettingsConsole::OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void DlgSettingsConsole::LoadSettings() {
-
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void DlgSettingsConsole::SaveSettings() {
-
-	DoDataExchange(DDX_SAVE);
-
-	m_consoleSettings.strShell		= LPCTSTR(m_strShell);
-	m_consoleSettings.strInitialDir	= LPCTSTR(m_strInitialDir);
-
-	m_consoleSettings.Save(m_pOptionsRoot);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 

@@ -87,6 +87,29 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
+	CComPtr<IXMLDOMElement>	pConsoleElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
+
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"shell"), strShell);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"init_dir"), strInitialDir);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"refresh"), dwRefreshInterval);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"change_refresh"), dwChangeRefreshInterval);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"rows"), dwRows);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"columns"), dwColumns);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns);
+
+	for (DWORD i = 0; i < 16; ++i) {
+
+		CComPtr<IXMLDOMElement>	pFontColorElement;
+
+		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(str(wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
+
+		XmlHelper::SetAttribute(pFontColorElement, CComBSTR(L"id"), i);
+		XmlHelper::SetRGBAttribute(pFontColorElement, consoleColors[i]);
+	}
+
 	return true;
 }
 
@@ -135,6 +158,15 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
+	CComPtr<IXMLDOMElement>	pFontElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
+
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"name"), strName);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"size"), dwSize);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold"), bBold);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic"), bItalic);
+
 	return true;
 }
 
@@ -180,6 +212,14 @@ bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
+	CComPtr<IXMLDOMElement>	pTransElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
+
+	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"style"), (DWORD&)transStyle);
+	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha);
+	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), byInactiveAlpha);
+
 	return true;
 }
 
@@ -215,6 +255,9 @@ bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 //////////////////////////////////////////////////////////////////////////////
 
 bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	fontSettings.Save(pOptionsRoot);
+	transparencySettings.Save(pOptionsRoot);
 
 	return true;
 }
@@ -341,7 +384,8 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-TabSettings::TabSettings()
+TabSettings::TabSettings(const ConsoleSettings& conSettings)
+: consoleSettings(conSettings)
 {
 }
 
@@ -369,7 +413,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 		pTabNodes->get_item(i, &pTabNode);
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
-		shared_ptr<TabData>	tabData(new TabData);
+		shared_ptr<TabData>	tabData(new TabData(consoleSettings));
 		CComPtr<IXMLDOMElement>	pConsoleElement;
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;
@@ -403,8 +447,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement))) {
 
-			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, wstring(L""));
-			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, wstring(L""));
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, consoleSettings.strShell);
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, consoleSettings.strInitialDir);
 		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement))) {
@@ -480,6 +524,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 SettingsHandler::SettingsHandler()
 : m_pOptionsDocument()
 , m_pOptionsRoot()
+, m_tabSettings(m_consoleSettings)
 {
 }
 

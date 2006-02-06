@@ -87,6 +87,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void SetAppActiveStatus(bool bAppActive);
 
+		void RepaintView();
 		void SetViewActive(bool bActive);
 
 		CIcon& GetIcon() const { return m_tabData->tabIcon; }

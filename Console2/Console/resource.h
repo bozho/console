@@ -71,8 +71,17 @@
 #define IDC_SPIN_BUFFER_ROWS            1059
 #define IDC_SPIN_COLUMNS                1060
 #define IDC_SPIN_BUFFER_COLUMNS         1061
-#define IDC_BUTTON1                     1062
 #define IDC_BTN_RESET_COLORS            1062
+#define IDC_STATIC_ACTIVE_ALPHA         1063
+#define IDC_STATIC_INACTIVE_ALPHA       1064
+#define IDC_TRANSPARENCY_TYPE           1066
+#define IDC_TRANSPARENCY_TYPE1          1067
+#define IDC_TRANSPARENCY_TYPE2          1068
+#define IDC_TRANSPARENCY_TYPE3          1069
+#define IDC_KEY_COLOR                   1070
+#define IDC_STATIC_ACTIVE_WINDOW        1071
+#define IDC_STATIC_INACTIVE_WINDOW      1072
+#define IDC_STATIC_KEY_COLOR            1073
 #define ID_SWITCH_TAB_1                 1100
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
@@ -94,7 +103,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32789
-#define _APS_NEXT_CONTROL_VALUE         1063
+#define _APS_NEXT_CONTROL_VALUE         1074
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

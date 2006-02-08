@@ -181,9 +181,10 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 //////////////////////////////////////////////////////////////////////////////
 
 TransparencySettings::TransparencySettings()
-: transStyle(transNone)
+: transType(transNone)
 , byActiveAlpha(255)
 , byInactiveAlpha(255)
+, crColorKey(RGB(0, 0, 0))
 {
 }
 
@@ -198,9 +199,10 @@ bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
 
-	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"style"), (DWORD&)transStyle, static_cast<DWORD>(transNone));
+	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"type"), reinterpret_cast<DWORD&>(transType), static_cast<DWORD>(transNone));
 	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha, 255);
 	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), byInactiveAlpha, 255);
+	XmlHelper::GetRGBAttribute(pTransElement, crColorKey, RGB(0, 0, 0));
 
 	return true;
 }
@@ -216,9 +218,10 @@ bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
 
-	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"style"), (DWORD&)transStyle);
+	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"type"), reinterpret_cast<DWORD&>(transType));
 	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha);
 	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), byInactiveAlpha);
+	XmlHelper::SetRGBAttribute(pTransElement, crColorKey);
 
 	return true;
 }

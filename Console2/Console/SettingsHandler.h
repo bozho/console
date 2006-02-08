@@ -74,12 +74,12 @@ struct FontSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum TransparencyStyle {
+enum TransparencyType {
 
 	transNone		= 0,
-	transAlpha		= 1,
-	transColorKey	= 2,
-	transFake		= 3
+	transFake		= 1,
+	transAlpha		= 2,
+	transColorKey	= 3
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -94,9 +94,10 @@ struct TransparencySettings : public SettingsBase {
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
-	TransparencyStyle	transStyle;
+	TransparencyType	transType;
 	BYTE				byActiveAlpha;
 	BYTE				byInactiveAlpha;
+	COLORREF			crColorKey;
 };
 
 //////////////////////////////////////////////////////////////////////////////

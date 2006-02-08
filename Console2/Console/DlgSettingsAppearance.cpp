@@ -32,16 +32,73 @@ DlgSettingsAppearance::DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRo
 LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
 	m_appearanceSettings.Load(m_pOptionsRoot);
+	m_transparencySettings.Load(m_pOptionsRoot);
 
 	m_strFontName	= m_appearanceSettings.fontSettings.strName.c_str();
 	m_nFontBold		= m_appearanceSettings.fontSettings.bBold ? 1 : 0;
 	m_nFontItalic	= m_appearanceSettings.fontSettings.bItalic ? 1 : 0;
 
-	m_spin.Attach(GetDlgItem(IDC_SPIN_FONT_SIZE));
-	m_spin.SetRange(5, 42);
+	CUpDownCtrl spin;
+	spin.Attach(GetDlgItem(IDC_SPIN_FONT_SIZE));
+	spin.SetRange(5, 42);
+	spin.Detach();
+
+	m_sliderActiveAlpha.Attach(GetDlgItem(IDC_ACTIVE_ALPHA));
+	m_sliderActiveAlpha.SetRange(0, 255);
+	m_sliderActiveAlpha.SetTicFreq(5);
+	m_sliderActiveAlpha.SetPageSize(5);
+
+	m_sliderInactiveAlpha.Attach(GetDlgItem(IDC_INACTIVE_ALPHA));
+	m_sliderInactiveAlpha.SetRange(0, 255);
+	m_sliderInactiveAlpha.SetTicFreq(5);
+	m_sliderInactiveAlpha.SetPageSize(5);
+
+	m_sliderActiveAlpha.SetPos(static_cast<int>(255 - m_transparencySettings.byActiveAlpha));
+	m_sliderInactiveAlpha.SetPos(static_cast<int>(255 - m_transparencySettings.byInactiveAlpha));
+
+	UpdateSliderText(m_sliderActiveAlpha.m_hWnd);
+	UpdateSliderText(m_sliderInactiveAlpha.m_hWnd);
+
+	EnableTransparencyControls();
 
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsAppearance::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled) {
+
+
+	CWindow		staticCtl(reinterpret_cast<HWND>(lParam));
+	CDCHandle	dc(reinterpret_cast<HDC>(wParam));
+
+	if (staticCtl.m_hWnd == GetDlgItem(IDC_KEY_COLOR)) {
+
+		CBrush	brush(::CreateSolidBrush(m_transparencySettings.crColorKey));
+		RECT	rect;
+
+		staticCtl.GetClientRect(&rect);
+		dc.FillRect(&rect, brush);
+		return 0;
+	}
+
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsAppearance::OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	UpdateSliderText(reinterpret_cast<HWND>(lParam));
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -57,6 +114,9 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_appearanceSettings.fontSettings.strName	= m_strFontName;
 		m_appearanceSettings.fontSettings.bBold		= (m_nFontBold > 0);
 		m_appearanceSettings.fontSettings.bItalic	= (m_nFontItalic > 0);
+
+		m_transparencySettings.byActiveAlpha		= static_cast<BYTE>(255 - m_sliderActiveAlpha.GetPos());
+		m_transparencySettings.byInactiveAlpha		= static_cast<BYTE>(255 - m_sliderInactiveAlpha.GetPos());
 
 		m_appearanceSettings.Save(m_pOptionsRoot);
 		m_transparencySettings.Save(m_pOptionsRoot);
@@ -101,3 +161,97 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 //////////////////////////////////////////////////////////////////////////////
 
 
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsAppearance::OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/) {
+
+	CColorDialog	dlg(m_transparencySettings.crColorKey, CC_FULLOPEN);
+
+	if (dlg.DoModal() == IDOK) {
+		// update color
+		m_transparencySettings.crColorKey = dlg.GetColor();
+		CWindow(hWndCtl).Invalidate();
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsAppearance::OnClickedTransType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+
+	DoDataExchange(DDX_SAVE);
+	EnableTransparencyControls();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsAppearance::UpdateSliderText(HWND hwndSlider) {
+
+	CTrackBarCtrl	trackBar;
+	CWindow			wndStaticCtrl;
+
+	if (hwndSlider == m_sliderActiveAlpha.m_hWnd) {
+		trackBar.Attach(hwndSlider);
+		wndStaticCtrl.Attach(GetDlgItem(IDC_STATIC_ACTIVE_ALPHA));
+	} else if (hwndSlider == m_sliderInactiveAlpha.m_hWnd) {
+		trackBar.Attach(hwndSlider);
+		wndStaticCtrl.Attach(GetDlgItem(IDC_STATIC_INACTIVE_ALPHA));
+	} else {
+		return;
+	}
+
+	CString strStaticText;
+	strStaticText.Format(L"%i", trackBar.GetPos());
+
+	wndStaticCtrl.SetWindowText(strStaticText);
+
+	wndStaticCtrl.Detach();
+	trackBar.Detach();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsAppearance::EnableTransparencyControls() {
+
+	::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_WINDOW), FALSE);
+	::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_WINDOW), FALSE);
+	::EnableWindow(GetDlgItem(IDC_ACTIVE_ALPHA), FALSE);
+	::EnableWindow(GetDlgItem(IDC_INACTIVE_ALPHA), FALSE);
+	::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_ALPHA), FALSE);
+	::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_ALPHA), FALSE);
+	::EnableWindow(GetDlgItem(IDC_STATIC_KEY_COLOR), FALSE);
+	::EnableWindow(GetDlgItem(IDC_KEY_COLOR), FALSE);
+
+	if (m_transparencySettings.transType == transAlpha) {
+
+		::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_WINDOW), TRUE);
+		::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_WINDOW), TRUE);
+		::EnableWindow(GetDlgItem(IDC_ACTIVE_ALPHA), TRUE);
+		::EnableWindow(GetDlgItem(IDC_INACTIVE_ALPHA), TRUE);
+		::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_ALPHA), TRUE);
+		::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_ALPHA), TRUE);
+
+	} else if (m_transparencySettings.transType == transColorKey) {
+
+		::EnableWindow(GetDlgItem(IDC_STATIC_KEY_COLOR), TRUE);
+		::EnableWindow(GetDlgItem(IDC_KEY_COLOR), TRUE);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,7 @@
 	
 		<font name="FixedMedium7x14" size="8" bold="0" italic="0" />
 		
-		<transparency style="0" active_alpha="255" inactive_alpha="255" />
+		<transparency type="0" active_alpha="255" inactive_alpha="255" />
 	
 	</appearance>
 

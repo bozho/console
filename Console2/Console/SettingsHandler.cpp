@@ -276,38 +276,38 @@ bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 //////////////////////////////////////////////////////////////////////////////
 
 HotKeys::HotKeys()
-: vecHotKeys()
+: mapHotKeys()
 {
-	mapCommands.insert(CommandsMap::value_type(L"newtab1",		ID_NEW_TAB_1));
-	mapCommands.insert(CommandsMap::value_type(L"newtab2",		ID_NEW_TAB_1 + 1));
-	mapCommands.insert(CommandsMap::value_type(L"newtab3",		ID_NEW_TAB_1 + 2));
-	mapCommands.insert(CommandsMap::value_type(L"newtab4",		ID_NEW_TAB_1 + 3));
-	mapCommands.insert(CommandsMap::value_type(L"newtab5",		ID_NEW_TAB_1 + 4));
-	mapCommands.insert(CommandsMap::value_type(L"newtab6",		ID_NEW_TAB_1 + 5));
-	mapCommands.insert(CommandsMap::value_type(L"newtab7",		ID_NEW_TAB_1 + 6));
-	mapCommands.insert(CommandsMap::value_type(L"newtab8",		ID_NEW_TAB_1 + 7));
-	mapCommands.insert(CommandsMap::value_type(L"newtab9",		ID_NEW_TAB_1 + 8));
-	mapCommands.insert(CommandsMap::value_type(L"newtab10",		ID_NEW_TAB_1 + 9));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab1",		L"New Tab 1",			ID_NEW_TAB_1)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab2",		L"New Tab 2",			ID_NEW_TAB_1 + 1)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab3",		L"New Tab 3",			ID_NEW_TAB_1 + 2)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab4",		L"New Tab 4",			ID_NEW_TAB_1 + 3)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab5",		L"New Tab 5",			ID_NEW_TAB_1 + 4)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab6",		L"New Tab 6",			ID_NEW_TAB_1 + 5)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab7",		L"New Tab 7",			ID_NEW_TAB_1 + 6)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab8",		L"New Tab 8",			ID_NEW_TAB_1 + 7)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab9",		L"New Tab 9",			ID_NEW_TAB_1 + 8)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab10",		L"New Tab 10",			ID_NEW_TAB_1 + 9)));
+                                                                                      
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab1",	L"Switch to tab 1",		ID_SWITCH_TAB_1)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab2",	L"Switch to tab 2",		ID_SWITCH_TAB_1 + 1)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab3",	L"Switch to tab 3",		ID_SWITCH_TAB_1 + 2)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab4",	L"Switch to tab 4",		ID_SWITCH_TAB_1 + 3)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab5",	L"Switch to tab 5",		ID_SWITCH_TAB_1 + 4)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab6",	L"Switch to tab 6",		ID_SWITCH_TAB_1 + 5)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab7",	L"Switch to tab 7",		ID_SWITCH_TAB_1 + 6)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab8",	L"Switch to tab 8",		ID_SWITCH_TAB_1 + 7)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab9",	L"Switch to tab 9",		ID_SWITCH_TAB_1 + 8)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab10",	L"Switch to tab 10",	ID_SWITCH_TAB_1 + 9)));
 
-	mapCommands.insert(CommandsMap::value_type(L"switchtab1",	ID_SWITCH_TAB_1));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab2",	ID_SWITCH_TAB_1 + 1));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab3",	ID_SWITCH_TAB_1 + 2));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab4",	ID_SWITCH_TAB_1 + 3));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab5",	ID_SWITCH_TAB_1 + 4));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab6",	ID_SWITCH_TAB_1 + 5));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab7",	ID_SWITCH_TAB_1 + 6));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab8",	ID_SWITCH_TAB_1 + 7));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab9",	ID_SWITCH_TAB_1 + 8));
-	mapCommands.insert(CommandsMap::value_type(L"switchtab10",	ID_SWITCH_TAB_1 + 9));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"nexttab",		L"Next tab",			ID_NEXT_TAB)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"prevtab",		L"Previous tab",		ID_PREV_TAB)));
 
-	mapCommands.insert(CommandsMap::value_type(L"nexttab",		ID_NEXT_TAB));
-	mapCommands.insert(CommandsMap::value_type(L"prevtab",		ID_PREV_TAB));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"closetab",		L"Close tab",			ID_FILE_CLOSE_TAB)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"renametab",		L"Rename tab",			ID_EDIT_RENAME_TAB)));
 
-	mapCommands.insert(CommandsMap::value_type(L"closetab",		ID_FILE_CLOSE_TAB));
-	mapCommands.insert(CommandsMap::value_type(L"renametab",	ID_EDIT_RENAME_TAB));
-
-	mapCommands.insert(CommandsMap::value_type(L"copy",			ID_COPY));
-	mapCommands.insert(CommandsMap::value_type(L"paste",		ID_PASTE));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			L"Copy",				ID_COPY)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",			L"Paste",				ID_PASTE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -338,16 +338,19 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 		bool	bShift;
 		bool	bCtrl;
 		bool	bAlt;
+		bool	bExtended;
 		DWORD	dwKeyCode;
 
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"command"), strCommand, wstring(L""));
 
-		CommandsMap::iterator it = mapCommands.find(strCommand);
-		if (it == mapCommands.end()) continue;
+		CommandsVector::iterator it = vecCommands.begin();
+		for (; (it != vecCommands.end()) && (strCommand != (*it)->strCommand); ++it);
+		if (it == vecCommands.end()) continue;
 
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"shift"), bShift, false);
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"ctrl"), bCtrl, false);
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"alt"), bAlt, false);
+		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"extended"), bExtended, false);
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"code"), dwKeyCode, 0);
 
 		ACCEL	newAccel;
@@ -359,9 +362,11 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 		newAccel.fVirt	|= FVIRTKEY;
 		newAccel.key	= static_cast<WORD>(dwKeyCode);
-		newAccel.cmd	= it->second;
+		newAccel.cmd	= (*it)->wCommandID;
 
-		vecHotKeys.push_back(newAccel);
+		shared_ptr<HotkeyData>	hotKeyData(new HotkeyData((*it)->wCommandID, newAccel, bExtended));
+
+		mapHotKeys.insert(HotKeysMap::value_type(hotKeyData->dwCommandID, hotKeyData));
 	}
 
 	return true;

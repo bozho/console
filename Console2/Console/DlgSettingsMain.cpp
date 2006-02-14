@@ -5,6 +5,7 @@
 
 #include "DlgSettingsConsole.h"
 #include "DlgSettingsAppearance.h"
+#include "DlgSettingsHotkeys.h"
 #include "DlgSettingsMain.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -124,6 +125,9 @@ void DlgSettingsMain::CreateSettingsTree() {
 	shared_ptr<DlgSettingsBase>	dlgAppearance(dynamic_cast<DlgSettingsBase*>(new DlgSettingsAppearance(m_pOptionsRoot)));
 	AddDialogToTree(L"Appearance", dlgAppearance, rect);
 
+	// create hotkeys settings dialog
+	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pOptionsRoot)));
+	AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
 
 	m_treeCtrl.SelectItem(m_treeCtrl.GetRootItem());
 }

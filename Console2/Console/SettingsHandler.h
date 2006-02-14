@@ -128,11 +128,38 @@ struct HotKeys : public SettingsBase {
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
+	struct CommandData {
+		
+		CommandData(const wchar_t* pszCommand, const wchar_t* pszDescription, WORD commandID)
+		: strCommand(pszCommand)
+		, strDescription(pszDescription)
+		, wCommandID(commandID)
+		{}
+		
+		wstring	strCommand;
+		wstring	strDescription;
+		WORD	wCommandID;
+	};
 
-	typedef map<wstring, WORD>	CommandsMap;
+	struct HotkeyData {
 
-	vector<ACCEL>	vecHotKeys;
-	CommandsMap		mapCommands;
+		HotkeyData(DWORD commandID, ACCEL accel, bool extended)
+		: dwCommandID(commandID)
+		, accelHotkey(accel)
+		, bExtended(extended)
+		{
+		}
+
+		DWORD	dwCommandID;
+		ACCEL	accelHotkey;
+		bool	bExtended;
+	};
+
+	typedef vector<shared_ptr<CommandData> >		CommandsVector;
+	typedef map<DWORD, shared_ptr<HotkeyData> >		HotKeysMap;
+
+	HotKeysMap		mapHotKeys;
+	CommandsVector	vecCommands;
 };
 
 //////////////////////////////////////////////////////////////////////////////

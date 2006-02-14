@@ -162,6 +162,9 @@
 				RelativePath=".\DlgSettingsConsole.cpp">
 			</File>
 			<File
+				RelativePath=".\DlgSettingsHotkeys.cpp">
+			</File>
+			<File
 				RelativePath=".\DlgSettingsMain.cpp">
 			</File>
 			<File
@@ -238,10 +241,16 @@
 				RelativePath=".\DlgSettingsConsole.h">
 			</File>
 			<File
+				RelativePath=".\DlgSettingsHotkeys.h">
+			</File>
+			<File
 				RelativePath=".\DlgSettingsMain.h">
 			</File>
 			<File
 				RelativePath=".\FastDelegate.h">
+			</File>
+			<File
+				RelativePath=".\HotkeyEdit.h">
 			</File>
 			<File
 				RelativePath=".\ImageHandler.h">

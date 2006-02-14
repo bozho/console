@@ -61,8 +61,8 @@
         <hotkey shift="0" ctrl="1" alt="0" code="87" command="closetab" />                                              
         <hotkey shift="0" ctrl="1" alt="0" code="82" command="renametab" />                                             
                                                                                                                         
-        <hotkey shift="0" ctrl="1" alt="0" code="45" command="copy" />                                                  
-        <hotkey shift="1" ctrl="0" alt="0" code="45" command="paste" />                                                 
+        <hotkey shift="0" ctrl="1" alt="0" code="45" extended="1" command="copy" />                                                  
+        <hotkey shift="1" ctrl="0" alt="0" code="45" extended="1" command="paste" />                                                 
 	</hotkeys>
 	
 	<tabs>

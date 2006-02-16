@@ -49,6 +49,7 @@ class DlgSettingsHotkeys
 		HotKeys			m_hotKeys;
 
 		CListViewCtrl	m_listCtrl;
+		CEdit			m_editCommand;
 		CHotkeyEdit		m_hotKeyEdit;
 };
 

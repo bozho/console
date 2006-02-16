@@ -400,13 +400,14 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 		CComPtr<IXMLDOMDocument>	pSettingsDoc;
 		CommandsVector::iterator	itCommand;
+		CommandsVector::iterator	itLastCommand = vecCommands.end() - 1;
 
 		pHotkeysElement->get_ownerDocument(&pSettingsDoc);
 
 		for (itCommand = vecCommands.begin(); itCommand != vecCommands.end(); ++itCommand) {
 
 			CComPtr<IXMLDOMElement>	pNewHotkeyElement;
-			CComPtr<IXMLDOMNode>	pNewNodeOut;
+			CComPtr<IXMLDOMNode>	pNewHotkeyOut;
 			HotKeysMap::iterator	itHotkey = mapHotKeys.find((*itCommand)->wCommandID);
 			CComVariant				varAttrVal;
 
@@ -430,7 +431,19 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 			pNewHotkeyElement->setAttribute(CComBSTR(L"command"), CComVariant((*itCommand)->strCommand.c_str()));
 
-			pHotkeysElement->appendChild(pNewHotkeyElement, &pNewNodeOut);
+			pHotkeysElement->appendChild(pNewHotkeyElement, &pNewHotkeyOut);
+
+			// this is just for pretty printing
+			CComPtr<IXMLDOMText>	pDomText;
+			CComPtr<IXMLDOMNode>	pDomTextOut;
+
+			if (itCommand == itLastCommand) {
+				pSettingsDoc->createTextNode(CComBSTR(L"\n\t"), &pDomText);
+			} else {
+				pSettingsDoc->createTextNode(CComBSTR(L"\n\t\t"), &pDomText);
+			}
+
+			pHotkeysElement->appendChild(pDomText, &pDomTextOut);
 		}
 	}
 

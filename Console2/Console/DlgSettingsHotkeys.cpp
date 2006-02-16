@@ -10,86 +10,6 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-/*
-
-//////////////////////////////////////////////////////////////////////////////
-
-CString CHotKeyCtrlEx::GetHotKeyName() const {
-
-	WORD	wVirtualKeyCode;
-	WORD	wModifiers;
-
-	GetHotKey(wVirtualKeyCode, wModifiers);
-
-	return GetHotKeyName(wVirtualKeyCode, wModifiers);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-CString CHotKeyCtrlEx::GetHotKeyName(WORD wVirtualKeyCode, WORD wModifiers) {
-
-	CString	strKeyName(L"");
-
-	if ((wVirtualKeyCode == 0) && (wModifiers == 0)) return CString(L"None");
-
-	if (wModifiers & HOTKEYF_CONTROL) {
-		strKeyName += GetKeyName(VK_CONTROL, FALSE);
-		strKeyName += L"+";
-	}
-
-	if (wModifiers & HOTKEYF_SHIFT) {
-		strKeyName += GetKeyName(VK_SHIFT, FALSE);
-		strKeyName += L"+";
-	}
-
-	if (wModifiers & HOTKEYF_ALT) {
-		strKeyName += GetKeyName(VK_MENU, FALSE);
-		strKeyName += L"+";
-	}
-
-	strKeyName += GetKeyName(wVirtualKeyCode, wModifiers & HOTKEYF_EXT);
-
-	return strKeyName;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-/*
-
-//////////////////////////////////////////////////////////////////////////////
-
-CString CHotKeyCtrlEx::GetKeyName(UINT uiVk, BOOL bExtendedKey) {
-
-	LONG lScanCode = ::MapVirtualKey(uiVk, 0) << 16;
-
-	// if it's an extended key, add extended flag (bit 24)
-	if (bExtendedKey) lScanCode |= 0x01000000L;
-
-	CString strKeyName(L"");
-
-	::GetKeyNameText(lScanCode, strKeyName.GetBufferSetLength(255), 255);
-	strKeyName.ReleaseBuffer();
-
-	return strKeyName;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -114,9 +34,10 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_hotKeys.Load(m_pOptionsRoot);
 
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_HOTKEYS));
+	m_editCommand.Attach(GetDlgItem(IDC_EDIT_COMMAND));
 	m_hotKeyEdit.SubclassWindow(GetDlgItem(IDC_EDIT_HOTKEY));
 
-	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_GRIDLINES|LVS_EX_FULLROWSELECT);
+	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
 	m_listCtrl.InsertColumn(0, L"Command");
 	m_listCtrl.InsertColumn(1, L"Hotkey");
@@ -138,9 +59,9 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 		CString strKeyName(m_hotKeyEdit.GetHotKeyName(itHotKey->second->accelHotkey.key, wModifiers));
 
-		m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), (*it)->strDescription.c_str());
-		m_listCtrl.SetItemData(m_listCtrl.GetItemCount() - 1, reinterpret_cast<DWORD_PTR>(itHotKey->second.get()));
-		m_listCtrl.SetItemText(m_listCtrl.GetItemCount() - 1, 1, strKeyName);
+		int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), (*it)->strDescription.c_str());
+		m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(itHotKey->second.get()));
+		m_listCtrl.SetItemText(nItem, 1, strKeyName);
 	}
 
 	m_listCtrl.SelectItem(0);
@@ -166,6 +87,10 @@ LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL
 	if (pHotkeyData->accelHotkey.fVirt & FALT)		wModifiers |= HOTKEYF_ALT;
 	if (pHotkeyData->bExtended)						wModifiers |= HOTKEYF_EXT;
 
+	CString strItemText;
+
+	m_listCtrl.GetItemText(pnmv->iItem, 0, strItemText);
+	m_editCommand.SetWindowText(strItemText);
 	m_hotKeyEdit.SetHotKey(pHotkeyData->accelHotkey.key, wModifiers);
 
 	return 0;
@@ -182,13 +107,16 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	WORD	wModifiers		= 0;
 	LVITEM	selectedItem;
 
+	::ZeroMemory(&selectedItem, sizeof(LVITEM));
+	selectedItem.mask = LVIF_PARAM;
+
 	m_hotKeyEdit.GetHotKey(uiVirtualKeyCode, wModifiers);
 	if (!m_listCtrl.GetSelectedItem(&selectedItem)) return 0;
 
 	HotKeys::HotkeyData* pHotkeyData = reinterpret_cast<HotKeys::HotkeyData*>(selectedItem.lParam);
 
 	pHotkeyData->accelHotkey.key	= static_cast<WORD>(uiVirtualKeyCode);
-	pHotkeyData->accelHotkey.fVirt	= 0;
+	pHotkeyData->accelHotkey.fVirt	= FVIRTKEY;
 	pHotkeyData->bExtended			= false;
 
 	if (wModifiers & HOTKEYF_CONTROL)	pHotkeyData->accelHotkey.fVirt |= FCONTROL;
@@ -212,6 +140,11 @@ LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 		DoDataExchange(DDX_SAVE);
 
 		m_hotKeys.Save(m_pOptionsRoot);
+
+		HotKeys& hotKeys = g_settingsHandler->GetHotKeys();
+
+		hotKeys.mapHotKeys.clear();
+		hotKeys.mapHotKeys.insert(m_hotKeys.mapHotKeys.begin(), m_hotKeys.mapHotKeys.end());
 	}
 
 	DestroyWindow();

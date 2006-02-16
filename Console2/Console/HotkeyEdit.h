@@ -95,17 +95,19 @@ CHotkeyEditT<T>::CHotkeyEditT(HWND hWnd /*= NULL*/)
 template<class T>
 LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
 
+	// key down, clear hotkey variables
+	m_uiHotkeyVk		= 0;
+	m_wHotkeyModifiers	= 0;
+
 	if (wParam == VK_CONTROL)	m_bCtrlDown	= true;
 	if (wParam == VK_SHIFT)		m_bShiftDown= true;
 	if (wParam == VK_MENU)		m_bAltDown	= true;
 
-	if ((wParam == VK_CONTROL) || (wParam == VK_SHIFT) || (wParam == VK_MENU)) {
-		SetHotkeyText();
-		return 0;
+	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU)) {
+		// non-modifier key pressed
+		m_uiVirtualKey	= static_cast<UINT>(wParam);
+		m_bExtended		= (lParam & 0x01000000L) ? true : false;
 	}
-
-	m_uiVirtualKey	= static_cast<UINT>(wParam);
-	m_bExtended		= (lParam & 0x01000000L) ? true : false;
 
 	SetHotkeyText();
 	return 0;
@@ -123,22 +125,21 @@ LRESULT CHotkeyEditT<T>::OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	if (wParam == VK_SHIFT)		m_bShiftDown= false;
 	if (wParam == VK_MENU)		m_bAltDown	= false;
 
-	if ((wParam == VK_CONTROL) || (wParam == VK_SHIFT) || (wParam == VK_MENU)) {
-		return 0;
+	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU)) {
+		// non-modifier key up, set hotkey variables
+		m_uiHotkeyVk		= m_uiVirtualKey;
+		m_wHotkeyModifiers	= 0;
+
+		if (m_bCtrlDown)	m_wHotkeyModifiers |= HOTKEYF_CONTROL;
+		if (m_bShiftDown)	m_wHotkeyModifiers |= HOTKEYF_SHIFT;
+		if (m_bAltDown)		m_wHotkeyModifiers |= HOTKEYF_ALT;
+		if (m_bExtended)	m_wHotkeyModifiers |= HOTKEYF_EXT;
+
+		m_uiVirtualKey	= 0;
+		m_bExtended		= false;
 	}
 
-	// non-modifier key up, set hotkey variables
-	m_uiHotkeyVk		= m_uiVirtualKey;
-	m_wHotkeyModifiers	= 0;
-
-	if (m_bCtrlDown)	m_wHotkeyModifiers |= HOTKEYF_CONTROL;
-	if (m_bShiftDown)	m_wHotkeyModifiers |= HOTKEYF_SHIFT;
-	if (m_bAltDown)		m_wHotkeyModifiers |= HOTKEYF_ALT;
-	if (m_bExtended)	m_wHotkeyModifiers |= HOTKEYF_EXT;
-
-	m_uiVirtualKey	= 0;
-	m_bExtended		= false;
-
+	SetHotkeyText();
 	return 0;
 }
 
@@ -265,16 +266,25 @@ CString CHotkeyEditT<T>::GetKeyName(UINT uiVk, BOOL bExtendedKey) {
 template<class T>
 void CHotkeyEditT<T>::SetHotkeyText() {
 
-	CString	str;
+	CString strKeyName;
 	WORD	wModifiers = 0;
 
-	if (m_bCtrlDown)	wModifiers |= HOTKEYF_CONTROL;
-	if (m_bShiftDown)	wModifiers |= HOTKEYF_SHIFT;
-	if (m_bAltDown)		wModifiers |= HOTKEYF_ALT;
+	if (m_uiHotkeyVk == 0) {
 
-	if (m_bExtended)	wModifiers |= HOTKEYF_EXT;
+		// keys are down, get name from temp variables
+		if (m_bCtrlDown)	wModifiers |= HOTKEYF_CONTROL;
+		if (m_bShiftDown)	wModifiers |= HOTKEYF_SHIFT;
+		if (m_bAltDown)		wModifiers |= HOTKEYF_ALT;
 
-	CString strKeyName(GetHotKeyName(m_uiVirtualKey, wModifiers));
+		if (m_bExtended)	wModifiers |= HOTKEYF_EXT;
+	
+		strKeyName = GetHotKeyName(m_uiVirtualKey, wModifiers);
+
+	} else {
+
+		// keys are up, get name from hotkey variables
+		strKeyName = GetHotKeyName(m_uiHotkeyVk, m_wHotkeyModifiers);
+	}
 
 	SetWindowText(strKeyName);
 }

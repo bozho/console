@@ -36,6 +36,7 @@ class CHotkeyEditT
 		void GetHotKey(UINT& uiVk, WORD& wModifiers);
 		void SetHotKey(UINT uiVk, WORD wModifiers);
 		
+		CString GetHotKeyName();
 		CString GetHotKeyName(UINT uiVk, WORD wModifiers);
 
 	private:
@@ -185,6 +186,17 @@ void CHotkeyEditT<T>::SetHotKey(UINT uiVk, WORD wModifiers) {
 	CString strKeyName(GetHotKeyName(uiVk, wModifiers));
 
 	SetWindowText(strKeyName);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+CString CHotkeyEditT<T>::GetHotKeyName() {
+
+	return GetHotKeyName(m_uiHotkeyVk, m_wHotkeyModifiers);
 }
 
 //////////////////////////////////////////////////////////////////////////////

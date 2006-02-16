@@ -379,6 +379,61 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
+	HRESULT						hr = S_OK;
+	CComPtr<IXMLDOMElement>		pHotkeysElement;
+	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
+
+	if (SUCCEEDED(pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes))) {
+		long	lListLength;
+		pHotKeyNodes->get_length(&lListLength);
+
+		for (long i = 0; i < lListLength; ++i) {
+
+			CComPtr<IXMLDOMNode>	pHotKeyNode;
+			CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
+			if (FAILED(pHotKeyNodes->get_item(i, &pHotKeyNode))) continue; 
+
+			hr = pHotkeysElement->removeChild(pHotKeyNode, &pRemovedHotKeyNode);
+		}
+
+		CComPtr<IXMLDOMDocument>	pSettingsDoc;
+		CommandsVector::iterator	itCommand;
+
+		pHotkeysElement->get_ownerDocument(&pSettingsDoc);
+
+		for (itCommand = vecCommands.begin(); itCommand != vecCommands.end(); ++itCommand) {
+
+			CComPtr<IXMLDOMElement>	pNewHotkeyElement;
+			CComPtr<IXMLDOMNode>	pNewNodeOut;
+			HotKeysMap::iterator	itHotkey = mapHotKeys.find((*itCommand)->wCommandID);
+			CComVariant				varAttrVal;
+
+			if (itHotkey == mapHotKeys.end()) continue;
+
+			pSettingsDoc->createElement(CComBSTR(L"hotkey"), &pNewHotkeyElement);
+
+			varAttrVal = (itHotkey->second->accelHotkey.fVirt & FCONTROL) ? L"1" : L"0";
+            pNewHotkeyElement->setAttribute(CComBSTR(L"ctrl"), varAttrVal);
+
+			varAttrVal = (itHotkey->second->accelHotkey.fVirt & FSHIFT) ? L"1" : L"0";
+			pNewHotkeyElement->setAttribute(CComBSTR(L"shift"), varAttrVal);
+
+			varAttrVal = (itHotkey->second->accelHotkey.fVirt & FALT) ? L"1" : L"0";
+			pNewHotkeyElement->setAttribute(CComBSTR(L"alt"), varAttrVal);
+
+			varAttrVal = (itHotkey->second->bExtended) ? L"1" : L"0";
+			pNewHotkeyElement->setAttribute(CComBSTR(L"extended"), varAttrVal);
+
+			pNewHotkeyElement->setAttribute(CComBSTR(L"code"), CComVariant(itHotkey->second->accelHotkey.key));
+
+			pNewHotkeyElement->setAttribute(CComBSTR(L"command"), CComVariant((*itCommand)->strCommand.c_str()));
+
+			pHotkeysElement->appendChild(pNewHotkeyElement, &pNewNodeOut);
+		}
+	}
+
 	return true;
 }
 

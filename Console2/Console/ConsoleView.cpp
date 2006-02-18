@@ -19,6 +19,8 @@ CBitmap	ConsoleView::m_bmpText;
 
 CFont	ConsoleView::m_fontText;
 
+int		ConsoleView::m_nCharHeight(0);
+int		ConsoleView::m_nCharWidth(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,8 +36,6 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
 , m_consoleHandler()
-, m_nCharHeight(0)
-, m_nCharWidth(0)
 , m_screenBuffer()
 , m_nInsideBorder(1)
 , m_bUseFontColor(false)
@@ -103,7 +103,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	// scrollbar stuff
 	InitializeScrollbars();
 
-	// finally, create offscreen buffers
+	// create offscreen buffers
 	CreateOffscreenBuffers();
 
 	// TODO: put this in console size change handler
@@ -529,6 +529,18 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::RecreateOffscreenBuffers() {
+	m_fontText.DeleteObject();
+	m_bmpOffscreen.DeleteObject();
+	m_bmpText.DeleteObject();
+	CreateOffscreenBuffers();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::RepaintView() {
 	RepaintText();
 	BitBltOffscreen();
@@ -603,12 +615,7 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 */
 		InitializeScrollbars();
 
-		if (m_bViewActive) {
-			m_fontText.DeleteObject();
-			m_bmpOffscreen.DeleteObject();
-			m_bmpText.DeleteObject();
-			CreateOffscreenBuffers();
-		}
+		if (m_bViewActive) RecreateOffscreenBuffers();
 
 		// TODO: put this in console size change handler
 		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -669,48 +676,34 @@ void ConsoleView::CreateOffscreenBuffers() {
 //	RECT		rectWindow;
 
 	// create font
-	TEXTMETRIC	textMetric;
-
-	CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName);
-	m_dcText.SelectFont(m_fontText);
-	m_dcText.GetTextMetrics(&textMetric);
-
-	if (!(textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH)) {
-		// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
-		m_nCharWidth = textMetric.tmAveCharWidth;
-		m_nCharHeight = textMetric.tmHeight;
-	} else {
-		// variable pitch font, create Courier New font
+	if (!CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName)) {
 		CreateFont(wstring(L"Courier New"));
-		m_dcText.SelectFont(m_fontText);
-		m_dcText.GetTextMetrics(&textMetric);
-
-		m_nCharWidth = textMetric.tmAveCharWidth;
-		m_nCharHeight = textMetric.tmHeight;
 	}
 
 	// get max window rect based on font and console size
 	GetMaxRect(rectWindowMax);
 //	GetWindowRect(&rectWindow);
 
-	RECT	rectCursor = { 0, 0, m_nCharWidth, m_nCharHeight };
+	// create offscreen bitmaps
+	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
+	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
 
 	// initial paint brush
 	CBrush brushBackground;
 	brushBackground.CreateSolidBrush(m_tabData->crBackgroundColor);
 
-	// create offscreen bitmaps
-	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
-	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
-
+	// initial offscreen paint
 	m_dcOffscreen.FillRect(&rectWindowMax, brushBackground);
 
 	// set text DC stuff
 	m_dcText.SetBkMode(OPAQUE);
 	m_dcText.FillRect(&rectWindowMax, brushBackground);
 
+	// create selection handler
+	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindowMax, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
+
 	// create and initialize cursor
-	// TODO: handle tab ids
+	RECT		rectCursor = { 0, 0, m_nCharWidth, m_nCharHeight };
 
 	m_cursor.reset();
 	m_cursor = CursorFactory::CreateCursor(
@@ -720,9 +713,6 @@ void ConsoleView::CreateOffscreenBuffers() {
 								dcWindow, 
 								rectCursor, 
 								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->crCursorColor) : RGB(255, 255, 255));
-
-	// create 
-	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindowMax, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -742,9 +732,9 @@ void ConsoleView::CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& re
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::CreateFont(const wstring& strFontName) {
+bool ConsoleView::CreateFont(const wstring& strFontName) {
 
-	if (!m_fontText.IsNull()) return;// m_fontText.DeleteObject();
+	if (!m_fontText.IsNull()) return true;// m_fontText.DeleteObject();
 	m_fontText.CreateFont(
 		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
@@ -760,6 +750,19 @@ void ConsoleView::CreateFont(const wstring& strFontName) {
 		DEFAULT_QUALITY,
 		DEFAULT_PITCH,
 		strFontName.c_str());
+
+	TEXTMETRIC	textMetric;
+
+	m_dcText.SelectFont(m_fontText);
+	m_dcText.GetTextMetrics(&textMetric);
+
+	if (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) return false;
+
+	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
+	m_nCharWidth = textMetric.tmAveCharWidth;
+	m_nCharHeight = textMetric.tmHeight;
+
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

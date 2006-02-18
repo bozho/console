@@ -87,6 +87,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void SetAppActiveStatus(bool bAppActive);
 
+		void RecreateOffscreenBuffers();
 		void RepaintView();
 		void SetViewActive(bool bActive);
 
@@ -102,7 +103,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap);
-		void CreateFont(const wstring& strFontName);
+		bool CreateFont(const wstring& strFontName);
 
 		void InitializeScrollbars();
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
@@ -137,9 +138,6 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		ConsoleHandler	m_consoleHandler;
 
-		int		m_nCharHeight;
-		int		m_nCharWidth;
-
 		shared_array<CHAR_INFO>	m_screenBuffer;
 
 		int			m_nInsideBorder;
@@ -165,6 +163,9 @@ private:
 		static CBitmap					m_bmpText;
 
 		static CFont					m_fontText;
+
+		static int						m_nCharHeight;
+		static int						m_nCharWidth;
 
 };
 

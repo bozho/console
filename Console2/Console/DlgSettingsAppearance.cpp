@@ -32,7 +32,6 @@ DlgSettingsAppearance::DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRo
 LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
 	m_appearanceSettings.Load(m_pOptionsRoot);
-	m_transparencySettings.Load(m_pOptionsRoot);
 
 	m_strFontName	= m_appearanceSettings.fontSettings.strName.c_str();
 	m_nFontBold		= m_appearanceSettings.fontSettings.bBold ? 1 : 0;
@@ -53,8 +52,8 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_sliderInactiveAlpha.SetTicFreq(5);
 	m_sliderInactiveAlpha.SetPageSize(5);
 
-	m_sliderActiveAlpha.SetPos(static_cast<int>(255 - m_transparencySettings.byActiveAlpha));
-	m_sliderInactiveAlpha.SetPos(static_cast<int>(255 - m_transparencySettings.byInactiveAlpha));
+	m_sliderActiveAlpha.SetPos(static_cast<int>(255 - m_appearanceSettings.transparencySettings.byActiveAlpha));
+	m_sliderInactiveAlpha.SetPos(static_cast<int>(255 - m_appearanceSettings.transparencySettings.byInactiveAlpha));
 
 	UpdateSliderText(m_sliderActiveAlpha.m_hWnd);
 	UpdateSliderText(m_sliderInactiveAlpha.m_hWnd);
@@ -78,7 +77,7 @@ LRESULT DlgSettingsAppearance::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LP
 
 	if (staticCtl.m_hWnd == GetDlgItem(IDC_KEY_COLOR)) {
 
-		CBrush	brush(::CreateSolidBrush(m_transparencySettings.crColorKey));
+		CBrush	brush(::CreateSolidBrush(m_appearanceSettings.transparencySettings.crColorKey));
 		RECT	rect;
 
 		staticCtl.GetClientRect(&rect);
@@ -115,11 +114,22 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_appearanceSettings.fontSettings.bBold		= (m_nFontBold > 0);
 		m_appearanceSettings.fontSettings.bItalic	= (m_nFontItalic > 0);
 
-		m_transparencySettings.byActiveAlpha		= static_cast<BYTE>(255 - m_sliderActiveAlpha.GetPos());
-		m_transparencySettings.byInactiveAlpha		= static_cast<BYTE>(255 - m_sliderInactiveAlpha.GetPos());
+		m_appearanceSettings.transparencySettings.byActiveAlpha		= static_cast<BYTE>(255 - m_sliderActiveAlpha.GetPos());
+		m_appearanceSettings.transparencySettings.byInactiveAlpha	= static_cast<BYTE>(255 - m_sliderInactiveAlpha.GetPos());
+
+		AppearanceSettings&		appearanceSettings	= g_settingsHandler->GetAppearanceSettings();
+
+		appearanceSettings.fontSettings.strName	= m_appearanceSettings.fontSettings.strName;
+		appearanceSettings.fontSettings.dwSize	= m_appearanceSettings.fontSettings.dwSize;
+		appearanceSettings.fontSettings.bBold	= m_appearanceSettings.fontSettings.bBold;
+		appearanceSettings.fontSettings.bItalic	= m_appearanceSettings.fontSettings.bItalic;
+
+		appearanceSettings.transparencySettings.transType		= m_appearanceSettings.transparencySettings.transType;
+		appearanceSettings.transparencySettings.byActiveAlpha	= m_appearanceSettings.transparencySettings.byActiveAlpha;
+		appearanceSettings.transparencySettings.byInactiveAlpha	= m_appearanceSettings.transparencySettings.byInactiveAlpha;
+		appearanceSettings.transparencySettings.crColorKey		= m_appearanceSettings.transparencySettings.crColorKey;
 
 		m_appearanceSettings.Save(m_pOptionsRoot);
-		m_transparencySettings.Save(m_pOptionsRoot);
 	}
 
 	DestroyWindow();
@@ -139,7 +149,7 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 	::ZeroMemory(&lf, sizeof(LOGFONT));
 
 	wcsncpy(lf.lfFaceName, LPCTSTR(m_strFontName), 32);
-	lf.lfHeight	= -MulDiv(m_appearanceSettings.fontSettings.dwSize, GetDeviceCaps(GetDC(), LOGPIXELSY), 72);
+	lf.lfHeight	= -MulDiv(m_appearanceSettings.fontSettings.dwSize, GetDeviceCaps(::GetDC(NULL), LOGPIXELSY), 72);
 	lf.lfWeight	= (m_nFontBold > 0) ? FW_BOLD : FW_NORMAL;
 	lf.lfItalic	= static_cast<BYTE>(m_nFontItalic);
 
@@ -147,10 +157,10 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 
 
 	if (fontDlg.DoModal() == IDOK) {
-		m_strFontName							= fontDlg.m_lf.lfFaceName;
-		m_appearanceSettings.fontSettings.dwSize= (-lf.lfHeight * 72) / GetDeviceCaps(GetDC(), LOGPIXELSY);
-		m_nFontBold								= (fontDlg.m_lf.lfWeight == FW_BOLD) ? 1 : 0;
-		m_nFontItalic							= fontDlg.m_lf.lfItalic;
+		m_strFontName							= fontDlg.GetFaceName();// fontDlg.m_lf.lfFaceName;
+		m_appearanceSettings.fontSettings.dwSize= static_cast<DWORD>(static_cast<double>(-fontDlg.m_lf.lfHeight*72)/static_cast<double>(GetDeviceCaps(::GetDC(NULL), LOGPIXELSY)) + 0.5);
+		m_nFontBold								= fontDlg.IsBold() ? 1 : 0; //(fontDlg.m_lf.lfWeight == FW_BOLD) ? 1 : 0;
+		m_nFontItalic							= fontDlg.IsItalic() ? 1 : 0; // fontDlg.m_lf.lfItalic;
 
 		DoDataExchange(DDX_LOAD);
 	}
@@ -165,11 +175,11 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 
 LRESULT DlgSettingsAppearance::OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/) {
 
-	CColorDialog	dlg(m_transparencySettings.crColorKey, CC_FULLOPEN);
+	CColorDialog	dlg(m_appearanceSettings.transparencySettings.crColorKey, CC_FULLOPEN);
 
 	if (dlg.DoModal() == IDOK) {
 		// update color
-		m_transparencySettings.crColorKey = dlg.GetColor();
+		m_appearanceSettings.transparencySettings.crColorKey = dlg.GetColor();
 		CWindow(hWndCtl).Invalidate();
 	}
 
@@ -238,7 +248,7 @@ void DlgSettingsAppearance::EnableTransparencyControls() {
 	::EnableWindow(GetDlgItem(IDC_STATIC_KEY_COLOR), FALSE);
 	::EnableWindow(GetDlgItem(IDC_KEY_COLOR), FALSE);
 
-	if (m_transparencySettings.transType == transAlpha) {
+	if (m_appearanceSettings.transparencySettings.transType == transAlpha) {
 
 		::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_WINDOW), TRUE);
 		::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_WINDOW), TRUE);
@@ -247,7 +257,7 @@ void DlgSettingsAppearance::EnableTransparencyControls() {
 		::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_ALPHA), TRUE);
 		::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_ALPHA), TRUE);
 
-	} else if (m_transparencySettings.transType == transColorKey) {
+	} else if (m_appearanceSettings.transparencySettings.transType == transColorKey) {
 
 		::EnableWindow(GetDlgItem(IDC_STATIC_KEY_COLOR), TRUE);
 		::EnableWindow(GetDlgItem(IDC_KEY_COLOR), TRUE);

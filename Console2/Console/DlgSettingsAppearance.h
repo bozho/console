@@ -25,7 +25,7 @@ class DlgSettingsAppearance
 			DDX_UINT(IDC_FONT_SIZE, m_appearanceSettings.fontSettings.dwSize);
 			DDX_CHECK(IDC_CHECK_BOLD, m_nFontBold);
 			DDX_CHECK(IDC_CHECK_ITALIC, m_nFontItalic);
-			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType));
+			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_appearanceSettings.transparencySettings.transType));
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsAppearance)
@@ -61,7 +61,6 @@ class DlgSettingsAppearance
 	private:
 
 		AppearanceSettings			m_appearanceSettings;
-		TransparencySettings		m_transparencySettings;
 
 		CTrackBarCtrl				m_sliderActiveAlpha;
 		CTrackBarCtrl				m_sliderInactiveAlpha;

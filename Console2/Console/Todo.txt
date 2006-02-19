@@ -3,6 +3,7 @@
 *** done *** - cursor rendering
 
 - options dialog
+  - tab settings
 
 - image handler
   - basic stuff is working
@@ -13,11 +14,10 @@
 
 - non-tabbed windows
 
-- console: custom shell
+*** done *** - console: custom shell
 
-- tabs: customize default console settings
+*** done *** - tabs: customize default console settings
 
-- appearance: settings for view toolbar/statusbar on startup
+- appearance: settings for view menu/toolbar/statusbar on startup
 
-- appearance: settings for view menu on startup ??
-
+- cursors: optimize painting for animated cursors

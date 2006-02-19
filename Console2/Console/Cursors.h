@@ -69,6 +69,8 @@ class Cursor {
 		// used to prepare the next frame of cursor animation
 		virtual void PrepareNext() {}
 
+		const CRect& GetCursorRect() const { return m_rectCursor; }
+
 	protected:
 
 		HWND		m_hwndConsoleView;

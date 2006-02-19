@@ -222,7 +222,7 @@ class ConsoleCursor : public Cursor {
 		ConsoleCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~ConsoleCursor();
 		
-		void Draw(LPRECT pRect);
+		void Draw(LPCRect pRect);
 		void PrepareNext();
 		
 	private:

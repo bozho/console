@@ -110,7 +110,7 @@ LRESULT DlgSettingsMain::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*
 
 void DlgSettingsMain::CreateSettingsTree() {
 
-	RECT	rect;
+	CRect	rect;
 	CWindow	wndPlaceholder(GetDlgItem(IDC_CHILD_PLACEHOLDER));
 
 	wndPlaceholder.GetWindowRect(&rect);
@@ -137,7 +137,7 @@ void DlgSettingsMain::CreateSettingsTree() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, RECT& rect) {
+HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect) {
 
 	newDlg->Create(m_hWnd, rect);
 	newDlg->SetWindowPos(HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);

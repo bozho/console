@@ -180,13 +180,13 @@ void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -239,13 +239,13 @@ void BlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -297,14 +297,14 @@ void NBBlockCursor::Draw(bool /*bActive = true */) {
 void NBBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 	offscreenDC.BitBlt(
-		x, 
-		y, 
-		m_rectCursor.right - m_rectCursor.left, 
-		m_rectCursor.bottom - m_rectCursor.top, 
-		m_dcCursor, 
-		0, 
-		0, 
-		SRCCOPY);
+					x, 
+					y, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
+					m_dcCursor, 
+					0, 
+					0, 
+					SRCCOPY);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -349,7 +349,7 @@ void PulseBlockCursor::Draw(bool bActive /* = true */) {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive) {
-		RECT rect;
+		CRect rect;
 		::CopyMemory(&rect, &m_rectCursor, sizeof(CRect));
 		rect.left	+= m_nSize;
 		rect.top	+= m_nSize;
@@ -370,13 +370,13 @@ void PulseBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -447,13 +447,13 @@ void BarCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -499,11 +499,11 @@ ConsoleCursor::~ConsoleCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleCursor::Draw(LPRECT pRect) {
+void ConsoleCursor::Draw(LPCRect pRect) {
 	
-	RECT rect;
+	CRect rect;
 
-	::CopyMemory(&rect, pRect, sizeof(RECT));
+	::CopyMemory(&rect, pRect, sizeof(CRect));
 
 	if (m_bActive && m_bVisible) {
 
@@ -568,13 +568,13 @@ void NBHLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -638,13 +638,13 @@ void HLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -683,8 +683,8 @@ VLineCursor::VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_rectCursor.right - m_rectCursor.left - 1)) {
-		m_nSize = m_rectCursor.right - m_rectCursor.left - 1;
+	if (m_nSize != (m_rectCursor.Width() - 1)) {
+		m_nSize = m_rectCursor.Width() - 1;
 		m_nPosition = 0;
 		m_nStep = 1;
 	}
@@ -724,13 +724,13 @@ void VLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -797,13 +797,13 @@ void RectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -847,13 +847,13 @@ void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -909,8 +909,8 @@ void PulseRectCursor::Draw(bool bActive /* = true */) {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
 	if (bActive) {
-		RECT rect;
-		::CopyMemory(&rect, m_rectCursor, sizeof(RECT));
+		CRect rect;
+		::CopyMemory(&rect, m_rectCursor, sizeof(CRect));
 		rect.left	+= m_nSize;
 		rect.top	+= m_nSize;
 		rect.right	-= m_nSize;
@@ -929,13 +929,13 @@ void PulseRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.right - m_rectCursor.left, 
-					m_rectCursor.bottom - m_rectCursor.top, 
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					RGB(0, 0, 0));
 }
 
@@ -1007,13 +1007,13 @@ void FadeBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 	offscreenDC.AlphaBlend(
 					x,
 					y,
-					m_rectCursor.right - m_rectCursor.left,
-					m_rectCursor.bottom - m_rectCursor.top,
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_dcCursor,
 					0,
 					0,
-					m_rectCursor.right - m_rectCursor.left,
-					m_rectCursor.bottom - m_rectCursor.top,
+					m_rectCursor.Width(),
+					m_rectCursor.Height(),
 					m_blendFunction);
 }
 

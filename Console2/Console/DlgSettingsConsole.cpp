@@ -98,7 +98,7 @@ LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARA
 		if (staticCtl.m_hWnd == GetDlgItem(i)) {
 
 			CBrush	brush(::CreateSolidBrush(m_consoleSettings.defaultConsoleColors[i-IDC_DEF_00]));
-			RECT	rect;
+			CRect	rect;
 
 			staticCtl.GetClientRect(&rect);
 			dc.FillRect(&rect, brush);
@@ -111,7 +111,7 @@ LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARA
 		if (staticCtl.m_hWnd == GetDlgItem(i)) {
 
 			CBrush	brush(::CreateSolidBrush(m_consoleSettings.consoleColors[i-IDC_CLR_00]));
-			RECT	rect;
+			CRect	rect;
 
 			staticCtl.GetClientRect(&rect);
 			dc.FillRect(&rect, brush);

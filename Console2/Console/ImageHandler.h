@@ -80,7 +80,7 @@ class ImageHandler {
 
 		shared_ptr<ImageData> GetImageData(const wstring& strFilename, bool bRelative, bool bResize, bool bExtend, COLORREF crTint, BYTE byTintOpacity);
 		void LoadImage(shared_ptr<ImageData>& imageData);
-		void UpdateImageBitmap(const CDC& dc, const RECT& clientRect, shared_ptr<ImageData>& imageData);
+		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
 		void AdjustBackgroundImage(shared_ptr<ImageData>& imageData, DWORD dwWidth, DWORD dwHeight);
 
 	private:

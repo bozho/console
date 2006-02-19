@@ -78,7 +78,7 @@ LRESULT DlgSettingsAppearance::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LP
 	if (staticCtl.m_hWnd == GetDlgItem(IDC_KEY_COLOR)) {
 
 		CBrush	brush(::CreateSolidBrush(m_appearanceSettings.transparencySettings.crColorKey));
-		RECT	rect;
+		CRect	rect;
 
 		staticCtl.GetClientRect(&rect);
 		dc.FillRect(&rect, brush);

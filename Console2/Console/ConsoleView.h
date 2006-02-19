@@ -75,9 +75,9 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 	public:
 
-		void GetRect(RECT& clientRect);
-		bool GetMaxRect(RECT& maxClientRect);
-		void AdjustRectAndResize(RECT& clientRect);
+		void GetRect(CRect& clientRect);
+		bool GetMaxRect(CRect& maxClientRect);
+		void AdjustRectAndResize(CRect& clientRect);
 		void OwnerWindowMoving(int x, int y);
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
@@ -102,7 +102,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void OnConsoleClose();
 
 		void CreateOffscreenBuffers();
-		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const RECT& rect, CDC& cdc, CBitmap& bitmap);
+		void CreateOffscreenBitmap(const CPaintDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap);
 		bool CreateFont(const wstring& strFontName);
 
 		void InitializeScrollbars();
@@ -115,7 +115,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void RepaintText();
 		void RepaintTextChanges();
 
-		void BitBltOffscreen();
+		void BitBltOffscreen(bool bOnlyCursor = false);
 
 		// sends text to the windows console
 		void SendTextToConsole(const wchar_t* pszText);

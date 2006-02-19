@@ -97,7 +97,7 @@ void ImageHandler::LoadImage(shared_ptr<ImageData>& imageData) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::UpdateImageBitmap(const CDC& dc, const RECT& clientRect, shared_ptr<ImageData>& imageData) {
+void ImageHandler::UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData) {
 
 	DWORD dwClientWidth = clientRect.right - clientRect.left;
 	DWORD dwClientHeight= clientRect.bottom - clientRect.top;

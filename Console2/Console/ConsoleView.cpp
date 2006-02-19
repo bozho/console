@@ -142,8 +142,6 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
-//	PAINTSTRUCT ps;
-//	CDC dc(BeginPaint(&ps));
 	CPaintDC	dc(m_hWnd);
 	CRect		rectWindow;
 
@@ -175,8 +173,6 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		dc.m_ps.rcPaint.left, 
 		dc.m_ps.rcPaint.top, 
 		SRCCOPY);
-
-//	EndPaint(&ps);
 
 	return 0;
 }

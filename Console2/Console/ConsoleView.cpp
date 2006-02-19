@@ -142,14 +142,14 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
-	PAINTSTRUCT ps;
-	CDC dc(BeginPaint(&ps));
-//	CPaintDC	dc(m_hWnd);
+//	PAINTSTRUCT ps;
+//	CDC dc(BeginPaint(&ps));
+	CPaintDC	dc(m_hWnd);
 	CRect		rectWindow;
 
 	GetClientRect(&rectWindow);
 
-	TRACE(L"Paint : (%i, %i) - (%i, %i)\n", ps.rcPaint.left, ps.rcPaint.top, ps.rcPaint.right, ps.rcPaint.bottom);
+	TRACE(L"Paint : (%i, %i) - (%i, %i)\n", dc.m_ps.rcPaint.left, dc.m_ps.rcPaint.top, dc.m_ps.rcPaint.right, dc.m_ps.rcPaint.bottom);
 	TRACE(L"Client: (%i, %i) - (%i, %i)\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
 
 /*
@@ -166,29 +166,17 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 					m_tabData->crBackgroundColor);
 */
 
-/*
 	dc.BitBlt(
-		0, 
-		0, 
-		rectWindow.right, 
-		rectWindow.bottom, 
+		dc.m_ps.rcPaint.left, 
+		dc.m_ps.rcPaint.top, 
+		dc.m_ps.rcPaint.right, 
+		dc.m_ps.rcPaint.bottom,
 		m_dcOffscreen, 
-		0, 
-		0, 
-		SRCCOPY);
-*/
-
-	dc.BitBlt(
-		ps.rcPaint.left, 
-		ps.rcPaint.top, 
-		ps.rcPaint.right, 
-		ps.rcPaint.bottom,
-		m_dcOffscreen, 
-		ps.rcPaint.left, 
-		ps.rcPaint.top, 
+		dc.m_ps.rcPaint.left, 
+		dc.m_ps.rcPaint.top, 
 		SRCCOPY);
 
-	EndPaint(&ps);
+//	EndPaint(&ps);
 
 	return 0;
 }

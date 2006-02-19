@@ -147,8 +147,10 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	GetClientRect(&rectWindow);
 
+/*
 	TRACE(L"Paint : (%i, %i) - (%i, %i)\n", dc.m_ps.rcPaint.left, dc.m_ps.rcPaint.top, dc.m_ps.rcPaint.right, dc.m_ps.rcPaint.bottom);
 	TRACE(L"Client: (%i, %i) - (%i, %i)\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
+*/
 
 /*
 	dc.TransparentBlt(
@@ -162,6 +164,18 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 					rectWindow.right, 
 					rectWindow.bottom, 
 					m_tabData->crBackgroundColor);
+*/
+
+/*
+	dc.BitBlt(
+		0, 
+		0, 
+		rectWindow.right, 
+		rectWindow.bottom,
+		m_dcOffscreen, 
+		0, 
+		0, 
+		SRCCOPY);
 */
 
 	dc.BitBlt(
@@ -1239,6 +1253,8 @@ void ConsoleView::RepaintTextChanges() {
 
 void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 
+//	bOnlyCursor = false;
+
 	CRect	rectBlit;
 	CRect	rectWindow;
 	CRect	rectCursor(0, 0, 0, 0);
@@ -1264,16 +1280,15 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 		rectBlit = rectWindow;
 	}
 
-
-
-//	TRACE(L"[0x%08X] BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", m_hWnd, rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
-
 	if (m_tabData->bImageBackground) {
 
 		POINT	pointClientScreen = {0, 0};
 
 		ClientToScreen(&pointClientScreen);
-		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectBlit, m_tabData->tabBackground);
+
+		TRACE(L"[0x%08X] BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", m_hWnd, rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
+
+		if (m_tabData->tabBackground->image.IsNull() || !bOnlyCursor) g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
 
 		m_dcOffscreen.BitBlt(
 						rectBlit.left, 
@@ -1281,8 +1296,8 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 						rectBlit.right, 
 						rectBlit.bottom, 
 						m_tabData->tabBackground->dcImage, 
-						m_tabData->tabBackground->bRelative ? pointClientScreen.x : 0, 
-						m_tabData->tabBackground->bRelative ? pointClientScreen.y : 0, 
+						m_tabData->tabBackground->bRelative ? rectBlit.left + pointClientScreen.x : rectBlit.left, 
+						m_tabData->tabBackground->bRelative ? rectBlit.top + pointClientScreen.y : rectBlit.top, 
 						SRCCOPY);
 
 		m_dcOffscreen.TransparentBlt(
@@ -1305,8 +1320,8 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 						rectBlit.right, 
 						rectBlit.bottom, 
 						m_dcText, 
-						0, 
-						0, 
+						rectBlit.left, 
+						rectBlit.top, 
 						SRCCOPY);
 	}
 

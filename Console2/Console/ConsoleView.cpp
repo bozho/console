@@ -91,8 +91,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	// TODO: error handling
 	if (!m_consoleHandler.StartShellProcess(
-								m_tabData->strShell, 
-								m_tabData->strInitialDir, 
+								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : g_settingsHandler->GetConsoleSettings().strShell, 
+								(m_tabData->strInitialDir.length() > 0) ? m_tabData->strInitialDir : g_settingsHandler->GetConsoleSettings().strInitialDir, 
 								m_dwStartupRows, 
 								m_dwStartupColumns)) {
 									
@@ -400,6 +400,27 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect) {
 	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*m_nInsideBorder;
 	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*m_nInsideBorder;
 
+	CWindow desktopWindow(::GetDesktopWindow());
+	CRect	rectDesktop;
+	bool	bRecalc = false;
+
+	desktopWindow.GetWindowRect(rectDesktop);
+
+	if (rectDesktop.Width() < maxClientRect.Width()) {
+		m_consoleHandler.GetConsoleParams()->dwMaxColumns = (rectDesktop.Width() - 2*m_nInsideBorder) / m_nCharWidth;
+		bRecalc = true;
+	}
+
+	if (rectDesktop.Height() < maxClientRect.Height()) {
+		m_consoleHandler.GetConsoleParams()->dwMaxRows = (rectDesktop.Height() - 2*m_nInsideBorder) / m_nCharHeight;
+		bRecalc = true;
+	}
+
+	if (bRecalc) {
+		maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*m_nInsideBorder;
+		maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*m_nInsideBorder;
+	}
+
 	if (m_bShowVScroll) maxClientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) maxClientRect.bottom+= m_nHScrollWidth;
 
@@ -424,8 +445,8 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect) {
 	if (m_bShowHScroll) clientRect.bottom	-= m_nHScrollWidth;
 
 	// TODO: handle variable fonts
-	DWORD dwColumns	= (clientRect.right - clientRect.left - 2*m_nInsideBorder) / m_nCharWidth;
-	DWORD dwRows	= (clientRect.bottom - clientRect.top - 2*m_nInsideBorder) / m_nCharHeight;
+	DWORD dwColumns	= (clientRect.Width() - 2*m_nInsideBorder) / m_nCharWidth;
+	DWORD dwRows	= (clientRect.Height() - 2*m_nInsideBorder) / m_nCharHeight;
 
 	clientRect.right	= clientRect.left + dwColumns*m_nCharWidth + 2*m_nInsideBorder;
 	clientRect.bottom	= clientRect.top + dwRows*m_nCharHeight + 2*m_nInsideBorder;

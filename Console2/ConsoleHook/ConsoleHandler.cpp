@@ -249,6 +249,9 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 	TRACE(L"Columns: %i\n", dwColumns);
 	TRACE(L"Max columns: %i\n", m_consoleParams->dwMaxColumns);
 
+	TRACE(L"Rows: %i\n", dwRows);
+	TRACE(L"Max rows: %i\n", m_consoleParams->dwMaxRows);
+
 	if (dwColumns > m_consoleParams->dwMaxColumns) dwColumns = m_consoleParams->dwMaxColumns;
 	if (dwRows > m_consoleParams->dwMaxRows) dwRows = m_consoleParams->dwMaxRows;
 

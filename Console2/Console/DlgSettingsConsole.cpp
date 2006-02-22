@@ -137,7 +137,12 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 		m_consoleSettings.Save(m_pOptionsRoot);
 
 		// set immediate settings
-		::CopyMemory(g_settingsHandler->GetConsoleSettings().consoleColors, m_consoleSettings.consoleColors, sizeof(m_consoleSettings.consoleColors));
+		ConsoleSettings& consoleSettings = g_settingsHandler->GetConsoleSettings();
+
+		consoleSettings.strShell		= m_consoleSettings.strShell;
+		consoleSettings.strInitialDir	= m_consoleSettings.strInitialDir;
+
+		::CopyMemory(consoleSettings.consoleColors, m_consoleSettings.consoleColors, sizeof(m_consoleSettings.consoleColors));
 	}
 
 	DestroyWindow();

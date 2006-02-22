@@ -78,7 +78,6 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void GetRect(CRect& clientRect);
 		bool GetMaxRect(CRect& maxClientRect);
 		void AdjustRectAndResize(CRect& clientRect);
-		void OwnerWindowMoving(int x, int y);
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 
@@ -116,6 +115,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void RepaintTextChanges();
 
 		void BitBltOffscreen(bool bOnlyCursor = false);
+		void UpdateOffscreen(const CRect& rectBlit);
 
 		// sends text to the windows console
 		void SendTextToConsole(const wchar_t* pszText);
@@ -148,7 +148,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		bool		m_bMouseDragable;
 		bool		m_bInverseShift;
 
-		shared_ptr<TabData>			m_tabData;
+		shared_ptr<TabData>				m_tabData;
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;

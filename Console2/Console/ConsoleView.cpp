@@ -143,40 +143,11 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
 	CPaintDC	dc(m_hWnd);
-	CRect		rectWindow;
 
-	GetClientRect(&rectWindow);
-
-/*
-	TRACE(L"Paint : (%i, %i) - (%i, %i)\n", dc.m_ps.rcPaint.left, dc.m_ps.rcPaint.top, dc.m_ps.rcPaint.right, dc.m_ps.rcPaint.bottom);
-	TRACE(L"Client: (%i, %i) - (%i, %i)\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
-*/
-
-/*
-	dc.TransparentBlt(
-					0, 
-					0, 
-					rectWindow.right, 
-					rectWindow.bottom, 
-					m_dcOffscreen, 
-					0, 
-					0, 
-					rectWindow.right, 
-					rectWindow.bottom, 
-					m_tabData->crBackgroundColor);
-*/
-
-/*
-	dc.BitBlt(
-		0, 
-		0, 
-		rectWindow.right, 
-		rectWindow.bottom,
-		m_dcOffscreen, 
-		0, 
-		0, 
-		SRCCOPY);
-*/
+	if (m_tabData->bImageBackground && m_tabData->tabBackground->bRelative) {
+		// we need to update offscreen buffers here for relative backgrounds
+		UpdateOffscreen(dc.m_ps.rcPaint);
+	}
 
 	dc.BitBlt(
 		dc.m_ps.rcPaint.left, 
@@ -466,78 +437,6 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect) {
 */
 
 	m_consoleHandler.GetNewConsoleSize().SetEvent();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::OwnerWindowMoving(int x, int y) {
-
-	TRACE(L"OwnerWindowMoving [%i] %i, %i\n", GetTickCount(), x, y);
-
-	CRect clientRect;
-	::GetClientRect(GetParent(), &clientRect);
-
-	TRACE(L"Client rect: (%i, %i) - (%i, %i)\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
-
-	// for relative backgrounds, re-blit
-	if ((m_tabData->tabBackground.get() != NULL) && m_tabData->tabBackground->bRelative) {
-		BitBltOffscreen();
-
-/*
-
-		CRect		rectWindow;
-		POINT		pointClientScreen = {0, 0};
-
-		GetClientRect(&rectWindow);
-
-		ClientToScreen(&pointClientScreen);
-
-/ *
-		TRACE(L"OwnerWindowMoving: (%i, %i), (%i, %i)\n", x, y, pointClientScreen.x, pointClientScreen.y);
-* /
-
-		if (m_tabData->bImageBackground) {
-
-			g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
-
-			TRACE(L"OwnerWindowMoving: (%i, %i), (%i, %i)\n", rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
-
-			m_dcOffscreen.BitBlt(
-							0, 
-							0, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_tabData->tabBackground->dcImage, 
-							pointClientScreen.x, 
-							pointClientScreen.y, 
-/ *
-							m_tabData->tabBackground->bRelative ? pointClientScreen.x : 0, 
-							m_tabData->tabBackground->bRelative ? pointClientScreen.y : 0, 
-* /
-							SRCCOPY);
-
-			m_dcOffscreen.TransparentBlt(
-							0, 
-							0, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_dcText, 
-							0, 
-							0, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_tabData->crBackgroundColor);
-
-			// blit selection
-			m_selectionHandler->BitBlt(m_dcOffscreen);
-
-			InvalidateRect(NULL, FALSE);
-		}
-*/
-	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1274,32 +1173,41 @@ void ConsoleView::RepaintTextChanges() {
 
 void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 
-//	bOnlyCursor = false;
-
 	CRect	rectBlit;
-	CRect	rectWindow;
-	CRect	rectCursor(0, 0, 0, 0);
 
-	// get rectangles
-	GetClientRect(&rectWindow);
-
-	if (m_cursor.get() != NULL) {
+	if (bOnlyCursor) {
+		// blit only cursor
+		if ((m_cursor.get() == NULL) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
 
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
-		rectCursor = m_cursor->GetCursorRect();
-		rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder;
-		rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder;
-		rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder;
-		rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder;
+		rectBlit		= m_cursor->GetCursorRect();
+		rectBlit.left	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder;
+		rectBlit.top	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder;
+		rectBlit.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder;
+		rectBlit.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder;
+	} else {
+		// blit rect is entire view
+		GetClientRect(&rectBlit);
 	}
 
-	if (bOnlyCursor) {
-		if ((m_cursor.get() == NULL) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
-		rectBlit = rectCursor;
-	} else {
-		rectBlit = rectWindow;
+	if (!m_tabData->bImageBackground || !m_tabData->tabBackground->bRelative) {
+		// we don't do this for relative backgrounds here
+		UpdateOffscreen(rectBlit);
 	}
+
+	InvalidateRect(&rectBlit, FALSE);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::UpdateOffscreen(const CRect& rectBlit) {
+
+	CRect	rectWindow;
+	GetClientRect(&rectWindow);
 
 	if (m_tabData->bImageBackground) {
 
@@ -1307,9 +1215,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 
 		ClientToScreen(&pointClientScreen);
 
-		TRACE(L"[0x%08X] BitBltOffscreen: (%i, %i) - (%i, %i), (%i, %i)\n", m_hWnd, rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom, pointClientScreen.x, pointClientScreen.y);
-
-		if (m_tabData->tabBackground->image.IsNull() || !bOnlyCursor) g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
+		if (m_tabData->tabBackground->image.IsNull()) g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
 
 		m_dcOffscreen.BitBlt(
 						rectBlit.left, 
@@ -1321,17 +1227,34 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 						m_tabData->tabBackground->bRelative ? rectBlit.top + pointClientScreen.y : rectBlit.top, 
 						SRCCOPY);
 
+		// TransparentBlt seems to fail for small rectangles, so we blit entire window here
 		m_dcOffscreen.TransparentBlt(
-						rectBlit.left, 
-						rectBlit.top, 
-						rectBlit.right, 
-						rectBlit.bottom, 
+						rectWindow.left, 
+						rectWindow.top, 
+						rectWindow.right, 
+						rectWindow.bottom, 
 						m_dcText, 
-						rectBlit.left, 
-						rectBlit.top, 
-						rectBlit.right, 
-						rectBlit.bottom, 
+						rectWindow.left, 
+						rectWindow.top, 
+						rectWindow.right, 
+						rectWindow.bottom, 
 						m_tabData->crBackgroundColor);
+
+/*
+		BOOL b = m_dcOffscreen.TransparentBlt(
+						dc.m_ps.rcPaint.left, 
+						dc.m_ps.rcPaint.top, 
+						dc.m_ps.rcPaint.right, 
+						dc.m_ps.rcPaint.bottom, 
+						m_dcText, 
+						dc.m_ps.rcPaint.left, 
+						dc.m_ps.rcPaint.top, 
+						dc.m_ps.rcPaint.right, 
+						dc.m_ps.rcPaint.bottom, 
+						m_tabData->crBackgroundColor);
+
+		TRACE(L"B: %i, %i\n", b ? 1 : 0, ::GetLastError());
+*/
 
 	} else {
 		
@@ -1348,6 +1271,15 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 
 	// blit cursor
 	if (m_consoleHandler.GetCursorInfo()->bVisible && (m_cursor.get() != NULL)) {
+		CRect	rectCursor(0, 0, 0, 0);
+		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+
+		rectCursor			= m_cursor->GetCursorRect();
+		rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder;
+		rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder;
+		rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + m_nInsideBorder;
+		rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + m_nInsideBorder;
+
 		m_cursor->BitBlt(
 					m_dcOffscreen, 
 					rectCursor.left, 
@@ -1356,8 +1288,6 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 
 	// blit selection
 	m_selectionHandler->BitBlt(m_dcOffscreen);
-
-	InvalidateRect(&rectBlit, FALSE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -308,25 +308,23 @@ BEGIN
                     WS_TABSTOP,154,30,31,10
     CONTROL         "None",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | 
                     WS_GROUP,25,65,33,10
-    CONTROL         "Fake",IDC_TRANSPARENCY_TYPE1,"Button",
-                    BS_AUTORADIOBUTTON | WS_DISABLED,25,80,31,10
     CONTROL         "Alpha",IDC_TRANSPARENCY_TYPE2,"Button",
-                    BS_AUTORADIOBUTTON,25,95,34,10
+                    BS_AUTORADIOBUTTON,25,80,34,10
     CONTROL         "Color key",IDC_TRANSPARENCY_TYPE3,"Button",
-                    BS_AUTORADIOBUTTON,25,180,46,10
-    LTEXT           "Active window",IDC_STATIC_ACTIVE_WINDOW,36,108,47,8
+                    BS_AUTORADIOBUTTON,25,165,46,10
+    LTEXT           "Active window",IDC_STATIC_ACTIVE_WINDOW,36,93,47,8
     CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    WS_TABSTOP,36,119,185,22
-    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,221,121,14,8,0,WS_EX_RIGHT
-    LTEXT           "Inactive window",IDC_STATIC_INACTIVE_WINDOW,36,143,53,8
+                    WS_TABSTOP,36,104,185,22
+    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,221,106,14,8,0,WS_EX_RIGHT
+    LTEXT           "Inactive window",IDC_STATIC_INACTIVE_WINDOW,36,126,53,8
     CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    WS_TABSTOP,36,154,185,22
-    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,221,156,14,8,0,
+                    WS_TABSTOP,36,139,185,22
+    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,221,141,14,8,0,
                     WS_EX_RIGHT
-    LTEXT           "Key color:",IDC_STATIC_KEY_COLOR,36,196,33,8
+    LTEXT           "Key color:",IDC_STATIC_KEY_COLOR,36,181,33,8
     CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,71,
-                    193,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Transparency settings",IDC_STATIC,17,50,223,168
+                    178,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Transparency settings",IDC_STATIC,17,50,223,156
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 257, 257
@@ -415,13 +413,12 @@ BEGIN
         HORZGUIDE, 50
         HORZGUIDE, 70
         HORZGUIDE, 85
-        HORZGUIDE, 100
-        HORZGUIDE, 112
+        HORZGUIDE, 97
+        HORZGUIDE, 115
         HORZGUIDE, 130
-        HORZGUIDE, 147
-        HORZGUIDE, 165
+        HORZGUIDE, 150
+        HORZGUIDE, 170
         HORZGUIDE, 185
-        HORZGUIDE, 200
     END
 
     IDD_SETTINGS_HOTKEYS, DIALOG

@@ -535,10 +535,13 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background"), pBackgroundElement))) {
 
-			XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"image"), tabData->bImageBackground, false);
+			DWORD dwBackgroundImageType = 0;
+			XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"type"), dwBackgroundImageType, 0);
 			XmlHelper::GetRGBAttribute(pBackgroundElement, tabData->crBackgroundColor, RGB(0, 0, 0));
 
-			if (tabData->bImageBackground) {
+			tabData->backgroundImageType = static_cast<BackgroundImageType>(dwBackgroundImageType);
+
+			if (tabData->backgroundImageType != bktypeNone) {
 
 				// load image settings and let ImageHandler return appropriate bitmap
 				CComPtr<IXMLDOMElement>	pImageElement;
@@ -553,23 +556,31 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 				if (FAILED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image"), pImageElement))) return false;
 
-				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
-				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
-				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"resize"), bResize, false);
-				XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
-
 				if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image/tint"), pTintElement))) {
 					XmlHelper::GetRGBAttribute(pTintElement, crTint, RGB(0, 0, 0));
 					XmlHelper::GetAttribute(pTintElement, CComBSTR(L"opacity"), byTintOpacity, 0);
 				}
 
-				tabData->tabBackground = g_imageHandler->GetImageData(
-															strFilename, 
-															bRelative, 
-															bResize, 
-															bExtend, 
-															crTint, 
-															byTintOpacity);
+				if (tabData->backgroundImageType == bktypeImage) {
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"resize"), bResize, false);
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
+
+					tabData->tabBackground = g_imageHandler->GetImageData(
+																strFilename, 
+																bRelative, 
+																bResize, 
+																bExtend, 
+																crTint, 
+																byTintOpacity);
+				} else if (tabData->backgroundImageType == bktypeDesktop) {
+					tabData->tabBackground = g_imageHandler->GetDesktopImageData(crTint, byTintOpacity);
+				}
+
+				if (tabData->tabBackground.get() == NULL) {
+					tabData->backgroundImageType = bktypeNone;
+				}
 			}
 		}
 	}

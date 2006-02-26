@@ -50,6 +50,7 @@ extern CAppModule _Module;
 #pragma warning(push)
 #pragma warning(disable: 4702)
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <map>
 #include <vector>

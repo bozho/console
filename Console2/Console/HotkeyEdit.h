@@ -25,11 +25,13 @@ class CHotkeyEditT
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnKeyUp)
 			MESSAGE_HANDLER(WM_CHAR, OnChar)
 			MESSAGE_HANDLER(WM_SYSCHAR, OnChar)
+			MESSAGE_HANDLER(WM_GETDLGCODE, OnGetDlgCode)
 		END_MSG_MAP()
 
 		LRESULT OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnChar(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnGetDlgCode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 	public:
 
@@ -151,6 +153,16 @@ LRESULT CHotkeyEditT<T>::OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 template<class T>
 LRESULT CHotkeyEditT<T>::OnChar(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+template<class T>
+LRESULT CHotkeyEditT<T>::OnGetDlgCode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+	return DLGC_WANTALLKEYS;
 }
 
 //////////////////////////////////////////////////////////////////////////////

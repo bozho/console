@@ -77,9 +77,8 @@ struct FontSettings : public SettingsBase {
 enum TransparencyType {
 
 	transNone		= 0,
-	transFake		= 1,
-	transAlpha		= 2,
-	transColorKey	= 3
+	transAlpha		= 1,
+	transColorKey	= 2
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -167,6 +166,18 @@ struct HotKeys : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum BackgroundImageType {
+
+	bktypeNone		= 0,
+	bktypeImage		= 1,
+	bktypeDesktop	= 2,
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct TabData {
 
 	TabData(const ConsoleSettings& conSettings)
@@ -175,12 +186,17 @@ struct TabData {
 	, strName(L"Console")
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
-	, bImageBackground(false)
+	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
 	, tabIcon()
 	, tabBackground()
 	, consoleSettings(conSettings)
 	{
+	}
+
+	bool IsBackgroundRelative() const {
+		if (tabBackground.get() == NULL) return false;
+		return tabBackground->bRelative;
 	}
 
 	// custom shell settings
@@ -191,7 +207,7 @@ struct TabData {
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;
 
-	bool							bImageBackground;
+	BackgroundImageType				backgroundImageType;
 	COLORREF						crBackgroundColor;
 
 	CIcon							tabIcon;

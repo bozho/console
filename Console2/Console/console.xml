@@ -68,7 +68,7 @@
 	<tabs>
 		<tab name="Console2">
 			<cursor style="0" r="255" g="255" b="255" />
-			<background image="1" r="0" g="0" b="0">
+			<background type="1" r="0" g="0" b="0">
 				<image file="F:\Smece\back.bmp" relative="1" resize="0">
 					<tint r="0" g="0" b="0" opacity="65" />
 				</image>
@@ -79,7 +79,7 @@
 
 			<console shell="cmd.exe" init_dir="C:\" />
 			<cursor style="1" r="255" g="255" b="255" />
-			<background image="1" r="0" g="0" b="0">
+			<background type="1" r="0" g="0" b="0">
 				<image file="F:\Smece\back.bmp" relative="0" resize="0">
 					<tint r="0" g="0" b="0" opacity="65" />
 				</image>

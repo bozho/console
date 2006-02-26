@@ -87,7 +87,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// load background image
-	if (m_tabData->bImageBackground) g_imageHandler->LoadImage(m_tabData->tabBackground);
+	if (m_tabData->backgroundImageType != bktypeNone) g_imageHandler->LoadImage(m_tabData->tabBackground);
 
 	// TODO: error handling
 	if (!m_consoleHandler.StartShellProcess(
@@ -144,7 +144,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	CPaintDC	dc(m_hWnd);
 
-	if (m_tabData->bImageBackground && m_tabData->tabBackground->bRelative) {
+	if ((m_tabData->backgroundImageType != bktypeNone) && m_tabData->IsBackgroundRelative()) {
 		// we need to update offscreen buffers here for relative backgrounds
 		UpdateOffscreen(dc.m_ps.rcPaint);
 	}
@@ -1191,7 +1191,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 		GetClientRect(&rectBlit);
 	}
 
-	if (!m_tabData->bImageBackground || !m_tabData->tabBackground->bRelative) {
+	if ((m_tabData->backgroundImageType != bktypeNone) || !m_tabData->IsBackgroundRelative()) {
 		// we don't do this for relative backgrounds here
 		UpdateOffscreen(rectBlit);
 	}
@@ -1209,7 +1209,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit) {
 	CRect	rectWindow;
 	GetClientRect(&rectWindow);
 
-	if (m_tabData->bImageBackground) {
+	if (m_tabData->backgroundImageType != bktypeNone) {
 
 		POINT	pointClientScreen = {0, 0};
 

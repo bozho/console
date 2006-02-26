@@ -4,6 +4,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum ImageStyle {
+
+	imgStyleCenter	= 0,
+    imgStyleResize	= 1,
+	imgStyleTile	= 2
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -12,8 +18,9 @@ struct ImageData {
 	ImageData(const wstring& filename, bool relative, bool resize, bool extend, COLORREF tint, BYTE tintOpacity)
 	: strFilename(filename)
 	, bRelative(relative)
-	, bResize(resize)
 	, bExtend(extend)
+	, imgStyle(resize ? imgStyleResize : imgStyleCenter)
+	, crBackground(0)
 	, crTint(tint)
 	, byTintOpacity(tintOpacity)
 	, dwOriginalImageWidth(0)
@@ -30,8 +37,9 @@ struct ImageData {
 
 		if (strFilename != other.strFilename)		return false;
 		if (bRelative != other.bRelative)			return false;
-		if (bResize != other.bResize)				return false;
 		if (bExtend != other.bExtend)				return false;
+		if (imgStyle != other.imgStyle)				return false;
+		if (crBackground != other.crBackground)		return false;
 		if (crTint != other.crTint)					return false;
 		if (byTintOpacity != other.byTintOpacity)	return false;
 
@@ -41,8 +49,10 @@ struct ImageData {
 	wstring				strFilename;
 
 	bool				bRelative;
-	bool				bResize;
 	bool				bExtend;
+	ImageStyle			imgStyle;
+
+	COLORREF			crBackground;
 
 	COLORREF			crTint;
 	BYTE				byTintOpacity;
@@ -79,11 +89,13 @@ class ImageHandler {
 	public:
 
 		shared_ptr<ImageData> GetImageData(const wstring& strFilename, bool bRelative, bool bResize, bool bExtend, COLORREF crTint, BYTE byTintOpacity);
+		shared_ptr<ImageData> GetDesktopImageData(COLORREF crTint, BYTE byTintOpacity);
 		void LoadImage(shared_ptr<ImageData>& imageData);
 		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
-		void AdjustBackgroundImage(shared_ptr<ImageData>& imageData, DWORD dwWidth, DWORD dwHeight);
 
 	private:
+
+		void CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& imageData);
 
 	private:
 

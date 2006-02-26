@@ -90,7 +90,7 @@ class ImageHandler {
 
 		shared_ptr<ImageData> GetImageData(const wstring& strFilename, bool bRelative, bool bResize, bool bExtend, COLORREF crTint, BYTE byTintOpacity);
 		shared_ptr<ImageData> GetDesktopImageData(COLORREF crTint, BYTE byTintOpacity);
-		void LoadImage(shared_ptr<ImageData>& imageData);
+		bool LoadImage(shared_ptr<ImageData>& imageData);
 		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
 
 	private:

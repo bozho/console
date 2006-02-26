@@ -87,7 +87,11 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// load background image
-	if (m_tabData->backgroundImageType != bktypeNone) g_imageHandler->LoadImage(m_tabData->tabBackground);
+	if (m_tabData->backgroundImageType != bktypeNone) {
+		if (!g_imageHandler->LoadImage(m_tabData->tabBackground)) {
+			m_tabData->backgroundImageType = bktypeNone;
+		}
+	}
 
 	// TODO: error handling
 	if (!m_consoleHandler.StartShellProcess(
@@ -1191,7 +1195,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 		GetClientRect(&rectBlit);
 	}
 
-	if ((m_tabData->backgroundImageType != bktypeNone) || !m_tabData->IsBackgroundRelative()) {
+	if ((m_tabData->backgroundImageType == bktypeNone) || !m_tabData->IsBackgroundRelative()) {
 		// we don't do this for relative backgrounds here
 		UpdateOffscreen(rectBlit);
 	}

@@ -83,7 +83,7 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 	keyDesktop.QueryStringValue(L"Wallpaper", strWallpaperFile.GetBuffer(dwChars), &dwChars);
 	strWallpaperFile.ReleaseBuffer();
 
-	imageData->strFilename = strWallpaperFile;
+//	imageData->strFilename = strWallpaperFile;
 
 	if (dwWallpaperTile == 1) {
 		imageData->imgStyle = imgStyleTile;
@@ -103,14 +103,15 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::LoadImage(shared_ptr<ImageData>& imageData) {
+bool ImageHandler::LoadImage(shared_ptr<ImageData>& imageData) {
 
 	USES_CONVERSION;
 
-	if ((imageData.get() == NULL) || imageData->originalImage.isValid()) return;
+	if (imageData.get() == NULL) return false;
+	if (imageData->originalImage.isValid()) return true;
 
 	// load background image
-	if (!imageData->originalImage.load(W2A(imageData->strFilename.c_str()))) return;
+	if (!imageData->originalImage.load(W2A(imageData->strFilename.c_str()))) return false;
 
 	imageData->dwOriginalImageWidth	= imageData->originalImage.getWidth();
 	imageData->dwOriginalImageHeight= imageData->originalImage.getHeight();
@@ -139,6 +140,8 @@ void ImageHandler::LoadImage(shared_ptr<ImageData>& imageData) {
 	imageData->dcImage.CreateCompatibleDC(NULL);
 
 	m_images.push_back(imageData);
+
+	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

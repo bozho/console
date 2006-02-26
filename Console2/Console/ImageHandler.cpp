@@ -83,7 +83,7 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 	keyDesktop.QueryStringValue(L"Wallpaper", strWallpaperFile.GetBuffer(dwChars), &dwChars);
 	strWallpaperFile.ReleaseBuffer();
 
-//	imageData->strFilename = strWallpaperFile;
+	imageData->strFilename = strWallpaperFile;
 
 	if (dwWallpaperTile == 1) {
 		imageData->imgStyle = imgStyleTile;

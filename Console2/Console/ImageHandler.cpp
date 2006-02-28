@@ -22,9 +22,17 @@ ImageHandler::~ImageHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<ImageData> ImageHandler::GetImageData(const wstring& strFilename, bool bRelative, bool bResize, bool bExtend, COLORREF crTint, BYTE byTintOpacity) {
+shared_ptr<ImageData> ImageHandler::GetImageData(const wstring& strFilename, bool bRelative, bool bExtend, SizeStyle sizeStyle, COLORREF crBackground, COLORREF crTint, BYTE byTintOpacity) {
 
-	shared_ptr<ImageData>	imageData(new ImageData(strFilename, bRelative, bResize, bExtend, crTint, byTintOpacity));
+	shared_ptr<ImageData>	imageData(new ImageData(
+											strFilename, 
+											bRelative, 
+											bExtend, 
+											sizeStyle, 
+											crBackground, 
+											crTint, 
+											byTintOpacity));
+
 	Images::iterator		itImage = m_images.begin();
 
 	for (; itImage != m_images.end(); ++itImage) if (*(*itImage) == *imageData) break;
@@ -57,8 +65,6 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 	}
 	strBackground.ReleaseBuffer();
 
-	imageData.reset(new ImageData(L"", true, true, true, crTint, byTintOpacity));
-
 	wstringstream	streamBk(wstring(strBackground.operator LPCTSTR()));
 	DWORD			r = 0;
 	DWORD			g = 0;
@@ -68,7 +74,14 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 	streamBk >> g;
 	streamBk >> b;
 
-	imageData->crBackground = RGB(static_cast<BYTE>(r), static_cast<BYTE>(g), static_cast<BYTE>(b));
+	imageData.reset(new ImageData(
+							L"", 
+							true, 
+							false, 
+							sizeStyleCenter, 
+							RGB(static_cast<BYTE>(r), static_cast<BYTE>(g), static_cast<BYTE>(b)), 
+							crTint, 
+							byTintOpacity));
 
 	CRegKey keyDesktop;
 	if (keyDesktop.Open(HKEY_CURRENT_USER, L"Control Panel\\Desktop", KEY_READ) != ERROR_SUCCESS) return imageData;
@@ -86,12 +99,12 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 	imageData->strFilename = strWallpaperFile;
 
 	if (dwWallpaperTile == 1) {
-		imageData->imgStyle = imgStyleTile;
+		imageData->sizeStyle = sizeStyleTile;
 	} else {
 		if (dwWallpaperStyle == 0) {
-			imageData->imgStyle = imgStyleCenter;
+			imageData->sizeStyle = sizeStyleCenter;
 		} else {
-			imageData->imgStyle = imgStyleResize;
+			imageData->sizeStyle = sizeStyleResize;
 		}
 	}
 
@@ -151,44 +164,13 @@ bool ImageHandler::LoadImage(shared_ptr<ImageData>& imageData) {
 
 void ImageHandler::UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData) {
 
-	DWORD dwClientWidth = clientRect.right - clientRect.left;
-	DWORD dwClientHeight= clientRect.bottom - clientRect.top;
-
-	if (!imageData->bRelative && 
-		(imageData->dwImageWidth == dwClientWidth) &&
-		(imageData->dwImageHeight == dwClientHeight)) {
-
-		// non-relative image, no client size change, nothing to do
-		return;
-	}
-
 	if (imageData->bRelative) {
-
 		if (!imageData->image.IsNull()) return;
 		// first access to relative image, create it
 		CreateRelativeImage(dc, imageData);
-
 	} else {
-
-		// resize background image
-		fipImage tempImage(imageData->originalImage);
-
-		tempImage.rescale(static_cast<WORD>(dwClientWidth), static_cast<WORD>(dwClientHeight), FILTER_BILINEAR);
-
-		if (!imageData->image.IsNull()) imageData->image.DeleteObject();
-		imageData->image.CreateDIBitmap(
-							dc, 
-							tempImage.getInfoHeader(), 
-							CBM_INIT, 
-							tempImage.accessPixels(), 
-							tempImage.getInfo(), 
-							DIB_RGB_COLORS);
-
-		imageData->dcImage.SelectBitmap(imageData->image);
-
-		imageData->dwImageWidth = dwClientWidth;
-		imageData->dwImageHeight= dwClientHeight;
-	}
+		CreateImage(dc, clientRect, imageData);
+}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,6 +227,134 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& ima
 						DIB_RGB_COLORS);
 
 	imageData->dcImage.SelectBitmap(imageData->image);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData) {
+
+	DWORD dwClientWidth	= clientRect.Width();
+	DWORD dwClientHeight= clientRect.Height();
+
+	if ((imageData->dwImageWidth == dwClientWidth) &&
+		(imageData->dwImageHeight == dwClientHeight)) {
+		// no client size change, nothing to do
+		return;
+	}
+
+	CDC		dcTemplate;
+	CBitmap	bmpTemplate;
+
+	dcTemplate.CreateCompatibleDC(dc);
+
+	if ((imageData->sizeStyle == sizeStyleResize) &&
+		((imageData->originalImage.getWidth() != dwClientWidth) || (imageData->originalImage.getHeight() != dwClientHeight))) {
+
+		// resize background image
+		fipImage tempImage(imageData->originalImage);
+		tempImage.rescale(static_cast<WORD>(dwClientWidth), static_cast<WORD>(dwClientHeight), FILTER_BILINEAR);
+
+		bmpTemplate.CreateDIBitmap(
+						dc, 
+						tempImage.getInfoHeader(), 
+						CBM_INIT, 
+						tempImage.accessPixels(), 
+						tempImage.getInfo(), 
+						DIB_RGB_COLORS);
+	} else {
+		bmpTemplate.CreateDIBitmap(
+						dc, 
+						imageData->originalImage.getInfoHeader(), 
+						CBM_INIT, 
+						imageData->originalImage.accessPixels(), 
+						imageData->originalImage.getInfo(), 
+						DIB_RGB_COLORS);
+	}
+
+	dcTemplate.SelectBitmap(bmpTemplate);
+
+	if (!imageData->image.IsNull()) imageData->image.DeleteObject();
+	imageData->image.CreateCompatibleBitmap(dc, dwClientWidth, dwClientHeight);
+	imageData->dcImage.SelectBitmap(imageData->image);
+
+	CBrush backgroundBrush(::CreateSolidBrush(imageData->crBackground));
+	imageData->dcImage.FillRect(&clientRect, backgroundBrush);
+
+	imageData->dwImageWidth = dwClientWidth;
+	imageData->dwImageHeight= dwClientHeight;
+
+
+	switch (imageData->sizeStyle) {
+
+		case sizeStyleCenter : {
+
+			imageData->dcImage.BitBlt(
+						(dwClientWidth <= imageData->originalImage.getWidth()) ? 0 : (dwClientWidth - imageData->originalImage.getWidth())/2,
+						(dwClientHeight <= imageData->originalImage.getHeight()) ? 0 : (dwClientHeight - imageData->originalImage.getHeight())/2,
+						imageData->originalImage.getWidth(), 
+						imageData->originalImage.getHeight(),
+						dcTemplate,
+						(dwClientWidth < imageData->originalImage.getWidth()) ? (imageData->originalImage.getWidth() - dwClientWidth)/2 : 0,
+						(dwClientHeight < imageData->originalImage.getHeight()) ? (imageData->originalImage.getHeight() - dwClientHeight)/2 : 0,
+						SRCCOPY);
+			break;
+		}
+
+		case sizeStyleResize : {
+
+			imageData->dcImage.BitBlt(
+						0,
+						0,
+						dwClientWidth, 
+						dwClientHeight,
+						dcTemplate,
+						0,
+						0,
+						SRCCOPY);
+			break;
+		}
+
+		case sizeStyleTile : {
+
+			// we're tiling the image, starting at coordinates (0, 0)
+			DWORD dwX = 0;
+			DWORD dwY = 0;
+			
+			DWORD dwImageOffsetX = 0;
+			DWORD dwImageOffsetY = 0;
+//			DWORD dwImageOffsetY = imageData.dwImageHeight + (m_nBackgroundOffsetY - (int)imageData.dwImageHeight*(m_nBackgroundOffsetY/(int)imageData.dwImageHeight));
+			
+			while (dwY < dwClientHeight) {
+				
+				dwX				= 0;
+				dwImageOffsetX	= 0;
+//				dwImageOffsetX	= imageData.dwImageWidth + (m_nBackgroundOffsetX - (int)imageData.dwImageWidth*(m_nBackgroundOffsetX/(int)imageData.dwImageWidth));
+				
+				while (dwX < dwClientWidth) {
+
+					imageData->dcImage.BitBlt(
+								dwX, 
+								dwY, 
+								imageData->originalImage.getWidth(), 
+								imageData->originalImage.getHeight(),
+								dcTemplate,
+								dwImageOffsetX,
+								dwImageOffsetY,
+								SRCCOPY);
+					
+					dwX += imageData->originalImage.getWidth() - dwImageOffsetX;
+					dwImageOffsetX = 0;
+				}
+				
+				dwY += imageData->originalImage.getHeight() - dwImageOffsetY;
+				dwImageOffsetY = 0;
+			}
+			break;
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -4,23 +4,23 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum ImageStyle {
+enum SizeStyle {
 
-	imgStyleCenter	= 0,
-    imgStyleResize	= 1,
-	imgStyleTile	= 2
+	sizeStyleCenter	= 0,
+    sizeStyleResize	= 1,
+	sizeStyleTile	= 2
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 struct ImageData {
 
-	ImageData(const wstring& filename, bool relative, bool resize, bool extend, COLORREF tint, BYTE tintOpacity)
+	ImageData(const wstring& filename, bool relative, bool extend, SizeStyle style, COLORREF background, COLORREF tint, BYTE tintOpacity)
 	: strFilename(filename)
 	, bRelative(relative)
 	, bExtend(extend)
-	, imgStyle(resize ? imgStyleResize : imgStyleCenter)
-	, crBackground(0)
+	, sizeStyle(style)
+	, crBackground(background)
 	, crTint(tint)
 	, byTintOpacity(tintOpacity)
 	, dwOriginalImageWidth(0)
@@ -38,7 +38,7 @@ struct ImageData {
 		if (strFilename != other.strFilename)		return false;
 		if (bRelative != other.bRelative)			return false;
 		if (bExtend != other.bExtend)				return false;
-		if (imgStyle != other.imgStyle)				return false;
+		if (sizeStyle != other.sizeStyle)			return false;
 		if (crBackground != other.crBackground)		return false;
 		if (crTint != other.crTint)					return false;
 		if (byTintOpacity != other.byTintOpacity)	return false;
@@ -50,7 +50,7 @@ struct ImageData {
 
 	bool				bRelative;
 	bool				bExtend;
-	ImageStyle			imgStyle;
+	SizeStyle			sizeStyle;
 
 	COLORREF			crBackground;
 
@@ -88,7 +88,7 @@ class ImageHandler {
 
 	public:
 
-		shared_ptr<ImageData> GetImageData(const wstring& strFilename, bool bRelative, bool bResize, bool bExtend, COLORREF crTint, BYTE byTintOpacity);
+		shared_ptr<ImageData> GetImageData(const wstring& strFilename, bool bRelative, bool bExtend, SizeStyle sizeStyle, COLORREF crBackground, COLORREF crTint, BYTE byTintOpacity);
 		shared_ptr<ImageData> GetDesktopImageData(COLORREF crTint, BYTE byTintOpacity);
 		bool LoadImage(shared_ptr<ImageData>& imageData);
 		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
@@ -96,6 +96,7 @@ class ImageHandler {
 	private:
 
 		void CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& imageData);
+		void CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
 
 	private:
 

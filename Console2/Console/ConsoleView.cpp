@@ -1219,7 +1219,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit) {
 
 		ClientToScreen(&pointClientScreen);
 
-		if (m_tabData->tabBackground->image.IsNull()) g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
+		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
 
 		m_dcOffscreen.BitBlt(
 						rectBlit.left, 

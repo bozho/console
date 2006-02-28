@@ -549,8 +549,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 				wstring		strFilename(L"");
 				bool		bRelative	= false;
-				bool		bResize		= false;
 				bool		bExtend		= false;
+				DWORD		dwSizeStyle	= 0;
 				COLORREF	crTint		= RGB(0, 0, 0);
 				BYTE		byTintOpacity = 0;
 
@@ -564,16 +564,18 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 				if (tabData->backgroundImageType == bktypeImage) {
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
-					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"resize"), bResize, false);
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"size_style"), dwSizeStyle, 0);
 
 					tabData->tabBackground = g_imageHandler->GetImageData(
 																strFilename, 
 																bRelative, 
-																bResize, 
 																bExtend, 
+																static_cast<SizeStyle>(dwSizeStyle),
+																tabData->crBackgroundColor,
 																crTint, 
 																byTintOpacity);
+
 				} else if (tabData->backgroundImageType == bktypeDesktop) {
 					tabData->tabBackground = g_imageHandler->GetDesktopImageData(crTint, byTintOpacity);
 				}

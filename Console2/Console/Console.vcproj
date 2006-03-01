@@ -171,16 +171,7 @@
 				RelativePath=".\ImageHandler.cpp">
 			</File>
 			<File
-				RelativePath=".\MainFrameTabbed.cpp">
-			</File>
-			<File
-				RelativePath=".\MainWnd.cpp">
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="TRUE">
-					<Tool
-						Name="VCCLCompilerTool"/>
-				</FileConfiguration>
+				RelativePath=".\MainFrame.cpp">
 			</File>
 			<File
 				RelativePath=".\SelectionHandler.cpp">
@@ -256,10 +247,7 @@
 				RelativePath=".\ImageHandler.h">
 			</File>
 			<File
-				RelativePath=".\MainFrameTabbed.h">
-			</File>
-			<File
-				RelativePath=".\MainWnd.h">
+				RelativePath=".\MainFrame.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">

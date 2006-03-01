@@ -7,8 +7,7 @@
 
 #include "ConsoleView.h"
 #include "aboutdlg.h"
-#include "MainFrameTabbed.h"
-#include "MainWnd.h"
+#include "MainFrame.h"
 #include "Console.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,9 +41,7 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 	_Module.AddMessageLoop(&theLoop);
 
 	// TODO: Handle other window types
-	MainFrameTabbed wndMain;
-//	MainWnd wndMain;
-
+	MainFrame wndMain;
 
 	if (!g_settingsHandler->LoadSettings(L"console.xml")) {
 		//TODO: error handling
@@ -55,13 +52,6 @@ int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;
 	}
-
-/*
-	if(wndMain.Create(NULL) == NULL) {
-		ATLTRACE(_T("Main window creation failed!\n"));
-		return 0;
-	}
-*/
 
 	wndMain.ShowWindow(nCmdShow);
 

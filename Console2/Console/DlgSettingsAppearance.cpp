@@ -52,8 +52,8 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_sliderInactiveAlpha.SetTicFreq(5);
 	m_sliderInactiveAlpha.SetPageSize(5);
 
-	m_sliderActiveAlpha.SetPos(static_cast<int>(255 - m_appearanceSettings.transparencySettings.byActiveAlpha));
-	m_sliderInactiveAlpha.SetPos(static_cast<int>(255 - m_appearanceSettings.transparencySettings.byInactiveAlpha));
+	m_sliderActiveAlpha.SetPos(255 - m_appearanceSettings.transparencySettings.byActiveAlpha);
+	m_sliderInactiveAlpha.SetPos(255 - m_appearanceSettings.transparencySettings.byInactiveAlpha);
 
 	UpdateSliderText(m_sliderActiveAlpha.m_hWnd);
 	UpdateSliderText(m_sliderInactiveAlpha.m_hWnd);

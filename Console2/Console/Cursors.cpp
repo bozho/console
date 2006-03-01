@@ -1026,7 +1026,7 @@ void FadeBlockCursor::PrepareNext() {
 
 	if (m_blendFunction.SourceConstantAlpha < ALPHA_STEP) {
 		m_nStep = ALPHA_STEP;
-	} else if (static_cast<DWORD>(m_blendFunction.SourceConstantAlpha) + ALPHA_STEP > 255) {
+	} else if (m_blendFunction.SourceConstantAlpha + ALPHA_STEP > 255) {
 		m_nStep = -ALPHA_STEP;
 	}
 

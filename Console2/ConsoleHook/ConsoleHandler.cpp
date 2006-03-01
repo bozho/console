@@ -165,7 +165,7 @@ void ConsoleHandler::ReadConsoleBuffer() {
 	// ReadConsoleOutput seems to fail for large (around 8k-CHAR_INFO's) buffers
 	// here we calculate max buffer size (row count) for safe reading
 	coordBufferSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
-	coordBufferSize.Y	= static_cast<SHORT>(8192 / coordBufferSize.X);
+	coordBufferSize.Y	= 8192 / coordBufferSize.X;
 
 	// initialize reading rectangle
 	srBuffer.Top		= csbiConsole.srWindow.Top;
@@ -190,8 +190,8 @@ void ConsoleHandler::ReadConsoleBuffer() {
 			coordStart, 
 			&srBuffer);
 
-		srBuffer.Top		= srBuffer.Top + static_cast<SHORT>(coordBufferSize.Y);
-		srBuffer.Bottom		= srBuffer.Bottom + static_cast<SHORT>(coordBufferSize.Y);
+		srBuffer.Top		= srBuffer.Top + coordBufferSize.Y;
+		srBuffer.Bottom		= srBuffer.Bottom + coordBufferSize.Y;
 
 		dwScreenBufferOffset += coordBufferSize.X * coordBufferSize.Y;
 	}

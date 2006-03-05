@@ -206,7 +206,7 @@ WindowSettings::WindowSettings()
 , bResizable(true)
 , bTaskbarButton(true)
 , dockPosition(dockNone)
-, nSnapDistance(0)
+, nSnapDistance(-1)
 {
 }
 

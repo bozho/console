@@ -88,6 +88,10 @@ struct WindowSettings : public SettingsBase {
 	bool	bShowToolbar;
 	bool	bShowTabs;
 	bool	bShowStatusbar;
+
+	bool	bShowCaption;
+	bool	bResizable;
+	bool	bTaskbarButton;
 };
 
 //////////////////////////////////////////////////////////////////////////////

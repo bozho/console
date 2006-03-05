@@ -122,6 +122,7 @@ class MainFrame
 		bool CreateNewConsole(DWORD dwTabIndex);
 		void CloseTab(CTabViewTabItem* pTabItem);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
+		void UpdateWindowStyles();
 
 		BOOL ShowMenu(BOOL bShow);
 		BOOL ShowToolbar(BOOL bShow);

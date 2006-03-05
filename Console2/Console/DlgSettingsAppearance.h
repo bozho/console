@@ -30,6 +30,9 @@ class DlgSettingsAppearance
 			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_nShowToolbar);
 			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs);
 			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar);
+			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption);
+			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable);
+			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_nTaskbarButton);
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsAppearance)
@@ -74,6 +77,11 @@ class DlgSettingsAppearance
 		int							m_nShowToolbar;
 		int							m_nShowTabs;
 		int							m_nShowStatusbar;
+
+		int							m_nShowCaption;
+		int							m_nResizable;
+		int							m_nTaskbarButton;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

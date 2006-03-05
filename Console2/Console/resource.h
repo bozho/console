@@ -93,8 +93,11 @@
 #define IDC_CHECK_SHOW_MENU             1083
 #define IDC_CHECK_SHOW_TOOLBAR          1084
 #define IDC_CHECK_SHOW_STATUS           1085
-#define IDC_CHECK_SHOW_TOOLBAR2         1086
 #define IDC_CHECK_SHOW_TABS             1086
+#define IDC_CHECK_STYLE_CAPTION         1087
+#define IDC_CHECK_STYLE_RESIZABLE       1088
+#define IDC_CHECK_STYLE_CAPTION2        1089
+#define IDC_CHECK_STYLE_TASKBAR         1089
 #define ID_SWITCH_TAB_1                 1100
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
@@ -117,7 +120,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1084
+#define _APS_NEXT_CONTROL_VALUE         1088
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

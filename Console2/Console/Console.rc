@@ -313,15 +313,22 @@ BEGIN
     GROUPBOX        "Font",IDC_STATIC,17,8,223,86
     CONTROL         "Custom color:",IDC_CHECK_USE_COLOR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,25,65,60,10
-    GROUPBOX        "Main window",IDC_STATIC,17,102,223,92
+    GROUPBOX        "Main window controls",IDC_STATIC,17,102,223,45
     CONTROL         "Show menu",IDC_CHECK_SHOW_MENU,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,25,114,53,10
     CONTROL         "Show toolbar",IDC_CHECK_SHOW_TOOLBAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,25,129,58,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,93,114,58,10
     CONTROL         "Show status bar",IDC_CHECK_SHOW_STATUS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,25,158,68,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,95,127,68,10
     CONTROL         "Show tabs",IDC_CHECK_SHOW_TABS,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,25,143,49,10
+                    WS_TABSTOP,25,127,49,10
+    GROUPBOX        "Main window styles",IDC_STATIC,17,154,223,81
+    CONTROL         "Show caption",IDC_CHECK_STYLE_CAPTION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,25,167,59,10
+    CONTROL         "Resizable",IDC_CHECK_STYLE_RESIZABLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,25,183,46,10
+    CONTROL         "Show in taskbar",IDC_CHECK_STYLE_TASKBAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,25,198,67,10
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 257, 257
@@ -431,6 +438,9 @@ BEGIN
         HORZGUIDE, 50
         HORZGUIDE, 70
         HORZGUIDE, 94
+        HORZGUIDE, 119
+        HORZGUIDE, 132
+        HORZGUIDE, 172
     END
 
     IDD_SETTINGS_HOTKEYS, DIALOG

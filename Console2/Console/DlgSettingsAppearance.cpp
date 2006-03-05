@@ -44,6 +44,10 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_nShowTabs		= m_windowSettings.bShowTabs ? 1 : 0;
 	m_nShowStatusbar= m_windowSettings.bShowStatusbar ? 1 : 0;
 
+	m_nShowCaption	= m_windowSettings.bShowCaption ? 1 : 0;
+	m_nResizable	= m_windowSettings.bResizable ? 1 : 0;
+	m_nTaskbarButton= m_windowSettings.bTaskbarButton ? 1 : 0;
+
 	EnableControls();
 
 	DoDataExchange(DDX_LOAD);
@@ -95,6 +99,10 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_windowSettings.bShowTabs		= (m_nShowTabs > 0);
 		m_windowSettings.bShowStatusbar	= (m_nShowStatusbar > 0);
 
+		m_windowSettings.bShowCaption	= (m_nShowCaption > 0);
+		m_windowSettings.bResizable		= (m_nResizable > 0);
+		m_windowSettings.bTaskbarButton	= (m_nTaskbarButton > 0);
+
 		FontSettings&		fontSettings	= g_settingsHandler->GetAppearanceSettings().fontSettings;
 		WindowSettings&		windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 
@@ -109,6 +117,10 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		windowSettings.bShowToolbar		= m_windowSettings.bShowToolbar;
 		windowSettings.bShowTabs		= m_windowSettings.bShowTabs;
 		windowSettings.bShowStatusbar	= m_windowSettings.bShowStatusbar;
+
+		windowSettings.bShowCaption		= m_windowSettings.bShowCaption;
+		windowSettings.bResizable		= m_windowSettings.bResizable;
+		windowSettings.bTaskbarButton	= m_windowSettings.bTaskbarButton;
 
 		m_fontSettings.Save(m_pOptionsRoot);
 		m_windowSettings.Save(m_pOptionsRoot);

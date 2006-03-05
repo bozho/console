@@ -201,6 +201,9 @@ WindowSettings::WindowSettings()
 , bShowToolbar(true)
 , bShowTabs(true)
 , bShowStatusbar(true)
+, bShowCaption(true)
+, bResizable(true)
+, bTaskbarButton(true)
 {
 }
 
@@ -212,14 +215,22 @@ WindowSettings::WindowSettings()
 
 bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
-	CComPtr<IXMLDOMElement>	pWindowElement;
+	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/controls"), pWindowCtrlsElement))) return false;
 
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_menu"), bShowMenu, true);
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_tabs"), bShowTabs, true);
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
+	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
+	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
+	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
+	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
+
+	CComPtr<IXMLDOMElement>	pWindowStylesElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/styles"), pWindowStylesElement))) return false;
+
+	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"show_caption"), bShowCaption, true);
+	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable, true);
+	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
 
 	return true;
 }
@@ -231,14 +242,22 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
-	CComPtr<IXMLDOMElement>	pWindowElement;
+	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/controls"), pWindowCtrlsElement))) return false;
 
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_menu"), bShowMenu);
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_toolbar"), bShowToolbar);
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_tabs"), bShowTabs);
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
+	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
+	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
+	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
+	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
+
+	CComPtr<IXMLDOMElement>	pWindowStylesElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/styles"), pWindowStylesElement))) return false;
+
+	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"show_caption"), bShowCaption);
+	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable);
+	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
 
 	return true;
 }

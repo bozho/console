@@ -101,17 +101,20 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UISetCheck(ID_VIEW_TABS, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
+	UpdateWindowStyles();
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	m_bMenuVisible		= ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
+	m_bToolbarVisible	= ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
+	m_bTabsVisible		= ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
+	m_bStatusBarVisible	= ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
-
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
-	m_bMenuVisible		= ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
-	m_bToolbarVisible	= ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
-	m_bTabsVisible		= ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
-	m_bStatusBarVisible	= ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
 
 	bHandled = false;
 	return 0;
@@ -710,6 +713,31 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 
 	mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::UpdateWindowStyles() {
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	// adjust window styles
+	DWORD	dwStyle		= GetWindowLong(GWL_STYLE);
+	DWORD	dwExStyle	= GetWindowLong(GWL_EXSTYLE);
+
+	if (!windowSettings.bShowCaption) dwStyle &= ~WS_CAPTION;
+	if (!windowSettings.bResizable) dwStyle &= ~WS_THICKFRAME;
+	if (!windowSettings.bTaskbarButton) {
+		dwStyle		&= ~WS_MINIMIZEBOX;
+		dwExStyle	|= WS_EX_TOOLWINDOW;
+		dwExStyle	&= ~WS_EX_APPWINDOW;
+	}
+
+	SetWindowLong(GWL_STYLE, dwStyle);
+	SetWindowLong(GWL_EXSTYLE, dwExStyle);
 }
 
 //////////////////////////////////////////////////////////////////////////////

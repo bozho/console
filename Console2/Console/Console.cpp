@@ -22,31 +22,61 @@
 // Global variables
 
 CAppModule					_Module;
+
 shared_ptr<SettingsHandler>	g_settingsHandler;
 shared_ptr<ImageHandler>	g_imageHandler;
 
-//////////////////////////////////////////////////////////////////////////////
+static wstring				s_strConfigFile(L"");
 
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-int Run(LPTSTR /*lpstrCmdLine*/ = NULL, int nCmdShow = SW_SHOWDEFAULT) {
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ParseCommandLine(LPTSTR lptstrCmdLine) {
+
+	typedef tokenizer<char_separator<wchar_t>, wstring::const_iterator, wstring > tokenizer;
+
+	wstring						strCmdLine(lptstrCmdLine);
+	char_separator<wchar_t>		sep(L" \t");
+	tokenizer					tokens(strCmdLine, sep);
+	tokenizer::const_iterator	it = tokens.begin();
+
+	for (; it != tokens.end(); ++it) {
+
+		if (*it == wstring(L"-c")) {
+			// custom config file
+			++it;
+			if (it == tokens.end()) break;
+			s_strConfigFile = *it;
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-	// TODO: Handle other window types
-	MainFrame wndMain;
+	ParseCommandLine(lpstrCmdLine);
 
-	if (!g_settingsHandler->LoadSettings(L"console.xml")) {
+	if (!g_settingsHandler->LoadSettings(s_strConfigFile)) {
 		//TODO: error handling
 		return -1;
 	}
+
+	// create main window
+	MainFrame wndMain;
 
 	if(wndMain.CreateEx() == NULL) {
 		ATLTRACE(_T("Main window creation failed!\n"));

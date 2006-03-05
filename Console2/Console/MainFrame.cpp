@@ -105,10 +105,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
-	m_bMenuVisible		= ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
-	m_bToolbarVisible	= ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
-	m_bTabsVisible		= ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
-	m_bStatusBarVisible	= ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
+	ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
+	ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
+	ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
+	ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
+
+	DockWindow();
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -415,7 +417,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bMenuVisible = ShowMenu(!m_bMenuVisible);
+	ShowMenu(!m_bMenuVisible);
 	return 0;
 }
 
@@ -426,7 +428,7 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bToolbarVisible = ShowToolbar(!m_bToolbarVisible);
+	ShowToolbar(!m_bToolbarVisible);
 	return 0;
 }
 
@@ -437,7 +439,7 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bTabsVisible = ShowTabs(!m_bTabsVisible);
+	ShowTabs(!m_bTabsVisible);
 	return 0;
 }
 
@@ -448,7 +450,7 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bStatusBarVisible = ShowStatusbar(!m_bStatusBarVisible);
+	ShowStatusbar(!m_bStatusBarVisible);
 	return 0;
 }
 
@@ -745,17 +747,73 @@ void MainFrame::UpdateWindowStyles() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL MainFrame::ShowMenu(BOOL bShow) {
+void MainFrame::DockWindow() {
+
+	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+	CRect			rectDesktop;
+	CRect			rectWindow;
+	int				nX = 0;
+	int				nY = 0;
+
+	Helpers::GetDesktopRect(m_hWnd, rectDesktop);
+	GetWindowRect(&rectWindow);
+
+	switch (windowSettings.dockPosition) {
+
+		case dockTL : {
+			nX = rectDesktop.left;
+			nY = rectDesktop.top;
+			break;
+		}
+
+		case dockTR : {
+			nX = rectDesktop.right - rectWindow.Width();
+			nY = rectDesktop.top;
+			break;
+		}
+
+		case dockBR : {
+			nX = rectDesktop.right - rectWindow.Width();
+			nY = rectDesktop.bottom - rectWindow.Height();
+			break;
+		}
+
+		case dockBL : {
+			nX = rectDesktop.left;
+			nY = rectDesktop.bottom - rectWindow.Height();
+			break;
+		}
+
+		default : return;
+	}
+
+	HWND hwndZ = HWND_NOTOPMOST;
+
+	SetWindowPos(
+		hwndZ, 
+		nX, 
+		nY, 
+		0, 
+		0, 
+		SWP_NOSIZE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::ShowMenu(BOOL bShow) {
+
+	m_bMenuVisible = bShow;
 
 	CReBarCtrl rebar(m_hWndToolBar);
 	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST);	// menu is 1st added band
-	rebar.ShowBand(nBandIndex, bShow);
-	UISetCheck(ID_VIEW_MENU, bShow);
+	rebar.ShowBand(nBandIndex, m_bMenuVisible);
+	UISetCheck(ID_VIEW_MENU, m_bMenuVisible);
 
 	UpdateLayout();
 	AdjustWindowSize(false);
-
-	return bShow;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -763,17 +821,17 @@ BOOL MainFrame::ShowMenu(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL MainFrame::ShowToolbar(BOOL bShow) {
+void MainFrame::ShowToolbar(BOOL bShow) {
+
+	m_bToolbarVisible = bShow;
 
 	CReBarCtrl rebar(m_hWndToolBar);
 	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
-	rebar.ShowBand(nBandIndex, bShow);
-	UISetCheck(ID_VIEW_TOOLBAR, bShow);
+	rebar.ShowBand(nBandIndex, m_bToolbarVisible);
+	UISetCheck(ID_VIEW_TOOLBAR, m_bToolbarVisible);
 
 	UpdateLayout();
 	AdjustWindowSize(false);
-
-	return bShow;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -781,20 +839,20 @@ BOOL MainFrame::ShowToolbar(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL MainFrame::ShowTabs(BOOL bShow) {
+void MainFrame::ShowTabs(BOOL bShow) {
 
-	if (bShow) {
+	m_bTabsVisible = bShow;
+
+	if (m_bTabsVisible) {
 		ShowTabControl();
 	} else {
 		HideTabControl();
 	}
 
-	UISetCheck(ID_VIEW_TABS, bShow);
+	UISetCheck(ID_VIEW_TABS, m_bTabsVisible);
 
 	UpdateLayout();
 	AdjustWindowSize(false);
-
-	return bShow;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -802,15 +860,15 @@ BOOL MainFrame::ShowTabs(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL MainFrame::ShowStatusbar(BOOL bShow) {
+void MainFrame::ShowStatusbar(BOOL bShow) {
 
-	::ShowWindow(m_hWndStatusBar, bShow ? SW_SHOWNOACTIVATE : SW_HIDE);
-	UISetCheck(ID_VIEW_STATUS_BAR, bShow);
+	m_bStatusBarVisible = bShow;
+
+	::ShowWindow(m_hWndStatusBar, m_bStatusBarVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
+	UISetCheck(ID_VIEW_STATUS_BAR, m_bStatusBarVisible);
 
 	UpdateLayout();
 	AdjustWindowSize(false);
-
-	return bShow;
 }
 
 //////////////////////////////////////////////////////////////////////////////

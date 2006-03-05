@@ -62,9 +62,11 @@ using namespace std;
 #include <boost/smart_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
+#include <boost/tokenizer.hpp>
 using namespace boost;
 #pragma warning(pop)
 
+#include "Helpers.h"
 #include "ConsoleHandler.h"
 #include "ImageHandler.h"
 #include "SettingsHandler.h"

@@ -204,6 +204,8 @@ WindowSettings::WindowSettings()
 , bShowCaption(true)
 , bResizable(true)
 , bTaskbarButton(true)
+, dockPosition(dockNone)
+, nSnapDistance(0)
 {
 }
 
@@ -232,6 +234,13 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable, true);
 	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
 
+	CComPtr<IXMLDOMElement>	pWindowPositionElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/position"), pWindowPositionElement))) return false;
+
+	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"dock"), reinterpret_cast<DWORD&>(dockPosition), static_cast<DWORD>(dockNone));
+	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"snap"), nSnapDistance, -1);
+
 	return true;
 }
 
@@ -258,6 +267,13 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"show_caption"), bShowCaption);
 	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable);
 	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
+
+	CComPtr<IXMLDOMElement>	pWindowPositionElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/position"), pWindowPositionElement))) return false;
+
+	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"dock"), static_cast<DWORD>(dockPosition));
+	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"snap"), nSnapDistance);
 
 	return true;
 }
@@ -706,6 +722,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 SettingsHandler::SettingsHandler()
 : m_pOptionsDocument()
 , m_pOptionsRoot()
+, m_strSettingsFileName(L"")
 , m_tabSettings(m_consoleSettings)
 {
 }
@@ -724,11 +741,13 @@ SettingsHandler::~SettingsHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SettingsHandler::LoadSettings(const wstring& strOptionsFileName) {
+bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName) {
 
 	HRESULT hr = S_OK;
 
-	hr = XmlHelper::OpenXmlDocument(strOptionsFileName, L"console.xml", m_pOptionsDocument, m_pOptionsRoot);
+	m_strSettingsFileName = strSettingsFileName;
+
+	hr = XmlHelper::OpenXmlDocument(m_strSettingsFileName, L"console.xml", m_pOptionsDocument, m_pOptionsRoot);
 	if (FAILED(hr)) return false;
 
 	// load settings' sections

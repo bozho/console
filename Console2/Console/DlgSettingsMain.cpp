@@ -41,8 +41,12 @@ LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	HRESULT hr = S_OK;
 
-	// TODO: config file
-	hr = XmlHelper::OpenXmlDocument(L"console.xml", L"console.xml", m_pOptionsDocument, m_pOptionsRoot);
+	hr = XmlHelper::OpenXmlDocument(
+						g_settingsHandler->GetSettingsFileName(), 
+						L"console.xml", 
+						m_pOptionsDocument, 
+						m_pOptionsRoot);
+
 	if (FAILED(hr)) return FALSE;
 
 	m_treeCtrl.Attach(GetDlgItem(IDC_TREE_SECTIONS));

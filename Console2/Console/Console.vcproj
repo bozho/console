@@ -171,6 +171,9 @@
 				RelativePath=".\DlgSettingsTransparency.cpp">
 			</File>
 			<File
+				RelativePath=".\Helpers.cpp">
+			</File>
+			<File
 				RelativePath=".\ImageHandler.cpp">
 			</File>
 			<File
@@ -245,6 +248,9 @@
 			</File>
 			<File
 				RelativePath=".\FastDelegate.h">
+			</File>
+			<File
+				RelativePath=".\Helpers.h">
 			</File>
 			<File
 				RelativePath=".\HotkeyEdit.h">

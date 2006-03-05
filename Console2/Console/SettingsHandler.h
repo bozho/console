@@ -74,6 +74,14 @@ struct FontSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum DockPosition {
+
+	dockNone	= 0,
+	dockTL		= 1,
+	dockTR		= 2,
+	dockBR		= 3,
+	dockBL		= 4
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -84,14 +92,17 @@ struct WindowSettings : public SettingsBase {
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
-	bool	bShowMenu;
-	bool	bShowToolbar;
-	bool	bShowTabs;
-	bool	bShowStatusbar;
+	bool			bShowMenu;
+	bool			bShowToolbar;
+	bool			bShowTabs;
+	bool			bShowStatusbar;
 
-	bool	bShowCaption;
-	bool	bResizable;
-	bool	bTaskbarButton;
+	bool			bShowCaption;
+	bool			bResizable;
+	bool			bTaskbarButton;
+
+	DockPosition	dockPosition;
+	int				nSnapDistance;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -281,7 +292,9 @@ class SettingsHandler {
 
 	public:
 
-		bool LoadSettings(const wstring& strOptionsFileName);
+		bool LoadSettings(const wstring& strSettingsFileName);
+
+		wstring	GetSettingsFileName() const { return m_strSettingsFileName; }
 
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
@@ -294,6 +307,8 @@ class SettingsHandler {
 		CComPtr<IXMLDOMElement>		m_pOptionsRoot;
 
 	private:
+
+		wstring				m_strSettingsFileName;
 
 		ConsoleSettings		m_consoleSettings;
 		AppearanceSettings	m_appearanceSettings;

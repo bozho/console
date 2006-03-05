@@ -22,21 +22,24 @@ class DlgSettingsAppearance
 
 		BEGIN_DDX_MAP(DlgSettingsAppearance)
 			DDX_TEXT(IDC_FONT, m_strFontName);
-			DDX_UINT(IDC_FONT_SIZE, m_appearanceSettings.fontSettings.dwSize);
+			DDX_UINT(IDC_FONT_SIZE, m_fontSettings.dwSize);
 			DDX_CHECK(IDC_CHECK_BOLD, m_nFontBold);
 			DDX_CHECK(IDC_CHECK_ITALIC, m_nFontItalic);
-			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_appearanceSettings.transparencySettings.transType));
+			DDX_CHECK(IDC_CHECK_USE_COLOR, m_nUseFontColor);
+			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_nShowMenu);
+			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_nShowToolbar);
+			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs);
+			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar);
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsAppearance)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
-			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_HANDLER(IDC_BTN_BROWSE_FONT, BN_CLICKED, OnClickedBtnBrowseFont)
-			COMMAND_HANDLER(IDC_KEY_COLOR, BN_CLICKED, OnClickedKeyColor)
-			COMMAND_RANGE_CODE_HANDLER(IDC_TRANSPARENCY_TYPE, IDC_TRANSPARENCY_TYPE3, BN_CLICKED, OnClickedTransType)
+			COMMAND_HANDLER(IDC_CHECK_USE_COLOR, BN_CLICKED, OnClickedUseColor)
+			COMMAND_HANDLER(IDC_FONT_COLOR, BN_CLICKED, OnClickedFontColor)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -50,26 +53,27 @@ class DlgSettingsAppearance
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
-		LRESULT OnClickedTransType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedUseColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 
 	private:
 
-		void UpdateSliderText(HWND hwnd);
-		void EnableTransparencyControls();
+		void EnableControls();
 
 	private:
 
-		AppearanceSettings			m_appearanceSettings;
-
-		CTrackBarCtrl				m_sliderActiveAlpha;
-		CTrackBarCtrl				m_sliderInactiveAlpha;
+		FontSettings				m_fontSettings;
+		WindowSettings				m_windowSettings;
 
 		CString						m_strFontName;
 		int							m_nFontBold;
 		int							m_nFontItalic;
+		int							m_nUseFontColor;
 
-		int							m_nTransparencyType;
+		int							m_nShowMenu;
+		int							m_nShowToolbar;
+		int							m_nShowTabs;
+		int							m_nShowStatusbar;
 };
 
 //////////////////////////////////////////////////////////////////////////////

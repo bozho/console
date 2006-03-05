@@ -5,6 +5,7 @@
 
 #include "DlgSettingsConsole.h"
 #include "DlgSettingsAppearance.h"
+#include "DlgSettingsTransparency.h"
 #include "DlgSettingsHotkeys.h"
 #include "DlgSettingsMain.h"
 
@@ -123,12 +124,17 @@ void DlgSettingsMain::CreateSettingsTree() {
 
 	// create appearance settings dialog
 	shared_ptr<DlgSettingsBase>	dlgAppearance(dynamic_cast<DlgSettingsBase*>(new DlgSettingsAppearance(m_pOptionsRoot)));
-	AddDialogToTree(L"Appearance", dlgAppearance, rect);
+	HTREEITEM htiAppearance = AddDialogToTree(L"Appearance", dlgAppearance, rect);
+
+	// create transparency settings dialog
+	shared_ptr<DlgSettingsBase>	dlgTransparency(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTransparency(m_pOptionsRoot)));
+	AddDialogToTree(L"Transparency", dlgTransparency, rect, htiAppearance);
 
 	// create hotkeys settings dialog
 	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pOptionsRoot)));
 	AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
 
+	m_treeCtrl.Expand(htiAppearance);
 	m_treeCtrl.SelectItem(m_treeCtrl.GetRootItem());
 }
 
@@ -137,12 +143,12 @@ void DlgSettingsMain::CreateSettingsTree() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect) {
+HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/) {
 
 	newDlg->Create(m_hWnd, rect);
 	newDlg->SetWindowPos(HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);
 
-	HTREEITEM hItem = m_treeCtrl.InsertItem(strName.c_str(), NULL, NULL);
+	HTREEITEM hItem = m_treeCtrl.InsertItem(strName.c_str(), htiParent, NULL);
 
 	if (hItem != NULL) m_settingsDlgMap.insert(SettingsDlgsMap::value_type(hItem, newDlg));
 

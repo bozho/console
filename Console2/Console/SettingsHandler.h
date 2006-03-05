@@ -67,6 +67,27 @@ struct FontSettings : public SettingsBase {
 	DWORD		dwSize;
 	bool		bBold;
 	bool		bItalic;
+
+	bool		bUseColor;
+	COLORREF	crFontColor;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct WindowSettings : public SettingsBase {
+
+	WindowSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	bool	bShowMenu;
+	bool	bShowToolbar;
+	bool	bShowTabs;
+	bool	bShowStatusbar;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -112,6 +133,7 @@ struct AppearanceSettings : public SettingsBase {
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	FontSettings			fontSettings;
+	WindowSettings			windowSettings;
 	TransparencySettings	transparencySettings;
 };
 

@@ -22,6 +22,7 @@ MainFrame::MainFrame()
 : m_bMenuVisible(TRUE)
 , m_bToolbarVisible(TRUE)
 , m_bStatusBarVisible(TRUE)
+, m_bTabsVisible(TRUE)
 , m_mapViews()
 {
 
@@ -97,6 +98,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_MENU, 1);
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
+	UISetCheck(ID_VIEW_TABS, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
 	// register object for message filtering and idle updates
@@ -104,6 +106,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ATLASSERT(pLoop != NULL);
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	m_bMenuVisible		= ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
+	m_bToolbarVisible	= ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
+	m_bTabsVisible		= ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
+	m_bStatusBarVisible	= ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
 
 	bHandled = false;
 	return 0;
@@ -404,15 +412,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bMenuVisible = !m_bMenuVisible;
-	CReBarCtrl rebar(m_hWndToolBar);
-	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST);	// menu is 1st added band
-	rebar.ShowBand(nBandIndex, m_bMenuVisible);
-	UISetCheck(ID_VIEW_MENU, m_bMenuVisible);
-
-	UpdateLayout();
-	AdjustWindowSize(false);
-
+	m_bMenuVisible = ShowMenu(!m_bMenuVisible);
 	return 0;
 }
 
@@ -423,15 +423,18 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bToolbarVisible = !m_bToolbarVisible;
-	CReBarCtrl rebar(m_hWndToolBar);
-	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
-	rebar.ShowBand(nBandIndex, m_bToolbarVisible);
-	UISetCheck(ID_VIEW_TOOLBAR, m_bToolbarVisible);
+	m_bToolbarVisible = ShowToolbar(!m_bToolbarVisible);
+	return 0;
+}
 
-	UpdateLayout();
-	AdjustWindowSize(false);
+//////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+
+	m_bTabsVisible = ShowTabs(!m_bTabsVisible);
 	return 0;
 }
 
@@ -442,13 +445,7 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	m_bStatusBarVisible = !m_bStatusBarVisible;
-	::ShowWindow(m_hWndStatusBar, m_bStatusBarVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
-	UISetCheck(ID_VIEW_STATUS_BAR, m_bStatusBarVisible);
-
-	UpdateLayout();
-	AdjustWindowSize(false);
-
+	m_bStatusBarVisible = ShowStatusbar(!m_bStatusBarVisible);
 	return 0;
 }
 
@@ -713,6 +710,79 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 
 	mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOL MainFrame::ShowMenu(BOOL bShow) {
+
+	CReBarCtrl rebar(m_hWndToolBar);
+	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST);	// menu is 1st added band
+	rebar.ShowBand(nBandIndex, bShow);
+	UISetCheck(ID_VIEW_MENU, bShow);
+
+	UpdateLayout();
+	AdjustWindowSize(false);
+
+	return bShow;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOL MainFrame::ShowToolbar(BOOL bShow) {
+
+	CReBarCtrl rebar(m_hWndToolBar);
+	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);	// toolbar is 2nd added band
+	rebar.ShowBand(nBandIndex, bShow);
+	UISetCheck(ID_VIEW_TOOLBAR, bShow);
+
+	UpdateLayout();
+	AdjustWindowSize(false);
+
+	return bShow;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOL MainFrame::ShowTabs(BOOL bShow) {
+
+	if (bShow) {
+		ShowTabControl();
+	} else {
+		HideTabControl();
+	}
+
+	UISetCheck(ID_VIEW_TABS, bShow);
+
+	UpdateLayout();
+	AdjustWindowSize(false);
+
+	return bShow;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOL MainFrame::ShowStatusbar(BOOL bShow) {
+
+	::ShowWindow(m_hWndStatusBar, bShow ? SW_SHOWNOACTIVATE : SW_HIDE);
+	UISetCheck(ID_VIEW_STATUS_BAR, bShow);
+
+	UpdateLayout();
+	AdjustWindowSize(false);
+
+	return bShow;
 }
 
 //////////////////////////////////////////////////////////////////////////////

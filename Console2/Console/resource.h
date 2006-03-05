@@ -11,6 +11,7 @@
 #define IDD_SETTINGS_CONSOLE            206
 #define IDD_SETTINGS_APPEARANCE         207
 #define IDD_SETTINGS_HOTKEYS            208
+#define IDD_SETTINGS_TRANSPARENCY       209
 #define ID_NEW_TAB_1                    1000
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -86,8 +87,14 @@
 #define IDC_LIST_HOTKEYS                1075
 #define IDC_BTN_ASSIGN                  1076
 #define IDC_EDIT_HOTKEY                 1077
-#define IDC_COMMAND                     1079
 #define IDC_EDIT_COMMAND                1079
+#define IDC_FONT_COLOR                  1081
+#define IDC_CHECK_USE_COLOR             1082
+#define IDC_CHECK_SHOW_MENU             1083
+#define IDC_CHECK_SHOW_TOOLBAR          1084
+#define IDC_CHECK_SHOW_STATUS           1085
+#define IDC_CHECK_SHOW_TOOLBAR2         1086
+#define IDC_CHECK_SHOW_TABS             1086
 #define ID_SWITCH_TAB_1                 1100
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
@@ -102,14 +109,15 @@
 #define ID__EDIT                        32786
 #define ID__VIEW                        32787
 #define ID__HELP                        32788
+#define ID_VIEW_TABS                    32789
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
-#define _APS_NEXT_COMMAND_VALUE         32789
-#define _APS_NEXT_CONTROL_VALUE         1081
+#define _APS_NEXT_COMMAND_VALUE         32790
+#define _APS_NEXT_CONTROL_VALUE         1084
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

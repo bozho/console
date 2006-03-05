@@ -142,11 +142,11 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		int			m_nInsideBorder;
 
-		bool		m_bUseFontColor;
-		COLORREF	m_crFontColor;
-
 		bool		m_bMouseDragable;
 		bool		m_bInverseShift;
+
+		ConsoleSettings&				m_consoleSettings;
+		AppearanceSettings&				m_appearanceSettings;
 
 		shared_ptr<TabData>				m_tabData;
 

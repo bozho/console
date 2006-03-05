@@ -128,6 +128,8 @@ FontSettings::FontSettings()
 , dwSize(10)
 , bBold(false)
 , bItalic(false)
+, bUseColor(false)
+, crFontColor(0)
 {
 }
 
@@ -148,6 +150,13 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold"), bBold, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic"), bItalic, false);
 
+	CComPtr<IXMLDOMElement>	pColorElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pFontElement, CComBSTR(L"color"), pColorElement))) return false;
+
+	XmlHelper::GetAttribute(pColorElement, CComBSTR(L"use"), bUseColor, false);
+	XmlHelper::GetRGBAttribute(pColorElement, crFontColor, RGB(0, 0, 0));
+
 	return true;
 }
 
@@ -166,6 +175,70 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"size"), dwSize);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold"), bBold);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic"), bItalic);
+
+	CComPtr<IXMLDOMElement>	pColorElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pFontElement, CComBSTR(L"color"), pColorElement))) return false;
+
+	XmlHelper::SetAttribute(pColorElement, CComBSTR(L"use"), bUseColor);
+	XmlHelper::SetRGBAttribute(pColorElement, crFontColor);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+WindowSettings::WindowSettings()
+: bShowMenu(true)
+, bShowToolbar(true)
+, bShowTabs(true)
+, bShowStatusbar(true)
+{
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pWindowElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_menu"), bShowMenu, true);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_tabs"), bShowTabs, true);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pWindowElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_menu"), bShowMenu);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_toolbar"), bShowToolbar);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_tabs"), bShowTabs);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
 
 	return true;
 }
@@ -248,6 +321,7 @@ AppearanceSettings::AppearanceSettings()
 bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	fontSettings.Load(pOptionsRoot);
+	windowSettings.Load(pOptionsRoot);
 	transparencySettings.Load(pOptionsRoot);
 	return true;
 }
@@ -260,8 +334,8 @@ bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	fontSettings.Save(pOptionsRoot);
+	windowSettings.Save(pOptionsRoot);
 	transparencySettings.Save(pOptionsRoot);
-
 	return true;
 }
 
@@ -548,11 +622,11 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 				CComPtr<IXMLDOMElement>	pTintElement;
 
 				wstring		strFilename(L"");
-				bool		bRelative	= false;
-				bool		bExtend		= false;
-				DWORD		dwSizeStyle	= 0;
-				COLORREF	crTint		= RGB(0, 0, 0);
-				BYTE		byTintOpacity = 0;
+				bool		bRelative		= false;
+				bool		bExtend			= false;
+				DWORD		dwImagePosition	= 0;
+				COLORREF	crTint			= RGB(0, 0, 0);
+				BYTE		byTintOpacity	= 0;
 
 				if (FAILED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image"), pImageElement))) return false;
 
@@ -565,13 +639,13 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
-					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"size_style"), dwSizeStyle, 0);
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"position"), dwImagePosition, 0);
 
 					tabData->tabBackground = g_imageHandler->GetImageData(
 																strFilename, 
 																bRelative, 
 																bExtend, 
-																static_cast<SizeStyle>(dwSizeStyle),
+																static_cast<ImagePosition>(dwImagePosition),
 																tabData->crBackgroundColor,
 																crTint, 
 																byTintOpacity);

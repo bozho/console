@@ -22,13 +22,13 @@ ImageHandler::~ImageHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<ImageData> ImageHandler::GetImageData(const wstring& strFilename, bool bRelative, bool bExtend, SizeStyle sizeStyle, COLORREF crBackground, COLORREF crTint, BYTE byTintOpacity) {
+shared_ptr<ImageData> ImageHandler::GetImageData(const wstring& strFilename, bool bRelative, bool bExtend, ImagePosition imagePosition, COLORREF crBackground, COLORREF crTint, BYTE byTintOpacity) {
 
 	shared_ptr<ImageData>	imageData(new ImageData(
 											strFilename, 
 											bRelative, 
 											bExtend, 
-											sizeStyle, 
+											imagePosition, 
 											crBackground, 
 											crTint, 
 											byTintOpacity));
@@ -78,7 +78,7 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 							L"", 
 							true, 
 							false, 
-							sizeStyleCenter, 
+							imgPosCenter, 
 							RGB(static_cast<BYTE>(r), static_cast<BYTE>(g), static_cast<BYTE>(b)), 
 							crTint, 
 							byTintOpacity));
@@ -86,25 +86,31 @@ shared_ptr<ImageData> ImageHandler::GetDesktopImageData(COLORREF crTint, BYTE by
 	CRegKey keyDesktop;
 	if (keyDesktop.Open(HKEY_CURRENT_USER, L"Control Panel\\Desktop", KEY_READ) != ERROR_SUCCESS) return imageData;
 
-	DWORD	dwChars = MAX_PATH;
+	DWORD	dwChars = 0;
 	CString	strWallpaperFile;
-	DWORD	dwWallpaperStyle= 0;
-	DWORD	dwWallpaperTile	= 0;
+	CString	strWallpaperStyle;
+	CString	strWallpaperTile;
 
-	keyDesktop.QueryDWORDValue(L"WallpaperStyle", dwWallpaperStyle);
-	keyDesktop.QueryDWORDValue(L"TileWallpaper", dwWallpaperStyle);
+	dwChars = 32;
+	keyDesktop.QueryStringValue(L"WallpaperStyle", strWallpaperStyle.GetBuffer(dwChars), &dwChars);
+	dwChars = 32;
+	keyDesktop.QueryStringValue(L"TileWallpaper", strWallpaperTile.GetBuffer(dwChars), &dwChars);
+	dwChars = MAX_PATH;
 	keyDesktop.QueryStringValue(L"Wallpaper", strWallpaperFile.GetBuffer(dwChars), &dwChars);
+
+	strWallpaperStyle.ReleaseBuffer();
 	strWallpaperFile.ReleaseBuffer();
+	strWallpaperTile.ReleaseBuffer();
 
 	imageData->strFilename = strWallpaperFile;
 
-	if (dwWallpaperTile == 1) {
-		imageData->sizeStyle = sizeStyleTile;
+	if (strWallpaperTile == L"1") {
+		imageData->imagePosition = imgPosTile;
 	} else {
-		if (dwWallpaperStyle == 0) {
-			imageData->sizeStyle = sizeStyleCenter;
+		if (strWallpaperStyle == L"0") {
+			imageData->imagePosition = imgPosCenter;
 		} else {
-			imageData->sizeStyle = sizeStyleResize;
+			imageData->imagePosition = imgPosFit;
 		}
 	}
 
@@ -188,10 +194,6 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& ima
 	DWORD	dwPrimaryDisplayWidth	= ::GetSystemMetrics(SM_CXSCREEN);
 	DWORD	dwPrimaryDisplayHeight	= ::GetSystemMetrics(SM_CYSCREEN);
 
-	// get offsets for virtual display
-	int		nBackgroundOffsetX	= ::GetSystemMetrics(SM_XVIRTUALSCREEN);
-	int		nBackgroundOffsetY	= ::GetSystemMetrics(SM_YVIRTUALSCREEN);
-
 	imageData->dwImageWidth		= ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	imageData->dwImageHeight	= ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
@@ -204,7 +206,7 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& ima
 	DWORD	dwTemplateWidth		= imageData->originalImage.getWidth();
 	DWORD	dwTemplateHeight	= imageData->originalImage.getHeight();
 
-	if (imageData->sizeStyle == sizeStyleResize) {
+	if (imageData->imagePosition == imgPosFit) {
 
 		if (imageData->bExtend) {
 			dwTemplateWidth	= imageData->dwImageWidth;
@@ -248,129 +250,31 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& ima
 	CRect	rect(0, 0, imageData->dwImageWidth, imageData->dwImageHeight);
 	imageData->dcImage.FillRect(&rect, backgroundBrush);
 
-	switch (imageData->sizeStyle) {
+	if (imageData->imagePosition == imgPosTile) {
 
-		case sizeStyleCenter : {
+		TileTemplateImage(
+			dcTemplate, 
+			::GetSystemMetrics(SM_XVIRTUALSCREEN), 
+			::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+			imageData);
 
-			imageData->dcImage.BitBlt(
-						(imageData->dwImageWidth <= imageData->originalImage.getWidth()) ? 0 : (imageData->dwImageWidth - imageData->originalImage.getWidth())/2,
-						(imageData->dwImageHeight <= imageData->originalImage.getHeight()) ? 0 : (imageData->dwImageHeight - imageData->originalImage.getHeight())/2,
-						imageData->originalImage.getWidth(), 
-						imageData->originalImage.getHeight(),
-						dcTemplate,
-						(imageData->dwImageWidth < imageData->originalImage.getWidth()) ? (imageData->originalImage.getWidth() - imageData->dwImageWidth)/2 : 0,
-						(imageData->dwImageHeight < imageData->originalImage.getHeight()) ? (imageData->originalImage.getHeight() - imageData->dwImageHeight)/2 : 0,
-						SRCCOPY);
-			break;
-		}
-
-		case sizeStyleResize : {
-
-			imageData->dcImage.BitBlt(
-						0,
-						0,
-						imageData->dwImageWidth, 
-						imageData->dwImageHeight,
-						dcTemplate,
-						0,
-						0,
-						SRCCOPY);
-			break;
-		}
-
-		case sizeStyleTile : {
-
-			// we're tiling the image, starting at coordinates (0, 0)
-			DWORD dwX = 0;
-			DWORD dwY = 0;
-			
-			DWORD dwImageOffsetX = 0;
-			DWORD dwImageOffsetY = 0;
-//			DWORD dwImageOffsetY = imageData->dwImageHeight + (nBackgroundOffsetY - (int)imageData->dwImageHeight*(nBackgroundOffsetY/(int)imageData->dwImageHeight));
-			
-			while (dwY < imageData->dwImageHeight) {
-				
-				dwX				= 0;
-				dwImageOffsetX	= 0;
-//				dwImageOffsetX	= imageData->dwImageWidth + (nBackgroundOffsetX - (int)imageData->dwImageWidth*(nBackgroundOffsetX/(int)imageData->dwImageWidth));
-				
-				while (dwX < imageData->dwImageWidth) {
-
-					imageData->dcImage.BitBlt(
-								dwX, 
-								dwY, 
-								imageData->originalImage.getWidth(), 
-								imageData->originalImage.getHeight(),
-								dcTemplate,
-								dwImageOffsetX,
-								dwImageOffsetY,
-								SRCCOPY);
-					
-					dwX += imageData->originalImage.getWidth() - dwImageOffsetX;
-					dwImageOffsetX = 0;
-				}
-				
-				dwY += imageData->originalImage.getHeight() - dwImageOffsetY;
-				dwImageOffsetY = 0;
-			}
-			break;
-		}
-	}
-
-
-
-
-
-
-
-
-
-//	fipImage tempImage(imageData->originalImage);
-
-/*
-	DWORD	dwPrimaryDisplayWidth	= ::GetSystemMetrics(SM_CXSCREEN);
-	DWORD	dwPrimaryDisplayHeight	= ::GetSystemMetrics(SM_CYSCREEN);
-	
-	DWORD	dwBackgroundWidth		= ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	DWORD	dwBackgroundHeight		= ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
-
-
-	if (imageData->bExtend) {
-		imageData->dwImageWidth	= dwBackgroundWidth;
-		imageData->dwImageHeight= dwBackgroundHeight;
 	} else {
-		imageData->dwImageWidth	= dwPrimaryDisplayWidth;
-		imageData->dwImageHeight= dwPrimaryDisplayHeight;
+
+		if (imageData->bExtend) {
+			PaintTemplateImage(
+				dcTemplate, 
+				0, 
+				0,
+				imageData->dwImageWidth, 
+				imageData->dwImageHeight, 
+				imageData->dwImageWidth, 
+				imageData->dwImageHeight, 
+				imageData);
+		} else {
+			MonitorEnumData	enumData(dcTemplate, imageData);
+			::EnumDisplayMonitors(NULL, NULL, ImageHandler::MonitorEnumProc, reinterpret_cast<LPARAM>(&enumData));
+		}
 	}
-*/
-
-	// for relative background, background size is equal to virtual screen size
-/*
-	imageData->dwImageWidth	= ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
-	imageData->dwImageHeight= ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
-*/
-			
-/*
-	// get offsets for virtual display
-	m_nBackgroundOffsetX = ::GetSystemMetrics(SM_XVIRTUALSCREEN);
-	m_nBackgroundOffsetY = ::GetSystemMetrics(SM_YVIRTUALSCREEN);
-*/
-
-
-/*
-	tempImage.rescale(static_cast<WORD>(imageData->dwImageWidth), static_cast<WORD>(imageData->dwImageHeight), FILTER_BILINEAR);
-
-	if (!imageData->image.IsNull()) imageData->image.DeleteObject();
-	imageData->image.CreateDIBitmap(
-						dc, 
-						tempImage.getInfoHeader(), 
-						CBM_INIT, 
-						tempImage.accessPixels(), 
-						tempImage.getInfo(), 
-						DIB_RGB_COLORS);
-
-	imageData->dcImage.SelectBitmap(imageData->image);
-*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -394,7 +298,7 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 	imageData->dwImageWidth = clientRect.Width();
 	imageData->dwImageHeight= clientRect.Height();
 
-	if ((imageData->sizeStyle == sizeStyleResize) &&
+	if ((imageData->imagePosition == imgPosFit) &&
 		((imageData->originalImage.getWidth() != imageData->dwImageWidth) || (imageData->originalImage.getHeight() != imageData->dwImageHeight))) {
 
 		// resize background image
@@ -427,75 +331,124 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 	CBrush backgroundBrush(::CreateSolidBrush(imageData->crBackground));
 	imageData->dcImage.FillRect(&clientRect, backgroundBrush);
 
-	switch (imageData->sizeStyle) {
+	if (imageData->imagePosition == imgPosTile) {
 
-		case sizeStyleCenter : {
+		TileTemplateImage(
+			dcTemplate, 
+			0, 
+			0, 
+			imageData);
 
-			imageData->dcImage.BitBlt(
-						(imageData->dwImageWidth <= imageData->originalImage.getWidth()) ? 0 : (imageData->dwImageWidth - imageData->originalImage.getWidth())/2,
-						(imageData->dwImageHeight <= imageData->originalImage.getHeight()) ? 0 : (imageData->dwImageHeight - imageData->originalImage.getHeight())/2,
-						imageData->originalImage.getWidth(), 
-						imageData->originalImage.getHeight(),
-						dcTemplate,
-						(imageData->dwImageWidth < imageData->originalImage.getWidth()) ? (imageData->originalImage.getWidth() - imageData->dwImageWidth)/2 : 0,
-						(imageData->dwImageHeight < imageData->originalImage.getHeight()) ? (imageData->originalImage.getHeight() - imageData->dwImageHeight)/2 : 0,
-						SRCCOPY);
-			break;
-		}
-
-		case sizeStyleResize : {
-
-			imageData->dcImage.BitBlt(
-						0,
-						0,
-						imageData->dwImageWidth, 
-						imageData->dwImageHeight,
-						dcTemplate,
-						0,
-						0,
-						SRCCOPY);
-			break;
-		}
-
-		case sizeStyleTile : {
-
-			// we're tiling the image, starting at coordinates (0, 0)
-			DWORD dwX = 0;
-			DWORD dwY = 0;
-			
-			DWORD dwImageOffsetX = 0;
-			DWORD dwImageOffsetY = 0;
-//			DWORD dwImageOffsetY = imageData.dwImageHeight + (m_nBackgroundOffsetY - (int)imageData.dwImageHeight*(m_nBackgroundOffsetY/(int)imageData.dwImageHeight));
-			
-			while (dwY < imageData->dwImageHeight) {
-				
-				dwX				= 0;
-				dwImageOffsetX	= 0;
-//				dwImageOffsetX	= imageData.dwImageWidth + (m_nBackgroundOffsetX - (int)imageData.dwImageWidth*(m_nBackgroundOffsetX/(int)imageData.dwImageWidth));
-				
-				while (dwX < imageData->dwImageWidth) {
-
-					imageData->dcImage.BitBlt(
-								dwX, 
-								dwY, 
-								imageData->originalImage.getWidth(), 
-								imageData->originalImage.getHeight(),
-								dcTemplate,
-								dwImageOffsetX,
-								dwImageOffsetY,
-								SRCCOPY);
-					
-					dwX += imageData->originalImage.getWidth() - dwImageOffsetX;
-					dwImageOffsetX = 0;
-				}
-				
-				dwY += imageData->originalImage.getHeight() - dwImageOffsetY;
-				dwImageOffsetY = 0;
-			}
-			break;
-		}
+	} else {
+		PaintTemplateImage(
+			dcTemplate, 
+			0, 
+			0,
+			imageData->dwImageWidth, 
+			imageData->dwImageHeight, 
+			imageData->dwImageWidth, 
+			imageData->dwImageHeight, 
+			imageData);
 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, shared_ptr<ImageData>& imageData) {
+
+	if (imageData->imagePosition == imgPosCenter) {
+
+		imageData->dcImage.BitBlt(
+					(dwDstWidth <= imageData->dwOriginalImageWidth) ? nOffsetX : nOffsetX + (dwDstWidth - imageData->dwOriginalImageWidth)/2,
+					(dwDstHeight <= imageData->dwOriginalImageHeight) ? nOffsetY : nOffsetY + (dwDstHeight - imageData->dwOriginalImageHeight)/2,
+					dwDstWidth, 
+					dwDstHeight,
+					dcTemplate,
+					(dwDstWidth < imageData->dwOriginalImageWidth) ? (imageData->dwOriginalImageWidth - dwDstWidth)/2 : 0,
+					(dwDstHeight < imageData->dwOriginalImageHeight) ? (imageData->dwOriginalImageHeight - dwDstHeight)/2 : 0,
+					SRCCOPY);
+	} else {
+
+		imageData->dcImage.BitBlt(
+					(dwDstWidth <= dwSrcWidth) ? nOffsetX : nOffsetX + (dwDstWidth - dwSrcWidth)/2,
+					(dwDstHeight <= dwSrcHeight) ? nOffsetY : nOffsetY + (dwDstHeight - dwSrcHeight)/2,
+					dwDstWidth, 
+					dwDstHeight,
+					dcTemplate,
+					(dwDstWidth < dwSrcWidth) ? (dwSrcWidth - dwDstWidth)/2 : 0,
+					(dwDstHeight < dwSrcHeight) ? (dwSrcHeight - dwDstHeight)/2 : 0,
+					SRCCOPY);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, shared_ptr<ImageData>& imageData) {
+
+	// we're tiling the image, starting at coordinates (0, 0)
+	DWORD dwX = 0;
+	DWORD dwY = 0;
+
+	DWORD dwImageOffsetX = 0;
+	DWORD dwImageOffsetY = imageData->originalImage.getHeight() + (nOffsetY - (int)imageData->originalImage.getHeight()*(nOffsetY/(int)imageData->originalImage.getHeight()));
+
+	while (dwY < imageData->dwImageHeight) {
+		
+		dwX				= 0;
+		dwImageOffsetX	= imageData->originalImage.getWidth() + (nOffsetX - (int)imageData->originalImage.getWidth()*(nOffsetX/(int)imageData->originalImage.getWidth()));
+		
+		while (dwX < imageData->dwImageWidth) {
+
+			imageData->dcImage.BitBlt(
+						dwX, 
+						dwY, 
+						imageData->originalImage.getWidth(), 
+						imageData->originalImage.getHeight(),
+						dcTemplate,
+						dwImageOffsetX,
+						dwImageOffsetY,
+						SRCCOPY);
+			
+			dwX += imageData->originalImage.getWidth() - dwImageOffsetX;
+			dwImageOffsetX = 0;
+		}
+		
+		dwY += imageData->originalImage.getHeight() - dwImageOffsetY;
+		dwImageOffsetY = 0;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOL CALLBACK ImageHandler::MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData) {
+
+	MonitorEnumData* pEnumData = reinterpret_cast<MonitorEnumData*>(lpData);
+
+	CRect	rectMonitor(lprcMonitor);
+	DWORD	dwPrimaryDisplayWidth	= ::GetSystemMetrics(SM_CXSCREEN);
+	DWORD	dwPrimaryDisplayHeight	= ::GetSystemMetrics(SM_CYSCREEN);
+
+
+	ImageHandler::PaintTemplateImage(
+					pEnumData->dcTemplate, 
+					rectMonitor.left - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
+					rectMonitor.top - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+					dwPrimaryDisplayWidth,
+					dwPrimaryDisplayHeight,
+					rectMonitor.Width(), 
+					rectMonitor.Height(), 
+					pEnumData->imageData);
+
+	return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////////

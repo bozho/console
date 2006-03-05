@@ -38,10 +38,10 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_consoleHandler()
 , m_screenBuffer()
 , m_nInsideBorder(1)
-, m_bUseFontColor(false)
-, m_crFontColor(RGB(0, 0, 0))
 , m_bMouseDragable(false)
 , m_bInverseShift(false)
+, m_consoleSettings(g_settingsHandler->GetConsoleSettings())
+, m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
 , m_cursor()
 , m_selectionHandler()
@@ -95,8 +95,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	// TODO: error handling
 	if (!m_consoleHandler.StartShellProcess(
-								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : g_settingsHandler->GetConsoleSettings().strShell, 
-								(m_tabData->strInitialDir.length() > 0) ? m_tabData->strInitialDir : g_settingsHandler->GetConsoleSettings().strInitialDir, 
+								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : m_consoleSettings.strShell, 
+								(m_tabData->strInitialDir.length() > 0) ? m_tabData->strInitialDir : m_consoleSettings.strInitialDir, 
 								m_dwStartupRows, 
 								m_dwStartupColumns)) {
 									
@@ -617,7 +617,7 @@ void ConsoleView::CreateOffscreenBuffers() {
 //	CRect		rectWindow;
 
 	// create font
-	if (!CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName)) {
+	if (!CreateFont(m_appearanceSettings.fontSettings.strName)) {
 		CreateFont(wstring(L"Courier New"));
 	}
 
@@ -677,12 +677,12 @@ bool ConsoleView::CreateFont(const wstring& strFontName) {
 
 	if (!m_fontText.IsNull()) return true;// m_fontText.DeleteObject();
 	m_fontText.CreateFont(
-		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(m_appearanceSettings.fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		g_settingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
-		g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic,
+		m_appearanceSettings.fontSettings.bBold ? FW_BOLD : 0,
+		m_appearanceSettings.fontSettings.bItalic,
 		FALSE,
 		FALSE,
 		DEFAULT_CHARSET,						
@@ -935,11 +935,11 @@ void ConsoleView::RepaintText() {
 			}
 */
 
-			crBkColor	= g_settingsHandler->GetConsoleSettings().consoleColors[attrBG];
-			m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+			crBkColor	= m_consoleSettings.consoleColors[attrBG];
+			m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 			
-			m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-			crTxtColor		= m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+			m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+			crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 			
 			strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
 			++dwOffset;
@@ -960,14 +960,14 @@ void ConsoleView::RepaintText() {
 						bTextOut = true;
 					}
 */
-					if (crBkColor != g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]) {
-						crBkColor = g_settingsHandler->GetConsoleSettings().consoleColors[attrBG];
+					if (crBkColor != m_consoleSettings.consoleColors[attrBG]) {
+						crBkColor = m_consoleSettings.consoleColors[attrBG];
 						bTextOut = true;
 					}
 //				}
 
-				if (crTxtColor != (m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF])) {
-					crTxtColor = m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+				if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF])) {
+					crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 					bTextOut = true;
 				}
 
@@ -1013,10 +1013,10 @@ void ConsoleView::RepaintText() {
 				} else {
 					m_dcText.SetBkMode(OPAQUE);
 */
-					m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
+					m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 //				}
 				
-				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 				int nWidth;
 				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
@@ -1098,8 +1098,8 @@ void ConsoleView::RepaintTextChanges() {
 					}
 */
 					
-					m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
-					m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+					m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
+					m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 					m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 
 //					::InvalidateRect(m_hWnd, &rect, FALSE);
@@ -1153,8 +1153,8 @@ void ConsoleView::RepaintTextChanges() {
 				}
 */
 
-				m_dcText.SetBkColor(g_settingsHandler->GetConsoleSettings().consoleColors[attrBG]);
-				m_dcText.SetTextColor(m_bUseFontColor ? m_crFontColor : g_settingsHandler->GetConsoleSettings().consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
+				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 				int nWidth;
 				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
@@ -1215,21 +1215,35 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit) {
 
 	if (m_tabData->backgroundImageType != bktypeNone) {
 
-		POINT	pointClientScreen = {0, 0};
-
-		ClientToScreen(&pointClientScreen);
-
 		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
 
-		m_dcOffscreen.BitBlt(
-						rectBlit.left, 
-						rectBlit.top, 
-						rectBlit.right, 
-						rectBlit.bottom, 
-						m_tabData->tabBackground->dcImage, 
-						m_tabData->tabBackground->bRelative ? rectBlit.left + pointClientScreen.x : rectBlit.left, 
-						m_tabData->tabBackground->bRelative ? rectBlit.top + pointClientScreen.y : rectBlit.top, 
-						SRCCOPY);
+		if (m_tabData->tabBackground->bRelative) {
+
+			POINT	pointClientScreen = {0, 0};
+			ClientToScreen(&pointClientScreen);
+
+			m_dcOffscreen.BitBlt(
+							rectBlit.left, 
+							rectBlit.top, 
+							rectBlit.right, 
+							rectBlit.bottom, 
+							m_tabData->tabBackground->dcImage, 
+							rectBlit.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
+							rectBlit.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+							SRCCOPY);
+
+		} else {
+
+			m_dcOffscreen.BitBlt(
+							rectBlit.left, 
+							rectBlit.top, 
+							rectBlit.right, 
+							rectBlit.bottom, 
+							m_tabData->tabBackground->dcImage, 
+							rectBlit.left, 
+							rectBlit.top, 
+							SRCCOPY);
+		}
 
 		// TransparentBlt seems to fail for small rectangles, so we blit entire window here
 		m_dcOffscreen.TransparentBlt(

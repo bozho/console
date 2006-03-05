@@ -34,6 +34,7 @@ class MainFrame
 		BEGIN_UPDATE_UI_MAP(MainFrame)
 			UPDATE_ELEMENT(ID_VIEW_MENU, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(ID_VIEW_TABS, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_CONSOLE, UPDUI_MENUPOPUP)
 		END_UPDATE_UI_MAP()
@@ -61,6 +62,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_EDIT_SETTINGS, OnEditSettings)
 			COMMAND_ID_HANDLER(ID_VIEW_MENU, OnViewMenu)
 			COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
+			COMMAND_ID_HANDLER(ID_VIEW_TABS, OnViewTabs)
 			COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 			COMMAND_ID_HANDLER(ID_VIEW_CONSOLE, OnViewConsole)
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
@@ -103,6 +105,7 @@ class MainFrame
 
 		LRESULT OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -120,11 +123,17 @@ class MainFrame
 		void CloseTab(CTabViewTabItem* pTabItem);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 
+		BOOL ShowMenu(BOOL bShow);
+		BOOL ShowToolbar(BOOL bShow);
+		BOOL ShowTabs(BOOL bShow);
+		BOOL ShowStatusbar(BOOL bShow);
+
 	private:
 
 		BOOL			m_bMenuVisible;
 		BOOL			m_bToolbarVisible;
 		BOOL			m_bStatusBarVisible;
+		BOOL			m_bTabsVisible;
 
 		ConsoleViewMap	m_mapViews;
 

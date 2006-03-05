@@ -69,7 +69,7 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 	}
 
 	if (wID == IDOK) {
-		m_pOptionsDocument->save(CComVariant(L"console.xml"));
+		m_pOptionsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
 	}
 
 	EndDialog(wID);

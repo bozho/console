@@ -92,6 +92,8 @@ struct WindowSettings : public SettingsBase {
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
+	wstring			strTitle;
+
 	bool			bShowMenu;
 	bool			bShowToolbar;
 	bool			bShowTabs;

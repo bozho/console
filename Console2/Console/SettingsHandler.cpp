@@ -197,7 +197,8 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 //////////////////////////////////////////////////////////////////////////////
 
 WindowSettings::WindowSettings()
-: bShowMenu(true)
+: strTitle(L"Console")
+, bShowMenu(true)
 , bShowToolbar(true)
 , bShowTabs(true)
 , bShowStatusbar(true)
@@ -216,6 +217,12 @@ WindowSettings::WindowSettings()
 //////////////////////////////////////////////////////////////////////////////
 
 bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pWindowElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"title"), strTitle, wstring(L"Console"));
 
 	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
 
@@ -250,6 +257,12 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 //////////////////////////////////////////////////////////////////////////////
 
 bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pWindowElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"title"), strTitle);
 
 	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
 

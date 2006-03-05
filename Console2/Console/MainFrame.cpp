@@ -111,6 +111,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
 
 	DockWindow();
+	SetWindowText(g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str());
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();

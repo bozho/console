@@ -70,6 +70,10 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 
 	ParseCommandLine(lpstrCmdLine);
 
+	if (s_strConfigFile.length() == 0) {
+		s_strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
+	}
+
 	if (!g_settingsHandler->LoadSettings(s_strConfigFile)) {
 		//TODO: error handling
 		return -1;

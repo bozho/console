@@ -66,6 +66,7 @@
 #define IDC_CHECK_BOLD                  1053
 #define IDC_CHECK_ITALIC                1054
 #define IDC_ACTIVE_ALPHA                1055
+#define IDC_SPIN_INSIDE_BORDER          1055
 #define IDC_INACTIVE_ALPHA              1056
 #define IDC_SPIN_CHANGE_REFRESH         1056
 #define IDC_SPIN_REFRESH                1057
@@ -97,9 +98,25 @@
 #define IDC_CHECK_STYLE_CAPTION         1087
 #define IDC_CHECK_STYLE_RESIZABLE       1088
 #define IDC_CHECK_STYLE_TASKBAR         1089
-#define IDC_CHECK1                      1090
-#define IDC_CHECK_BORDER                1090
+#define IDC_CHECK_STYLE_BORDER          1090
+#define IDC_INSIDE_BORDER               1091
+#define IDC_POS_X                       1092
+#define IDC_POS_Y                       1093
+#define IDC_RADIO_DOCK_NONE             1094
+#define IDC_RADIO_DOCK_TL               1095
+#define IDC_RADIO_DOCK_TR               1096
+#define IDC_RADIO_DOCK_BL               1097
+#define IDC_RADIO_DOCK_BR               1098
+#define IDC_RADIO_Z_REGULAR             1099
 #define ID_SWITCH_TAB_1                 1100
+#define IDC_RADIO_Z_BOTTOM              1100
+#define IDC_RADIO_Z_ONTOP               1101
+#define IDC_SNAP                        1102
+#define IDC_CHECK_POSITION              1103
+#define IDC_CHECK_SNAP                  1104
+#define IDC_SPIN_X                      1106
+#define IDC_SPIN_Y                      1107
+#define IDC_SPIN_SNAP                   1108
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_COPY                         2000
@@ -121,7 +138,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1091
+#define _APS_NEXT_CONTROL_VALUE         1107
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

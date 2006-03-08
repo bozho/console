@@ -187,17 +187,19 @@ BEGIN
                     TVS_NOSCROLL | WS_BORDER | WS_TABSTOP,7,7,98,256
     CONTROL         "",IDC_CHILD_PLACEHOLDER,"Static",SS_BLACKFRAME,109,7,
                     256,256
+    LTEXT           "Settings marked with * will take effect after restart",
+                    IDC_STATIC,8,270,164,8
 END
 
 IDD_SETTINGS_CONSOLE DIALOGEX 0, 0, 257, 257
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "S&hell:",IDC_STATIC,15,11,23,8
-    EDITTEXT        IDC_SHELL,59,8,145,14,ES_AUTOHSCROLL
+    LTEXT           "S&hell: *",IDC_STATIC,15,11,23,8
+    EDITTEXT        IDC_SHELL,62,8,145,14,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_BTN_BROWSE_SHELL,210,8,15,14
-    LTEXT           "Startup &dir:",IDC_STATIC,15,29,38,8
-    EDITTEXT        IDC_INIT_DIR,59,26,145,14,ES_AUTOHSCROLL
+    LTEXT           "Startup &dir: *",IDC_STATIC,15,29,44,8
+    EDITTEXT        IDC_INIT_DIR,62,26,145,14,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_BTN_BROWSE_DIR,210,26,15,14
     LTEXT           "On &change:",IDC_STATIC,25,62,38,8
     EDITTEXT        IDC_CHANGE_REFRESH,67,59,40,14,ES_AUTOHSCROLL | 
@@ -206,14 +208,14 @@ BEGIN
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS | UDS_NOTHOUSANDS,95,59,11,14
     LTEXT           "ms",IDC_STATIC,110,62,10,8
-    LTEXT           "&Periodic:",IDC_STATIC,135,62,35,8
+    LTEXT           "&Periodic:",IDC_STATIC,135,62,28,8
     EDITTEXT        IDC_REFRESH,167,59,40,14,ES_AUTOHSCROLL | ES_NUMBER,
                     WS_EX_RIGHT
     CONTROL         "",IDC_SPIN_REFRESH,"msctls_updown32",UDS_SETBUDDYINT | 
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
                     UDS_NOTHOUSANDS,195,59,11,14
     LTEXT           "ms",IDC_STATIC,210,62,10,8
-    GROUPBOX        "Update timeouts",IDC_STATIC,15,46,210,37
+    GROUPBOX        "Update timeouts *",IDC_STATIC,15,46,210,37
     LTEXT           "&Rows:",IDC_STATIC,25,102,21,8
     EDITTEXT        IDC_ROWS,60,99,40,14,ES_AUTOHSCROLL | ES_NUMBER,
                     WS_EX_RIGHT
@@ -226,7 +228,7 @@ BEGIN
     CONTROL         "",IDC_SPIN_COLUMNS,"msctls_updown32",UDS_SETBUDDYINT | 
                     UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | 
                     UDS_NOTHOUSANDS,89,119,11,14
-    GROUPBOX        "Window size",IDC_STATIC,15,87,100,57
+    GROUPBOX        "Window size *",IDC_STATIC,15,87,100,57
     LTEXT           "Ro&ws:",IDC_STATIC,135,102,21,8
     EDITTEXT        IDC_BUFFER_ROWS,170,99,40,14,ES_AUTOHSCROLL | ES_NUMBER,
                     WS_EX_RIGHT
@@ -239,7 +241,7 @@ BEGIN
     CONTROL         "",IDC_SPIN_BUFFER_COLUMNS,"msctls_updown32",
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS | UDS_NOTHOUSANDS,199,119,11,14
-    GROUPBOX        "Buffer size",IDC_STATIC,125,87,100,57
+    GROUPBOX        "Buffer size *",IDC_STATIC,125,87,100,57
     GROUPBOX        "Console colors map",IDC_STATIC,15,148,210,103
     CONTROL         "",IDC_DEF_00,"Static",SS_BLACKFRAME,25,163,16,14
     CONTROL         "",IDC_DEF_01,"Static",SS_BLACKFRAME,25,178,16,14
@@ -257,38 +259,38 @@ BEGIN
     CONTROL         "",IDC_DEF_13,"Static",SS_BLACKFRAME,175,178,16,14
     CONTROL         "",IDC_DEF_14,"Static",SS_BLACKFRAME,175,193,16,14
     CONTROL         "",IDC_DEF_15,"Static",SS_BLACKFRAME,175,208,16,14
-    CONTROL         "",IDC_CLR_00,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,47,163,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_01,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,47,178,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_02,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,47,193,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_03,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,47,208,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_04,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,97,163,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_05,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,97,178,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_06,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,97,193,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_07,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,97,208,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_08,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,147,163,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_09,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,147,178,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_10,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,147,193,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_11,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,147,208,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_12,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,197,163,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_13,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,197,178,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,197,193,16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,197,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_00,"Static",SS_BLACKFRAME | SS_NOTIFY,47,163,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_01,"Static",SS_BLACKFRAME | SS_NOTIFY,47,178,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_02,"Static",SS_BLACKFRAME | SS_NOTIFY,47,193,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_03,"Static",SS_BLACKFRAME | SS_NOTIFY,47,208,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_04,"Static",SS_BLACKFRAME | SS_NOTIFY,97,163,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_05,"Static",SS_BLACKFRAME | SS_NOTIFY,97,178,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_06,"Static",SS_BLACKFRAME | SS_NOTIFY,97,193,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_07,"Static",SS_BLACKFRAME | SS_NOTIFY,97,208,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_08,"Static",SS_BLACKFRAME | SS_NOTIFY,147,163,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_09,"Static",SS_BLACKFRAME | SS_NOTIFY,147,178,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_10,"Static",SS_BLACKFRAME | SS_NOTIFY,147,193,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_11,"Static",SS_BLACKFRAME | SS_NOTIFY,147,208,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_12,"Static",SS_BLACKFRAME | SS_NOTIFY,197,163,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_13,"Static",SS_BLACKFRAME | SS_NOTIFY,197,178,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY,197,193,
+                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY,197,208,
+                    16,14,WS_EX_DLGMODALFRAME
     PUSHBUTTON      "Re&set",IDC_BTN_RESET_COLORS,168,230,50,14
 END
 
@@ -296,41 +298,84 @@ IDD_SETTINGS_APPEARANCE DIALOGEX 0, 0, 257, 257
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "&Name:",IDC_STATIC,25,26,22,8
-    EDITTEXT        IDC_FONT,47,23,113,14,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,162,23,15,14
-    LTEXT           "&Size:",IDC_STATIC,185,26,16,8
-    EDITTEXT        IDC_FONT_SIZE,202,23,30,14,ES_AUTOHSCROLL
+    LTEXT           "&Name:",IDC_STATIC,27,21,22,8
+    EDITTEXT        IDC_FONT,50,18,110,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,162,18,15,14
+    LTEXT           "&Size:",IDC_STATIC,185,21,16,8
+    EDITTEXT        IDC_FONT_SIZE,202,18,30,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN_FONT_SIZE,"msctls_updown32",UDS_SETBUDDYINT | 
-                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,23,11,
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,18,11,
                     14
     CONTROL         "&Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,34,45,29,10
+                    WS_TABSTOP,34,40,29,10
     CONTROL         "&Italic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,70,45,31,10
+                    WS_TABSTOP,70,40,31,10
     CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,117,45,56,10
-    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,175,43,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Font",IDC_STATIC,17,8,223,57
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,40,56,10
+    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,175,
+                    38,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Font",IDC_STATIC,17,8,223,49
     CONTROL         "Show &menu",IDC_CHECK_SHOW_MENU,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,34,85,53,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,72,53,10
     CONTROL         "Show &toolbar",IDC_CHECK_SHOW_TOOLBAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,117,85,58,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,98,58,10
     CONTROL         "Show t&abs",IDC_CHECK_SHOW_TABS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,34,100,49,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,85,49,10
     CONTROL         "Sho&w status bar",IDC_CHECK_SHOW_STATUS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,117,100,68,10
-    GROUPBOX        "Main window controls",IDC_STATIC,17,70,223,45
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,111,68,10
+    GROUPBOX        "Controls",IDC_STATIC,17,60,85,67
     CONTROL         "&Caption",IDC_CHECK_STYLE_CAPTION,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,34,135,41,10
-    CONTROL         "&Resizable",IDC_CHECK_STYLE_RESIZABLE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,34,150,46,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,119,72,41,10
     CONTROL         "Tas&kbar button",IDC_CHECK_STYLE_TASKBAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,34,163,61,10
-    GROUPBOX        "Main window styles",IDC_STATIC,17,120,223,62
-    CONTROL         "Bo&rder",IDC_CHECK_BORDER,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,100,135,37,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,171,72,61,10
+    CONTROL         "&Resizable",IDC_CHECK_STYLE_RESIZABLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,119,85,46,10
+    CONTROL         "Bo&rder",IDC_CHECK_STYLE_BORDER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,171,85,37,10
+    LTEXT           "Inside border:",IDC_STATIC,119,103,46,8
+    EDITTEXT        IDC_INSIDE_BORDER,171,100,33,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,210,100,11,14
+    GROUPBOX        "Styles *",IDC_STATIC,109,60,131,67
+    CONTROL         "Position window *",IDC_CHECK_POSITION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,141,73,10
+    LTEXT           "X:",IDC_STATIC,101,142,8,8
+    EDITTEXT        IDC_POS_X,111,139,41,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_X,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,133,139,
+                    11,14
+    LTEXT           "Y:",IDC_STATIC,158,142,8,8
+    EDITTEXT        IDC_POS_Y,171,139,41,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_Y,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,221,139,
+                    11,14
+    CONTROL         "Snap to desktop edges",IDC_CHECK_SNAP,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,158,89,10
+    LTEXT           "Snap distance:",IDC_STATIC,128,159,48,8
+    EDITTEXT        IDC_SNAP,180,156,32,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_SNAP,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,156,
+                    11,14
+    GROUPBOX        "Position",IDC_STATIC,17,130,223,47
+    CONTROL         "None",IDC_RADIO_DOCK_NONE,"Button",BS_AUTORADIOBUTTON | 
+                    WS_GROUP,27,190,33,10
+    CONTROL         "Top left",IDC_RADIO_DOCK_TL,"Button",BS_AUTORADIOBUTTON,
+                    27,200,41,10
+    CONTROL         "Top right",IDC_RADIO_DOCK_TR,"Button",
+                    BS_AUTORADIOBUTTON,27,210,45,10
+    CONTROL         "Bottom left",IDC_RADIO_DOCK_BL,"Button",
+                    BS_AUTORADIOBUTTON,27,220,51,10
+    CONTROL         "Bottom right",IDC_RADIO_DOCK_BR,"Button",
+                    BS_AUTORADIOBUTTON,27,230,55,10
+    GROUPBOX        "Docking *",IDC_STATIC,17,180,95,65,WS_GROUP
+    CONTROL         "Regular",IDC_RADIO_Z_REGULAR,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,126,193,41,10
+    CONTROL         "Always on top",IDC_RADIO_Z_ONTOP,"Button",
+                    BS_AUTORADIOBUTTON,126,211,61,10
+    CONTROL         "Always on bottom",IDC_RADIO_Z_BOTTOM,"Button",
+                    BS_AUTORADIOBUTTON,126,229,73,10
+    GROUPBOX        "Z order",IDC_STATIC,117,180,123,65,WS_GROUP
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 257, 257
@@ -369,8 +414,8 @@ BEGIN
     LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,221,101,14,8,0,
                     WS_EX_RIGHT
     LTEXT           "Ke&y color:",IDC_STATIC_KEY_COLOR,36,141,33,8
-    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY | 
-                    WS_TABSTOP,71,138,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,71,
+                    138,16,14,WS_EX_DLGMODALFRAME
     GROUPBOX        "Window transparency",-1,17,8,223,155
 END
 
@@ -432,20 +477,33 @@ BEGIN
     BEGIN
         RIGHTMARGIN, 256
         VERTGUIDE, 17
-        VERTGUIDE, 25
+        VERTGUIDE, 27
         VERTGUIDE, 34
-        VERTGUIDE, 100
-        VERTGUIDE, 160
+        VERTGUIDE, 119
+        VERTGUIDE, 126
+        VERTGUIDE, 171
         VERTGUIDE, 240
         HORZGUIDE, 8
-        HORZGUIDE, 30
-        HORZGUIDE, 50
-        HORZGUIDE, 65
-        HORZGUIDE, 70
+        HORZGUIDE, 25
+        HORZGUIDE, 45
+        HORZGUIDE, 57
+        HORZGUIDE, 60
+        HORZGUIDE, 77
         HORZGUIDE, 90
-        HORZGUIDE, 105
-        HORZGUIDE, 120
-        HORZGUIDE, 140
+        HORZGUIDE, 107
+        HORZGUIDE, 116
+        HORZGUIDE, 127
+        HORZGUIDE, 130
+        HORZGUIDE, 146
+        HORZGUIDE, 163
+        HORZGUIDE, 177
+        HORZGUIDE, 180
+        HORZGUIDE, 195
+        HORZGUIDE, 205
+        HORZGUIDE, 215
+        HORZGUIDE, 225
+        HORZGUIDE, 235
+        HORZGUIDE, 245
     END
 
     IDD_SETTINGS_HOTKEYS, DIALOG

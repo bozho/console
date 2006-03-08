@@ -11,6 +11,23 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+wstring Helpers::GetModulePath(HINSTANCE hInstance) {
+
+	wchar_t szModulePath[MAX_PATH];
+	::ZeroMemory(szModulePath, sizeof(szModulePath));
+
+	::GetModuleFileName(hInstance, szModulePath, MAX_PATH);
+
+	wstring strPath(szModulePath);
+
+	return strPath.substr(0, strPath.rfind(L'\\')+1);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void Helpers::GetMonitorRect(HWND hWnd, CRect& rectMonitor) {
 
 	HMONITOR hMonitor = ::MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);

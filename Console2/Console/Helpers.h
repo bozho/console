@@ -13,6 +13,8 @@
 class Helpers {
 	public:
 
+		static wstring GetModulePath(HINSTANCE hInstance);
+
 		static void GetMonitorRect(HWND hWnd, CRect& rectMonitor);
 		static void GetDesktopRect(HWND hWnd, CRect& rectDesktop);
 		static void GetDesktopRect(const CPoint& point, CRect& rectDesktop);

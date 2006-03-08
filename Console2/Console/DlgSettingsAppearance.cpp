@@ -47,6 +47,46 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_nShowCaption	= m_windowSettings.bCaption ? 1 : 0;
 	m_nResizable	= m_windowSettings.bResizable ? 1 : 0;
 	m_nTaskbarButton= m_windowSettings.bTaskbarButton ? 1 : 0;
+	m_nBorder		= m_windowSettings.bBorder ? 1 : 0;
+
+	m_nUsePosition	= ((m_windowSettings.nX == -1) && (m_windowSettings.nY == -1)) ? 0 : 1;
+	m_nX			= ((m_windowSettings.nX == -1) && (m_windowSettings.nY == -1)) ? 0 : m_windowSettings.nX;
+	m_nY			= ((m_windowSettings.nX == -1) && (m_windowSettings.nY == -1)) ? 0 : m_windowSettings.nY;
+
+	m_nSnapToEdges	= (m_windowSettings.nSnapDistance == -1) ? 0 : 1;
+	if (m_nSnapToEdges == 0) m_windowSettings.nSnapDistance = 0;
+
+	m_nDocking		= static_cast<int>(m_windowSettings.dockPosition) + 1;
+	m_nZOrder		= static_cast<int>(m_windowSettings.zOrder);
+
+	CUpDownCtrl	spin;
+	UDACCEL udAccel;
+
+	spin.Attach(GetDlgItem(IDC_SPIN_FONT_SIZE));
+	spin.SetRange(5, 36);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_INSIDE_BORDER));
+	spin.SetRange(0, 10);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_X));
+	spin.SetRange(-2048, 2048);
+	udAccel.nSec = 0;
+	udAccel.nInc = 5;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_Y));
+	spin.SetRange(-2048, 2048);
+	udAccel.nSec = 0;
+	udAccel.nInc = 5;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_SNAP));
+	spin.SetRange(0, 20);
+	spin.Detach();
 
 	EnableControls();
 
@@ -89,6 +129,9 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 	if (wID == IDOK) {
 		DoDataExchange(DDX_SAVE);
 
+		if (m_fontSettings.dwSize > 36) m_fontSettings.dwSize = 36;
+		if (m_windowSettings.dwInsideBoder > 10) m_windowSettings.dwInsideBoder = 10;
+
 		m_fontSettings.strName			= m_strFontName;
 		m_fontSettings.bBold			= (m_nFontBold > 0);
 		m_fontSettings.bItalic			= (m_nFontItalic > 0);
@@ -102,6 +145,27 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_windowSettings.bCaption		= (m_nShowCaption > 0);
 		m_windowSettings.bResizable		= (m_nResizable > 0);
 		m_windowSettings.bTaskbarButton	= (m_nTaskbarButton > 0);
+		m_windowSettings.bBorder		= (m_nBorder > 0);
+
+		if (m_nUsePosition > 0) {
+
+			m_windowSettings.nX = m_nX;
+			m_windowSettings.nY = m_nY;
+
+			if (m_windowSettings.nX == -1) m_windowSettings.nX = 0;
+			if (m_windowSettings.nY == -1) m_windowSettings.nY = 0;
+
+		} else {
+			m_windowSettings.nX = -1;
+			m_windowSettings.nY = -1;
+		}
+
+		if (m_nSnapToEdges == 0) {
+			m_windowSettings.nSnapDistance = -1;
+		}
+
+		m_windowSettings.dockPosition	= static_cast<DockPosition>(m_nDocking - 1);
+		m_windowSettings.zOrder			= static_cast<ZOrder>(m_nZOrder);
 
 		FontSettings&		fontSettings	= g_settingsHandler->GetAppearanceSettings().fontSettings;
 		WindowSettings&		windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
@@ -121,6 +185,15 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		windowSettings.bCaption			= m_windowSettings.bCaption;
 		windowSettings.bResizable		= m_windowSettings.bResizable;
 		windowSettings.bTaskbarButton	= m_windowSettings.bTaskbarButton;
+		windowSettings.bBorder			= m_windowSettings.bBorder;
+		windowSettings.dwInsideBoder	= m_windowSettings.dwInsideBoder;
+
+		windowSettings.nX				= m_windowSettings.nX;
+		windowSettings.nY				= m_windowSettings.nY;
+
+		windowSettings.nSnapDistance	= m_windowSettings.nSnapDistance;
+		windowSettings.dockPosition		= m_windowSettings.dockPosition;
+		windowSettings.zOrder			= m_windowSettings.zOrder;
 
 		m_fontSettings.Save(m_pOptionsRoot);
 		m_windowSettings.Save(m_pOptionsRoot);
@@ -167,7 +240,7 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnClickedUseColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+LRESULT DlgSettingsAppearance::OnClickedCheckbox(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
 	DoDataExchange(DDX_SAVE);
 	EnableControls();
@@ -205,10 +278,27 @@ LRESULT DlgSettingsAppearance::OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*w
 void DlgSettingsAppearance::EnableControls() {
 
 	::EnableWindow(GetDlgItem(IDC_FONT_COLOR), FALSE);
+	::EnableWindow(GetDlgItem(IDC_POS_X), FALSE);
+	::EnableWindow(GetDlgItem(IDC_POS_Y), FALSE);
+	::EnableWindow(GetDlgItem(IDC_SPIN_X), FALSE);
+	::EnableWindow(GetDlgItem(IDC_SPIN_Y), FALSE);
+	::EnableWindow(GetDlgItem(IDC_SNAP), FALSE);
+	::EnableWindow(GetDlgItem(IDC_SPIN_SNAP), FALSE);
 
 	if (m_nUseFontColor > 0) {
-
 		::EnableWindow(GetDlgItem(IDC_FONT_COLOR), TRUE);
+	}
+
+	if (m_nUsePosition > 0) {
+		::EnableWindow(GetDlgItem(IDC_POS_X), TRUE);
+		::EnableWindow(GetDlgItem(IDC_POS_Y), TRUE);
+		::EnableWindow(GetDlgItem(IDC_SPIN_X), TRUE);
+		::EnableWindow(GetDlgItem(IDC_SPIN_Y), TRUE);
+	}
+
+	if (m_nSnapToEdges > 0) {
+		::EnableWindow(GetDlgItem(IDC_SNAP), TRUE);
+		::EnableWindow(GetDlgItem(IDC_SPIN_SNAP), TRUE);
 	}
 }
 

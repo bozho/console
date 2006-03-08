@@ -33,6 +33,15 @@ class DlgSettingsAppearance
 			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption);
 			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable);
 			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_nTaskbarButton);
+			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder);
+			DDX_UINT(IDC_INSIDE_BORDER, m_windowSettings.dwInsideBoder);
+			DDX_CHECK(IDC_CHECK_POSITION, m_nUsePosition);
+			DDX_INT(IDC_POS_X, m_nX);
+			DDX_INT(IDC_POS_Y, m_nY);
+			DDX_CHECK(IDC_CHECK_SNAP, m_nSnapToEdges);
+			DDX_INT(IDC_SNAP, m_windowSettings.nSnapDistance);
+			DDX_RADIO(IDC_RADIO_DOCK_NONE, m_nDocking);
+			DDX_RADIO(IDC_RADIO_Z_REGULAR, m_nZOrder);
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsAppearance)
@@ -41,7 +50,9 @@ class DlgSettingsAppearance
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_HANDLER(IDC_BTN_BROWSE_FONT, BN_CLICKED, OnClickedBtnBrowseFont)
-			COMMAND_HANDLER(IDC_CHECK_USE_COLOR, BN_CLICKED, OnClickedUseColor)
+			COMMAND_HANDLER(IDC_CHECK_USE_COLOR, BN_CLICKED, OnClickedCheckbox)
+			COMMAND_HANDLER(IDC_CHECK_POSITION, BN_CLICKED, OnClickedCheckbox)
+			COMMAND_HANDLER(IDC_CHECK_SNAP, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_FONT_COLOR, BN_CLICKED, OnClickedFontColor)
 		END_MSG_MAP()
 
@@ -56,7 +67,7 @@ class DlgSettingsAppearance
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnClickedUseColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedCheckbox(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 
 	private:
@@ -81,7 +92,15 @@ class DlgSettingsAppearance
 		int							m_nShowCaption;
 		int							m_nResizable;
 		int							m_nTaskbarButton;
+		int							m_nBorder;
 
+		int							m_nUsePosition;
+		int							m_nX;
+		int							m_nY;
+		int							m_nSnapToEdges;
+
+		int							m_nDocking;
+		int							m_nZOrder;
 };
 
 //////////////////////////////////////////////////////////////////////////////

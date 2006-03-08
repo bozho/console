@@ -1,4 +1,6 @@
 #include "stdAfx.h"
+
+#include "Console.h"
 #include "SelectionHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -49,8 +51,20 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 
 	m_consoleView.SetCapture();
 
-	m_coordInitial.X= static_cast<SHORT>(pointInitial.x / m_nCharWidth);
-	m_coordInitial.Y= static_cast<SHORT>(pointInitial.y / m_nCharHeight);
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	CPoint	p(pointInitial);
+	if (p.x < static_cast<LONG>(windowSettings.dwInsideBoder)) p.x = windowSettings.dwInsideBoder;
+	if (p.y < static_cast<LONG>(windowSettings.dwInsideBoder)) p.y = windowSettings.dwInsideBoder;
+
+	m_coordInitial.X= static_cast<SHORT>((p.x - windowSettings.dwInsideBoder) / m_nCharWidth);
+	m_coordInitial.Y= static_cast<SHORT>((p.y - windowSettings.dwInsideBoder) / m_nCharHeight);
+
+/*
+	if (m_coordInitial.X < 0) m_coordInitial.X = 0;
+	if (m_coordInitial.Y < 0) m_coordInitial.Y = 0;
+*/
+
 	m_coordCurrent.X= m_coordInitial.X;
 	m_coordCurrent.Y= m_coordInitial.Y;
 
@@ -85,8 +99,19 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 
 	m_selectionState = selstateSelecting;
 
-	COORD	coordCurrent = { static_cast<SHORT>(point.x / m_nCharWidth), static_cast<SHORT>(point.y / m_nCharHeight) };
+	CPoint p(point);
 
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	if (p.x < static_cast<LONG>(windowSettings.dwInsideBoder)) p.x = windowSettings.dwInsideBoder;
+	if (p.y < static_cast<LONG>(windowSettings.dwInsideBoder)) p.y = windowSettings.dwInsideBoder;
+
+	COORD	coordCurrent = { static_cast<SHORT>((p.x - windowSettings.dwInsideBoder) / m_nCharWidth), static_cast<SHORT>((p.y - windowSettings.dwInsideBoder) / m_nCharHeight) };
+
+/*
+	if (coordCurrent.X < 0) coordCurrent.X = 0;
+	if (coordCurrent.Y < 0) coordCurrent.Y = 0;
+*/
 	if (coordCurrent.X > m_sXMax) coordCurrent.X = m_sXMax;
 	if (coordCurrent.Y > m_sYMax) coordCurrent.Y = m_sYMax;
 
@@ -110,11 +135,11 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	// paint the first row rect
 	CRect rect;
 
-	rect.left	= coordStart.X * m_nCharWidth + 1;
-	rect.top	= coordStart.Y * m_nCharHeight + 1;
+	rect.left	= coordStart.X * m_nCharWidth + windowSettings.dwInsideBoder;
+	rect.top	= coordStart.Y * m_nCharHeight + windowSettings.dwInsideBoder;
 
-	rect.right	= (coordStart.Y < coordEnd.Y) ? (m_sXMax + 1) * m_nCharWidth + 1 : (coordEnd.X + 1) * m_nCharWidth + 1;
-	rect.bottom	= (coordStart.Y + 1) * m_nCharHeight + 1;
+	rect.right	= (coordStart.Y < coordEnd.Y) ? (m_sXMax + 1) * m_nCharWidth + windowSettings.dwInsideBoder : (coordEnd.X + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
+	rect.bottom	= (coordStart.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
 
 //	TRACE(L"Sel update rect: %ix%i - %ix%i\n", rect.left, rect.top, rect.right, rect.bottom);
 	m_dcSelection.FillRect(&rect, m_paintBrush);
@@ -122,11 +147,11 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	// paint the rows in between
 	if (coordStart.Y < coordEnd.Y - 1) {
 
-		rect.left	= 1;
-		rect.top	= (coordStart.Y + 1) * m_nCharHeight + 1;
+		rect.left	= windowSettings.dwInsideBoder;
+		rect.top	= (coordStart.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
 
-		rect.right	= (m_sXMax + 1) * m_nCharWidth + 1;
-		rect.bottom	= coordEnd.Y * m_nCharHeight + 1;
+		rect.right	= (m_sXMax + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
+		rect.bottom	= coordEnd.Y * m_nCharHeight + windowSettings.dwInsideBoder;
 
 		m_dcSelection.FillRect(&rect, m_paintBrush);
 	}
@@ -134,11 +159,11 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	// paint the last row
 	if (coordStart.Y < coordEnd.Y) {
 
-		rect.left	= 1;
-		rect.top	= (coordStart.Y + 1) * m_nCharHeight + 1;
+		rect.left	= windowSettings.dwInsideBoder;
+		rect.top	= (coordStart.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
 
-		rect.right	= (coordEnd.X + 1) * m_nCharWidth + 1;
-		rect.bottom	= (coordEnd.Y + 1) * m_nCharHeight + 1;
+		rect.right	= (coordEnd.X + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
+		rect.bottom	= (coordEnd.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
 
 		m_dcSelection.FillRect(&rect, m_paintBrush);
 	}
@@ -160,8 +185,20 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 	GetSelectionCoordinates(coordStart, coordEnd);
 
 	if (pPoint != NULL) {
-		
-		COORD	coordCurrent = { static_cast<SHORT>(pPoint->x / m_nCharWidth), static_cast<SHORT>(pPoint->y / m_nCharHeight) };
+
+		CPoint	p(*pPoint);
+
+		WindowSettings& windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+		if (p.x < static_cast<LONG>(windowSettings.dwInsideBoder)) p.x = windowSettings.dwInsideBoder;
+		if (p.y < static_cast<LONG>(windowSettings.dwInsideBoder)) p.y = windowSettings.dwInsideBoder;
+
+		COORD			coordCurrent	= { static_cast<SHORT>((p.x - windowSettings.dwInsideBoder) / m_nCharWidth), static_cast<SHORT>((p.y - windowSettings.dwInsideBoder) / m_nCharHeight) };
+
+		if (coordCurrent.X < 0) coordCurrent.X = 0;
+		if (coordCurrent.Y < 0) coordCurrent.Y = 0;
+		if (coordCurrent.X > m_sXMax) coordCurrent.X = m_sXMax;
+		if (coordCurrent.Y > m_sYMax) coordCurrent.Y = m_sYMax;
 
 		// verbose tests, just to make things a bit easier to follow :-)
 		if (coordStart.Y == coordEnd.Y) {
@@ -296,13 +333,15 @@ void SelectionHandler::BitBlt(CDC& offscreenDC) {
 	COORD	coordEnd;
 	CRect	selectionRect;
 
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
 	GetSelectionCoordinates(coordStart, coordEnd);
 
-	selectionRect.left	= 1;
-	selectionRect.top	= coordStart.Y * m_nCharHeight + 1;
+	selectionRect.left	= windowSettings.dwInsideBoder;
+	selectionRect.top	= coordStart.Y * m_nCharHeight + windowSettings.dwInsideBoder;
 
-	selectionRect.right	= (m_sXMax + 1) * m_nCharWidth + 1;
-	selectionRect.bottom= (coordEnd.Y + 1) * m_nCharHeight + 1;
+	selectionRect.right	= (m_sXMax + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
+	selectionRect.bottom= (coordEnd.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
 
 	offscreenDC.BitBlt(
 					selectionRect.left, 

@@ -13,7 +13,14 @@
 class Helpers {
 	public:
 
+		static void GetMonitorRect(HWND hWnd, CRect& rectMonitor);
 		static void GetDesktopRect(HWND hWnd, CRect& rectDesktop);
+		static void GetDesktopRect(const CPoint& point, CRect& rectDesktop);
+
+	private:
+
+		static void GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

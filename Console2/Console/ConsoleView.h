@@ -140,8 +140,6 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		shared_array<CHAR_INFO>	m_screenBuffer;
 
-		int			m_nInsideBorder;
-
 		bool		m_bMouseDragable;
 		bool		m_bInverseShift;
 

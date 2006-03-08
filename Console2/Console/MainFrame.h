@@ -123,8 +123,8 @@ class MainFrame
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
-		void UpdateWindowStyles();
-		void DockWindow();
+		void SetWindowStyles();
+		void DockWindow(DockPosition dockPosition);
 
 
 		void ShowMenu(BOOL bShow);
@@ -132,12 +132,14 @@ class MainFrame
 		void ShowTabs(BOOL bShow);
 		void ShowStatusbar(BOOL bShow);
 
-	private:
+	// TODO: private after merging ConsoleViewContainer class
+	public:
 
 		BOOL			m_bMenuVisible;
 		BOOL			m_bToolbarVisible;
 		BOOL			m_bStatusBarVisible;
 		BOOL			m_bTabsVisible;
+		DockPosition	m_dockPosition;
 
 		ConsoleViewMap	m_mapViews;
 

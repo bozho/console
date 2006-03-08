@@ -23,6 +23,7 @@ MainFrame::MainFrame()
 , m_bToolbarVisible(TRUE)
 , m_bStatusBarVisible(TRUE)
 , m_bTabsVisible(TRUE)
+, m_dockPosition(dockNone)
 , m_mapViews()
 {
 
@@ -101,7 +102,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UISetCheck(ID_VIEW_TABS, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
-	UpdateWindowStyles();
+	SetWindowStyles();
 
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
@@ -110,7 +111,20 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
 	ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
 
-	DockWindow();
+	HWND hwndZ		= HWND_NOTOPMOST;
+	DWORD dwFlags	= SWP_NOSIZE;
+
+	switch (windowSettings.zOrder) {
+		case zorderNormal	: hwndZ = HWND_NOTOPMOST; break;
+		case zorderOnTop	: hwndZ = HWND_TOPMOST; break;
+		case zorderOnBottom	: hwndZ = HWND_BOTTOM; break;
+	}
+
+	if ((windowSettings.nX == -1) || (windowSettings.nY == -1)) dwFlags |= SWP_NOMOVE;
+
+	SetWindowPos(hwndZ, windowSettings.nX, windowSettings.nY, 0, 0, dwFlags);
+
+	DockWindow(windowSettings.dockPosition);
 	SetWindowText(g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str());
 
 	// register object for message filtering and idle updates
@@ -419,6 +433,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
 	ShowMenu(!m_bMenuVisible);
+	DockWindow(m_dockPosition);
 	return 0;
 }
 
@@ -430,6 +445,7 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
 	ShowToolbar(!m_bToolbarVisible);
+	DockWindow(m_dockPosition);
 	return 0;
 }
 
@@ -441,6 +457,7 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
 	ShowTabs(!m_bTabsVisible);
+	DockWindow(m_dockPosition);
 	return 0;
 }
 
@@ -452,6 +469,7 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
 	ShowStatusbar(!m_bStatusBarVisible);
+	DockWindow(m_dockPosition);
 	return 0;
 }
 
@@ -723,34 +741,38 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::UpdateWindowStyles() {
+void MainFrame::SetWindowStyles() {
 
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
-	// adjust window styles
 	DWORD	dwStyle		= GetWindowLong(GWL_STYLE);
 	DWORD	dwExStyle	= GetWindowLong(GWL_EXSTYLE);
 
-	if (!windowSettings.bShowCaption) dwStyle &= ~WS_CAPTION;
-	if (!windowSettings.bResizable) dwStyle &= ~WS_THICKFRAME;
+	if (!windowSettings.bCaption)	dwStyle &= ~WS_CAPTION;
+	if (!windowSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
 	if (!windowSettings.bTaskbarButton) {
 		dwStyle		&= ~WS_MINIMIZEBOX;
 		dwExStyle	|= WS_EX_TOOLWINDOW;
 		dwExStyle	&= ~WS_EX_APPWINDOW;
 	}
 
+	if (windowSettings.bBorder) dwStyle |= WS_BORDER;
+
 	SetWindowLong(GWL_STYLE, dwStyle);
 	SetWindowLong(GWL_EXSTYLE, dwExStyle);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::DockWindow() {
 
-	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::DockWindow(DockPosition dockPosition) {
+
+	m_dockPosition = dockPosition;
+	if (m_dockPosition == dockNone) return;
+
 	CRect			rectDesktop;
 	CRect			rectWindow;
 	int				nX = 0;
@@ -759,7 +781,7 @@ void MainFrame::DockWindow() {
 	Helpers::GetDesktopRect(m_hWnd, rectDesktop);
 	GetWindowRect(&rectWindow);
 
-	switch (windowSettings.dockPosition) {
+	switch (m_dockPosition) {
 
 		case dockTL : {
 			nX = rectDesktop.left;
@@ -788,15 +810,13 @@ void MainFrame::DockWindow() {
 		default : return;
 	}
 
-	HWND hwndZ = HWND_NOTOPMOST;
-
 	SetWindowPos(
-		hwndZ, 
+		NULL, 
 		nX, 
 		nY, 
 		0, 
 		0, 
-		SWP_NOSIZE);
+		SWP_NOSIZE|SWP_NOZORDER);
 }
 
 //////////////////////////////////////////////////////////////////////////////

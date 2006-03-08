@@ -76,11 +76,19 @@ struct FontSettings : public SettingsBase {
 
 enum DockPosition {
 
-	dockNone	= 0,
-	dockTL		= 1,
-	dockTR		= 2,
+	dockNone	= -1,
+	dockTL		= 0,
+	dockTR		= 1,
+	dockBL		= 2,
 	dockBR		= 3,
-	dockBL		= 4
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+enum ZOrder {
+	zorderNormal	= 0,
+	zorderOnTop		= 1,
+	zorderOnBottom	= 2
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,10 +107,15 @@ struct WindowSettings : public SettingsBase {
 	bool			bShowTabs;
 	bool			bShowStatusbar;
 
-	bool			bShowCaption;
+	bool			bCaption;
 	bool			bResizable;
 	bool			bTaskbarButton;
+	bool			bBorder;
+	DWORD			dwInsideBoder;
 
+	int				nX;
+	int				nY;
+	ZOrder			zOrder;
 	DockPosition	dockPosition;
 	int				nSnapDistance;
 };

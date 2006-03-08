@@ -257,38 +257,38 @@ BEGIN
     CONTROL         "",IDC_DEF_13,"Static",SS_BLACKFRAME,175,178,16,14
     CONTROL         "",IDC_DEF_14,"Static",SS_BLACKFRAME,175,193,16,14
     CONTROL         "",IDC_DEF_15,"Static",SS_BLACKFRAME,175,208,16,14
-    CONTROL         "",IDC_CLR_00,"Static",SS_BLACKFRAME | SS_NOTIFY,47,163,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_01,"Static",SS_BLACKFRAME | SS_NOTIFY,47,178,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_02,"Static",SS_BLACKFRAME | SS_NOTIFY,47,193,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_03,"Static",SS_BLACKFRAME | SS_NOTIFY,47,208,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_04,"Static",SS_BLACKFRAME | SS_NOTIFY,97,163,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_05,"Static",SS_BLACKFRAME | SS_NOTIFY,97,178,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_06,"Static",SS_BLACKFRAME | SS_NOTIFY,97,193,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_07,"Static",SS_BLACKFRAME | SS_NOTIFY,97,208,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_08,"Static",SS_BLACKFRAME | SS_NOTIFY,147,163,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_09,"Static",SS_BLACKFRAME | SS_NOTIFY,147,178,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_10,"Static",SS_BLACKFRAME | SS_NOTIFY,147,193,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_11,"Static",SS_BLACKFRAME | SS_NOTIFY,147,208,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_12,"Static",SS_BLACKFRAME | SS_NOTIFY,197,163,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_13,"Static",SS_BLACKFRAME | SS_NOTIFY,197,178,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY,197,193,
-                    16,14,WS_EX_DLGMODALFRAME
-    CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY,197,208,
-                    16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_00,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,47,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_01,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,47,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_02,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,47,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_03,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,47,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_04,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,97,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_05,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,97,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_06,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,97,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_07,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,97,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_08,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,147,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_09,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,147,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_10,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,147,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_11,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,147,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_12,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,197,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_13,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,197,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,197,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,197,208,16,14,WS_EX_DLGMODALFRAME
     PUSHBUTTON      "Re&set",IDC_BTN_RESET_COLORS,168,230,50,14
 END
 
@@ -296,39 +296,41 @@ IDD_SETTINGS_APPEARANCE DIALOGEX 0, 0, 257, 257
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Name:",IDC_STATIC,25,26,22,8
-    EDITTEXT        IDC_FONT,56,23,137,14,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,195,23,15,14
-    LTEXT           "Size:",IDC_STATIC,25,46,16,8
-    EDITTEXT        IDC_FONT_SIZE,56,43,33,14,ES_AUTOHSCROLL
+    LTEXT           "&Name:",IDC_STATIC,25,26,22,8
+    EDITTEXT        IDC_FONT,47,23,113,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,162,23,15,14
+    LTEXT           "&Size:",IDC_STATIC,185,26,16,8
+    EDITTEXT        IDC_FONT_SIZE,202,23,30,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN_FONT_SIZE,"msctls_updown32",UDS_SETBUDDYINT | 
-                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,87,43,11,
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,23,11,
                     14
-    CONTROL         "Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,116,45,29,10
-    CONTROL         "Italic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,162,45,31,10
-    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,85,
-                    63,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Font",IDC_STATIC,17,8,223,86
-    CONTROL         "Custom color:",IDC_CHECK_USE_COLOR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,25,65,60,10
-    GROUPBOX        "Main window controls",IDC_STATIC,17,102,223,45
-    CONTROL         "Show menu",IDC_CHECK_SHOW_MENU,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,25,114,53,10
-    CONTROL         "Show toolbar",IDC_CHECK_SHOW_TOOLBAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,93,114,58,10
-    CONTROL         "Show status bar",IDC_CHECK_SHOW_STATUS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,95,127,68,10
-    CONTROL         "Show tabs",IDC_CHECK_SHOW_TABS,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,25,127,49,10
-    GROUPBOX        "Main window styles",IDC_STATIC,17,154,223,81
-    CONTROL         "Show caption",IDC_CHECK_STYLE_CAPTION,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,25,167,59,10
-    CONTROL         "Resizable",IDC_CHECK_STYLE_RESIZABLE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,25,183,46,10
-    CONTROL         "Show in taskbar",IDC_CHECK_STYLE_TASKBAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,25,198,67,10
+    CONTROL         "&Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,34,45,29,10
+    CONTROL         "&Italic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,70,45,31,10
+    CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,45,56,10
+    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,175,43,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Font",IDC_STATIC,17,8,223,57
+    CONTROL         "Show &menu",IDC_CHECK_SHOW_MENU,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,34,85,53,10
+    CONTROL         "Show &toolbar",IDC_CHECK_SHOW_TOOLBAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,85,58,10
+    CONTROL         "Show t&abs",IDC_CHECK_SHOW_TABS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,34,100,49,10
+    CONTROL         "Sho&w status bar",IDC_CHECK_SHOW_STATUS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,100,68,10
+    GROUPBOX        "Main window controls",IDC_STATIC,17,70,223,45
+    CONTROL         "&Caption",IDC_CHECK_STYLE_CAPTION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,34,135,41,10
+    CONTROL         "&Resizable",IDC_CHECK_STYLE_RESIZABLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,34,150,46,10
+    CONTROL         "Tas&kbar button",IDC_CHECK_STYLE_TASKBAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,34,163,61,10
+    GROUPBOX        "Main window styles",IDC_STATIC,17,120,223,62
+    CONTROL         "Bo&rder",IDC_CHECK_BORDER,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,100,135,37,10
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 257, 257
@@ -338,7 +340,7 @@ BEGIN
     CONTROL         "",IDC_LIST_HOTKEYS,"SysListView32",LVS_REPORT | 
                     LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | 
                     WS_BORDER | WS_TABSTOP,17,8,223,197,WS_EX_CLIENTEDGE
-    LTEXT           "Command:",IDC_STATIC,17,216,35,8
+    LTEXT           "&Command:",IDC_STATIC,17,216,35,8
     EDITTEXT        IDC_EDIT_COMMAND,54,213,86,14,ES_AUTOHSCROLL | 
                     ES_READONLY
     LTEXT           "&Hotkey:",IDC_STATIC,17,236,26,8
@@ -351,24 +353,24 @@ IDD_SETTINGS_TRANSPARENCY DIALOGEX 0, 0, 257, 257
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    CONTROL         "None",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,25,25,33,10
-    CONTROL         "Alpha",IDC_TRANSPARENCY_TYPE2,"Button",
+    CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,25,25,33,10
+    CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",
                     BS_AUTORADIOBUTTON,25,40,34,10
-    CONTROL         "Color key",IDC_TRANSPARENCY_TYPE3,"Button",
+    CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",
                     BS_AUTORADIOBUTTON,25,125,46,10
-    LTEXT           "Active window",IDC_STATIC_ACTIVE_WINDOW,36,53,47,8
+    LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,36,53,47,8
     CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
                     WS_TABSTOP,36,64,185,22
     LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,221,66,14,8,0,WS_EX_RIGHT
-    LTEXT           "Inactive window",IDC_STATIC_INACTIVE_WINDOW,36,86,53,8
+    LTEXT           "&Inactive window",IDC_STATIC_INACTIVE_WINDOW,36,86,53,8
     CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
                     WS_TABSTOP,36,99,185,22
     LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,221,101,14,8,0,
                     WS_EX_RIGHT
-    LTEXT           "Key color:",IDC_STATIC_KEY_COLOR,36,141,33,8
-    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,71,
-                    138,16,14,WS_EX_DLGMODALFRAME
+    LTEXT           "Ke&y color:",IDC_STATIC_KEY_COLOR,36,141,33,8
+    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY | 
+                    WS_TABSTOP,71,138,16,14,WS_EX_DLGMODALFRAME
     GROUPBOX        "Window transparency",-1,17,8,223,155
 END
 
@@ -431,16 +433,19 @@ BEGIN
         RIGHTMARGIN, 256
         VERTGUIDE, 17
         VERTGUIDE, 25
-        VERTGUIDE, 56
+        VERTGUIDE, 34
+        VERTGUIDE, 100
+        VERTGUIDE, 160
         VERTGUIDE, 240
         HORZGUIDE, 8
         HORZGUIDE, 30
         HORZGUIDE, 50
+        HORZGUIDE, 65
         HORZGUIDE, 70
-        HORZGUIDE, 94
-        HORZGUIDE, 119
-        HORZGUIDE, 132
-        HORZGUIDE, 172
+        HORZGUIDE, 90
+        HORZGUIDE, 105
+        HORZGUIDE, 120
+        HORZGUIDE, 140
     END
 
     IDD_SETTINGS_HOTKEYS, DIALOG

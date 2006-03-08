@@ -202,9 +202,14 @@ WindowSettings::WindowSettings()
 , bShowToolbar(true)
 , bShowTabs(true)
 , bShowStatusbar(true)
-, bShowCaption(true)
+, bCaption(true)
 , bResizable(true)
 , bTaskbarButton(true)
+, bBorder(true)
+, dwInsideBoder(2)
+, nX(-1)
+, nY(-1)
+, zOrder(zorderNormal)
 , dockPosition(dockNone)
 , nSnapDistance(-1)
 {
@@ -237,15 +242,20 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/styles"), pWindowStylesElement))) return false;
 
-	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"show_caption"), bShowCaption, true);
+	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"caption"), bCaption, true);
 	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable, true);
 	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
+	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"border"), bBorder, true);
+	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"inside_border"), dwInsideBoder, 2);
 
 	CComPtr<IXMLDOMElement>	pWindowPositionElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/position"), pWindowPositionElement))) return false;
 
-	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"dock"), reinterpret_cast<DWORD&>(dockPosition), static_cast<DWORD>(dockNone));
+	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"x"), nX, -1);
+	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"y"), nY, -1);
+	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"z_order"), reinterpret_cast<int&>(zOrder), static_cast<int>(zorderNormal));
+	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"dock"), reinterpret_cast<int&>(dockPosition), static_cast<int>(dockNone));
 	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"snap"), nSnapDistance, -1);
 
 	return true;
@@ -277,15 +287,20 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/styles"), pWindowStylesElement))) return false;
 
-	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"show_caption"), bShowCaption);
+	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"caption"), bCaption);
 	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable);
 	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
+	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"border"), bBorder);
+	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"inside_border"), dwInsideBoder);
 
 	CComPtr<IXMLDOMElement>	pWindowPositionElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/position"), pWindowPositionElement))) return false;
 
-	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"dock"), static_cast<DWORD>(dockPosition));
+	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"x"), nX);
+	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"y"), nY);
+	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"z_order"), static_cast<int>(zOrder));
+	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"dock"), static_cast<int>(dockPosition));
 	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"snap"), nSnapDistance);
 
 	return true;

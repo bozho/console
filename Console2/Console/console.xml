@@ -24,7 +24,11 @@
 		<font name="FixedMedium7x14" size="11" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
-		<window show_menu="1" show_toolbar="0" show_statusbar="0" show_tabs="1"/>
+		<window title="small_console">
+			<controls show_menu="1" show_toolbar="0" show_statusbar="0" show_tabs="1"/>
+			<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="5" />
+			<position x="-1" y="-1" dock="-1" snap="-1" z_order="0" />
+		</window>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
 	<hotkeys>
@@ -58,7 +62,7 @@
 	<tabs>
 		<tab name="Console2">
 			<cursor style="0" r="255" g="255" b="255"/>
-			<background type="1" r="0" g="0" b="0">
+			<background type="0" r="0" g="0" b="0">
 				<image file="F:\Smece\back2.bmp" relative="1" extend="0" position="0">
 					<tint r="0" g="0" b="0" opacity="65"/>
 				</image>

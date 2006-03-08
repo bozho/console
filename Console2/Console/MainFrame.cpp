@@ -415,10 +415,19 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	DlgSettingsMain dlg;
 
 	if (dlg.DoModal() == IDOK) {
-		consoleView->RecreateOffscreenBuffers();
-		AdjustWindowSize(false);
+
+		WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	
 		SetTransparency();
 		CreateAcceleratorTable();
+
+		ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
+		ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
+		ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
+		ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
+
+		consoleView->RecreateOffscreenBuffers();
+		AdjustWindowSize(false);
 		consoleView->RepaintView();
 	}
 

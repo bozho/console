@@ -39,10 +39,11 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 			MESSAGE_HANDLER(WM_WINDOWPOSCHANGED, OnWindowPosChanged)
-			MESSAGE_HANDLER(WM_SYSKEYDOWN, OnSysKey)
-			MESSAGE_HANDLER(WM_SYSKEYUP, OnSysKey)
-			MESSAGE_HANDLER(WM_KEYDOWN, OnKey)
-			MESSAGE_HANDLER(WM_KEYUP, OnKey)
+			MESSAGE_HANDLER(WM_SYSKEYDOWN, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_SYSKEYUP, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_KEYDOWN, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_KEYUP, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
 			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
@@ -62,8 +63,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnSysKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnKey(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);

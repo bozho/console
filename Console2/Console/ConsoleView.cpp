@@ -750,8 +750,10 @@ void ConsoleView::InitializeScrollbars() {
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE) ;
 	}
 
+/*
 	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, FSB_FLAT_MODE, TRUE);
 	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CXVSCROLL , 5, TRUE);
+*/
 
 /*
 	// set scrollbar properties

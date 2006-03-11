@@ -443,8 +443,8 @@ HotKeys::HotKeys()
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"closetab",		L"Close tab",			ID_FILE_CLOSE_TAB)));
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"renametab",		L"Rename tab",			ID_EDIT_RENAME_TAB)));
 
-	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			L"Copy",				ID_COPY)));
-	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",			L"Paste",				ID_PASTE)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			L"Copy",				ID_EDIT_COPY)));
+	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",			L"Paste",				ID_EDIT_PASTE)));
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -355,7 +355,7 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 		pKeyEvents[i].EventType							= KEY_EVENT;
 		pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
 		pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
-		pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= 0;
+		pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= LOBYTE(::VkKeyScan(pszText.get()[i]));
 		pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
 		pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText.get()[i];
 		pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;

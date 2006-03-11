@@ -19,12 +19,16 @@
 //////////////////////////////////////////////////////////////////////////////
 
 MainFrame::MainFrame()
-: m_bMenuVisible(TRUE)
+: m_activeView()
+, m_bMenuVisible(TRUE)
 , m_bToolbarVisible(TRUE)
 , m_bStatusBarVisible(TRUE)
 , m_bTabsVisible(TRUE)
 , m_dockPosition(dockNone)
 , m_mapViews()
+, m_dwWindowWidth(0)
+, m_dwWindowHeight(0)
+, m_bRestoringWindow(false)
 {
 
 }
@@ -46,11 +50,9 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg) {
 	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg))
 		return TRUE;
 
-	shared_ptr<ConsoleView> activeView(GetActiveView());
+	if (m_activeView.get() == NULL) return FALSE;
 
-	if (activeView.get() == NULL) return FALSE;
-
-	return activeView->PreTranslateMessage(pMsg);
+	return m_activeView->PreTranslateMessage(pMsg);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -69,7 +71,7 @@ BOOL MainFrame::OnIdle() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) {
+LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
@@ -127,13 +129,33 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	DockWindow(windowSettings.dockPosition);
 	SetWindowText(g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str());
 
+
+	CreateAcceleratorTable();
+	SetTransparency();
+	AdjustWindowSize(false);
+
+	CRect rectWindow;
+	GetWindowRect(&rectWindow);
+
+	m_dwWindowWidth	= rectWindow.Width();
+	m_dwWindowHeight= rectWindow.Height();
+
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
-	bHandled = false;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
 	return 0;
 }
 
@@ -146,6 +168,7 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it) {
 		RemoveTab(it->second->m_hWnd);
+		if (m_activeView.get() == it->second.get()) m_activeView.reset();
 		it->second->DestroyWindow();
 	}
 
@@ -160,12 +183,221 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled) {
 
-	shared_ptr<ConsoleView> consoleView = GetActiveView();
-	if (consoleView.get() != NULL) {
-		consoleView->SetAppActiveStatus(static_cast<BOOL>(wParam) == TRUE);
+	if (m_activeView.get() == NULL) return 0;
+
+	m_activeView->SetAppActiveStatus(static_cast<BOOL>(wParam) == TRUE);
+
+	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+
+	if ((transparencySettings.transType == transAlpha) && 
+		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255))) {
+
+		if (static_cast<BOOL>(wParam)) {
+			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
+		} else {
+			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
+		}
+		
 	}
 
 	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled) {
+
+	// OnSize needs to know this
+	if (wParam == SC_RESTORE) {
+		m_bRestoringWindow = true;
+	} else if (wParam == SC_MAXIMIZE) {
+
+		CRect rectWindow;
+		GetWindowRect(&rectWindow);
+
+		DWORD dwWindowWidth	= rectWindow.Width();
+		DWORD dwWindowHeight= rectWindow.Height();
+
+		if ((dwWindowWidth != m_dwWindowWidth) ||
+			(dwWindowHeight != m_dwWindowHeight)) {
+
+			AdjustWindowSize(true);
+		}
+	}
+
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled) {
+
+	MINMAXINFO* pMinMax = (MINMAXINFO*)lParam;
+
+	CRect					maxClientRect;
+
+	if ((m_activeView.get() == NULL) || (!m_activeView->GetMaxRect(maxClientRect))) {
+		bHandled = false;
+		return 1;
+	}
+
+//	TRACE(L"minmax: (%i, %i) - (%i, %i)\n", maxClientRect.left, maxClientRect.top, maxClientRect.right, maxClientRect.bottom);
+
+	AdjustWindowRect(maxClientRect);
+
+	pMinMax->ptMaxSize.x = maxClientRect.Width();
+	pMinMax->ptMaxSize.y = maxClientRect.Height() + 4;
+
+	pMinMax->ptMaxTrackSize.x = pMinMax->ptMaxSize.x;
+	pMinMax->ptMaxTrackSize.y = pMinMax->ptMaxSize.y;
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled) {
+
+	if (m_bRestoringWindow || (wParam == SIZE_MAXIMIZED)) {
+
+		CRect rectWindow;
+		GetWindowRect(&rectWindow);
+
+		DWORD dwWindowWidth	= (m_bRestoringWindow) ? rectWindow.Width() : LOWORD(lParam);
+		DWORD dwWindowHeight= (m_bRestoringWindow) ? rectWindow.Height() : HIWORD(lParam);
+
+		if ((dwWindowWidth != m_dwWindowWidth) ||
+			(dwWindowHeight != m_dwWindowHeight)) {
+
+			AdjustWindowSize(true);
+		}
+
+		m_bRestoringWindow = false;
+	}
+
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled) {
+
+	WINDOWPOS*		pWinPos			= reinterpret_cast<WINDOWPOS*>(lParam);
+	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	if (windowSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
+
+	if (!(pWinPos->flags & SWP_NOMOVE)) {
+
+		m_dockPosition	= dockNone;
+		
+		int nSnapDistance	= windowSettings.nSnapDistance;
+
+		if (nSnapDistance >= 0) {
+
+			CRect	rectMonitor;
+			CRect	rectDesktop;
+			CRect	rectWindow;
+			CPoint	pointCursor;
+
+			// we'll snap Console window to the desktop edges
+			::GetCursorPos(&pointCursor);
+			GetWindowRect(&rectWindow);
+			Helpers::GetDesktopRect(pointCursor, rectDesktop);
+			Helpers::GetMonitorRect(m_hWnd, rectMonitor);
+
+			if (!rectMonitor.PtInRect(pointCursor)) {
+				pWinPos->x = pointCursor.x;
+				pWinPos->y = pointCursor.y;
+			}
+
+			int	nLR = -1;
+			int	nTB = -1;
+
+			// now, see if we're close to the edges
+			if (pWinPos->x <= rectDesktop.left + nSnapDistance) {
+				pWinPos->x = rectDesktop.left;
+				nLR = 0;
+			}
+			
+			if (pWinPos->x >= rectDesktop.right - pWinPos->cx - nSnapDistance) {
+				pWinPos->x = rectDesktop.right - pWinPos->cx;
+				nLR = 1;
+			}
+			
+			if (pWinPos->y <= rectDesktop.top + nSnapDistance) {
+				pWinPos->y = rectDesktop.top;
+				nTB = 0;
+			}
+			
+			if (pWinPos->y >= rectDesktop.bottom - pWinPos->cy - nSnapDistance) {
+				pWinPos->y = rectDesktop.bottom - pWinPos->cy;
+				nTB = 2;
+			}
+
+			if ((nLR != -1) && (nTB != -1)) {
+				m_dockPosition = static_cast<DockPosition>(nTB | nLR);
+			}
+		}
+
+
+		// TODO: only for relative backgrounds
+		CRect rectClient;
+		GetClientRect(&rectClient);
+		InvalidateRect(&rectClient, FALSE);
+		return 0;
+	}
+
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+
+	CRect rectWindow;
+	GetWindowRect(&rectWindow);
+
+	DWORD dwWindowWidth	= rectWindow.Width();
+	DWORD dwWindowHeight= rectWindow.Height();
+
+	if ((dwWindowWidth != m_dwWindowWidth) ||
+		(dwWindowHeight != m_dwWindowHeight)) {
+
+		AdjustWindowSize(true);
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */) {
+
+	AdjustWindowSize(false);
 	return 0;
 }
 
@@ -183,9 +415,10 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 	RemoveTab(hwndConsoleView);
 
+	if (m_activeView.get() == findIt->second.get()) m_activeView.reset();
 	findIt->second->DestroyWindow();
 	m_mapViews.erase(findIt);
-
+	
 	if (m_mapViews.size() == 0) PostMessage(WM_CLOSE);
 
 	return 0;
@@ -242,6 +475,9 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled) {
 		if (it != m_mapViews.end()) {
 			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
 			it->second->SetViewActive(true);
+			m_activeView = it->second;
+		} else {
+			m_activeView = shared_ptr<ConsoleView>();
 		}
 	}
 
@@ -354,12 +590,39 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+
+	if (m_activeView.get() == NULL) return 0;
+
+	m_activeView->Copy();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
+
+	if (m_activeView.get() == NULL) return 0;
+
+	m_activeView->Paste();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	shared_ptr<ConsoleView>	consoleView(GetActiveView());
-	if (consoleView.get() == NULL) return 0;
+	if (m_activeView.get() == NULL) return 0;
 
-	consoleView->Copy();
+	m_activeView->Copy();
 
 	return 0;
 }
@@ -371,10 +634,9 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	shared_ptr<ConsoleView>	consoleView(GetActiveView());
-	if (consoleView.get() == NULL) return 0;
+	if (m_activeView.get() == NULL) return 0;
 
-	consoleView->Paste();
+	m_activeView->Paste();
 
 	return 0;
 }
@@ -386,17 +648,16 @@ LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	shared_ptr<ConsoleView>	consoleView(GetActiveView());
-	if (consoleView.get() == NULL) return 0;
+	if (m_activeView.get() == NULL) return 0;
 
 	CString strTabName(L"");
-	consoleView->GetWindowText(strTabName);
+	m_activeView->GetWindowText(strTabName);
 
 	DlgRenameTab dlg(strTabName);
 
 	if (dlg.DoModal() == IDOK) {
-		consoleView->SetWindowText(dlg.m_strTabName);
-		UpdateTabText(consoleView->m_hWnd, dlg.m_strTabName);
+		m_activeView->SetWindowText(dlg.m_strTabName);
+		UpdateTabText(m_activeView->m_hWnd, dlg.m_strTabName);
 	}
 
 	return 0;
@@ -409,8 +670,7 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	shared_ptr<ConsoleView>	consoleView(GetActiveView());
-	if (consoleView.get() == NULL) return 0;
+	if (m_activeView.get() == NULL) return 0;
 
 	DlgSettingsMain dlg;
 
@@ -426,9 +686,9 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
 		ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
 
-		consoleView->RecreateOffscreenBuffers();
+		m_activeView->RecreateOffscreenBuffers();
 		AdjustWindowSize(false);
-		consoleView->RepaintView();
+		m_activeView->RepaintView();
 	}
 
 	return 0;
@@ -489,11 +749,9 @@ LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
 
-	shared_ptr<ConsoleView> consoleView = GetActiveView();
-
-	if (consoleView.get() != NULL) {
-		consoleView->SetConsoleWindowVisible(!consoleView->GetConsoleWindowVisible());
-		UISetCheck(ID_VIEW_CONSOLE, consoleView->GetConsoleWindowVisible() ? TRUE : FALSE);
+	if (m_activeView.get() != NULL) {
+		m_activeView->SetConsoleWindowVisible(!m_activeView->GetConsoleWindowVisible());
+		UISetCheck(ID_VIEW_CONSOLE, m_activeView->GetConsoleWindowVisible() ? TRUE : FALSE);
 	}
 
 	return 0;
@@ -531,6 +789,7 @@ LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& 
 
 
 //////////////////////////////////////////////////////////////////////////////
+/*
 
 shared_ptr<ConsoleView> MainFrame::GetActiveView() {
 
@@ -542,6 +801,7 @@ shared_ptr<ConsoleView> MainFrame::GetActiveView() {
 	return findIt->second;
 }
 
+*/
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -575,8 +835,7 @@ void MainFrame::AdjustWindowRect(CRect& rect) {
 void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
 
 	// adjust the active view
-	shared_ptr<ConsoleView>	consoleView(GetActiveView());
-	if (consoleView.get() == NULL) return;
+	if (m_activeView.get() == NULL) return;
 
 
 /*
@@ -608,12 +867,12 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
 */
 
 
-	consoleView->AdjustRectAndResize(rectView);
+	m_activeView->AdjustRectAndResize(rectView);
 	
 	// for other views, first set view size and then resize their Windows consoles
 	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it) {
 
-		if (it->second->m_hWnd == consoleView->m_hWnd) continue;
+		if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
 
 		it->second->SetWindowPos(
 						0, 
@@ -690,6 +949,7 @@ void MainFrame::CloseTab(CTabViewTabItem* pTabItem) {
 	if (it == m_mapViews.end()) return;
 
 	RemoveTab(hwndConsoleView);
+	if (m_activeView.get() == it->second.get()) m_activeView.reset();
 	it->second->DestroyWindow();
 	m_mapViews.erase(it);
 
@@ -899,6 +1159,120 @@ void MainFrame::ShowStatusbar(BOOL bShow) {
 
 	UpdateLayout();
 	AdjustWindowSize(false);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::AdjustWindowSize(bool bResizeConsole) {
+
+	CRect clientRect;
+	GetClientRect(&clientRect);
+
+	if (bResizeConsole) {
+		AdjustAndResizeConsoleView(clientRect);
+	} else {
+		if (m_activeView.get() == NULL) return;
+
+		m_activeView->GetRect(clientRect);
+	}
+
+	AdjustWindowRect(clientRect);
+
+
+	SetWindowPos(
+		0, 
+		0, 
+		0, 
+		clientRect.Width(), 
+		clientRect.Height() + 4, 
+		SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
+
+	// update window width and height
+	CRect rectWindow;
+
+	GetWindowRect(&rectWindow);
+	m_dwWindowWidth	= rectWindow.Width();
+	m_dwWindowHeight= rectWindow.Height();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::SetTransparency() {
+
+	// set transparency
+	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+	switch (transparencySettings.transType) {
+
+		case transAlpha : 
+
+			if ((transparencySettings.byActiveAlpha == 255) &&
+				(transparencySettings.byInactiveAlpha == 255)) {
+
+				break;
+			}
+
+			SetWindowLong(
+				GWL_EXSTYLE, 
+				GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
+
+			::SetLayeredWindowAttributes(
+				m_hWnd,
+				0, 
+				transparencySettings.byActiveAlpha, 
+				LWA_ALPHA);
+
+			break;
+
+		case transColorKey : {
+
+			SetWindowLong(
+				GWL_EXSTYLE, 
+				GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
+
+			::SetLayeredWindowAttributes(
+				m_hWnd,
+				transparencySettings.crColorKey, 
+				transparencySettings.byActiveAlpha, 
+				LWA_COLORKEY);
+
+			break;
+		}
+
+		default : {
+
+			SetWindowLong(
+					GWL_EXSTYLE, 
+					GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
+		}
+
+
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::CreateAcceleratorTable() {
+
+	HotKeys&						hotKeys	= g_settingsHandler->GetHotKeys();
+	HotKeys::HotKeysMap::iterator	it		= hotKeys.mapHotKeys.begin();
+	shared_array<ACCEL>				accelTable(new ACCEL[hotKeys.mapHotKeys.size()]);
+
+	for (size_t i = 0; it != hotKeys.mapHotKeys.end(); ++i, ++it) {
+		::CopyMemory(&(accelTable[i]), &(it->second->accelHotkey), sizeof(ACCEL));
+	}
+
+	if (!m_acceleratorTable.IsNull()) m_acceleratorTable.DestroyObject();
+	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), static_cast<int>(hotKeys.mapHotKeys.size()));
 }
 
 //////////////////////////////////////////////////////////////////////////////

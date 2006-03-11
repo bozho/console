@@ -1,7 +1,5 @@
 #pragma once
 
-#include "ConsoleViewContainer.h"
-
 //////////////////////////////////////////////////////////////////////////////
 
 #define ID_NEW_TAB_FIRST		1000
@@ -16,7 +14,6 @@ typedef map<HWND, shared_ptr<ConsoleView> >	ConsoleViewMap;
 
 class MainFrame 
 	: public CTabbedFrameImpl<MainFrame>
-	, public ConsoleViewContainer<MainFrame>
 	, public CUpdateUI<MainFrame>
 	, public CMessageFilter
 	, public CIdleHandler
@@ -41,8 +38,15 @@ class MainFrame
 
 		BEGIN_MSG_MAP(MainFrame)
 			MESSAGE_HANDLER(WM_CREATE, OnCreate)
+			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_CLOSE, OnClose)
 			MESSAGE_HANDLER(WM_ACTIVATEAPP, OnActivateApp)
+			MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
+			MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
+			MESSAGE_HANDLER(WM_SIZE, OnSize)
+			MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, OnWindowPosChanging)
+			MESSAGE_HANDLER(WM_EXITSIZEMOVE, OnExitSizeMove)
+			MESSAGE_HANDLER(UM_CONSOLE_RESIZED, OnConsoleResized)
 			MESSAGE_HANDLER(UM_CONSOLE_CLOSED, OnConsoleClosed)
 			MESSAGE_HANDLER(UM_SHOW_POPUP_MENU, OnShowPopupMenu)
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
@@ -67,7 +71,6 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_VIEW_CONSOLE, OnViewConsole)
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 			CHAIN_MSG_MAP(CUpdateUI<MainFrame>)
-			CHAIN_MSG_MAP(ConsoleViewContainer<MainFrame>)
 			CHAIN_MSG_MAP(CTabbedFrameImpl<MainFrame>)
 			REFLECT_NOTIFICATIONS()
 		END_MSG_MAP()
@@ -78,9 +81,18 @@ class MainFrame
 //		LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 		LRESULT OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 
+		LRESULT OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
+
+		LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */);
+
+		LRESULT OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */);
 		LRESULT OnConsoleClosed(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
@@ -98,6 +110,8 @@ class MainFrame
 
 		LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
+		LRESULT OnCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -112,7 +126,7 @@ class MainFrame
 
 	public:
 
-		shared_ptr<ConsoleView> GetActiveView();
+//		shared_ptr<ConsoleView> GetActiveView();
 
 		void AdjustWindowRect(CRect& rect);
 		void AdjustAndResizeConsoleView(CRect& rectView);
@@ -132,8 +146,14 @@ class MainFrame
 		void ShowTabs(BOOL bShow);
 		void ShowStatusbar(BOOL bShow);
 
-	// TODO: private after merging ConsoleViewContainer class
-	public:
+		void AdjustWindowSize(bool bResizeConsole);
+		void SetTransparency();
+		void CreateAcceleratorTable();
+
+
+	private:
+
+		shared_ptr<ConsoleView>	m_activeView;
 
 		BOOL			m_bMenuVisible;
 		BOOL			m_bToolbarVisible;
@@ -144,6 +164,17 @@ class MainFrame
 		ConsoleViewMap	m_mapViews;
 
 		CMenu			m_tabsMenu;
+
+		DWORD			m_dwWindowWidth;
+		DWORD			m_dwWindowHeight;
+
+		bool			m_bRestoringWindow;
+
+		CAccelerator	m_acceleratorTable;
+
+		CDC				m_dcOffscreen;
+		CDC				m_dcText;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -119,8 +119,6 @@
 #define IDC_SPIN_SNAP                   1108
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
-#define ID_COPY                         2000
-#define ID_PASTE                        2001
 #define ID_FILE_NEW_TAB                 32775
 #define ID_VIEW_CONSOLE                 32777
 #define ID_FILE_CLOSE_TAB               32779

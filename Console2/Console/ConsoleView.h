@@ -90,7 +90,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void RepaintView();
 		void SetViewActive(bool bActive);
 
-		CIcon& GetIcon() const { return m_tabData->tabIcon; }
+		CIcon& GetIcon(bool bBigIcon = true) const { return bBigIcon ? m_tabData->tabIcon : m_tabData->tabSmallIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();

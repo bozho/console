@@ -198,6 +198,8 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 WindowSettings::WindowSettings()
 : strTitle(L"Console")
+, strIcon(L"")
+, bUseTabIcon(false)
 , bShowMenu(true)
 , bShowToolbar(true)
 , bShowTabs(true)
@@ -228,6 +230,8 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
 
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"title"), strTitle, wstring(L"Console"));
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon, wstring(L""));
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_tab_icon"), bUseTabIcon, false);
 
 	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
 
@@ -273,6 +277,7 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
 
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"title"), strTitle);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon);
 
 	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
 
@@ -641,21 +646,37 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 		if (strIconFile.length() > 0) {
 
 			tabData->tabIcon = static_cast<HICON>(::LoadImage(
-														NULL, 
-														strIconFile.c_str(), 
-														IMAGE_ICON, 
-														16, 
-														16, 
-														LR_DEFAULTCOLOR|LR_LOADFROMFILE));
+															NULL, 
+															strIconFile.c_str(), 
+															IMAGE_ICON, 
+															0, 
+															0, 
+															LR_DEFAULTCOLOR|LR_LOADFROMFILE|LR_DEFAULTSIZE));
+
+			tabData->tabSmallIcon = static_cast<HICON>(::LoadImage(
+															NULL, 
+															strIconFile.c_str(), 
+															IMAGE_ICON, 
+															16, 
+															16, 
+															LR_DEFAULTCOLOR|LR_LOADFROMFILE));
 		} else {
 
 			tabData->tabIcon = static_cast<HICON>(::LoadImage(
-														::GetModuleHandle(NULL), 
-														MAKEINTRESOURCE(IDR_MAINFRAME), 
-														IMAGE_ICON, 
-														16, 
-														16, 
-														LR_DEFAULTCOLOR));
+															::GetModuleHandle(NULL), 
+															MAKEINTRESOURCE(IDR_MAINFRAME), 
+															IMAGE_ICON, 
+															0, 
+															0, 
+															LR_DEFAULTCOLOR|LR_DEFAULTSIZE));
+
+			tabData->tabSmallIcon = static_cast<HICON>(::LoadImage(
+															::GetModuleHandle(NULL), 
+															MAKEINTRESOURCE(IDR_MAINFRAME), 
+															IMAGE_ICON, 
+															16, 
+															16, 
+															LR_DEFAULTCOLOR));
 		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement))) {

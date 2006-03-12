@@ -101,6 +101,8 @@ struct WindowSettings : public SettingsBase {
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	wstring			strTitle;
+	wstring			strIcon;
+	bool			bUseTabIcon;
 
 	bool			bShowMenu;
 	bool			bShowToolbar;
@@ -241,6 +243,7 @@ struct TabData {
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
 	, tabIcon()
+	, tabSmallIcon()
 	, tabBackground()
 	, consoleSettings(conSettings)
 	{
@@ -263,6 +266,7 @@ struct TabData {
 	COLORREF						crBackgroundColor;
 
 	CIcon							tabIcon;
+	CIcon							tabSmallIcon;
 	shared_ptr<ImageData>			tabBackground;
 
 private:

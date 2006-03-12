@@ -21,16 +21,20 @@
 		</colors>
 	</console>
 	<appearance>
-		<font name="FixedMedium7x14" size="11" bold="0" italic="0">
+		<font name="CodingFontTobi1_TT" size="12" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
-		<window title="small_console">
-			<controls show_menu="1" show_toolbar="0" show_statusbar="0" show_tabs="1"/>
-			<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="5" />
-			<position x="-1" y="-1" dock="-1" snap="-1" z_order="0" />
+		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1">
+			<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1"/>
+			<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="0"/>
+			<position x="-1" y="-1" dock="-1" snap="0" z_order="0"/>
 		</window>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
+	<behavior>
+		<copy_paste copy_on_select="0" no_wrap="0" trim_spaces="0"/>
+		<mouse_drag on="0" inverse_shift="0"/>
+	</behavior>
 	<hotkeys>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="112" command="newtab1"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="113" command="newtab2"/>

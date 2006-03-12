@@ -140,6 +140,9 @@ class MainFrame
 		void SetWindowStyles();
 		void DockWindow(DockPosition dockPosition);
 
+		void LoadWindowIcons();
+		void SetWindowIcons();
+
 
 		void ShowMenu(BOOL bShow);
 		void ShowToolbar(BOOL bShow);
@@ -164,6 +167,9 @@ class MainFrame
 		ConsoleViewMap	m_mapViews;
 
 		CMenu			m_tabsMenu;
+
+		CIcon			m_icon;
+		CIcon			m_smallIcon;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;

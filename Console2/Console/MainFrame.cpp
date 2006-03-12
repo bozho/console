@@ -89,8 +89,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
 
 	CreateSimpleStatusBar();
-	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 
+	// initialize tabs
+	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
 	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
 	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
@@ -125,10 +126,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	if ((windowSettings.nX == -1) || (windowSettings.nY == -1)) dwFlags |= SWP_NOMOVE;
 
 	SetWindowPos(hwndZ, windowSettings.nX, windowSettings.nY, 0, 0, dwFlags);
-
 	DockWindow(windowSettings.dockPosition);
+
 	SetWindowText(g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str());
 
+	LoadWindowIcons();
+	SetWindowIcons();
 
 	CreateAcceleratorTable();
 	SetTransparency();
@@ -476,6 +479,9 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled) {
 			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
 			it->second->SetViewActive(true);
 			m_activeView = it->second;
+
+			if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseTabIcon) SetWindowIcons();
+
 		} else {
 			m_activeView = shared_ptr<ConsoleView>();
 		}
@@ -925,7 +931,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex) {
 	CString strTabTitle;
 	consoleView->GetWindowText(strTabTitle);
 
-	AddTabWithIcon(*consoleView, strTabTitle, consoleView->GetIcon());
+	AddTabWithIcon(*consoleView, strTabTitle, consoleView->GetIcon(false));
 	DisplayTab(hwndConsoleView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 
@@ -977,7 +983,7 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 		ICONINFO		iconInfo;
 		BITMAP			bmp;
 
-		::GetIconInfo(tabDataVector[dwId-ID_NEW_TAB_1]->tabIcon, &iconInfo);
+		::GetIconInfo(tabDataVector[dwId-ID_NEW_TAB_1]->tabSmallIcon, &iconInfo);
 		::GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
 
 		subMenuItem.fMask		= MIIM_STRING | MIIM_ID;
@@ -1086,6 +1092,79 @@ void MainFrame::DockWindow(DockPosition dockPosition) {
 		0, 
 		0, 
 		SWP_NOSIZE|SWP_NOZORDER);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::LoadWindowIcons() {
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	if (!m_icon.IsNull()) m_icon.DestroyIcon();
+	if (!m_smallIcon.IsNull()) m_smallIcon.DestroyIcon();
+
+	if (windowSettings.strIcon.length() > 0) {
+		m_icon.Attach(static_cast<HICON>(::LoadImage(
+												NULL, 
+												windowSettings.strIcon.c_str(), 
+												IMAGE_ICON, 
+												0, 
+												0, 
+												LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE)));
+
+		m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
+												NULL, 
+												windowSettings.strIcon.c_str(), 
+												IMAGE_ICON, 
+												16, 
+												16, 
+												LR_DEFAULTCOLOR | LR_LOADFROMFILE)));
+	} else {
+		m_icon.Attach(static_cast<HICON>(::LoadImage(
+												NULL, 
+												MAKEINTRESOURCE(IDR_MAINFRAME), 
+												IMAGE_ICON, 
+												0, 
+												0, 
+												LR_DEFAULTCOLOR | LR_DEFAULTSIZE)));
+
+		m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
+												NULL, 
+												MAKEINTRESOURCE(IDR_MAINFRAME), 
+												IMAGE_ICON, 
+												16, 
+												16, 
+												LR_DEFAULTCOLOR)));
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::SetWindowIcons() {
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	if (windowSettings.bUseTabIcon && (m_activeView.get() != NULL)) {
+
+		CIcon oldIcon(SetIcon(m_activeView->GetIcon(true).DuplicateIcon(), TRUE));
+		CIcon oldSmallIcon(SetIcon(m_activeView->GetIcon(false).DuplicateIcon(), FALSE));
+
+	} else {
+
+		if (!m_icon.IsNull()) {
+			CIcon oldIcon(SetIcon(m_icon, TRUE));
+		}
+
+		if (!m_smallIcon.IsNull()) {
+			CIcon oldIcon(SetIcon(m_icon, FALSE));
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

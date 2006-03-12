@@ -246,7 +246,7 @@ LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 		}
 		
 	} else {
-		GetParent().SetCapture();
+//		GetParent().SetCapture();
 
 		// TODO: drag window
 /*
@@ -691,7 +691,10 @@ bool ConsoleView::CreateFont(const wstring& strFontName) {
 	m_dcText.SelectFont(m_fontText);
 	m_dcText.GetTextMetrics(&textMetric);
 
-	if (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) return false;
+	if (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) {
+		if (!m_fontText.IsNull()) m_fontText.DeleteObject();
+		return false;
+	}
 
 	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
 	m_nCharWidth = textMetric.tmAveCharWidth;
@@ -992,6 +995,7 @@ void ConsoleView::RepaintText() {
 			}
 		}
 
+/*
 	} else {
 		
 		// variable pitch font
@@ -1005,12 +1009,12 @@ void ConsoleView::RepaintText() {
 				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
 
 				// here we decide how to paint text over the backgound
-/*
+/ *
 				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 					m_dcText.SetBkMode(TRANSPARENT);
 				} else {
 					m_dcText.SetBkMode(OPAQUE);
-*/
+* /
 					m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 //				}
 				
@@ -1022,6 +1026,7 @@ void ConsoleView::RepaintText() {
 				++dwOffset;
 			}
 		}
+*/
 	}
 	
 //	if (m_pCursor) DrawCursor(TRUE);
@@ -1110,6 +1115,7 @@ void ConsoleView::RepaintTextChanges() {
 			}
 		}
 		
+/*
 	} else {
 		
 		// variable pitch font
@@ -1121,7 +1127,7 @@ void ConsoleView::RepaintTextChanges() {
 		rect.bottom	= bitmapSize.cy;
 		rect.right	= bitmapSize.cx;
 		
-/*
+/ *
 		if (m_bBitmapBackground) {
 			if (m_bRelativeBackground) {
 				::BitBlt(m_hdcConsole, 0, 0, m_nClientWidth, m_nClientHeight, m_hdcBackground, m_nX+m_nXBorderSize-m_nBackgroundOffsetX, m_nY+m_nCaptionSize+m_nYBorderSize-m_nBackgroundOffsetY, SRCCOPY);
@@ -1131,7 +1137,7 @@ void ConsoleView::RepaintTextChanges() {
 		} else {
 			::FillRect(m_hdcConsole, &rect, m_hBkBrush);
 		}
-*/
+* /
 		m_dcText.FillRect(&rect, bkgdBrush);
 		
 		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i) {
@@ -1144,14 +1150,14 @@ void ConsoleView::RepaintTextChanges() {
 				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
 				
 				// here we decide how to paint text over the backgound
-/*
+/ *
 				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground) {
 					::SetBkMode(m_hdcConsole, TRANSPARENT);
 				} else {
 					::SetBkMode(m_hdcConsole, OPAQUE);
 					::SetBkColor(m_hdcConsole, g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
 				}
-*/
+* /
 
 				m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
@@ -1165,6 +1171,7 @@ void ConsoleView::RepaintTextChanges() {
 		
 //		::InvalidateRect(m_hWnd, NULL, FALSE);
 //		}
+*/
 	}
 	
 //	if (m_pCursor) DrawCursor();

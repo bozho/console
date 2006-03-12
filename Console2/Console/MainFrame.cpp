@@ -306,7 +306,8 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	if (windowSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
 
-	if (!(pWinPos->flags & SWP_NOMOVE)) {
+	if (!(pWinPos->flags & SWP_NOMOVE) &&
+		(pWinPos->cx != 0) && (pWinPos->cy != 0)) {
 
 		m_dockPosition	= dockNone;
 		
@@ -360,10 +361,19 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		}
 
 
-		// TODO: only for relative backgrounds
-		CRect rectClient;
-		GetClientRect(&rectClient);
-		InvalidateRect(&rectClient, FALSE);
+		// only for relative backgrounds
+		if (m_activeView.get() != NULL) {
+
+			shared_ptr<TabData> tabData = m_activeView->GetTabData();
+
+			if ((tabData->tabBackground.get() != NULL) &&
+				tabData->tabBackground->bRelative) {
+
+				CRect rectClient;
+				GetClientRect(&rectClient);
+				InvalidateRect(&rectClient, FALSE);
+			}
+		}
 		return 0;
 	}
 
@@ -409,9 +419,9 @@ LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /* bHandled */) {
+LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */) {
 
-	HWND						hwndConsoleView	= reinterpret_cast<HWND>(lParam);
+	HWND						hwndConsoleView	= reinterpret_cast<HWND>(wParam);
 	ConsoleViewMap::iterator	findIt			= m_mapViews.find(hwndConsoleView);
 
 	if (findIt == m_mapViews.end()) return 0;
@@ -423,6 +433,35 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 	m_mapViews.erase(findIt);
 	
 	if (m_mapViews.size() == 0) PostMessage(WM_CLOSE);
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /* bHandled */) {
+
+	CWindow			consoleView(reinterpret_cast<HWND>(wParam));
+	CString			strCommandText(reinterpret_cast<wchar_t*>(lParam));
+	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	CString	strMainWndTitle(windowSettings.strTitle.c_str());
+	CString	strTabTitle;
+
+	consoleView.GetWindowText(strTabTitle);
+
+	if (windowSettings.bUseTabTitles) strMainWndTitle = strTabTitle;
+	if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
+	if (windowSettings.bShowCommand) strMainWndTitle += strCommandText;
+
+	UpdateTabText(consoleView, strTabTitle);
+	
+	if (consoleView == m_activeView->m_hWnd) {
+		SetWindowText(strMainWndTitle);
+	}
 
 	return 0;
 }
@@ -663,7 +702,7 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 	if (dlg.DoModal() == IDOK) {
 		m_activeView->SetWindowText(dlg.m_strTabName);
-		UpdateTabText(m_activeView->m_hWnd, dlg.m_strTabName);
+		m_activeView->UpdateTitles();
 	}
 
 	return 0;

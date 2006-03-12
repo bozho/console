@@ -495,6 +495,32 @@ void ConsoleView::SetViewActive(bool bActive) {
 //////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::UpdateTitles() {
+
+	CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
+
+	CString strCommandText;
+	consoleWnd.GetWindowText(strCommandText);
+
+	int		nPos = strCommandText.Find(L'-');
+
+	if (nPos == -1) {
+		strCommandText = L"";
+	} else {
+		strCommandText = strCommandText.Right(strCommandText.GetLength() - nPos + 1);
+	}
+
+	GetParent().SendMessage(
+					UM_UPDATE_TITLES, 
+					reinterpret_cast<WPARAM>(m_hWnd), 
+					reinterpret_cast<LPARAM>(LPCTSTR(strCommandText)));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
 //////////////////////////////////////////////////////////////////////////////
 
 void ConsoleView::Copy(const CPoint* pPoint /* = NULL */) {
@@ -596,7 +622,7 @@ void ConsoleView::OnConsoleChange(bool bResize) {
 
 void ConsoleView::OnConsoleClose() {
 
-	if (::IsWindow(m_hWnd)) ::PostMessage(GetParent(), UM_CONSOLE_CLOSED, 0, reinterpret_cast<LPARAM>(m_hWnd));
+	if (::IsWindow(m_hWnd)) ::PostMessage(GetParent(), UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hWnd), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -857,6 +883,7 @@ void ConsoleView::Repaint() {
 		RepaintTextChanges();
 	}
 
+	UpdateTitles();
 	BitBltOffscreen();
 }
 

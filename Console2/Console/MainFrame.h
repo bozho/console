@@ -48,6 +48,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_EXITSIZEMOVE, OnExitSizeMove)
 			MESSAGE_HANDLER(UM_CONSOLE_RESIZED, OnConsoleResized)
 			MESSAGE_HANDLER(UM_CONSOLE_CLOSED, OnConsoleClosed)
+			MESSAGE_HANDLER(UM_UPDATE_TITLES, OnUpdateTitles)
 			MESSAGE_HANDLER(UM_SHOW_POPUP_MENU, OnShowPopupMenu)
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
@@ -93,7 +94,8 @@ class MainFrame
 		LRESULT OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */);
 
 		LRESULT OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */);
-		LRESULT OnConsoleClosed(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
@@ -142,7 +144,6 @@ class MainFrame
 
 		void LoadWindowIcons();
 		void SetWindowIcons();
-
 
 		void ShowMenu(BOOL bShow);
 		void ShowToolbar(BOOL bShow);

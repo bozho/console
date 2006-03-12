@@ -12,11 +12,12 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-// User-defined message for notifying ConsoleViewContainer
+// User-defined message for notifying main window
 
 #define UM_CONSOLE_RESIZED	WM_USER + 0x1000
 #define UM_CONSOLE_CLOSED	WM_USER + 0x1001
-#define UM_SHOW_POPUP_MENU	WM_USER + 0x1002
+#define UM_UPDATE_TITLES	WM_USER + 0x1002
+#define UM_SHOW_POPUP_MENU	WM_USER + 0x1003
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -80,6 +81,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void AdjustRectAndResize(CRect& clientRect);
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
+		shared_ptr<TabData> GetTabData() { return m_tabData; }
 
 		bool GetConsoleWindowVisible() const { return m_bConsoleWindowVisible; }
 		void SetConsoleWindowVisible(bool bVisible);
@@ -89,6 +91,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void RecreateOffscreenBuffers();
 		void RepaintView();
 		void SetViewActive(bool bActive);
+		void UpdateTitles();
 
 		CIcon& GetIcon(bool bBigIcon = true) const { return bBigIcon ? m_tabData->tabIcon : m_tabData->tabSmallIcon; }
 

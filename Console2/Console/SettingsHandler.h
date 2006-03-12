@@ -103,6 +103,9 @@ struct WindowSettings : public SettingsBase {
 	wstring			strTitle;
 	wstring			strIcon;
 	bool			bUseTabIcon;
+	bool			bShowCommand;
+	bool			bShowCommandInTabs;
+	bool			bUseTabTitles;
 
 	bool			bShowMenu;
 	bool			bShowToolbar;

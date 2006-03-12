@@ -24,10 +24,10 @@
 		<font name="CodingFontTobi1_TT" size="12" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
-		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1">
+		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" show_cmd="0" show_cmd_tabs="1" use_tab_title="0">
 			<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1"/>
 			<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="0"/>
-			<position x="-1" y="-1" dock="-1" snap="0" z_order="0"/>
+			<position x="-1" y="-1" dock="2" snap="0" z_order="0"/>
 		</window>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
@@ -76,7 +76,7 @@
 			<console shell="cmd.exe" init_dir="C:\"/>
 			<cursor style="1" r="255" g="255" b="255"/>
 			<background type="1" r="0" g="0" b="0">
-				<image file="F:\Smece\back.bmp" relative="0" extend="0" position="0">
+				<image file="F:\Smece\back.bmp" relative="1" extend="0" position="0">
 					<tint r="0" g="0" b="0" opacity="65"/>
 				</image>
 			</background>

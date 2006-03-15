@@ -226,56 +226,93 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 		::EmptyClipboard();
 
-		// we leave 2 spaces on the end of each line for a \r\n combination, m_sXMax is zero-basd, so we add one more there
-		DWORD	dwMaxTextLen = (m_sXMax + 3) * (coordEnd.Y - coordStart.Y + 1) + 1;
-		HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, dwMaxTextLen*sizeof(wchar_t));
+		// we leave 2 spaces on the end of each line for a \r\n combination, m_sXMax is zero-based, so we add one more there
+		DWORD					dwMaxRowLen = m_sXMax + 2;
+		shared_array<wchar_t>	pszRow(new wchar_t[dwMaxRowLen]);
+		wstring					strText(L"");
+
+		::ZeroMemory(pszRow.get(), dwMaxRowLen*sizeof(wchar_t));
+
+		SHORT				X					= 0;
+		SHORT				Y					= coordStart.Y;
+		DWORD				dwOffset			= 0;
+		bool				bWrap				= true;
+		CopyPasteSettings&	copyPasteSettings	= g_settingsHandler->GetBehaviorSettings().copyPasteSettings;
+
+		// first row
+		for (X = coordStart.X; X <= ((coordStart.Y < coordEnd.Y) ? m_sXMax : coordEnd.X); ++X) {
+			pszRow[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
+		}
+
+		pszRow[dwOffset] = L'\x0';
+		strText += wstring(pszRow.get());
+
+		if (copyPasteSettings.bNoWrap && 
+			(wcslen(pszRow.get()) == static_cast<size_t>(m_sXMax+1)) && 
+			(strText[strText.length() - 1] != L' ')) {
+		
+			bWrap = false;
+		}
+
+		if (copyPasteSettings.bTrimSpaces && bWrap) trim_right(strText);
+		if (bWrap) strText += wstring(L"\n");
+
+		// rows in between
+		for (Y = coordStart.Y + 1; Y < coordEnd.Y; ++Y) {
+			dwOffset = 0;
+			bWrap = true;
+			for (X = 0; X <= m_sXMax; ++X) {
+				pszRow[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
+			}
+
+			pszRow[dwOffset] = L'\x0';
+			strText += wstring(pszRow.get());
+
+			if (copyPasteSettings.bNoWrap && 
+				(wcslen(pszRow.get()) == static_cast<size_t>(m_sXMax+1)) && 
+				(strText[strText.length() - 1] != L' ')) {
+			
+				bWrap = false;
+			}
+
+			if (copyPasteSettings.bTrimSpaces && bWrap) trim_right(strText);
+			if (bWrap) strText += wstring(L"\n");
+		}
+
+
+		// last row
+		if (coordEnd.Y > coordStart.Y) {
+
+			dwOffset = 0;
+			bWrap = true;
+			Y = coordEnd.Y;
+
+			for (X = 0; X <= coordEnd.X; ++X) {
+				pszRow[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
+			}
+
+			pszRow[dwOffset] = L'\x0';
+			strText += wstring(pszRow.get());
+
+			if (copyPasteSettings.bNoWrap && 
+				(wcslen(pszRow.get()) == static_cast<size_t>(m_sXMax+1)) && 
+				(strText[strText.length() - 1] != L' ')) {
+			
+				bWrap = false;
+			}
+
+			if (copyPasteSettings.bTrimSpaces && bWrap) trim_right(strText);
+			if (bWrap) strText += wstring(L"\n");
+		}
+
+		HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, strText.length()*sizeof(wchar_t));
 
 		if (hText == NULL) { 
 			::CloseClipboard();
 			return;
 		} 
 
-		wchar_t* pszText = static_cast<wchar_t*>(::GlobalLock(hText));
-
-		SHORT	X		= 0;
-		SHORT	Y		= coordStart.Y;
-		DWORD	dwOffset= 0;
-
-		// first row
-		for (X = coordStart.X; X <= ((coordStart.Y < coordEnd.Y) ? m_sXMax : coordEnd.X); ++X) {
-			pszText[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
-		}
-
-		if (coordStart.Y < coordEnd.Y) {
-//			pszText[dwOffset++] = L'\r';
-			pszText[dwOffset++] = L'\n';
-		}
-
-		// rows in between
-		for (Y = coordStart.Y + 1; Y < coordEnd.Y; ++Y) {
-			for (X = 0; X <= m_sXMax; ++X) {
-				pszText[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
-			}
-
-//			pszText[dwOffset++] = L'\r';
-			pszText[dwOffset++] = L'\n';
-		}
-
-		// last row
-		if (coordEnd.Y > coordStart.Y) {
-			Y = coordEnd.Y;
-
-			for (X = 0; X <= coordEnd.X; ++X) {
-				pszText[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
-			}
-
-			if (coordEnd.X == m_sXMax) {
-//				pszText[dwOffset++] = L'\r';
-				pszText[dwOffset++] = L'\n';
-			}
-		}
-
-		pszText[dwOffset++] = L'\x0';
+		::CopyMemory(static_cast<wchar_t*>(::GlobalLock(hText)), strText.c_str(), strText.length()*sizeof(wchar_t));
 
 		::GlobalUnlock(hText);
 

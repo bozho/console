@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="50" rows="50" columns="120" buffer_rows="1000" buffer_columns="120" shell="" init_dir="">
+	<console change_refresh="10" refresh="50" rows="50" columns="120" buffer_rows="1000" buffer_columns="0" shell="" init_dir="">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -32,7 +32,7 @@
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
 	<behavior>
-		<copy_paste copy_on_select="0" no_wrap="0" trim_spaces="0"/>
+		<copy_paste copy_on_select="1" no_wrap="0" trim_spaces="1"/>
 		<mouse_drag on="0" inverse_shift="0"/>
 	</behavior>
 	<hotkeys>

@@ -177,6 +177,38 @@ struct AppearanceSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct CopyPasteSettings : public SettingsBase {
+
+	CopyPasteSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	bool	bCopyOnSelect;
+	bool	bNoWrap;
+	bool	bTrimSpaces;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct BehaviorSettings : public SettingsBase {
+
+	BehaviorSettings ();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	CopyPasteSettings	copyPasteSettings;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct HotKeys : public SettingsBase {
 
 	HotKeys();
@@ -320,6 +352,7 @@ class SettingsHandler {
 
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
+		BehaviorSettings& GetBehaviorSettings() { return m_behaviorSettings; }
 		HotKeys& GetHotKeys() { return m_hotKeys; }
 		TabSettings& GetTabSettings() { return m_tabSettings; }
 
@@ -334,6 +367,7 @@ class SettingsHandler {
 
 		ConsoleSettings		m_consoleSettings;
 		AppearanceSettings	m_appearanceSettings;
+		BehaviorSettings	m_behaviorSettings;
 		HotKeys				m_hotKeys;
 
 		TabSettings			m_tabSettings;

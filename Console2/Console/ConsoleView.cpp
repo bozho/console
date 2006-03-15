@@ -278,11 +278,16 @@ LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 
 	} else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) {
 		
-		// TODO: copy on select
 		Copy(&point);
 
 	} else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting) {
+
 		m_selectionHandler->EndSelection();
+
+		// copy on select
+		if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect) {
+			Copy(NULL);
+		}
 	}
 
 	return 0;

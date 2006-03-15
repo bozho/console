@@ -63,6 +63,7 @@ using namespace std;
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string/trim.hpp>
 using namespace boost;
 #pragma warning(pop)
 

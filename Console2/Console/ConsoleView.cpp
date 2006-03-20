@@ -37,8 +37,6 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
 , m_consoleHandler()
 , m_screenBuffer()
-, m_bMouseDragable(false)
-, m_bInverseShift(false)
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
@@ -239,31 +237,23 @@ LRESULT ConsoleView::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
 
 LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
 
-	UINT	uiFlags = static_cast<UINT>(wParam);
-	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	UINT				uiFlags = static_cast<UINT>(wParam);
+	CPoint				point(LOWORD(lParam), HIWORD(lParam));
+	MouseDragSettings&	mouseDragSettings = g_settingsHandler->GetBehaviorSettings().mouseDragSettings;
 
-	if (!m_bMouseDragable || (m_bInverseShift == !(uiFlags & MK_SHIFT))) {
+	if (!mouseDragSettings.bMouseDrag || (mouseDragSettings.bInverseShift == !(uiFlags & MK_SHIFT))) {
 		
-		if (m_nCharWidth) {
-
-			if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
-
-			m_selectionHandler->StartSelection(point, static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwColumns - 1), static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwRows - 1));
-//			BitBltOffscreen();
-		}
+		// start selection
+		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
+		m_selectionHandler->StartSelection(point, static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwColumns - 1), static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwRows - 1));
 		
 	} else {
-//		GetParent().SetCapture();
+		// mouse drag
+		// selection active, return
+		if (m_selectionHandler->GetState() > SelectionHandler::selstateNoSelection) return 0;
 
-		// TODO: drag window
-/*
-		if (m_nTextSelection) {
-			return;
-		} else if (m_bMouseDragable) {
-			// start to drag window
-			::SetCapture(m_hWnd);
-		}
-*/
+		ClientToScreen(&point);
+		GetParent().PostMessage(UM_START_MOUSE_DRAG, wParam, MAKELPARAM(point.x, point.y));
 	}
 
 	return 0;

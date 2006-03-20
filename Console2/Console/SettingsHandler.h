@@ -194,6 +194,22 @@ struct CopyPasteSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct MouseDragSettings : public SettingsBase {
+
+	MouseDragSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	bool	bMouseDrag;
+	bool	bInverseShift;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase {
 
 	BehaviorSettings ();
@@ -202,6 +218,7 @@ struct BehaviorSettings : public SettingsBase {
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 	CopyPasteSettings	copyPasteSettings;
+	MouseDragSettings	mouseDragSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

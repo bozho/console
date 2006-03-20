@@ -480,6 +480,56 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
+MouseDragSettings::MouseDragSettings()
+: bMouseDrag(false)
+, bInverseShift(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pMouseDragElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
+
+	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag, false);
+	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift, false);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pMouseDragElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
+
+	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag);
+	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -492,6 +542,7 @@ BehaviorSettings::BehaviorSettings()
 bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	copyPasteSettings.Load(pOptionsRoot);
+	mouseDragSettings.Load(pOptionsRoot);
 	return true;
 }
 
@@ -503,6 +554,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	copyPasteSettings.Save(pOptionsRoot);
+	mouseDragSettings.Save(pOptionsRoot);
 	return true;
 }
 

@@ -25,6 +25,7 @@ MainFrame::MainFrame()
 , m_bStatusBarVisible(TRUE)
 , m_bTabsVisible(TRUE)
 , m_dockPosition(dockNone)
+, m_mousedragOffset(0, 0)
 , m_mapViews()
 , m_dwWindowWidth(0)
 , m_dwWindowHeight(0)
@@ -306,8 +307,7 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	if (windowSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
 
-	if (!(pWinPos->flags & SWP_NOMOVE) &&
-		(pWinPos->cx != 0) && (pWinPos->cy != 0)) {
+	if (!(pWinPos->flags & SWP_NOMOVE)) {
 
 		m_dockPosition	= dockNone;
 		
@@ -340,8 +340,8 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 				nLR = 0;
 			}
 			
-			if (pWinPos->x >= rectDesktop.right - pWinPos->cx - nSnapDistance) {
-				pWinPos->x = rectDesktop.right - pWinPos->cx;
+			if (pWinPos->x >= rectDesktop.right - rectWindow.Width() - nSnapDistance) {
+				pWinPos->x = rectDesktop.right - rectWindow.Width();
 				nLR = 1;
 			}
 			
@@ -350,8 +350,8 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 				nTB = 0;
 			}
 			
-			if (pWinPos->y >= rectDesktop.bottom - pWinPos->cy - nSnapDistance) {
-				pWinPos->y = rectDesktop.bottom - pWinPos->cy;
+			if (pWinPos->y >= rectDesktop.bottom - rectWindow.Height() - nSnapDistance) {
+				pWinPos->y = rectDesktop.bottom - rectWindow.Height();
 				nTB = 2;
 			}
 
@@ -374,10 +374,51 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 				InvalidateRect(&rectClient, FALSE);
 			}
 		}
+
 		return 0;
 	}
 
 	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+
+	::ReleaseCapture();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	UINT	uiFlags = static_cast<UINT>(wParam);
+	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+
+	if (uiFlags & MK_LBUTTON) {
+
+		ClientToScreen(&point);
+		SetWindowPos(
+			NULL, 
+			point.x - m_mousedragOffset.x, 
+			point.y - m_mousedragOffset.y, 
+			0, 
+			0,
+			SWP_NOSIZE|SWP_NOZORDER);
+
+		RedrawWindow(NULL, NULL, RDW_UPDATENOW|RDW_ALLCHILDREN);
+	}
+
 	return 0;
 }
 
@@ -488,6 +529,26 @@ LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 	UpdateTabsMenu(popupMenu, tabsMenu);
 	popupMenu.TrackPopupMenu(0, point.x, point.y, m_hWnd);
 
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	CRect	windowRect;
+
+	GetWindowRect(windowRect);
+
+	m_mousedragOffset = point;
+	m_mousedragOffset.x -= windowRect.left;
+	m_mousedragOffset.y -= windowRect.top;
+
+	SetCapture();
 	return 0;
 }
 

@@ -103,6 +103,13 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	}
 	m_bInitializing = false;
 
+	// set current language in the console window
+	::PostMessage(
+		m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, 
+		WM_INPUTLANGCHANGEREQUEST, 
+		0, 
+		reinterpret_cast<LPARAM>(::GetKeyboardLayout(0)));
+
 	// scrollbar stuff
 	InitializeScrollbars();
 
@@ -329,6 +336,18 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 		BitBltOffscreen(true);
 	}
 
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled) {
+
+	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	bHandled = FALSE;
 	return 0;
 }
 

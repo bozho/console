@@ -74,6 +74,67 @@ struct FontSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct WindowSettings : public SettingsBase {
+
+	WindowSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	wstring			strTitle;
+	wstring			strIcon;
+	bool			bUseTabIcon;
+	bool			bShowCommand;
+	bool			bShowCommandInTabs;
+	bool			bUseTabTitles;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct ControlsSettings {
+
+	ControlsSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	bool			bShowMenu;
+	bool			bShowToolbar;
+	bool			bShowTabs;
+	bool			bShowStatusbar;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct StylesSettings : public SettingsBase {
+
+	StylesSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+
+	bool			bCaption;
+	bool			bResizable;
+	bool			bTaskbarButton;
+	bool			bBorder;
+	DWORD			dwInsideBoder;
+	// TODO: tray icon
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 enum DockPosition {
 
 	dockNone	= -1,
@@ -93,30 +154,12 @@ enum ZOrder {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct WindowSettings : public SettingsBase {
+struct PositionSettings : public SettingsBase {
 
-	WindowSettings();
+	PositionSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-
-	wstring			strTitle;
-	wstring			strIcon;
-	bool			bUseTabIcon;
-	bool			bShowCommand;
-	bool			bShowCommandInTabs;
-	bool			bUseTabTitles;
-
-	bool			bShowMenu;
-	bool			bShowToolbar;
-	bool			bShowTabs;
-	bool			bShowStatusbar;
-
-	bool			bCaption;
-	bool			bResizable;
-	bool			bTaskbarButton;
-	bool			bBorder;
-	DWORD			dwInsideBoder;
 
 	int				nX;
 	int				nY;
@@ -169,6 +212,9 @@ struct AppearanceSettings : public SettingsBase {
 
 	FontSettings			fontSettings;
 	WindowSettings			windowSettings;
+	ControlsSettings		controlsSettings;
+	StylesSettings			stylesSettings;
+	PositionSettings		positionSettings;
 	TransparencySettings	transparencySettings;
 };
 

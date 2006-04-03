@@ -46,11 +46,12 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 			MESSAGE_HANDLER(WM_KEYDOWN, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_KEYUP, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnConsoleFwdMsg)
-			MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
 			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+			MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
+			MESSAGE_HANDLER(WM_MBUTTONDOWN, OnMButtonDown)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGEREQUEST, OnInputLangChangeRequest)
@@ -67,11 +68,12 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnMButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

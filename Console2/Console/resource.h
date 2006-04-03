@@ -12,6 +12,8 @@
 #define IDD_SETTINGS_APPEARANCE         207
 #define IDD_SETTINGS_HOTKEYS            208
 #define IDD_SETTINGS_TRANSPARENCY       209
+#define IDD_SETTINGS_STYLES             209
+#define IDD_SETTINGS_TEMP               210
 #define ID_NEW_TAB_1                    1000
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -70,7 +72,10 @@
 #define IDC_INACTIVE_ALPHA              1056
 #define IDC_SPIN_CHANGE_REFRESH         1056
 #define IDC_SPIN_REFRESH                1057
+#define IDC_BTN_BROWSE_ICON             1057
 #define IDC_SPIN_ROWS                   1058
+#define IDC_ACTIVE_ALPHA2               1058
+#define IDC_SPIN_INSIDE_BORDER2         1058
 #define IDC_SPIN_BUFFER_ROWS            1059
 #define IDC_SPIN_COLUMNS                1060
 #define IDC_SPIN_BUFFER_COLUMNS         1061
@@ -101,6 +106,8 @@
 #define IDC_CHECK_STYLE_BORDER          1090
 #define IDC_INSIDE_BORDER               1091
 #define IDC_POS_X                       1092
+#define IDC_CHECK_STYLE_BORDER2         1092
+#define IDC_CHECK_STYLE_TRAY            1092
 #define IDC_POS_Y                       1093
 #define IDC_RADIO_DOCK_NONE             1094
 #define IDC_RADIO_DOCK_TL               1095
@@ -117,6 +124,12 @@
 #define IDC_SPIN_X                      1106
 #define IDC_SPIN_Y                      1107
 #define IDC_SPIN_SNAP                   1108
+#define IDC_WINDOW_TITLE                1109
+#define IDC_WINDOW_ICON                 1110
+#define IDC_CHECK_USE_TAB_TITLE         1111
+#define IDC_CHECK_USE_TAB_ICON          1112
+#define IDC_CHECK_SHOW_COMMAND          1113
+#define IDC_CHECK_SHOW_COMMAND_TABS     1114
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -136,7 +149,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        208
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1107
+#define _APS_NEXT_CONTROL_VALUE         1114
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

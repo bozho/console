@@ -154,6 +154,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	if ((m_tabData->backgroundImageType != bktypeNone) && m_tabData->IsBackgroundRelative()) {
 		// we need to update offscreen buffers here for relative backgrounds
+		TRACE(L"Boink 3\n");
 		UpdateOffscreen(dc.m_ps.rcPaint);
 	}
 
@@ -196,17 +197,6 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	return 0;
 }
 
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT ConsoleView::OnRButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
-
-	GetParent().SendMessage(UM_SHOW_POPUP_MENU, wParam, lParam);
-	return 0;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -295,6 +285,28 @@ LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT ConsoleView::OnRButtonUp(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
+
+	GetParent().SendMessage(UM_SHOW_POPUP_MENU, wParam, lParam);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnMButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+
+	Paste();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
 
 	UINT	uiFlags = static_cast<UINT>(wParam);
@@ -353,12 +365,12 @@ LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM l
 
 void ConsoleView::GetRect(CRect& clientRect) {
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	clientRect.left		= 0;
 	clientRect.top		= 0;
-	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns*m_nCharWidth + 2*windowSettings.dwInsideBoder;
-	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows*m_nCharHeight + 2*windowSettings.dwInsideBoder;
+	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns*m_nCharWidth + 2*stylesSettings.dwInsideBoder;
+	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows*m_nCharHeight + 2*stylesSettings.dwInsideBoder;
 
 	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
@@ -373,13 +385,13 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect) {
 
 	if (m_bInitializing) return false;
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	// TODO: take care of max window size
 	maxClientRect.left	= 0;
 	maxClientRect.top	= 0;
-	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*windowSettings.dwInsideBoder;
-	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*windowSettings.dwInsideBoder;
+	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBoder;
+	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBoder;
 
 	CWindow desktopWindow(::GetDesktopWindow());
 	CRect	rectDesktop;
@@ -388,18 +400,18 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect) {
 	desktopWindow.GetWindowRect(rectDesktop);
 
 	if (rectDesktop.Width() < maxClientRect.Width()) {
-		m_consoleHandler.GetConsoleParams()->dwMaxColumns = (rectDesktop.Width() - 2*windowSettings.dwInsideBoder) / m_nCharWidth;
+		m_consoleHandler.GetConsoleParams()->dwMaxColumns = (rectDesktop.Width() - 2*stylesSettings.dwInsideBoder) / m_nCharWidth;
 		bRecalc = true;
 	}
 
 	if (rectDesktop.Height() < maxClientRect.Height()) {
-		m_consoleHandler.GetConsoleParams()->dwMaxRows = (rectDesktop.Height() - 2*windowSettings.dwInsideBoder) / m_nCharHeight;
+		m_consoleHandler.GetConsoleParams()->dwMaxRows = (rectDesktop.Height() - 2*stylesSettings.dwInsideBoder) / m_nCharHeight;
 		bRecalc = true;
 	}
 
 	if (bRecalc) {
-		maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*windowSettings.dwInsideBoder;
-		maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*windowSettings.dwInsideBoder;
+		maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBoder;
+		maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBoder;
 	}
 
 	if (m_bShowVScroll) maxClientRect.right	+= m_nVScrollWidth;
@@ -415,7 +427,7 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect) {
 
 void ConsoleView::AdjustRectAndResize(CRect& clientRect) {
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	GetWindowRect(&clientRect);
 /*
@@ -428,11 +440,11 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect) {
 	if (m_bShowHScroll) clientRect.bottom	-= m_nHScrollWidth;
 
 	// TODO: handle variable fonts
-	DWORD dwColumns	= (clientRect.Width() - 2*windowSettings.dwInsideBoder) / m_nCharWidth;
-	DWORD dwRows	= (clientRect.Height() - 2*windowSettings.dwInsideBoder) / m_nCharHeight;
+	DWORD dwColumns	= (clientRect.Width() - 2*stylesSettings.dwInsideBoder) / m_nCharWidth;
+	DWORD dwRows	= (clientRect.Height() - 2*stylesSettings.dwInsideBoder) / m_nCharHeight;
 
-	clientRect.right	= clientRect.left + dwColumns*m_nCharWidth + 2*windowSettings.dwInsideBoder;
-	clientRect.bottom	= clientRect.top + dwRows*m_nCharHeight + 2*windowSettings.dwInsideBoder;
+	clientRect.right	= clientRect.left + dwColumns*m_nCharWidth + 2*stylesSettings.dwInsideBoder;
+	clientRect.bottom	= clientRect.top + dwRows*m_nCharHeight + 2*stylesSettings.dwInsideBoder;
 
 	// adjust for scrollbars
 	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
@@ -479,9 +491,9 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive) {
 //////////////////////////////////////////////////////////////////////////////
 
 void ConsoleView::RecreateOffscreenBuffers() {
-	m_fontText.DeleteObject();
-	m_bmpOffscreen.DeleteObject();
-	m_bmpText.DeleteObject();
+	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
+	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
+	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
 	CreateOffscreenBuffers();
 }
 
@@ -921,10 +933,10 @@ void ConsoleView::RepaintText() {
 	bkgdBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 	m_dcText.FillRect(&bitmapRect, bkgdBrush);
 	
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	DWORD dwX			= windowSettings.dwInsideBoder;
-	DWORD dwY			= windowSettings.dwInsideBoder;
+	DWORD dwX			= stylesSettings.dwInsideBoder;
+	DWORD dwY			= stylesSettings.dwInsideBoder;
 	DWORD dwOffset		= 0;
 	
 	WORD attrBG;
@@ -953,8 +965,8 @@ void ConsoleView::RepaintText() {
 		// fixed pitch font
 		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i) {
 			
-			dwX = windowSettings.dwInsideBoder;
-			dwY = i*m_nCharHeight + windowSettings.dwInsideBoder;
+			dwX = stylesSettings.dwInsideBoder;
+			dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
 
 //			nBkMode			= TRANSPARENT;
 			crBkColor		= RGB(0, 0, 0);
@@ -1088,10 +1100,10 @@ void ConsoleView::RepaintTextChanges() {
 	m_bmpText.GetSize(bitmapSize);
 	bkgdBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	DWORD	dwX			= windowSettings.dwInsideBoder;
-	DWORD	dwY			= windowSettings.dwInsideBoder;
+	DWORD	dwX			= stylesSettings.dwInsideBoder;
+	DWORD	dwY			= stylesSettings.dwInsideBoder;
 	DWORD	dwOffset	= 0;
 	
 	WORD	attrBG;
@@ -1104,8 +1116,8 @@ void ConsoleView::RepaintTextChanges() {
 		// fixed pitch font
 		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i) {
 			
-			dwX = windowSettings.dwInsideBoder;
-			dwY = i*m_nCharHeight + windowSettings.dwInsideBoder;
+			dwX = stylesSettings.dwInsideBoder;
+			dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
 
 			for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j) {
 
@@ -1226,7 +1238,7 @@ void ConsoleView::RepaintTextChanges() {
 void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 
 	CRect			rectBlit;
-	WindowSettings&	windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	if (bOnlyCursor) {
 		// blit only cursor
@@ -1235,10 +1247,10 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/) {
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
 		rectBlit		= m_cursor->GetCursorRect();
-		rectBlit.left	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + windowSettings.dwInsideBoder;
-		rectBlit.top	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + windowSettings.dwInsideBoder;
-		rectBlit.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + windowSettings.dwInsideBoder;
-		rectBlit.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + windowSettings.dwInsideBoder;
+		rectBlit.left	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
+		rectBlit.top	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
+		rectBlit.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
+		rectBlit.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
 	} else {
 		// blit rect is entire view
 		GetClientRect(&rectBlit);
@@ -1340,13 +1352,13 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit) {
 	if (m_consoleHandler.GetCursorInfo()->bVisible && (m_cursor.get() != NULL)) {
 		CRect			rectCursor(0, 0, 0, 0);
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
-		WindowSettings&	windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 		rectCursor			= m_cursor->GetCursorRect();
-		rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + windowSettings.dwInsideBoder;
-		rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + windowSettings.dwInsideBoder;
-		rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + windowSettings.dwInsideBoder;
-		rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + windowSettings.dwInsideBoder;
+		rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
+		rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
+		rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
+		rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
 		m_cursor->BitBlt(
 					m_dcOffscreen, 

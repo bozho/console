@@ -108,26 +108,27 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	SetWindowStyles();
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
+	PositionSettings& positionSettings = g_settingsHandler->GetAppearanceSettings().positionSettings;
 
-	ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
-	ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
-	ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
-	ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
+	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
+	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
+	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
+	ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
 
 	HWND hwndZ		= HWND_NOTOPMOST;
 	DWORD dwFlags	= SWP_NOSIZE;
 
-	switch (windowSettings.zOrder) {
+	switch (positionSettings.zOrder) {
 		case zorderNormal	: hwndZ = HWND_NOTOPMOST; break;
 		case zorderOnTop	: hwndZ = HWND_TOPMOST; break;
 		case zorderOnBottom	: hwndZ = HWND_BOTTOM; break;
 	}
 
-	if ((windowSettings.nX == -1) || (windowSettings.nY == -1)) dwFlags |= SWP_NOMOVE;
+	if ((positionSettings.nX == -1) || (positionSettings.nY == -1)) dwFlags |= SWP_NOMOVE;
 
-	SetWindowPos(hwndZ, windowSettings.nX, windowSettings.nY, 0, 0, dwFlags);
-	DockWindow(windowSettings.dockPosition);
+	SetWindowPos(hwndZ, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
+	DockWindow(positionSettings.dockPosition);
 
 	SetWindowText(g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str());
 
@@ -302,18 +303,18 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled) {
 
-	WINDOWPOS*		pWinPos			= reinterpret_cast<WINDOWPOS*>(lParam);
-	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+	WINDOWPOS*			pWinPos			= reinterpret_cast<WINDOWPOS*>(lParam);
+	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
-	if (windowSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
+	if (positionSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
 
 	if (!(pWinPos->flags & SWP_NOMOVE)) {
 
+		TRACE(L"Boink\n");
+
 		m_dockPosition	= dockNone;
 		
-		int nSnapDistance	= windowSettings.nSnapDistance;
-
-		if (nSnapDistance >= 0) {
+		if (positionSettings.nSnapDistance >= 0) {
 
 			CRect	rectMonitor;
 			CRect	rectDesktop;
@@ -335,22 +336,22 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			int	nTB = -1;
 
 			// now, see if we're close to the edges
-			if (pWinPos->x <= rectDesktop.left + nSnapDistance) {
+			if (pWinPos->x <= rectDesktop.left + positionSettings.nSnapDistance) {
 				pWinPos->x = rectDesktop.left;
 				nLR = 0;
 			}
 			
-			if (pWinPos->x >= rectDesktop.right - rectWindow.Width() - nSnapDistance) {
+			if (pWinPos->x >= rectDesktop.right - rectWindow.Width() - positionSettings.nSnapDistance) {
 				pWinPos->x = rectDesktop.right - rectWindow.Width();
 				nLR = 1;
 			}
 			
-			if (pWinPos->y <= rectDesktop.top + nSnapDistance) {
+			if (pWinPos->y <= rectDesktop.top + positionSettings.nSnapDistance) {
 				pWinPos->y = rectDesktop.top;
 				nTB = 0;
 			}
 			
-			if (pWinPos->y >= rectDesktop.bottom - rectWindow.Height() - nSnapDistance) {
+			if (pWinPos->y >= rectDesktop.bottom - rectWindow.Height() - positionSettings.nSnapDistance) {
 				pWinPos->y = rectDesktop.bottom - rectWindow.Height();
 				nTB = 2;
 			}
@@ -369,6 +370,7 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			if ((tabData->tabBackground.get() != NULL) &&
 				tabData->tabBackground->bRelative) {
 
+				TRACE(L"Boink 2\n");
 				CRect rectClient;
 				GetClientRect(&rectClient);
 				InvalidateRect(&rectClient, FALSE);
@@ -782,15 +784,15 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 	if (dlg.DoModal() == IDOK) {
 
-		WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	
 		SetTransparency();
 		CreateAcceleratorTable();
 
-		ShowMenu(windowSettings.bShowMenu ? TRUE : FALSE);
-		ShowToolbar(windowSettings.bShowToolbar ? TRUE : FALSE);
-		ShowTabs(windowSettings.bShowTabs ? TRUE : FALSE);
-		ShowStatusbar(windowSettings.bShowStatusbar ? TRUE : FALSE);
+		ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
+		ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
+		ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
+		ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
 
 		m_activeView->RecreateOffscreenBuffers();
 		AdjustWindowSize(false);
@@ -1118,20 +1120,20 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 
 void MainFrame::SetWindowStyles() {
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	DWORD	dwStyle		= GetWindowLong(GWL_STYLE);
 	DWORD	dwExStyle	= GetWindowLong(GWL_EXSTYLE);
 
-	if (!windowSettings.bCaption)	dwStyle &= ~WS_CAPTION;
-	if (!windowSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
-	if (!windowSettings.bTaskbarButton) {
+	if (!stylesSettings.bCaption)	dwStyle &= ~WS_CAPTION;
+	if (!stylesSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
+	if (!stylesSettings.bTaskbarButton) {
 		dwStyle		&= ~WS_MINIMIZEBOX;
 		dwExStyle	|= WS_EX_TOOLWINDOW;
 		dwExStyle	&= ~WS_EX_APPWINDOW;
 	}
 
-	if (windowSettings.bBorder) dwStyle |= WS_BORDER;
+	if (stylesSettings.bBorder) dwStyle |= WS_BORDER;
 
 	SetWindowLong(GWL_STYLE, dwStyle);
 	SetWindowLong(GWL_EXSTYLE, dwExStyle);

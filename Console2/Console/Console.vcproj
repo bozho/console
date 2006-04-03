@@ -168,7 +168,7 @@
 				RelativePath=".\DlgSettingsMain.cpp">
 			</File>
 			<File
-				RelativePath=".\DlgSettingsTransparency.cpp">
+				RelativePath=".\DlgSettingsStyles.cpp">
 			</File>
 			<File
 				RelativePath=".\Helpers.cpp">
@@ -244,7 +244,7 @@
 				RelativePath=".\DlgSettingsMain.h">
 			</File>
 			<File
-				RelativePath=".\DlgSettingsTransparency.h">
+				RelativePath=".\DlgSettingsStyles.h">
 			</File>
 			<File
 				RelativePath=".\FastDelegate.h">

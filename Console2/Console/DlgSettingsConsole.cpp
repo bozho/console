@@ -174,7 +174,6 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /
 //////////////////////////////////////////////////////////////////////////////
 
 
-
 //////////////////////////////////////////////////////////////////////////////
 
 LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {

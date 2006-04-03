@@ -51,14 +51,14 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 
 	m_consoleView.SetCapture();
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	CPoint	p(pointInitial);
-	if (p.x < static_cast<LONG>(windowSettings.dwInsideBoder)) p.x = windowSettings.dwInsideBoder;
-	if (p.y < static_cast<LONG>(windowSettings.dwInsideBoder)) p.y = windowSettings.dwInsideBoder;
+	if (p.x < static_cast<LONG>(stylesSettings.dwInsideBoder)) p.x = stylesSettings.dwInsideBoder;
+	if (p.y < static_cast<LONG>(stylesSettings.dwInsideBoder)) p.y = stylesSettings.dwInsideBoder;
 
-	m_coordInitial.X= static_cast<SHORT>((p.x - windowSettings.dwInsideBoder) / m_nCharWidth);
-	m_coordInitial.Y= static_cast<SHORT>((p.y - windowSettings.dwInsideBoder) / m_nCharHeight);
+	m_coordInitial.X= static_cast<SHORT>((p.x - stylesSettings.dwInsideBoder) / m_nCharWidth);
+	m_coordInitial.Y= static_cast<SHORT>((p.y - stylesSettings.dwInsideBoder) / m_nCharHeight);
 
 /*
 	if (m_coordInitial.X < 0) m_coordInitial.X = 0;
@@ -101,12 +101,12 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 
 	CPoint p(point);
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	if (p.x < static_cast<LONG>(windowSettings.dwInsideBoder)) p.x = windowSettings.dwInsideBoder;
-	if (p.y < static_cast<LONG>(windowSettings.dwInsideBoder)) p.y = windowSettings.dwInsideBoder;
+	if (p.x < static_cast<LONG>(stylesSettings.dwInsideBoder)) p.x = stylesSettings.dwInsideBoder;
+	if (p.y < static_cast<LONG>(stylesSettings.dwInsideBoder)) p.y = stylesSettings.dwInsideBoder;
 
-	COORD	coordCurrent = { static_cast<SHORT>((p.x - windowSettings.dwInsideBoder) / m_nCharWidth), static_cast<SHORT>((p.y - windowSettings.dwInsideBoder) / m_nCharHeight) };
+	COORD	coordCurrent = { static_cast<SHORT>((p.x - stylesSettings.dwInsideBoder) / m_nCharWidth), static_cast<SHORT>((p.y - stylesSettings.dwInsideBoder) / m_nCharHeight) };
 
 /*
 	if (coordCurrent.X < 0) coordCurrent.X = 0;
@@ -135,11 +135,11 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	// paint the first row rect
 	CRect rect;
 
-	rect.left	= coordStart.X * m_nCharWidth + windowSettings.dwInsideBoder;
-	rect.top	= coordStart.Y * m_nCharHeight + windowSettings.dwInsideBoder;
+	rect.left	= coordStart.X * m_nCharWidth + stylesSettings.dwInsideBoder;
+	rect.top	= coordStart.Y * m_nCharHeight + stylesSettings.dwInsideBoder;
 
-	rect.right	= (coordStart.Y < coordEnd.Y) ? (m_sXMax + 1) * m_nCharWidth + windowSettings.dwInsideBoder : (coordEnd.X + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
-	rect.bottom	= (coordStart.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
+	rect.right	= (coordStart.Y < coordEnd.Y) ? (m_sXMax + 1) * m_nCharWidth + stylesSettings.dwInsideBoder : (coordEnd.X + 1) * m_nCharWidth + stylesSettings.dwInsideBoder;
+	rect.bottom	= (coordStart.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
 //	TRACE(L"Sel update rect: %ix%i - %ix%i\n", rect.left, rect.top, rect.right, rect.bottom);
 	m_dcSelection.FillRect(&rect, m_paintBrush);
@@ -147,11 +147,11 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	// paint the rows in between
 	if (coordStart.Y < coordEnd.Y - 1) {
 
-		rect.left	= windowSettings.dwInsideBoder;
-		rect.top	= (coordStart.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
+		rect.left	= stylesSettings.dwInsideBoder;
+		rect.top	= (coordStart.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
-		rect.right	= (m_sXMax + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
-		rect.bottom	= coordEnd.Y * m_nCharHeight + windowSettings.dwInsideBoder;
+		rect.right	= (m_sXMax + 1) * m_nCharWidth + stylesSettings.dwInsideBoder;
+		rect.bottom	= coordEnd.Y * m_nCharHeight + stylesSettings.dwInsideBoder;
 
 		m_dcSelection.FillRect(&rect, m_paintBrush);
 	}
@@ -159,11 +159,11 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	// paint the last row
 	if (coordStart.Y < coordEnd.Y) {
 
-		rect.left	= windowSettings.dwInsideBoder;
-		rect.top	= (coordStart.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
+		rect.left	= stylesSettings.dwInsideBoder;
+		rect.top	= (coordStart.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
-		rect.right	= (coordEnd.X + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
-		rect.bottom	= (coordEnd.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
+		rect.right	= (coordEnd.X + 1) * m_nCharWidth + stylesSettings.dwInsideBoder;
+		rect.bottom	= (coordEnd.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
 		m_dcSelection.FillRect(&rect, m_paintBrush);
 	}
@@ -188,12 +188,12 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 		CPoint	p(*pPoint);
 
-		WindowSettings& windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-		if (p.x < static_cast<LONG>(windowSettings.dwInsideBoder)) p.x = windowSettings.dwInsideBoder;
-		if (p.y < static_cast<LONG>(windowSettings.dwInsideBoder)) p.y = windowSettings.dwInsideBoder;
+		if (p.x < static_cast<LONG>(stylesSettings.dwInsideBoder)) p.x = stylesSettings.dwInsideBoder;
+		if (p.y < static_cast<LONG>(stylesSettings.dwInsideBoder)) p.y = stylesSettings.dwInsideBoder;
 
-		COORD			coordCurrent	= { static_cast<SHORT>((p.x - windowSettings.dwInsideBoder) / m_nCharWidth), static_cast<SHORT>((p.y - windowSettings.dwInsideBoder) / m_nCharHeight) };
+		COORD			coordCurrent	= { static_cast<SHORT>((p.x - stylesSettings.dwInsideBoder) / m_nCharWidth), static_cast<SHORT>((p.y - stylesSettings.dwInsideBoder) / m_nCharHeight) };
 
 		if (coordCurrent.X < 0) coordCurrent.X = 0;
 		if (coordCurrent.Y < 0) coordCurrent.Y = 0;
@@ -247,14 +247,16 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 		pszRow[dwOffset] = L'\x0';
 		strText += wstring(pszRow.get());
 
-		if (copyPasteSettings.bNoWrap && 
-			(wcslen(pszRow.get()) == static_cast<size_t>(m_sXMax+1)) && 
-			(strText[strText.length() - 1] != L' ')) {
+		if ((copyPasteSettings.bNoWrap && 
+			(coordStart.Y < coordEnd.Y) &&
+			(strText[strText.length() - 1] != L' ')) ||
+
+			(coordStart.Y == coordEnd.Y)) {
 		
 			bWrap = false;
 		}
 
-		if (copyPasteSettings.bTrimSpaces && bWrap) trim_right(strText);
+		if (copyPasteSettings.bTrimSpaces) trim_right(strText);
 		if (bWrap) strText += wstring(L"\n");
 
 		// rows in between
@@ -275,7 +277,7 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 				bWrap = false;
 			}
 
-			if (copyPasteSettings.bTrimSpaces && bWrap) trim_right(strText);
+			if (copyPasteSettings.bTrimSpaces) trim_right(strText);
 			if (bWrap) strText += wstring(L"\n");
 		}
 
@@ -294,25 +296,22 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 			pszRow[dwOffset] = L'\x0';
 			strText += wstring(pszRow.get());
 
-			if (copyPasteSettings.bNoWrap && 
-				(wcslen(pszRow.get()) == static_cast<size_t>(m_sXMax+1)) && 
-				(strText[strText.length() - 1] != L' ')) {
-			
+			if (wcslen(pszRow.get()) < static_cast<size_t>(m_sXMax+1)) {
 				bWrap = false;
 			}
 
-			if (copyPasteSettings.bTrimSpaces && bWrap) trim_right(strText);
+			if (copyPasteSettings.bTrimSpaces) trim_right(strText);
 			if (bWrap) strText += wstring(L"\n");
 		}
 
-		HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, strText.length()*sizeof(wchar_t));
+		HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, (strText.length()+1)*sizeof(wchar_t));
 
 		if (hText == NULL) { 
 			::CloseClipboard();
 			return;
 		} 
 
-		::CopyMemory(static_cast<wchar_t*>(::GlobalLock(hText)), strText.c_str(), strText.length()*sizeof(wchar_t));
+		::CopyMemory(static_cast<wchar_t*>(::GlobalLock(hText)), strText.c_str(), (strText.length()+1)*sizeof(wchar_t));
 
 		::GlobalUnlock(hText);
 
@@ -370,15 +369,15 @@ void SelectionHandler::BitBlt(CDC& offscreenDC) {
 	COORD	coordEnd;
 	CRect	selectionRect;
 
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	GetSelectionCoordinates(coordStart, coordEnd);
 
-	selectionRect.left	= windowSettings.dwInsideBoder;
-	selectionRect.top	= coordStart.Y * m_nCharHeight + windowSettings.dwInsideBoder;
+	selectionRect.left	= stylesSettings.dwInsideBoder;
+	selectionRect.top	= coordStart.Y * m_nCharHeight + stylesSettings.dwInsideBoder;
 
-	selectionRect.right	= (m_sXMax + 1) * m_nCharWidth + windowSettings.dwInsideBoder;
-	selectionRect.bottom= (coordEnd.Y + 1) * m_nCharHeight + windowSettings.dwInsideBoder;
+	selectionRect.right	= (m_sXMax + 1) * m_nCharWidth + stylesSettings.dwInsideBoder;
+	selectionRect.bottom= (coordEnd.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
 	offscreenDC.BitBlt(
 					selectionRect.left, 

@@ -5,7 +5,7 @@
 
 #include "DlgSettingsConsole.h"
 #include "DlgSettingsAppearance.h"
-#include "DlgSettingsTransparency.h"
+#include "DlgSettingsStyles.h"
 #include "DlgSettingsHotkeys.h"
 #include "DlgSettingsMain.h"
 
@@ -131,8 +131,8 @@ void DlgSettingsMain::CreateSettingsTree() {
 	HTREEITEM htiAppearance = AddDialogToTree(L"Appearance", dlgAppearance, rect);
 
 	// create transparency settings dialog
-	shared_ptr<DlgSettingsBase>	dlgTransparency(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTransparency(m_pOptionsRoot)));
-	AddDialogToTree(L"Transparency", dlgTransparency, rect, htiAppearance);
+	shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pOptionsRoot)));
+	AddDialogToTree(L"Transparency", dlgStyles, rect, htiAppearance);
 
 	// create hotkeys settings dialog
 	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pOptionsRoot)));

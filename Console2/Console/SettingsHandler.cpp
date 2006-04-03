@@ -203,23 +203,8 @@ WindowSettings::WindowSettings()
 , bShowCommand(true)
 , bShowCommandInTabs(true)
 , bUseTabTitles(false)
-, bShowMenu(true)
-, bShowToolbar(true)
-, bShowTabs(true)
-, bShowStatusbar(true)
-, bCaption(true)
-, bResizable(true)
-, bTaskbarButton(true)
-, bBorder(true)
-, dwInsideBoder(2)
-, nX(-1)
-, nY(-1)
-, zOrder(zorderNormal)
-, dockPosition(dockNone)
-, nSnapDistance(-1)
 {
 }
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -238,35 +223,6 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd"), bShowCommand, true);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs, true);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles, false);
-
-	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/controls"), pWindowCtrlsElement))) return false;
-
-	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
-	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
-	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
-	XmlHelper::GetAttribute(pWindowCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
-
-	CComPtr<IXMLDOMElement>	pWindowStylesElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/styles"), pWindowStylesElement))) return false;
-
-	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"caption"), bCaption, true);
-	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable, true);
-	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
-	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"border"), bBorder, true);
-	XmlHelper::GetAttribute(pWindowStylesElement, CComBSTR(L"inside_border"), dwInsideBoder, 2);
-
-	CComPtr<IXMLDOMElement>	pWindowPositionElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/position"), pWindowPositionElement))) return false;
-
-	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"x"), nX, -1);
-	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"y"), nY, -1);
-	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"z_order"), reinterpret_cast<int&>(zOrder), static_cast<int>(zorderNormal));
-	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"dock"), reinterpret_cast<int&>(dockPosition), static_cast<int>(dockNone));
-	XmlHelper::GetAttribute(pWindowPositionElement, CComBSTR(L"snap"), nSnapDistance, -1);
 
 	return true;
 }
@@ -289,34 +245,179 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles);
 
-	CComPtr<IXMLDOMElement>	pWindowCtrlsElement;
+	return true;
+}
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/controls"), pWindowCtrlsElement))) return false;
+//////////////////////////////////////////////////////////////////////////////
 
-	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
-	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
-	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
-	XmlHelper::SetAttribute(pWindowCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
 
-	CComPtr<IXMLDOMElement>	pWindowStylesElement;
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/styles"), pWindowStylesElement))) return false;
 
-	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"caption"), bCaption);
-	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"resizable"), bResizable);
-	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
-	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"border"), bBorder);
-	XmlHelper::SetAttribute(pWindowStylesElement, CComBSTR(L"inside_border"), dwInsideBoder);
+//////////////////////////////////////////////////////////////////////////////
 
-	CComPtr<IXMLDOMElement>	pWindowPositionElement;
+ControlsSettings::ControlsSettings()
+: bShowMenu(true)
+, bShowToolbar(true)
+, bShowTabs(true)
+, bShowStatusbar(true)
+{
+}
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window/position"), pWindowPositionElement))) return false;
+//////////////////////////////////////////////////////////////////////////////
 
-	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"x"), nX);
-	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"y"), nY);
-	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"z_order"), static_cast<int>(zOrder));
-	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"dock"), static_cast<int>(dockPosition));
-	XmlHelper::SetAttribute(pWindowPositionElement, CComBSTR(L"snap"), nSnapDistance);
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pCtrlsElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
+
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pCtrlsElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
+
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+StylesSettings::StylesSettings()
+: bCaption(true)
+, bResizable(true)
+, bTaskbarButton(true)
+, bBorder(true)
+, dwInsideBoder(2)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pStylesElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
+
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"caption"), bCaption, true);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"resizable"), bResizable, true);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"border"), bBorder, true);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBoder, 2);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pStylesElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
+
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"caption"), bCaption);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"resizable"), bResizable);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"border"), bBorder);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBoder);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+PositionSettings::PositionSettings()
+: nX(-1)
+, nY(-1)
+, zOrder(zorderNormal)
+, dockPosition(dockNone)
+, nSnapDistance(-1)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pPositionElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
+
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"x"), nX, -1);
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"y"), nY, -1);
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"z_order"), reinterpret_cast<int&>(zOrder), static_cast<int>(zorderNormal));
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"dock"), reinterpret_cast<int&>(dockPosition), static_cast<int>(dockNone));
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance, -1);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
+
+	CComPtr<IXMLDOMElement>	pPositionElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
+
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"x"), nX);
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"y"), nY);
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"z_order"), static_cast<int>(zOrder));
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"dock"), static_cast<int>(dockPosition));
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance);
 
 	return true;
 }
@@ -400,6 +501,9 @@ bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	fontSettings.Load(pOptionsRoot);
 	windowSettings.Load(pOptionsRoot);
+	controlsSettings.Load(pOptionsRoot);
+	stylesSettings.Load(pOptionsRoot);
+	positionSettings.Load(pOptionsRoot);
 	transparencySettings.Load(pOptionsRoot);
 	return true;
 }
@@ -413,6 +517,9 @@ bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 	fontSettings.Save(pOptionsRoot);
 	windowSettings.Save(pOptionsRoot);
+	controlsSettings.Save(pOptionsRoot);
+	stylesSettings.Save(pOptionsRoot);
+	positionSettings.Save(pOptionsRoot);
 	transparencySettings.Save(pOptionsRoot);
 	return true;
 }

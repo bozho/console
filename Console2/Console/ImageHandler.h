@@ -4,8 +4,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum ImagePosition {
-
+enum ImagePosition
+{
 	imgPosCenter	= 0,
 	imgPosFit		= 1,
 	imgPosTile		= 2
@@ -13,8 +13,8 @@ enum ImagePosition {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ImageData {
-
+struct ImageData
+{
 	ImageData(const wstring& filename, bool relative, bool extend, ImagePosition position, COLORREF background, COLORREF tint, BYTE tintOpacity)
 	: strFilename(filename)
 	, bRelative(relative)
@@ -33,8 +33,8 @@ struct ImageData {
 	{
 	}
 
-	bool operator==(const ImageData& other) const {
-
+	bool operator==(const ImageData& other) const
+	{
 		if (strFilename != other.strFilename)		return false;
 		if (bRelative != other.bRelative)			return false;
 		if (bExtend != other.bExtend)				return false;
@@ -68,8 +68,8 @@ struct ImageData {
 	CDC					dcImage;
 };
 
-struct MonitorEnumData {
-
+struct MonitorEnumData
+{
 	MonitorEnumData(CDC& dcTempl, shared_ptr<ImageData>& imgData)
 	: imageData(imgData)
 	, dcTemplate(dcTempl)
@@ -91,8 +91,8 @@ typedef vector<shared_ptr<ImageData> >	Images;
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ImageHandler {
-
+class ImageHandler
+{
 	public:
 
 		ImageHandler();

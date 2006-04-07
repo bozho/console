@@ -17,12 +17,12 @@ ConsoleHandler	g_consoleHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /* lpReserved */) {
-
-	switch (ul_reason_for_call) {
-
-		case DLL_PROCESS_ATTACH: {
-
+BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /* lpReserved */)
+{
+	switch (ul_reason_for_call)
+	{
+		case DLL_PROCESS_ATTACH:
+		{
 			g_hModule = (HMODULE)hModule;
 			g_consoleHandler.StartMonitorThread();
 

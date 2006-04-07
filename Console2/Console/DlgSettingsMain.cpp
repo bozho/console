@@ -37,8 +37,8 @@ DlgSettingsMain::DlgSettingsMain()
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	HRESULT hr = S_OK;
 
 	hr = XmlHelper::OpenXmlDocument(
@@ -61,14 +61,16 @@ LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	SettingsDlgsMap::iterator it = m_settingsDlgMap.begin();
-	for (; it != m_settingsDlgMap.end(); ++it) {
+	for (; it != m_settingsDlgMap.end(); ++it)
+	{
 		(it->second)->SendMessage(WM_COMMAND, wID, 0);
 	}
 
-	if (wID == IDOK) {
+	if (wID == IDOK)
+	{
 		m_pOptionsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
 	}
 
@@ -81,22 +83,26 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsMain::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsMain::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
 	NMTREEVIEW* pnmtv = reinterpret_cast<LPNMTREEVIEW>(pnmh);
 
 	SettingsDlgsMap::iterator itOld = m_settingsDlgMap.find(pnmtv->itemOld.hItem);
 	SettingsDlgsMap::iterator itNew = m_settingsDlgMap.find(pnmtv->itemNew.hItem);
 
-	if (itOld != m_settingsDlgMap.end()) {
+	if (itOld != m_settingsDlgMap.end())
+	{
 		(itOld->second)->ShowWindow(SW_HIDE);
-	} else {
+	}
+	else
+	{
 		CWindow	wndPlaceholder(GetDlgItem(IDC_CHILD_PLACEHOLDER));
 
 		wndPlaceholder.ShowWindow(SW_HIDE);
 	}
 
-	if (itNew != m_settingsDlgMap.end()) {
+	if (itNew != m_settingsDlgMap.end())
+	{
 		(itNew->second)->ShowWindow(SW_SHOW);
 	}
 
@@ -113,8 +119,8 @@ LRESULT DlgSettingsMain::OnTreeSelChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DlgSettingsMain::CreateSettingsTree() {
-
+void DlgSettingsMain::CreateSettingsTree()
+{
 	CRect	rect;
 	CWindow	wndPlaceholder(GetDlgItem(IDC_CHILD_PLACEHOLDER));
 
@@ -147,8 +153,8 @@ void DlgSettingsMain::CreateSettingsTree() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/) {
-
+HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/)
+{
 	newDlg->Create(m_hWnd, rect);
 	newDlg->SetWindowPos(HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);
 

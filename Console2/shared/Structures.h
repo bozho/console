@@ -2,8 +2,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ConsoleParams {
-
+struct ConsoleParams
+{
 	ConsoleParams()
 	: dwConsoleMainThreadId(0)
 	, dwParentProcessId(0)
@@ -75,8 +75,8 @@ struct ConsoleParams {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ConsoleSize {
-
+struct ConsoleSize
+{
 	ConsoleSize(DWORD rows, DWORD columns)
 	: dwRows(rows)
 	, dwColumns(columns)

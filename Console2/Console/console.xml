@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="50" rows="50" columns="120" buffer_rows="1000" buffer_columns="0" shell="" init_dir="">
+	<console change_refresh="10" refresh="50" rows="40" columns="120" buffer_rows="1000" buffer_columns="0" shell="" init_dir="">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -26,7 +26,7 @@
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" show_cmd="0" show_cmd_tabs="1" use_tab_title="0"/>
 		<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1"/>
-		<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="0"/>
+		<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="1"/>
 		<position x="-1" y="-1" dock="2" snap="0" z_order="0"/>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>

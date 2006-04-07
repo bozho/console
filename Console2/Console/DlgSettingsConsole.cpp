@@ -32,8 +32,8 @@ DlgSettingsConsole::DlgSettingsConsole(CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	m_consoleSettings.Load(m_pOptionsRoot);
 	m_strShell		= m_consoleSettings.strShell.c_str();
 	m_strInitialDir	= m_consoleSettings.strInitialDir.c_str();
@@ -86,17 +86,16 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled) {
-
-
+LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
 	CWindow		staticCtl(reinterpret_cast<HWND>(lParam));
 	CDCHandle	dc(reinterpret_cast<HDC>(wParam));
 	DWORD		i;
 
-	for (i = IDC_DEF_00; i <= IDC_DEF_15; ++i) {
-
-		if (staticCtl.m_hWnd == GetDlgItem(i)) {
-
+	for (i = IDC_DEF_00; i <= IDC_DEF_15; ++i)
+	{
+		if (staticCtl.m_hWnd == GetDlgItem(i))
+		{
 			CBrush	brush(::CreateSolidBrush(m_consoleSettings.defaultConsoleColors[i-IDC_DEF_00]));
 			CRect	rect;
 
@@ -106,10 +105,10 @@ LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARA
 		}
 	}
 
-	for (i = IDC_CLR_00; i <= IDC_CLR_15; ++i) {
-
-		if (staticCtl.m_hWnd == GetDlgItem(i)) {
-
+	for (i = IDC_CLR_00; i <= IDC_CLR_15; ++i)
+	{
+		if (staticCtl.m_hWnd == GetDlgItem(i))
+		{
 			CBrush	brush(::CreateSolidBrush(m_consoleSettings.consoleColors[i-IDC_CLR_00]));
 			CRect	rect;
 
@@ -128,9 +127,10 @@ LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARA
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
-	if (wID == IDOK) {
+LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (wID == IDOK)
+	{
 		DoDataExchange(DDX_SAVE);
 		m_consoleSettings.strShell		= m_strShell;
 		m_consoleSettings.strInitialDir	= m_strInitialDir;
@@ -154,8 +154,8 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	CFileDialog fileDialog(
 					TRUE, 
 					NULL, 
@@ -163,7 +163,8 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /
 					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
 					L"Executable Files (*.exe)\0*.exe\0All Files (*.*)\0*.*\0\0");
 
-	if (fileDialog.DoModal() == IDOK) {
+	if (fileDialog.DoModal() == IDOK)
+	{
 		m_strShell = fileDialog.m_szFileName;
 		DoDataExchange(DDX_LOAD);
 	}
@@ -176,11 +177,12 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	CFolderDialog folderDialog(m_hWnd, L"Choose initial directory");
 
-	if (folderDialog.DoModal() == IDOK) {
+	if (folderDialog.DoModal() == IDOK)
+	{
 		m_strInitialDir = folderDialog.m_szFolderPath;
 		DoDataExchange(DDX_LOAD);
 	}
@@ -193,8 +195,8 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*w
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	::CopyMemory(m_consoleSettings.consoleColors, m_consoleSettings.defaultConsoleColors, sizeof(m_consoleSettings.defaultConsoleColors));
 
 	DoDataExchange(DDX_LOAD);
@@ -207,11 +209,12 @@ LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsConsole::OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
+{
 	CColorDialog	dlg(m_consoleSettings.consoleColors[wID-IDC_CLR_00], CC_FULLOPEN);
 
-	if (dlg.DoModal() == IDOK) {
+	if (dlg.DoModal() == IDOK)
+	{
 		// update color
 		m_consoleSettings.consoleColors[wID-IDC_CLR_00] = dlg.GetColor();
 		CWindow(hWndCtl).Invalidate();

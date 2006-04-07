@@ -15,8 +15,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum CursorStyle {
-
+enum CursorStyle
+{
 	cstyleXTerm		=	0,
 	cstyleBlock		=	1,
 	cstyleNBBlock	=	2,
@@ -43,7 +43,8 @@ enum CursorStyle {
 //////////////////////////////////////////////////////////////////////////////
 // A base class for all the cursors
 
-class Cursor {
+class Cursor
+{
 	public:
 		Cursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 		: m_hwndConsoleView(hwndConsoleView)
@@ -98,8 +99,8 @@ class Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // Cursor factory
 
-class CursorFactory {
-
+class CursorFactory
+{
 	public:
 		static shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 };
@@ -115,7 +116,8 @@ class CursorFactory {
 //////////////////////////////////////////////////////////////////////////////
 // XTermCursor
 
-class XTermCursor : public Cursor {
+class XTermCursor : public Cursor
+{
 	public:
 		XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~XTermCursor();
@@ -132,7 +134,8 @@ class XTermCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // BlockCursor
 
-class BlockCursor : public Cursor {
+class BlockCursor : public Cursor
+{
 	public:
 		BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~BlockCursor();
@@ -154,7 +157,8 @@ class BlockCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // NBBlockCursor
 
-class NBBlockCursor : public Cursor {
+class NBBlockCursor : public Cursor
+{
 	public:
 		NBBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~NBBlockCursor();
@@ -172,7 +176,8 @@ class NBBlockCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // PulseBlockCursor
 
-class PulseBlockCursor : public Cursor {
+class PulseBlockCursor : public Cursor
+{
 	public:
 		PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~PulseBlockCursor();
@@ -195,7 +200,8 @@ class PulseBlockCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // BarCursor
 
-class BarCursor : public Cursor {
+class BarCursor : public Cursor
+{
 	public:
 		BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~BarCursor();
@@ -217,7 +223,8 @@ class BarCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // ConsoleCursor
 
-class ConsoleCursor : public Cursor {
+class ConsoleCursor : public Cursor
+{
 	public:
 		ConsoleCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~ConsoleCursor();
@@ -237,7 +244,8 @@ class ConsoleCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // NBHLineCursor
 
-class NBHLineCursor : public Cursor {
+class NBHLineCursor : public Cursor
+{
 	public:
 		NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~NBHLineCursor();
@@ -256,7 +264,8 @@ class NBHLineCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // HLineCursor
 
-class HLineCursor : public Cursor {
+class HLineCursor : public Cursor
+{
 	public:
 		HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~HLineCursor();
@@ -280,7 +289,8 @@ class HLineCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // VLineCursor
 
-class VLineCursor : public Cursor {
+class VLineCursor : public Cursor
+{
 	public:
 		VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~VLineCursor();
@@ -304,7 +314,8 @@ class VLineCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // RectCursor
 
-class RectCursor : public Cursor {
+class RectCursor : public Cursor
+{
 	public:
 		RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~RectCursor();
@@ -325,7 +336,8 @@ class RectCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // NBRectCursor
 
-class NBRectCursor : public Cursor {
+class NBRectCursor : public Cursor
+{
 	public:
 		NBRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~NBRectCursor();
@@ -343,7 +355,8 @@ class NBRectCursor : public Cursor {
 //////////////////////////////////////////////////////////////////////////////
 // PulseRectCursor
 
-class PulseRectCursor : public Cursor {
+class PulseRectCursor : public Cursor
+{
 	public:
 		PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~PulseRectCursor();
@@ -368,7 +381,8 @@ class PulseRectCursor : public Cursor {
 
 #define ALPHA_STEP			12
 
-class FadeBlockCursor : public Cursor {
+class FadeBlockCursor : public Cursor
+{
 	public:
 		FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 		~FadeBlockCursor();

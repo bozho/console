@@ -10,8 +10,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleHandler {
-
+class ConsoleHandler
+{
 	public:
 		ConsoleHandler();
 		~ConsoleHandler();

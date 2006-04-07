@@ -220,9 +220,6 @@
 				RelativePath=".\ConsoleView.h">
 			</File>
 			<File
-				RelativePath=".\ConsoleViewContainer.h">
-			</File>
-			<File
 				RelativePath=".\Cursors.h">
 			</File>
 			<File

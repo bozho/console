@@ -38,8 +38,8 @@ static wstring				s_strConfigFile(L"");
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseCommandLine(LPTSTR lptstrCmdLine) {
-
+void ParseCommandLine(LPTSTR lptstrCmdLine)
+{
 	typedef tokenizer<char_separator<wchar_t>, wstring::const_iterator, wstring > tokenizer;
 
 	wstring						strCmdLine(lptstrCmdLine);
@@ -47,9 +47,10 @@ void ParseCommandLine(LPTSTR lptstrCmdLine) {
 	tokenizer					tokens(strCmdLine, sep);
 	tokenizer::const_iterator	it = tokens.begin();
 
-	for (; it != tokens.end(); ++it) {
-
-		if (*it == wstring(L"-c")) {
+	for (; it != tokens.end(); ++it)
+	{
+		if (*it == wstring(L"-c"))
+		{
 			// custom config file
 			++it;
 			if (it == tokens.end()) break;
@@ -63,18 +64,20 @@ void ParseCommandLine(LPTSTR lptstrCmdLine) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT) {
-
+int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
+{
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
 	ParseCommandLine(lpstrCmdLine);
 
-	if (s_strConfigFile.length() == 0) {
+	if (s_strConfigFile.length() == 0)
+	{
 		s_strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
 	}
 
-	if (!g_settingsHandler->LoadSettings(s_strConfigFile)) {
+	if (!g_settingsHandler->LoadSettings(s_strConfigFile))
+	{
 		//TODO: error handling
 		return -1;
 	}
@@ -82,7 +85,8 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 	// create main window
 	MainFrame wndMain;
 
-	if(wndMain.CreateEx() == NULL) {
+	if(wndMain.CreateEx() == NULL)
+	{
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;
 	}
@@ -100,8 +104,8 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow) {
-
+int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
+{
 	HRESULT hRes = ::CoInitialize(NULL);
 // If you are running on NT 4.0 or higher you can use the following call instead to 
 // make the EXE free threaded. This means that calls come in on a random RPC thread.

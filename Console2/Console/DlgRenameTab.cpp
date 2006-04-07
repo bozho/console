@@ -28,8 +28,8 @@ DlgRenameTab::DlgRenameTab(const CString& strTabName)
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgRenameTab::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgRenameTab::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
 }
@@ -39,8 +39,8 @@ LRESULT DlgRenameTab::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgRenameTab::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgRenameTab::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (wID == IDOK) DoDataExchange(DDX_SAVE);
 	EndDialog(wID);
 	return 0;

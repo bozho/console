@@ -29,8 +29,8 @@ DlgSettingsHotkeys::DlgSettingsHotkeys(CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	m_hotKeys.Load(m_pOptionsRoot);
 
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_HOTKEYS));
@@ -46,8 +46,8 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_listCtrl.SetColumnWidth(1, 230);
 
 	HotKeys::CommandsVector::iterator	it = m_hotKeys.vecCommands.begin();
-	for (; it != m_hotKeys.vecCommands.end(); ++it) {
-
+	for (; it != m_hotKeys.vecCommands.end(); ++it)
+	{
 		HotKeys::HotKeysMap::iterator itHotKey = m_hotKeys.mapHotKeys.find((*it)->wCommandID);
 
 		WORD wModifiers = 0;
@@ -75,8 +75,8 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
 	NMLISTVIEW*				pnmv		= reinterpret_cast<NMLISTVIEW*>(pnmh);
 	HotKeys::HotkeyData*	pHotkeyData	= reinterpret_cast<HotKeys::HotkeyData*>(pnmv->lParam);
 
@@ -101,8 +101,8 @@ LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	UINT	uiVirtualKeyCode= 0;
 	WORD	wModifiers		= 0;
 	LVITEM	selectedItem;
@@ -134,9 +134,10 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
-	if (wID == IDOK) {
+LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (wID == IDOK)
+	{
 		DoDataExchange(DDX_SAVE);
 
 		m_hotKeys.Save(m_pOptionsRoot);

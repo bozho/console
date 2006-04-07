@@ -20,11 +20,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor) {
-
+shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+{
 	shared_ptr<Cursor> newCursor;
 
-	switch (cursorStyle) {
+	switch (cursorStyle)
+	{
 		case cstyleXTerm :
 			newCursor.reset(dynamic_cast<Cursor*>(new XTermCursor(
 															hwndConsoleView, 
@@ -152,7 +153,8 @@ XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 {
 }
 
-XTermCursor::~XTermCursor() {
+XTermCursor::~XTermCursor()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -160,11 +162,14 @@ XTermCursor::~XTermCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XTermCursor::Draw(bool bActive /* = true */) {
-
-	if (bActive) {
+void XTermCursor::Draw(bool bActive /* = true */)
+{
+	if (bActive)
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
-	} else {
+	}
+	else
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 		m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
 	}
@@ -175,8 +180,8 @@ void XTermCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -208,8 +213,8 @@ BlockCursor::BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
 }
 
-BlockCursor::~BlockCursor() {
-
+BlockCursor::~BlockCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -218,11 +223,14 @@ BlockCursor::~BlockCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BlockCursor::Draw(bool bActive /* = true */) {
-	
-	if (bActive && m_bVisible) {
+void BlockCursor::Draw(bool bActive /* = true */)
+{
+	if (bActive && m_bVisible)
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
-	} else {
+	}
+	else
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
 }
@@ -232,8 +240,8 @@ void BlockCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void BlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	if (!m_bVisible) return;
 
 	offscreenDC.TransparentBlt(
@@ -254,8 +262,8 @@ void BlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BlockCursor::PrepareNext() {
-
+void BlockCursor::PrepareNext()
+{
 	m_bVisible = !m_bVisible;
 }
 
@@ -275,8 +283,8 @@ NBBlockCursor::NBBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, con
 {
 }
 
-NBBlockCursor::~NBBlockCursor() {
-	
+NBBlockCursor::~NBBlockCursor()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -284,8 +292,8 @@ NBBlockCursor::~NBBlockCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBBlockCursor::Draw(bool /*bActive = true */) {
-	
+void NBBlockCursor::Draw(bool /*bActive = true */)
+{
 	m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
 }
 
@@ -294,8 +302,8 @@ void NBBlockCursor::Draw(bool /*bActive = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void NBBlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.BitBlt(
 					x, 
 					y, 
@@ -325,17 +333,20 @@ PulseBlockCursor::PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleVie
 , m_nStep(0)
 {
 	// set the max size of the cursor
-	if ((m_rectCursor.right - m_rectCursor.left) < (m_rectCursor.bottom - m_rectCursor.top)) {
+	if ((m_rectCursor.right - m_rectCursor.left) < (m_rectCursor.bottom - m_rectCursor.top))
+	{
 		m_nMaxSize = (m_rectCursor.right - m_rectCursor.left) >> 1;
-	} else {
+	}
+	else
+	{
 		m_nMaxSize = (m_rectCursor.bottom - m_rectCursor.top) >> 1;
 	}
 
 	m_uiTimer = ::SetTimer(m_hwndConsoleView, CURSOR_TIMER, 100, NULL);
 }
 
-PulseBlockCursor::~PulseBlockCursor() {
-	
+PulseBlockCursor::~PulseBlockCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -344,11 +355,12 @@ PulseBlockCursor::~PulseBlockCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseBlockCursor::Draw(bool bActive /* = true */) {
-	
+void PulseBlockCursor::Draw(bool bActive /* = true */)
+{
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
-	if (bActive) {
+	if (bActive)
+	{
 		CRect rect;
 		::CopyMemory(&rect, &m_rectCursor, sizeof(CRect));
 		rect.left	+= m_nSize;
@@ -365,8 +377,8 @@ void PulseBlockCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void PulseBlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -385,11 +397,14 @@ void PulseBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseBlockCursor::PrepareNext() {
-	
-	if (m_nSize == 0) {
+void PulseBlockCursor::PrepareNext()
+{
+	if (m_nSize == 0)
+	{
 		m_nStep = 1;
-	} else if (m_nSize == m_nMaxSize) {
+	}
+	else if (m_nSize == m_nMaxSize)
+	{
 		m_nStep = -1;
 	}
 	
@@ -417,8 +432,8 @@ BarCursor::BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
 }
 
-BarCursor::~BarCursor() {
-	
+BarCursor::~BarCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -427,12 +442,15 @@ BarCursor::~BarCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BarCursor::Draw(bool bActive /* = true */) {
-	
-	if (bActive && m_bVisible) {
+void BarCursor::Draw(bool bActive /* = true */)
+{
+	if (bActive && m_bVisible)
+	{
 		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.top + 2, NULL);
 		m_dcCursor.LineTo(m_rectCursor.left, m_rectCursor.bottom - 2);
-	} else {
+	}
+	else
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
 }
@@ -442,8 +460,8 @@ void BarCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BarCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void BarCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -462,8 +480,8 @@ void BarCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BarCursor::PrepareNext() {
-	
+void BarCursor::PrepareNext()
+{
 	m_bVisible = !m_bVisible;
 }
 
@@ -487,8 +505,8 @@ ConsoleCursor::ConsoleCursor(HWND hwndParent, HDC hdcWindow, COLORREF crCursorCo
 	m_uiTimer = ::SetTimer(hwndParent, CURSOR_TIMER, 750, NULL);
 }
 
-ConsoleCursor::~ConsoleCursor() {
-	
+ConsoleCursor::~ConsoleCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndParent, m_uiTimer);
 	::DeleteObject(m_hActiveBrush);
 	::CloseHandle(m_hStdOut);
@@ -499,14 +517,14 @@ ConsoleCursor::~ConsoleCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleCursor::Draw(LPCRect pRect) {
-	
+void ConsoleCursor::Draw(LPCRect pRect)
+{
 	CRect rect;
 
 	::CopyMemory(&rect, pRect, sizeof(CRect));
 
-	if (m_bActive && m_bVisible) {
-
+	if (m_bActive && m_bVisible)
+	{
 		CONSOLE_CURSOR_INFO	csi;
 		::GetConsoleCursorInfo(m_hStdOut, &csi);
 
@@ -520,8 +538,8 @@ void ConsoleCursor::Draw(LPCRect pRect) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleCursor::PrepareNext() {
-	
+void ConsoleCursor::PrepareNext()
+{
 	m_bVisible = !m_bVisible;
 }
 
@@ -543,8 +561,8 @@ NBHLineCursor::NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, con
 	m_dcCursor.SelectPen(m_pen);
 }
 
-NBHLineCursor::~NBHLineCursor() {
-	
+NBHLineCursor::~NBHLineCursor()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -552,8 +570,8 @@ NBHLineCursor::~NBHLineCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBHLineCursor::Draw(bool /*bActive = true */) {
-	
+void NBHLineCursor::Draw(bool /*bActive = true */)
+{
 	m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.bottom - 1, NULL);
 	m_dcCursor.LineTo(m_rectCursor.right, m_rectCursor.bottom - 1);
 }
@@ -563,8 +581,8 @@ void NBHLineCursor::Draw(bool /*bActive = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBHLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void NBHLineCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -597,7 +615,8 @@ HLineCursor::HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_rectCursor.bottom - m_rectCursor.top - 1)) {
+	if (m_nSize != (m_rectCursor.bottom - m_rectCursor.top - 1))
+	{
 		m_nSize = m_rectCursor.bottom - m_rectCursor.top - 1;
 		m_nPosition = 0;
 		m_nStep = 1;
@@ -608,8 +627,8 @@ HLineCursor::HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
 }
 
-HLineCursor::~HLineCursor() {
-	
+HLineCursor::~HLineCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -618,11 +637,12 @@ HLineCursor::~HLineCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void HLineCursor::Draw(bool bActive /* = true */) {
-
+void HLineCursor::Draw(bool bActive /* = true */)
+{
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
-	if (bActive) {
+	if (bActive)
+	{
 		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.top + m_nPosition, NULL);
 		m_dcCursor.LineTo(m_rectCursor.right, m_rectCursor.top + m_nPosition);
 	}
@@ -633,8 +653,8 @@ void HLineCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void HLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void HLineCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -653,11 +673,14 @@ void HLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void HLineCursor::PrepareNext() {
-
-	if (m_nPosition == 0) {
+void HLineCursor::PrepareNext()
+{
+	if (m_nPosition == 0)
+	{
 		m_nStep = 1;
-	} else if (m_nPosition == m_nSize) {
+	}
+	else if (m_nPosition == m_nSize)
+	{
 		m_nStep = -1;
 	}
 
@@ -683,7 +706,8 @@ VLineCursor::VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_rectCursor.Width() - 1)) {
+	if (m_nSize != (m_rectCursor.Width() - 1))
+	{
 		m_nSize = m_rectCursor.Width() - 1;
 		m_nPosition = 0;
 		m_nStep = 1;
@@ -694,8 +718,8 @@ VLineCursor::VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
 }
 
-VLineCursor::~VLineCursor() {
-	
+VLineCursor::~VLineCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -704,11 +728,12 @@ VLineCursor::~VLineCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void VLineCursor::Draw(bool bActive /* = true */) {
-	
+void VLineCursor::Draw(bool bActive /* = true */)
+{
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
-	if (bActive) {
+	if (bActive)
+	{
 		m_dcCursor.MoveTo(m_rectCursor.left + m_nPosition, m_rectCursor.top + 2, NULL);
 		m_dcCursor.LineTo(m_rectCursor.left + m_nPosition, m_rectCursor.bottom - 2);
 	}
@@ -719,8 +744,8 @@ void VLineCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void VLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void VLineCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -739,11 +764,14 @@ void VLineCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void VLineCursor::PrepareNext() {
-	
-	if (m_nPosition == 0) {
+void VLineCursor::PrepareNext()
+{
+	if (m_nPosition == 0)
+	{
 		m_nStep = 1;
-	} else if (m_nPosition == m_nSize) {
+	}
+	else if (m_nPosition == m_nSize)
+	{
 		m_nStep = -1;
 	}
 	
@@ -768,8 +796,8 @@ RectCursor::RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRe
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
 }
 
-RectCursor::~RectCursor() {
-	
+RectCursor::~RectCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -778,11 +806,12 @@ RectCursor::~RectCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RectCursor::Draw(bool bActive /* = true */) {
-	
+void RectCursor::Draw(bool bActive /* = true */)
+{
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
-	if (bActive && m_bVisible) {
+	if (bActive && m_bVisible)
+	{
 		m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
 	}
 }
@@ -792,8 +821,8 @@ void RectCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void RectCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -812,8 +841,8 @@ void RectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RectCursor::PrepareNext() {
-	
+void RectCursor::PrepareNext()
+{
 	m_bVisible = !m_bVisible;
 }
 
@@ -833,8 +862,8 @@ NBRectCursor::NBRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const
 {
 }
 
-NBRectCursor::~NBRectCursor() {
-	
+NBRectCursor::~NBRectCursor()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -842,8 +871,8 @@ NBRectCursor::~NBRectCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -862,8 +891,8 @@ void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBRectCursor::Draw(bool /* bActive = true */) {
-	
+void NBRectCursor::Draw(bool /* bActive = true */)
+{
 	m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
 }
 
@@ -885,17 +914,20 @@ PulseRectCursor::PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView,
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if ((m_rectCursor.right - m_rectCursor.left) < (m_rectCursor.bottom - m_rectCursor.top)) {
+	if ((m_rectCursor.right - m_rectCursor.left) < (m_rectCursor.bottom - m_rectCursor.top))
+	{
 		m_nMaxSize = (m_rectCursor.right - m_rectCursor.left) >> 1;
-	} else {
+	}
+	else
+	{
 		m_nMaxSize = (m_rectCursor.bottom - m_rectCursor.top) >> 1;
 	}
 
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
 }
 
-PulseRectCursor::~PulseRectCursor() {
-	
+PulseRectCursor::~PulseRectCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -904,11 +936,12 @@ PulseRectCursor::~PulseRectCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseRectCursor::Draw(bool bActive /* = true */) {
-	
+void PulseRectCursor::Draw(bool bActive /* = true */)
+{
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
-	if (bActive) {
+	if (bActive)
+	{
 		CRect rect;
 		::CopyMemory(&rect, m_rectCursor, sizeof(CRect));
 		rect.left	+= m_nSize;
@@ -924,8 +957,8 @@ void PulseRectCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void PulseRectCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.TransparentBlt(
 					x, 
 					y, 
@@ -944,11 +977,14 @@ void PulseRectCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseRectCursor::PrepareNext() {
-	
-	if (m_nSize == 0) {
+void PulseRectCursor::PrepareNext()
+{
+	if (m_nSize == 0)
+	{
 		m_nStep = 1;
-	} else if (m_nSize == m_nMaxSize) {
+	}
+	else if (m_nSize == m_nMaxSize)
+	{
 		m_nStep = -1;
 	}
 	
@@ -978,8 +1014,8 @@ FadeBlockCursor::FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView,
 	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 35, NULL);
 }
 
-FadeBlockCursor::~FadeBlockCursor() {
-	
+FadeBlockCursor::~FadeBlockCursor()
+{
 	if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
 }
 
@@ -988,11 +1024,14 @@ FadeBlockCursor::~FadeBlockCursor() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FadeBlockCursor::Draw(bool bActive /* = true */) {
-
-	if (bActive) {
+void FadeBlockCursor::Draw(bool bActive /* = true */)
+{
+	if (bActive)
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
-	} else {
+	}
+	else
+	{
 		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
 }
@@ -1002,8 +1041,8 @@ void FadeBlockCursor::Draw(bool bActive /* = true */) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FadeBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
-
+void FadeBlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
 	offscreenDC.AlphaBlend(
 					x,
 					y,
@@ -1022,11 +1061,14 @@ void FadeBlockCursor::BitBlt(CDC& offscreenDC, int x, int y) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FadeBlockCursor::PrepareNext() {
-
-	if (m_blendFunction.SourceConstantAlpha < ALPHA_STEP) {
+void FadeBlockCursor::PrepareNext()
+{
+	if (m_blendFunction.SourceConstantAlpha < ALPHA_STEP)
+	{
 		m_nStep = ALPHA_STEP;
-	} else if (m_blendFunction.SourceConstantAlpha + ALPHA_STEP > 255) {
+	}
+	else if (m_blendFunction.SourceConstantAlpha + ALPHA_STEP > 255)
+	{
 		m_nStep = -ALPHA_STEP;
 	}
 

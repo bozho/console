@@ -2,8 +2,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SharedMemNames {
-
+class SharedMemNames
+{
 	public:
 
 		static wformat formatConsoleParams;

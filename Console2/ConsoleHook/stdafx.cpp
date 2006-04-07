@@ -30,11 +30,13 @@ HMODULE g_hModule = NULL;
 
 #ifdef _DEBUG
 
-void* __cdecl operator new(size_t nSize, LPCSTR lpszFileName, int nLine) {
+void* __cdecl operator new(size_t nSize, LPCSTR lpszFileName, int nLine)
+{
 	return ::_malloc_dbg(nSize, 1, lpszFileName, nLine);
 }
 
-void __cdecl operator delete(void* pData, LPCSTR /* lpszFileName */, int /* nLine */) {
+void __cdecl operator delete(void* pData, LPCSTR /* lpszFileName */, int /* nLine */)
+{
 	::operator delete(pData);
 }
 

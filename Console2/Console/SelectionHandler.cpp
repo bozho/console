@@ -32,7 +32,8 @@ SelectionHandler::SelectionHandler(HWND hwndConsoleView, const CDC& dcConsoleVie
 	m_dcSelection.SetBkColor(RGB(0, 0, 0));
 }
 
-SelectionHandler::~SelectionHandler() {
+SelectionHandler::~SelectionHandler()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,8 +46,8 @@ SelectionHandler::~SelectionHandler() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, SHORT sYMax) {
-
+void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, SHORT sYMax)
+{
 	if (m_selectionState > selstateNoSelection) return;
 
 	m_consoleView.SetCapture();
@@ -89,11 +90,11 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::UpdateSelection(const CPoint& point) {
-
+void SelectionHandler::UpdateSelection(const CPoint& point)
+{
 	if ((m_selectionState != selstateStartedSelecting) &&
-		(m_selectionState != selstateSelecting)) {
-	
+		(m_selectionState != selstateSelecting))
+	{
 		return;
 	}
 
@@ -145,8 +146,8 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	m_dcSelection.FillRect(&rect, m_paintBrush);
 
 	// paint the rows in between
-	if (coordStart.Y < coordEnd.Y - 1) {
-
+	if (coordStart.Y < coordEnd.Y - 1)
+	{
 		rect.left	= stylesSettings.dwInsideBoder;
 		rect.top	= (coordStart.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
@@ -157,8 +158,8 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 	}
 
 	// paint the last row
-	if (coordStart.Y < coordEnd.Y) {
-
+	if (coordStart.Y < coordEnd.Y)
+	{
 		rect.left	= stylesSettings.dwInsideBoder;
 		rect.top	= (coordStart.Y + 1) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
@@ -174,8 +175,8 @@ void SelectionHandler::UpdateSelection(const CPoint& point) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CHAR_INFO>& consoleBuffer) {
-
+void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CHAR_INFO>& consoleBuffer)
+{
 	if (m_selectionState < selstateSelecting) return;
 
 	bool	bCopy = false;
@@ -184,8 +185,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 	GetSelectionCoordinates(coordStart, coordEnd);
 
-	if (pPoint != NULL) {
-
+	if (pPoint != NULL)
+	{
 		CPoint	p(*pPoint);
 
 		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
@@ -201,27 +202,31 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 		if (coordCurrent.Y > m_sYMax) coordCurrent.Y = m_sYMax;
 
 		// verbose tests, just to make things a bit easier to follow :-)
-		if (coordStart.Y == coordEnd.Y) {
+		if (coordStart.Y == coordEnd.Y)
+		{
 			// single line selected, click must be inside the selection rectangle
-			if ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X) && (coordCurrent.X <= coordEnd.X)) {
-
+			if ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X) && (coordCurrent.X <= coordEnd.X))
+			{
 				bCopy = true;
 			}
 
 			// multiple lines selected
-		} else if ( ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X)) ||	// first line
+		}
+		else if ( ((coordCurrent.Y == coordStart.Y) && (coordCurrent.X >= coordStart.X)) ||	// first line
 			((coordCurrent.Y > coordStart.Y)  && (coordCurrent.Y < coordEnd.Y))    ||	// lines between the first and the last lines
-			((coordCurrent.Y == coordEnd.Y)   && (coordCurrent.X <= coordEnd.X))) {		// last line
-
-				bCopy = true;
+			((coordCurrent.Y == coordEnd.Y)   && (coordCurrent.X <= coordEnd.X)))		// last line
+		{
+			bCopy = true;
 		}
 
-	} else {
+	}
+	else
+	{
 		bCopy = true;
 	}
 
-	if (bCopy) {
-
+	if (bCopy)
+	{
 		if (!m_consoleView.OpenClipboard()) return;
 
 		::EmptyClipboard();
@@ -240,7 +245,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 		CopyPasteSettings&	copyPasteSettings	= g_settingsHandler->GetBehaviorSettings().copyPasteSettings;
 
 		// first row
-		for (X = coordStart.X; X <= ((coordStart.Y < coordEnd.Y) ? m_sXMax : coordEnd.X); ++X) {
+		for (X = coordStart.X; X <= ((coordStart.Y < coordEnd.Y) ? m_sXMax : coordEnd.X); ++X)
+		{
 			pszRow[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
 		}
 
@@ -250,9 +256,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 		if ((copyPasteSettings.bNoWrap && 
 			(coordStart.Y < coordEnd.Y) &&
 			(strText[strText.length() - 1] != L' ')) ||
-
-			(coordStart.Y == coordEnd.Y)) {
-		
+			(coordStart.Y == coordEnd.Y))
+		{
 			bWrap = false;
 		}
 
@@ -260,10 +265,12 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 		if (bWrap) strText += wstring(L"\n");
 
 		// rows in between
-		for (Y = coordStart.Y + 1; Y < coordEnd.Y; ++Y) {
+		for (Y = coordStart.Y + 1; Y < coordEnd.Y; ++Y)
+		{
 			dwOffset = 0;
 			bWrap = true;
-			for (X = 0; X <= m_sXMax; ++X) {
+			for (X = 0; X <= m_sXMax; ++X)
+			{
 				pszRow[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
 			}
 
@@ -272,8 +279,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 			if (copyPasteSettings.bNoWrap && 
 				(wcslen(pszRow.get()) == static_cast<size_t>(m_sXMax+1)) && 
-				(strText[strText.length() - 1] != L' ')) {
-			
+				(strText[strText.length() - 1] != L' '))
+			{
 				bWrap = false;
 			}
 
@@ -283,20 +290,22 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 
 		// last row
-		if (coordEnd.Y > coordStart.Y) {
-
+		if (coordEnd.Y > coordStart.Y)
+		{
 			dwOffset = 0;
 			bWrap = true;
 			Y = coordEnd.Y;
 
-			for (X = 0; X <= coordEnd.X; ++X) {
+			for (X = 0; X <= coordEnd.X; ++X)
+			{
 				pszRow[dwOffset++] = consoleBuffer[Y * (m_sXMax+1) + X].Char.UnicodeChar;
 			}
 
 			pszRow[dwOffset] = L'\x0';
 			strText += wstring(pszRow.get());
 
-			if (wcslen(pszRow.get()) < static_cast<size_t>(m_sXMax+1)) {
+			if (wcslen(pszRow.get()) < static_cast<size_t>(m_sXMax+1))
+			{
 				bWrap = false;
 			}
 
@@ -306,7 +315,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 		HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, (strText.length()+1)*sizeof(wchar_t));
 
-		if (hText == NULL) { 
+		if (hText == NULL)
+		{ 
 			::CloseClipboard();
 			return;
 		} 
@@ -315,7 +325,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 		::GlobalUnlock(hText);
 
-		if (::SetClipboardData(CF_UNICODETEXT, hText) == NULL) {
+		if (::SetClipboardData(CF_UNICODETEXT, hText) == NULL)
+		{
 			// we need to global-free data only if copying failed
 			::GlobalFree(hText);
 		}
@@ -329,8 +340,8 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::EndSelection() {
-
+void SelectionHandler::EndSelection()
+{
 	m_selectionState = selstateSelected;
 	::ReleaseCapture();
 }
@@ -340,8 +351,8 @@ void SelectionHandler::EndSelection() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::ClearSelection() {
-
+void SelectionHandler::ClearSelection()
+{
 	m_coordCurrent.X= 0;
 	m_coordCurrent.Y= 0;
 
@@ -361,8 +372,8 @@ void SelectionHandler::ClearSelection() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::BitBlt(CDC& offscreenDC) {
-
+void SelectionHandler::BitBlt(CDC& offscreenDC)
+{
 	if (m_selectionState == selstateNoSelection) return;
 
 	COORD	coordStart;
@@ -400,20 +411,28 @@ void SelectionHandler::BitBlt(CDC& offscreenDC) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd) {
-
-	if (m_coordInitial.Y == m_coordCurrent.Y) {
-		if (m_coordInitial.X <= m_coordCurrent.X) {
+void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd)
+{
+	if (m_coordInitial.Y == m_coordCurrent.Y)
+	{
+		if (m_coordInitial.X <= m_coordCurrent.X)
+		{
 			::CopyMemory(&coordStart, &m_coordInitial, sizeof(COORD));
 			::CopyMemory(&coordEnd, &m_coordCurrent, sizeof(COORD));
-		} else {
+		}
+		else
+		{
 			::CopyMemory(&coordStart, &m_coordCurrent, sizeof(COORD));
 			::CopyMemory(&coordEnd, &m_coordInitial, sizeof(COORD));
 		}
-	} else if (m_coordInitial.Y < m_coordCurrent.Y) {
+	}
+	else if (m_coordInitial.Y < m_coordCurrent.Y)
+	{
 		::CopyMemory(&coordStart, &m_coordInitial, sizeof(COORD));
 		::CopyMemory(&coordEnd, &m_coordCurrent, sizeof(COORD));
-	} else {
+	}
+	else
+	{
 		::CopyMemory(&coordStart, &m_coordCurrent, sizeof(COORD));
 		::CopyMemory(&coordEnd, &m_coordInitial, sizeof(COORD));
 	}

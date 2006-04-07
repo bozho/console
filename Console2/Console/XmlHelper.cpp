@@ -11,20 +11,21 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, const wstring& strDefaultFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement) {
-
+HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, const wstring& strDefaultFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement)
+{
 	HRESULT hr					= S_OK;
 	VARIANT_BOOL bLoadSuccess	= false;
 	
 	hr = pXmlDocument.CoCreateInstance(__uuidof(DOMDocument));
 	if (FAILED(hr) || (pXmlDocument.p == NULL)) return false;
 
-	if (strFilename.length() > 0) {
+	if (strFilename.length() > 0)
+	{
 		hr = pXmlDocument->load(CComVariant(strFilename.c_str()), &bLoadSuccess);
 	}
 
-	if (FAILED(hr) || (!bLoadSuccess)) {
-
+	if (FAILED(hr) || (!bLoadSuccess))
+	{
 		if (strDefaultFilename.length() == 0) return E_FAIL;
 
 		wchar_t szModuleFileName[MAX_PATH + 1];
@@ -51,8 +52,8 @@ HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, const wstring& st
 
 //////////////////////////////////////////////////////////////////////////////
 
-HRESULT XmlHelper::GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement) {
-
+HRESULT XmlHelper::GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement)
+{
 	HRESULT					hr = S_OK;
 	CComPtr<IXMLDOMNode>	pNode;
 	
@@ -69,13 +70,16 @@ HRESULT XmlHelper::GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, co
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue) {
-
+void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue)
+{
 	CComVariant	varValue;
 
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK)
+	{
 		dwValue = _wtol(varValue.bstrVal);
-	} else {
+	}
+	else
+	{
 		dwValue = dwDefaultValue;
 	}
 }
@@ -85,13 +89,16 @@ void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, int& nValue, int nDefaultValue) {
-
+void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, int& nValue, int nDefaultValue)
+{
 	CComVariant	varValue;
 
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK)
+	{
 		nValue = _wtol(varValue.bstrVal);
-	} else {
+	}
+	else
+	{
 		nValue = nDefaultValue;
 	}
 }
@@ -101,13 +108,16 @@ void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue) {
-
+void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE& byValue, BYTE byDefaultValue)
+{
 	CComVariant	varValue;
 
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK)
+	{
 		byValue = static_cast<BYTE>(_wtoi(varValue.bstrVal));
-	} else {
+	}
+	else
+	{
 		byValue = byDefaultValue;
 	}
 }
@@ -117,13 +127,16 @@ void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool& bValue, bool bDefaultValue) {
-
+void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool& bValue, bool bDefaultValue)
+{
 	CComVariant	varValue;
 
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK)
+	{
 		bValue = (_wtol(varValue.bstrVal) > 0);
-	} else {
+	}
+	else
+	{
 		bValue = bDefaultValue;
 	}
 }
@@ -133,13 +146,16 @@ void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, wstring& strValue, const wstring& strDefaultValue) {
-
+void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, wstring& strValue, const wstring& strDefaultValue)
+{
 	CComVariant	varValue;
 
-	if (pElement->getAttribute(bstrName, &varValue) == S_OK) {
+	if (pElement->getAttribute(bstrName, &varValue) == S_OK)
+	{
 		strValue = varValue.bstrVal;
-	} else {
+	}
+	else
+	{
 		strValue = strDefaultValue;
 	}
 }
@@ -150,8 +166,8 @@ void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::GetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue, COLORREF crDefaultValue) {
-
+void XmlHelper::GetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue, COLORREF crDefaultValue)
+{
 	DWORD r;
 	DWORD g;
 	DWORD b;
@@ -173,8 +189,8 @@ void XmlHelper::GetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORRE
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD dwValue) {
-
+void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD dwValue)
+{
 	CComVariant	varValue(str(wformat(L"%1%") % dwValue).c_str());
 
 	pElement->setAttribute(bstrName, varValue);
@@ -185,8 +201,8 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, int nValue) {
-
+void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, int nValue)
+{
 	CComVariant	varValue(str(wformat(L"%1%") % nValue).c_str());
 
 	pElement->setAttribute(bstrName, varValue);
@@ -197,8 +213,8 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE byValue) {
-
+void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE byValue)
+{
 	CComVariant	varValue(str(wformat(L"%1%") % byValue).c_str());
 
 	pElement->setAttribute(bstrName, varValue);
@@ -209,8 +225,8 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool bValue) {
-
+void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool bValue)
+{
 	CComVariant	varValue(bValue ? L"1" : L"0");
 
 	pElement->setAttribute(bstrName, varValue);
@@ -221,8 +237,8 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, const wstring& strValue) {
-
+void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, const wstring& strValue)
+{
 	CComVariant	varValue(strValue.c_str());
 
 	pElement->setAttribute(bstrName, varValue);
@@ -233,8 +249,8 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue) {
-
+void XmlHelper::SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue)
+{
 	SetAttribute(pElement, CComBSTR(L"r"), GetRValue(crValue));
 	SetAttribute(pElement, CComBSTR(L"g"), GetGValue(crValue));
 	SetAttribute(pElement, CComBSTR(L"b"), GetBValue(crValue));

@@ -29,26 +29,12 @@ DlgSettingsAppearance::DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRo
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	m_windowSettings.Load(m_pOptionsRoot);
 	m_fontSettings.Load(m_pOptionsRoot);
 	m_positionSettings.Load(m_pOptionsRoot);
 
-/*
-	m_nShowMenu		= m_windowSettings.bShowMenu ? 1 : 0;
-	m_nShowToolbar	= m_windowSettings.bShowToolbar ? 1 : 0;
-	m_nShowTabs		= m_windowSettings.bShowTabs ? 1 : 0;
-	m_nShowStatusbar= m_windowSettings.bShowStatusbar ? 1 : 0;
-*/
-
-/*
-	m_nShowCaption	= m_windowSettings.bCaption ? 1 : 0;
-	m_nResizable	= m_windowSettings.bResizable ? 1 : 0;
-	m_nTaskbarButton= m_windowSettings.bTaskbarButton ? 1 : 0;
-	m_nBorder		= m_windowSettings.bBorder ? 1 : 0;
-*/
-	
 	m_strWindowTitle	= m_windowSettings.strTitle.c_str();
 	m_nUseTabTitle		= m_windowSettings.bUseTabTitles ? 1 : 0;
 	m_strWindowIcon		= m_windowSettings.strIcon.c_str();
@@ -77,12 +63,6 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	spin.Attach(GetDlgItem(IDC_SPIN_FONT_SIZE));
 	spin.SetRange(5, 36);
 	spin.Detach();
-
-/*
-	spin.Attach(GetDlgItem(IDC_SPIN_INSIDE_BORDER));
-	spin.SetRange(0, 10);
-	spin.Detach();
-*/
 
 	spin.Attach(GetDlgItem(IDC_SPIN_X));
 	spin.SetRange(-2048, 2048);
@@ -113,14 +93,13 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled) {
-
-
+LRESULT DlgSettingsAppearance::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
 	CWindow		staticCtl(reinterpret_cast<HWND>(lParam));
 	CDCHandle	dc(reinterpret_cast<HDC>(wParam));
 
-	if (staticCtl.m_hWnd == GetDlgItem(IDC_FONT_COLOR)) {
-
+	if (staticCtl.m_hWnd == GetDlgItem(IDC_FONT_COLOR))
+	{
 		CBrush	brush(::CreateSolidBrush(m_fontSettings.crFontColor));
 		CRect	rect;
 
@@ -138,12 +117,11 @@ LRESULT DlgSettingsAppearance::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LP
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
-	if (wID == IDOK) {
+LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (wID == IDOK)
+	{
 		DoDataExchange(DDX_SAVE);
-
-//		if (m_windowSettings.dwInsideBoder > 10) m_windowSettings.dwInsideBoder = 10;
 
 		m_windowSettings.strTitle		= m_strWindowTitle;
 		m_windowSettings.bUseTabTitles	= (m_nUseTabTitle > 0);
@@ -159,32 +137,23 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_fontSettings.bItalic			= (m_nFontItalic > 0);
 		m_fontSettings.bUseColor		= (m_nUseFontColor > 0);
 
-/*
-		m_windowSettings.bShowMenu		= (m_nShowMenu > 0);
-		m_windowSettings.bShowToolbar	= (m_nShowToolbar > 0);
-		m_windowSettings.bShowTabs		= (m_nShowTabs > 0);
-		m_windowSettings.bShowStatusbar	= (m_nShowStatusbar > 0);
-
-		m_windowSettings.bCaption		= (m_nShowCaption > 0);
-		m_windowSettings.bResizable		= (m_nResizable > 0);
-		m_windowSettings.bTaskbarButton	= (m_nTaskbarButton > 0);
-		m_windowSettings.bBorder		= (m_nBorder > 0);
-*/
-
-		if (m_nUsePosition > 0) {
-
+		if (m_nUsePosition > 0)
+		{
 			m_positionSettings.nX = m_nX;
 			m_positionSettings.nY = m_nY;
 
 			if (m_positionSettings.nX == -1) m_positionSettings.nX = 0;
 			if (m_positionSettings.nY == -1) m_positionSettings.nY = 0;
 
-		} else {
+		}
+		else
+		{
 			m_positionSettings.nX = -1;
 			m_positionSettings.nY = -1;
 		}
 
-		if (m_nSnapToEdges == 0) {
+		if (m_nSnapToEdges == 0)
+		{
 			m_positionSettings.nSnapDistance = -1;
 		}
 
@@ -194,19 +163,6 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		WindowSettings&		windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 		FontSettings&		fontSettings	= g_settingsHandler->GetAppearanceSettings().fontSettings;
 		PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
-
-/*
-		windowSettings.bShowMenu		= m_windowSettings.bShowMenu;
-		windowSettings.bShowToolbar		= m_windowSettings.bShowToolbar;
-		windowSettings.bShowTabs		= m_windowSettings.bShowTabs;
-		windowSettings.bShowStatusbar	= m_windowSettings.bShowStatusbar;
-
-		windowSettings.bCaption			= m_windowSettings.bCaption;
-		windowSettings.bResizable		= m_windowSettings.bResizable;
-		windowSettings.bTaskbarButton	= m_windowSettings.bTaskbarButton;
-		windowSettings.bBorder			= m_windowSettings.bBorder;
-		windowSettings.dwInsideBoder	= m_windowSettings.dwInsideBoder;
-*/
 
 		windowSettings.strTitle		= m_windowSettings.strTitle;
 		windowSettings.bUseTabTitles= m_windowSettings.bUseTabTitles;
@@ -243,8 +199,8 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	DoDataExchange(DDX_SAVE);
 
 	CFileDialog fileDialog(
@@ -254,7 +210,8 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD
 					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
 					L"Icon Files (*.ico)\0*.ico\0\0");
 
-	if (fileDialog.DoModal() == IDOK) {
+	if (fileDialog.DoModal() == IDOK)
+	{
 		m_strWindowIcon = fileDialog.m_szFileName;
 		DoDataExchange(DDX_LOAD);
 	}
@@ -269,8 +226,8 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	DoDataExchange(DDX_SAVE);
 
 	LOGFONT	lf;
@@ -284,7 +241,8 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 	CFontDialog	fontDlg(&lf);
 
 
-	if (fontDlg.DoModal() == IDOK) {
+	if (fontDlg.DoModal() == IDOK)
+	{
 		m_strFontName							= fontDlg.GetFaceName();// fontDlg.m_lf.lfFaceName;
 		m_fontSettings.dwSize= static_cast<DWORD>(static_cast<double>(-fontDlg.m_lf.lfHeight*72)/static_cast<double>(GetDeviceCaps(::GetDC(NULL), LOGPIXELSY)) + 0.5);
 		m_nFontBold								= fontDlg.IsBold() ? 1 : 0; //(fontDlg.m_lf.lfWeight == FW_BOLD) ? 1 : 0;
@@ -301,8 +259,8 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnClickedCheckbox(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsAppearance::OnClickedCheckbox(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	DoDataExchange(DDX_SAVE);
 	EnableControls();
 	return 0;
@@ -313,11 +271,12 @@ LRESULT DlgSettingsAppearance::OnClickedCheckbox(WORD /*wNotifyCode*/, WORD /*wI
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsAppearance::OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/) {
-
+LRESULT DlgSettingsAppearance::OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
+{
 	CColorDialog	dlg(m_fontSettings.crFontColor, CC_FULLOPEN);
 
-	if (dlg.DoModal() == IDOK) {
+	if (dlg.DoModal() == IDOK)
+	{
 		// update color
 		m_fontSettings.crFontColor = dlg.GetColor();
 		CWindow(hWndCtl).Invalidate();
@@ -336,8 +295,11 @@ LRESULT DlgSettingsAppearance::OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*w
 
 //////////////////////////////////////////////////////////////////////////////
 
-void DlgSettingsAppearance::EnableControls() {
-
+void DlgSettingsAppearance::EnableControls()
+{
+	::EnableWindow(GetDlgItem(IDC_WINDOW_TITLE), FALSE);
+	::EnableWindow(GetDlgItem(IDC_WINDOW_ICON), FALSE);
+	::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_ICON), FALSE);
 	::EnableWindow(GetDlgItem(IDC_FONT_COLOR), FALSE);
 	::EnableWindow(GetDlgItem(IDC_POS_X), FALSE);
 	::EnableWindow(GetDlgItem(IDC_POS_Y), FALSE);
@@ -346,18 +308,29 @@ void DlgSettingsAppearance::EnableControls() {
 	::EnableWindow(GetDlgItem(IDC_SNAP), FALSE);
 	::EnableWindow(GetDlgItem(IDC_SPIN_SNAP), FALSE);
 
-	if (m_nUseFontColor > 0) {
+	if (m_nUseTabTitle == 0) ::EnableWindow(GetDlgItem(IDC_WINDOW_TITLE), TRUE);
+
+	if (m_nUseTabIcon == 0)
+	{
+		::EnableWindow(GetDlgItem(IDC_WINDOW_ICON), TRUE);
+		::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_ICON), TRUE);
+	}
+	
+	if (m_nUseFontColor > 0)
+	{
 		::EnableWindow(GetDlgItem(IDC_FONT_COLOR), TRUE);
 	}
 
-	if (m_nUsePosition > 0) {
+	if (m_nUsePosition > 0)
+	{
 		::EnableWindow(GetDlgItem(IDC_POS_X), TRUE);
 		::EnableWindow(GetDlgItem(IDC_POS_Y), TRUE);
 		::EnableWindow(GetDlgItem(IDC_SPIN_X), TRUE);
 		::EnableWindow(GetDlgItem(IDC_SPIN_Y), TRUE);
 	}
 
-	if (m_nSnapToEdges > 0) {
+	if (m_nSnapToEdges > 0)
+	{
 		::EnableWindow(GetDlgItem(IDC_SNAP), TRUE);
 		::EnableWindow(GetDlgItem(IDC_SPIN_SNAP), TRUE);
 	}

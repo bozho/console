@@ -14,8 +14,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct SettingsBase {
-
+struct SettingsBase
+{
 	virtual bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
 	virtual bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
 };
@@ -25,8 +25,8 @@ struct SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ConsoleSettings : public SettingsBase {
-
+struct ConsoleSettings : public SettingsBase
+{
 	ConsoleSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -56,8 +56,8 @@ struct ConsoleSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct FontSettings : public SettingsBase {
-
+struct FontSettings : public SettingsBase
+{
 	FontSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -77,8 +77,8 @@ struct FontSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct WindowSettings : public SettingsBase {
-
+struct WindowSettings : public SettingsBase
+{
 	WindowSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -97,8 +97,8 @@ struct WindowSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ControlsSettings {
-
+struct ControlsSettings
+{
 	ControlsSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -115,8 +115,8 @@ struct ControlsSettings {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct StylesSettings : public SettingsBase {
-
+struct StylesSettings : public SettingsBase
+{
 	StylesSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -127,7 +127,7 @@ struct StylesSettings : public SettingsBase {
 	bool			bTaskbarButton;
 	bool			bBorder;
 	DWORD			dwInsideBoder;
-	// TODO: tray icon
+	bool			bTrayIcon;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -135,8 +135,8 @@ struct StylesSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum DockPosition {
-
+enum DockPosition
+{
 	dockNone	= -1,
 	dockTL		= 0,
 	dockTR		= 1,
@@ -146,7 +146,8 @@ enum DockPosition {
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum ZOrder {
+enum ZOrder
+{
 	zorderNormal	= 0,
 	zorderOnTop		= 1,
 	zorderOnBottom	= 2
@@ -154,8 +155,8 @@ enum ZOrder {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct PositionSettings : public SettingsBase {
-
+struct PositionSettings : public SettingsBase
+{
 	PositionSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -173,8 +174,8 @@ struct PositionSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum TransparencyType {
-
+enum TransparencyType
+{
 	transNone		= 0,
 	transAlpha		= 1,
 	transColorKey	= 2
@@ -185,8 +186,8 @@ enum TransparencyType {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct TransparencySettings : public SettingsBase {
-
+struct TransparencySettings : public SettingsBase
+{
 	TransparencySettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -203,8 +204,8 @@ struct TransparencySettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct AppearanceSettings : public SettingsBase {
-
+struct AppearanceSettings : public SettingsBase
+{
 	AppearanceSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -223,8 +224,8 @@ struct AppearanceSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct CopyPasteSettings : public SettingsBase {
-
+struct CopyPasteSettings : public SettingsBase
+{
 	CopyPasteSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -240,8 +241,8 @@ struct CopyPasteSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct MouseDragSettings : public SettingsBase {
-
+struct MouseDragSettings : public SettingsBase
+{
 	MouseDragSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -256,8 +257,8 @@ struct MouseDragSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct BehaviorSettings : public SettingsBase {
-
+struct BehaviorSettings : public SettingsBase
+{
 	BehaviorSettings ();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -272,28 +273,29 @@ struct BehaviorSettings : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct HotKeys : public SettingsBase {
-
+struct HotKeys : public SettingsBase
+{
 	HotKeys();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
-	struct CommandData {
-		
+	struct CommandData
+	{
 		CommandData(const wchar_t* pszCommand, const wchar_t* pszDescription, WORD commandID)
 		: strCommand(pszCommand)
 		, strDescription(pszDescription)
 		, wCommandID(commandID)
-		{}
+		{
+		}
 		
 		wstring	strCommand;
 		wstring	strDescription;
 		WORD	wCommandID;
 	};
 
-	struct HotkeyData {
-
+	struct HotkeyData
+	{
 		HotkeyData(DWORD commandID, ACCEL accel, bool extended)
 		: dwCommandID(commandID)
 		, accelHotkey(accel)
@@ -318,8 +320,8 @@ struct HotKeys : public SettingsBase {
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum BackgroundImageType {
-
+enum BackgroundImageType
+{
 	bktypeNone		= 0,
 	bktypeImage		= 1,
 	bktypeDesktop	= 2,
@@ -330,8 +332,8 @@ enum BackgroundImageType {
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct TabData {
-
+struct TabData
+{
 	TabData(const ConsoleSettings& conSettings)
 	: strShell(conSettings.strShell)
 	, strInitialDir(conSettings.strInitialDir)
@@ -347,7 +349,8 @@ struct TabData {
 	{
 	}
 
-	bool IsBackgroundRelative() const {
+	bool IsBackgroundRelative() const
+	{
 		if (tabBackground.get() == NULL) return false;
 		return tabBackground->bRelative;
 	}
@@ -378,8 +381,8 @@ private:
 
 typedef vector<shared_ptr<TabData> >	TabDataVector;
 
-struct TabSettings : public SettingsBase {
-
+struct TabSettings : public SettingsBase
+{
 	TabSettings(const ConsoleSettings& conSettings);
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
@@ -401,8 +404,8 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SettingsHandler {
-
+class SettingsHandler
+{
 	public:
 		SettingsHandler();
 		~SettingsHandler();

@@ -11,8 +11,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-class SharedMemory {
-
+class SharedMemory
+{
 	public:
 
 		SharedMemory();
@@ -61,8 +61,8 @@ class SharedMemory {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SharedMemoryLock {
-
+class SharedMemoryLock
+{
 	public:
 
 		template <typename T> explicit SharedMemoryLock(SharedMemory<T>& sharedMem)
@@ -102,16 +102,20 @@ SharedMemory<T>::SharedMemory(const wstring& strName, DWORD dwSize, bool bSyncOb
 : m_strName(strName)
 , m_dwSize(dwSize)
 {
-	if (bCreate) {
+	if (bCreate)
+	{
 		Create(strName, dwSize, bSyncObjects);
-	} else {
+	}
+	else
+	{
 		Open(strName, bSyncObjects);
 	}
 }
 
 
 template<typename T>
-SharedMemory<T>::~SharedMemory() {
+SharedMemory<T>::~SharedMemory()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -125,8 +129,8 @@ SharedMemory<T>::~SharedMemory() {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSyncObjects) {
-
+void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSyncObjects)
+{
 	m_strName	= strName;
 	m_dwSize	= dwSize;
 
@@ -161,8 +165,8 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, bool bSyncObj
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::Open(const wstring& strName, bool bSyncObjects) {
-
+void SharedMemory<T>::Open(const wstring& strName, bool bSyncObjects)
+{
 	m_strName	= strName;
 
 	m_hSharedMem = shared_ptr<void>(::OpenFileMapping(
@@ -193,8 +197,8 @@ void SharedMemory<T>::Open(const wstring& strName, bool bSyncObjects) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::Lock() {
-
+void SharedMemory<T>::Lock()
+{
 	if (m_hSharedMutex.get() == NULL) return;
 	::WaitForSingleObject(m_hSharedMutex.get(), INFINITE);
 }
@@ -205,8 +209,8 @@ void SharedMemory<T>::Lock() {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::Release() {
-
+void SharedMemory<T>::Release()
+{
 	if (m_hSharedMutex.get() == NULL) return;
 	::ReleaseMutex(m_hSharedMutex.get());
 }
@@ -217,8 +221,8 @@ void SharedMemory<T>::Release() {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::SetEvent() {
-
+void SharedMemory<T>::SetEvent()
+{
 	if (m_hSharedEvent.get() == NULL) return;
 	::SetEvent(m_hSharedEvent.get());
 }
@@ -229,8 +233,8 @@ void SharedMemory<T>::SetEvent() {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-T* SharedMemory<T>::Get() const {
-
+T* SharedMemory<T>::Get() const
+{
 	return m_pSharedMem.get();
 }
 
@@ -240,8 +244,8 @@ T* SharedMemory<T>::Get() const {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-HANDLE SharedMemory<T>::GetEvent() const {
-
+HANDLE SharedMemory<T>::GetEvent() const
+{
 	return m_hSharedEvent.get();
 }
 
@@ -249,16 +253,16 @@ HANDLE SharedMemory<T>::GetEvent() const {
 
 
 template<typename T>
-T& SharedMemory<T>::operator[](size_t index) const {
-
+T& SharedMemory<T>::operator[](size_t index) const
+{
 	return *(m_pSharedMem.get() + index);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-T* SharedMemory<T>::operator->() const {
-
+T* SharedMemory<T>::operator->() const
+{
 	return m_pSharedMem.get();
 }
 
@@ -268,8 +272,8 @@ T* SharedMemory<T>::operator->() const {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-T& SharedMemory<T>::operator*() const {
-
+T& SharedMemory<T>::operator*() const
+{
 	return *m_pSharedMem;
 }
 
@@ -279,8 +283,8 @@ T& SharedMemory<T>::operator*() const {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-SharedMemory<T>& SharedMemory<T>::operator=(const T& val) {
-
+SharedMemory<T>& SharedMemory<T>::operator=(const T& val)
+{
 	*m_pSharedMem = val;
 	return *this;
 }
@@ -296,8 +300,8 @@ SharedMemory<T>& SharedMemory<T>::operator=(const T& val) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::CreateSyncObjects(const wstring& strName) {
-
+void SharedMemory<T>::CreateSyncObjects(const wstring& strName)
+{
 	m_hSharedMutex = shared_ptr<void>(
 						::CreateMutex(NULL, FALSE, (strName + wstring(L"_mutex")).c_str()),
 						::CloseHandle);

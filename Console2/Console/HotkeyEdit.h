@@ -95,8 +95,8 @@ CHotkeyEditT<T>::CHotkeyEditT(HWND hWnd /*= NULL*/)
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
-
+LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
 	// key down, clear hotkey variables
 	m_uiHotkeyVk		= 0;
 	m_wHotkeyModifiers	= 0;
@@ -105,7 +105,8 @@ LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 	if (wParam == VK_SHIFT)		m_bShiftDown= true;
 	if (wParam == VK_MENU)		m_bAltDown	= true;
 
-	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU)) {
+	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU))
+	{
 		// non-modifier key pressed
 		m_uiVirtualKey	= static_cast<UINT>(wParam);
 		m_bExtended		= (lParam & 0x01000000L) ? true : false;
@@ -121,13 +122,14 @@ LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-LRESULT CHotkeyEditT<T>::OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT CHotkeyEditT<T>::OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	if (wParam == VK_CONTROL)	m_bCtrlDown	= false;
 	if (wParam == VK_SHIFT)		m_bShiftDown= false;
 	if (wParam == VK_MENU)		m_bAltDown	= false;
 
-	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU)) {
+	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU))
+	{
 		// non-modifier key up, set hotkey variables
 		m_uiHotkeyVk		= m_uiVirtualKey;
 		m_wHotkeyModifiers	= 0;
@@ -151,7 +153,8 @@ LRESULT CHotkeyEditT<T>::OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-LRESULT CHotkeyEditT<T>::OnChar(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+LRESULT CHotkeyEditT<T>::OnChar(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	return 0;
 }
 
@@ -161,7 +164,8 @@ LRESULT CHotkeyEditT<T>::OnChar(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-LRESULT CHotkeyEditT<T>::OnGetDlgCode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+LRESULT CHotkeyEditT<T>::OnGetDlgCode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	return DLGC_WANTALLKEYS;
 }
 
@@ -176,8 +180,8 @@ LRESULT CHotkeyEditT<T>::OnGetDlgCode(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-void CHotkeyEditT<T>::GetHotKey(UINT& uiVk, WORD& wModifiers) {
-
+void CHotkeyEditT<T>::GetHotKey(UINT& uiVk, WORD& wModifiers)
+{
 	uiVk		= m_uiHotkeyVk;
 	wModifiers	= m_wHotkeyModifiers;
 }
@@ -188,8 +192,8 @@ void CHotkeyEditT<T>::GetHotKey(UINT& uiVk, WORD& wModifiers) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-void CHotkeyEditT<T>::SetHotKey(UINT uiVk, WORD wModifiers) {
-
+void CHotkeyEditT<T>::SetHotKey(UINT uiVk, WORD wModifiers)
+{
 	m_uiHotkeyVk		= uiVk;
 	m_wHotkeyModifiers	= wModifiers;
 
@@ -207,8 +211,8 @@ void CHotkeyEditT<T>::SetHotKey(UINT uiVk, WORD wModifiers) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CString CHotkeyEditT<T>::GetHotKeyName() {
-
+CString CHotkeyEditT<T>::GetHotKeyName()
+{
 	return GetHotKeyName(m_uiHotkeyVk, m_wHotkeyModifiers);
 }
 
@@ -218,23 +222,26 @@ CString CHotkeyEditT<T>::GetHotKeyName() {
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CString CHotkeyEditT<T>::GetHotKeyName(UINT uiVk, WORD wModifiers) {
-
+CString CHotkeyEditT<T>::GetHotKeyName(UINT uiVk, WORD wModifiers)
+{
 	CString	strKeyName(L"");
 
 	if ((uiVk == 0) && (wModifiers == 0)) return CString(L"None");
 
-	if (wModifiers & HOTKEYF_CONTROL) {
+	if (wModifiers & HOTKEYF_CONTROL)
+	{
 		strKeyName += GetKeyName(VK_CONTROL, FALSE);
 		strKeyName += L"+";
 	}
 
-	if (wModifiers & HOTKEYF_SHIFT) {
+	if (wModifiers & HOTKEYF_SHIFT)
+	{
 		strKeyName += GetKeyName(VK_SHIFT, FALSE);
 		strKeyName += L"+";
 	}
 
-	if (wModifiers & HOTKEYF_ALT) {
+	if (wModifiers & HOTKEYF_ALT)
+	{
 		strKeyName += GetKeyName(VK_MENU, FALSE);
 		strKeyName += L"+";
 	}
@@ -255,8 +262,8 @@ CString CHotkeyEditT<T>::GetHotKeyName(UINT uiVk, WORD wModifiers) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CString CHotkeyEditT<T>::GetKeyName(UINT uiVk, BOOL bExtendedKey) {
-
+CString CHotkeyEditT<T>::GetKeyName(UINT uiVk, BOOL bExtendedKey)
+{
 	LONG lScanCode = ::MapVirtualKey(uiVk, 0) << 16;
 
 	// if it's an extended key, add extended flag (bit 24)
@@ -276,12 +283,13 @@ CString CHotkeyEditT<T>::GetKeyName(UINT uiVk, BOOL bExtendedKey) {
 //////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-void CHotkeyEditT<T>::SetHotkeyText() {
-
+void CHotkeyEditT<T>::SetHotkeyText()
+{
 	CString strKeyName;
 	WORD	wModifiers = 0;
 
-	if (m_uiHotkeyVk == 0) {
+	if (m_uiHotkeyVk == 0)
+	{
 
 		// keys are down, get name from temp variables
 		if (m_bCtrlDown)	wModifiers |= HOTKEYF_CONTROL;
@@ -292,8 +300,9 @@ void CHotkeyEditT<T>::SetHotkeyText() {
 	
 		strKeyName = GetHotKeyName(m_uiVirtualKey, wModifiers);
 
-	} else {
-
+	}
+	else
+	{
 		// keys are up, get name from hotkey variables
 		strKeyName = GetHotKeyName(m_uiHotkeyVk, m_wHotkeyModifiers);
 	}

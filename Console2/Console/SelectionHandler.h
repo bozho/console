@@ -10,11 +10,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class SelectionHandler {
-
+class SelectionHandler
+{
 	public:
 
-		enum SelectionState {
+		enum SelectionState
+		{
 			selstateNoSelection		= 0x00,
 			selstateStartedSelecting= 0x01,
 			selstateSelecting		= 0x02,
@@ -75,7 +76,8 @@ class SelectionHandler {
 
 //////////////////////////////////////////////////////////////////////////////
 
-inline SelectionHandler::SelectionState SelectionHandler::GetState() const { 
+inline SelectionHandler::SelectionState SelectionHandler::GetState() const
+{ 
 	return m_selectionState;
 }
 

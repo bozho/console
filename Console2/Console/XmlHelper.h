@@ -12,8 +12,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class XmlHelper {
-
+class XmlHelper
+{
 	public:
 		
 		static HRESULT OpenXmlDocument(const wstring& strFilename, const wstring& strDefaultFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement);

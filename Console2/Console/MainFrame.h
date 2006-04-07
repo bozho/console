@@ -53,6 +53,7 @@ class MainFrame
 			MESSAGE_HANDLER(UM_UPDATE_TITLES, OnUpdateTitles)
 			MESSAGE_HANDLER(UM_SHOW_POPUP_MENU, OnShowPopupMenu)
 			MESSAGE_HANDLER(UM_START_MOUSE_DRAG, OnStartMouseDrag)
+			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
 			NOTIFY_CODE_HANDLER(RBN_HEIGHTCHANGE, OnRebarHeightChanged)
@@ -103,6 +104,7 @@ class MainFrame
 		LRESULT OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
 		LRESULT OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
@@ -147,7 +149,6 @@ class MainFrame
 		void SetWindowStyles();
 		void DockWindow(DockPosition dockPosition);
 
-		void LoadWindowIcons();
 		void SetWindowIcons();
 
 		void ShowMenu(BOOL bShow);
@@ -158,7 +159,7 @@ class MainFrame
 		void AdjustWindowSize(bool bResizeConsole);
 		void SetTransparency();
 		void CreateAcceleratorTable();
-
+		BOOL SetTrayIcon(DWORD dwMessage);
 
 	private:
 
@@ -178,6 +179,8 @@ class MainFrame
 
 		CIcon			m_icon;
 		CIcon			m_smallIcon;
+
+		CString			m_strWindowTitle;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;

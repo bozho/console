@@ -10,7 +10,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class Helpers {
+class Helpers
+{
 	public:
 
 		static wstring GetModulePath(HINSTANCE hInstance);

@@ -37,13 +37,13 @@ ConsoleHandler::ConsoleHandler()
 {
 }
 
-ConsoleHandler::~ConsoleHandler() {
-
+ConsoleHandler::~ConsoleHandler()
+{
 	StopMonitorThread();
 	
 	if ((m_consoleParams.Get() != NULL) && 
-		(m_consoleParams->hwndConsoleWindow)) {
-		
+		(m_consoleParams->hwndConsoleWindow))
+	{
 		::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
 	}
 }
@@ -58,8 +58,8 @@ ConsoleHandler::~ConsoleHandler() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate) {
-
+void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate)
+{
 	m_consoleChangeDelegate	= consoleChangeDelegate;
 	m_consoleCloseDelegate	= consoleCloseDelegate;
 }
@@ -69,18 +69,22 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, DWORD dwStartupRows, DWORD dwStartupColumns) {
-
+bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, DWORD dwStartupRows, DWORD dwStartupColumns)
+{
 	wstring	strShell(strCustomShell);
 	
-	if (strShell.length() == 0) {
+	if (strShell.length() == 0)
+	{
 		wchar_t	szComspec[MAX_PATH];
 
 		::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
 
-		if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0) {
+		if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
+		{
 			strShell = szComspec;		
-		} else {
+		}
+		else
+		{
 			strShell = L"cmd.exe";
 		}
 	}
@@ -110,8 +114,8 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 			NULL,
 			(strInitialDir.length() > 0) ? strInitialDir.c_str() : NULL,
 			&si,
-			&pi)) {
-
+			&pi))
+	{
 		return false;
 	}
 
@@ -148,8 +152,8 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 //////////////////////////////////////////////////////////////////////////////
 
-DWORD ConsoleHandler::StartMonitorThread() {
-
+DWORD ConsoleHandler::StartMonitorThread()
+{
 	DWORD dwThreadId = 0;
 	m_hMonitorThread = shared_ptr<void>(
 		::CreateThread(
@@ -169,8 +173,8 @@ DWORD ConsoleHandler::StartMonitorThread() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::StopMonitorThread() {
-
+void ConsoleHandler::StopMonitorThread()
+{
 	::SetEvent(m_hMonitorThreadExit.get());
 	::WaitForSingleObject(m_hMonitorThread.get(), 10000);
 }
@@ -185,8 +189,8 @@ void ConsoleHandler::StopMonitorThread() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId) {
-
+bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId)
+{
 	// create startup params shared memory
 	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str());
 
@@ -221,8 +225,8 @@ bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::InjectHookDLL() {
-
+bool ConsoleHandler::InjectHookDLL()
+{
 	// allocate memory for parameter in the remote process
 	wstring				strHookDllPath(GetModulePath(NULL) + wstring(L"\\ConsoleHook.dll"));
 
@@ -250,8 +254,8 @@ bool ConsoleHandler::InjectHookDLL() {
 				(PVOID)pszHookDllPathRemote.get(), 
 				(PVOID)strHookDllPath.c_str(), 
 				strHookDllPath.length()*sizeof(wchar_t), 
-				NULL)) {
-
+				NULL))
+	{
 		return false;
 	}
 
@@ -291,8 +295,8 @@ bool ConsoleHandler::InjectHookDLL() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter) {
-
+DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter)
+{
 	ConsoleHandler* pConsoleHandler = reinterpret_cast<ConsoleHandler*>(lpParameter);
 	return pConsoleHandler->MonitorThread();
 }
@@ -302,11 +306,11 @@ DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DWORD ConsoleHandler::MonitorThread() {
-
+DWORD ConsoleHandler::MonitorThread()
+{
 	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetEvent() };
-	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1) {
-
+	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1)
+	{
 		SharedMemoryLock	memLock(m_consoleBuffer);
 
 		DWORD				dwColumns	= m_consoleInfo->srWindow.Right - m_consoleInfo->srWindow.Left + 1;
@@ -314,8 +318,8 @@ DWORD ConsoleHandler::MonitorThread() {
 		bool				bResize		= false;
 
 		if ((m_consoleParams->dwColumns != dwColumns) ||
-			(m_consoleParams->dwRows != dwRows)) {
-
+			(m_consoleParams->dwRows != dwRows))
+		{
 			m_consoleParams->dwColumns	= dwColumns;
 			m_consoleParams->dwRows		= dwRows;
 			bResize = true;
@@ -340,8 +344,8 @@ DWORD ConsoleHandler::MonitorThread() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-wstring ConsoleHandler::GetModulePath(HMODULE hModule) {
-
+wstring ConsoleHandler::GetModulePath(HMODULE hModule)
+{
 	wchar_t szModulePath[MAX_PATH+1];
 	::ZeroMemory(szModulePath, (MAX_PATH+1)*sizeof(wchar_t));
 

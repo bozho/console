@@ -400,17 +400,17 @@ BEGIN
     GROUPBOX        "Controls",IDC_STATIC,17,8,85,69
     CONTROL         "&Caption",IDC_CHECK_STYLE_CAPTION,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,119,20,41,10
-    CONTROL         "&Resizable",IDC_CHECK_STYLE_RESIZABLE,"Button",
+    CONTROL         "Resi&zable",IDC_CHECK_STYLE_RESIZABLE,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,119,32,46,10
     CONTROL         "Bo&rder",IDC_CHECK_STYLE_BORDER,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,119,45,37,10
     CONTROL         "Tas&kbar button",IDC_CHECK_STYLE_TASKBAR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,171,20,61,10
-    CONTROL         "Tray icon",IDC_CHECK_STYLE_TRAY,"Button",
-                    BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,171,32,45,10
-    LTEXT           "Inside border:",IDC_STATIC,119,61,46,8
+    CONTROL         "Tra&y icon",IDC_CHECK_STYLE_TRAY,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,171,32,45,10
+    LTEXT           "Inside &border:",IDC_STATIC,119,61,46,8
     EDITTEXT        IDC_INSIDE_BORDER,170,58,33,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_INSIDE_BORDER2,"msctls_updown32",
+    CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,208,58,11,14
     GROUPBOX        "Styles *",IDC_STATIC,109,8,131,69
@@ -430,7 +430,7 @@ BEGIN
                     WS_TABSTOP,36,170,185,22
     LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,221,172,14,8,0,
                     WS_EX_RIGHT
-    LTEXT           "Ke&y color:",IDC_STATIC_KEY_COLOR,36,212,33,8
+    LTEXT           "Key col&or:",IDC_STATIC_KEY_COLOR,36,212,33,8
     CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,71,
                     209,16,14,WS_EX_DLGMODALFRAME
     GROUPBOX        "Window transparency",IDC_STATIC,17,82,223,144
@@ -525,7 +525,7 @@ BEGIN
     CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",
                     BS_AUTORADIOBUTTON,265,125,46,10
     LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,276,53,47,8
-    CONTROL         "",IDC_ACTIVE_ALPHA2,"msctls_trackbar32",TBS_AUTOTICKS | 
+    CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
                     WS_TABSTOP,276,64,185,22
     LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,461,66,14,8,0,WS_EX_RIGHT
     LTEXT           "&Inactive window",IDC_STATIC_INACTIVE_WINDOW,276,86,53,

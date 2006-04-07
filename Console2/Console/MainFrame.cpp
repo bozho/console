@@ -27,6 +27,7 @@ MainFrame::MainFrame()
 , m_dockPosition(dockNone)
 , m_mousedragOffset(0, 0)
 , m_mapViews()
+, m_strWindowTitle(L"")
 , m_dwWindowWidth(0)
 , m_dwWindowHeight(0)
 , m_bRestoringWindow(false)
@@ -44,8 +45,8 @@ MainFrame::MainFrame()
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL MainFrame::PreTranslateMessage(MSG* pMsg) {
-
+BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
+{
 	if (!m_acceleratorTable.IsNull() && m_acceleratorTable.TranslateAccelerator(m_hWnd, pMsg)) return TRUE;
 
 	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg))
@@ -61,8 +62,8 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL MainFrame::OnIdle() {
-
+BOOL MainFrame::OnIdle()
+{
 	UIUpdateToolBar();
 	return FALSE;
 }
@@ -72,8 +73,8 @@ BOOL MainFrame::OnIdle() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
@@ -108,8 +109,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	SetWindowStyles();
 
-	ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
-	PositionSettings& positionSettings = g_settingsHandler->GetAppearanceSettings().positionSettings;
+	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
+	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
 	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
@@ -119,7 +120,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	HWND hwndZ		= HWND_NOTOPMOST;
 	DWORD dwFlags	= SWP_NOSIZE;
 
-	switch (positionSettings.zOrder) {
+	switch (positionSettings.zOrder)
+	{
 		case zorderNormal	: hwndZ = HWND_NOTOPMOST; break;
 		case zorderOnTop	: hwndZ = HWND_TOPMOST; break;
 		case zorderOnBottom	: hwndZ = HWND_BOTTOM; break;
@@ -130,13 +132,15 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	SetWindowPos(hwndZ, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
 	DockWindow(positionSettings.dockPosition);
 
-	SetWindowText(g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str());
+	m_strWindowTitle = g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str();
+	SetWindowText(m_strWindowTitle);
 
-	LoadWindowIcons();
 	SetWindowIcons();
 
 	CreateAcceleratorTable();
 	SetTransparency();
+	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
+
 	AdjustWindowSize(false);
 
 	CRect rectWindow;
@@ -144,7 +148,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
-
 
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
@@ -160,7 +163,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
+LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	return 0;
 }
 
@@ -169,13 +173,16 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled) {
-
-	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it) {
+LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
+	{
 		RemoveTab(it->second->m_hWnd);
 		if (m_activeView.get() == it->second.get()) m_activeView.reset();
 		it->second->DestroyWindow();
 	}
+
+	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_DELETE);
 
 	bHandled = false;
 	return 0;
@@ -186,8 +193,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled) {
-
+LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	m_activeView->SetAppActiveStatus(static_cast<BOOL>(wParam) == TRUE);
@@ -195,11 +202,14 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
 	if ((transparencySettings.transType == transAlpha) && 
-		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255))) {
-
-		if (static_cast<BOOL>(wParam)) {
+		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
+	{
+		if (static_cast<BOOL>(wParam))
+		{
 			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
-		} else {
+		}
+		else
+		{
 			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
 		}
 		
@@ -214,13 +224,15 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled) {
-
+LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+{
 	// OnSize needs to know this
-	if (wParam == SC_RESTORE) {
+	if (wParam == SC_RESTORE)
+	{
 		m_bRestoringWindow = true;
-	} else if (wParam == SC_MAXIMIZE) {
-
+	}
+	else if (wParam == SC_MAXIMIZE)
+	{
 		CRect rectWindow;
 		GetWindowRect(&rectWindow);
 
@@ -228,8 +240,8 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 		DWORD dwWindowHeight= rectWindow.Height();
 
 		if ((dwWindowWidth != m_dwWindowWidth) ||
-			(dwWindowHeight != m_dwWindowHeight)) {
-
+			(dwWindowHeight != m_dwWindowHeight))
+		{
 			AdjustWindowSize(true);
 		}
 	}
@@ -244,13 +256,14 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled) {
-
+LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+{
 	MINMAXINFO* pMinMax = (MINMAXINFO*)lParam;
 
 	CRect					maxClientRect;
 
-	if ((m_activeView.get() == NULL) || (!m_activeView->GetMaxRect(maxClientRect))) {
+	if ((m_activeView.get() == NULL) || (!m_activeView->GetMaxRect(maxClientRect)))
+	{
 		bHandled = false;
 		return 1;
 	}
@@ -273,10 +286,10 @@ LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled) {
-
-	if (m_bRestoringWindow || (wParam == SIZE_MAXIMIZED)) {
-
+LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if (m_bRestoringWindow || (wParam == SIZE_MAXIMIZED))
+	{
 		CRect rectWindow;
 		GetWindowRect(&rectWindow);
 
@@ -284,8 +297,8 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 		DWORD dwWindowHeight= (m_bRestoringWindow) ? rectWindow.Height() : HIWORD(lParam);
 
 		if ((dwWindowWidth != m_dwWindowWidth) ||
-			(dwWindowHeight != m_dwWindowHeight)) {
-
+			(dwWindowHeight != m_dwWindowHeight))
+		{
 			AdjustWindowSize(true);
 		}
 
@@ -301,21 +314,19 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled) {
-
+LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
+{
 	WINDOWPOS*			pWinPos			= reinterpret_cast<WINDOWPOS*>(lParam);
 	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
 	if (positionSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
 
-	if (!(pWinPos->flags & SWP_NOMOVE)) {
-
-		TRACE(L"Boink\n");
-
+	if (!(pWinPos->flags & SWP_NOMOVE))
+	{
 		m_dockPosition	= dockNone;
 		
-		if (positionSettings.nSnapDistance >= 0) {
-
+		if (positionSettings.nSnapDistance >= 0)
+		{
 			CRect	rectMonitor;
 			CRect	rectDesktop;
 			CRect	rectWindow;
@@ -327,7 +338,8 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			Helpers::GetDesktopRect(pointCursor, rectDesktop);
 			Helpers::GetMonitorRect(m_hWnd, rectMonitor);
 
-			if (!rectMonitor.PtInRect(pointCursor)) {
+			if (!rectMonitor.PtInRect(pointCursor))
+			{
 				pWinPos->x = pointCursor.x;
 				pWinPos->y = pointCursor.y;
 			}
@@ -336,41 +348,45 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			int	nTB = -1;
 
 			// now, see if we're close to the edges
-			if (pWinPos->x <= rectDesktop.left + positionSettings.nSnapDistance) {
+			if (pWinPos->x <= rectDesktop.left + positionSettings.nSnapDistance)
+			{
 				pWinPos->x = rectDesktop.left;
 				nLR = 0;
 			}
 			
-			if (pWinPos->x >= rectDesktop.right - rectWindow.Width() - positionSettings.nSnapDistance) {
+			if (pWinPos->x >= rectDesktop.right - rectWindow.Width() - positionSettings.nSnapDistance)
+			{
 				pWinPos->x = rectDesktop.right - rectWindow.Width();
 				nLR = 1;
 			}
 			
-			if (pWinPos->y <= rectDesktop.top + positionSettings.nSnapDistance) {
+			if (pWinPos->y <= rectDesktop.top + positionSettings.nSnapDistance)
+			{
 				pWinPos->y = rectDesktop.top;
 				nTB = 0;
 			}
 			
-			if (pWinPos->y >= rectDesktop.bottom - rectWindow.Height() - positionSettings.nSnapDistance) {
+			if (pWinPos->y >= rectDesktop.bottom - rectWindow.Height() - positionSettings.nSnapDistance)
+			{
 				pWinPos->y = rectDesktop.bottom - rectWindow.Height();
 				nTB = 2;
 			}
 
-			if ((nLR != -1) && (nTB != -1)) {
+			if ((nLR != -1) && (nTB != -1))
+			{
 				m_dockPosition = static_cast<DockPosition>(nTB | nLR);
 			}
 		}
 
 
 		// only for relative backgrounds
-		if (m_activeView.get() != NULL) {
-
+		if (m_activeView.get() != NULL)
+		{
 			shared_ptr<TabData> tabData = m_activeView->GetTabData();
 
 			if ((tabData->tabBackground.get() != NULL) &&
-				tabData->tabBackground->bRelative) {
-
-				TRACE(L"Boink 2\n");
+				tabData->tabBackground->bRelative)
+			{
 				CRect rectClient;
 				GetClientRect(&rectClient);
 				InvalidateRect(&rectClient, FALSE);
@@ -389,8 +405,8 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
 	CPoint	point(LOWORD(lParam), HIWORD(lParam));
 
 	::ReleaseCapture();
@@ -402,13 +418,13 @@ LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
 	UINT	uiFlags = static_cast<UINT>(wParam);
 	CPoint	point(LOWORD(lParam), HIWORD(lParam));
 
-	if (uiFlags & MK_LBUTTON) {
-
+	if (uiFlags & MK_LBUTTON)
+	{
 		ClientToScreen(&point);
 		SetWindowPos(
 			NULL, 
@@ -429,8 +445,8 @@ LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
 	CRect rectWindow;
 	GetWindowRect(&rectWindow);
 
@@ -438,8 +454,8 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 	DWORD dwWindowHeight= rectWindow.Height();
 
 	if ((dwWindowWidth != m_dwWindowWidth) ||
-		(dwWindowHeight != m_dwWindowHeight)) {
-
+		(dwWindowHeight != m_dwWindowHeight))
+	{
 		AdjustWindowSize(true);
 	}
 
@@ -451,8 +467,8 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */) {
-
+LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */)
+{
 	AdjustWindowSize(false);
 	return 0;
 }
@@ -462,8 +478,8 @@ LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */) {
-
+LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
+{
 	HWND						hwndConsoleView	= reinterpret_cast<HWND>(wParam);
 	ConsoleViewMap::iterator	findIt			= m_mapViews.find(hwndConsoleView);
 
@@ -485,25 +501,27 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /* bHandled */) {
-
+LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /* bHandled */)
+{
 	CWindow			consoleView(reinterpret_cast<HWND>(wParam));
 	CString			strCommandText(reinterpret_cast<wchar_t*>(lParam));
 	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 
-	CString	strMainWndTitle(windowSettings.strTitle.c_str());
+	m_strWindowTitle = windowSettings.strTitle.c_str();
 	CString	strTabTitle;
 
 	consoleView.GetWindowText(strTabTitle);
 
-	if (windowSettings.bUseTabTitles) strMainWndTitle = strTabTitle;
+	if (windowSettings.bUseTabTitles) m_strWindowTitle = strTabTitle;
 	if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
-	if (windowSettings.bShowCommand) strMainWndTitle += strCommandText;
+	if (windowSettings.bShowCommand) m_strWindowTitle += strCommandText;
 
 	UpdateTabText(consoleView, strTabTitle);
 	
-	if (consoleView == m_activeView->m_hWnd) {
-		SetWindowText(strMainWndTitle);
+	if (consoleView == m_activeView->m_hWnd)
+	{
+		SetWindowText(m_strWindowTitle);
+		SetTrayIcon(NIM_MODIFY);
 	}
 
 	return 0;
@@ -514,8 +532,8 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
 	POINT	point;
 	point.x = LOWORD(lParam);
 	point.y = HIWORD(lParam);
@@ -539,8 +557,8 @@ LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
 	CPoint	point(LOWORD(lParam), HIWORD(lParam));
 	CRect	windowRect;
 
@@ -559,8 +577,65 @@ LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPa
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled) {
+LRESULT MainFrame::OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	switch (lParam)
+	{
+		case WM_RBUTTONUP :
+		{
+			//if (m_bPopupMenuDisabled) return 0;
 
+			POINT	posCursor;
+			
+			::GetCursorPos(&posCursor);
+			// show popup menu
+			::SetForegroundWindow(m_hWnd);
+
+			CMenu		contextMenu;
+			CMenu		tabsMenu;
+			CMenuHandle	popupMenu;
+
+			contextMenu.LoadMenu(IDR_POPUP_MENU_TAB);
+			popupMenu = contextMenu.GetSubMenu(0);
+			
+			UpdateTabsMenu(popupMenu, tabsMenu);
+			popupMenu.TrackPopupMenu(0, posCursor.x, posCursor.y, m_hWnd);
+
+			// we need this for the menu to close when clicking outside of it
+			PostMessage(WM_NULL, 0, 0);
+			
+			return 0;
+	   }
+			
+		case WM_LBUTTONDOWN : 
+		{
+			// TODO: handle
+//			m_bHideWindow = false;
+//			ShowHideWindow();
+			::SetForegroundWindow(m_hWnd);
+			return 0;
+		}
+			
+		case WM_LBUTTONDBLCLK :
+		{
+			// TODO: handle
+//			m_bHideWindow = !m_bHideWindow;
+//			ShowHideWindow();
+//			::SetForegroundWindow(m_hWnd);
+			return 0;
+		}
+			
+		default : return 0;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
+{
 	NMCTC2ITEMS*				pTabItems	= reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 
 	CTabViewTabItem*			pTabItem1	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
@@ -568,26 +643,34 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled) {
 
 	ConsoleViewMap::iterator	it;
 
-	if (pTabItem1) {
+	if (pTabItem1)
+	{
 		it = m_mapViews.find(pTabItem1->GetTabView());
-		if (it != m_mapViews.end()) {
+		if (it != m_mapViews.end())
+		{
 			it->second->SetViewActive(false);
 		}
 	}
 
-	if (pTabItem2) {
+	if (pTabItem2)
+	{
 		it = m_mapViews.find(pTabItem2->GetTabView());
-		if (it != m_mapViews.end()) {
+		if (it != m_mapViews.end())
+		{
 			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
 			it->second->SetViewActive(true);
 			m_activeView = it->second;
 
 			if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseTabIcon) SetWindowIcons();
 
-		} else {
+		}
+		else
+		{
 			m_activeView = shared_ptr<ConsoleView>();
 		}
 	}
+
+	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
 
 	bHandled = FALSE;
 	return 0;
@@ -598,8 +681,8 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */) {
-
+LRESULT MainFrame::OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */)
+{
 	NMCTC2ITEMS*		pTabItems	= reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 	CTabViewTabItem*	pTabItem	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
 
@@ -613,11 +696,14 @@ LRESULT MainFrame::OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
-	if (wID == ID_FILE_NEW_TAB) {
+LRESULT MainFrame::OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (wID == ID_FILE_NEW_TAB)
+	{
 		CreateNewConsole(0);
-	} else {
+	}
+	else
+	{
 		CreateNewConsole(wID-ID_NEW_TAB_1);
 	}
 	
@@ -629,8 +715,8 @@ LRESULT MainFrame::OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	int nNewSel = wID-ID_SWITCH_TAB_1;
 
 	if (nNewSel >= m_TabCtrl.GetItemCount()) return 0;
@@ -644,8 +730,8 @@ LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnFileCloseTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnFileCloseTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	CTabViewTabItem* pTabItem = m_TabCtrl.GetItem(m_TabCtrl.GetCurSel());
 	
 	CloseTab(pTabItem);
@@ -657,8 +743,8 @@ LRESULT MainFrame::OnFileCloseTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	int nCurSel = m_TabCtrl.GetCurSel();
 
 	if (++nCurSel >= m_TabCtrl.GetItemCount()) nCurSel = 0;
@@ -672,8 +758,8 @@ LRESULT MainFrame::OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	int nCurSel = m_TabCtrl.GetCurSel();
 
 	if (--nCurSel < 0) nCurSel = m_TabCtrl.GetItemCount() - 1;
@@ -687,8 +773,8 @@ LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	PostMessage(WM_CLOSE);
 	return 0;
 }
@@ -698,8 +784,8 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	m_activeView->Copy();
@@ -712,8 +798,8 @@ LRESULT MainFrame::OnCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	m_activeView->Paste();
@@ -726,8 +812,8 @@ LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	m_activeView->Copy();
@@ -740,8 +826,8 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	m_activeView->Paste();
@@ -754,8 +840,8 @@ LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	CString strTabName(L"");
@@ -763,7 +849,8 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 	DlgRenameTab dlg(strTabName);
 
-	if (dlg.DoModal() == IDOK) {
+	if (dlg.DoModal() == IDOK)
+	{
 		m_activeView->SetWindowText(dlg.m_strTabName);
 		m_activeView->UpdateTitles();
 	}
@@ -776,18 +863,20 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	if (m_activeView.get() == NULL) return 0;
 
 	DlgSettingsMain dlg;
 
-	if (dlg.DoModal() == IDOK) {
-
+	if (dlg.DoModal() == IDOK)
+	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	
 		SetTransparency();
 		CreateAcceleratorTable();
+
+		// TODO: tray icon
 
 		ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 		ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
@@ -807,8 +896,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	ShowMenu(!m_bMenuVisible);
 	DockWindow(m_dockPosition);
 	return 0;
@@ -819,8 +908,8 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	ShowToolbar(!m_bToolbarVisible);
 	DockWindow(m_dockPosition);
 	return 0;
@@ -831,8 +920,8 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	ShowTabs(!m_bTabsVisible);
 	DockWindow(m_dockPosition);
 	return 0;
@@ -843,8 +932,8 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	ShowStatusbar(!m_bStatusBarVisible);
 	DockWindow(m_dockPosition);
 	return 0;
@@ -855,9 +944,10 @@ LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
-	if (m_activeView.get() != NULL) {
+LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (m_activeView.get() != NULL)
+	{
 		m_activeView->SetConsoleWindowVisible(!m_activeView->GetConsoleWindowVisible());
 		UISetCheck(ID_VIEW_CONSOLE, m_activeView->GetConsoleWindowVisible() ? TRUE : FALSE);
 	}
@@ -870,8 +960,8 @@ LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
 	CAboutDlg dlg;
 	dlg.DoModal();
 	return 0;
@@ -882,8 +972,8 @@ LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/) {
-
+LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
 	AdjustWindowSize(false);
 	return 0;
 }
@@ -899,8 +989,8 @@ LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& 
 //////////////////////////////////////////////////////////////////////////////
 /*
 
-shared_ptr<ConsoleView> MainFrame::GetActiveView() {
-
+shared_ptr<ConsoleView> MainFrame::GetActiveView()
+{
 	if (m_mapViews.size() == 0) return shared_ptr<ConsoleView>();
 
 	ConsoleViewMap::iterator	findIt		= m_mapViews.find(m_hWndActive);
@@ -915,16 +1005,16 @@ shared_ptr<ConsoleView> MainFrame::GetActiveView() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::AdjustWindowRect(CRect& rect) {
-
+void MainFrame::AdjustWindowRect(CRect& rect)
+{
 	AdjustWindowRectEx(&rect, GetWindowLong(GWL_STYLE), FALSE, GetWindowLong(GWL_EXSTYLE));
 
 	// adjust for the toolbar height
 	CReBarCtrl	rebar(m_hWndToolBar);
 	rect.bottom	+= rebar.GetBarHeight() - 4;
 
-	if (m_bStatusBarVisible) {
-
+	if (m_bStatusBarVisible)
+	{
 		CRect	rectStatusBar(0, 0, 0, 0);
 
 		::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
@@ -940,8 +1030,8 @@ void MainFrame::AdjustWindowRect(CRect& rect) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
-
+void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
+{
 	// adjust the active view
 	if (m_activeView.get() == NULL) return;
 
@@ -949,7 +1039,8 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
 /*
 	GetClientRect(&rectView);
 
-	if (m_bToolbarVisible) {
+	if (m_bToolbarVisible)
+	{
 
 		CRect		rectToolBar			= { 0, 0, 0, 0 };
 		CRect		rectToolBarBorders	= { 0, 0, 0, 0 };
@@ -963,8 +1054,8 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
 		rectView.bottom	-= rectToolBarBorders.top + rectToolBarBorders.bottom;
 	}
 
-	if (m_bStatusBarVisible) {
-
+	if (m_bStatusBarVisible)
+	{
 		CRect	rectStatusBar	= { 0, 0, 0, 0 };
 
 		::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
@@ -978,8 +1069,8 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
 	m_activeView->AdjustRectAndResize(rectView);
 	
 	// for other views, first set view size and then resize their Windows consoles
-	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it) {
-
+	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
+	{
 		if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
 
 		it->second->SetWindowPos(
@@ -1004,14 +1095,15 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MainFrame::CreateNewConsole(DWORD dwTabIndex) {
-
+bool MainFrame::CreateNewConsole(DWORD dwTabIndex)
+{
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
 	DWORD dwRows	= g_settingsHandler->GetConsoleSettings().dwRows;
 	DWORD dwColumns	= g_settingsHandler->GetConsoleSettings().dwColumns;
 
-	if (m_mapViews.size() > 0) {
+	if (m_mapViews.size() > 0)
+	{
 		SharedMemory<ConsoleParams>& consoleParams = m_mapViews.begin()->second->GetConsoleHandler().GetConsoleParams();
 		dwRows		= consoleParams->dwRows;
 		dwColumns	= consoleParams->dwColumns;
@@ -1045,8 +1137,8 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::CloseTab(CTabViewTabItem* pTabItem) {
-
+void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
+{
 	ConsoleViewMap::iterator	it;
 
 	if (!pTabItem) return;
@@ -1069,8 +1161,8 @@ void MainFrame::CloseTab(CTabViewTabItem* pTabItem) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
-
+void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
+{
 	if (!tabsMenu.IsNull()) tabsMenu.DestroyMenu();
 	tabsMenu.CreateMenu();
 
@@ -1079,8 +1171,8 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 	TabDataVector::iterator	it				= tabDataVector.begin();
 	DWORD					dwId			= ID_NEW_TAB_1;
 
-	for (it; it != tabDataVector.end(); ++it, ++dwId) {
-
+	for (it; it != tabDataVector.end(); ++it, ++dwId)
+	{
 		CMenuItemInfo	subMenuItem;
 		ICONINFO		iconInfo;
 		BITMAP			bmp;
@@ -1118,8 +1210,8 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::SetWindowStyles() {
-
+void MainFrame::SetWindowStyles()
+{
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	DWORD	dwStyle		= GetWindowLong(GWL_STYLE);
@@ -1127,7 +1219,8 @@ void MainFrame::SetWindowStyles() {
 
 	if (!stylesSettings.bCaption)	dwStyle &= ~WS_CAPTION;
 	if (!stylesSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
-	if (!stylesSettings.bTaskbarButton) {
+	if (!stylesSettings.bTaskbarButton)
+	{
 		dwStyle		&= ~WS_MINIMIZEBOX;
 		dwExStyle	|= WS_EX_TOOLWINDOW;
 		dwExStyle	&= ~WS_EX_APPWINDOW;
@@ -1145,8 +1238,8 @@ void MainFrame::SetWindowStyles() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::DockWindow(DockPosition dockPosition) {
-
+void MainFrame::DockWindow(DockPosition dockPosition)
+{
 	m_dockPosition = dockPosition;
 	if (m_dockPosition == dockNone) return;
 
@@ -1158,27 +1251,31 @@ void MainFrame::DockWindow(DockPosition dockPosition) {
 	Helpers::GetDesktopRect(m_hWnd, rectDesktop);
 	GetWindowRect(&rectWindow);
 
-	switch (m_dockPosition) {
-
-		case dockTL : {
+	switch (m_dockPosition)
+	{
+		case dockTL :
+		{
 			nX = rectDesktop.left;
 			nY = rectDesktop.top;
 			break;
 		}
 
-		case dockTR : {
+		case dockTR :
+		{
 			nX = rectDesktop.right - rectWindow.Width();
 			nY = rectDesktop.top;
 			break;
 		}
 
-		case dockBR : {
+		case dockBR :
+		{
 			nX = rectDesktop.right - rectWindow.Width();
 			nY = rectDesktop.bottom - rectWindow.Height();
 			break;
 		}
 
-		case dockBL : {
+		case dockBL :
+		{
 			nX = rectDesktop.left;
 			nY = rectDesktop.bottom - rectWindow.Height();
 			break;
@@ -1201,45 +1298,66 @@ void MainFrame::DockWindow(DockPosition dockPosition) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::LoadWindowIcons() {
-
+void MainFrame::SetWindowIcons()
+{
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
 	if (!m_icon.IsNull()) m_icon.DestroyIcon();
 	if (!m_smallIcon.IsNull()) m_smallIcon.DestroyIcon();
 
-	if (windowSettings.strIcon.length() > 0) {
-		m_icon.Attach(static_cast<HICON>(::LoadImage(
-												NULL, 
-												windowSettings.strIcon.c_str(), 
-												IMAGE_ICON, 
-												0, 
-												0, 
-												LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE)));
+	if (windowSettings.bUseTabIcon && (m_activeView.get() != NULL))
+	{
+		m_icon.Attach(m_activeView->GetIcon(true).DuplicateIcon());
+		m_smallIcon.Attach(m_activeView->GetIcon(false).DuplicateIcon());
+	}
+	else
+	{
+		if (windowSettings.strIcon.length() > 0)
+		{
+			m_icon.Attach(static_cast<HICON>(::LoadImage(
+													NULL, 
+													windowSettings.strIcon.c_str(), 
+													IMAGE_ICON, 
+													0, 
+													0, 
+													LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE)));
 
-		m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
-												NULL, 
-												windowSettings.strIcon.c_str(), 
-												IMAGE_ICON, 
-												16, 
-												16, 
-												LR_DEFAULTCOLOR | LR_LOADFROMFILE)));
-	} else {
-		m_icon.Attach(static_cast<HICON>(::LoadImage(
-												NULL, 
-												MAKEINTRESOURCE(IDR_MAINFRAME), 
-												IMAGE_ICON, 
-												0, 
-												0, 
-												LR_DEFAULTCOLOR | LR_DEFAULTSIZE)));
+			m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
+													NULL, 
+													windowSettings.strIcon.c_str(), 
+													IMAGE_ICON, 
+													16, 
+													16, 
+													LR_DEFAULTCOLOR | LR_LOADFROMFILE)));
+		}
+		else
+		{
+			m_icon.Attach(static_cast<HICON>(::LoadImage(
+													::GetModuleHandle(NULL), 
+													MAKEINTRESOURCE(IDR_MAINFRAME), 
+													IMAGE_ICON, 
+													0, 
+													0, 
+													LR_DEFAULTCOLOR | LR_DEFAULTSIZE)));
 
-		m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
-												NULL, 
-												MAKEINTRESOURCE(IDR_MAINFRAME), 
-												IMAGE_ICON, 
-												16, 
-												16, 
-												LR_DEFAULTCOLOR)));
+			m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
+													::GetModuleHandle(NULL), 
+													MAKEINTRESOURCE(IDR_MAINFRAME), 
+													IMAGE_ICON, 
+													16, 
+													16, 
+													LR_DEFAULTCOLOR)));
+		}
+	}
+
+	if (!m_icon.IsNull())
+	{
+		CIcon oldIcon(SetIcon(m_icon, TRUE));
+	}
+
+	if (!m_smallIcon.IsNull())
+	{
+		CIcon oldIcon(SetIcon(m_smallIcon, FALSE));
 	}
 }
 
@@ -1248,34 +1366,8 @@ void MainFrame::LoadWindowIcons() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::SetWindowIcons() {
-
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
-
-	if (windowSettings.bUseTabIcon && (m_activeView.get() != NULL)) {
-
-		CIcon oldIcon(SetIcon(m_activeView->GetIcon(true).DuplicateIcon(), TRUE));
-		CIcon oldSmallIcon(SetIcon(m_activeView->GetIcon(false).DuplicateIcon(), FALSE));
-
-	} else {
-
-		if (!m_icon.IsNull()) {
-			CIcon oldIcon(SetIcon(m_icon, TRUE));
-		}
-
-		if (!m_smallIcon.IsNull()) {
-			CIcon oldIcon(SetIcon(m_icon, FALSE));
-		}
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void MainFrame::ShowMenu(BOOL bShow) {
-
+void MainFrame::ShowMenu(BOOL bShow)
+{
 	m_bMenuVisible = bShow;
 
 	CReBarCtrl rebar(m_hWndToolBar);
@@ -1292,8 +1384,8 @@ void MainFrame::ShowMenu(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowToolbar(BOOL bShow) {
-
+void MainFrame::ShowToolbar(BOOL bShow)
+{
 	m_bToolbarVisible = bShow;
 
 	CReBarCtrl rebar(m_hWndToolBar);
@@ -1310,13 +1402,16 @@ void MainFrame::ShowToolbar(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowTabs(BOOL bShow) {
-
+void MainFrame::ShowTabs(BOOL bShow)
+{
 	m_bTabsVisible = bShow;
 
-	if (m_bTabsVisible) {
+	if (m_bTabsVisible)
+	{
 		ShowTabControl();
-	} else {
+	}
+	else
+	{
 		HideTabControl();
 	}
 
@@ -1331,8 +1426,8 @@ void MainFrame::ShowTabs(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowStatusbar(BOOL bShow) {
-
+void MainFrame::ShowStatusbar(BOOL bShow)
+{
 	m_bStatusBarVisible = bShow;
 
 	::ShowWindow(m_hWndStatusBar, m_bStatusBarVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
@@ -1348,14 +1443,17 @@ void MainFrame::ShowStatusbar(BOOL bShow) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::AdjustWindowSize(bool bResizeConsole) {
-
+void MainFrame::AdjustWindowSize(bool bResizeConsole)
+{
 	CRect clientRect;
 	GetClientRect(&clientRect);
 
-	if (bResizeConsole) {
+	if (bResizeConsole)
+	{
 		AdjustAndResizeConsoleView(clientRect);
-	} else {
+	}
+	else
+	{
 		if (m_activeView.get() == NULL) return;
 
 		m_activeView->GetRect(clientRect);
@@ -1385,16 +1483,17 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::SetTransparency() {
-
+void MainFrame::SetTransparency()
+{
 	// set transparency
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
-	switch (transparencySettings.transType) {
-
+	switch (transparencySettings.transType)
+	{
 		case transAlpha : 
 
 			if ((transparencySettings.byActiveAlpha == 255) &&
-				(transparencySettings.byInactiveAlpha == 255)) {
+				(transparencySettings.byInactiveAlpha == 255))
+			{
 
 				break;
 			}
@@ -1411,8 +1510,8 @@ void MainFrame::SetTransparency() {
 
 			break;
 
-		case transColorKey : {
-
+		case transColorKey :
+		{
 			SetWindowLong(
 				GWL_EXSTYLE, 
 				GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
@@ -1426,8 +1525,8 @@ void MainFrame::SetTransparency() {
 			break;
 		}
 
-		default : {
-
+		default :
+		{
 			SetWindowLong(
 					GWL_EXSTYLE, 
 					GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
@@ -1442,13 +1541,14 @@ void MainFrame::SetTransparency() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::CreateAcceleratorTable() {
-
+void MainFrame::CreateAcceleratorTable()
+{
 	HotKeys&						hotKeys	= g_settingsHandler->GetHotKeys();
 	HotKeys::HotKeysMap::iterator	it		= hotKeys.mapHotKeys.begin();
 	shared_array<ACCEL>				accelTable(new ACCEL[hotKeys.mapHotKeys.size()]);
 
-	for (size_t i = 0; it != hotKeys.mapHotKeys.end(); ++i, ++it) {
+	for (size_t i = 0; it != hotKeys.mapHotKeys.end(); ++i, ++it)
+	{
 		::CopyMemory(&(accelTable[i]), &(it->second->accelHotkey), sizeof(ACCEL));
 	}
 
@@ -1457,3 +1557,30 @@ void MainFrame::CreateAcceleratorTable() {
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+BOOL MainFrame::SetTrayIcon(DWORD dwMessage) {
+	
+	NOTIFYICONDATA	tnd;
+	wstring			strToolTip(m_strWindowTitle);
+
+	tnd.cbSize				= sizeof(NOTIFYICONDATA);
+	tnd.hWnd				= m_hWnd;
+	tnd.uID					= IDC_TRAY_ICON;
+	tnd.uFlags				= NIF_MESSAGE|NIF_ICON|NIF_TIP;
+	tnd.uCallbackMessage	= UM_TRAY_NOTIFY;
+	tnd.hIcon				= m_smallIcon;
+	
+	if (strToolTip.length() > 63) {
+		strToolTip.resize(59);
+		strToolTip += _T(" ...");
+	}
+	
+	wcsncpy(tnd.szTip, strToolTip.c_str(), (sizeof(tnd.szTip)-1)/sizeof(wchar_t));
+	return ::Shell_NotifyIcon(dwMessage, &tnd);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+

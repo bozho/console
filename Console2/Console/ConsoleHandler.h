@@ -15,8 +15,8 @@ typedef fastdelegate::FastDelegate0<>		ConsoleCloseDelegate;
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleHandler {
-
+class ConsoleHandler
+{
 	public:
 		ConsoleHandler();
 		~ConsoleHandler();

@@ -19,14 +19,17 @@
 #define UM_UPDATE_TITLES	WM_USER + 0x1002
 #define UM_SHOW_POPUP_MENU	WM_USER + 0x1003
 #define UM_START_MOUSE_DRAG	WM_USER + 0x1004
+#define UM_TRAY_NOTIFY		WM_USER + 0x1005
+
+#define IDC_TRAY_ICON		0x0001
 
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> > {
-
+class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> >
+{
 	public:
 		DECLARE_WND_CLASS(NULL)
 

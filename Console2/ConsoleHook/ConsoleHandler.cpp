@@ -30,8 +30,8 @@ ConsoleHandler::ConsoleHandler()
 {
 }
 
-ConsoleHandler::~ConsoleHandler() {
-
+ConsoleHandler::~ConsoleHandler()
+{
 	StopMonitorThread();
 }
 
@@ -45,8 +45,8 @@ ConsoleHandler::~ConsoleHandler() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DWORD ConsoleHandler::StartMonitorThread() {
-
+DWORD ConsoleHandler::StartMonitorThread()
+{
 	DWORD dwThreadId = 0;
 	m_hMonitorThread = shared_ptr<void>(
 							::CreateThread(
@@ -66,8 +66,8 @@ DWORD ConsoleHandler::StartMonitorThread() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::StopMonitorThread() {
-
+void ConsoleHandler::StopMonitorThread()
+{
 	::SetEvent(m_hMonitorThreadExit.get());
 	::WaitForSingleObject(m_hMonitorThread.get(), 10000);
 }
@@ -82,8 +82,8 @@ void ConsoleHandler::StopMonitorThread() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::OpenSharedMemory() {
-
+bool ConsoleHandler::OpenSharedMemory()
+{
 	// open startup params  memory object
 	DWORD dwProcessId = ::GetCurrentProcessId();
 
@@ -116,8 +116,8 @@ bool ConsoleHandler::OpenSharedMemory() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ReadConsoleBuffer() {
-
+void ConsoleHandler::ReadConsoleBuffer()
+{
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
 	shared_ptr<void> hStdOut(
@@ -179,8 +179,8 @@ void ConsoleHandler::ReadConsoleBuffer() {
 */
 
 	// read rows 'chunks'
-	for (SHORT i = 0; i < coordConsoleSize.Y / coordBufferSize.Y; ++i) {
-
+	for (SHORT i = 0; i < coordConsoleSize.Y / coordBufferSize.Y; ++i)
+	{
 //		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 
 		::ReadConsoleOutput(
@@ -220,8 +220,8 @@ void ConsoleHandler::ReadConsoleBuffer() {
 	// compare previous buffer, and if different notify Console
 	if ((::memcmp(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
 		(m_dwScreenBufferSize != dwScreenBufferSize) ||
-		(::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0)) {
-
+		(::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0))
+	{
 		SharedMemoryLock memLock(m_consoleBuffer);
 
 		// update screen buffer variables
@@ -239,8 +239,8 @@ void ConsoleHandler::ReadConsoleBuffer() {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows) {
-
+void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows)
+{
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
@@ -259,18 +259,24 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 	TRACE(L"Screen buffer: %ix%i\n", m_consoleParams->dwBufferRows, m_consoleParams->dwBufferColumns);
 
-	if (m_consoleParams->dwBufferColumns == 0) {
+	if (m_consoleParams->dwBufferColumns == 0)
+	{
 		TRACE(L"1: %i\n", dwColumns);
 		coordBufferSize.X = static_cast<SHORT>(dwColumns);
-	} else {
+	}
+	else
+	{
 		TRACE(L"2\n");
 		coordBufferSize.X = static_cast<SHORT>(m_consoleParams->dwBufferColumns);
 	}
 
-	if (m_consoleParams->dwBufferRows == 0) {
+	if (m_consoleParams->dwBufferRows == 0)
+	{
 		TRACE(L"3\n");
 		coordBufferSize.Y = static_cast<SHORT>(dwRows);
-	} else {
+	}
+	else
+	{
 		TRACE(L"4\n");
 		coordBufferSize.Y = static_cast<SHORT>(m_consoleParams->dwBufferRows);
 	}
@@ -291,13 +297,15 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 	// order of setting window size and screen buffer size depends on current and desired dimensions
 	if ((dwColumns < (DWORD) csbi.dwSize.X) ||
-		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) dwColumns * m_consoleParams->dwBufferRows)) {
+		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) dwColumns * m_consoleParams->dwBufferRows))
+	{
 //		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 		
 		TRACE(L"Console 1\n");
 /*
 		if ((m_consoleParams->dwBufferRows > dwRows) && 
-			(static_cast<DWORD>(csbi.dwSize.Y) > m_consoleParams->dwBufferRows)) {
+			(static_cast<DWORD>(csbi.dwSize.Y) > m_consoleParams->dwBufferRows))
+		{
 			
 			TRACE(L"Console 1.1\n");
 			coordBuffersSize.Y				= csbi.dwSize.Y;
@@ -309,13 +317,16 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
 		
 		//	} else if (((DWORD)csbi.dwSize.X < m_dwColumns) || ((DWORD)csbi.dwSize.Y < m_dwBufferRows) || ((DWORD)(csbi.srWindow.Bottom - csbi.srWindow.Top + 1) != m_dwRows)) {
-	} else if ((dwRows < (DWORD) csbi.dwSize.Y) ||
-				((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) dwColumns * m_consoleParams->dwBufferRows)) {
+	}
+	else if ((dwRows < (DWORD) csbi.dwSize.Y) ||
+			((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) dwColumns * m_consoleParams->dwBufferRows))
+	{
 //				((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 
 		// why did we need this???
 /*
-		if (csbi.dwSize.Y < m_consoleParams->dwBufferRows) {
+		if (csbi.dwSize.Y < m_consoleParams->dwBufferRows)
+		{
 			m_consoleParams->dwBufferRows = coordBuffersSize.Y = csbi.dwSize.Y;
 		}
 */
@@ -340,16 +351,16 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText) {
-
+void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText)
+{
 	size_t	textLen			= wcslen(pszText.get());
 	DWORD	dwTextWritten	= 0;
 	
 	scoped_array<INPUT_RECORD> pKeyEvents(new INPUT_RECORD[textLen]);
 	::ZeroMemory(pKeyEvents.get(), sizeof(INPUT_RECORD)*textLen);
 	
-	for (size_t i = 0; i < textLen; ++i) {
-
+	for (size_t i = 0; i < textLen; ++i)
+	{
 		if ((pszText.get()[i] == L'\r') && (pszText.get()[i+1] == L'\n')) continue;
 
 		pKeyEvents[i].EventType							= KEY_EVENT;
@@ -368,8 +379,8 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta) {
-
+void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta)
+{
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 
@@ -394,8 +405,8 @@ void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
-
+void ConsoleHandler::SetConsoleParams(HANDLE hStdOut)
+{
 	// get max console size
 	COORD		coordMaxSize;
 	coordMaxSize = ::GetLargestConsoleWindowSize(hStdOut);
@@ -436,8 +447,8 @@ void ConsoleHandler::SetConsoleParams(HANDLE hStdOut) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter) {
-
+DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter)
+{
 	ConsoleHandler* pConsoleHandler = reinterpret_cast<ConsoleHandler*>(lpParameter);
 	return pConsoleHandler->MonitorThread();
 }
@@ -447,8 +458,8 @@ DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-DWORD ConsoleHandler::MonitorThread() {
-
+DWORD ConsoleHandler::MonitorThread()
+{
 	TRACE(L"Hook!\n");
 
 	// TODO: error handling
@@ -469,25 +480,28 @@ DWORD ConsoleHandler::MonitorThread() {
 	SetConsoleParams(hStdOut);
 	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows);
 
-	HANDLE	arrWaitHandles[]= { 
-				m_hMonitorThreadExit.get(), 
-				hStdOut, 
-				hStdErr, 
-				m_consolePaste.GetEvent(), 
-				m_newConsoleSize.GetEvent(),
-				m_newScrollPos.GetEvent() };
+	HANDLE	arrWaitHandles[] =
+	{
+		m_hMonitorThreadExit.get(), 
+		hStdOut, 
+		hStdErr, 
+		m_consolePaste.GetEvent(), 
+		m_newConsoleSize.GetEvent(),
+		m_newScrollPos.GetEvent()
+	};
 
 	DWORD	dwWaitRes		= 0;
 
-	while ((dwWaitRes = ::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0) {
-
-		switch (dwWaitRes) {
-
+	while ((dwWaitRes = ::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
+	{
+		switch (dwWaitRes)
+		{
 			case WAIT_OBJECT_0 + 1 :
 			case WAIT_OBJECT_0 + 2 :
 				// something changed in the console
 				::Sleep(m_consoleParams->dwNotificationTimeout);
-			case WAIT_TIMEOUT : {
+			case WAIT_TIMEOUT :
+			{
 				// refresh timer
 				ReadConsoleBuffer();
 				::ResetEvent(hStdOut);
@@ -496,8 +510,8 @@ DWORD ConsoleHandler::MonitorThread() {
 			}
 
 			// paste request
-			case WAIT_OBJECT_0 + 3 : {
-
+			case WAIT_OBJECT_0 + 3 :
+			{
 				shared_ptr<wchar_t>	pszPasteBuffer(
 										reinterpret_cast<wchar_t*>(*m_consolePaste.Get()),
 										bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
@@ -507,8 +521,8 @@ DWORD ConsoleHandler::MonitorThread() {
 			}
 
 			// console resize request
-			case WAIT_OBJECT_0 + 4 : {
-
+			case WAIT_OBJECT_0 + 4 :
+			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
 				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
@@ -520,8 +534,8 @@ DWORD ConsoleHandler::MonitorThread() {
 			}
 
 			// console scroll request
-			case WAIT_OBJECT_0 + 5 : {
-
+			case WAIT_OBJECT_0 + 5 :
+			{
 				SharedMemoryLock memLock(m_newScrollPos);
 
 				ScrollConsole(hStdOut, m_newScrollPos->cx, m_newScrollPos->cy);

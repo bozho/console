@@ -50,8 +50,8 @@ ConsoleSettings::ConsoleSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pConsoleElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
@@ -65,8 +65,8 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows, 0);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns, 0);
 
-	for (DWORD i = 0; i < 16; ++i) {
-
+	for (DWORD i = 0; i < 16; ++i)
+	{
 		CComPtr<IXMLDOMElement>	pFontColorElement;
 
 		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(str(wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
@@ -85,8 +85,8 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pConsoleElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
@@ -100,8 +100,8 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns);
 
-	for (DWORD i = 0; i < 16; ++i) {
-
+	for (DWORD i = 0; i < 16; ++i)
+	{
 		CComPtr<IXMLDOMElement>	pFontColorElement;
 
 		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(str(wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
@@ -139,8 +139,8 @@ FontSettings::FontSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pFontElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
@@ -165,8 +165,8 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pFontElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
@@ -211,8 +211,8 @@ WindowSettings::WindowSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pWindowElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
@@ -232,8 +232,8 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pWindowElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
@@ -271,8 +271,8 @@ ControlsSettings::ControlsSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pCtrlsElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
@@ -290,8 +290,8 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pCtrlsElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
@@ -320,6 +320,7 @@ StylesSettings::StylesSettings()
 , bTaskbarButton(true)
 , bBorder(true)
 , dwInsideBoder(2)
+, bTrayIcon(false)
 {
 }
 
@@ -328,8 +329,8 @@ StylesSettings::StylesSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pStylesElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
@@ -339,6 +340,7 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"border"), bBorder, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBoder, 2);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon, false);
 
 	return true;
 }
@@ -348,8 +350,8 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pStylesElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
@@ -359,6 +361,7 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"border"), bBorder);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBoder);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon);
 
 	return true;
 }
@@ -387,8 +390,8 @@ PositionSettings::PositionSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pPositionElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
@@ -407,8 +410,8 @@ bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pPositionElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
@@ -445,8 +448,8 @@ TransparencySettings::TransparencySettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pTransElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
@@ -464,8 +467,8 @@ bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pTransElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
@@ -497,8 +500,8 @@ AppearanceSettings::AppearanceSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	fontSettings.Load(pOptionsRoot);
 	windowSettings.Load(pOptionsRoot);
 	controlsSettings.Load(pOptionsRoot);
@@ -513,8 +516,8 @@ bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	fontSettings.Save(pOptionsRoot);
 	windowSettings.Save(pOptionsRoot);
 	controlsSettings.Save(pOptionsRoot);
@@ -546,8 +549,8 @@ CopyPasteSettings::CopyPasteSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pCopyPasteElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
@@ -564,8 +567,8 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pCopyPasteElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
@@ -598,8 +601,8 @@ MouseDragSettings::MouseDragSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pMouseDragElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
@@ -615,8 +618,8 @@ bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	CComPtr<IXMLDOMElement>	pMouseDragElement;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
@@ -646,8 +649,8 @@ BehaviorSettings::BehaviorSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	copyPasteSettings.Load(pOptionsRoot);
 	mouseDragSettings.Load(pOptionsRoot);
 	return true;
@@ -658,8 +661,8 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	copyPasteSettings.Save(pOptionsRoot);
 	mouseDragSettings.Save(pOptionsRoot);
 	return true;
@@ -715,8 +718,8 @@ HotKeys::HotKeys()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
 
@@ -726,8 +729,8 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	long	lListLength;
 	pHotKeyNodes->get_length(&lListLength);
 
-	for (long i = 0; i < lListLength; ++i) {
-
+	for (long i = 0; i < lListLength; ++i)
+	{
 		CComPtr<IXMLDOMNode>	pHotKeyNode;
 		CComPtr<IXMLDOMElement>	pHotKeyElement;
 
@@ -777,20 +780,21 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMElement>		pHotkeysElement;
 	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
 
-	if (SUCCEEDED(pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes))) {
+	if (SUCCEEDED(pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes)))
+	{
 		long	lListLength;
 		pHotKeyNodes->get_length(&lListLength);
 
-		for (long i = 0; i < lListLength; ++i) {
-
+		for (long i = 0; i < lListLength; ++i)
+		{
 			CComPtr<IXMLDOMNode>	pHotKeyNode;
 			CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
 			if (FAILED(pHotKeyNodes->get_item(i, &pHotKeyNode))) continue; 
@@ -804,8 +808,8 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 		pHotkeysElement->get_ownerDocument(&pSettingsDoc);
 
-		for (itCommand = vecCommands.begin(); itCommand != vecCommands.end(); ++itCommand) {
-
+		for (itCommand = vecCommands.begin(); itCommand != vecCommands.end(); ++itCommand)
+		{
 			CComPtr<IXMLDOMElement>	pNewHotkeyElement;
 			CComPtr<IXMLDOMNode>	pNewHotkeyOut;
 			HotKeysMap::iterator	itHotkey = mapHotKeys.find((*itCommand)->wCommandID);
@@ -837,9 +841,12 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 			CComPtr<IXMLDOMText>	pDomText;
 			CComPtr<IXMLDOMNode>	pDomTextOut;
 
-			if (itCommand == itLastCommand) {
+			if (itCommand == itLastCommand)
+			{
 				pSettingsDoc->createTextNode(CComBSTR(L"\n\t"), &pDomText);
-			} else {
+			}
+			else
+			{
 				pSettingsDoc->createTextNode(CComBSTR(L"\n\t\t"), &pDomText);
 			}
 
@@ -870,8 +877,8 @@ TabSettings::TabSettings(const ConsoleSettings& conSettings)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pTabNodes;
 
@@ -881,8 +888,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 	long	lListLength;
 	pTabNodes->get_length(&lListLength);
 
-	for (long i = 0; i < lListLength; ++i) {
-
+	for (long i = 0; i < lListLength; ++i)
+	{
 		CComPtr<IXMLDOMNode>	pTabNode;
 		CComPtr<IXMLDOMElement>	pTabElement;
 
@@ -901,8 +908,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 		tabDataVector.push_back(tabData);
 
 		// load icon
-		if (strIconFile.length() > 0) {
-
+		if (strIconFile.length() > 0)
+		{
 			tabData->tabIcon = static_cast<HICON>(::LoadImage(
 															NULL, 
 															strIconFile.c_str(), 
@@ -918,8 +925,9 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 															16, 
 															16, 
 															LR_DEFAULTCOLOR|LR_LOADFROMFILE));
-		} else {
-
+		}
+		else
+		{
 			tabData->tabIcon = static_cast<HICON>(::LoadImage(
 															::GetModuleHandle(NULL), 
 															MAKEINTRESOURCE(IDR_MAINFRAME), 
@@ -937,28 +945,28 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 															LR_DEFAULTCOLOR));
 		}
 
-		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement))) {
-
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement)))
+		{
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, consoleSettings.strShell);
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, consoleSettings.strInitialDir);
 		}
 
-		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement))) {
-
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement)))
+		{
 			XmlHelper::GetAttribute(pCursorElement, CComBSTR(L"style"), tabData->dwCursorStyle, 0);
 			XmlHelper::GetRGBAttribute(pCursorElement, tabData->crCursorColor, RGB(255, 255, 255));
 		}
 
-		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background"), pBackgroundElement))) {
-
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background"), pBackgroundElement)))
+		{
 			DWORD dwBackgroundImageType = 0;
 			XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"type"), dwBackgroundImageType, 0);
 			XmlHelper::GetRGBAttribute(pBackgroundElement, tabData->crBackgroundColor, RGB(0, 0, 0));
 
 			tabData->backgroundImageType = static_cast<BackgroundImageType>(dwBackgroundImageType);
 
-			if (tabData->backgroundImageType != bktypeNone) {
-
+			if (tabData->backgroundImageType != bktypeNone)
+			{
 				// load image settings and let ImageHandler return appropriate bitmap
 				CComPtr<IXMLDOMElement>	pImageElement;
 				CComPtr<IXMLDOMElement>	pTintElement;
@@ -972,12 +980,14 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 				if (FAILED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image"), pImageElement))) return false;
 
-				if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image/tint"), pTintElement))) {
+				if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image/tint"), pTintElement)))
+				{
 					XmlHelper::GetRGBAttribute(pTintElement, crTint, RGB(0, 0, 0));
 					XmlHelper::GetAttribute(pTintElement, CComBSTR(L"opacity"), byTintOpacity, 0);
 				}
 
-				if (tabData->backgroundImageType == bktypeImage) {
+				if (tabData->backgroundImageType == bktypeImage)
+				{
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
@@ -992,11 +1002,14 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 																crTint, 
 																byTintOpacity);
 
-				} else if (tabData->backgroundImageType == bktypeDesktop) {
+				}
+				else if (tabData->backgroundImageType == bktypeDesktop)
+				{
 					tabData->tabBackground = g_imageHandler->GetDesktopImageData(crTint, byTintOpacity);
 				}
 
-				if (tabData->tabBackground.get() == NULL) {
+				if (tabData->tabBackground.get() == NULL)
+				{
 					tabData->backgroundImageType = bktypeNone;
 				}
 			}
@@ -1011,8 +1024,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) {
-
+bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+{
 	return true;
 }
 
@@ -1048,8 +1061,8 @@ SettingsHandler::~SettingsHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName) {
-
+bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
+{
 	HRESULT hr = S_OK;
 
 	m_strSettingsFileName = strSettingsFileName;

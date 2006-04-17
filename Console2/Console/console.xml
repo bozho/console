@@ -63,7 +63,7 @@
 		<hotkey ctrl="0" shift="1" alt="0" extended="1" code="45" command="paste"/>
 	</hotkeys>
 	<tabs>
-		<tab name="Console2">
+		<tab title="Console2">
 			<cursor style="0" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="F:\Smece\back2.bmp" relative="1" extend="0" position="0">
@@ -71,7 +71,7 @@
 				</image>
 			</background>
 		</tab>
-		<tab name="Tab 2" icon="F:\Smece\a.ico">
+		<tab title="Tab 2" icon="F:\Smece\a.ico">
 			<console shell="cmd.exe" init_dir="C:\"/>
 			<cursor style="1" r="255" g="255" b="255"/>
 			<background type="1" r="0" g="0" b="0">

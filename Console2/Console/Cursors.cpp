@@ -20,6 +20,28 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+wchar_t* Cursor::s_cursorNames[] =
+{
+	L"XTerm",
+	L"Block",
+	L"Nonblinking block",
+	L"Pulse",
+	L"Bar",
+	L"Console",
+	L"Nonblinking horz. line",
+	L"Horizontal line",
+	L"Vertical line",
+	L"Rect",
+	L"Nonblinking rect",
+	L"Pulsating rect",
+	L"Fading block"
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 {
 	shared_ptr<Cursor> newCursor;

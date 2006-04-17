@@ -21,17 +21,17 @@ class DlgSettingsStyles
 		DlgSettingsStyles(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsStyles)
-			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_nShowMenu);
-			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs);
-			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_nShowToolbar);
-			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar);
-			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption);
-			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable);
-			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder);
-			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_nTaskbarButton);
-			DDX_CHECK(IDC_CHECK_STYLE_TRAY, m_nTrayIcon);
-			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBoder);
-			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType));
+			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_nShowMenu)
+			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs)
+			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_nShowToolbar)
+			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar)
+			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption)
+			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable)
+			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder)
+			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_nTaskbarButton)
+			DDX_CHECK(IDC_CHECK_STYLE_TRAY, m_nTrayIcon)
+			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBoder)
+			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType))
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsStyles)

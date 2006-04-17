@@ -216,8 +216,6 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD
 		DoDataExchange(DDX_LOAD);
 	}
 
-	DoDataExchange(DDX_LOAD);
-
 	return 0;
 }
 

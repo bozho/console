@@ -13,8 +13,22 @@ enum ImagePosition
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct ImageData
 {
+	ImageData()
+	: strFilename(L"")
+	, bRelative(false)
+	, bExtend(false)
+	, imagePosition(imgPosCenter)
+	, crBackground(RGB(0, 0, 0))
+	, crTint(RGB(0, 0, 0))
+	, byTintOpacity(0)
+	{
+	}
+
 	ImageData(const wstring& filename, bool relative, bool extend, ImagePosition position, COLORREF background, COLORREF tint, BYTE tintOpacity)
 	: strFilename(filename)
 	, bRelative(relative)
@@ -23,14 +37,31 @@ struct ImageData
 	, crBackground(background)
 	, crTint(tint)
 	, byTintOpacity(tintOpacity)
-	, dwOriginalImageWidth(0)
-	, dwOriginalImageHeight(0)
-	, dwImageWidth(0)
-	, dwImageHeight(0)
-	, originalImage()
-	, image()
-	, dcImage()
 	{
+	}
+
+	ImageData(const ImageData& other)
+	: strFilename(other.strFilename)
+	, bRelative(other.bRelative)
+	, bExtend(other.bExtend)
+	, imagePosition(other.imagePosition)
+	, crBackground(other.crBackground)
+	, crTint(other.crTint)
+	, byTintOpacity(other.byTintOpacity)
+	{
+	}
+
+	ImageData& operator=(const ImageData& other)
+	{
+		strFilename		= other.strFilename;
+		bRelative		= other.bRelative;
+		bExtend			= other.bExtend;
+		imagePosition	= other.imagePosition;
+		crBackground	= other.crBackground;
+		crTint			= other.crTint;
+		byTintOpacity	= other.byTintOpacity;
+
+		return *this;
 	}
 
 	bool operator==(const ImageData& other) const
@@ -57,6 +88,29 @@ struct ImageData
 	COLORREF			crTint;
 	BYTE				byTintOpacity;
 
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct BackgroundImage
+{
+	BackgroundImage(const ImageData& data)
+	: imageData(data)
+	, dwOriginalImageWidth(0)
+	, dwOriginalImageHeight(0)
+	, dwImageWidth(0)
+	, dwImageHeight(0)
+	, originalImage()
+	, image()
+	, dcImage()
+	{
+	}
+
+	ImageData			imageData;
+
 	DWORD				dwOriginalImageWidth;
 	DWORD				dwOriginalImageHeight;
 	DWORD				dwImageWidth;
@@ -70,19 +124,19 @@ struct ImageData
 
 struct MonitorEnumData
 {
-	MonitorEnumData(CDC& dcTempl, shared_ptr<ImageData>& imgData)
-	: imageData(imgData)
+	MonitorEnumData(CDC& dcTempl, shared_ptr<BackgroundImage>& img)
+	: bkImage(img)
 	, dcTemplate(dcTempl)
 	{
 	}
 
-	shared_ptr<ImageData>&	imageData;
-	CDC&					dcTemplate;
+	shared_ptr<BackgroundImage>&	bkImage;
+	CDC&							dcTemplate;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-typedef vector<shared_ptr<ImageData> >	Images;
+typedef vector<shared_ptr<BackgroundImage> >	Images;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -100,18 +154,20 @@ class ImageHandler
 
 	public:
 
-		shared_ptr<ImageData> GetImageData(const wstring& strFilename, bool bRelative, bool bExtend, ImagePosition imagePosition, COLORREF crBackground, COLORREF crTint, BYTE byTintOpacity);
-		shared_ptr<ImageData> GetDesktopImageData(COLORREF crTint, BYTE byTintOpacity);
-		bool LoadImage(shared_ptr<ImageData>& imageData);
-		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
+		shared_ptr<BackgroundImage> GetImage(const ImageData& imageData);
+		shared_ptr<BackgroundImage> GetDesktopImage(ImageData& imageData);
+
+		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage);
 
 	private:
 
-		void CreateRelativeImage(const CDC& dc, shared_ptr<ImageData>& imageData);
-		void CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<ImageData>& imageData);
+		bool LoadImage(shared_ptr<BackgroundImage>& bkImage);
 
-		static void PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, shared_ptr<ImageData>& imageData);
-		static void TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, shared_ptr<ImageData>& imageData);
+		void CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage);
+		void CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage);
+
+		static void PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, shared_ptr<BackgroundImage>& bkImage);
+		static void TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, shared_ptr<BackgroundImage>& bkImage);
 
 		// called by the ::EnumDisplayMonitors to create background for each display
 		static BOOL CALLBACK MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData);

@@ -21,8 +21,8 @@ class DlgSettingsConsole
 		DlgSettingsConsole(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsConsole)
-			DDX_TEXT(IDC_SHELL, m_strShell);
-			DDX_TEXT(IDC_INIT_DIR, m_strInitialDir);
+			DDX_TEXT(IDC_SHELL, m_strShell)
+			DDX_TEXT(IDC_INIT_DIR, m_strInitialDir)
 			DDX_UINT(IDC_CHANGE_REFRESH, m_consoleSettings.dwChangeRefreshInterval)
 			DDX_UINT(IDC_REFRESH, m_consoleSettings.dwRefreshInterval)
 			DDX_UINT(IDC_ROWS, m_consoleSettings.dwRows)

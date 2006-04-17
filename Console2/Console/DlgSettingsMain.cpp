@@ -7,6 +7,7 @@
 #include "DlgSettingsAppearance.h"
 #include "DlgSettingsStyles.h"
 #include "DlgSettingsHotkeys.h"
+#include "DlgSettingsTabs.h"
 #include "DlgSettingsMain.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -138,11 +139,15 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create transparency settings dialog
 	shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pOptionsRoot)));
-	AddDialogToTree(L"Transparency", dlgStyles, rect, htiAppearance);
+	AddDialogToTree(L"More...", dlgStyles, rect, htiAppearance);
 
 	// create hotkeys settings dialog
 	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pOptionsRoot)));
 	AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
+
+	// create tabs settings dialog
+	shared_ptr<DlgSettingsBase>	dlgTabs(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTabs(m_pOptionsRoot)));
+	AddDialogToTree(L"Tabs", dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);
 	m_treeCtrl.SelectItem(m_treeCtrl.GetRootItem());

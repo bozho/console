@@ -154,6 +154,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		AppearanceSettings&				m_appearanceSettings;
 
 		shared_ptr<TabData>				m_tabData;
+		shared_ptr<BackgroundImage>		m_background;
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;

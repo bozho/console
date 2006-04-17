@@ -69,7 +69,7 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, DWORD dwStartupRows, DWORD dwStartupColumns)
+bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns)
 {
 	wstring	strShell(strCustomShell);
 	
@@ -91,8 +91,6 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	// TODO: build command line
 	wstring	strShellCmdLine(strShell);
-	// TODO: build console title
-	wstring	strConsoleTitle((wformat(L"Console command window 0x%08X") % this).str());
 
 	// setup the startup info struct
 	STARTUPINFO si;

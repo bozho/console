@@ -334,44 +334,38 @@ enum BackgroundImageType
 
 struct TabData
 {
-	TabData(const ConsoleSettings& conSettings)
-	: strShell(conSettings.strShell)
-	, strInitialDir(conSettings.strInitialDir)
-	, strName(L"Console")
+	TabData(const wstring& shell, const wstring& initialDir)
+	: strTitle(L"Console")
+	, strIcon(L"")
+	, tabIcon()
+	, tabSmallIcon()
+	, strShell(shell)
+	, strInitialDir(initialDir)
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
-	, tabIcon()
-	, tabSmallIcon()
-	, tabBackground()
-	, consoleSettings(conSettings)
+	, imageData()
 	{
-	}
-
-	bool IsBackgroundRelative() const
-	{
-		if (tabBackground.get() == NULL) return false;
-		return tabBackground->bRelative;
 	}
 
 	// custom shell settings
+	wstring							strTitle;
+	wstring							strIcon;
+
+	CIcon							tabIcon;
+	CIcon							tabSmallIcon;
+
 	wstring							strShell;
 	wstring							strInitialDir;
 
-	wstring							strName;
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;
 
 	BackgroundImageType				backgroundImageType;
 	COLORREF						crBackgroundColor;
 
-	CIcon							tabIcon;
-	CIcon							tabSmallIcon;
-	shared_ptr<ImageData>			tabBackground;
-
-private:
-	const ConsoleSettings&			consoleSettings;
+	ImageData						imageData;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -383,15 +377,19 @@ typedef vector<shared_ptr<TabData> >	TabDataVector;
 
 struct TabSettings : public SettingsBase
 {
-	TabSettings(const ConsoleSettings& conSettings);
+	TabSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
 
+	void SetDefaults(const wstring& defaultShell, const wstring& defaultInitialDir);
+
 	TabDataVector	tabDataVector;
 
 private:
-	const ConsoleSettings&			consoleSettings;
+
+	wstring			strDefaultShell;
+	wstring			strDefaultInitialDir;
 };
 
 //////////////////////////////////////////////////////////////////////////////

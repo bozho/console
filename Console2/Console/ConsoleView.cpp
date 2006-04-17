@@ -40,6 +40,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
+, m_background()
 , m_cursor()
 , m_selectionHandler()
 {
@@ -78,25 +79,29 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 */
 
 	// set view title
-	SetWindowText(m_tabData->strName.c_str());
+	SetWindowText(m_tabData->strTitle.c_str());
 
 	m_consoleHandler.SetupDelegates(
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// load background image
-	if (m_tabData->backgroundImageType != bktypeNone)
+	if (m_tabData->backgroundImageType == bktypeImage)
 	{
-		if (!g_imageHandler->LoadImage(m_tabData->tabBackground))
-		{
-			m_tabData->backgroundImageType = bktypeNone;
-		}
+		m_background = g_imageHandler->GetImage(m_tabData->imageData);
 	}
+	else if (m_tabData->backgroundImageType == bktypeDesktop)
+	{
+		m_background = g_imageHandler->GetDesktopImage(m_tabData->imageData);
+	}
+
+	if (m_background.get() == NULL) m_tabData->backgroundImageType = bktypeNone;
 
 	// TODO: error handling
 	if (!m_consoleHandler.StartShellProcess(
 								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : m_consoleSettings.strShell, 
 								(m_tabData->strInitialDir.length() > 0) ? m_tabData->strInitialDir : m_consoleSettings.strInitialDir, 
+								m_tabData->strTitle,
 								m_dwStartupRows, 
 								m_dwStartupColumns))
 	{
@@ -106,7 +111,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	// set current language in the console window
 	::PostMessage(
-		m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, 
+		m_consoleHandler.GetConsoleParams()->hwndConsoleWindow,
 		WM_INPUTLANGCHANGEREQUEST, 
 		0, 
 		reinterpret_cast<LPARAM>(::GetKeyboardLayout(0)));
@@ -155,7 +160,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 {
 	CPaintDC	dc(m_hWnd);
 
-	if ((m_tabData->backgroundImageType != bktypeNone) && m_tabData->IsBackgroundRelative())
+	if ((m_tabData->backgroundImageType != bktypeNone) && m_tabData->imageData.bRelative)
 	{
 		// we need to update offscreen buffers here for relative backgrounds
 		UpdateOffscreen(dc.m_ps.rcPaint);
@@ -546,6 +551,7 @@ void ConsoleView::UpdateTitles()
 	CString strCommandText;
 	consoleWnd.GetWindowText(strCommandText);
 
+/*
 	int		nPos = strCommandText.Find(L'-');
 
 	if (nPos == -1)
@@ -556,6 +562,7 @@ void ConsoleView::UpdateTitles()
 	{
 		strCommandText = strCommandText.Right(strCommandText.GetLength() - nPos + 1);
 	}
+*/
 
 	GetParent().SendMessage(
 					UM_UPDATE_TITLES, 
@@ -719,7 +726,7 @@ void ConsoleView::CreateOffscreenBuffers()
 	m_cursor = CursorFactory::CreateCursor(
 								m_hWnd, 
 								m_bAppActive, 
-								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleConsole, 
+								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleXTerm, 
 								dcWindow, 
 								rectCursor, 
 								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->crCursorColor) : RGB(255, 255, 255));
@@ -1330,7 +1337,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 		GetClientRect(&rectBlit);
 	}
 
-	if ((m_tabData->backgroundImageType == bktypeNone) || !m_tabData->IsBackgroundRelative())
+	if ((m_tabData->backgroundImageType == bktypeNone) || !m_tabData->imageData.bRelative)
 	{
 		// we don't do this for relative backgrounds here
 		UpdateOffscreen(rectBlit);
@@ -1351,9 +1358,9 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 
 	if (m_tabData->backgroundImageType != bktypeNone)
 	{
-		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_tabData->tabBackground);
+		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_background);
 
-		if (m_tabData->tabBackground->bRelative)
+		if (m_tabData->imageData.bRelative)
 		{
 			POINT	pointClientScreen = {0, 0};
 			ClientToScreen(&pointClientScreen);
@@ -1363,7 +1370,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 							rectBlit.top, 
 							rectBlit.right, 
 							rectBlit.bottom, 
-							m_tabData->tabBackground->dcImage, 
+							m_background->dcImage, 
 							rectBlit.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
 							rectBlit.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
 							SRCCOPY);
@@ -1376,7 +1383,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 							rectBlit.top, 
 							rectBlit.right, 
 							rectBlit.bottom, 
-							m_tabData->tabBackground->dcImage, 
+							m_background->dcImage, 
 							rectBlit.left, 
 							rectBlit.top, 
 							SRCCOPY);

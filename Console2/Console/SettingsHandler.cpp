@@ -867,8 +867,9 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-TabSettings::TabSettings(const ConsoleSettings& conSettings)
-: consoleSettings(conSettings)
+TabSettings::TabSettings()
+: strDefaultShell(L"")
+, strDefaultInitialDir(L"")
 {
 }
 
@@ -896,23 +897,22 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 		pTabNodes->get_item(i, &pTabNode);
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
-		shared_ptr<TabData>	tabData(new TabData(consoleSettings));
+		shared_ptr<TabData>	tabData(new TabData(strDefaultShell, strDefaultInitialDir));
 		CComPtr<IXMLDOMElement>	pConsoleElement;
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;
-		wstring					strIconFile(L"");
 
-		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"name"), tabData->strName, L"Console");
-		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), strIconFile, L"");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"title"), tabData->strTitle, L"Console");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), tabData->strIcon, L"");
 
 		tabDataVector.push_back(tabData);
 
 		// load icon
-		if (strIconFile.length() > 0)
+		if (tabData->strIcon.length() > 0)
 		{
 			tabData->tabIcon = static_cast<HICON>(::LoadImage(
 															NULL, 
-															strIconFile.c_str(), 
+															tabData->strIcon.c_str(), 
 															IMAGE_ICON, 
 															0, 
 															0, 
@@ -920,7 +920,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 			tabData->tabSmallIcon = static_cast<HICON>(::LoadImage(
 															NULL, 
-															strIconFile.c_str(), 
+															tabData->strIcon.c_str(), 
 															IMAGE_ICON, 
 															16, 
 															16, 
@@ -947,8 +947,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement)))
 		{
-			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, consoleSettings.strShell);
-			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, consoleSettings.strInitialDir);
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, strDefaultShell);
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, strDefaultInitialDir);
 		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement)))
@@ -960,6 +960,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background"), pBackgroundElement)))
 		{
 			DWORD dwBackgroundImageType = 0;
+
 			XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"type"), dwBackgroundImageType, 0);
 			XmlHelper::GetRGBAttribute(pBackgroundElement, tabData->crBackgroundColor, RGB(0, 0, 0));
 
@@ -971,46 +972,24 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 				CComPtr<IXMLDOMElement>	pImageElement;
 				CComPtr<IXMLDOMElement>	pTintElement;
 
-				wstring		strFilename(L"");
-				bool		bRelative		= false;
-				bool		bExtend			= false;
-				DWORD		dwImagePosition	= 0;
-				COLORREF	crTint			= RGB(0, 0, 0);
-				BYTE		byTintOpacity	= 0;
-
 				if (FAILED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image"), pImageElement))) return false;
 
 				if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background/image/tint"), pTintElement)))
 				{
-					XmlHelper::GetRGBAttribute(pTintElement, crTint, RGB(0, 0, 0));
-					XmlHelper::GetAttribute(pTintElement, CComBSTR(L"opacity"), byTintOpacity, 0);
+					XmlHelper::GetRGBAttribute(pTintElement, tabData->imageData.crTint, RGB(0, 0, 0));
+					XmlHelper::GetAttribute(pTintElement, CComBSTR(L"opacity"), tabData->imageData.byTintOpacity, 0);
 				}
 
 				if (tabData->backgroundImageType == bktypeImage)
 				{
-					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), strFilename, wstring(L""));
-					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), bRelative, false);
-					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), bExtend, false);
+					DWORD dwImagePosition = 0;
+
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"), tabData->imageData.strFilename, wstring(L""));
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), tabData->imageData.bRelative, false);
+					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"), tabData->imageData.bExtend, false);
 					XmlHelper::GetAttribute(pImageElement, CComBSTR(L"position"), dwImagePosition, 0);
 
-					tabData->tabBackground = g_imageHandler->GetImageData(
-																strFilename, 
-																bRelative, 
-																bExtend, 
-																static_cast<ImagePosition>(dwImagePosition),
-																tabData->crBackgroundColor,
-																crTint, 
-																byTintOpacity);
-
-				}
-				else if (tabData->backgroundImageType == bktypeDesktop)
-				{
-					tabData->tabBackground = g_imageHandler->GetDesktopImageData(crTint, byTintOpacity);
-				}
-
-				if (tabData->tabBackground.get() == NULL)
-				{
-					tabData->backgroundImageType = bktypeNone;
+					tabData->imageData.imagePosition = static_cast<ImagePosition>(dwImagePosition);
 				}
 			}
 		}
@@ -1033,6 +1012,17 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void TabSettings::SetDefaults(const wstring& defaultShell, const wstring& defaultInitialDir)
+{
+	strDefaultShell		= defaultShell;
+	strDefaultInitialDir= defaultInitialDir;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1043,7 +1033,7 @@ SettingsHandler::SettingsHandler()
 : m_pOptionsDocument()
 , m_pOptionsRoot()
 , m_strSettingsFileName(L"")
-, m_tabSettings(m_consoleSettings)
+, m_tabSettings()
 {
 }
 
@@ -1075,6 +1065,8 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	m_appearanceSettings.Load(m_pOptionsRoot);
 	m_behaviorSettings.Load(m_pOptionsRoot);
 	m_hotKeys.Load(m_pOptionsRoot);
+
+	m_tabSettings.SetDefaults(m_consoleSettings.strShell, m_consoleSettings.strInitialDir);
 	m_tabSettings.Load(m_pOptionsRoot);
 
 	return true;

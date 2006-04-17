@@ -171,6 +171,9 @@
 				RelativePath=".\DlgSettingsStyles.cpp">
 			</File>
 			<File
+				RelativePath=".\DlgSettingsTabs.cpp">
+			</File>
+			<File
 				RelativePath=".\Helpers.cpp">
 			</File>
 			<File
@@ -242,6 +245,9 @@
 			</File>
 			<File
 				RelativePath=".\DlgSettingsStyles.h">
+			</File>
+			<File
+				RelativePath=".\DlgSettingsTabs.h">
 			</File>
 			<File
 				RelativePath=".\FastDelegate.h">

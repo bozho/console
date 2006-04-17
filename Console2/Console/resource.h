@@ -14,6 +14,7 @@
 #define IDD_SETTINGS_TRANSPARENCY       209
 #define IDD_SETTINGS_STYLES             209
 #define IDD_SETTINGS_TEMP               210
+#define IDD_SETTINGS_TABS               211
 #define ID_NEW_TAB_1                    1000
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -30,6 +31,7 @@
 #define IDC_BTN_BROWSE_SHELL            1015
 #define IDC_BTN_BROWSE_DIR              1016
 #define IDC_CLR_00                      1017
+#define IDC_BTN_BROWSE_BK               1017
 #define IDC_CLR_01                      1018
 #define IDC_CLR_02                      1019
 #define IDC_CLR_03                      1020
@@ -127,6 +129,33 @@
 #define IDC_CHECK_USE_TAB_ICON          1113
 #define IDC_CHECK_SHOW_COMMAND          1114
 #define IDC_CHECK_SHOW_COMMAND_TABS     1115
+#define IDC_LIST_TABS                   1116
+#define IDC_TAB_TITLE                   1117
+#define IDC_TAB_ICON                    1118
+#define IDC_TAB_SHELL                   1119
+#define IDC_TAB_INIT_DIR                1120
+#define IDC_COMBO_CURSOR                1121
+#define IDC_CURSOR_COLOR                1122
+#define IDC_RADIO_BK_TYPE               1123
+#define IDC_RADIO_BK_TYPE2              1124
+#define IDC_RADIO_BK_TYPE3              1125
+#define IDC_BK_COLOR                    1126
+#define IDC_BK_IMAGE                    1127
+#define IDC_CHECK_BK_RELATIVE           1128
+#define IDC_CHECK_BK_EXTEND             1129
+#define IDC_COMBO_BK_POS                1130
+#define IDC_TINT_COLOR                  1131
+#define IDC_TINT_OPACITY                1132
+#define IDC_STATIC_TINT_OPACITY         1133
+#define IDC_BTN_ADD                     1134
+#define IDC_BTN_UP                      1135
+#define IDC_BTN_DOWN                    1136
+#define IDC_BTN_DELETE                  1137
+#define IDC_STATIC_BK_COLOR             1138
+#define IDC_STATIC_TINT_COLOR           1139
+#define IDC_STATIC_BK_IMAGE             1140
+#define IDC_STATIC_BK_POS               1141
+#define IDC_TINT_OPACITY_VAL            1142
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -144,9 +173,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        208
+#define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1116
+#define _APS_NEXT_CONTROL_VALUE         1143
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

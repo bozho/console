@@ -25,6 +25,7 @@ MainFrame::MainFrame()
 , m_bStatusBarVisible(TRUE)
 , m_bTabsVisible(TRUE)
 , m_dockPosition(dockNone)
+, m_zOrder(zorderNormal)
 , m_mousedragOffset(0, 0)
 , m_mapViews()
 , m_strWindowTitle(L"")
@@ -117,20 +118,13 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
 	ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
 
-	HWND hwndZ		= HWND_NOTOPMOST;
-	DWORD dwFlags	= SWP_NOSIZE;
-
-	switch (positionSettings.zOrder)
-	{
-		case zorderNormal	: hwndZ = HWND_NOTOPMOST; break;
-		case zorderOnTop	: hwndZ = HWND_TOPMOST; break;
-		case zorderOnBottom	: hwndZ = HWND_BOTTOM; break;
-	}
+	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
 	if ((positionSettings.nX == -1) || (positionSettings.nY == -1)) dwFlags |= SWP_NOMOVE;
 
-	SetWindowPos(hwndZ, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
+	SetWindowPos(NULL, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
 	DockWindow(positionSettings.dockPosition);
+	SetZOrder(positionSettings.zOrder);
 
 	m_strWindowTitle = g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str();
 	SetWindowText(m_strWindowTitle);
@@ -384,8 +378,7 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		{
 			shared_ptr<TabData> tabData = m_activeView->GetTabData();
 
-			if ((tabData->tabBackground.get() != NULL) &&
-				tabData->tabBackground->bRelative)
+			if (tabData->imageData.bRelative)
 			{
 				CRect rectClient;
 				GetClientRect(&rectClient);
@@ -504,9 +497,19 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /* bHandled */)
 {
 	CWindow			consoleView(reinterpret_cast<HWND>(wParam));
-	CString			strCommandText(reinterpret_cast<wchar_t*>(lParam));
+	CString			strConsoleTitle(reinterpret_cast<wchar_t*>(lParam));
 	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 
+	if ((windowSettings.bUseTabTitles) && (consoleView == m_activeView->m_hWnd))
+	{
+		m_strWindowTitle = strConsoleTitle;
+		SetWindowText(m_strWindowTitle);
+		SetTrayIcon(NIM_MODIFY);
+	}
+
+	UpdateTabText(consoleView, strConsoleTitle);
+
+/*
 	m_strWindowTitle = windowSettings.strTitle.c_str();
 	CString	strTabTitle;
 
@@ -523,6 +526,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 		SetWindowText(m_strWindowTitle);
 		SetTrayIcon(NIM_MODIFY);
 	}
+*/
 
 	return 0;
 }
@@ -1187,8 +1191,8 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 */
 		subMenuItem.wID			= dwId;
 //		subMenuItem.hbmpItem	= iconInfo.hbmColor;
-		subMenuItem.dwTypeData	= const_cast<wchar_t*>((*it)->strName.c_str());
-		subMenuItem.cch			= static_cast<UINT>((*it)->strName.length());
+		subMenuItem.dwTypeData	= const_cast<wchar_t*>((*it)->strTitle.c_str());
+		subMenuItem.cch			= static_cast<UINT>((*it)->strTitle.length());
 
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
 		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, iconInfo.hbmColor, NULL);
@@ -1291,6 +1295,27 @@ void MainFrame::DockWindow(DockPosition dockPosition)
 		0, 
 		0, 
 		SWP_NOSIZE|SWP_NOZORDER);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::SetZOrder(ZOrder zOrder)
+{
+	HWND hwndZ = HWND_NOTOPMOST;
+
+	m_zOrder = zOrder;
+
+	switch (m_zOrder)
+	{
+		case zorderNormal	: hwndZ = HWND_NOTOPMOST; break;
+		case zorderOnTop	: hwndZ = HWND_TOPMOST; break;
+		case zorderOnBottom	: hwndZ = HWND_BOTTOM; break;
+	}
+
+	SetWindowPos(hwndZ, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 }
 
 //////////////////////////////////////////////////////////////////////////////

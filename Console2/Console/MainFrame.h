@@ -148,6 +148,7 @@ class MainFrame
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void SetWindowStyles();
 		void DockWindow(DockPosition dockPosition);
+		void SetZOrder(ZOrder zOrder);
 
 		void SetWindowIcons();
 
@@ -171,6 +172,7 @@ class MainFrame
 		BOOL			m_bTabsVisible;
 
 		DockPosition	m_dockPosition;
+		ZOrder			m_zOrder;
 		CPoint			m_mousedragOffset;
 
 		ConsoleViewMap	m_mapViews;

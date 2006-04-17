@@ -21,24 +21,24 @@ class DlgSettingsAppearance
 		DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsAppearance)
-			DDX_TEXT(IDC_WINDOW_TITLE, m_strWindowTitle);
-			DDX_CHECK(IDC_CHECK_USE_TAB_TITLE, m_nUseTabTitle);
-			DDX_TEXT(IDC_WINDOW_ICON, m_strWindowIcon);
-			DDX_CHECK(IDC_CHECK_USE_TAB_ICON, m_nUseTabIcon);
-			DDX_CHECK(IDC_CHECK_SHOW_COMMAND, m_nShowCommand);
-			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_nShowCommandTabs);
-			DDX_TEXT(IDC_FONT, m_strFontName);
-			DDX_UINT(IDC_FONT_SIZE, m_fontSettings.dwSize);
-			DDX_CHECK(IDC_CHECK_BOLD, m_nFontBold);
-			DDX_CHECK(IDC_CHECK_ITALIC, m_nFontItalic);
-			DDX_CHECK(IDC_CHECK_USE_COLOR, m_nUseFontColor);
-			DDX_CHECK(IDC_CHECK_POSITION, m_nUsePosition);
-			DDX_INT(IDC_POS_X, m_nX);
-			DDX_INT(IDC_POS_Y, m_nY);
-			DDX_CHECK(IDC_CHECK_SNAP, m_nSnapToEdges);
-			DDX_INT(IDC_SNAP, m_positionSettings.nSnapDistance);
-			DDX_RADIO(IDC_RADIO_DOCK_NONE, m_nDocking);
-			DDX_RADIO(IDC_RADIO_Z_REGULAR, m_nZOrder);
+			DDX_TEXT(IDC_WINDOW_TITLE, m_strWindowTitle)
+			DDX_CHECK(IDC_CHECK_USE_TAB_TITLE, m_nUseTabTitle)
+			DDX_TEXT(IDC_WINDOW_ICON, m_strWindowIcon)
+			DDX_CHECK(IDC_CHECK_USE_TAB_ICON, m_nUseTabIcon)
+			DDX_CHECK(IDC_CHECK_SHOW_COMMAND, m_nShowCommand)
+			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_nShowCommandTabs)
+			DDX_TEXT(IDC_FONT, m_strFontName)
+			DDX_UINT(IDC_FONT_SIZE, m_fontSettings.dwSize)
+			DDX_CHECK(IDC_CHECK_BOLD, m_nFontBold)
+			DDX_CHECK(IDC_CHECK_ITALIC, m_nFontItalic)
+			DDX_CHECK(IDC_CHECK_USE_COLOR, m_nUseFontColor)
+			DDX_CHECK(IDC_CHECK_POSITION, m_nUsePosition)
+			DDX_INT(IDC_POS_X, m_nX)
+			DDX_INT(IDC_POS_Y, m_nY)
+			DDX_CHECK(IDC_CHECK_SNAP, m_nSnapToEdges)
+			DDX_INT(IDC_SNAP, m_positionSettings.nSnapDistance)
+			DDX_RADIO(IDC_RADIO_DOCK_NONE, m_nDocking)
+			DDX_RADIO(IDC_RADIO_Z_REGULAR, m_nZOrder)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsAppearance)

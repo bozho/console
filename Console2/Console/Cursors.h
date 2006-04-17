@@ -22,14 +22,14 @@ enum CursorStyle
 	cstyleNBBlock	=	2,
 	cstylePulseBlock=	3,
 	cstyleBar		=	4,
-	cstyleConsole	=	5,
-	cstyleNBHline	=	6,
-	cstyleHLine		=	7,
-	cstyleVLine		=	8,
-	cstyleRect		=	9,
-	cstyleNBRect	=	10,
-	cstylePulseRect	=	11,
-	cstyleFadeBlock	=	12,
+//	cstyleConsole	=	5,
+	cstyleNBHline	=	5,
+	cstyleHLine		=	6,
+	cstyleVLine		=	7,
+	cstyleRect		=	8,
+	cstyleNBRect	=	9,
+	cstylePulseRect	=	10,
+	cstyleFadeBlock	=	11,
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -86,6 +86,10 @@ class Cursor
 		CBrush		m_backgroundBrush;
 
 		UINT_PTR	m_uiTimer;
+
+	public:
+
+		static wchar_t*	s_cursorNames[];
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -564,6 +564,7 @@ void ConsoleView::UpdateTitles()
 	}
 */
 
+	TRACE(L"CV: %s", strCommandText);
 	GetParent().SendMessage(
 					UM_UPDATE_TITLES, 
 					reinterpret_cast<WPARAM>(m_hWnd), 
@@ -639,6 +640,8 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		GetParent().SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
+	UpdateTitles();
+	
 	// if the view is not visible, don't repaint
 	if (!m_bViewActive) return;
 
@@ -949,7 +952,6 @@ void ConsoleView::Repaint()
 		RepaintTextChanges();
 	}
 
-	UpdateTitles();
 	BitBltOffscreen();
 }
 

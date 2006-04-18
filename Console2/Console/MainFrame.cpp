@@ -507,6 +507,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 		SetTrayIcon(NIM_MODIFY);
 	}
 
+	TRACE(L"Boink: %s\n", strConsoleTitle);
 	UpdateTabText(consoleView, strConsoleTitle);
 
 /*

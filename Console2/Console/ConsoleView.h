@@ -146,9 +146,11 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		int		m_nVScrollWidth;
 		int		m_nHScrollWidth;
 
-		ConsoleHandler	m_consoleHandler;
+		CString	m_strTitle;
 
-		shared_array<CHAR_INFO>	m_screenBuffer;
+		ConsoleHandler					m_consoleHandler;
+
+		shared_array<CHAR_INFO>			m_screenBuffer;
 
 		ConsoleSettings&				m_consoleSettings;
 		AppearanceSettings&				m_appearanceSettings;

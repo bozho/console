@@ -35,6 +35,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_bShowHScroll(false)
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
+, m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
 , m_consoleHandler()
 , m_screenBuffer()
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
@@ -79,7 +80,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 */
 
 	// set view title
-	SetWindowText(m_tabData->strTitle.c_str());
+	SetWindowText(m_strTitle);
 
 	m_consoleHandler.SetupDelegates(
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
@@ -551,24 +552,16 @@ void ConsoleView::UpdateTitles()
 	CString strCommandText;
 	consoleWnd.GetWindowText(strCommandText);
 
-/*
-	int		nPos = strCommandText.Find(L'-');
+	if (strCommandText == m_strTitle) return;
 
-	if (nPos == -1)
-	{
-		strCommandText = L"";
-	}
-	else
-	{
-		strCommandText = strCommandText.Right(strCommandText.GetLength() - nPos + 1);
-	}
-*/
+	m_strTitle = strCommandText;
+	SetWindowText(m_strTitle);
 
 	TRACE(L"CV: %s", strCommandText);
 	GetParent().SendMessage(
 					UM_UPDATE_TITLES, 
 					reinterpret_cast<WPARAM>(m_hWnd), 
-					reinterpret_cast<LPARAM>(LPCTSTR(strCommandText)));
+					reinterpret_cast<LPARAM>(LPCTSTR(m_strTitle)));
 }
 
 /////////////////////////////////////////////////////////////////////////////

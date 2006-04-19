@@ -75,6 +75,9 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_sliderTintOpacity.SetTicFreq(5);
 	m_sliderTintOpacity.SetPageSize(5);
 
+	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
+	m_staticBkColor.Attach(GetDlgItem(IDC_BK_COLOR));
+	m_staticTintColor.Attach(GetDlgItem(IDC_TINT_COLOR));
 
 	m_listCtrl.SelectItem(0);
 
@@ -89,35 +92,35 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT DlgSettingsTabs::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	CWindow		staticCtl(reinterpret_cast<HWND>(lParam));
+	HWND		hWnd = reinterpret_cast<HWND>(lParam); 
 	CDCHandle	dc(reinterpret_cast<HDC>(wParam));
 
 	TabData*	pTabData = reinterpret_cast<TabData*>(m_listCtrl.GetItemData(m_listCtrl.GetSelectedIndex()));
 
-	if (staticCtl.m_hWnd == GetDlgItem(IDC_CURSOR_COLOR))
+	if (hWnd == m_staticCursorColor.m_hWnd)
 	{
 		CBrush	brush(::CreateSolidBrush(pTabData->crCursorColor));
 		CRect	rect;
 
-		staticCtl.GetClientRect(&rect);
+		m_staticCursorColor.GetClientRect(&rect);
 		dc.FillRect(&rect, brush);
 		return 0;
 	}
-	else if (staticCtl.m_hWnd == GetDlgItem(IDC_BK_COLOR))
+	else if (hWnd == m_staticBkColor.m_hWnd)
 	{
 		CBrush	brush(::CreateSolidBrush(pTabData->crBackgroundColor));
 		CRect	rect;
 
-		staticCtl.GetClientRect(&rect);
+		m_staticBkColor.GetClientRect(&rect);
 		dc.FillRect(&rect, brush);
 		return 0;
 	}
-	else if (staticCtl.m_hWnd == GetDlgItem(IDC_TINT_COLOR))
+	else if (hWnd == m_staticTintColor.m_hWnd)
 	{
 		CBrush	brush(::CreateSolidBrush(pTabData->imageData.crTint));
 		CRect	rect;
 
-		staticCtl.GetClientRect(&rect);
+		m_staticTintColor.GetClientRect(&rect);
 		dc.FillRect(&rect, brush);
 		return 0;
 	}
@@ -153,17 +156,86 @@ LRESULT DlgSettingsTabs::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 
 		m_tabSettings.Save(m_pOptionsRoot);
 
-/*
-		m_hotKeys.Save(m_pOptionsRoot);
+		TabSettings& tabSettings = g_settingsHandler->GetTabSettings();
 
-		HotKeys& hotKeys = g_settingsHandler->GetHotKeys();
-
-		hotKeys.mapHotKeys.clear();
-		hotKeys.mapHotKeys.insert(m_hotKeys.mapHotKeys.begin(), m_hotKeys.mapHotKeys.end());
-*/
+		tabSettings.tabDataVector.clear();
+		tabSettings.tabDataVector.insert(
+									tabSettings.tabDataVector.begin(), 
+									m_tabSettings.tabDataVector.begin(), 
+									m_tabSettings.tabDataVector.end());
 	}
 
 	DestroyWindow();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsTabs::OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	ConsoleSettings& consoleSettings = g_settingsHandler->GetConsoleSettings();
+
+	shared_ptr<TabData>	tabData(new TabData(consoleSettings.strShell, consoleSettings.strInitialDir));
+
+	m_tabSettings.tabDataVector.push_back(tabData);
+
+	int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), tabData->strTitle.c_str());
+	m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(tabData.get()));
+
+	m_listCtrl.SelectItem(nItem);
+	::EnableWindow(GetDlgItem(IDC_BTN_DELETE), TRUE);
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsTabs::OnUp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nItem = m_listCtrl.GetSelectedIndex();
+
+	if (nItem > 0) MoveListItem(nItem, -1);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsTabs::OnDown(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nItem = m_listCtrl.GetSelectedIndex();
+
+	if (nItem < m_listCtrl.GetItemCount() - 1) MoveListItem(nItem, 1);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsTabs::OnDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (::MessageBox(m_hWnd, L"Delete selected tab?", L"Console", MB_YESNO|MB_ICONQUESTION) != IDYES) return 0;
+
+	int nItem = m_listCtrl.GetSelectedIndex();
+
+	m_listCtrl.DeleteItem(nItem);
+	m_tabSettings.tabDataVector.erase(m_tabSettings.tabDataVector.begin() + nItem);
+
+	if (nItem > 0) --nItem;
+
+	m_listCtrl.SelectItem(nItem);
+	if (m_listCtrl.GetItemCount() < 2) ::EnableWindow(GetDlgItem(IDC_BTN_DELETE), FALSE);
+
 	return 0;
 }
 
@@ -366,6 +438,10 @@ LRESULT DlgSettingsTabs::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /
 	
 		DoDataExchange(DDX_LOAD);
 		EnableControls();
+
+		m_staticCursorColor.Invalidate();
+		m_staticBkColor.Invalidate();
+		m_staticTintColor.Invalidate();
 	}
 	else if (pnmv->uOldState & LVIS_SELECTED)
 	{
@@ -471,3 +547,21 @@ void DlgSettingsTabs::EnableControls()
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsTabs::MoveListItem(int nItem, int nDirection)
+{
+	shared_ptr<TabData>	tmpData(*(m_tabSettings.tabDataVector.begin() + nItem));
+
+	m_listCtrl.DeleteItem(nItem);
+	int nNewItem = m_listCtrl.InsertItem(nItem + nDirection, tmpData->strTitle.c_str());
+
+	m_tabSettings.tabDataVector.erase(m_tabSettings.tabDataVector.begin() + nItem);
+	m_tabSettings.tabDataVector.insert(m_tabSettings.tabDataVector.begin() + nItem + nDirection, tmpData);
+
+	m_listCtrl.SetItemData(nNewItem, reinterpret_cast<DWORD_PTR>(tmpData.get()));
+	m_listCtrl.SelectItem(nNewItem);
+}
+
+//////////////////////////////////////////////////////////////////////////////

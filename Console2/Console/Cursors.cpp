@@ -27,7 +27,7 @@ wchar_t* Cursor::s_cursorNames[] =
 	L"Nonblinking block",
 	L"Pulse",
 	L"Bar",
-	L"Console",
+//	L"Console",
 	L"Nonblinking horz. line",
 	L"Horizontal line",
 	L"Vertical line",

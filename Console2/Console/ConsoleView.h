@@ -97,10 +97,10 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void RecreateOffscreenBuffers();
 		void RepaintView();
-		void SetViewActive(bool bActive);
-		void UpdateTitles();
+		void SetActive(bool bActive);
+		void SetTitle(const wstring& strTitle);
 
-		CIcon& GetIcon(bool bBigIcon = true) const { return bBigIcon ? m_tabData->tabIcon : m_tabData->tabSmallIcon; }
+		CIcon& GetIcon(bool bBigIcon = true) { return bBigIcon ? bigIcon : smallIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();
@@ -119,6 +119,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		DWORD GetBufferDifference();
 
+		void UpdateTitle();
 		void Repaint();
 
 		void RepaintText();
@@ -135,7 +136,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		bool	m_bInitializing;
 		bool	m_bAppActive;
-		bool	m_bViewActive;
+		bool	m_bActive;
 		bool	m_bConsoleWindowVisible;
 
 		DWORD	m_dwStartupRows;
@@ -147,6 +148,10 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		int		m_nHScrollWidth;
 
 		CString	m_strTitle;
+
+		CIcon	bigIcon;
+		CIcon	smallIcon;
+
 
 		ConsoleHandler					m_consoleHandler;
 

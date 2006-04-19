@@ -510,25 +510,6 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 	TRACE(L"Boink: %s\n", strConsoleTitle);
 	UpdateTabText(consoleView, strConsoleTitle);
 
-/*
-	m_strWindowTitle = windowSettings.strTitle.c_str();
-	CString	strTabTitle;
-
-	consoleView.GetWindowText(strTabTitle);
-
-	if (windowSettings.bUseTabTitles) m_strWindowTitle = strTabTitle;
-	if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
-	if (windowSettings.bShowCommand) m_strWindowTitle += strCommandText;
-
-	UpdateTabText(consoleView, strTabTitle);
-	
-	if (consoleView == m_activeView->m_hWnd)
-	{
-		SetWindowText(m_strWindowTitle);
-		SetTrayIcon(NIM_MODIFY);
-	}
-*/
-
 	return 0;
 }
 
@@ -653,7 +634,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 		it = m_mapViews.find(pTabItem1->GetTabView());
 		if (it != m_mapViews.end())
 		{
-			it->second->SetViewActive(false);
+			it->second->SetActive(false);
 		}
 	}
 
@@ -663,7 +644,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 		if (it != m_mapViews.end())
 		{
 			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
-			it->second->SetViewActive(true);
+			it->second->SetActive(true);
 			m_activeView = it->second;
 
 			if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseTabIcon) SetWindowIcons();
@@ -856,8 +837,8 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 	if (dlg.DoModal() == IDOK)
 	{
-		m_activeView->SetWindowText(dlg.m_strTabName);
-		m_activeView->UpdateTitles();
+		m_activeView->SetTitle(wstring(dlg.m_strTabName));
+		UpdateTabText(*m_activeView, dlg.m_strTabName);
 	}
 
 	return 0;
@@ -1179,11 +1160,13 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	for (it; it != tabDataVector.end(); ++it, ++dwId)
 	{
 		CMenuItemInfo	subMenuItem;
+/*
 		ICONINFO		iconInfo;
 		BITMAP			bmp;
 
 		::GetIconInfo(tabDataVector[dwId-ID_NEW_TAB_1]->tabSmallIcon, &iconInfo);
 		::GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
+*/
 
 		subMenuItem.fMask		= MIIM_STRING | MIIM_ID;
 /*
@@ -1196,8 +1179,7 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 		subMenuItem.cch			= static_cast<UINT>((*it)->strTitle.length());
 
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
-		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, iconInfo.hbmColor, NULL);
-
+//		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, iconInfo.hbmColor, NULL);
 	}
 
 	// set tabs menu as popup submenu

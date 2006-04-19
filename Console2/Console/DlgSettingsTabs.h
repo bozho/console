@@ -38,6 +38,10 @@ class DlgSettingsTabs
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+			COMMAND_ID_HANDLER(IDC_BTN_ADD, OnAdd)
+			COMMAND_ID_HANDLER(IDC_BTN_DELETE, OnDelete)
+			COMMAND_ID_HANDLER(IDC_BTN_UP, OnUp)
+			COMMAND_ID_HANDLER(IDC_BTN_DOWN, OnDown)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_ICON, OnBtnBrowseIcon)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_SHELL, OnClickedBtnBrowseShell)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_DIR, OnClickedBtnBrowseDir)
@@ -60,6 +64,10 @@ class DlgSettingsTabs
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnUp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnDown(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -77,6 +85,8 @@ class DlgSettingsTabs
 		void UpdateSliderText();
 		void EnableControls();
 
+		void MoveListItem(int nItem, int nDirection);
+
 	private:
 
 		TabSettings		m_tabSettings;
@@ -86,6 +96,10 @@ class DlgSettingsTabs
 		CComboBox		m_comboBkPosition;
 		CTrackBarCtrl	m_sliderTintOpacity;
 		CStatic			m_staticTintOpacity;
+
+		CStatic			m_staticCursorColor;
+		CStatic			m_staticBkColor;
+		CStatic			m_staticTintColor;
 
 
 		CString			m_strTitle;

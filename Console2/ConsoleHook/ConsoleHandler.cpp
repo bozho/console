@@ -492,7 +492,11 @@ DWORD ConsoleHandler::MonitorThread()
 
 	DWORD	dwWaitRes		= 0;
 
-	while ((dwWaitRes = ::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
+	while ((dwWaitRes = ::WaitForMultipleObjects(
+							sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), 
+							arrWaitHandles, 
+							FALSE, 
+							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
 	{
 		switch (dwWaitRes)
 		{

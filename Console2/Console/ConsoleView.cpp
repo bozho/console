@@ -27,7 +27,7 @@ int		ConsoleView::m_nCharWidth(0);
 ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 : m_bInitializing(true)
 , m_bAppActive(true)
-, m_bViewActive(true)
+, m_bActive(true)
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
@@ -36,6 +36,8 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
 , m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
+, bigIcon()
+, smallIcon()
 , m_consoleHandler()
 , m_screenBuffer()
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
@@ -82,6 +84,45 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	// set view title
 	SetWindowText(m_strTitle);
 
+	// load icon
+	if (m_tabData->strIcon.length() > 0)
+	{
+		bigIcon = static_cast<HICON>(::LoadImage(
+											NULL, 
+											m_tabData->strIcon.c_str(), 
+											IMAGE_ICON, 
+											0, 
+											0, 
+											LR_DEFAULTCOLOR|LR_LOADFROMFILE|LR_DEFAULTSIZE));
+
+		smallIcon = static_cast<HICON>(::LoadImage(
+											NULL, 
+											m_tabData->strIcon.c_str(), 
+											IMAGE_ICON, 
+											16, 
+											16, 
+											LR_DEFAULTCOLOR|LR_LOADFROMFILE));
+	}
+	else
+	{
+		bigIcon = static_cast<HICON>(::LoadImage(
+											::GetModuleHandle(NULL), 
+											MAKEINTRESOURCE(IDR_MAINFRAME), 
+											IMAGE_ICON, 
+											0, 
+											0, 
+											LR_DEFAULTCOLOR|LR_DEFAULTSIZE));
+
+		smallIcon = static_cast<HICON>(::LoadImage(
+											::GetModuleHandle(NULL), 
+											MAKEINTRESOURCE(IDR_MAINFRAME), 
+											IMAGE_ICON, 
+											16, 
+											16, 
+											LR_DEFAULTCOLOR));
+	}
+
+	// set console delegates
 	m_consoleHandler.SetupDelegates(
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
@@ -202,6 +243,7 @@ LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	TRACE(L"Bonk\n");
 	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	return 0;
 }
@@ -245,7 +287,6 @@ LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 		// start selection
 		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
 		m_selectionHandler->StartSelection(point, static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwColumns - 1), static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwRows - 1));
-		
 	}
 	else
 	{
@@ -347,7 +388,7 @@ LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if (m_bViewActive && (wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
+	if (m_bActive && (wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
 	{
 		m_cursor->PrepareNext();
 		m_cursor->Draw(m_bAppActive);
@@ -534,10 +575,10 @@ void ConsoleView::RepaintView()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::SetViewActive(bool bActive)
+void ConsoleView::SetActive(bool bActive)
 {
-	m_bViewActive = bActive;
-	if (m_bViewActive) RepaintView();
+	m_bActive = bActive;
+	if (m_bActive) RepaintView();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -545,23 +586,14 @@ void ConsoleView::SetViewActive(bool bActive)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::UpdateTitles()
+void ConsoleView::SetTitle(const wstring& strTitle)
 {
 	CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
 
-	CString strCommandText;
-	consoleWnd.GetWindowText(strCommandText);
+	consoleWnd.SetWindowText(strTitle.c_str());
 
-	if (strCommandText == m_strTitle) return;
-
-	m_strTitle = strCommandText;
+	m_strTitle = strTitle.c_str();
 	SetWindowText(m_strTitle);
-
-	TRACE(L"CV: %s", strCommandText);
-	GetParent().SendMessage(
-					UM_UPDATE_TITLES, 
-					reinterpret_cast<WPARAM>(m_hWnd), 
-					reinterpret_cast<LPARAM>(LPCTSTR(m_strTitle)));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -623,7 +655,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 */
 		InitializeScrollbars();
 
-		if (m_bViewActive) RecreateOffscreenBuffers();
+		if (m_bActive) RecreateOffscreenBuffers();
 
 		// TODO: put this in console size change handler
 		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -633,10 +665,10 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		GetParent().SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
-	UpdateTitles();
+	UpdateTitle();
 	
 	// if the view is not visible, don't repaint
-	if (!m_bViewActive) return;
+	if (!m_bActive) return;
 
 	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
@@ -926,6 +958,30 @@ DWORD ConsoleView::GetBufferDifference()
 	}
 
 	return dwChangedPositions*100/dwCount;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::UpdateTitle()
+{
+	CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
+
+	CString strCommandText;
+	consoleWnd.GetWindowText(strCommandText);
+
+	if (strCommandText == m_strTitle) return;
+
+	m_strTitle = strCommandText;
+	SetWindowText(m_strTitle);
+
+	TRACE(L"CV: %s", strCommandText);
+	GetParent().SendMessage(
+					UM_UPDATE_TITLES, 
+					reinterpret_cast<WPARAM>(m_hWnd), 
+					reinterpret_cast<LPARAM>(LPCTSTR(m_strTitle)));
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -15,6 +15,25 @@ extern shared_ptr<ImageHandler>		g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
+void SettingsBase::AddTextNode(CComPtr<IXMLDOMDocument>& pDoc, CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText)
+{
+	CComPtr<IXMLDOMText>	pDomText;
+	CComPtr<IXMLDOMNode>	pDomTextOut;
+
+	pDoc->createTextNode(bstrText, &pDomText);
+	pElement->appendChild(pDomText, &pDomTextOut);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 ConsoleSettings::ConsoleSettings()
 : strShell(L"")
 , strInitialDir(L"")
@@ -788,69 +807,63 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
 
-	if (SUCCEEDED(pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes)))
+	if (FAILED(pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes))) return false;
+
+	long	lListLength;
+	pHotKeyNodes->get_length(&lListLength);
+
+	for (long i = 0; i < lListLength; ++i)
 	{
-		long	lListLength;
-		pHotKeyNodes->get_length(&lListLength);
+		CComPtr<IXMLDOMNode>	pHotKeyNode;
+		CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
+		if (FAILED(pHotKeyNodes->get_item(i, &pHotKeyNode))) continue; 
 
-		for (long i = 0; i < lListLength; ++i)
+		hr = pHotkeysElement->removeChild(pHotKeyNode, &pRemovedHotKeyNode);
+	}
+
+	CComPtr<IXMLDOMDocument>	pSettingsDoc;
+	CommandsVector::iterator	itCommand;
+	CommandsVector::iterator	itLastCommand = vecCommands.end() - 1;
+
+	pHotkeysElement->get_ownerDocument(&pSettingsDoc);
+
+	for (itCommand = vecCommands.begin(); itCommand != vecCommands.end(); ++itCommand)
+	{
+		CComPtr<IXMLDOMElement>	pNewHotkeyElement;
+		CComPtr<IXMLDOMNode>	pNewHotkeyOut;
+		HotKeysMap::iterator	itHotkey = mapHotKeys.find((*itCommand)->wCommandID);
+		CComVariant				varAttrVal;
+
+		if (itHotkey == mapHotKeys.end()) continue;
+
+		pSettingsDoc->createElement(CComBSTR(L"hotkey"), &pNewHotkeyElement);
+
+		varAttrVal = (itHotkey->second->accelHotkey.fVirt & FCONTROL) ? L"1" : L"0";
+        pNewHotkeyElement->setAttribute(CComBSTR(L"ctrl"), varAttrVal);
+
+		varAttrVal = (itHotkey->second->accelHotkey.fVirt & FSHIFT) ? L"1" : L"0";
+		pNewHotkeyElement->setAttribute(CComBSTR(L"shift"), varAttrVal);
+
+		varAttrVal = (itHotkey->second->accelHotkey.fVirt & FALT) ? L"1" : L"0";
+		pNewHotkeyElement->setAttribute(CComBSTR(L"alt"), varAttrVal);
+
+		varAttrVal = (itHotkey->second->bExtended) ? L"1" : L"0";
+		pNewHotkeyElement->setAttribute(CComBSTR(L"extended"), varAttrVal);
+
+		pNewHotkeyElement->setAttribute(CComBSTR(L"code"), CComVariant(itHotkey->second->accelHotkey.key));
+
+		pNewHotkeyElement->setAttribute(CComBSTR(L"command"), CComVariant((*itCommand)->strCommand.c_str()));
+
+		pHotkeysElement->appendChild(pNewHotkeyElement, &pNewHotkeyOut);
+
+		// this is just for pretty printing
+		if (itCommand == itLastCommand)
 		{
-			CComPtr<IXMLDOMNode>	pHotKeyNode;
-			CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
-			if (FAILED(pHotKeyNodes->get_item(i, &pHotKeyNode))) continue; 
-
-			hr = pHotkeysElement->removeChild(pHotKeyNode, &pRemovedHotKeyNode);
+			SettingsBase::AddTextNode(pSettingsDoc, pHotkeysElement, CComBSTR(L"\n\t"));
 		}
-
-		CComPtr<IXMLDOMDocument>	pSettingsDoc;
-		CommandsVector::iterator	itCommand;
-		CommandsVector::iterator	itLastCommand = vecCommands.end() - 1;
-
-		pHotkeysElement->get_ownerDocument(&pSettingsDoc);
-
-		for (itCommand = vecCommands.begin(); itCommand != vecCommands.end(); ++itCommand)
+		else
 		{
-			CComPtr<IXMLDOMElement>	pNewHotkeyElement;
-			CComPtr<IXMLDOMNode>	pNewHotkeyOut;
-			HotKeysMap::iterator	itHotkey = mapHotKeys.find((*itCommand)->wCommandID);
-			CComVariant				varAttrVal;
-
-			if (itHotkey == mapHotKeys.end()) continue;
-
-			pSettingsDoc->createElement(CComBSTR(L"hotkey"), &pNewHotkeyElement);
-
-			varAttrVal = (itHotkey->second->accelHotkey.fVirt & FCONTROL) ? L"1" : L"0";
-            pNewHotkeyElement->setAttribute(CComBSTR(L"ctrl"), varAttrVal);
-
-			varAttrVal = (itHotkey->second->accelHotkey.fVirt & FSHIFT) ? L"1" : L"0";
-			pNewHotkeyElement->setAttribute(CComBSTR(L"shift"), varAttrVal);
-
-			varAttrVal = (itHotkey->second->accelHotkey.fVirt & FALT) ? L"1" : L"0";
-			pNewHotkeyElement->setAttribute(CComBSTR(L"alt"), varAttrVal);
-
-			varAttrVal = (itHotkey->second->bExtended) ? L"1" : L"0";
-			pNewHotkeyElement->setAttribute(CComBSTR(L"extended"), varAttrVal);
-
-			pNewHotkeyElement->setAttribute(CComBSTR(L"code"), CComVariant(itHotkey->second->accelHotkey.key));
-
-			pNewHotkeyElement->setAttribute(CComBSTR(L"command"), CComVariant((*itCommand)->strCommand.c_str()));
-
-			pHotkeysElement->appendChild(pNewHotkeyElement, &pNewHotkeyOut);
-
-			// this is just for pretty printing
-			CComPtr<IXMLDOMText>	pDomText;
-			CComPtr<IXMLDOMNode>	pDomTextOut;
-
-			if (itCommand == itLastCommand)
-			{
-				pSettingsDoc->createTextNode(CComBSTR(L"\n\t"), &pDomText);
-			}
-			else
-			{
-				pSettingsDoc->createTextNode(CComBSTR(L"\n\t\t"), &pDomText);
-			}
-
-			pHotkeysElement->appendChild(pDomText, &pDomTextOut);
+			SettingsBase::AddTextNode(pSettingsDoc, pHotkeysElement, CComBSTR(L"\n\t\t"));
 		}
 	}
 
@@ -906,44 +919,6 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), tabData->strIcon, L"");
 
 		tabDataVector.push_back(tabData);
-
-		// load icon
-		if (tabData->strIcon.length() > 0)
-		{
-			tabData->tabIcon = static_cast<HICON>(::LoadImage(
-															NULL, 
-															tabData->strIcon.c_str(), 
-															IMAGE_ICON, 
-															0, 
-															0, 
-															LR_DEFAULTCOLOR|LR_LOADFROMFILE|LR_DEFAULTSIZE));
-
-			tabData->tabSmallIcon = static_cast<HICON>(::LoadImage(
-															NULL, 
-															tabData->strIcon.c_str(), 
-															IMAGE_ICON, 
-															16, 
-															16, 
-															LR_DEFAULTCOLOR|LR_LOADFROMFILE));
-		}
-		else
-		{
-			tabData->tabIcon = static_cast<HICON>(::LoadImage(
-															::GetModuleHandle(NULL), 
-															MAKEINTRESOURCE(IDR_MAINFRAME), 
-															IMAGE_ICON, 
-															0, 
-															0, 
-															LR_DEFAULTCOLOR|LR_DEFAULTSIZE));
-
-			tabData->tabSmallIcon = static_cast<HICON>(::LoadImage(
-															::GetModuleHandle(NULL), 
-															MAKEINTRESOURCE(IDR_MAINFRAME), 
-															IMAGE_ICON, 
-															16, 
-															16, 
-															LR_DEFAULTCOLOR));
-		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"console"), pConsoleElement)))
 		{
@@ -1005,6 +980,135 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 {
+	HRESULT						hr = S_OK;
+	CComPtr<IXMLDOMElement>		pTabsElement;
+	CComPtr<IXMLDOMNodeList>	pTabNodes;
+
+	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"tabs"), pTabsElement))) return false;
+
+	if (FAILED(pTabsElement->selectNodes(CComBSTR(L"tab"), &pTabNodes))) return false;
+
+	long	lListLength;
+	pTabNodes->get_length(&lListLength);
+
+	for (long i = 0; i < lListLength; ++i)
+	{
+		CComPtr<IXMLDOMNode>	pTabNode;
+		CComPtr<IXMLDOMNode>	pRemovedTabNode;
+		if (FAILED(pTabNodes->get_item(i, &pTabNode))) continue; 
+
+		hr = pTabsElement->removeChild(pTabNode, &pRemovedTabNode);
+	}
+
+	CComPtr<IXMLDOMDocument>	pSettingsDoc;
+	TabDataVector::iterator		itTab;
+	TabDataVector::iterator		itLastTab = tabDataVector.end() - 1;
+
+	pTabsElement->get_ownerDocument(&pSettingsDoc);
+
+	for (itTab = tabDataVector.begin(); itTab != tabDataVector.end(); ++itTab)
+	{
+		CComPtr<IXMLDOMElement>	pNewTabElement;
+		CComPtr<IXMLDOMNode>	pNewTabOut;
+
+		CComVariant				varAttrVal;
+
+		pSettingsDoc->createElement(CComBSTR(L"tab"), &pNewTabElement);
+
+		// set tab attributes
+		if ((*itTab)->strTitle.length() > 0)
+		{
+			pNewTabElement->setAttribute(CComBSTR(L"title"), CComVariant((*itTab)->strTitle.c_str()));
+		}
+
+		if ((*itTab)->strIcon.length() > 0)
+		{
+			pNewTabElement->setAttribute(CComBSTR(L"icon"), CComVariant((*itTab)->strIcon.c_str()));
+		}
+
+		// add <console> tag
+		CComPtr<IXMLDOMElement>	pNewConsoleElement;
+		CComPtr<IXMLDOMNode>	pNewConsoleOut;
+
+		pSettingsDoc->createElement(CComBSTR(L"console"), &pNewConsoleElement);
+
+		pNewConsoleElement->setAttribute(CComBSTR(L"shell"), CComVariant((*itTab)->strShell.c_str()));
+		pNewConsoleElement->setAttribute(CComBSTR(L"init_dir"), CComVariant((*itTab)->strInitialDir.c_str()));
+
+		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
+		pNewTabElement->appendChild(pNewConsoleElement, &pNewConsoleOut);
+
+		// add <cursor> tag
+		CComPtr<IXMLDOMElement>	pNewCursorElement;
+		CComPtr<IXMLDOMNode>	pNewCursorOut;
+
+		pSettingsDoc->createElement(CComBSTR(L"cursor"), &pNewCursorElement);
+
+		pNewCursorElement->setAttribute(CComBSTR(L"style"), CComVariant((*itTab)->dwCursorStyle));
+		pNewCursorElement->setAttribute(CComBSTR(L"r"), CComVariant(GetRValue((*itTab)->crCursorColor)));
+		pNewCursorElement->setAttribute(CComBSTR(L"g"), CComVariant(GetGValue((*itTab)->crCursorColor)));
+		pNewCursorElement->setAttribute(CComBSTR(L"b"), CComVariant(GetBValue((*itTab)->crCursorColor)));
+
+		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
+		pNewTabElement->appendChild(pNewCursorElement, &pNewCursorOut);
+
+		// add <background> tag
+		CComPtr<IXMLDOMElement>	pNewBkElement;
+		CComPtr<IXMLDOMNode>	pNewBkOut;
+
+		pSettingsDoc->createElement(CComBSTR(L"background"), &pNewBkElement);
+
+		pNewBkElement->setAttribute(CComBSTR(L"type"), CComVariant((*itTab)->backgroundImageType));
+		pNewBkElement->setAttribute(CComBSTR(L"r"), CComVariant(GetRValue((*itTab)->crBackgroundColor)));
+		pNewBkElement->setAttribute(CComBSTR(L"g"), CComVariant(GetGValue((*itTab)->crBackgroundColor)));
+		pNewBkElement->setAttribute(CComBSTR(L"b"), CComVariant(GetBValue((*itTab)->crBackgroundColor)));
+
+		// add <image> tag
+		CComPtr<IXMLDOMElement>	pNewImageElement;
+		CComPtr<IXMLDOMNode>	pNewImageOut;
+
+		pSettingsDoc->createElement(CComBSTR(L"image"), &pNewImageElement);
+
+		pNewImageElement->setAttribute(CComBSTR(L"file"), CComVariant((*itTab)->imageData.strFilename.c_str()));
+		pNewImageElement->setAttribute(CComBSTR(L"relative"), CComVariant((*itTab)->imageData.bRelative ? 1 : 0));
+		pNewImageElement->setAttribute(CComBSTR(L"extend"), CComVariant((*itTab)->imageData.bExtend ? 1 : 0));
+		pNewImageElement->setAttribute(CComBSTR(L"position"), CComVariant(static_cast<DWORD>((*itTab)->imageData.imagePosition)));
+
+		// add <tint> tag
+		CComPtr<IXMLDOMElement>	pNewTintElement;
+		CComPtr<IXMLDOMNode>	pNewTintOut;
+
+		pSettingsDoc->createElement(CComBSTR(L"tint"), &pNewTintElement);
+
+		pNewTintElement->setAttribute(CComBSTR(L"opacity"), CComVariant((*itTab)->imageData.byTintOpacity));
+		pNewTintElement->setAttribute(CComBSTR(L"r"), CComVariant(GetRValue((*itTab)->imageData.crTint)));
+		pNewTintElement->setAttribute(CComBSTR(L"g"), CComVariant(GetGValue((*itTab)->imageData.crTint)));
+		pNewTintElement->setAttribute(CComBSTR(L"b"), CComVariant(GetBValue((*itTab)->imageData.crTint)));
+
+
+		SettingsBase::AddTextNode(pSettingsDoc, pNewImageElement, CComBSTR(L"\n\t\t\t\t\t"));
+		pNewImageElement->appendChild(pNewTintElement, &pNewTintOut);
+		SettingsBase::AddTextNode(pSettingsDoc, pNewImageElement, CComBSTR(L"\n\t\t\t\t"));
+		SettingsBase::AddTextNode(pSettingsDoc, pNewBkElement, CComBSTR(L"\n\t\t\t\t"));
+		pNewBkElement->appendChild(pNewImageElement, &pNewImageOut);
+		SettingsBase::AddTextNode(pSettingsDoc, pNewBkElement, CComBSTR(L"\n\t\t\t"));
+		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
+		pNewTabElement->appendChild(pNewBkElement, &pNewBkOut);
+		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t"));
+
+		pTabsElement->appendChild(pNewTabElement, &pNewTabOut);
+
+		// this is just for pretty printing
+		if (itTab == itLastTab)
+		{
+			SettingsBase::AddTextNode(pSettingsDoc, pTabsElement, CComBSTR(L"\n\t"));
+		}
+		else
+		{
+			SettingsBase::AddTextNode(pSettingsDoc, pTabsElement, CComBSTR(L"\n\t\t"));
+		}
+	}
+
 	return true;
 }
 

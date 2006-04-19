@@ -37,7 +37,6 @@ shared_ptr<BackgroundImage> ImageHandler::GetImage(const ImageData& imageData)
 	if (!LoadImage(bkImage)) return shared_ptr<BackgroundImage>();
 
 	m_images.push_back(bkImage);
-	long a = bkImage.use_count();
 
 	return bkImage;
 }
@@ -127,7 +126,6 @@ shared_ptr<BackgroundImage> ImageHandler::GetDesktopImage(ImageData& imageData)
 	if (!LoadImage(bkImage)) return shared_ptr<BackgroundImage>();
 
 	m_images.push_back(bkImage);
-	long a = bkImage.use_count();
 
 	return bkImage;
 }

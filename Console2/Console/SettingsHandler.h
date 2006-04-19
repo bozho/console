@@ -18,6 +18,8 @@ struct SettingsBase
 {
 	virtual bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
 	virtual bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
+
+	static void AddTextNode(CComPtr<IXMLDOMDocument>& pDoc, CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -337,8 +339,6 @@ struct TabData
 	TabData(const wstring& shell, const wstring& initialDir)
 	: strTitle(L"Console")
 	, strIcon(L"")
-	, tabIcon()
-	, tabSmallIcon()
 	, strShell(shell)
 	, strInitialDir(initialDir)
 	, dwCursorStyle(0)
@@ -352,9 +352,6 @@ struct TabData
 	// custom shell settings
 	wstring							strTitle;
 	wstring							strIcon;
-
-	CIcon							tabIcon;
-	CIcon							tabSmallIcon;
 
 	wstring							strShell;
 	wstring							strInitialDir;

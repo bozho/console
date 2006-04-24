@@ -144,7 +144,7 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create behavior settings dialog
 	shared_ptr<DlgSettingsBase>	dlgBehavior(dynamic_cast<DlgSettingsBase*>(new DlgSettingsBehavior(m_pOptionsRoot)));
-	HTREEITEM htiBehavior = AddDialogToTree(L"Behavior", dlgBehavior, rect);
+	AddDialogToTree(L"Behavior", dlgBehavior, rect);
 
 	// create hotkeys settings dialog
 	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pOptionsRoot)));

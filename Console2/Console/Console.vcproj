@@ -186,6 +186,12 @@
 				RelativePath=".\MainFrame.cpp">
 			</File>
 			<File
+				RelativePath=".\PageSettingsTabs1.cpp">
+			</File>
+			<File
+				RelativePath=".\PageSettingsTabs2.cpp">
+			</File>
+			<File
 				RelativePath=".\SelectionHandler.cpp">
 			</File>
 			<File
@@ -269,6 +275,12 @@
 			</File>
 			<File
 				RelativePath=".\MainFrame.h">
+			</File>
+			<File
+				RelativePath=".\PageSettingsTabs1.h">
+			</File>
+			<File
+				RelativePath=".\PageSettingsTabs2.h">
 			</File>
 			<File
 				RelativePath=".\resource.h">

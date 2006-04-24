@@ -72,21 +72,21 @@
 				</image>
 			</background>
 		</tab>
-		<tab title="Test tab">
-			<console shell="bash.exe" init_dir="F:\"/>
-			<cursor style="0" r="215" g="38" b="83"/>
-			<background type="2" r="0" g="0" b="0">
-				<image file="" relative="0" extend="0" position="0">
-					<tint opacity="65" r="0" g="255" b="255"/>
-				</image>
-			</background>
-		</tab>
 		<tab title="cmd">
 			<console shell="cmd.exe" init_dir=""/>
 			<cursor style="0" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
 					<tint opacity="0" r="0" g="0" b="0"/>
+				</image>
+			</background>
+		</tab>
+		<tab title="Test tab">
+			<console shell="bash.exe" init_dir="F:\"/>
+			<cursor style="0" r="0" g="0" b="128"/>
+			<background type="2" r="0" g="0" b="0">
+				<image file="" relative="0" extend="0" position="0">
+					<tint opacity="65" r="0" g="255" b="255"/>
 				</image>
 			</background>
 		</tab>

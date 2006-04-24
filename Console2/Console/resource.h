@@ -15,6 +15,7 @@
 #define IDD_SETTINGS_STYLES             209
 #define IDD_SETTINGS_TEMP               210
 #define IDD_SETTINGS_TABS               211
+#define IDD_SETTINGS_BEHAVIOR           212
 #define ID_NEW_TAB_1                    1000
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -156,6 +157,13 @@
 #define IDC_STATIC_BK_IMAGE             1140
 #define IDC_STATIC_BK_POS               1141
 #define IDC_TINT_OPACITY_VAL            1142
+#define IDC_CHECK_COPY_ON_SELECT        1143
+#define IDC_CHECK_NO_WRAP               1144
+#define IDC_TAB1                        1144
+#define IDC_CHECK_TRIM_SPACES           1145
+#define IDC_CHECK1                      1145
+#define IDC_CHECK_DRAG_ON               1146
+#define IDC_CHECK_INVERSE_SHIFT         1147
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -175,7 +183,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1143
+#define _APS_NEXT_CONTROL_VALUE         1146
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

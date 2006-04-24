@@ -159,6 +159,9 @@
 				RelativePath=".\DlgSettingsAppearance.cpp">
 			</File>
 			<File
+				RelativePath=".\DlgSettingsBehavior.cpp">
+			</File>
+			<File
 				RelativePath=".\DlgSettingsConsole.cpp">
 			</File>
 			<File
@@ -233,6 +236,9 @@
 			</File>
 			<File
 				RelativePath=".\DlgSettingsBase.h">
+			</File>
+			<File
+				RelativePath=".\DlgSettingsBehavior.h">
 			</File>
 			<File
 				RelativePath=".\DlgSettingsConsole.h">

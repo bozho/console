@@ -39,6 +39,7 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_nUseTabTitle		= m_windowSettings.bUseTabTitles ? 1 : 0;
 	m_strWindowIcon		= m_windowSettings.strIcon.c_str();
 	m_nUseTabIcon		= m_windowSettings.bUseTabIcon ? 1 : 0;
+	m_nUseConsoleTitle	= m_windowSettings.bUseConsoleTitle ? 1 : 0;
 	m_nShowCommand		= m_windowSettings.bShowCommand ? 1 : 0;
 	m_nShowCommandTabs	= m_windowSettings.bShowCommandInTabs ? 1 : 0;
 
@@ -127,6 +128,7 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_windowSettings.bUseTabTitles	= (m_nUseTabTitle > 0);
 		m_windowSettings.strIcon		= m_strWindowIcon;
 		m_windowSettings.bUseTabIcon	= (m_nUseTabIcon > 0);
+		m_windowSettings.bUseConsoleTitle= (m_nUseConsoleTitle > 0);
 		m_windowSettings.bShowCommand	= (m_nShowCommand > 0);
 		m_windowSettings.bShowCommandInTabs	= (m_nShowCommandTabs > 0);
 
@@ -168,6 +170,7 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		windowSettings.bUseTabTitles= m_windowSettings.bUseTabTitles;
 		windowSettings.strIcon		= m_windowSettings.strIcon;
 		windowSettings.bUseTabIcon	= m_windowSettings.bUseTabIcon;
+		windowSettings.bUseConsoleTitle= m_windowSettings.bUseConsoleTitle;
 		windowSettings.bShowCommand	= m_windowSettings.bShowCommand;
 		windowSettings.bShowCommandInTabs= m_windowSettings.bShowCommandInTabs;
 
@@ -298,6 +301,8 @@ void DlgSettingsAppearance::EnableControls()
 	::EnableWindow(GetDlgItem(IDC_WINDOW_TITLE), FALSE);
 	::EnableWindow(GetDlgItem(IDC_WINDOW_ICON), FALSE);
 	::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_ICON), FALSE);
+	::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND), FALSE);
+	::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS), FALSE);
 	::EnableWindow(GetDlgItem(IDC_FONT_COLOR), FALSE);
 	::EnableWindow(GetDlgItem(IDC_POS_X), FALSE);
 	::EnableWindow(GetDlgItem(IDC_POS_Y), FALSE);
@@ -312,6 +317,12 @@ void DlgSettingsAppearance::EnableControls()
 	{
 		::EnableWindow(GetDlgItem(IDC_WINDOW_ICON), TRUE);
 		::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_ICON), TRUE);
+	}
+
+	if (m_nUseConsoleTitle == 0)
+	{
+		::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND), TRUE);
+		::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS), TRUE);
 	}
 	
 	if (m_nUseFontColor > 0)

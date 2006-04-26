@@ -496,19 +496,54 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 
 LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /* bHandled */)
 {
-	CWindow			consoleView(reinterpret_cast<HWND>(wParam));
-	CString			strConsoleTitle(reinterpret_cast<wchar_t*>(lParam));
-	WindowSettings&	windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+	shared_ptr<ConsoleView>	consoleView(m_mapViews.find(reinterpret_cast<HWND>(wParam))->second);
+	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 
+	if (windowSettings.bUseConsoleTitle)
+	{
+		UpdateTabText(consoleView->m_hWnd, consoleView->GetTitle());
+
+		if ((windowSettings.bUseTabTitles) && (consoleView == m_activeView))
+		{
+			m_strWindowTitle = consoleView->GetTitle();
+			SetWindowText(m_strWindowTitle);
+			SetTrayIcon(NIM_MODIFY);
+		}
+	}
+	else
+	{
+		CString	strCommandText(reinterpret_cast<wchar_t*>(lParam));
+		CString	strTabTitle(consoleView->GetTitle());
+
+		m_strWindowTitle = windowSettings.strTitle.c_str();
+
+		if (consoleView == m_activeView)
+		{
+			if (windowSettings.bUseTabTitles)	m_strWindowTitle = strTabTitle;
+			if (windowSettings.bShowCommand)	m_strWindowTitle += strCommandText;
+
+			SetWindowText(m_strWindowTitle);
+			SetTrayIcon(NIM_MODIFY);
+		}
+		
+		if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
+
+		UpdateTabText(consoleView->m_hWnd, strTabTitle);
+	}
+
+/*
 	if ((windowSettings.bUseTabTitles) && (consoleView == m_activeView->m_hWnd))
 	{
 		m_strWindowTitle = strConsoleTitle;
 		SetWindowText(m_strWindowTitle);
 		SetTrayIcon(NIM_MODIFY);
 	}
+*/
 
+/*
 	TRACE(L"Boink: %s\n", strConsoleTitle);
 	UpdateTabText(consoleView, strConsoleTitle);
+*/
 
 	return 0;
 }
@@ -644,8 +679,8 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 		if (it != m_mapViews.end())
 		{
 			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
-			it->second->SetActive(true);
 			m_activeView = it->second;
+			it->second->SetActive(true);
 
 			if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseTabIcon) SetWindowIcons();
 
@@ -830,15 +865,12 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 {
 	if (m_activeView.get() == NULL) return 0;
 
-	CString strTabName(L"");
-	m_activeView->GetWindowText(strTabName);
-
-	DlgRenameTab dlg(strTabName);
+	DlgRenameTab dlg(m_activeView->GetTitle());
 
 	if (dlg.DoModal() == IDOK)
 	{
-		m_activeView->SetTitle(wstring(dlg.m_strTabName));
-		UpdateTabText(*m_activeView, dlg.m_strTabName);
+		m_activeView->SetTitle(dlg.m_strTabName);
+		UpdateTabText(*m_activeView, dlg.m_strTabName+m_activeView->GetConsoleCommand());
 	}
 
 	return 0;

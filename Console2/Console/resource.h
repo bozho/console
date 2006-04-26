@@ -167,6 +167,8 @@
 #define IDC_CHECK_DRAG_ON               1146
 #define IDC_TABS                        1146
 #define IDC_CHECK_INVERSE_SHIFT         1147
+#define IDC_CHECK_SUPPORT_TITLE_CMD     1147
+#define IDC_CHECK_USE_CONSOLE_TITLE     1147
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -186,7 +188,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1147
+#define _APS_NEXT_CONTROL_VALUE         1148
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

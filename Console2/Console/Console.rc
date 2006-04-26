@@ -307,66 +307,68 @@ BEGIN
     PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON,217,33,15,14
     CONTROL         "Use tab &icons",IDC_CHECK_USE_TAB_ICON,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,50,50,59,10
+    CONTROL         "Use console window title *",IDC_CHECK_USE_CONSOLE_TITLE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,17,66,100,10
     CONTROL         "S&how command",IDC_CHECK_SHOW_COMMAND,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,27,65,65,10
+                    BS_AUTOCHECKBOX | WS_TABSTOP,81,76,65,10
     CONTROL         "Sh&ow command in tabs",IDC_CHECK_SHOW_COMMAND_TABS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,105,65,89,10
-    GROUPBOX        "Title && icon",IDC_STATIC,17,8,223,72
-    LTEXT           "Name:",IDC_STATIC,27,97,20,8
-    EDITTEXT        IDC_FONT,50,94,110,14,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,162,94,15,14
-    LTEXT           "Si&ze:",IDC_STATIC,185,97,16,8
-    EDITTEXT        IDC_FONT_SIZE,202,94,30,14,ES_AUTOHSCROLL
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,148,76,89,10
+    GROUPBOX        "Title && icon",IDC_STATIC,7,8,233,81
+    LTEXT           "Name:",IDC_STATIC,27,105,20,8
+    EDITTEXT        IDC_FONT,50,102,110,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,162,102,15,14
+    LTEXT           "Si&ze:",IDC_STATIC,185,105,16,8
+    EDITTEXT        IDC_FONT_SIZE,202,102,30,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN_FONT_SIZE,"msctls_updown32",UDS_SETBUDDYINT | 
-                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,94,11,
-                    14
-    CONTROL         "&Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,34,114,29,10
-    CONTROL         "It&alic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,70,114,31,10
-    CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,117,114,56,10
-    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,175,
-                    112,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Font",IDC_STATIC,17,82,223,49
-    CONTROL         "Position &window *",IDC_CHECK_POSITION,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,27,147,73,10
-    LTEXT           "X:",IDC_STATIC,101,148,8,8
-    EDITTEXT        IDC_POS_X,111,145,41,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_X,"msctls_updown32",UDS_SETBUDDYINT | 
-                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,133,145,
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,102,
                     11,14
-    LTEXT           "Y:",IDC_STATIC,160,148,8,8
-    EDITTEXT        IDC_POS_Y,170,145,41,14,ES_AUTOHSCROLL
+    CONTROL         "&Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,34,122,29,10
+    CONTROL         "It&alic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,70,122,31,10
+    CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,117,122,56,10
+    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,175,
+                    120,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Font",IDC_STATIC,17,90,223,49
+    CONTROL         "Position &window *",IDC_CHECK_POSITION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,155,73,10
+    LTEXT           "X:",IDC_STATIC,101,156,8,8
+    EDITTEXT        IDC_POS_X,111,153,41,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_X,"msctls_updown32",UDS_SETBUDDYINT | 
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,133,153,
+                    11,14
+    LTEXT           "Y:",IDC_STATIC,160,156,8,8
+    EDITTEXT        IDC_POS_Y,170,153,41,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN_Y,"msctls_updown32",UDS_SETBUDDYINT | 
-                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,221,145,
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,221,153,
                     11,14
     CONTROL         "&Snap to desktop edges",IDC_CHECK_SNAP,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,27,162,89,10
-    LTEXT           "Snap &distance:",IDC_STATIC,119,163,48,8
-    EDITTEXT        IDC_SNAP,170,160,41,14,ES_AUTOHSCROLL
+                    BS_AUTOCHECKBOX | WS_TABSTOP,27,170,89,10
+    LTEXT           "Snap &distance:",IDC_STATIC,119,171,48,8
+    EDITTEXT        IDC_SNAP,170,168,41,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN_SNAP,"msctls_updown32",UDS_SETBUDDYINT | 
-                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,160,
+                    UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,240,168,
                     11,14
-    GROUPBOX        "Position",IDC_STATIC,17,133,223,47
+    GROUPBOX        "Position",IDC_STATIC,17,141,223,47
     CONTROL         "&None",IDC_RADIO_DOCK_NONE,"Button",BS_AUTORADIOBUTTON | 
-                    WS_GROUP,27,192,33,10
+                    WS_GROUP,27,200,33,10
     CONTROL         "Top le&ft",IDC_RADIO_DOCK_TL,"Button",
-                    BS_AUTORADIOBUTTON,27,202,41,10
+                    BS_AUTORADIOBUTTON,27,210,41,10
     CONTROL         "Top ri&ght",IDC_RADIO_DOCK_TR,"Button",
-                    BS_AUTORADIOBUTTON,27,212,45,10
+                    BS_AUTORADIOBUTTON,27,220,45,10
     CONTROL         "Botto&m left",IDC_RADIO_DOCK_BL,"Button",
-                    BS_AUTORADIOBUTTON,27,222,51,10
+                    BS_AUTORADIOBUTTON,27,230,51,10
     CONTROL         "Bottom &right",IDC_RADIO_DOCK_BR,"Button",
-                    BS_AUTORADIOBUTTON,27,232,55,10
-    GROUPBOX        "Docking *",IDC_STATIC,17,182,95,65,WS_GROUP
+                    BS_AUTORADIOBUTTON,27,240,55,10
+    GROUPBOX        "Docking *",IDC_STATIC,17,190,95,65,WS_GROUP
     CONTROL         "R&egular",IDC_RADIO_Z_REGULAR,"Button",
-                    BS_AUTORADIOBUTTON | WS_GROUP,126,195,41,10
+                    BS_AUTORADIOBUTTON | WS_GROUP,126,203,41,10
     CONTROL         "Always on to&p",IDC_RADIO_Z_ONTOP,"Button",
-                    BS_AUTORADIOBUTTON,126,213,61,10
+                    BS_AUTORADIOBUTTON,126,221,61,10
     CONTROL         "Alwa&ys on bottom",IDC_RADIO_Z_BOTTOM,"Button",
-                    BS_AUTORADIOBUTTON,126,231,73,10
-    GROUPBOX        "Z order *",IDC_STATIC,117,182,123,65,WS_GROUP
+                    BS_AUTORADIOBUTTON,126,239,73,10
+    GROUPBOX        "Z order *",IDC_STATIC,117,190,123,65,WS_GROUP
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 257, 257
@@ -596,7 +598,6 @@ BEGIN
 
     IDD_SETTINGS_APPEARANCE, DIALOG
     BEGIN
-        RIGHTMARGIN, 256
         VERTGUIDE, 17
         VERTGUIDE, 50
         VERTGUIDE, 232

@@ -91,6 +91,12 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	// TODO: build command line
 	wstring	strShellCmdLine(strShell);
+	wstring	strStartupTitle(strConsoleTitle);
+
+	if (strStartupTitle.length() == 0)
+	{
+		strStartupTitle = str(wformat(L"Console command window 0x%08X") % this);
+	}
 
 	// setup the startup info struct
 	STARTUPINFO si;
@@ -98,7 +104,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	si.dwFlags		= STARTF_USESHOWWINDOW;
 	si.cb			= sizeof(STARTUPINFO);
 	si.wShowWindow	= SW_HIDE;
-	si.lpTitle		= (wchar_t*)(strConsoleTitle.c_str());
+	si.lpTitle		= (wchar_t*)(strStartupTitle.c_str());
 
 	PROCESS_INFORMATION pi;
 

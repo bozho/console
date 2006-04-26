@@ -25,6 +25,7 @@ class DlgSettingsAppearance
 			DDX_CHECK(IDC_CHECK_USE_TAB_TITLE, m_nUseTabTitle)
 			DDX_TEXT(IDC_WINDOW_ICON, m_strWindowIcon)
 			DDX_CHECK(IDC_CHECK_USE_TAB_ICON, m_nUseTabIcon)
+			DDX_CHECK(IDC_CHECK_USE_CONSOLE_TITLE, m_nUseConsoleTitle)
 			DDX_CHECK(IDC_CHECK_SHOW_COMMAND, m_nShowCommand)
 			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_nShowCommandTabs)
 			DDX_TEXT(IDC_FONT, m_strFontName)
@@ -50,6 +51,7 @@ class DlgSettingsAppearance
 			COMMAND_HANDLER(IDC_CHECK_USE_TAB_ICON, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_BTN_BROWSE_ICON, BN_CLICKED, OnClickedBtnBrowseIcon)
 			COMMAND_HANDLER(IDC_BTN_BROWSE_FONT, BN_CLICKED, OnClickedBtnBrowseFont)
+			COMMAND_HANDLER(IDC_CHECK_USE_CONSOLE_TITLE, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_USE_COLOR, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_POSITION, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_SNAP, BN_CLICKED, OnClickedCheckbox)
@@ -85,6 +87,7 @@ class DlgSettingsAppearance
 		int							m_nUseTabTitle;
 		CString						m_strWindowIcon;
 		int							m_nUseTabIcon;
+		int							m_nUseConsoleTitle;
 		int							m_nShowCommand;
 		int							m_nShowCommandTabs;
 

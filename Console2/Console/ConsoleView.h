@@ -98,8 +98,10 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		void RecreateOffscreenBuffers();
 		void RepaintView();
 		void SetActive(bool bActive);
-		void SetTitle(const wstring& strTitle);
+		void SetTitle(const CString& strTitle);
 
+		CString GetConsoleCommand();
+		const CString& GetTitle() const { return m_strTitle; }
 		CIcon& GetIcon(bool bBigIcon = true) { return bBigIcon ? bigIcon : smallIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);

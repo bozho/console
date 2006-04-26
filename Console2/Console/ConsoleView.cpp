@@ -143,7 +143,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	if (!m_consoleHandler.StartShellProcess(
 								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : m_consoleSettings.strShell, 
 								(m_tabData->strInitialDir.length() > 0) ? m_tabData->strInitialDir : m_consoleSettings.strInitialDir, 
-								m_tabData->strTitle,
+								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 								m_dwStartupRows, 
 								m_dwStartupColumns))
 	{
@@ -578,7 +578,11 @@ void ConsoleView::RepaintView()
 void ConsoleView::SetActive(bool bActive)
 {
 	m_bActive = bActive;
-	if (m_bActive) RepaintView();
+	if (m_bActive)
+	{
+		RepaintView();
+		UpdateTitle();
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -586,14 +590,59 @@ void ConsoleView::SetActive(bool bActive)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::SetTitle(const wstring& strTitle)
+void ConsoleView::SetTitle(const CString& strTitle)
+{
+/*
+	if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle)
+	{
+		// if we're using console titles, update it
+		CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
+		consoleWnd.SetWindowText(strTitle);
+
+		m_strTitle = strTitle;
+	}
+	else
+	{
+		// we're not using console window title, parse the command part
+		int		nPos = m_strTitle.Find(L'-');
+
+		if (nPos == -1)
+		{
+			m_strTitle = strTitle;
+		}
+		else
+		{
+			m_strTitle = strTitle + m_strTitle.Right(m_strTitle.GetLength() - nPos + 1);
+		}
+	}
+*/
+
+	m_strTitle = strTitle;
+	SetWindowText(m_strTitle);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+CString ConsoleView::GetConsoleCommand()
 {
 	CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
+	CString strConsoleTitle(L"");
 
-	consoleWnd.SetWindowText(strTitle.c_str());
+	consoleWnd.GetWindowText(strConsoleTitle);
 
-	m_strTitle = strTitle.c_str();
-	SetWindowText(m_strTitle);
+	int nPos = strConsoleTitle.Find(L'-');
+
+	if (nPos == -1)
+	{
+		return CString(L"");
+	}
+	else
+	{
+		return strConsoleTitle.Right(strConsoleTitle.GetLength() - nPos + 1);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -967,21 +1016,36 @@ DWORD ConsoleView::GetBufferDifference()
 
 void ConsoleView::UpdateTitle()
 {
-	CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
+	CString	strCommandText(L"");
 
-	CString strCommandText;
-	consoleWnd.GetWindowText(strCommandText);
+	if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle)
+	{
+		CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
+		CString strConsoleTitle(L"");
 
-	if (strCommandText == m_strTitle) return;
+		consoleWnd.GetWindowText(strConsoleTitle);
 
-	m_strTitle = strCommandText;
+		// if we're using console titles, update the title
+		if (strConsoleTitle == m_strTitle) return;
+
+		m_strTitle = strConsoleTitle;
+		SetWindowText(m_strTitle);
+	}
+	else
+	{
+		strCommandText = GetConsoleCommand();
+	}
+
+/*
+	m_strTitle = strTitleText;
 	SetWindowText(m_strTitle);
+*/
 
-	TRACE(L"CV: %s", strCommandText);
+	TRACE(L"CV: %s\n", strCommandText);
 	GetParent().SendMessage(
 					UM_UPDATE_TITLES, 
 					reinterpret_cast<WPARAM>(m_hWnd), 
-					reinterpret_cast<LPARAM>(LPCTSTR(m_strTitle)));
+					reinterpret_cast<LPARAM>(LPCTSTR(strCommandText)));
 }
 
 /////////////////////////////////////////////////////////////////////////////

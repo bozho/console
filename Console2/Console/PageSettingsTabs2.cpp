@@ -34,6 +34,8 @@ PageSettingsTabs2::PageSettingsTabs2()
 
 LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
+
 	m_comboBkPosition.Attach(GetDlgItem(IDC_COMBO_BK_POS));
 	m_comboBkPosition.AddString(L"Center");
 	m_comboBkPosition.AddString(L"Stretch");

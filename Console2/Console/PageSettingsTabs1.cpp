@@ -35,6 +35,8 @@ PageSettingsTabs1::PageSettingsTabs1()
 
 LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
+
 	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
 
 //	for (int i = 0; i < sizeof(Cursor::s_cursorNames)/sizeof(wchar_t*); ++i)

@@ -43,7 +43,7 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_listCtrl.InsertColumn(1, L"Hotkey");
 
 	m_listCtrl.SetColumnWidth(0, 100);
-	m_listCtrl.SetColumnWidth(1, 230);
+	m_listCtrl.SetColumnWidth(1, 218);
 
 	HotKeys::CommandsVector::iterator	it = m_hotKeys.vecCommands.begin();
 	for (; it != m_hotKeys.vecCommands.end(); ++it)

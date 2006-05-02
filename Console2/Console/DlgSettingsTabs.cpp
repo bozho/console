@@ -40,7 +40,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 	m_listCtrl.InsertColumn(0, L"Tab name");
-	m_listCtrl.SetColumnWidth(0, 230);
+	m_listCtrl.SetColumnWidth(0, 188);
 
 	TabDataVector::iterator	it = m_tabSettings.tabDataVector.begin();
 	for (; it != m_tabSettings.tabDataVector.end(); ++it)

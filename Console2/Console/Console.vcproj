@@ -35,8 +35,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib"
+				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib"
 				LinkIncremental="2"
+				DelayLoadDLLs="uxtheme.dll"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				TargetMachine="1"/>
@@ -93,8 +94,9 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib"
+				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib"
 				LinkIncremental="1"
+				DelayLoadDLLs="uxtheme.dll"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool

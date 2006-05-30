@@ -69,6 +69,7 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	UpdateSliderText(m_sliderActiveAlpha.m_hWnd);
 	UpdateSliderText(m_sliderInactiveAlpha.m_hWnd);
 
+	EnableTabControls();
 	EnableTransparencyControls();
 
 	DoDataExchange(DDX_LOAD);

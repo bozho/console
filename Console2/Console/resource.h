@@ -109,6 +109,8 @@
 #define IDC_CHECK_STYLE_BORDER          1090
 #define IDC_INSIDE_BORDER               1091
 #define IDC_POS_X                       1092
+#define IDC_CHECK_SHOW_TABS2            1092
+#define IDC_CHECK_HIDE_SINGLE_TAB       1092
 #define IDC_CHECK_STYLE_TRAY            1093
 #define IDC_POS_Y                       1094
 #define IDC_RADIO_DOCK_NONE             1095
@@ -167,7 +169,6 @@
 #define IDC_CHECK_DRAG_ON               1146
 #define IDC_TABS                        1146
 #define IDC_CHECK_INVERSE_SHIFT         1147
-#define IDC_CHECK_SUPPORT_TITLE_CMD     1147
 #define IDC_CHECK_USE_CONSOLE_TITLE     1147
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201

@@ -24,8 +24,8 @@
 DlgSettingsMain::DlgSettingsMain()
 : m_treeCtrl()
 , m_settingsDlgMap()
-, m_pOptionsDocument()
-, m_pOptionsRoot()
+, m_pSettingsDocument()
+, m_pSettingsRoot()
 {
 }
 
@@ -46,8 +46,8 @@ LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	hr = XmlHelper::OpenXmlDocument(
 						g_settingsHandler->GetSettingsFileName(), 
 						L"console.xml", 
-						m_pOptionsDocument, 
-						m_pOptionsRoot);
+						m_pSettingsDocument, 
+						m_pSettingsRoot);
 
 	if (FAILED(hr)) return FALSE;
 
@@ -73,7 +73,7 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 
 	if (wID == IDOK)
 	{
-		m_pOptionsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
+		m_pSettingsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
 	}
 
 	EndDialog(wID);
@@ -131,27 +131,27 @@ void DlgSettingsMain::CreateSettingsTree()
 
 
 	// create console settings dialog
-	shared_ptr<DlgSettingsBase>	dlgConsole(dynamic_cast<DlgSettingsBase*>(new DlgSettingsConsole(m_pOptionsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgConsole(dynamic_cast<DlgSettingsBase*>(new DlgSettingsConsole(m_pSettingsRoot)));
 	AddDialogToTree(L"Console", dlgConsole, rect);
 
 	// create appearance settings dialog
-	shared_ptr<DlgSettingsBase>	dlgAppearance(dynamic_cast<DlgSettingsBase*>(new DlgSettingsAppearance(m_pOptionsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgAppearance(dynamic_cast<DlgSettingsBase*>(new DlgSettingsAppearance(m_pSettingsRoot)));
 	HTREEITEM htiAppearance = AddDialogToTree(L"Appearance", dlgAppearance, rect);
 
 	// create styles settings dialog
-	shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pOptionsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pSettingsRoot)));
 	AddDialogToTree(L"More...", dlgStyles, rect, htiAppearance);
 
 	// create behavior settings dialog
-	shared_ptr<DlgSettingsBase>	dlgBehavior(dynamic_cast<DlgSettingsBase*>(new DlgSettingsBehavior(m_pOptionsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgBehavior(dynamic_cast<DlgSettingsBase*>(new DlgSettingsBehavior(m_pSettingsRoot)));
 	AddDialogToTree(L"Behavior", dlgBehavior, rect);
 
 	// create hotkeys settings dialog
-	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pOptionsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pSettingsRoot)));
 	AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
 
 	// create tabs settings dialog
-	shared_ptr<DlgSettingsBase>	dlgTabs(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTabs(m_pOptionsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgTabs(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTabs(m_pSettingsRoot)));
 	AddDialogToTree(L"Tabs", dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);

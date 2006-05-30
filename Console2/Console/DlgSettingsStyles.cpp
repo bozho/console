@@ -37,8 +37,9 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 	m_nShowMenu		= m_controlsSettings.bShowMenu ? 1 : 0;
 	m_nShowToolbar	= m_controlsSettings.bShowToolbar ? 1 : 0;
-	m_nShowTabs		= m_controlsSettings.bShowTabs ? 1 : 0;
 	m_nShowStatusbar= m_controlsSettings.bShowStatusbar ? 1 : 0;
+	m_nShowTabs		= m_controlsSettings.bShowTabs ? 1 : 0;
+	m_nHideSingleTab= m_controlsSettings.bHideSingleTab ? 1 : 0;
 
 	m_nShowCaption	= m_stylesSettings.bCaption ? 1 : 0;
 	m_nResizable	= m_stylesSettings.bResizable ? 1 : 0;
@@ -124,8 +125,9 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 
 		m_controlsSettings.bShowMenu		= (m_nShowMenu > 0);
 		m_controlsSettings.bShowToolbar		= (m_nShowToolbar > 0);
-		m_controlsSettings.bShowTabs		= (m_nShowTabs > 0);
 		m_controlsSettings.bShowStatusbar	= (m_nShowStatusbar > 0);
+		m_controlsSettings.bShowTabs		= (m_nShowTabs > 0);
+		m_controlsSettings.bHideSingleTab	= (m_nHideSingleTab > 0);
 
 		m_stylesSettings.bCaption		= (m_nShowCaption > 0);
 		m_stylesSettings.bResizable		= (m_nResizable > 0);
@@ -142,8 +144,9 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 
 		controlsSettings.bShowMenu		= m_controlsSettings.bShowMenu;
 		controlsSettings.bShowToolbar	= m_controlsSettings.bShowToolbar;
-		controlsSettings.bShowTabs		= m_controlsSettings.bShowTabs;
 		controlsSettings.bShowStatusbar	= m_controlsSettings.bShowStatusbar;
+		controlsSettings.bShowTabs		= m_controlsSettings.bShowTabs;
+		controlsSettings.bHideSingleTab	= m_controlsSettings.bHideSingleTab;
 
 		stylesSettings.bCaption			= m_stylesSettings.bCaption;
 		stylesSettings.bResizable		= m_stylesSettings.bResizable;
@@ -163,6 +166,18 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 	}
 
 	DestroyWindow();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsStyles::OnClickedShowTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableTabControls();
 	return 0;
 }
 
@@ -234,6 +249,21 @@ void DlgSettingsStyles::UpdateSliderText(HWND hwndSlider)
 
 	wndStaticCtrl.Detach();
 	trackBar.Detach();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsStyles::EnableTabControls()
+{
+	::EnableWindow(GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB), FALSE);
+
+	if (m_nShowTabs > 0)
+	{
+		::EnableWindow(GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB), TRUE);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

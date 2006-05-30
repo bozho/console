@@ -98,6 +98,37 @@ LRESULT PageSettingsTabs1::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT PageSettingsTabs1::OnTabTitleChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CWindow(GetDlgItem(IDC_TAB_TITLE)).GetWindowText(m_strTitle);
+	GetParent().SendMessage(UM_TAB_TITLE_CHANGED, 0, 0);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs1::OnClickedCursorColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
+{
+	CColorDialog	dlg(m_tabData->crCursorColor, CC_FULLOPEN);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		// update color
+		m_tabData->crCursorColor = dlg.GetColor();
+		CWindow(hWndCtl).Invalidate();
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT PageSettingsTabs1::OnBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	DoDataExchange(DDX_SAVE);
@@ -154,25 +185,6 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wI
 	{
 		m_strInitialDir = folderDialog.m_szFolderPath;
 		DoDataExchange(DDX_LOAD);
-	}
-
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT PageSettingsTabs1::OnClickedCursorColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
-{
-	CColorDialog	dlg(m_tabData->crCursorColor, CC_FULLOPEN);
-
-	if (dlg.DoModal() == IDOK)
-	{
-		// update color
-		m_tabData->crCursorColor = dlg.GetColor();
-		CWindow(hWndCtl).Invalidate();
 	}
 
 	return 0;

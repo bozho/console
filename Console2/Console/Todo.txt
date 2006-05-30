@@ -2,22 +2,22 @@
 
 *** done *** - cursor rendering
 
-- options dialog
-  - tab settings
+*** done *** - options dialog
+*** done ***   - tab settings
 
-- image handler
-  - basic stuff is working
+*** done *** - image handler
+*** done ***   - basic stuff is working
 
-- background rendering
-  - in process
-  - problems with relative backgrounds
+*** done *** - background rendering
+*** done ***   - in process
+*** done ***   - problems with relative backgrounds
 
-- non-tabbed windows
+*** done *** - non-tabbed windows
 
 *** done *** - console: custom shell
 
 *** done *** - tabs: customize default console settings
 
-- appearance: settings for view menu/toolbar/statusbar on startup
+*** done *** - appearance: settings for view menu/toolbar/statusbar on startup
 
 - cursors: optimize painting for animated cursors

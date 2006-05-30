@@ -24,8 +24,8 @@
 		<font name="Courier New" size="10" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
-		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1"/>
-		<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1"/>
+		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
+		<controls show_menu="1" show_toolbar="0" show_statusbar="1" show_tabs="0" hide_single_tab="1"/>
 		<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="1"/>
 		<position x="-1" y="-1" dock="2" snap="0" z_order="0"/>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
@@ -81,12 +81,12 @@
 				</image>
 			</background>
 		</tab>
-		<tab title="Test tab">
-			<console shell="bash.exe" init_dir="F:\"/>
-			<cursor style="0" r="0" g="0" b="128"/>
+		<tab title="Test tab bash">
+			<console shell="bash.exe" init_dir=""/>
+			<cursor style="1" r="255" g="255" b="255"/>
 			<background type="2" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
-					<tint opacity="65" r="0" g="255" b="255"/>
+					<tint opacity="165" r="0" g="0" b="0"/>
 				</image>
 			</background>
 		</tab>

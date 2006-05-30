@@ -22,9 +22,10 @@ class DlgSettingsStyles
 
 		BEGIN_DDX_MAP(DlgSettingsStyles)
 			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_nShowMenu)
-			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs)
 			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_nShowToolbar)
 			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar)
+			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs)
+			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_nHideSingleTab)
 			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption)
 			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable)
 			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder)
@@ -40,6 +41,7 @@ class DlgSettingsStyles
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+			COMMAND_HANDLER(IDC_CHECK_SHOW_TABS, BN_CLICKED, OnClickedShowTabs)
 			COMMAND_HANDLER(IDC_KEY_COLOR, BN_CLICKED, OnClickedKeyColor)
 			COMMAND_RANGE_CODE_HANDLER(IDC_TRANSPARENCY_TYPE, IDC_TRANSPARENCY_TYPE3, BN_CLICKED, OnClickedTransType)
 		END_MSG_MAP()
@@ -54,12 +56,14 @@ class DlgSettingsStyles
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedShowTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedTransType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
 
 		void UpdateSliderText(HWND hwnd);
+		void EnableTabControls();
 		void EnableTransparencyControls();
 
 	private:
@@ -72,9 +76,10 @@ class DlgSettingsStyles
 		CTrackBarCtrl				m_sliderInactiveAlpha;
 
 		int							m_nShowMenu;
-		int							m_nShowTabs;
 		int							m_nShowToolbar;
 		int							m_nShowStatusbar;
+		int							m_nShowTabs;
+		int							m_nHideSingleTab;
 
 		int							m_nShowCaption;
 		int							m_nResizable;

@@ -69,11 +69,11 @@ ConsoleSettings::ConsoleSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pConsoleElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
 
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), strShell, wstring(L""));
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), strInitialDir, wstring(L""));
@@ -104,11 +104,11 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pConsoleElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
 
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"shell"), strShell);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"init_dir"), strInitialDir);
@@ -158,11 +158,11 @@ FontSettings::FontSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pFontElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
 
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"name"), strName, wstring(L"Courier New"));
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"size"), dwSize, 10);
@@ -184,11 +184,11 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pFontElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
 
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"name"), strName);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"size"), dwSize);
@@ -223,6 +223,7 @@ WindowSettings::WindowSettings()
 , bShowCommand(true)
 , bShowCommandInTabs(true)
 , bUseTabTitles(false)
+, dwTrimTabTitles(0)
 {
 }
 
@@ -231,11 +232,11 @@ WindowSettings::WindowSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pWindowElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
 
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"title"), strTitle, wstring(L"Console"));
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon, wstring(L""));
@@ -244,6 +245,7 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd"), bShowCommand, true);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs, true);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles, false);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles"), dwTrimTabTitles, 0);
 
 	return true;
 }
@@ -253,11 +255,11 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pWindowElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
 
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"title"), strTitle);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon);
@@ -266,6 +268,7 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_cmd"), bShowCommand);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles"), dwTrimTabTitles);
 
 	return true;
 }
@@ -283,8 +286,9 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 ControlsSettings::ControlsSettings()
 : bShowMenu(true)
 , bShowToolbar(true)
-, bShowTabs(true)
 , bShowStatusbar(true)
+, bShowTabs(true)
+, bHideSingleTab(false)
 {
 }
 
@@ -293,16 +297,17 @@ ControlsSettings::ControlsSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pCtrlsElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
 
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
-	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, false);
 
 	return true;
 }
@@ -312,16 +317,17 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pCtrlsElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
 
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
-	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab);
 
 	return true;
 }
@@ -351,11 +357,11 @@ StylesSettings::StylesSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pStylesElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
 
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"caption"), bCaption, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"resizable"), bResizable, true);
@@ -372,11 +378,11 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pStylesElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/styles"), pStylesElement))) return false;
 
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"caption"), bCaption);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"resizable"), bResizable);
@@ -412,11 +418,11 @@ PositionSettings::PositionSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pPositionElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
 
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"x"), nX, -1);
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"y"), nY, -1);
@@ -432,11 +438,11 @@ bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pPositionElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/position"), pPositionElement))) return false;
 
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"x"), nX);
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"y"), nY);
@@ -470,11 +476,11 @@ TransparencySettings::TransparencySettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pTransElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
 
 	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"type"), reinterpret_cast<DWORD&>(transType), static_cast<DWORD>(transNone));
 	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha, 255);
@@ -489,11 +495,11 @@ bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pTransElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/transparency"), pTransElement))) return false;
 
 	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"type"), reinterpret_cast<DWORD&>(transType));
 	XmlHelper::SetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha);
@@ -522,14 +528,14 @@ AppearanceSettings::AppearanceSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	fontSettings.Load(pOptionsRoot);
-	windowSettings.Load(pOptionsRoot);
-	controlsSettings.Load(pOptionsRoot);
-	stylesSettings.Load(pOptionsRoot);
-	positionSettings.Load(pOptionsRoot);
-	transparencySettings.Load(pOptionsRoot);
+	fontSettings.Load(pSettingsRoot);
+	windowSettings.Load(pSettingsRoot);
+	controlsSettings.Load(pSettingsRoot);
+	stylesSettings.Load(pSettingsRoot);
+	positionSettings.Load(pSettingsRoot);
+	transparencySettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -538,14 +544,14 @@ bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	fontSettings.Save(pOptionsRoot);
-	windowSettings.Save(pOptionsRoot);
-	controlsSettings.Save(pOptionsRoot);
-	stylesSettings.Save(pOptionsRoot);
-	positionSettings.Save(pOptionsRoot);
-	transparencySettings.Save(pOptionsRoot);
+	fontSettings.Save(pSettingsRoot);
+	windowSettings.Save(pSettingsRoot);
+	controlsSettings.Save(pSettingsRoot);
+	stylesSettings.Save(pSettingsRoot);
+	positionSettings.Save(pSettingsRoot);
+	transparencySettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -571,11 +577,11 @@ CopyPasteSettings::CopyPasteSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pCopyPasteElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
 
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_on_select"), bCopyOnSelect, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap, false);
@@ -589,11 +595,11 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pCopyPasteElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
 
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"copy_on_select"), bCopyOnSelect);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap);
@@ -623,11 +629,11 @@ MouseDragSettings::MouseDragSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pMouseDragElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
 
 	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag, false);
 	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift, false);
@@ -640,11 +646,11 @@ bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	CComPtr<IXMLDOMElement>	pMouseDragElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
 
 	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag);
 	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift);
@@ -671,10 +677,10 @@ BehaviorSettings::BehaviorSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	copyPasteSettings.Load(pOptionsRoot);
-	mouseDragSettings.Load(pOptionsRoot);
+	copyPasteSettings.Load(pSettingsRoot);
+	mouseDragSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -683,10 +689,10 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	copyPasteSettings.Save(pOptionsRoot);
-	mouseDragSettings.Save(pOptionsRoot);
+	copyPasteSettings.Save(pSettingsRoot);
+	mouseDragSettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -740,12 +746,12 @@ HotKeys::HotKeys()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
 
-	hr = pOptionsRoot->selectNodes(CComBSTR(L"hotkeys/hotkey"), &pHotKeyNodes);
+	hr = pSettingsRoot->selectNodes(CComBSTR(L"hotkeys/hotkey"), &pHotKeyNodes);
 	if (FAILED(hr)) return false;
 
 	long	lListLength;
@@ -802,26 +808,26 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMElement>		pHotkeysElement;
-	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
+	CComPtr<IXMLDOMNodeList>	pHotKeyChildNodes;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
 
-	if (FAILED(pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes))) return false;
+	if (FAILED(pHotkeysElement->get_childNodes(&pHotKeyChildNodes))) return false;
 
 	long	lListLength;
-	pHotKeyNodes->get_length(&lListLength);
+	pHotKeyChildNodes->get_length(&lListLength);
 
-	for (long i = 0; i < lListLength; ++i)
+	for (long i = lListLength - 1; i >= 0; --i)
 	{
-		CComPtr<IXMLDOMNode>	pHotKeyNode;
+		CComPtr<IXMLDOMNode>	pHotKeyChildNode;
 		CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
-		if (FAILED(pHotKeyNodes->get_item(i, &pHotKeyNode))) continue; 
+		if (FAILED(pHotKeyChildNodes->get_item(i, &pHotKeyChildNode))) continue; 
 
-		hr = pHotkeysElement->removeChild(pHotKeyNode, &pRemovedHotKeyNode);
+		hr = pHotkeysElement->removeChild(pHotKeyChildNode, &pRemovedHotKeyNode);
 	}
 
 	CComPtr<IXMLDOMDocument>	pSettingsDoc;
@@ -894,12 +900,12 @@ TabSettings::TabSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pTabNodes;
 
-	hr = pOptionsRoot->selectNodes(CComBSTR(L"tabs/tab"), &pTabNodes);
+	hr = pSettingsRoot->selectNodes(CComBSTR(L"tabs/tab"), &pTabNodes);
 	if (FAILED(hr)) return false;
 
 	long	lListLength;
@@ -981,26 +987,26 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pOptionsRoot)
+bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMElement>		pTabsElement;
-	CComPtr<IXMLDOMNodeList>	pTabNodes;
+	CComPtr<IXMLDOMNodeList>	pTabChildNodes;
 
-	if (FAILED(XmlHelper::GetDomElement(pOptionsRoot, CComBSTR(L"tabs"), pTabsElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"tabs"), pTabsElement))) return false;
 
-	if (FAILED(pTabsElement->selectNodes(CComBSTR(L"tab"), &pTabNodes))) return false;
+	if (FAILED(pTabsElement->get_childNodes(&pTabChildNodes))) return false;
 
 	long	lListLength;
-	pTabNodes->get_length(&lListLength);
+	pTabChildNodes->get_length(&lListLength);
 
-	for (long i = 0; i < lListLength; ++i)
+	for (long i = lListLength - 1; i >= 0; --i)
 	{
-		CComPtr<IXMLDOMNode>	pTabNode;
+		CComPtr<IXMLDOMNode>	pTabChildNode;
 		CComPtr<IXMLDOMNode>	pRemovedTabNode;
-		if (FAILED(pTabNodes->get_item(i, &pTabNode))) continue; 
+		if (FAILED(pTabChildNodes->get_item(i, &pTabChildNode))) continue; 
 
-		hr = pTabsElement->removeChild(pTabNode, &pRemovedTabNode);
+		hr = pTabsElement->removeChild(pTabChildNode, &pRemovedTabNode);
 	}
 
 	CComPtr<IXMLDOMDocument>	pSettingsDoc;
@@ -1137,8 +1143,8 @@ void TabSettings::SetDefaults(const wstring& defaultShell, const wstring& defaul
 //////////////////////////////////////////////////////////////////////////////
 
 SettingsHandler::SettingsHandler()
-: m_pOptionsDocument()
-, m_pOptionsRoot()
+: m_pSettingsDocument()
+, m_pSettingsRoot()
 , m_strSettingsFileName(L"")
 , m_tabSettings()
 {
@@ -1164,20 +1170,39 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 
 	m_strSettingsFileName = strSettingsFileName;
 
-	hr = XmlHelper::OpenXmlDocument(m_strSettingsFileName, L"console.xml", m_pOptionsDocument, m_pOptionsRoot);
+	hr = XmlHelper::OpenXmlDocument(m_strSettingsFileName, L"console.xml", m_pSettingsDocument, m_pSettingsRoot);
 	if (FAILED(hr)) return false;
 
 	// load settings' sections
-	m_consoleSettings.Load(m_pOptionsRoot);
-	m_appearanceSettings.Load(m_pOptionsRoot);
-	m_behaviorSettings.Load(m_pOptionsRoot);
-	m_hotKeys.Load(m_pOptionsRoot);
+	m_consoleSettings.Load(m_pSettingsRoot);
+	m_appearanceSettings.Load(m_pSettingsRoot);
+	m_behaviorSettings.Load(m_pSettingsRoot);
+	m_hotKeys.Load(m_pSettingsRoot);
 
 	m_tabSettings.SetDefaults(m_consoleSettings.strShell, m_consoleSettings.strInitialDir);
-	m_tabSettings.Load(m_pOptionsRoot);
+	m_tabSettings.Load(m_pSettingsRoot);
 
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool SettingsHandler::SaveSettings()
+{
+	m_consoleSettings.Save(m_pSettingsRoot);
+	m_appearanceSettings.Save(m_pSettingsRoot);
+	m_behaviorSettings.Save(m_pSettingsRoot);
+	m_hotKeys.Save(m_pSettingsRoot);
+	m_tabSettings.Save(m_pSettingsRoot);
+
+	HRESULT hr = m_pSettingsDocument->save(CComVariant(m_strSettingsFileName.c_str()));
+
+	return SUCCEEDED(hr) ? true : false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 

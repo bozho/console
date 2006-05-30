@@ -16,8 +16,8 @@
 
 struct SettingsBase
 {
-	virtual bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
-	virtual bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot) = 0;
+	virtual bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot) = 0;
+	virtual bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot) = 0;
 
 	static void AddTextNode(CComPtr<IXMLDOMDocument>& pDoc, CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText);
 };
@@ -31,8 +31,8 @@ struct ConsoleSettings : public SettingsBase
 {
 	ConsoleSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	wstring		strShell;
 	wstring		strInitialDir;
@@ -62,8 +62,8 @@ struct FontSettings : public SettingsBase
 {
 	FontSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	wstring		strName;
 	DWORD		dwSize;
@@ -83,8 +83,8 @@ struct WindowSettings : public SettingsBase
 {
 	WindowSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	wstring			strTitle;
 	wstring			strIcon;
@@ -93,6 +93,7 @@ struct WindowSettings : public SettingsBase
 	bool			bShowCommand;
 	bool			bShowCommandInTabs;
 	bool			bUseTabTitles;
+	DWORD			dwTrimTabTitles;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -104,13 +105,14 @@ struct ControlsSettings
 {
 	ControlsSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	bool			bShowMenu;
 	bool			bShowToolbar;
-	bool			bShowTabs;
 	bool			bShowStatusbar;
+	bool			bShowTabs;
+	bool			bHideSingleTab;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -122,8 +124,8 @@ struct StylesSettings : public SettingsBase
 {
 	StylesSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	bool			bCaption;
 	bool			bResizable;
@@ -162,8 +164,8 @@ struct PositionSettings : public SettingsBase
 {
 	PositionSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	int				nX;
 	int				nY;
@@ -193,8 +195,8 @@ struct TransparencySettings : public SettingsBase
 {
 	TransparencySettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	TransparencyType	transType;
 	BYTE				byActiveAlpha;
@@ -211,8 +213,8 @@ struct AppearanceSettings : public SettingsBase
 {
 	AppearanceSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	FontSettings			fontSettings;
 	WindowSettings			windowSettings;
@@ -231,8 +233,8 @@ struct CopyPasteSettings : public SettingsBase
 {
 	CopyPasteSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	bool	bCopyOnSelect;
 	bool	bNoWrap;
@@ -248,8 +250,8 @@ struct MouseDragSettings : public SettingsBase
 {
 	MouseDragSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	bool	bMouseDrag;
 	bool	bInverseShift;
@@ -264,8 +266,8 @@ struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	CopyPasteSettings	copyPasteSettings;
 	MouseDragSettings	mouseDragSettings;
@@ -280,8 +282,8 @@ struct HotKeys : public SettingsBase
 {
 	HotKeys();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	struct CommandData
 	{
@@ -377,8 +379,8 @@ struct TabSettings : public SettingsBase
 {
 	TabSettings();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pOptionsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pOptionsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
 	void SetDefaults(const wstring& defaultShell, const wstring& defaultInitialDir);
 
@@ -409,6 +411,7 @@ class SettingsHandler
 	public:
 
 		bool LoadSettings(const wstring& strSettingsFileName);
+		bool SaveSettings();
 
 		wstring	GetSettingsFileName() const { return m_strSettingsFileName; }
 
@@ -420,8 +423,8 @@ class SettingsHandler
 
 	private:
 
-		CComPtr<IXMLDOMDocument>	m_pOptionsDocument;
-		CComPtr<IXMLDOMElement>		m_pOptionsRoot;
+		CComPtr<IXMLDOMDocument>	m_pSettingsDocument;
+		CComPtr<IXMLDOMElement>		m_pSettingsRoot;
 
 	private:
 

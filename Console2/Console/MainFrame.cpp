@@ -115,8 +115,13 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
-	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
 	ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
+	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
+
+	if ((m_mapViews.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
+	{
+		ShowTabs(FALSE);
+	}
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
@@ -473,8 +478,13 @@ LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 
 LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	HWND						hwndConsoleView	= reinterpret_cast<HWND>(wParam);
+	CloseTab(reinterpret_cast<HWND>(wParam));
+	return 0;
+
+/*
 	ConsoleViewMap::iterator	findIt			= m_mapViews.find(hwndConsoleView);
+
+	m_TabCtrl.
 
 	if (findIt == m_mapViews.end()) return 0;
 
@@ -487,6 +497,7 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 	if (m_mapViews.size() == 0) PostMessage(WM_CLOSE);
 
 	return 0;
+*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -501,7 +512,13 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 
 	if (windowSettings.bUseConsoleTitle)
 	{
-		UpdateTabText(consoleView->m_hWnd, consoleView->GetTitle());
+		CString	strTabTitle(consoleView->GetTitle());
+
+		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
+		{
+			strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles) + CString(L"...");
+		}
+		UpdateTabText(consoleView->m_hWnd, strTabTitle);
 
 		if ((windowSettings.bUseTabTitles) && (consoleView == m_activeView))
 		{
@@ -528,6 +545,10 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 		
 		if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
 
+		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
+		{
+			strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles) + CString(L"...");
+		}
 		UpdateTabText(consoleView->m_hWnd, strTabTitle);
 	}
 
@@ -869,8 +890,17 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 	if (dlg.DoModal() == IDOK)
 	{
+		WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
+	
 		m_activeView->SetTitle(dlg.m_strTabName);
-		UpdateTabText(*m_activeView, dlg.m_strTabName+m_activeView->GetConsoleCommand());
+
+		CString	strTabTitle(dlg.m_strTabName+m_activeView->GetConsoleCommand());
+
+		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
+		{
+			strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles) + CString(L"...");
+		}
+		UpdateTabText(*m_activeView, strTabTitle);
 	}
 
 	return 0;
@@ -917,7 +947,6 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowMenu(!m_bMenuVisible);
-	DockWindow(m_dockPosition);
 	return 0;
 }
 
@@ -929,19 +958,6 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowToolbar(!m_bToolbarVisible);
-	DockWindow(m_dockPosition);
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	ShowTabs(!m_bTabsVisible);
-	DockWindow(m_dockPosition);
 	return 0;
 }
 
@@ -953,7 +969,17 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowStatusbar(!m_bStatusBarVisible);
-	DockWindow(m_dockPosition);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	ShowTabs(!m_bTabsVisible);
 	return 0;
 }
 
@@ -1147,6 +1173,12 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex)
 	DisplayTab(hwndConsoleView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 
+	if ((m_mapViews.size() > 1) &&
+		(g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+	{
+		ShowTabs(TRUE);
+	}
+
 	return true;
 }
 
@@ -1157,19 +1189,31 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex)
 
 void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
 {
-	ConsoleViewMap::iterator	it;
-
 	if (!pTabItem) return;
+	CloseTab(pTabItem->GetTabView());
+}
 
-	HWND hwndConsoleView = pTabItem->GetTabView();
-	it = m_mapViews.find(hwndConsoleView);
+//////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::CloseTab(HWND hwndConsoleView)
+{
+	ConsoleViewMap::iterator	it = m_mapViews.find(hwndConsoleView);
 	if (it == m_mapViews.end()) return;
 
 	RemoveTab(hwndConsoleView);
 	if (m_activeView.get() == it->second.get()) m_activeView.reset();
 	it->second->DestroyWindow();
 	m_mapViews.erase(it);
+
+	if ((m_mapViews.size() == 1) &&
+		m_bTabsVisible && 
+		(g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+	{
+		ShowTabs(FALSE);
+	}
 
 	if (m_mapViews.size() == 0) PostMessage(WM_CLOSE);
 }
@@ -1415,8 +1459,12 @@ void MainFrame::ShowMenu(BOOL bShow)
 	rebar.ShowBand(nBandIndex, m_bMenuVisible);
 	UISetCheck(ID_VIEW_MENU, m_bMenuVisible);
 
+	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible ? true : false;
+	g_settingsHandler->SaveSettings();
+
 	UpdateLayout();
 	AdjustWindowSize(false);
+	DockWindow(m_dockPosition);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1433,8 +1481,32 @@ void MainFrame::ShowToolbar(BOOL bShow)
 	rebar.ShowBand(nBandIndex, m_bToolbarVisible);
 	UISetCheck(ID_VIEW_TOOLBAR, m_bToolbarVisible);
 
+	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible? true : false;
+	g_settingsHandler->SaveSettings();
+
 	UpdateLayout();
 	AdjustWindowSize(false);
+	DockWindow(m_dockPosition);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::ShowStatusbar(BOOL bShow)
+{
+	m_bStatusBarVisible = bShow;
+
+	::ShowWindow(m_hWndStatusBar, m_bStatusBarVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
+	UISetCheck(ID_VIEW_STATUS_BAR, m_bStatusBarVisible);
+
+	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible? true : false;
+	g_settingsHandler->SaveSettings();
+	
+	UpdateLayout();
+	AdjustWindowSize(false);
+	DockWindow(m_dockPosition);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1457,28 +1529,15 @@ void MainFrame::ShowTabs(BOOL bShow)
 
 	UISetCheck(ID_VIEW_TABS, m_bTabsVisible);
 
-	UpdateLayout();
-	AdjustWindowSize(false);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void MainFrame::ShowStatusbar(BOOL bShow)
-{
-	m_bStatusBarVisible = bShow;
-
-	::ShowWindow(m_hWndStatusBar, m_bStatusBarVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
-	UISetCheck(ID_VIEW_STATUS_BAR, m_bStatusBarVisible);
+	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs = m_bTabsVisible ? true : false;
+	g_settingsHandler->SaveSettings();
 
 	UpdateLayout();
 	AdjustWindowSize(false);
+	DockWindow(m_dockPosition);
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
 
 
 //////////////////////////////////////////////////////////////////////////////

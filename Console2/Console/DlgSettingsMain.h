@@ -49,8 +49,8 @@ class DlgSettingsMain
 		CTreeViewCtrl				m_treeCtrl;
 		SettingsDlgsMap				m_settingsDlgMap;
 		
-		CComPtr<IXMLDOMDocument>	m_pOptionsDocument;
-		CComPtr<IXMLDOMElement>		m_pOptionsRoot;
+		CComPtr<IXMLDOMDocument>	m_pSettingsDocument;
+		CComPtr<IXMLDOMElement>		m_pSettingsRoot;
 };
 
 //////////////////////////////////////////////////////////////////////////////

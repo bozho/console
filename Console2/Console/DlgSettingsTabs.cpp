@@ -79,12 +79,25 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT DlgSettingsTabs::OnTabTitleChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	m_listCtrl.SetItemText(m_listCtrl.GetSelectedIndex(), 0, m_page1.m_strTitle);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT DlgSettingsTabs::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	if (wID == IDOK)
 	{
 		TabData* pTabData = reinterpret_cast<TabData*>(m_listCtrl.GetItemData(m_listCtrl.GetSelectedIndex()));
 
+		m_page1.DoDataExchange(DDX_SAVE);
+		m_page2.DoDataExchange(DDX_SAVE);
 		DoDataExchange(DDX_SAVE);
 		SetTabData(pTabData);
 
@@ -210,15 +223,15 @@ LRESULT DlgSettingsTabs::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /
 		m_page2.m_sliderTintOpacity.SetPos(pTabData->imageData.byTintOpacity);
 		m_page2.UpdateSliderText();
 	
-		m_page1.DoDataExchange(DDX_LOAD);
-		m_page2.DoDataExchange(DDX_LOAD);
-
 		m_page2.EnableControls();
 
 		m_page1.m_staticCursorColor.Invalidate();
 
 		m_page2.m_staticBkColor.Invalidate();
 		m_page2.m_staticTintColor.Invalidate();
+
+		m_page1.DoDataExchange(DDX_LOAD);
+		m_page2.DoDataExchange(DDX_LOAD);
 	}
 	else if (pnmv->uOldState & LVIS_SELECTED)
 	{

@@ -84,6 +84,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	// set view title
 	SetWindowText(m_strTitle);
 
+	DragAcceptFiles(TRUE);
+
 	// load icon
 	if (m_tabData->strIcon.length() > 0)
 	{
@@ -407,6 +409,37 @@ LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM l
 {
 	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	HDROP	hDrop = reinterpret_cast<HDROP>(wParam);
+	UINT	uiFilesCount = ::DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
+	CString	strFilenames;
+
+	// concatenate all filenames
+	for (UINT i = 0; i < uiFilesCount; ++i)
+	{
+		CString	strFilename;
+		::DragQueryFile(hDrop, i, strFilename.GetBuffer(MAX_PATH), MAX_PATH);
+		strFilename.ReleaseBuffer();
+
+		// if there are spaces in the filename, put quotes around it
+		if (strFilename.Find(L" ") != -1) strFilename = CString(L"\"") + strFilename + CString("\"");
+		
+		if (i > 0) strFilenames += L" ";
+		strFilenames += strFilename;
+
+	}
+	::DragFinish(hDrop);
+	
+	SendTextToConsole(strFilenames);
 	return 0;
 }
 

@@ -71,8 +71,8 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_EDIT_SETTINGS, OnEditSettings)
 			COMMAND_ID_HANDLER(ID_VIEW_MENU, OnViewMenu)
 			COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
-			COMMAND_ID_HANDLER(ID_VIEW_TABS, OnViewTabs)
 			COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
+			COMMAND_ID_HANDLER(ID_VIEW_TABS, OnViewTabs)
 			COMMAND_ID_HANDLER(ID_VIEW_CONSOLE, OnViewConsole)
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 			CHAIN_MSG_MAP(CUpdateUI<MainFrame>)
@@ -128,8 +128,8 @@ class MainFrame
 
 		LRESULT OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
@@ -144,6 +144,7 @@ class MainFrame
 
 		bool CreateNewConsole(DWORD dwTabIndex);
 		void CloseTab(CTabViewTabItem* pTabItem);
+		void CloseTab(HWND hwndConsoleView);
 
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void SetWindowStyles();

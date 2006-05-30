@@ -174,6 +174,7 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 	bkImage->originalImage.convertTo24Bits();
 	
 	// ... if needed, tint the background image
+/*
 	if (bkImage->imageData.byTintOpacity > 0)
 	{
 		BYTE*	pPixels = bkImage->originalImage.accessPixels();
@@ -190,6 +191,7 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 			++pPixelSubel;
 		}
 	}
+*/
 
 	// create background CDC and paint bitmap
 	bkImage->dcImage.CreateCompatibleDC(NULL);
@@ -297,6 +299,8 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 			::EnumDisplayMonitors(NULL, NULL, ImageHandler::MonitorEnumProc, reinterpret_cast<LPARAM>(&enumData));
 		}
 	}
+
+	if (bkImage->imageData.byTintOpacity > 0) TintImage(dc, bkImage);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -377,6 +381,8 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 			bkImage->dwImageHeight, 
 			bkImage);
 	}
+
+	if (bkImage->imageData.byTintOpacity > 0) TintImage(dc, bkImage);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -450,6 +456,42 @@ void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nO
 		dwY += bkImage->originalImage.getHeight() - dwImageOffsetY;
 		dwImageOffsetY = 0;
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ImageHandler::TintImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage)
+{
+	CDC				dcTint;
+	CBitmap			bmpTint;
+	CBrush			tintBrush(::CreateSolidBrush(bkImage->imageData.crTint));
+	BLENDFUNCTION	bf;
+	CRect			rect(0, 0, bkImage->dwImageWidth, bkImage->dwImageHeight);
+
+	bf.BlendOp				= AC_SRC_OVER;
+	bf.BlendFlags			= 0;
+	bf.SourceConstantAlpha	= bkImage->imageData.byTintOpacity;
+	bf.AlphaFormat			= 0;
+
+	dcTint.CreateCompatibleDC(dc);
+	bmpTint.CreateCompatibleBitmap(dcTint, bkImage->dwImageWidth, bkImage->dwImageHeight);
+	dcTint.SelectBitmap(bmpTint);
+	dcTint.FillRect(&rect, tintBrush);
+
+	bkImage->dcImage.AlphaBlend(
+						0,
+						0,
+						bkImage->dwImageWidth,
+						bkImage->dwImageHeight,
+						dcTint,
+						0,
+						0,
+						bkImage->dwImageWidth,
+						bkImage->dwImageHeight,
+						bf);
 }
 
 //////////////////////////////////////////////////////////////////////////////

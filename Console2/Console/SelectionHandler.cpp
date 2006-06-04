@@ -50,8 +50,6 @@ void SelectionHandler::StartSelection(const CPoint& pointInitial, SHORT sXMax, S
 {
 	if (m_selectionState > selstateNoSelection) return;
 
-	TRACE(L"StartSelection\n");
-
 	m_consoleView.SetCapture();
 
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
@@ -99,8 +97,6 @@ void SelectionHandler::UpdateSelection(const CPoint& point)
 	{
 		return;
 	}
-
-	TRACE(L"UpdateSelection\n");
 
 	CPoint p(point);
 
@@ -191,8 +187,6 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 {
 	if (m_selectionState < selstateSelecting) return;
 
-	TRACE(L"CopySelection\n");
-
 	bool	bCopy = false;
 	COORD	coordStart;
 	COORD	coordEnd;
@@ -241,8 +235,6 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 	if (bCopy)
 	{
-		TRACE(L"CopySelection copying\n");
-
 		if (!m_consoleView.OpenClipboard()) return;
 
 		::EmptyClipboard();
@@ -358,8 +350,6 @@ void SelectionHandler::CopySelection(const CPoint* pPoint, const SharedMemory<CH
 
 void SelectionHandler::EndSelection()
 {
-	TRACE(L"EndSelection\n");
-
 	m_selectionState = selstateSelected;
 	::ReleaseCapture();
 }
@@ -371,8 +361,6 @@ void SelectionHandler::EndSelection()
 
 void SelectionHandler::ClearSelection()
 {
-	TRACE(L"ClearSelection\n");
-
 	m_coordCurrent.X= 0;
 	m_coordCurrent.Y= 0;
 

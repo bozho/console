@@ -162,10 +162,10 @@ void ConsoleHandler::ReadConsoleBuffer()
 	coordStart.X		= 0;
 	coordStart.Y		= 0;
 
-	// ReadConsoleOutput seems to fail for large (around 8k-CHAR_INFO's) buffers
+	// ReadConsoleOutput seems to fail for large (around 7-8k CHAR_INFO's) buffers
 	// here we calculate max buffer size (row count) for safe reading
 	coordBufferSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
-	coordBufferSize.Y	= 8192 / coordBufferSize.X;
+	coordBufferSize.Y	= 7168 / coordBufferSize.X;
 
 	// initialize reading rectangle
 	srBuffer.Top		= csbiConsole.srWindow.Top;

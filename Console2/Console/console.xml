@@ -16,7 +16,7 @@
 			<color id="11" r="0" g="255" b="255"/>
 			<color id="12" r="255" g="50" b="50"/>
 			<color id="13" r="255" g="0" b="255"/>
-			<color id="14" r="255" g="255" b="0"/>
+			<color id="14" r="236" g="187" b="19"/>
 			<color id="15" r="255" g="255" b="255"/>
 		</colors>
 	</console>
@@ -25,10 +25,10 @@
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
-		<controls show_menu="1" show_toolbar="0" show_statusbar="1" show_tabs="0" hide_single_tab="1"/>
+		<controls show_menu="1" show_toolbar="0" show_statusbar="1" show_tabs="1" hide_single_tab="0"/>
 		<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="1"/>
 		<position x="-1" y="-1" dock="2" snap="0" z_order="0"/>
-		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
+		<transparency type="1" active_alpha="255" inactive_alpha="224" r="0" g="0" b="0"/>
 	</appearance>
 	<behavior>
 		<copy_paste copy_on_select="0" no_wrap="1" trim_spaces="1"/>
@@ -55,8 +55,8 @@
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="56" command="switchtab8"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="57" command="switchtab9"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="48" command="switchtab10"/>
-		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="9" command="nexttab"/>
-		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="9" command="prevtab"/>
+		<hotkey ctrl="0" shift="1" alt="0" extended="1" code="39" command="nexttab"/>
+		<hotkey ctrl="0" shift="1" alt="0" extended="1" code="37" command="prevtab"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="87" command="closetab"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="82" command="renametab"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="1" code="45" command="copy"/>

@@ -38,6 +38,10 @@ Global
 		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release.ActiveCfg = Release|Win32
 		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release.Build.0 = Release|Win32
 	EndGlobalSection
+	GlobalSection(SolutionItems) = postSolution
+		setup\console.iss = setup\console.iss
+		setup\console_font.reg = setup\console_font.reg
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
 	GlobalSection(ExtensibilityAddIns) = postSolution

@@ -95,7 +95,8 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	if (strStartupTitle.length() == 0)
 	{
-		strStartupTitle = str(wformat(L"Console command window 0x%08X") % this);
+		strStartupTitle = L"Console2 command window";
+//		strStartupTitle = str(wformat(L"Console2 command window 0x%08X") % this);
 	}
 
 	// setup the startup info struct

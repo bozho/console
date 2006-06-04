@@ -109,7 +109,6 @@
 #define IDC_CHECK_STYLE_BORDER          1090
 #define IDC_INSIDE_BORDER               1091
 #define IDC_POS_X                       1092
-#define IDC_CHECK_SHOW_TABS2            1092
 #define IDC_CHECK_HIDE_SINGLE_TAB       1092
 #define IDC_CHECK_STYLE_TRAY            1093
 #define IDC_POS_Y                       1094
@@ -120,6 +119,7 @@
 #define IDC_RADIO_DOCK_BR               1099
 #define IDC_RADIO_Z_REGULAR             1100
 #define ID_SWITCH_TAB_1                 1101
+#define IDC_TRIM_TAB_TITLES             1101
 #define IDC_RADIO_Z_BOTTOM              1102
 #define IDC_RADIO_Z_ONTOP               1103
 #define IDC_SNAP                        1104
@@ -135,6 +135,8 @@
 #define IDC_CHECK_SHOW_COMMAND          1114
 #define IDC_CHECK_SHOW_COMMAND_TABS     1115
 #define IDC_LIST_TABS                   1116
+#define IDC_SPIN_Y2                     1116
+#define IDC_SPIN_TRIM_TAB_TITLES        1116
 #define IDC_TAB_TITLE                   1117
 #define IDC_TAB_ICON                    1118
 #define IDC_TAB_SHELL                   1119
@@ -170,6 +172,8 @@
 #define IDC_TABS                        1146
 #define IDC_CHECK_INVERSE_SHIFT         1147
 #define IDC_CHECK_USE_CONSOLE_TITLE     1147
+#define IDC_CHECK_TRIM_TAB_TITLES       1148
+#define IDC_STATIC_TRIM_CHARS           1149
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -189,7 +193,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1148
+#define _APS_NEXT_CONTROL_VALUE         1150
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

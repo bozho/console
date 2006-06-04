@@ -64,13 +64,7 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 
 		BehaviorSettings& behaviorSettings = g_settingsHandler->GetBehaviorSettings();
 
-		behaviorSettings.copyPasteSettings.bCopyOnSelect	= m_behaviorSettings.copyPasteSettings.bCopyOnSelect;
-		behaviorSettings.copyPasteSettings.bNoWrap			= m_behaviorSettings.copyPasteSettings.bNoWrap;
-		behaviorSettings.copyPasteSettings.bTrimSpaces		= m_behaviorSettings.copyPasteSettings.bTrimSpaces;
-
-		behaviorSettings.mouseDragSettings.bMouseDrag		= m_behaviorSettings.mouseDragSettings.bMouseDrag;
-		behaviorSettings.mouseDragSettings.bInverseShift	= m_behaviorSettings.mouseDragSettings.bInverseShift;
-
+		behaviorSettings = m_behaviorSettings;
 		m_behaviorSettings.Save(m_pOptionsRoot);
 	}
 

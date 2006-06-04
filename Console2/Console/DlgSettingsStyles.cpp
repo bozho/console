@@ -143,23 +143,9 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		StylesSettings&				stylesSettings		= g_settingsHandler->GetAppearanceSettings().stylesSettings;
 		TransparencySettings&		transparencySettings= g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
-		controlsSettings.bShowMenu		= m_controlsSettings.bShowMenu;
-		controlsSettings.bShowToolbar	= m_controlsSettings.bShowToolbar;
-		controlsSettings.bShowStatusbar	= m_controlsSettings.bShowStatusbar;
-		controlsSettings.bShowTabs		= m_controlsSettings.bShowTabs;
-		controlsSettings.bHideSingleTab	= m_controlsSettings.bHideSingleTab;
-
-		stylesSettings.bCaption			= m_stylesSettings.bCaption;
-		stylesSettings.bResizable		= m_stylesSettings.bResizable;
-		stylesSettings.bTaskbarButton	= m_stylesSettings.bTaskbarButton;
-		stylesSettings.bBorder			= m_stylesSettings.bBorder;
-		stylesSettings.bTrayIcon		= m_stylesSettings.bTrayIcon;
-		stylesSettings.dwInsideBoder	= m_stylesSettings.dwInsideBoder;
-
-		transparencySettings.transType		= m_transparencySettings.transType;
-		transparencySettings.byActiveAlpha	= m_transparencySettings.byActiveAlpha;
-		transparencySettings.byInactiveAlpha= m_transparencySettings.byInactiveAlpha;
-		transparencySettings.crColorKey		= m_transparencySettings.crColorKey;
+		controlsSettings	= m_controlsSettings;
+		stylesSettings		= m_stylesSettings;
+		transparencySettings= m_transparencySettings;
 
 		m_controlsSettings.Save(m_pOptionsRoot);
 		m_stylesSettings.Save(m_pOptionsRoot);
@@ -259,11 +245,11 @@ void DlgSettingsStyles::UpdateSliderText(HWND hwndSlider)
 
 void DlgSettingsStyles::EnableTabControls()
 {
-	::EnableWindow(GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB), FALSE);
+	GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow(FALSE);
 
 	if (m_nShowTabs > 0)
 	{
-		::EnableWindow(GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB), TRUE);
+		GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow();
 	}
 }
 
@@ -274,29 +260,29 @@ void DlgSettingsStyles::EnableTabControls()
 
 void DlgSettingsStyles::EnableTransparencyControls()
 {
-	::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_WINDOW), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_WINDOW), FALSE);
-	::EnableWindow(GetDlgItem(IDC_ACTIVE_ALPHA), FALSE);
-	::EnableWindow(GetDlgItem(IDC_INACTIVE_ALPHA), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_ALPHA), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_ALPHA), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_KEY_COLOR), FALSE);
-	::EnableWindow(GetDlgItem(IDC_KEY_COLOR), FALSE);
+	GetDlgItem(IDC_STATIC_ACTIVE_WINDOW).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_INACTIVE_WINDOW).EnableWindow(FALSE);
+	GetDlgItem(IDC_ACTIVE_ALPHA).EnableWindow(FALSE);
+	GetDlgItem(IDC_INACTIVE_ALPHA).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_ACTIVE_ALPHA).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_INACTIVE_ALPHA).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_KEY_COLOR).EnableWindow(FALSE);
+	GetDlgItem(IDC_KEY_COLOR).EnableWindow(FALSE);
 
 	if (m_transparencySettings.transType == transAlpha)
 	{
-		::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_WINDOW), TRUE);
-		::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_WINDOW), TRUE);
-		::EnableWindow(GetDlgItem(IDC_ACTIVE_ALPHA), TRUE);
-		::EnableWindow(GetDlgItem(IDC_INACTIVE_ALPHA), TRUE);
-		::EnableWindow(GetDlgItem(IDC_STATIC_ACTIVE_ALPHA), TRUE);
-		::EnableWindow(GetDlgItem(IDC_STATIC_INACTIVE_ALPHA), TRUE);
+		GetDlgItem(IDC_STATIC_ACTIVE_WINDOW).EnableWindow();
+		GetDlgItem(IDC_STATIC_INACTIVE_WINDOW).EnableWindow();
+		GetDlgItem(IDC_ACTIVE_ALPHA).EnableWindow();
+		GetDlgItem(IDC_INACTIVE_ALPHA).EnableWindow();
+		GetDlgItem(IDC_STATIC_ACTIVE_ALPHA).EnableWindow();
+		GetDlgItem(IDC_STATIC_INACTIVE_ALPHA).EnableWindow();
 
 	}
 	else if (m_transparencySettings.transType == transColorKey)
 	{
-		::EnableWindow(GetDlgItem(IDC_STATIC_KEY_COLOR), TRUE);
-		::EnableWindow(GetDlgItem(IDC_KEY_COLOR), TRUE);
+		GetDlgItem(IDC_STATIC_KEY_COLOR).EnableWindow();
+		GetDlgItem(IDC_KEY_COLOR).EnableWindow();
 	}
 }
 

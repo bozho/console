@@ -136,6 +136,28 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
+{
+	strShell				= other.strShell;
+	strInitialDir			= other.strInitialDir;
+
+	dwRefreshInterval		= other.dwRefreshInterval;
+	dwChangeRefreshInterval	= other.dwChangeRefreshInterval;
+	dwRows					= other.dwRows;
+	dwColumns				= other.dwColumns;
+	dwBufferRows			= other.dwBufferRows;
+	dwBufferColumns			= other.dwBufferColumns;
+
+	::CopyMemory(consoleColors, other.consoleColors, sizeof(COLORREF)*16);
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -203,6 +225,24 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetRGBAttribute(pColorElement, crFontColor);
 
 	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+FontSettings& FontSettings::operator=(const FontSettings& other)
+{
+	strName		= other.strName;
+	dwSize		= other.dwSize;
+	bBold		= other.bBold;
+	bItalic		= other.bItalic;
+
+	bUseColor	= other.bUseColor;
+	crFontColor	= other.crFontColor;
+
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -277,6 +317,25 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+WindowSettings& WindowSettings::operator=(const WindowSettings& other)
+{
+	strTitle			= other.strTitle;
+	strIcon				= other.strIcon;
+	bUseTabIcon			= other.bUseTabIcon;
+	bUseConsoleTitle	= other.bUseConsoleTitle;
+	bShowCommand		= other.bShowCommand;
+	bShowCommandInTabs	= other.bShowCommandInTabs;
+	bUseTabTitles		= other.bUseTabTitles;
+	dwTrimTabTitles		= other.dwTrimTabTitles;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -330,6 +389,22 @@ bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab);
 
 	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
+{
+	bShowMenu		= other.bShowMenu;
+	bShowToolbar	= other.bShowToolbar;
+	bShowStatusbar	= other.bShowStatusbar;
+	bShowTabs		= other.bShowTabs;
+	bHideSingleTab	= other.bHideSingleTab;
+
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -398,6 +473,23 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+StylesSettings& StylesSettings::operator=(const StylesSettings& other)
+{
+	bCaption		= other.bCaption;
+	bResizable		= other.bResizable;
+	bTaskbarButton	= other.bTaskbarButton;
+	bBorder			= other.bBorder;
+	dwInsideBoder	= other.dwInsideBoder;
+	bTrayIcon		= other.bTrayIcon;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -451,6 +543,22 @@ bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance);
 
 	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+PositionSettings& PositionSettings::operator=(const PositionSettings& other)
+{
+	nX				= other.nX;
+	nY				= other.nY;
+	zOrder			= other.zOrder;
+	dockPosition	= other.dockPosition;
+	nSnapDistance	= other.nSnapDistance;
+
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -513,6 +621,21 @@ bool TransparencySettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+TransparencySettings& TransparencySettings::operator=(const TransparencySettings& other)
+{
+	transType		= other.transType;
+	byActiveAlpha	= other.byActiveAlpha;
+	byInactiveAlpha	= other.byInactiveAlpha;
+	crColorKey		= other.crColorKey;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -553,6 +676,23 @@ bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	positionSettings.Save(pSettingsRoot);
 	transparencySettings.Save(pSettingsRoot);
 	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+AppearanceSettings& AppearanceSettings::operator=(const AppearanceSettings& other)
+{
+	fontSettings		= other.fontSettings;
+	windowSettings		= other.windowSettings;
+	controlsSettings	= other.controlsSettings;
+	stylesSettings		= other.stylesSettings;
+	positionSettings	= other.positionSettings;
+	transparencySettings= other.transparencySettings;
+
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -612,6 +752,20 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+CopyPasteSettings& CopyPasteSettings::operator=(const CopyPasteSettings& other)
+{
+	bCopyOnSelect	= other.bCopyOnSelect;
+	bNoWrap			= other.bNoWrap;
+	bTrimSpaces		= other.bTrimSpaces;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -662,6 +816,19 @@ bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+MouseDragSettings& MouseDragSettings::operator=(const MouseDragSettings& other)
+{
+	bMouseDrag		= other.bMouseDrag;
+	bInverseShift	= other.bInverseShift;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -700,6 +867,19 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
+{
+	copyPasteSettings	= other.copyPasteSettings;
+	mouseDragSettings	= other.mouseDragSettings;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -719,7 +899,7 @@ HotKeys::HotKeys()
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab8",		L"New Tab 8",			ID_NEW_TAB_1 + 7)));
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab9",		L"New Tab 9",			ID_NEW_TAB_1 + 8)));
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab10",		L"New Tab 10",			ID_NEW_TAB_1 + 9)));
-                                                                                      
+
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab1",	L"Switch to tab 1",		ID_SWITCH_TAB_1)));
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab2",	L"Switch to tab 2",		ID_SWITCH_TAB_1 + 1)));
 	vecCommands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab3",	L"Switch to tab 3",		ID_SWITCH_TAB_1 + 2)));
@@ -825,7 +1005,7 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	{
 		CComPtr<IXMLDOMNode>	pHotKeyChildNode;
 		CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
-		if (FAILED(pHotKeyChildNodes->get_item(i, &pHotKeyChildNode))) continue; 
+		if (FAILED(pHotKeyChildNodes->get_item(i, &pHotKeyChildNode))) continue;
 
 		hr = pHotkeysElement->removeChild(pHotKeyChildNode, &pRemovedHotKeyNode);
 	}
@@ -1004,7 +1184,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	{
 		CComPtr<IXMLDOMNode>	pTabChildNode;
 		CComPtr<IXMLDOMNode>	pRemovedTabNode;
-		if (FAILED(pTabChildNodes->get_item(i, &pTabChildNode))) continue; 
+		if (FAILED(pTabChildNodes->get_item(i, &pTabChildNode))) continue;
 
 		hr = pTabsElement->removeChild(pTabChildNode, &pRemovedTabNode);
 	}

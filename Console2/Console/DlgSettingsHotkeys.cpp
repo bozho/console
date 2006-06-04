@@ -140,12 +140,12 @@ LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 	{
 		DoDataExchange(DDX_SAVE);
 
-		m_hotKeys.Save(m_pOptionsRoot);
-
 		HotKeys& hotKeys = g_settingsHandler->GetHotKeys();
 
 		hotKeys.mapHotKeys.clear();
 		hotKeys.mapHotKeys.insert(m_hotKeys.mapHotKeys.begin(), m_hotKeys.mapHotKeys.end());
+
+		hotKeys.Save(m_pOptionsRoot);
 	}
 
 	DestroyWindow();

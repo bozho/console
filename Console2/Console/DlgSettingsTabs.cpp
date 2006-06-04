@@ -133,7 +133,7 @@ LRESULT DlgSettingsTabs::OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(tabData.get()));
 
 	m_listCtrl.SelectItem(nItem);
-	::EnableWindow(GetDlgItem(IDC_BTN_DELETE), TRUE);
+	GetDlgItem(IDC_BTN_DELETE).EnableWindow();
 
 	return 0;
 }
@@ -181,7 +181,7 @@ LRESULT DlgSettingsTabs::OnDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	if (nItem > 0) --nItem;
 
 	m_listCtrl.SelectItem(nItem);
-	if (m_listCtrl.GetItemCount() < 2) ::EnableWindow(GetDlgItem(IDC_BTN_DELETE), FALSE);
+	if (m_listCtrl.GetItemCount() < 2) GetDlgItem(IDC_BTN_DELETE).EnableWindow(FALSE);
 
 	return 0;
 }

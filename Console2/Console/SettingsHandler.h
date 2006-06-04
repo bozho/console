@@ -34,6 +34,8 @@ struct ConsoleSettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	ConsoleSettings& operator=(const ConsoleSettings& other);
+
 	wstring		strShell;
 	wstring		strInitialDir;
 
@@ -65,6 +67,8 @@ struct FontSettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	FontSettings& operator=(const FontSettings& other);
+
 	wstring		strName;
 	DWORD		dwSize;
 	bool		bBold;
@@ -85,6 +89,8 @@ struct WindowSettings : public SettingsBase
 
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	WindowSettings& operator=(const WindowSettings& other);
 
 	wstring			strTitle;
 	wstring			strIcon;
@@ -108,6 +114,8 @@ struct ControlsSettings
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	ControlsSettings& operator=(const ControlsSettings& other);
+
 	bool			bShowMenu;
 	bool			bShowToolbar;
 	bool			bShowStatusbar;
@@ -126,6 +134,8 @@ struct StylesSettings : public SettingsBase
 
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	StylesSettings& operator=(const StylesSettings& other);
 
 	bool			bCaption;
 	bool			bResizable;
@@ -167,6 +177,8 @@ struct PositionSettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	PositionSettings& operator=(const PositionSettings& other);
+
 	int				nX;
 	int				nY;
 	ZOrder			zOrder;
@@ -198,6 +210,8 @@ struct TransparencySettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	TransparencySettings& operator=(const TransparencySettings& other);
+
 	TransparencyType	transType;
 	BYTE				byActiveAlpha;
 	BYTE				byInactiveAlpha;
@@ -215,6 +229,8 @@ struct AppearanceSettings : public SettingsBase
 
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	AppearanceSettings& operator=(const AppearanceSettings& other);
 
 	FontSettings			fontSettings;
 	WindowSettings			windowSettings;
@@ -236,6 +252,8 @@ struct CopyPasteSettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	CopyPasteSettings& operator=(const CopyPasteSettings& other);
+
 	bool	bCopyOnSelect;
 	bool	bNoWrap;
 	bool	bTrimSpaces;
@@ -253,6 +271,8 @@ struct MouseDragSettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	MouseDragSettings& operator=(const MouseDragSettings& other);
+
 	bool	bMouseDrag;
 	bool	bInverseShift;
 };
@@ -268,6 +288,8 @@ struct BehaviorSettings : public SettingsBase
 
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	BehaviorSettings& operator=(const BehaviorSettings& other);
 
 	CopyPasteSettings	copyPasteSettings;
 	MouseDragSettings	mouseDragSettings;
@@ -316,8 +338,8 @@ struct HotKeys : public SettingsBase
 	typedef vector<shared_ptr<CommandData> >		CommandsVector;
 	typedef map<DWORD, shared_ptr<HotkeyData> >		HotKeysMap;
 
-	HotKeysMap		mapHotKeys;
 	CommandsVector	vecCommands;
+	HotKeysMap		mapHotKeys;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -37,11 +37,12 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 
 	m_strWindowTitle	= m_windowSettings.strTitle.c_str();
 	m_nUseTabTitle		= m_windowSettings.bUseTabTitles ? 1 : 0;
-	m_strWindowIcon		= m_windowSettings.strIcon.c_str();
-	m_nUseTabIcon		= m_windowSettings.bUseTabIcon ? 1 : 0;
 	m_nUseConsoleTitle	= m_windowSettings.bUseConsoleTitle ? 1 : 0;
 	m_nShowCommand		= m_windowSettings.bShowCommand ? 1 : 0;
 	m_nShowCommandTabs	= m_windowSettings.bShowCommandInTabs ? 1 : 0;
+	m_nTrimTabTitles	= (m_windowSettings.dwTrimTabTitles > 0) ? 1 : 0;
+	m_strWindowIcon		= m_windowSettings.strIcon.c_str();
+	m_nUseTabIcon		= m_windowSettings.bUseTabIcon ? 1 : 0;
 
 	m_strFontName	= m_fontSettings.strName.c_str();
 	m_nFontBold		= m_fontSettings.bBold ? 1 : 0;
@@ -60,6 +61,10 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 
 	CUpDownCtrl	spin;
 	UDACCEL udAccel;
+
+	spin.Attach(GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES));
+	spin.SetRange(1, 100);
+	spin.Detach();
 
 	spin.Attach(GetDlgItem(IDC_SPIN_FONT_SIZE));
 	spin.SetRange(5, 36);
@@ -124,13 +129,14 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 	{
 		DoDataExchange(DDX_SAVE);
 
-		m_windowSettings.strTitle		= m_strWindowTitle;
-		m_windowSettings.bUseTabTitles	= (m_nUseTabTitle > 0);
-		m_windowSettings.strIcon		= m_strWindowIcon;
-		m_windowSettings.bUseTabIcon	= (m_nUseTabIcon > 0);
-		m_windowSettings.bUseConsoleTitle= (m_nUseConsoleTitle > 0);
-		m_windowSettings.bShowCommand	= (m_nShowCommand > 0);
+		m_windowSettings.strTitle			= m_strWindowTitle;
+		m_windowSettings.bUseTabTitles		= (m_nUseTabTitle > 0);
+		m_windowSettings.bUseConsoleTitle	= (m_nUseConsoleTitle > 0);
+		m_windowSettings.bShowCommand		= (m_nShowCommand > 0);
 		m_windowSettings.bShowCommandInTabs	= (m_nShowCommandTabs > 0);
+		if (m_nTrimTabTitles == 0) m_windowSettings.dwTrimTabTitles = 0;
+		m_windowSettings.strIcon			= m_strWindowIcon;
+		m_windowSettings.bUseTabIcon		= (m_nUseTabIcon > 0);
 
 		if (m_fontSettings.dwSize > 36) m_fontSettings.dwSize = 36;
 
@@ -166,27 +172,9 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		FontSettings&		fontSettings	= g_settingsHandler->GetAppearanceSettings().fontSettings;
 		PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
-		windowSettings.strTitle		= m_windowSettings.strTitle;
-		windowSettings.bUseTabTitles= m_windowSettings.bUseTabTitles;
-		windowSettings.strIcon		= m_windowSettings.strIcon;
-		windowSettings.bUseTabIcon	= m_windowSettings.bUseTabIcon;
-		windowSettings.bUseConsoleTitle= m_windowSettings.bUseConsoleTitle;
-		windowSettings.bShowCommand	= m_windowSettings.bShowCommand;
-		windowSettings.bShowCommandInTabs= m_windowSettings.bShowCommandInTabs;
-
-		fontSettings.strName	= m_fontSettings.strName;
-		fontSettings.dwSize		= m_fontSettings.dwSize;
-		fontSettings.bBold		= m_fontSettings.bBold;
-		fontSettings.bItalic	= m_fontSettings.bItalic;
-		fontSettings.bUseColor	= m_fontSettings.bUseColor;
-		fontSettings.crFontColor= m_fontSettings.crFontColor;
-
-		positionSettings.nX				= m_positionSettings.nX;
-		positionSettings.nY				= m_positionSettings.nY;
-
-		positionSettings.nSnapDistance	= m_positionSettings.nSnapDistance;
-		positionSettings.dockPosition	= m_positionSettings.dockPosition;
-		positionSettings.zOrder			= m_positionSettings.zOrder;
+		windowSettings	= m_windowSettings;
+		fontSettings	= m_fontSettings;
+		positionSettings= m_positionSettings;
 
 		m_windowSettings.Save(m_pOptionsRoot);
 		m_fontSettings.Save(m_pOptionsRoot);
@@ -298,50 +286,60 @@ LRESULT DlgSettingsAppearance::OnClickedFontColor(WORD /*wNotifyCode*/, WORD /*w
 
 void DlgSettingsAppearance::EnableControls()
 {
-	::EnableWindow(GetDlgItem(IDC_WINDOW_TITLE), FALSE);
-	::EnableWindow(GetDlgItem(IDC_WINDOW_ICON), FALSE);
-	::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_ICON), FALSE);
-	::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND), FALSE);
-	::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS), FALSE);
-	::EnableWindow(GetDlgItem(IDC_FONT_COLOR), FALSE);
-	::EnableWindow(GetDlgItem(IDC_POS_X), FALSE);
-	::EnableWindow(GetDlgItem(IDC_POS_Y), FALSE);
-	::EnableWindow(GetDlgItem(IDC_SPIN_X), FALSE);
-	::EnableWindow(GetDlgItem(IDC_SPIN_Y), FALSE);
-	::EnableWindow(GetDlgItem(IDC_SNAP), FALSE);
-	::EnableWindow(GetDlgItem(IDC_SPIN_SNAP), FALSE);
+	GetDlgItem(IDC_WINDOW_TITLE).EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_SHOW_COMMAND).EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS).EnableWindow(FALSE);
+	GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow(FALSE);
+	GetDlgItem(IDC_WINDOW_ICON).EnableWindow(FALSE);
+	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(FALSE);
+	GetDlgItem(IDC_FONT_COLOR).EnableWindow(FALSE);
+	GetDlgItem(IDC_POS_X).EnableWindow(FALSE);
+	GetDlgItem(IDC_POS_Y).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_X).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_Y).EnableWindow(FALSE);
+	GetDlgItem(IDC_SNAP).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_SNAP).EnableWindow(FALSE);
 
-	if (m_nUseTabTitle == 0) ::EnableWindow(GetDlgItem(IDC_WINDOW_TITLE), TRUE);
-
-	if (m_nUseTabIcon == 0)
-	{
-		::EnableWindow(GetDlgItem(IDC_WINDOW_ICON), TRUE);
-		::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_ICON), TRUE);
-	}
+	if (m_nUseTabTitle == 0) GetDlgItem(IDC_WINDOW_TITLE).EnableWindow();
 
 	if (m_nUseConsoleTitle == 0)
 	{
-		::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND), TRUE);
-		::EnableWindow(GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS), TRUE);
+		GetDlgItem(IDC_CHECK_SHOW_COMMAND).EnableWindow();
+		GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS).EnableWindow();
+	}
+
+	if (m_nTrimTabTitles > 0)
+	{
+		GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow();
+		GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow();
+		GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow();
 	}
 	
+	if (m_nUseTabIcon == 0)
+	{
+		GetDlgItem(IDC_WINDOW_ICON).EnableWindow();
+		GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow();
+	}
+
 	if (m_nUseFontColor > 0)
 	{
-		::EnableWindow(GetDlgItem(IDC_FONT_COLOR), TRUE);
+		GetDlgItem(IDC_FONT_COLOR).EnableWindow();
 	}
 
 	if (m_nUsePosition > 0)
 	{
-		::EnableWindow(GetDlgItem(IDC_POS_X), TRUE);
-		::EnableWindow(GetDlgItem(IDC_POS_Y), TRUE);
-		::EnableWindow(GetDlgItem(IDC_SPIN_X), TRUE);
-		::EnableWindow(GetDlgItem(IDC_SPIN_Y), TRUE);
+		GetDlgItem(IDC_POS_X).EnableWindow();
+		GetDlgItem(IDC_POS_Y).EnableWindow();
+		GetDlgItem(IDC_SPIN_X).EnableWindow();
+		GetDlgItem(IDC_SPIN_Y).EnableWindow();
 	}
 
 	if (m_nSnapToEdges > 0)
 	{
-		::EnableWindow(GetDlgItem(IDC_SNAP), TRUE);
-		::EnableWindow(GetDlgItem(IDC_SPIN_SNAP), TRUE);
+		GetDlgItem(IDC_SNAP).EnableWindow();
+		GetDlgItem(IDC_SPIN_SNAP).EnableWindow();
 	}
 }
 

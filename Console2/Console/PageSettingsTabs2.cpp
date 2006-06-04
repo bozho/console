@@ -206,45 +206,45 @@ void PageSettingsTabs2::UpdateSliderText()
 
 void PageSettingsTabs2::EnableControls()
 {
-	::EnableWindow(GetDlgItem(IDC_STATIC_BK_COLOR), FALSE);
-	::EnableWindow(GetDlgItem(IDC_BK_COLOR), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_BK_IMAGE), FALSE);
-	::EnableWindow(GetDlgItem(IDC_BK_IMAGE), FALSE);
-	::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_BK), FALSE);
-	::EnableWindow(GetDlgItem(IDC_CHECK_BK_RELATIVE), FALSE);
-	::EnableWindow(GetDlgItem(IDC_CHECK_BK_EXTEND), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_BK_POS), FALSE);
-	::EnableWindow(GetDlgItem(IDC_COMBO_BK_POS), FALSE);
+	GetDlgItem(IDC_STATIC_BK_COLOR).EnableWindow(FALSE);
+	GetDlgItem(IDC_BK_COLOR).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_BK_IMAGE).EnableWindow(FALSE);
+	GetDlgItem(IDC_BK_IMAGE).EnableWindow(FALSE);
+	GetDlgItem(IDC_BTN_BROWSE_BK).EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_BK_RELATIVE).EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_BK_EXTEND).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_BK_POS).EnableWindow(FALSE);
+	GetDlgItem(IDC_COMBO_BK_POS).EnableWindow(FALSE);
 
-	::EnableWindow(GetDlgItem(IDC_STATIC_TINT_COLOR), FALSE);
-	::EnableWindow(GetDlgItem(IDC_TINT_COLOR), FALSE);
-	::EnableWindow(GetDlgItem(IDC_STATIC_TINT_OPACITY), FALSE);
-	::EnableWindow(GetDlgItem(IDC_TINT_OPACITY), FALSE);
-	::EnableWindow(GetDlgItem(IDC_TINT_OPACITY_VAL), FALSE);
+	GetDlgItem(IDC_STATIC_TINT_COLOR).EnableWindow(FALSE);
+	GetDlgItem(IDC_TINT_COLOR).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_TINT_OPACITY).EnableWindow(FALSE);
+	GetDlgItem(IDC_TINT_OPACITY).EnableWindow(FALSE);
+	GetDlgItem(IDC_TINT_OPACITY_VAL).EnableWindow(FALSE);
 
 	if (m_nBkType == static_cast<int>(bktypeNone))
 	{
-		::EnableWindow(GetDlgItem(IDC_STATIC_BK_COLOR), TRUE);
-		::EnableWindow(GetDlgItem(IDC_BK_COLOR), TRUE);
+		GetDlgItem(IDC_STATIC_BK_COLOR).EnableWindow();
+		GetDlgItem(IDC_BK_COLOR).EnableWindow();
 	}
 	else if (m_nBkType == static_cast<int>(bktypeImage))
 	{
-		::EnableWindow(GetDlgItem(IDC_STATIC_BK_IMAGE), TRUE);
-		::EnableWindow(GetDlgItem(IDC_BK_IMAGE), TRUE);
-		::EnableWindow(GetDlgItem(IDC_BTN_BROWSE_BK), TRUE);
-		::EnableWindow(GetDlgItem(IDC_CHECK_BK_RELATIVE), TRUE);
-		::EnableWindow(GetDlgItem(IDC_CHECK_BK_EXTEND), TRUE);
-		::EnableWindow(GetDlgItem(IDC_STATIC_BK_POS), TRUE);
-		::EnableWindow(GetDlgItem(IDC_COMBO_BK_POS), TRUE);
+		GetDlgItem(IDC_STATIC_BK_IMAGE).EnableWindow();
+		GetDlgItem(IDC_BK_IMAGE).EnableWindow();
+		GetDlgItem(IDC_BTN_BROWSE_BK).EnableWindow();
+		GetDlgItem(IDC_CHECK_BK_RELATIVE).EnableWindow();
+		GetDlgItem(IDC_CHECK_BK_EXTEND).EnableWindow();
+		GetDlgItem(IDC_STATIC_BK_POS).EnableWindow();
+		GetDlgItem(IDC_COMBO_BK_POS).EnableWindow();
 	}
 
 	if (m_nBkType != static_cast<int>(bktypeNone))
 	{
-		::EnableWindow(GetDlgItem(IDC_STATIC_TINT_COLOR), TRUE);
-		::EnableWindow(GetDlgItem(IDC_TINT_COLOR), TRUE);
-		::EnableWindow(GetDlgItem(IDC_STATIC_TINT_OPACITY), TRUE);
-		::EnableWindow(GetDlgItem(IDC_TINT_OPACITY), TRUE);
-		::EnableWindow(GetDlgItem(IDC_TINT_OPACITY_VAL), TRUE);
+		GetDlgItem(IDC_STATIC_TINT_COLOR).EnableWindow();
+		GetDlgItem(IDC_TINT_COLOR).EnableWindow();
+		GetDlgItem(IDC_STATIC_TINT_OPACITY).EnableWindow();
+		GetDlgItem(IDC_TINT_OPACITY).EnableWindow();
+		GetDlgItem(IDC_TINT_OPACITY_VAL).EnableWindow();
 	}
 }
 

@@ -245,7 +245,6 @@ LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	TRACE(L"Bonk\n");
 	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	return 0;
 }
@@ -1074,7 +1073,6 @@ void ConsoleView::UpdateTitle()
 	SetWindowText(m_strTitle);
 */
 
-	TRACE(L"CV: %s\n", strCommandText);
 	GetParent().SendMessage(
 					UM_UPDATE_TITLES, 
 					reinterpret_cast<WPARAM>(m_hWnd), 

@@ -25,7 +25,7 @@
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
-		<controls show_menu="1" show_toolbar="0" show_statusbar="1" show_tabs="0" hide_single_tab="1"/>
+		<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="0" hide_single_tab="1"/>
 		<styles caption="1" resizable="1" taskbar_button="1" border="0" inside_border="2" tray_icon="1"/>
 		<position x="-1" y="-1" dock="2" snap="0" z_order="0"/>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>

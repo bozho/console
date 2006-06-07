@@ -52,14 +52,17 @@ END
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR  16, 15
+IDR_MAINFRAME TOOLBAR  16, 16
 BEGIN
     BUTTON      ID_FILE_NEW_TAB
+    BUTTON      ID_PREV_TAB
+    BUTTON      ID_NEXT_TAB
     SEPARATOR
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
     BUTTON      ID_APP_ABOUT
+	BUTTON		ID_HELP
 END
 
 
@@ -825,6 +828,12 @@ END
 STRINGTABLE 
 BEGIN
     ID_FILE_NEW_TAB         "Opens a new tab"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_TAB             "Switch to next tab"
+    ID_PREV_TAB             "Switch to previous tab"
 END
 
 #endif    // English (U.S.) resources

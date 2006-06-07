@@ -1258,10 +1258,20 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		pSettingsDoc->createElement(CComBSTR(L"image"), &pNewImageElement);
 
-		pNewImageElement->setAttribute(CComBSTR(L"file"), CComVariant((*itTab)->imageData.strFilename.c_str()));
-		pNewImageElement->setAttribute(CComBSTR(L"relative"), CComVariant((*itTab)->imageData.bRelative ? 1 : 0));
-		pNewImageElement->setAttribute(CComBSTR(L"extend"), CComVariant((*itTab)->imageData.bExtend ? 1 : 0));
-		pNewImageElement->setAttribute(CComBSTR(L"position"), CComVariant(static_cast<DWORD>((*itTab)->imageData.imagePosition)));
+		if ((*itTab)->backgroundImageType == bktypeImage)
+		{
+			pNewImageElement->setAttribute(CComBSTR(L"file"), CComVariant((*itTab)->imageData.strFilename.c_str()));
+			pNewImageElement->setAttribute(CComBSTR(L"relative"), CComVariant((*itTab)->imageData.bRelative ? 1 : 0));
+			pNewImageElement->setAttribute(CComBSTR(L"extend"), CComVariant((*itTab)->imageData.bExtend ? 1 : 0));
+			pNewImageElement->setAttribute(CComBSTR(L"position"), CComVariant(static_cast<DWORD>((*itTab)->imageData.imagePosition)));
+		}
+		else
+		{
+			pNewImageElement->setAttribute(CComBSTR(L"file"), CComVariant(L""));
+			pNewImageElement->setAttribute(CComBSTR(L"relative"), CComVariant(0));
+			pNewImageElement->setAttribute(CComBSTR(L"extend"), CComVariant(0));
+			pNewImageElement->setAttribute(CComBSTR(L"position"), CComVariant(0));
+		}
 
 		// add <tint> tag
 		CComPtr<IXMLDOMElement>	pNewTintElement;

@@ -40,7 +40,6 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		setup\console.iss = setup\console.iss
-		setup\console_font.reg = setup\console_font.reg
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

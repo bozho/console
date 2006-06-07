@@ -65,7 +65,7 @@
 	<tabs>
 		<tab title="Console2">
 			<console shell="" init_dir=""/>
-			<cursor style="2" r="255" g="255" b="255"/>
+			<cursor style="11" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
 					<tint opacity="0" r="0" g="0" b="0"/>

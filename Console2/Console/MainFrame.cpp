@@ -947,6 +947,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowMenu(!m_bMenuVisible);
+	g_settingsHandler->SaveSettings();
 	return 0;
 }
 
@@ -958,6 +959,7 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowToolbar(!m_bToolbarVisible);
+	g_settingsHandler->SaveSettings();
 	return 0;
 }
 
@@ -969,6 +971,7 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowStatusbar(!m_bStatusBarVisible);
+	g_settingsHandler->SaveSettings();
 	return 0;
 }
 
@@ -980,6 +983,7 @@ LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	ShowTabs(!m_bTabsVisible);
+	g_settingsHandler->SaveSettings();
 	return 0;
 }
 
@@ -1460,7 +1464,6 @@ void MainFrame::ShowMenu(BOOL bShow)
 	UISetCheck(ID_VIEW_MENU, m_bMenuVisible);
 
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible ? true : false;
-	g_settingsHandler->SaveSettings();
 
 	UpdateLayout();
 	AdjustWindowSize(false);
@@ -1482,7 +1485,6 @@ void MainFrame::ShowToolbar(BOOL bShow)
 	UISetCheck(ID_VIEW_TOOLBAR, m_bToolbarVisible);
 
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible? true : false;
-	g_settingsHandler->SaveSettings();
 
 	UpdateLayout();
 	AdjustWindowSize(false);
@@ -1502,7 +1504,6 @@ void MainFrame::ShowStatusbar(BOOL bShow)
 	UISetCheck(ID_VIEW_STATUS_BAR, m_bStatusBarVisible);
 
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible? true : false;
-	g_settingsHandler->SaveSettings();
 	
 	UpdateLayout();
 	AdjustWindowSize(false);
@@ -1530,7 +1531,6 @@ void MainFrame::ShowTabs(BOOL bShow)
 	UISetCheck(ID_VIEW_TABS, m_bTabsVisible);
 
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs = m_bTabsVisible ? true : false;
-	g_settingsHandler->SaveSettings();
 
 	UpdateLayout();
 	AdjustWindowSize(false);

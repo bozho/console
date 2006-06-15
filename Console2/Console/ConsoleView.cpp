@@ -975,11 +975,11 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 	switch(nScrollCode)
 	{ 
 		case SB_PAGEUP: /* SB_PAGELEFT */
-			nDelta = -5; 
+			nDelta = (nType == SB_VERT) ? -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
 			break; 
 			
 		case SB_PAGEDOWN: /* SB_PAGERIGHT */
-			nDelta = 5; 
+			nDelta = (nType == SB_VERT) ? static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
 			break; 
 			
 		case SB_LINEUP: /* SB_LINELEFT */

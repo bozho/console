@@ -174,6 +174,11 @@
 #define IDC_CHECK_USE_CONSOLE_TITLE     1147
 #define IDC_CHECK_TRIM_TAB_TITLES       1148
 #define IDC_STATIC_TRIM_CHARS           1149
+#define IDC_PAGE_SCROLL                 1150
+#define IDC_PAGE_SCROLL2                1151
+#define IDC_SCROLL_PAGE_ROWS            1152
+#define IDC_SPIN_SCROLL_PAGE_ROWS       1153
+#define IDC_STATIC_ROWS                 1154
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -193,7 +198,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        209
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1150
+#define _APS_NEXT_CONTROL_VALUE         1155
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

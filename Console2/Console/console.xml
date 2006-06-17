@@ -33,6 +33,7 @@
 	<behavior>
 		<copy_paste copy_on_select="1" no_wrap="1" trim_spaces="1"/>
 		<mouse_drag on="0" inverse_shift="0"/>
+		<scroll page_scroll_rows="0"/>
 	</behavior>
 	<hotkeys>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="112" command="newtab1"/>

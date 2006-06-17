@@ -40,6 +40,20 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	m_nMouseDrag	= m_behaviorSettings.mouseDragSettings.bMouseDrag ? 1 : 0;
 	m_nInverseShift	= m_behaviorSettings.mouseDragSettings.bInverseShift ? 1 : 0;
 
+	m_nScrollPageType= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
+
+	CUpDownCtrl	spin;
+	UDACCEL		udAccel;
+
+	spin.Attach(GetDlgItem(IDC_SPIN_SCROLL_PAGE_ROWS));
+	spin.SetRange(1, 500);
+	udAccel.nSec = 2;
+	udAccel.nInc = 1;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	EnableScrollControls();
+	
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
 }
@@ -62,6 +76,8 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 		m_behaviorSettings.mouseDragSettings.bMouseDrag		= (m_nMouseDrag > 0);
 		m_behaviorSettings.mouseDragSettings.bInverseShift	= (m_nInverseShift > 0);
 
+		if (m_nScrollPageType == 0) m_behaviorSettings.scrollSettings.dwPageScrollRows = 0;
+
 		BehaviorSettings& behaviorSettings = g_settingsHandler->GetBehaviorSettings();
 
 		behaviorSettings = m_behaviorSettings;
@@ -73,4 +89,43 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsBehavior::OnClickedScrollType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableScrollControls();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsBehavior::EnableScrollControls()
+{
+	GetDlgItem(IDC_SCROLL_PAGE_ROWS).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_SCROLL_PAGE_ROWS).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_ROWS).EnableWindow(FALSE);
+
+	if (m_nScrollPageType > 0)
+	{
+		GetDlgItem(IDC_SCROLL_PAGE_ROWS).EnableWindow();
+		GetDlgItem(IDC_SPIN_SCROLL_PAGE_ROWS).EnableWindow();
+		GetDlgItem(IDC_STATIC_ROWS).EnableWindow();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+
 

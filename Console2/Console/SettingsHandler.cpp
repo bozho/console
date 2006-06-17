@@ -835,6 +835,65 @@ MouseDragSettings& MouseDragSettings::operator=(const MouseDragSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+ScrollSettings::ScrollSettings()
+: dwPageScrollRows(0)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ScrollSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pScrollElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/scroll"), pScrollElement))) return false;
+
+	XmlHelper::GetAttribute(pScrollElement, CComBSTR(L"page_scroll_rows"), dwPageScrollRows, 0);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ScrollSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pScrollElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/scroll"), pScrollElement))) return false;
+
+	XmlHelper::SetAttribute(pScrollElement, CComBSTR(L"page_scroll_rows"), dwPageScrollRows);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+ScrollSettings& ScrollSettings::operator=(const ScrollSettings& other)
+{
+	dwPageScrollRows= other.dwPageScrollRows;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -848,6 +907,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	copyPasteSettings.Load(pSettingsRoot);
 	mouseDragSettings.Load(pSettingsRoot);
+	scrollSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -860,6 +920,7 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	copyPasteSettings.Save(pSettingsRoot);
 	mouseDragSettings.Save(pSettingsRoot);
+	scrollSettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -872,6 +933,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 {
 	copyPasteSettings	= other.copyPasteSettings;
 	mouseDragSettings	= other.mouseDragSettings;
+	scrollSettings		= other.scrollSettings;
 
 	return *this;
 }

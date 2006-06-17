@@ -971,15 +971,32 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 {
 	int nCurrentPos = ::FlatSB_GetScrollPos(m_hWnd, nType);
 	int nDelta = 0;
+
+	ScrollSettings& scrollSettings = g_settingsHandler->GetBehaviorSettings().scrollSettings;
 	
 	switch(nScrollCode)
 	{ 
 		case SB_PAGEUP: /* SB_PAGELEFT */
-			nDelta = (nType == SB_VERT) ? -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
+
+			if (scrollSettings.dwPageScrollRows > 0)
+			{
+				nDelta = -static_cast<int>(scrollSettings.dwPageScrollRows);
+			}
+			else
+			{
+				nDelta = (nType == SB_VERT) ? -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
+			}
 			break; 
 			
 		case SB_PAGEDOWN: /* SB_PAGERIGHT */
-			nDelta = (nType == SB_VERT) ? static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
+			if (scrollSettings.dwPageScrollRows > 0)
+			{
+				nDelta = static_cast<int>(scrollSettings.dwPageScrollRows);
+			}
+			else
+			{
+				nDelta = (nType == SB_VERT) ? static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
+			}
 			break; 
 			
 		case SB_LINEUP: /* SB_LINELEFT */

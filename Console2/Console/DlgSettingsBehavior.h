@@ -26,12 +26,15 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_TRIM_SPACES, m_nTrimSpaces)
 			DDX_CHECK(IDC_CHECK_DRAG_ON, m_nMouseDrag)
 			DDX_CHECK(IDC_CHECK_INVERSE_SHIFT, m_nInverseShift)
+			DDX_RADIO(IDC_PAGE_SCROLL, m_nScrollPageType)
+			DDX_UINT(IDC_SCROLL_PAGE_ROWS, m_behaviorSettings.scrollSettings.dwPageScrollRows)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
+			COMMAND_RANGE_CODE_HANDLER(IDC_PAGE_SCROLL, IDC_PAGE_SCROLL2, BN_CLICKED, OnClickedScrollType)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -42,8 +45,12 @@ class DlgSettingsBehavior
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedScrollType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
+
+		void EnableScrollControls();
+
 
 	private:
 
@@ -55,6 +62,8 @@ class DlgSettingsBehavior
 
 		int					m_nMouseDrag;
 		int					m_nInverseShift;
+
+		int					m_nScrollPageType;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -40,6 +40,7 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionItems) = postSolution
 		setup\console.iss = setup\console.iss
+		devel_changes.txt = devel_changes.txt
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

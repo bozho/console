@@ -1,0 +1,30 @@
+v2.00
+=====
+
+Build 121
+---------
+
+- number of page scroll rows is configurable (either entire page or N rows)
+
+- toolbar improvements (nicer icons, more buttons)
+
+- Console has setup now!
+
+- menu, toolbar, tabs and status bar visibility persistent (from View menu)
+
+- trim tab titles option
+
+- drag'n'drop files support
+
+- added 'hide single tab' option
+
+- improved settings dialog (tab titles, etc)
+
+
+Build 120 (initial beta build)
+------------------------------
+
+Changes since last demo version:
+
+- improved settings dialog
+

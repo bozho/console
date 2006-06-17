@@ -62,7 +62,7 @@ BEGIN
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
     BUTTON      ID_APP_ABOUT
-	BUTTON		ID_HELP
+    BUTTON      ID_HELP
 END
 
 
@@ -429,25 +429,25 @@ BEGIN
                     UDS_ARROWKEYS,191,50,11,14
     GROUPBOX        "Styles *",IDC_STATIC,92,0,134,77
     CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",
-                    BS_AUTORADIOBUTTON | WS_GROUP,8,91,33,10
+                    BS_AUTORADIOBUTTON | WS_GROUP,8,93,33,10
     CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",
-                    BS_AUTORADIOBUTTON,8,106,34,10
+                    BS_AUTORADIOBUTTON,8,108,34,10
     CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",
-                    BS_AUTORADIOBUTTON,8,195,46,10
-    LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,19,119,47,8
+                    BS_AUTORADIOBUTTON,8,197,46,10
+    LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,19,121,47,8
     CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    WS_TABSTOP,19,130,185,22
-    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,204,132,14,8,0,WS_EX_RIGHT
-    LTEXT           "&Inactive window",IDC_STATIC_INACTIVE_WINDOW,19,154,53,
+                    WS_TABSTOP,19,132,185,22
+    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,204,134,14,8,0,WS_EX_RIGHT
+    LTEXT           "&Inactive window",IDC_STATIC_INACTIVE_WINDOW,19,156,53,
                     8
     CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | 
-                    WS_TABSTOP,19,167,185,22
-    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,204,169,14,8,0,
+                    WS_TABSTOP,19,169,185,22
+    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,204,171,14,8,0,
                     WS_EX_RIGHT
-    LTEXT           "Key col&or:",IDC_STATIC_KEY_COLOR,19,212,33,8
+    LTEXT           "Key col&or:",IDC_STATIC_KEY_COLOR,19,214,33,8
     CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,54,
-                    209,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Window transparency",IDC_STATIC,0,77,226,154
+                    211,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Window transparency",IDC_STATIC,0,79,226,154
 END
 
 IDD_SETTINGS_TEMP DIALOGEX 0, 0, 611, 555
@@ -489,6 +489,17 @@ BEGIN
                     WS_TABSTOP,124,15,62,10
     CONTROL         "Use shift for dragging",IDC_CHECK_INVERSE_SHIFT,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,124,30,86,10
+    CONTROL         "Scroll one screen",IDC_PAGE_SCROLL,"Button",
+                    BS_AUTORADIOBUTTON | WS_GROUP,10,80,70,10
+    CONTROL         "Scroll",IDC_PAGE_SCROLL2,"Button",BS_AUTORADIOBUTTON,10,
+                    97,29,10
+    EDITTEXT        IDC_SCROLL_PAGE_ROWS,43,95,33,14,ES_AUTOHSCROLL | 
+                    WS_GROUP
+    CONTROL         "",IDC_SPIN_SCROLL_PAGE_ROWS,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,78,78,11,14
+    LTEXT           "rows",IDC_STATIC_ROWS,80,98,16,8
+    GROUPBOX        "Page Scrolling",IDC_STATIC,0,68,105,49
 END
 
 IDD_SETTINGS_TABS_1 DIALOGEX 0, 0, 223, 171
@@ -626,6 +637,8 @@ BEGIN
         HORZGUIDE, 20
         HORZGUIDE, 35
         HORZGUIDE, 50
+        HORZGUIDE, 85
+        HORZGUIDE, 102
     END
 
     IDD_SETTINGS_TABS_1, DIALOG

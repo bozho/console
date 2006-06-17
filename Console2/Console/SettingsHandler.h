@@ -282,6 +282,23 @@ struct MouseDragSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct ScrollSettings : public SettingsBase
+{
+	ScrollSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	ScrollSettings& operator=(const ScrollSettings& other);
+
+	DWORD	dwPageScrollRows;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -293,6 +310,7 @@ struct BehaviorSettings : public SettingsBase
 
 	CopyPasteSettings	copyPasteSettings;
 	MouseDragSettings	mouseDragSettings;
+	ScrollSettings		scrollSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

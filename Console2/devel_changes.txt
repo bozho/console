@@ -4,6 +4,8 @@ v2.00
 Build 121
 ---------
 
+- added 'pin to desktop' setting for Z-order (Windows Explorer only)
+
 - number of page scroll rows is configurable (either entire page or N rows)
 
 - toolbar improvements (nicer icons, more buttons)

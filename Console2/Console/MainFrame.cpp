@@ -931,7 +931,18 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 		ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 		ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
-		ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
+
+		BOOL bShowTabs = FALSE;
+
+		if ( controlsSettings.bShowTabs && 
+			(!controlsSettings.bHideSingleTab || (m_mapViews.size() > 1))
+		   )
+		{
+			bShowTabs = TRUE;
+		}
+
+		ShowTabs(bShowTabs);
+
 		ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
 
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
@@ -1182,8 +1193,9 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex)
 	DisplayTab(hwndConsoleView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 
-	if ((m_mapViews.size() > 1) &&
-		(g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
+		((m_mapViews.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+	   )
 	{
 		ShowTabs(TRUE);
 	}
@@ -1548,7 +1560,12 @@ void MainFrame::ShowTabs(BOOL bShow)
 
 	UISetCheck(ID_VIEW_TABS, m_bTabsVisible);
 
-	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs = m_bTabsVisible ? true : false;
+	ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
+
+	if (!controlsSettings.bHideSingleTab)
+	{
+		controlsSettings.bShowTabs = m_bTabsVisible ? true : false;
+	}
 
 	UpdateLayout();
 	AdjustWindowSize(false);

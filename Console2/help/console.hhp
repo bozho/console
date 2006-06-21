@@ -1,0 +1,19 @@
+[OPTIONS]
+Compatibility=1.1 or later
+Compiled file=console.chm
+Contents file=console.hhc
+Default topic=html\introduction.html
+Display compile progress=No
+Full-text search=Yes
+Index file=console.hhk
+Language=0x409 English (United States)
+
+
+[FILES]
+html\introduction.html
+html\copyright.html
+html\gpl.html
+html\running.html
+
+[INFOTYPES]
+

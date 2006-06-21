@@ -325,6 +325,34 @@
 				RelativePath=".\res\toolbar.bmp">
 			</File>
 		</Filter>
+		<Filter
+			Name="Help Files"
+			Filter="">
+			<File
+				RelativePath="..\help\console.hhc">
+			</File>
+			<File
+				RelativePath="..\help\console.hhk">
+			</File>
+			<File
+				RelativePath="..\help\console.hhp">
+			</File>
+			<File
+				RelativePath="..\help\html\copyright.html">
+			</File>
+			<File
+				RelativePath="..\help\html\gpl.html">
+			</File>
+			<File
+				RelativePath="..\help\styles\help.css">
+			</File>
+			<File
+				RelativePath="..\help\html\introduction.html">
+			</File>
+			<File
+				RelativePath="..\help\html\running.html">
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\console.xml">
 		</File>

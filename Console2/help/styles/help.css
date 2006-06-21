@@ -1,0 +1,32 @@
+body
+{
+font-family: Verdana;
+}
+
+h1
+{
+margin: 0px;
+padding: 10px;
+
+background-color: rgb(190, 220, 250);
+
+font-family: Verdana;
+font-variant: small-caps;
+font-weight: bold;
+font-size: 200%;
+
+border-bottom: thin solid rgb(0, 0, 0);
+}
+
+h2
+{
+font-family: Verdana;
+font-weight: bold;
+font-size: 150%;
+}
+
+p
+{
+font-family: Verdana;
+font-size: 100%;
+}

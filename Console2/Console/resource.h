@@ -139,6 +139,8 @@
 #define IDC_SPIN_TRIM_TAB_TITLES        1116
 #define IDC_TAB_TITLE                   1117
 #define IDC_TAB_ICON                    1118
+#define IDC_RADIO_Z_BOTTOM2             1118
+#define IDC_RADIO_Z_DESKTOP             1118
 #define IDC_TAB_SHELL                   1119
 #define IDC_TAB_INIT_DIR                1120
 #define IDC_COMBO_CURSOR                1121

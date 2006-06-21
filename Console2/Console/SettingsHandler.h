@@ -165,7 +165,8 @@ enum ZOrder
 {
 	zorderNormal	= 0,
 	zorderOnTop		= 1,
-	zorderOnBottom	= 2
+	zorderOnBottom	= 2,
+	zorderDesktop	= 3
 };
 
 //////////////////////////////////////////////////////////////////////////////

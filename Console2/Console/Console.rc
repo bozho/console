@@ -371,14 +371,16 @@ BEGIN
                     BS_AUTORADIOBUTTON,60,218,51,10
     CONTROL         "Bottom &right",IDC_RADIO_DOCK_BR,"Button",
                     BS_AUTORADIOBUTTON,60,231,55,10
-    GROUPBOX        "Docking *",IDC_STATIC,0,206,123,54,WS_GROUP
+    GROUPBOX        "Docking *",IDC_STATIC,0,206,123,59,WS_GROUP
     CONTROL         "R&egular",IDC_RADIO_Z_REGULAR,"Button",
                     BS_AUTORADIOBUTTON | WS_GROUP,140,218,41,10
     CONTROL         "Always on to&p",IDC_RADIO_Z_ONTOP,"Button",
-                    BS_AUTORADIOBUTTON,140,231,61,10
+                    BS_AUTORADIOBUTTON,140,229,61,10
     CONTROL         "Alwa&ys on bottom",IDC_RADIO_Z_BOTTOM,"Button",
-                    BS_AUTORADIOBUTTON,140,244,73,10
-    GROUPBOX        "Z order *",IDC_STATIC,130,206,105,54,WS_GROUP
+                    BS_AUTORADIOBUTTON,140,240,73,10
+    CONTROL         "Pinned to desktop",IDC_RADIO_Z_DESKTOP,"Button",
+                    BS_AUTORADIOBUTTON,140,251,73,10
+    GROUPBOX        "Z order",IDC_STATIC,130,206,105,59,WS_GROUP
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 226, 254
@@ -609,7 +611,6 @@ BEGIN
 
     IDD_SETTINGS_APPEARANCE, DIALOG
     BEGIN
-        BOTTOMMARGIN, 260
         HORZGUIDE, 20
         HORZGUIDE, 35
         HORZGUIDE, 45

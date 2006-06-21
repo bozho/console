@@ -225,6 +225,9 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
+
+	TRACE(L"OnSysCommand: %i\n", wParam);
+
 	// OnSize needs to know this
 	if (wParam == SC_RESTORE)
 	{
@@ -931,6 +934,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
 		ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
 
+		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
+
 		m_activeView->RecreateOffscreenBuffers();
 		AdjustWindowSize(false);
 		m_activeView->RepaintView();
@@ -1367,6 +1372,8 @@ void MainFrame::DockWindow(DockPosition dockPosition)
 
 void MainFrame::SetZOrder(ZOrder zOrder)
 {
+	if (zOrder == m_zOrder) return;
+
 	HWND hwndZ = HWND_NOTOPMOST;
 
 	m_zOrder = zOrder;
@@ -1376,8 +1383,19 @@ void MainFrame::SetZOrder(ZOrder zOrder)
 		case zorderNormal	: hwndZ = HWND_NOTOPMOST; break;
 		case zorderOnTop	: hwndZ = HWND_TOPMOST; break;
 		case zorderOnBottom	: hwndZ = HWND_BOTTOM; break;
+		case zorderDesktop	: hwndZ = HWND_NOTOPMOST; break;
 	}
 
+	HWND hwndParent = NULL;
+
+	if (m_zOrder == zorderDesktop)
+	{
+		// pinned to the desktop, Program Manager is the parent
+		// TODO: automatic shell detection
+		hwndParent = ::FindWindow(L"Progman", L"Program Manager");
+	}
+
+	SetParent(hwndParent);
 	SetWindowPos(hwndZ, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 }
 

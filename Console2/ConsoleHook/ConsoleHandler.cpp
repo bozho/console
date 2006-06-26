@@ -162,10 +162,10 @@ void ConsoleHandler::ReadConsoleBuffer()
 	coordStart.X		= 0;
 	coordStart.Y		= 0;
 
-	// ReadConsoleOutput seems to fail for large (around 7-8k CHAR_INFO's) buffers
+	// ReadConsoleOutput seems to fail for large (around 6k CHAR_INFO's) buffers
 	// here we calculate max buffer size (row count) for safe reading
 	coordBufferSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
-	coordBufferSize.Y	= 7168 / coordBufferSize.X;
+	coordBufferSize.Y	= 6144 / coordBufferSize.X;
 
 	// initialize reading rectangle
 	srBuffer.Top		= csbiConsole.srWindow.Top;
@@ -473,18 +473,44 @@ DWORD ConsoleHandler::MonitorThread()
 
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
 
+/*
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE	hStdIn			= ::GetStdHandle(STD_INPUT_HANDLE);
 	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
+*/
 
-	SetConsoleParams(hStdOut);
-	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows);
+
+	shared_ptr<void> hStdOut(
+						::CreateFile(
+							L"CONOUT$",
+							GENERIC_WRITE | GENERIC_READ,
+							FILE_SHARE_READ | FILE_SHARE_WRITE,
+							NULL,
+							OPEN_EXISTING,
+							0,
+							0),
+							::CloseHandle);
+
+	shared_ptr<void> hStdIn(
+						::CreateFile(
+							L"CONIN$",
+							GENERIC_WRITE | GENERIC_READ,
+							FILE_SHARE_READ | FILE_SHARE_WRITE,
+							NULL,
+							OPEN_EXISTING,
+							0,
+							0),
+							::CloseHandle);
+
+	SetConsoleParams(hStdOut.get());
+	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows);
 
 	HANDLE	arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(), 
-		hStdOut, 
-		hStdErr, 
+		hStdOut.get(), 
+		hStdOut.get(), 
+//		hStdErr, 
 		m_consolePaste.GetEvent(), 
 		m_newConsoleSize.GetEvent(),
 		m_newScrollPos.GetEvent()
@@ -498,6 +524,44 @@ DWORD ConsoleHandler::MonitorThread()
 							FALSE, 
 							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
 	{
+/*
+		if (dwWaitRes == WAIT_FAILED)
+		{
+			TRACE(L"dwWaitRes: %i\n", dwWaitRes);
+
+			if (::WaitForSingleObject(m_hMonitorThreadExit.get(), 0) == WAIT_FAILED) 
+			{
+				TRACE(L"m_hMonitorThreadExit.get()\n");
+			}
+
+			if (::WaitForSingleObject(hStdOut.get(), 0) == WAIT_FAILED) 
+			{
+				TRACE(L"hStdOut.get()\n");
+			}
+
+			if (::WaitForSingleObject(hStdErr, 0) == WAIT_FAILED) 
+			{
+				TRACE(L"hStdErr\n");
+			}
+
+			if (::WaitForSingleObject(m_consolePaste.GetEvent(), 0) == WAIT_FAILED) 
+			{
+				TRACE(L"m_consolePaste.GetEvent()\n");
+			}
+
+			if (::WaitForSingleObject(m_newConsoleSize.GetEvent(), 0) == WAIT_FAILED) 
+			{
+				TRACE(L"m_newConsoleSize.GetEvent()\n");
+			}
+
+			if (::WaitForSingleObject(m_newScrollPos.GetEvent(), 0) == WAIT_FAILED) 
+			{
+				TRACE(L"m_newScrollPos.GetEvent()\n");
+			}
+
+		}
+*/
+
 		switch (dwWaitRes)
 		{
 			case WAIT_OBJECT_0 + 1 :
@@ -508,8 +572,8 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				// refresh timer
 				ReadConsoleBuffer();
-				::ResetEvent(hStdOut);
-				::ResetEvent(hStdErr);
+				::ResetEvent(hStdOut.get());
+//				::ResetEvent(hStdErr);
 				break;
 			}
 
@@ -520,7 +584,7 @@ DWORD ConsoleHandler::MonitorThread()
 										reinterpret_cast<wchar_t*>(*m_consolePaste.Get()),
 										bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
 
-				PasteConsoleText(hStdIn, pszPasteBuffer);
+				PasteConsoleText(hStdIn.get(), pszPasteBuffer);
 				break;
 			}
 
@@ -529,11 +593,11 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
-				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
+				ResizeConsoleWindow(hStdOut.get(), m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
 				ReadConsoleBuffer();
 
-				::ResetEvent(hStdOut);
-				::ResetEvent(hStdErr);
+				::ResetEvent(hStdOut.get());
+//				::ResetEvent(hStdErr);
 				break;
 			}
 
@@ -542,11 +606,11 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 
-				ScrollConsole(hStdOut, m_newScrollPos->cx, m_newScrollPos->cy);
+				ScrollConsole(hStdOut.get(), m_newScrollPos->cx, m_newScrollPos->cy);
 				ReadConsoleBuffer();
 
-				::ResetEvent(hStdOut);
-				::ResetEvent(hStdErr);
+				::ResetEvent(hStdOut.get());
+//				::ResetEvent(hStdErr);
 				break;
 			}
 		}

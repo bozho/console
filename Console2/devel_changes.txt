@@ -1,6 +1,15 @@
 v2.00
 =====
 
+Build 122
+---------
+
+- [internal] reduced buffer size in ReadConsoleOutput call in ConsoleHook; 
+  caused errors with large windows
+  
+- [internal] attempted fix for '100% hang bug'
+
+
 Build 121
 ---------
 

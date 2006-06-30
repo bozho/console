@@ -245,7 +245,11 @@ LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	if (!TranslateKeyDown(uMsg, wParam, lParam))
+	{
+		::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	}
+
 	return 0;
 }
 
@@ -1649,6 +1653,49 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 
 	m_consoleHandler.GetConsolePasteInfo() = reinterpret_cast<UINT_PTR>(pRemoteMemory);
 	m_consoleHandler.GetConsolePasteInfo().SetEvent();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
+{
+	if(uMsg == WM_KEYDOWN)
+	{
+		if((::GetKeyState(VK_SCROLL) & 0x01) == 0x01)
+		{
+			switch(wParam)
+			{
+				case VK_UP:   
+					DoScroll(SB_VERT, SB_LINEUP, 0); 
+					return true;
+
+				case VK_PRIOR:  
+					DoScroll(SB_VERT, SB_PAGEUP, 0); 
+					return true;
+
+				case VK_DOWN: 
+					DoScroll(SB_VERT, SB_LINEDOWN, 0); 
+					return true;
+
+				case VK_NEXT: 
+					DoScroll(SB_VERT, SB_PAGEDOWN, 0); 
+					return true;
+
+				case VK_LEFT: 
+					DoScroll(SB_HORZ, SB_LINELEFT, 0); 
+					return true;
+
+				case VK_RIGHT:  
+					DoScroll(SB_HORZ, SB_LINERIGHT, 0); 
+					return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

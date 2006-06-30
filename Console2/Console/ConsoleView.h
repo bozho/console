@@ -135,6 +135,8 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 		// sends text to the windows console
 		void SendTextToConsole(const wchar_t* pszText);
 
+		bool TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/);
+
 
 	private:
 

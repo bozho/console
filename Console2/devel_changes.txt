@@ -1,6 +1,14 @@
 v2.00
 =====
 
+Build 123
+---------
+
+- SCROLL LOCK can now be used for scrolling: when on, you can scroll Console
+  window using PageUp/Down and arrow keys (thanks to jachymko for submitting
+  the patch)
+
+
 Build 122
 ---------
 

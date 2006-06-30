@@ -179,7 +179,8 @@ void ConsoleHandler::ReadConsoleBuffer()
 */
 
 	// read rows 'chunks'
-	for (SHORT i = 0; i < coordConsoleSize.Y / coordBufferSize.Y; ++i)
+	SHORT i = 0;
+	for (; i < coordConsoleSize.Y / coordBufferSize.Y; ++i)
 	{
 //		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 

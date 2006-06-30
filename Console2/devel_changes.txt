@@ -9,6 +9,8 @@ Build 122
   
 - [internal] attempted fix for '100% hang bug'
 
+- [internal] a small mem_fn fix in SharedMemoryLock class, thanks jachymko :-)
+
 
 Build 121
 ---------

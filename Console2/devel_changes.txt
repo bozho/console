@@ -7,6 +7,10 @@ Build 123
 - SCROLL LOCK can now be used for scrolling: when on, you can scroll Console
   window using PageUp/Down and arrow keys (thanks to jachymko for submitting
   the patch)
+  
+- drag 'n' dropped filenames are always enclosed in quotes
+
+- middle click closes tab
 
 
 Build 122

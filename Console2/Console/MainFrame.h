@@ -56,6 +56,7 @@ class MainFrame
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
+			NOTIFY_CODE_HANDLER(CTCN_MCLICK, OnTabMiddleClick);
 			NOTIFY_CODE_HANDLER(RBN_HEIGHTCHANGE, OnRebarHeightChanged)
 			COMMAND_RANGE_HANDLER(ID_NEW_TAB_1, ID_NEW_TAB_1 + 99, OnFileNewTab)
 			COMMAND_ID_HANDLER(ID_FILE_NEW_TAB, OnFileNewTab)
@@ -108,6 +109,7 @@ class MainFrame
 
 		LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
 		LRESULT OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
+		LRESULT OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 
 		LRESULT OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
@@ -138,7 +140,7 @@ class MainFrame
 //		shared_ptr<ConsoleView> GetActiveView();
 
 		void AdjustWindowRect(CRect& rect);
-		void AdjustAndResizeConsoleView(CRect& rectView);
+//		void AdjustAndResizeConsoleView(CRect& rectView);
 
 	private:
 
@@ -158,7 +160,7 @@ class MainFrame
 		void ShowTabs(BOOL bShow);
 		void ShowStatusbar(BOOL bShow);
 
-		void AdjustWindowSize(bool bResizeConsole);
+		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 		void SetTransparency();
 		void CreateAcceleratorTable();
 		BOOL SetTrayIcon(DWORD dwMessage);
@@ -189,6 +191,7 @@ class MainFrame
 		DWORD			m_dwWindowHeight;
 
 		bool			m_bRestoringWindow;
+		CRect			m_rectRestoredWnd;
 
 		CAccelerator	m_acceleratorTable;
 

@@ -1,5 +1,9 @@
 - handle maximize
 
+- handle full screen
+
+*** done *** - enclose drag 'n' dropped files with "s
+
 *** done *** - cursor rendering
 
 *** done *** - options dialog

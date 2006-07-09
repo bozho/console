@@ -13,7 +13,7 @@ background-color: rgb(190, 220, 250);
 font-family: Verdana;
 font-variant: small-caps;
 font-weight: bold;
-font-size: 200%;
+font-size: 24px;
 
 border-bottom: thin solid rgb(0, 0, 0);
 }
@@ -21,12 +21,31 @@ border-bottom: thin solid rgb(0, 0, 0);
 h2
 {
 font-family: Verdana;
+font-variant: small-caps;
 font-weight: bold;
-font-size: 150%;
+font-size: 16px;
 }
 
 p
 {
 font-family: Verdana;
-font-size: 100%;
+font-size: 12px;
+}
+
+td
+{
+font-family: Verdana;
+font-size: 12px;
+}
+
+li
+{
+font-family: Verdana;
+font-size: 12px;
+}
+
+dd
+{
+font-family: Verdana;
+font-size: 12px;
 }

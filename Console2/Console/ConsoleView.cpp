@@ -433,8 +433,8 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		::DragQueryFile(hDrop, i, strFilename.GetBuffer(MAX_PATH), MAX_PATH);
 		strFilename.ReleaseBuffer();
 
-		// if there are spaces in the filename, put quotes around it
-		if (strFilename.Find(L" ") != -1) strFilename = CString(L"\"") + strFilename + CString("\"");
+		// put quotes around the filename
+		strFilename = CString(L"\"") + strFilename + CString("\"");
 		
 		if (i > 0) strFilenames += L" ";
 		strFilenames += strFilename;
@@ -521,11 +521,11 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::AdjustRectAndResize(CRect& clientRect)
+void ConsoleView::AdjustRectAndResize(CRect& clientRect, bool bGetClientRect)
 {
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	GetWindowRect(&clientRect);
+	if (bGetClientRect) GetWindowRect(&clientRect);
 /*
 	TRACE(L"================================================================\n");
 	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);

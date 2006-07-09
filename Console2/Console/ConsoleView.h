@@ -87,7 +87,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 		void GetRect(CRect& clientRect);
 		bool GetMaxRect(CRect& maxClientRect);
-		void AdjustRectAndResize(CRect& clientRect);
+		void AdjustRectAndResize(CRect& clientRect, bool bGetClientRect);
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 		shared_ptr<TabData> GetTabData() { return m_tabData; }

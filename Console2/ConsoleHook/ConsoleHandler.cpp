@@ -477,7 +477,6 @@ DWORD ConsoleHandler::MonitorThread()
 /*
 	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
 	HANDLE	hStdIn			= ::GetStdHandle(STD_INPUT_HANDLE);
-	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 */
 
 
@@ -503,6 +502,8 @@ DWORD ConsoleHandler::MonitorThread()
 							0),
 							::CloseHandle);
 
+	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
+
 	SetConsoleParams(hStdOut.get());
 	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows);
 
@@ -511,7 +512,7 @@ DWORD ConsoleHandler::MonitorThread()
 		m_hMonitorThreadExit.get(), 
 		hStdOut.get(), 
 		hStdOut.get(), 
-//		hStdErr, 
+		hStdErr, 
 		m_consolePaste.GetEvent(), 
 		m_newConsoleSize.GetEvent(),
 		m_newScrollPos.GetEvent()
@@ -567,6 +568,7 @@ DWORD ConsoleHandler::MonitorThread()
 		{
 			case WAIT_OBJECT_0 + 1 :
 			case WAIT_OBJECT_0 + 2 :
+			case WAIT_OBJECT_0 + 3 :
 				// something changed in the console
 				::Sleep(m_consoleParams->dwNotificationTimeout);
 			case WAIT_TIMEOUT :
@@ -574,12 +576,12 @@ DWORD ConsoleHandler::MonitorThread()
 				// refresh timer
 				ReadConsoleBuffer();
 				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
+				::ResetEvent(hStdErr);
 				break;
 			}
 
 			// paste request
-			case WAIT_OBJECT_0 + 3 :
+			case WAIT_OBJECT_0 + 4 :
 			{
 				shared_ptr<wchar_t>	pszPasteBuffer(
 										reinterpret_cast<wchar_t*>(*m_consolePaste.Get()),
@@ -590,7 +592,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console resize request
-			case WAIT_OBJECT_0 + 4 :
+			case WAIT_OBJECT_0 + 5 :
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
@@ -598,12 +600,12 @@ DWORD ConsoleHandler::MonitorThread()
 				ReadConsoleBuffer();
 
 				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
+				::ResetEvent(hStdErr);
 				break;
 			}
 
 			// console scroll request
-			case WAIT_OBJECT_0 + 5 :
+			case WAIT_OBJECT_0 + 6 :
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 
@@ -611,7 +613,7 @@ DWORD ConsoleHandler::MonitorThread()
 				ReadConsoleBuffer();
 
 				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
+				::ResetEvent(hStdErr);
 				break;
 			}
 		}

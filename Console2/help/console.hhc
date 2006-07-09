@@ -21,12 +21,20 @@
 		<param name="Local" value="html\gpl.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
+		<param name="Name" value="Acknowledgements">
+		<param name="Local" value="html\acknowledgements.html">
+		</OBJECT>
+	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Using Console">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Running Console">
 			<param name="Local" value="html\running.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Menus">
+			<param name="Local" value="html\menus.html">
 			</OBJECT>
 	</UL>
 </UL>

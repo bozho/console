@@ -159,10 +159,12 @@ CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "Console 2.0\n\nCopyright (C) 2005-2006\nMarko Bozikovic",
-                    IDC_STATIC,25,57,78,32,0,WS_EX_ACCEPTFILES
+    CTEXT           "Console 2.0",IDC_STATIC_VERSION,25,56,78,8,0,
+                    WS_EX_ACCEPTFILES
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
+    CTEXT           "Copyright (C) 2005-2006\nMarko Bozikovic",IDC_STATIC,25,
+                    71,78,17
 END
 
 IDD_RENAME_TAB DIALOGEX 0, 0, 186, 55
@@ -772,6 +774,7 @@ STRINGTABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
+    ID_HELP                 "Opens the help file\nHelp"
 END
 
 STRINGTABLE 
@@ -841,13 +844,13 @@ END
 
 STRINGTABLE 
 BEGIN
-    ID_FILE_NEW_TAB         "Opens a new tab"
+    ID_FILE_NEW_TAB         "Opens a new tab\nNew tab"
 END
 
 STRINGTABLE 
 BEGIN
-    ID_NEXT_TAB             "Switch to next tab"
-    ID_PREV_TAB             "Switch to previous tab"
+    ID_NEXT_TAB             "Switch to next tab\nNext tab"
+    ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
 END
 
 #endif    // English (U.S.) resources

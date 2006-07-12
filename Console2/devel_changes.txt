@@ -12,6 +12,10 @@ Build 123
 
 - middle click closes tab
 
+- added tooltips to toolbar buttons
+
+- About box shows Console version info (major, minor and build numbers)
+
 
 Build 122
 ---------

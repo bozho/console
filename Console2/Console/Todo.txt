@@ -25,3 +25,8 @@
 *** done *** - appearance: settings for view menu/toolbar/statusbar on startup
 
 - cursors: optimize painting for animated cursors
+
+- About box: build number
+
+- Toolbar: tooltips for buttons
+

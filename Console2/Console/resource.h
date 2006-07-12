@@ -139,7 +139,6 @@
 #define IDC_SPIN_TRIM_TAB_TITLES        1116
 #define IDC_TAB_TITLE                   1117
 #define IDC_TAB_ICON                    1118
-#define IDC_RADIO_Z_BOTTOM2             1118
 #define IDC_RADIO_Z_DESKTOP             1118
 #define IDC_TAB_SHELL                   1119
 #define IDC_TAB_INIT_DIR                1120
@@ -181,6 +180,7 @@
 #define IDC_SCROLL_PAGE_ROWS            1152
 #define IDC_SPIN_SCROLL_PAGE_ROWS       1153
 #define IDC_STATIC_ROWS                 1154
+#define IDC_STATIC_VERSION              1155
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define ID_FILE_NEW_TAB                 32775
@@ -198,9 +198,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        209
+#define _APS_NEXT_RESOURCE_VALUE        211
 #define _APS_NEXT_COMMAND_VALUE         32790
-#define _APS_NEXT_CONTROL_VALUE         1155
+#define _APS_NEXT_CONTROL_VALUE         1156
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

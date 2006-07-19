@@ -66,7 +66,14 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL MainFrame::OnIdle()
 {
+	CString strRowsCols;
+	SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
+
+	strRowsCols.Format(IDPANE_ROWS_COLUMNS, consoleParams->dwRows, consoleParams->dwColumns);
+	UISetText(1, strRowsCols);
+
 	UIUpdateToolBar();
+	UIUpdateStatusBar();
 	return FALSE;
 }
 
@@ -92,7 +99,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
 
-	CreateSimpleStatusBar();
+	CreateStatusBar();
 
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
@@ -227,7 +234,7 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
 
-	TRACE(L"OnSysCommand: 0x%08X\n", wParam);
+//	TRACE(L"OnSysCommand: 0x%08X\n", wParam);
 
 	// OnSize needs to know this
 	if ((wParam & 0xFFF0) == SC_RESTORE)
@@ -1338,6 +1345,7 @@ void MainFrame::SetWindowStyles()
 	DWORD	dwStyle		= GetWindowLong(GWL_STYLE);
 	DWORD	dwExStyle	= GetWindowLong(GWL_EXSTYLE);
 
+	dwStyle &= ~WS_MAXIMIZEBOX;
 	if (!stylesSettings.bCaption)	dwStyle &= ~WS_CAPTION;
 	if (!stylesSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
 	if (!stylesSettings.bTaskbarButton)
@@ -1834,6 +1842,22 @@ void MainFrame::CreateAcceleratorTable()
 
 	if (!m_acceleratorTable.IsNull()) m_acceleratorTable.DestroyObject();
 	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), static_cast<int>(hotKeys.mapHotKeys.size()));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::CreateStatusBar()
+{
+	m_hWndStatusBar = m_statusBar.Create(*this);
+    UIAddStatusBar(m_hWndStatusBar);
+
+	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_ROWS_COLUMNS };
+ 
+    m_statusBar.SetPanes(arrPanes, sizeof(arrPanes)/sizeof(int), false);
+	m_statusBar.SetPaneWidth(IDPANE_ROWS_COLUMNS, 50);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,10 @@ Build 123
 
 - About box shows Console version info (major, minor and build numbers)
 
+- rows and columns info is shown in the statusbar
+
+- disabled the maximize box until I implement proper maximize support
+
 
 Build 122
 ---------

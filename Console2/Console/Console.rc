@@ -687,7 +687,7 @@ BEGIN
             VALUE "Comments", "Tabbed cool console window (THIS IS NOT A SHELL :-)"
             VALUE "CompanyName", "Ingenuity Unlimited Ltd."
             VALUE "FileDescription", "Main Console module"
-            VALUE "FileVersion", "2.00, Build 123 2006.07.01"
+            VALUE "FileVersion", "2.00, Build 123 2006.07.19"
             VALUE "InternalName", "Console"
             VALUE "LegalCopyright", "Copyright © 2001-2006 Marko Bozikovic"
             VALUE "LegalTrademarks", "Copyright © 2001-2006 Marko Bozikovic"
@@ -851,6 +851,11 @@ STRINGTABLE
 BEGIN
     ID_NEXT_TAB             "Switch to next tab\nNext tab"
     ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
+END
+
+STRINGTABLE 
+BEGIN
+    IDPANE_ROWS_COLUMNS     "%ix%i"
 END
 
 #endif    // English (U.S.) resources

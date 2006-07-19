@@ -34,6 +34,7 @@ class MainFrame
 			UPDATE_ELEMENT(ID_VIEW_TABS, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_CONSOLE, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(1, UPDUI_STATUSBAR)
 		END_UPDATE_UI_MAP()
 
 		BEGIN_MSG_MAP(MainFrame)
@@ -163,6 +164,7 @@ class MainFrame
 		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 		void SetTransparency();
 		void CreateAcceleratorTable();
+		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
 
 	private:
@@ -194,6 +196,7 @@ class MainFrame
 		CRect			m_rectRestoredWnd;
 
 		CAccelerator	m_acceleratorTable;
+		CMultiPaneStatusBarCtrl m_statusBar;
 
 		CDC				m_dcOffscreen;
 		CDC				m_dcText;

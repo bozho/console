@@ -243,6 +243,21 @@ LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	if ((wParam == VK_SPACE) && (lParam & (0x1 << 29)))
+	{
+		return ::DefWindowProc(GetParent(), uMsg, wParam, lParam);
+	}
+
+	return OnConsoleFwdMsg(uMsg, wParam, lParam, bHandled);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	if (!TranslateKeyDown(uMsg, wParam, lParam))

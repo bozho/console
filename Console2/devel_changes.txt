@@ -1,6 +1,12 @@
 v2.00
 =====
 
+Build 124
+---------
+
+- [internal] '100% hang bug' fix is back. Test in Build 123 didn't work :-)
+
+
 Build 123
 ---------
 

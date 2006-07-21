@@ -80,14 +80,14 @@ IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 
 IDR_MAINFRAME MENU 
 BEGIN
-    POPUP "&File"
+    POPUP "File"
     BEGIN
         MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
         MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
         MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
-    POPUP "&Edit"
+    POPUP "Edit"
     BEGIN
         MENUITEM "&Copy",                       ID_EDIT_COPY
         MENUITEM "&Paste",                      ID_EDIT_PASTE
@@ -96,7 +96,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Settings...",                ID_EDIT_SETTINGS
     END
-    POPUP "&View"
+    POPUP "View"
     BEGIN
         MENUITEM "&Console Window",             ID_VIEW_CONSOLE
         MENUITEM SEPARATOR
@@ -105,7 +105,7 @@ BEGIN
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM "Ta&bs",                       ID_VIEW_TABS
     END
-    POPUP "&Help"
+    POPUP "Help"
     BEGIN
         MENUITEM "&About Console...",           ID_APP_ABOUT
     END
@@ -163,7 +163,7 @@ BEGIN
                     WS_EX_ACCEPTFILES
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
-    CTEXT           "Copyright (C) 2005-2006\nMarko Bozikovic",IDC_STATIC,25,
+    CTEXT           "Copyright (C) 2001-2006\nMarko Bozikovic",IDC_STATIC,25,
                     71,78,17
 END
 
@@ -668,8 +668,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,123
- PRODUCTVERSION 2,0,0,123
+ FILEVERSION 2,0,0,124
+ PRODUCTVERSION 2,0,0,124
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -687,13 +687,13 @@ BEGIN
             VALUE "Comments", "Tabbed cool console window (THIS IS NOT A SHELL :-)"
             VALUE "CompanyName", "Ingenuity Unlimited Ltd."
             VALUE "FileDescription", "Main Console module"
-            VALUE "FileVersion", "2.00, Build 123 2006.07.19"
+            VALUE "FileVersion", "2.00, Build 124 2006.07.21"
             VALUE "InternalName", "Console"
             VALUE "LegalCopyright", "Copyright © 2001-2006 Marko Bozikovic"
             VALUE "LegalTrademarks", "Copyright © 2001-2006 Marko Bozikovic"
             VALUE "OriginalFilename", "Console.exe"
             VALUE "ProductName", "Console"
-            VALUE "ProductVersion", "2.00.00.123"
+            VALUE "ProductVersion", "2.00.00.124"
         END
     END
     BLOCK "VarFileInfo"

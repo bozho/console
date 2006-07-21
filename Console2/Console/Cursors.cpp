@@ -204,7 +204,7 @@ void XTermCursor::Draw(bool bActive /* = true */)
 
 void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y)
 {
-	offscreenDC.TransparentBlt(
+	offscreenDC.BitBlt(
 					x, 
 					y, 
 					m_rectCursor.Width(),
@@ -212,9 +212,7 @@ void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					m_dcCursor, 
 					0, 
 					0, 
-					m_rectCursor.Width(),
-					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					SRCINVERT);
 }
 
 //////////////////////////////////////////////////////////////////////////////

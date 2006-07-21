@@ -6,6 +6,8 @@ Build 124
 
 - [internal] '100% hang bug' fix is back. Test in Build 123 didn't work :-)
 
+- XTerm cursor now inverts characters underneath it
+
 
 Build 123
 ---------

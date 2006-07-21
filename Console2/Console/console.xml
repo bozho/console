@@ -32,7 +32,7 @@
 	</appearance>
 	<behavior>
 		<copy_paste copy_on_select="1" no_wrap="1" trim_spaces="1"/>
-		<mouse_drag on="0" inverse_shift="0"/>
+		<mouse_drag on="1" inverse_shift="0"/>
 		<scroll page_scroll_rows="0"/>
 	</behavior>
 	<hotkeys>
@@ -66,7 +66,7 @@
 	<tabs>
 		<tab title="Console2">
 			<console shell="" init_dir=""/>
-			<cursor style="11" r="255" g="255" b="255"/>
+			<cursor style="0" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
 					<tint opacity="0" r="0" g="0" b="0"/>

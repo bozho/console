@@ -33,7 +33,7 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 	public:
 		DECLARE_WND_CLASS(NULL)
 
-		ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -140,6 +140,8 @@ class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD
 
 
 	private:
+
+		wstring m_strCmdLineInitialDir;
 
 		bool	m_bInitializing;
 		bool	m_bAppActive;

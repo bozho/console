@@ -23,7 +23,7 @@ class MainFrame
 
 		CCommandBarCtrl m_CmdBar;
 
-		MainFrame();
+		MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 		virtual BOOL OnIdle();
@@ -145,11 +145,12 @@ class MainFrame
 
 	private:
 
-		bool CreateNewConsole(DWORD dwTabIndex);
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir);
 		void CloseTab(CTabViewTabItem* pTabItem);
 		void CloseTab(HWND hwndConsoleView);
 
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
+		void UpdateStatusBar();
 		void SetWindowStyles();
 		void DockWindow(DockPosition dockPosition);
 		void SetZOrder(ZOrder zOrder);
@@ -168,6 +169,10 @@ class MainFrame
 		BOOL SetTrayIcon(DWORD dwMessage);
 
 	private:
+
+		const vector<wstring>&	m_startupTabs;
+		const vector<wstring>&	m_startupDirs;
+		int						m_nMultiStartSleep;
 
 		shared_ptr<ConsoleView>	m_activeView;
 

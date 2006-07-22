@@ -24,8 +24,9 @@ int		ConsoleView::m_nCharWidth(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(DWORD dwTabIndex, DWORD dwRows, DWORD dwColumns)
-: m_bInitializing(true)
+ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, DWORD dwRows, DWORD dwColumns)
+: m_strCmdLineInitialDir(strCmdLineInitialDir)
+, m_bInitializing(true)
 , m_bAppActive(true)
 , m_bActive(true)
 , m_bConsoleWindowVisible(false)
@@ -142,9 +143,20 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	if (m_background.get() == NULL) m_tabData->backgroundImageType = bktypeNone;
 
 	// TODO: error handling
+	wstring strInitialDir(m_consoleSettings.strInitialDir);
+
+	if (m_strCmdLineInitialDir.length() > 0)
+	{
+		strInitialDir = m_strCmdLineInitialDir;
+	}
+	else if (m_tabData->strInitialDir.length() > 0)
+	{
+		strInitialDir = m_tabData->strInitialDir;
+	}
+
 	if (!m_consoleHandler.StartShellProcess(
 								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : m_consoleSettings.strShell, 
-								(m_tabData->strInitialDir.length() > 0) ? m_tabData->strInitialDir : m_consoleSettings.strInitialDir, 
+								strInitialDir, 
 								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 								m_dwStartupRows, 
 								m_dwStartupColumns))

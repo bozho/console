@@ -76,8 +76,8 @@
 		<tab title="cmd">
 			<console shell="cmd.exe" init_dir=""/>
 			<cursor style="0" r="255" g="255" b="255"/>
-			<background type="0" r="0" g="0" b="0">
-				<image file="" relative="0" extend="0" position="0">
+			<background type="1" r="0" g="0" b="0">
+				<image file="F:\Smece\back2.bmp" relative="0" extend="0" position="1">
 					<tint opacity="0" r="0" g="0" b="0"/>
 				</image>
 			</background>

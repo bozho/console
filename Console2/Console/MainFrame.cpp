@@ -18,8 +18,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-MainFrame::MainFrame()
-: m_activeView()
+MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep)
+: m_startupTabs(startupTabs)
+, m_startupDirs(startupDirs)
+, m_nMultiStartSleep(nMultiStartSleep)
+, m_activeView()
 , m_bMenuVisible(TRUE)
 , m_bToolbarVisible(TRUE)
 , m_bStatusBarVisible(TRUE)
@@ -66,14 +69,8 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL MainFrame::OnIdle()
 {
-	CString strRowsCols;
-	SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
-
-	strRowsCols.Format(IDPANE_ROWS_COLUMNS, consoleParams->dwRows, consoleParams->dwColumns);
-	UISetText(1, strRowsCols);
-
+	UpdateStatusBar();
 	UIUpdateToolBar();
-	UIUpdateStatusBar();
 	return FALSE;
 }
 
@@ -107,8 +104,39 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
 	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
 
-	// create initial console window
-	if (!CreateNewConsole(0)) return -1;
+	// create initial console window(s)
+	if (m_startupTabs.size() == 0)
+	{
+		wstring strStartupDir(L"");
+
+		if (m_startupDirs.size() > 0) strStartupDir = m_startupDirs[0];
+
+		if (!CreateNewConsole(0, strStartupDir)) return -1;
+	}
+	else
+	{
+		bool			bAtLeastOneStarted = false;
+		TabSettings&	tabSettings = g_settingsHandler->GetTabSettings();
+
+		for (size_t tabIndex = 0; tabIndex < m_startupTabs.size(); ++tabIndex)
+		{
+			// find tab with corresponding name...
+			for (size_t i = 0; i < tabSettings.tabDataVector.size(); ++i)
+			{
+				wstring str = tabSettings.tabDataVector[i]->strTitle;
+				if (tabSettings.tabDataVector[i]->strTitle == m_startupTabs[tabIndex])
+				{
+					// found it, create
+					if (CreateNewConsole(static_cast<DWORD>(i), m_startupDirs[tabIndex])) bAtLeastOneStarted = true;
+					if (m_startupTabs.size() > 1) ::Sleep(m_nMultiStartSleep);
+					break;
+				}
+			}
+		}
+
+		// could not start none of the startup tabs, exit
+		if (!bAtLeastOneStarted) return -1;
+	}
 
 	UIAddToolBar(hWndToolBar);
 	UISetCheck(ID_VIEW_MENU, 1);
@@ -485,6 +513,8 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		AdjustWindowSize(true, (wParam == 1));
 	}
 
+	SendMessage(WM_NULL, 0, 0);
+
 	return 0;
 }
 
@@ -496,6 +526,7 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
 	AdjustWindowSize(false);
+	UpdateStatusBar();
 	return 0;
 }
 
@@ -785,11 +816,11 @@ LRESULT MainFrame::OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 {
 	if (wID == ID_FILE_NEW_TAB)
 	{
-		CreateNewConsole(0);
+		CreateNewConsole(0, wstring(L""));
 	}
 	else
 	{
-		CreateNewConsole(wID-ID_NEW_TAB_1);
+		CreateNewConsole(wID-ID_NEW_TAB_1, wstring(L""));
 	}
 	
 	return 0;
@@ -1203,7 +1234,7 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MainFrame::CreateNewConsole(DWORD dwTabIndex)
+bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir)
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
@@ -1217,7 +1248,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex)
 		dwColumns	= consoleParams->dwColumns;
 	}
 
-	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, dwRows, dwColumns));
+	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, dwRows, dwColumns));
 
 	HWND hwndConsoleView = consoleView->Create(
 											m_hWnd, 
@@ -1331,6 +1362,22 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
 	mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::UpdateStatusBar()
+{
+	CString strRowsCols;
+	SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
+
+	strRowsCols.Format(IDPANE_ROWS_COLUMNS, consoleParams->dwRows, consoleParams->dwColumns);
+	UISetText(1, strRowsCols);
+
+	UIUpdateStatusBar();
 }
 
 //////////////////////////////////////////////////////////////////////////////

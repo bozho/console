@@ -26,8 +26,6 @@ CAppModule					_Module;
 shared_ptr<SettingsHandler>	g_settingsHandler;
 shared_ptr<ImageHandler>	g_imageHandler;
 
-static wstring				s_strConfigFile(L"");
-
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -38,7 +36,7 @@ static wstring				s_strConfigFile(L"");
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseCommandLine(LPTSTR lptstrCmdLine)
+void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstring>& startupTabs, vector<wstring>& startupDirs, int& nMultiStartSleep)
 {
 	typedef tokenizer<char_separator<wchar_t>, wstring::const_iterator, wstring > tokenizer;
 
@@ -54,9 +52,34 @@ void ParseCommandLine(LPTSTR lptstrCmdLine)
 			// custom config file
 			++it;
 			if (it == tokens.end()) break;
-			s_strConfigFile = *it;
+			strConfigFile = *it;
+		}
+		else if (*it == wstring(L"-t"))
+		{
+			// startup tab name
+			++it;
+			if (it == tokens.end()) break;
+			startupTabs.push_back(*it);
+		}
+		else if (*it == wstring(L"-d"))
+		{
+			// startup dir
+			++it;
+			if (it == tokens.end()) break;
+			startupDirs.push_back(*it);
+		}
+		else if (*it == wstring(L"-ts"))
+		{
+			// startup tab sleep for multiple tabs
+			++it;
+			if (it == tokens.end()) break;
+			nMultiStartSleep = _wtoi(it->c_str());
+			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
 		}
 	}
+
+	// make sure that startupDirs is at least as big as startupTabs
+	if (startupDirs.size() < startupTabs.size()) startupDirs.resize(startupTabs.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -69,21 +92,26 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
-	ParseCommandLine(lpstrCmdLine);
+	wstring			strConfigFile(L"");
+	vector<wstring>	startupTabs;
+	vector<wstring>	startupDirs;
+	int				nMultiStartSleep = 0;
 
-	if (s_strConfigFile.length() == 0)
+	ParseCommandLine(lpstrCmdLine, strConfigFile, startupTabs, startupDirs, nMultiStartSleep);
+
+	if (strConfigFile.length() == 0)
 	{
-		s_strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
+		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
 	}
 
-	if (!g_settingsHandler->LoadSettings(s_strConfigFile))
+	if (!g_settingsHandler->LoadSettings(strConfigFile))
 	{
 		//TODO: error handling
 		return -1;
 	}
 
 	// create main window
-	MainFrame wndMain;
+	MainFrame wndMain(startupTabs, startupDirs, nMultiStartSleep);
 
 	if(wndMain.CreateEx() == NULL)
 	{

@@ -1,6 +1,15 @@
 v2.00
 =====
 
+Build 125
+---------
+
+- fixed rows/columns display updating in the statusbar
+
+- added support for multiple startup tabs and dirs (-t, -d and -ts cmd-line 
+  options)
+
+
 Build 124
 ---------
 

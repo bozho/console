@@ -28,7 +28,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleView : public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> >
+class ConsoleView
+	: public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> >
 {
 	public:
 		DECLARE_WND_CLASS(NULL)

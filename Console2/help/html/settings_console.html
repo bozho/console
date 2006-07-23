@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+	<title>Settings - Console</title>
+	<meta http-equiv="content-type" content='text/html; charset=utf-8' />
+	<link rel="stylesheet" type="text/css" href="../styles/help.css" />
+</head>
+
+<body>
+	<h1>Settings - Console</h1>
+
+	<h2>Shell</h2>
+
+	<p class="setting-name">Shell</p>
+	<p class="setting-description">
+		Specifies default shell commad line. If empty, Console will use 
+		COMSPEC environment variable as default shell.
+	</p>
+	<br />
+
+	<p class="setting-name">Startup dir</p>
+	<p class="setting-description">
+		Specifies default initial directory for shells.
+	</p>
+	<br />
+
+	<h2>Update timeouts</h2>
+
+	<p class="setting-name">On change</p>
+	<p class="setting-description">
+		Update interval (in ms) after Console detects a change in the hidden 
+		console window. When a change is detected, Console will defer screen 
+		update for the specified interval.	
+		<br />
+		This is needed to improve performance during fast changes in the 
+		hidden console. Realistic values are 10-50.
+	</p>
+	<br />
+
+	<p class="setting-name">Periodic</p>
+	<p class="setting-description">
+		Periodic update interval (in ms). This value specifies how often 
+		Console performs screen updates, even when there is no change detected. 
+		Console sometimes cannot detect changes in the hidden console window 
+		(usually by old DOS applications)
+		<br />
+		This value should be larger than 'On 
+		change' update interval. Realistic values are in the 50-500 range.
+	</p>
+	<br />
+
+	<h2>Window size</h2>
+
+	<p class="setting-name">Rows</p>
+	<p class="setting-description">
+		Initial window row count.
+	</p>
+	<br />
+
+	<p class="setting-name">Columns</p>
+	<p class="setting-description">
+		Initial window column count.
+	</p>
+	<br />
+
+	<h2>Buffer size</h2>
+
+	<p class="setting-name">Rows</p>
+	<p class="setting-description">
+		Initial buffer row count.
+	</p>
+	<br />
+
+	<p class="setting-name">Columns</p>
+	<p class="setting-description">
+		Initial buffer column count.
+	</p>
+	<br />
+
+	<h2>Console colors map</h2>
+	
+	<p class="setting-description">
+		These squares allow you to remap default 16 console colors. Left 
+		square shows the original color. Clicking on the right square will 
+		bring up a color picker allowing you to select a new color.
+		<br />
+		Reset button will reset colors to their default values.
+	</p>
+
+
+</body>
+
+</html>

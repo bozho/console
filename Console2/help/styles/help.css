@@ -20,6 +20,8 @@ border-bottom: thin solid rgb(0, 0, 0);
 
 h2
 {
+margin-top: 30px;
+margin-bottom: 10px;
 font-family: Verdana;
 font-variant: small-caps;
 font-weight: bold;
@@ -48,4 +50,29 @@ dd
 {
 font-family: Verdana;
 font-size: 12px;
+}
+
+p.setting-name
+{
+display: compact;
+width: 20%;
+float: left;
+font-weight: bold;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+
+p.setting-description
+{
+display: compact;
+float: left;
+width: 75%;
+padding-left: 10px;
+margin-top: 10px;
+margin-bottom: 10px;
+}
+
+br
+{
+clear: both;
 }

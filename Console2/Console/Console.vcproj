@@ -344,6 +344,12 @@
 					RelativePath="..\help\html\acknowledgements.html">
 				</File>
 				<File
+					RelativePath="..\help\html\bugs_limitations.html">
+				</File>
+				<File
+					RelativePath="..\help\html\changelog.html">
+				</File>
+				<File
 					RelativePath="..\help\html\copyright.html">
 				</File>
 				<File
@@ -357,6 +363,27 @@
 				</File>
 				<File
 					RelativePath="..\help\html\running.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_appearance.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_appearance_more.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_behavior.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_console.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_hotkeys.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_tabs.html">
+				</File>
+				<File
+					RelativePath="..\help\html\tips_tricks.html">
 				</File>
 			</Filter>
 			<Filter

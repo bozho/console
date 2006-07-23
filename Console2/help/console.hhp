@@ -17,6 +17,15 @@ html\gpl.html
 html\acknowledgements.html
 html\running.html
 html\menus.html
+html\settings_console.html
+html\settings_appearance.html
+html\settings_appearance_more.html
+html\settings_behavior.html
+html\settings_hotkeys.html
+html\settings_tabs.html
+html\tips_tricks.html
+html\bugs_limitations.html
+html\changelog.html
 
 [INFOTYPES]
 

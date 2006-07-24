@@ -44,6 +44,7 @@ li
 {
 font-family: Verdana;
 font-size: 12px;
+margin-bottom: 10px;
 }
 
 dd
@@ -52,7 +53,7 @@ font-family: Verdana;
 font-size: 12px;
 }
 
-p.setting-name
+p.block-row-name
 {
 display: compact;
 width: 20%;
@@ -62,7 +63,7 @@ margin-top: 10px;
 margin-bottom: 10px;
 }
 
-p.setting-description
+p.block-row-description
 {
 display: compact;
 float: left;

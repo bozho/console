@@ -65,10 +65,6 @@
 				<param name="Local" value="html\settings_tabs.html">
 				</OBJECT>
 		</UL>
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Tips & tricks">
-			<param name="Local" value="html\tips_tricks.html">
-			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Known bugs and limitations">

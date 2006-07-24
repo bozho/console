@@ -36,7 +36,7 @@ shared_ptr<ImageHandler>	g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstring>& startupTabs, vector<wstring>& startupDirs, int& nMultiStartSleep)
+void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstring>& startupTabs, vector<wstring>& startupDirs, int& nMultiStartSleep, wstring& strDbgCmdLine)
 {
 	typedef tokenizer<char_separator<wchar_t>, wstring::const_iterator, wstring > tokenizer;
 
@@ -76,6 +76,16 @@ void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstri
 			nMultiStartSleep = _wtoi(it->c_str());
 			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
 		}
+		// TODO: not working yet, need to investigate
+/*
+		else if (*it == wstring(L"-dbg"))
+		{
+			// console window replacement option (see Tip 1 in the help file)
+			++it;
+			if (it == tokens.end()) break;
+			strDbgCmdLine = *it;
+		}
+*/
 	}
 
 	// make sure that startupDirs is at least as big as startupTabs
@@ -96,8 +106,9 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	vector<wstring>	startupTabs;
 	vector<wstring>	startupDirs;
 	int				nMultiStartSleep = 0;
+	wstring			strDbgCmdLine(L"");
 
-	ParseCommandLine(lpstrCmdLine, strConfigFile, startupTabs, startupDirs, nMultiStartSleep);
+	ParseCommandLine(lpstrCmdLine, strConfigFile, startupTabs, startupDirs, nMultiStartSleep, strDbgCmdLine);
 
 	if (strConfigFile.length() == 0)
 	{
@@ -111,7 +122,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	}
 
 	// create main window
-	MainFrame wndMain(startupTabs, startupDirs, nMultiStartSleep);
+	MainFrame wndMain(startupTabs, startupDirs, nMultiStartSleep, strDbgCmdLine);
 
 	if(wndMain.CreateEx() == NULL)
 	{

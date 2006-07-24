@@ -23,7 +23,7 @@ class MainFrame
 
 		CCommandBarCtrl m_CmdBar;
 
-		MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep);
+		MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep, const wstring& strDbgCmdLine);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 		virtual BOOL OnIdle();
@@ -145,7 +145,7 @@ class MainFrame
 
 	private:
 
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir);
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir, const wstring& strDbgCmdLine = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 		void CloseTab(HWND hwndConsoleView);
 
@@ -173,6 +173,7 @@ class MainFrame
 		const vector<wstring>&	m_startupTabs;
 		const vector<wstring>&	m_startupDirs;
 		int						m_nMultiStartSleep;
+		wstring					m_strDbgCmdLine;
 
 		shared_ptr<ConsoleView>	m_activeView;
 

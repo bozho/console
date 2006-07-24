@@ -34,7 +34,7 @@ class ConsoleView
 	public:
 		DECLARE_WND_CLASS(NULL)
 
-		ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -143,6 +143,7 @@ class ConsoleView
 	private:
 
 		wstring m_strCmdLineInitialDir;
+		wstring	m_strDbgCmdLine;
 
 		bool	m_bInitializing;
 		bool	m_bAppActive;

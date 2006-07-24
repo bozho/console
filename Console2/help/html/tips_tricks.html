@@ -10,8 +10,74 @@
 <body>
 	<h1>Tips & Tricks</h1>
 	
+	<h2>
+		Tip 1 - Full console replacement
+	</h2>
+	
 	<p>
+		Console can completely replace your console windows, but you need to
+		dig around the Registry.
 	</p>
+	<p>
+		There is a key in the Registry that allows you to specify some options
+		for starting processes: HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options.
+		(HKLM stands for HKEY_LOCAL_MACHINE key)
+	</p>
+	<p>
+		For testing purposes, create a subkey named 'notepad.exe' (no quotes).
+		In it, create a string value with name 'Debugger' and value 'calc.exe'
+		(again, no quotes). Now, try running notepad. Calculator will be 
+		started instead! Cool! Don't forget to delete 'notepad.exe' key when
+		done.
+	</p>
+	<p>
+		Now, for each console process you'd like to replace, you need to 
+		create one such key with 'Debugger' value set to run Console. Let's 
+		do it with cmd.exe:
+		
+		<ul>
+			<li>
+				Create a subkey named 'cmd.exe'.
+			</li>
+			<li>
+				In it, create a string value named 'Debugger' and set its 
+				value to 'C:\Program Files\Console\Console.exe -dbg' (path to
+				Console.exe may be different on your computer)
+			</li>
+			<li>
+				Try running cmd.exe now!
+			</li>
+			<li>
+				If you wish Console to be started with a specific config file
+				and/or tab name, put -c and -t command line options before 
+				-dbg option:
+				<br /><br/>
+				'C:\Program Files\Console\Console.exe -c console_dbg.xml -t 
+				console2 -dbg'
+			</li>
+		</ul>
+		
+	</p>
+	<p>
+		<b>Notes:</b>
+	</p>
+	<ul>
+		<li>
+			Creating a key like this will affect any program instance. For 
+			example, if cmd.exe is used to run batch files, starting a batch
+			file from Windows explorer, Console will be started. Some 
+			applications (like Visual Studio) start shell instances to perform 
+			some tasks. Consider yourselves warned, things may go wrong.
+		</li>
+		<li>
+			This approach is a possible virus attack vector. Antivirus 
+			programs might consider these keys to be a virus attack.
+		</li>
+		<li>
+			This feature is considered a bit advanced and unsafe. That's why 
+			you can't configure it in Console.
+		</li>
+	</ul>
 </body>
 
 </html>

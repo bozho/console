@@ -24,8 +24,9 @@ int		ConsoleView::m_nCharWidth(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
 : m_strCmdLineInitialDir(strCmdLineInitialDir)
+, m_strDbgCmdLine(strDbgCmdLine)
 , m_bInitializing(true)
 , m_bAppActive(true)
 , m_bActive(true)
@@ -154,12 +155,26 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 		strInitialDir = m_tabData->strInitialDir;
 	}
 
+	wstring	strShell(m_consoleSettings.strShell);
+	bool	bDebugFlag = false;
+
+	if (m_strDbgCmdLine.length() > 0)
+	{
+		strShell	= m_strDbgCmdLine;
+		bDebugFlag	= true;
+	}
+	else if (m_tabData->strShell.length() > 0)
+	{
+		strShell	= m_tabData->strShell;
+	}
+
 	if (!m_consoleHandler.StartShellProcess(
-								(m_tabData->strShell.length() > 0) ? m_tabData->strShell : m_consoleSettings.strShell, 
+								strShell, 
 								strInitialDir, 
 								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 								m_dwStartupRows, 
-								m_dwStartupColumns))
+								m_dwStartupColumns,
+								bDebugFlag))
 	{
 		return -1;
 	}
@@ -274,6 +289,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
+//		TRACE(L"Msg: 0x%04X\n", uMsg);
 		::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	}
 

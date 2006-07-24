@@ -18,10 +18,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep)
+MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep, const wstring& strDbgCmdLine)
 : m_startupTabs(startupTabs)
 , m_startupDirs(startupDirs)
 , m_nMultiStartSleep(nMultiStartSleep)
+, m_strDbgCmdLine(strDbgCmdLine)
 , m_activeView()
 , m_bMenuVisible(TRUE)
 , m_bToolbarVisible(TRUE)
@@ -111,7 +112,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 		if (m_startupDirs.size() > 0) strStartupDir = m_startupDirs[0];
 
-		if (!CreateNewConsole(0, strStartupDir)) return -1;
+		if (!CreateNewConsole(0, strStartupDir, m_strDbgCmdLine)) return -1;
 	}
 	else
 	{
@@ -127,7 +128,13 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 				if (tabSettings.tabDataVector[i]->strTitle == m_startupTabs[tabIndex])
 				{
 					// found it, create
-					if (CreateNewConsole(static_cast<DWORD>(i), m_startupDirs[tabIndex])) bAtLeastOneStarted = true;
+					if (CreateNewConsole(
+							static_cast<DWORD>(i), 
+							m_startupDirs[tabIndex],
+							(i == 0) ? m_strDbgCmdLine : wstring(L"")))
+					{
+						bAtLeastOneStarted = true;
+					}
 					if (m_startupTabs.size() > 1) ::Sleep(m_nMultiStartSleep);
 					break;
 				}
@@ -1234,7 +1241,7 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir)
+bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir, const wstring& strDbgCmdLine/* = wstring(L"")*/)
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
@@ -1248,7 +1255,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir)
 		dwColumns	= consoleParams->dwColumns;
 	}
 
-	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, dwRows, dwColumns));
+	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, strDbgCmdLine, dwRows, dwColumns));
 
 	HWND hwndConsoleView = consoleView->Create(
 											m_hWnd, 

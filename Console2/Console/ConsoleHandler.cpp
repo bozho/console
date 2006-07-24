@@ -69,7 +69,7 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns)
+bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns, bool bDebugFlag)
 {
 	wstring	strShell(strCustomShell);
 	
@@ -108,6 +108,11 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	si.lpTitle		= (wchar_t*)(strStartupTitle.c_str());
 
 	PROCESS_INFORMATION pi;
+	DWORD				dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED;
+
+
+	// TODO: not supported yet
+	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
 	if (!::CreateProcess(
 			NULL,
@@ -115,7 +120,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 			NULL,
 			NULL,
 			FALSE,
-			CREATE_NEW_CONSOLE|CREATE_SUSPENDED,
+			dwStartupFlags,
 			NULL,
 			(strInitialDir.length() > 0) ? strInitialDir.c_str() : NULL,
 			&si,

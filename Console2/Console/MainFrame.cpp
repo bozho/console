@@ -18,9 +18,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep, const wstring& strDbgCmdLine)
+MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, const vector<wstring>& startupCmds, int nMultiStartSleep, const wstring& strDbgCmdLine)
 : m_startupTabs(startupTabs)
 , m_startupDirs(startupDirs)
+, m_startupCmds(startupCmds)
 , m_nMultiStartSleep(nMultiStartSleep)
 , m_strDbgCmdLine(strDbgCmdLine)
 , m_activeView()
@@ -109,10 +110,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	if (m_startupTabs.size() == 0)
 	{
 		wstring strStartupDir(L"");
+		wstring strStartupCmd(L"");
 
 		if (m_startupDirs.size() > 0) strStartupDir = m_startupDirs[0];
+		if (m_startupCmds.size() > 0) strStartupCmd = m_startupCmds[0];
 
-		if (!CreateNewConsole(0, strStartupDir, m_strDbgCmdLine)) return -1;
+		if (!CreateNewConsole(0, strStartupDir, strStartupCmd, m_strDbgCmdLine)) return -1;
 	}
 	else
 	{
@@ -131,6 +134,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 					if (CreateNewConsole(
 							static_cast<DWORD>(i), 
 							m_startupDirs[tabIndex],
+							m_startupCmds[tabIndex],
 							(i == 0) ? m_strDbgCmdLine : wstring(L"")))
 					{
 						bAtLeastOneStarted = true;
@@ -819,15 +823,26 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
+	AdjustWindowSize(false);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	if (wID == ID_FILE_NEW_TAB)
 	{
-		CreateNewConsole(0, wstring(L""));
+		CreateNewConsole(0);
 	}
 	else
 	{
-		CreateNewConsole(wID-ID_NEW_TAB_1, wstring(L""));
+		CreateNewConsole(wID-ID_NEW_TAB_1);
 	}
 	
 	return 0;
@@ -1114,9 +1129,9 @@ LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	AdjustWindowSize(false);
+	::HtmlHelp(m_hWnd, (Helpers::GetModulePath(NULL) + wstring(L"console.chm")).c_str(), HH_DISPLAY_TOPIC, NULL);
 	return 0;
 }
 
@@ -1241,7 +1256,7 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir, const wstring& strDbgCmdLine/* = wstring(L"")*/)
+bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir /*= wstring(L"")*/, const wstring& strStartupCmd /*= wstring(L"")*/, const wstring& strDbgCmdLine /*= wstring(L"")*/)
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
@@ -1255,7 +1270,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir,
 		dwColumns	= consoleParams->dwColumns;
 	}
 
-	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, strDbgCmdLine, dwRows, dwColumns));
+	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
 
 	HWND hwndConsoleView = consoleView->Create(
 											m_hWnd, 
@@ -1885,17 +1900,21 @@ void MainFrame::SetTransparency()
 
 void MainFrame::CreateAcceleratorTable()
 {
-	HotKeys&						hotKeys	= g_settingsHandler->GetHotKeys();
-	HotKeys::HotKeysMap::iterator	it		= hotKeys.mapHotKeys.begin();
-	shared_array<ACCEL>				accelTable(new ACCEL[hotKeys.mapHotKeys.size()]);
+	HotKeys&							hotKeys	= g_settingsHandler->GetHotKeys();
+	HotKeys::CommandsSequence::iterator it		= hotKeys.commands.begin();
 
-	for (size_t i = 0; it != hotKeys.mapHotKeys.end(); ++i, ++it)
+	shared_array<ACCEL>					accelTable(new ACCEL[hotKeys.commands.size()]);
+	int									nAcceleratorCount = 0;
+
+	for (int i = 0; it != hotKeys.commands.end(); ++i, ++it)
 	{
-		::CopyMemory(&(accelTable[i]), &(it->second->accelHotkey), sizeof(ACCEL));
+		if ((*it)->accelHotkey.cmd == 0) continue;
+		::CopyMemory(&(accelTable[i]), &((*it)->accelHotkey), sizeof(ACCEL));
+		++nAcceleratorCount;
 	}
 
 	if (!m_acceleratorTable.IsNull()) m_acceleratorTable.DestroyObject();
-	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), static_cast<int>(hotKeys.mapHotKeys.size()));
+	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), nAcceleratorCount);
 }
 
 //////////////////////////////////////////////////////////////////////////////

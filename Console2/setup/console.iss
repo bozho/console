@@ -16,6 +16,7 @@ DefaultGroupName=Console
 ; Binary files
 Source: bin\release\Console.exe; DestDir: {app}; Components: main
 Source: bin\release\ConsoleHook.dll; DestDir: {app}; Components: main
+Source: help\console.chm; DestDir: {app}; Components: main
 Source: setup\dlls\FreeImage.dll; DestDir: {app}; Components: main
 Source: setup\dlls\FreeImagePlus.dll; DestDir: {app}; Components: main
 Source: setup\dlls\msvcp71.dll; DestDir: {app}; Components: main

@@ -41,25 +41,39 @@
 	</p>
 	<br/>
 
+	<p class="block-row-name">-r &lt;command&gt;</p>
+	<p class="block-row-description">
+		Specifies a startup shell command.
+	</p>
+	<br/>
+
 	<p class="block-row-name">-ts &lt;sleep time in ms&gt;</p>
 	<p class="block-row-description">
 		Specifies sleep time between starting next tab if multiple -t's 
 		are specified.
 	</p>
 	<br/>
-		
 
 	<p>
 		<b>Note:</b> If you specify multiple -t options, you can specify 
-		multiple -d options as well. In that case, one -t and one -d option 
-		will be paired up. If there is no corresponding -d option for a -t
-		option, the initial directory from that tab's settings will be used.
+		multiple -d and -r options as well. In that case, each -t, -d and -r 
+		option will be grouped together. If there is no corresponding -d 
+		option for a -t option, the initial directory from that tab's settings 
+		will be used.
 		For example:
 		<br /><br />
-		Console.exe -t bash -d C:\WINDOWS -t cmd -d D:\ -t ncftp
+		Console.exe -t bash -d C:\WINDOWS -r &quot;ls -al&quot; -t cmd -d D:\ -t ncftp
 		<br /><br />
-		Will start 'bash' tab in C:\WINDOWS and 'cmd' tab in D:\. 'ncftp' tab 
-		will be started in the initial directory specified in its settings.
+		Will start 'bash' tab in C:\WINDOWS, running quot;ls -al&quot; 
+		command in it and 'cmd' tab in D:\. 'ncftp' tab will be started in the 
+		initial directory specified in its settings.
+	</p>
+	<p>
+		<b>Note:</b> Some shells need an additional switch in the startup 
+		command string. E.g. when using cmd.exe, you must put /k at the 
+		beginning of your command string:
+		<br /><br />
+		Console.exe -t cmd -r &quot;/k dir /b&quot;
 	</p>
 	<p>
 		<b>Note:</b> -ts option can be useful if you want to start multiple 

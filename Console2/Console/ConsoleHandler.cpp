@@ -69,7 +69,7 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns, bool bDebugFlag)
+bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strInitialCmd, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns, bool bDebugFlag)
 {
 	wstring	strShell(strCustomShell);
 	
@@ -87,6 +87,12 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 		{
 			strShell = L"cmd.exe";
 		}
+	}
+
+	if (strInitialCmd.length() > 0)
+	{
+		strShell += L" ";
+		strShell += strInitialCmd;
 	}
 
 	// TODO: build command line

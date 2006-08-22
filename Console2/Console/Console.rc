@@ -107,6 +107,8 @@ BEGIN
     END
     POPUP "Help"
     BEGIN
+        MENUITEM "&Help",                       ID_HELP
+        MENUITEM SEPARATOR
         MENUITEM "&About Console...",           ID_APP_ABOUT
     END
 END

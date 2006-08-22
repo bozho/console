@@ -23,7 +23,7 @@ class MainFrame
 
 		CCommandBarCtrl m_CmdBar;
 
-		MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, int nMultiStartSleep, const wstring& strDbgCmdLine);
+		MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, const vector<wstring>& startupCmds, int nMultiStartSleep, const wstring& strDbgCmdLine);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 		virtual BOOL OnIdle();
@@ -76,6 +76,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 			COMMAND_ID_HANDLER(ID_VIEW_TABS, OnViewTabs)
 			COMMAND_ID_HANDLER(ID_VIEW_CONSOLE, OnViewConsole)
+			COMMAND_ID_HANDLER(ID_HELP, OnHelp)
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 			CHAIN_MSG_MAP(CUpdateUI<MainFrame>)
 			CHAIN_MSG_MAP(CTabbedFrameImpl<MainFrame>)
@@ -134,6 +135,8 @@ class MainFrame
 		LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
+		LRESULT OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	public:
@@ -145,7 +148,7 @@ class MainFrame
 
 	private:
 
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir, const wstring& strDbgCmdLine = wstring(L""));
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""), const wstring& strDbgCmdLine = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 		void CloseTab(HWND hwndConsoleView);
 
@@ -172,6 +175,7 @@ class MainFrame
 
 		const vector<wstring>&	m_startupTabs;
 		const vector<wstring>&	m_startupDirs;
+		const vector<wstring>&	m_startupCmds;
 		int						m_nMultiStartSleep;
 		wstring					m_strDbgCmdLine;
 

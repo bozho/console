@@ -34,7 +34,7 @@ class ConsoleView
 	public:
 		DECLARE_WND_CLASS(NULL)
 
-		ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -49,6 +49,8 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_KEYUP, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_DEADCHAR, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_SYSDEADCHAR, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
@@ -143,6 +145,7 @@ class ConsoleView
 	private:
 
 		wstring m_strCmdLineInitialDir;
+		wstring m_strInitialCmd;
 		wstring	m_strDbgCmdLine;
 
 		bool	m_bInitializing;

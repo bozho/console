@@ -24,8 +24,9 @@ int		ConsoleView::m_nCharWidth(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
 : m_strCmdLineInitialDir(strCmdLineInitialDir)
+, m_strInitialCmd(strInitialCmd)
 , m_strDbgCmdLine(strDbgCmdLine)
 , m_bInitializing(true)
 , m_bAppActive(true)
@@ -67,7 +68,14 @@ ConsoleView::~ConsoleView()
 
 BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
 {
-	pMsg;
+	if ((pMsg->message == WM_KEYDOWN) || (pMsg->message == WM_KEYUP))
+	{
+		// avoid calling ::TranslateMessage for WM_KEYDOWN and WM_KEYUP
+		// this fixes the problem with handling 'dead' characters input
+		::DispatchMessage(pMsg);
+		return TRUE;
+	}
+
 	return FALSE;
 }
 
@@ -171,6 +179,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	if (!m_consoleHandler.StartShellProcess(
 								strShell, 
 								strInitialDir, 
+								m_strInitialCmd,
 								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 								m_dwStartupRows, 
 								m_dwStartupColumns,

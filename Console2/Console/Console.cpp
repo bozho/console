@@ -36,60 +36,66 @@ shared_ptr<ImageHandler>	g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstring>& startupTabs, vector<wstring>& startupDirs, int& nMultiStartSleep, wstring& strDbgCmdLine)
+void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstring>& startupTabs, vector<wstring>& startupDirs, vector<wstring>& startupCmds, int& nMultiStartSleep, wstring& strDbgCmdLine)
 {
-	typedef tokenizer<char_separator<wchar_t>, wstring::const_iterator, wstring > tokenizer;
+	int						argc = 0;
+	shared_array<LPWSTR>	argv(::CommandLineToArgvW(lptstrCmdLine, &argc), ::GlobalFree);
 
-	wstring						strCmdLine(lptstrCmdLine);
-	char_separator<wchar_t>		sep(L" \t");
-	tokenizer					tokens(strCmdLine, sep);
-	tokenizer::const_iterator	it = tokens.begin();
+	if (argc < 1) return;
 
-	for (; it != tokens.end(); ++it)
+	for (int i = 0; i < argc; ++i)
 	{
-		if (*it == wstring(L"-c"))
+		if (wstring(argv[i]) == wstring(L"-c"))
 		{
 			// custom config file
-			++it;
-			if (it == tokens.end()) break;
-			strConfigFile = *it;
+			++i;
+			if (i == argc) break;
+			strConfigFile = argv[i];
 		}
-		else if (*it == wstring(L"-t"))
+		else if (wstring(argv[i]) == wstring(L"-t"))
 		{
 			// startup tab name
-			++it;
-			if (it == tokens.end()) break;
-			startupTabs.push_back(*it);
+			++i;
+			if (i == argc) break;
+			startupTabs.push_back(argv[i]);
 		}
-		else if (*it == wstring(L"-d"))
+		else if (wstring(argv[i]) == wstring(L"-d"))
 		{
 			// startup dir
-			++it;
-			if (it == tokens.end()) break;
-			startupDirs.push_back(*it);
+			++i;
+			if (i == argc) break;
+			startupDirs.push_back(argv[i]);
 		}
-		else if (*it == wstring(L"-ts"))
+		else if (wstring(argv[i]) == wstring(L"-r"))
+		{
+			// startup cmd
+			++i;
+			if (i == argc) break;
+			startupCmds.push_back(argv[i]);
+		}
+		else if (wstring(argv[i]) == wstring(L"-ts"))
 		{
 			// startup tab sleep for multiple tabs
-			++it;
-			if (it == tokens.end()) break;
-			nMultiStartSleep = _wtoi(it->c_str());
+			++i;
+			if (i == argc) break;
+			nMultiStartSleep = _wtoi(argv[i]);
 			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
 		}
 		// TODO: not working yet, need to investigate
 /*
-		else if (*it == wstring(L"-dbg"))
+		else if (wstring(argv[i]) == wstring(L"-dbg"))
 		{
 			// console window replacement option (see Tip 1 in the help file)
-			++it;
-			if (it == tokens.end()) break;
-			strDbgCmdLine = *it;
+			++i;
+			if (i == argc) break;
+			strDbgCmdLine = argv[i];
 		}
 */
 	}
 
-	// make sure that startupDirs is at least as big as startupTabs
+	// make sure that startupDirs and startupCmds are at least as big as startupTabs
 	if (startupDirs.size() < startupTabs.size()) startupDirs.resize(startupTabs.size());
+	if (startupCmds.size() < startupTabs.size()) startupCmds.resize(startupTabs.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -105,10 +111,11 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	wstring			strConfigFile(L"");
 	vector<wstring>	startupTabs;
 	vector<wstring>	startupDirs;
+	vector<wstring>	startupCmds;
 	int				nMultiStartSleep = 0;
 	wstring			strDbgCmdLine(L"");
 
-	ParseCommandLine(lpstrCmdLine, strConfigFile, startupTabs, startupDirs, nMultiStartSleep, strDbgCmdLine);
+	ParseCommandLine(lpstrCmdLine, strConfigFile, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
 
 	if (strConfigFile.length() == 0)
 	{
@@ -122,7 +129,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	}
 
 	// create main window
-	MainFrame wndMain(startupTabs, startupDirs, nMultiStartSleep, strDbgCmdLine);
+	MainFrame wndMain(startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
 
 	if(wndMain.CreateEx() == NULL)
 	{

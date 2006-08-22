@@ -328,37 +328,39 @@ struct HotKeys : public SettingsBase
 
 	struct CommandData
 	{
-		CommandData(const wchar_t* pszCommand, const wchar_t* pszDescription, WORD commandID)
-		: strCommand(pszCommand)
-		, strDescription(pszDescription)
+		CommandData(const wstring& command, WORD commandID, const wstring& description)
+		: strCommand(command)
 		, wCommandID(commandID)
+		, strDescription(description)
+		, bExtended(false)
 		{
+			::ZeroMemory(&accelHotkey, sizeof(ACCEL));
 		}
-		
+
 		wstring	strCommand;
-		wstring	strDescription;
 		WORD	wCommandID;
-	};
-
-	struct HotkeyData
-	{
-		HotkeyData(DWORD commandID, ACCEL accel, bool extended)
-		: dwCommandID(commandID)
-		, accelHotkey(accel)
-		, bExtended(extended)
-		{
-		}
-
-		DWORD	dwCommandID;
+		wstring	strDescription;
 		ACCEL	accelHotkey;
 		bool	bExtended;
 	};
 
-	typedef vector<shared_ptr<CommandData> >		CommandsVector;
-	typedef map<DWORD, shared_ptr<HotkeyData> >		HotKeysMap;
+	struct command{};
+	struct commandID{};
 
-	CommandsVector	vecCommands;
-	HotKeysMap		mapHotKeys;
+	typedef multi_index_container<
+				shared_ptr<CommandData>,
+				indexed_by
+				<
+					sequenced<>,
+					ordered_unique<tag<command>,	member<CommandData, wstring, &CommandData::strCommand> >,
+					ordered_unique<tag<commandID>,	member<CommandData, WORD, &CommandData::wCommandID> >
+				> >									Commands;
+
+	typedef nth_index<Commands,0>::type				CommandsSequence;
+	typedef Commands::index<command>::type			CommandNameIndex;
+	typedef Commands::index<commandID>::type		CommandIDIndex;
+
+	Commands	commands;
 };
 
 //////////////////////////////////////////////////////////////////////////////

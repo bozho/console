@@ -6,9 +6,11 @@ Build 125
 
 - fixed rows/columns display updating in the statusbar
 
-- added support for multiple startup tabs, dirs and commands (-t, -d, -r and 
+- added support for multiple startup tabs, dirs and commands (-t, -d and 
   -ts cmd-line options)
   
+- added command line option for startup command (-r)
+
 - added help support
 
 - added Help command
@@ -16,6 +18,8 @@ Build 125
 - fixed 'dead' characters input
 
 - [internal] improved hotkey handling
+
+- [internal] implemented directory existance check on new tab startup
 
 
 Build 124

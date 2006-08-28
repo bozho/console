@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "resource.h"
 
+#include <fstream>
+
 #include "Console.h"
 #include "ConsoleView.h"
 
@@ -769,6 +771,33 @@ void ConsoleView::Paste()
 		::GlobalUnlock(hData);
 		::CloseClipboard();
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::DumpBuffer()
+{
+	wstring		strText(L"");
+	DWORD dwOffset		= 0;
+
+	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
+	{
+		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
+		{
+			strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
+			++dwOffset;
+		}
+
+		strText += L"\n";
+	}
+
+	wofstream of;
+	of.open("F:\\Smece\\console_dump.log");
+	of << strText;
+	of.close();
 }
 
 //////////////////////////////////////////////////////////////////////////////

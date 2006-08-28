@@ -113,6 +113,8 @@ class ConsoleView
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();
 
+		void DumpBuffer();
+
 	private:
 
 		void OnConsoleChange(bool bResize);

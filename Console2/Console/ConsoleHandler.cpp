@@ -105,6 +105,21 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 //		strStartupTitle = str(wformat(L"Console2 command window 0x%08X") % this);
 	}
 
+	wstring strStartupDir(strInitialDir);
+
+	if (strStartupDir.length())
+	{
+		// check if startup directory exists
+		DWORD dwDirAttributes = ::GetFileAttributes(strStartupDir.c_str());
+
+		if ((dwDirAttributes == INVALID_FILE_ATTRIBUTES) ||
+			(dwDirAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		{
+			// no directory, use Console.exe directory
+			strStartupDir = Helpers::GetModulePath(NULL);
+		}
+	}
+
 	// setup the startup info struct
 	STARTUPINFO si;
 	::ZeroMemory(&si, sizeof(STARTUPINFO));
@@ -115,7 +130,6 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	PROCESS_INFORMATION pi;
 	DWORD				dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED;
-
 
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
@@ -128,7 +142,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 			FALSE,
 			dwStartupFlags,
 			NULL,
-			(strInitialDir.length() > 0) ? strInitialDir.c_str() : NULL,
+			(strStartupDir.length() > 0) ? strStartupDir.c_str() : NULL,
 			&si,
 			&pi))
 	{

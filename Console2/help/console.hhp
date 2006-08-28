@@ -2,12 +2,16 @@
 Compatibility=1.1 or later
 Compiled file=console.chm
 Contents file=console.hhc
+Default Window=Main
 Default topic=html\introduction.html
 Display compile progress=No
 Full-text search=Yes
 Index file=console.hhk
 Language=0x409 English (United States)
 Title=Console Help
+
+[WINDOWS]
+Main=,"console.hhc","console.hhk","html\introduction.html",,,,,,0x42520,,0x301e,[271,372,1071,972],,,,,,,0
 
 
 [FILES]

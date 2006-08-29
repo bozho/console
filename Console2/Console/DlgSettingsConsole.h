@@ -26,8 +26,9 @@ class DlgSettingsConsole
 			DDX_UINT(IDC_CHANGE_REFRESH, m_consoleSettings.dwChangeRefreshInterval)
 			DDX_UINT(IDC_REFRESH, m_consoleSettings.dwRefreshInterval)
 			DDX_UINT(IDC_ROWS, m_consoleSettings.dwRows)
-			DDX_UINT(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows)
 			DDX_UINT(IDC_COLUMNS, m_consoleSettings.dwColumns)
+			DDX_CHECK(IDC_CHECK_SAVE_SIZE, m_nSaveSize)
+			DDX_UINT(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows)
 			DDX_UINT(IDC_BUFFER_COLUMNS, m_consoleSettings.dwBufferColumns)
 		END_DDX_MAP()
 
@@ -63,6 +64,8 @@ class DlgSettingsConsole
 
 		CString						m_strShell;
 		CString						m_strInitialDir;
+
+		int							m_nSaveSize;
 };
 
 //////////////////////////////////////////////////////////////////////////////

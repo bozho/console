@@ -52,6 +52,7 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_nUsePosition	= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : 1;
 	m_nX			= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : m_positionSettings.nX;
 	m_nY			= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : m_positionSettings.nY;
+	m_nSavePosition	= m_positionSettings.bSavePosition ? 1 : 0;
 
 	m_nSnapToEdges	= (m_positionSettings.nSnapDistance == -1) ? 0 : 1;
 	if (m_nSnapToEdges == 0) m_positionSettings.nSnapDistance = 0;
@@ -159,6 +160,8 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 			m_positionSettings.nX = -1;
 			m_positionSettings.nY = -1;
 		}
+
+		m_positionSettings.bSavePosition = (m_nSavePosition > 0);
 
 		if (m_nSnapToEdges == 0)
 		{

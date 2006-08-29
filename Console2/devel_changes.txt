@@ -1,6 +1,14 @@
 v2.00
 =====
 
+Build 126
+---------
+
+- implemented window size saving
+
+- implemented window position saving
+
+
 Build 125
 ---------
 

@@ -46,6 +46,8 @@ struct ConsoleSettings : public SettingsBase
 	DWORD		dwBufferRows;
 	DWORD		dwBufferColumns;
 
+	bool		bSaveSize;
+
 	COLORREF	defaultConsoleColors[16];
 	COLORREF	consoleColors[16];
 };
@@ -182,6 +184,7 @@ struct PositionSettings : public SettingsBase
 
 	int				nX;
 	int				nY;
+	bool			bSavePosition;
 	ZOrder			zOrder;
 	DockPosition	dockPosition;
 	int				nSnapDistance;

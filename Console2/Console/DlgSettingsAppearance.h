@@ -38,6 +38,7 @@ class DlgSettingsAppearance
 			DDX_CHECK(IDC_CHECK_POSITION, m_nUsePosition)
 			DDX_INT(IDC_POS_X, m_nX)
 			DDX_INT(IDC_POS_Y, m_nY)
+			DDX_CHECK(IDC_CHECK_SAVE_POSITION, m_nSavePosition)
 			DDX_CHECK(IDC_CHECK_SNAP, m_nSnapToEdges)
 			DDX_INT(IDC_SNAP, m_positionSettings.nSnapDistance)
 			DDX_RADIO(IDC_RADIO_DOCK_NONE, m_nDocking)
@@ -103,6 +104,7 @@ class DlgSettingsAppearance
 		int							m_nUsePosition;
 		int							m_nX;
 		int							m_nY;
+		int							m_nSavePosition;
 		int							m_nSnapToEdges;
 
 		int							m_nDocking;

@@ -172,7 +172,11 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
-	if ((positionSettings.nX == -1) || (positionSettings.nY == -1)) dwFlags |= SWP_NOMOVE;
+	if ((!positionSettings.bSavePosition) && 
+		(positionSettings.nX == -1) || (positionSettings.nY == -1))
+	{
+		dwFlags |= SWP_NOMOVE;
+	}
 
 	SetWindowPos(NULL, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
 	DockWindow(positionSettings.dockPosition);
@@ -221,6 +225,36 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	// save settings on exit
+	bool				bSaveSettings		= false;
+	ConsoleSettings&	consoleSettings		= g_settingsHandler->GetConsoleSettings();
+	PositionSettings&	positionSettings	= g_settingsHandler->GetAppearanceSettings().positionSettings;
+
+	if (consoleSettings.bSaveSize)
+	{
+		SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
+	
+		consoleSettings.dwRows		= consoleParams->dwRows;
+		consoleSettings.dwColumns	= consoleParams->dwColumns;
+
+		bSaveSettings = true;
+	}
+
+	if (positionSettings.bSavePosition)
+	{
+		CRect rectWindow;
+
+		GetWindowRect(rectWindow);
+
+		positionSettings.nX	= rectWindow.left;
+		positionSettings.nY	= rectWindow.top;
+
+		bSaveSettings = true;
+	}
+
+	if (bSaveSettings) g_settingsHandler->SaveSettings();
+
+	// destroy all views
 	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
 	{
 		RemoveTab(it->second->m_hWnd);

@@ -43,6 +43,7 @@ ConsoleSettings::ConsoleSettings()
 , dwColumns(80)
 , dwBufferRows(200)
 , dwBufferColumns(80)
+, bSaveSize(false)
 {
 	defaultConsoleColors[0]	= 0x000000;
 	defaultConsoleColors[1]	= 0x800000;
@@ -83,6 +84,7 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"columns"), dwColumns, 80);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows, 0);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns, 0);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize, false);
 
 	for (DWORD i = 0; i < 16; ++i)
 	{
@@ -118,6 +120,7 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"columns"), dwColumns);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize);
 
 	for (DWORD i = 0; i < 16; ++i)
 	{
@@ -148,6 +151,7 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 	dwColumns				= other.dwColumns;
 	dwBufferRows			= other.dwBufferRows;
 	dwBufferColumns			= other.dwBufferColumns;
+	bSaveSize				= other.bSaveSize;
 
 	::CopyMemory(consoleColors, other.consoleColors, sizeof(COLORREF)*16);
 
@@ -499,6 +503,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 PositionSettings::PositionSettings()
 : nX(-1)
 , nY(-1)
+, bSavePosition(false)
 , zOrder(zorderNormal)
 , dockPosition(dockNone)
 , nSnapDistance(-1)
@@ -518,6 +523,7 @@ bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"x"), nX, -1);
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"y"), nY, -1);
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"save_position"), bSavePosition, false);
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"z_order"), reinterpret_cast<int&>(zOrder), static_cast<int>(zorderNormal));
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"dock"), reinterpret_cast<int&>(dockPosition), static_cast<int>(dockNone));
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance, -1);
@@ -538,6 +544,7 @@ bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"x"), nX);
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"y"), nY);
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"save_position"), bSavePosition);
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"z_order"), static_cast<int>(zOrder));
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"dock"), static_cast<int>(dockPosition));
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance);
@@ -554,6 +561,7 @@ PositionSettings& PositionSettings::operator=(const PositionSettings& other)
 {
 	nX				= other.nX;
 	nY				= other.nY;
+	bSavePosition	= other.bSavePosition;
 	zOrder			= other.zOrder;
 	dockPosition	= other.dockPosition;
 	nSnapDistance	= other.nSnapDistance;

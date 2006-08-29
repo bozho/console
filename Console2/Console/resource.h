@@ -30,7 +30,9 @@
 #define IDC_BUFFER_ROWS                 1010
 #define IDC_BUFFER_COLUMNS              1011
 #define IDC_SHELL                       1012
+#define IDC_BUFFER_ROWS2                1012
 #define IDC_INIT_DIR                    1013
+#define IDC_BUFFER_COLUMNS2             1013
 #define IDC_BTN_BROWSE_SHELL            1015
 #define IDC_BTN_BROWSE_DIR              1016
 #define IDC_CLR_00                      1017
@@ -83,7 +85,9 @@
 #define IDC_SPIN_COLUMNS                1063
 #define IDC_SPIN_BUFFER_COLUMNS         1064
 #define IDC_BTN_RESET_COLORS            1065
+#define IDC_SPIN_BUFFER_ROWS2           1065
 #define IDC_STATIC_ACTIVE_ALPHA         1066
+#define IDC_SPIN_BUFFER_COLUMNS2        1066
 #define IDC_STATIC_INACTIVE_ALPHA       1067
 #define IDC_TRANSPARENCY_TYPE           1068
 #define IDC_TRANSPARENCY_TYPE1          1069
@@ -181,10 +185,12 @@
 #define IDC_SPIN_SCROLL_PAGE_ROWS       1153
 #define IDC_STATIC_ROWS                 1154
 #define IDC_STATIC_VERSION              1155
+#define IDC_CHECK_SAVE_POSITION         1156
+#define IDC_CHECK_SAVE_SIZE             1157
 #define ID_NEXT_TAB                     1200
 #define ID_PREV_TAB                     1201
 #define IDPANE_ROWS_COLUMNS             2000
-#define IDC_DUMP_BUFFER					3000
+#define IDC_DUMP_BUFFER                 3000
 #define ID_FILE_NEW_TAB                 32775
 #define ID_VIEW_CONSOLE                 32777
 #define ID_FILE_CLOSE_TAB               32779
@@ -202,7 +208,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        211
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1156
+#define _APS_NEXT_CONTROL_VALUE         1158
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

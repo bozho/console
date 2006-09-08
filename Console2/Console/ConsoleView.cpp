@@ -70,10 +70,15 @@ ConsoleView::~ConsoleView()
 
 BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
 {
-	if ((pMsg->message == WM_KEYDOWN) || (pMsg->message == WM_KEYUP))
+	if ((pMsg->message == WM_KEYDOWN) || 
+		(pMsg->message == WM_KEYUP) ||
+		(pMsg->message == WM_SYSKEYDOWN) || 
+		(pMsg->message == WM_SYSKEYUP))
 	{
-		// avoid calling ::TranslateMessage for WM_KEYDOWN and WM_KEYUP
-		// this fixes the problem with handling 'dead' characters input
+		// Avoid calling ::TranslateMessage for WM_KEYDOWN, WM_KEYUP,
+		// WM_SYSKEYDOWN and WM_SYSKEYUP.
+		// This prevents WM_CHAR and WM_SYSCHAR messages, enabling stuff like
+		// handling 'dead' characters input and passing all keys to console.
 		::DispatchMessage(pMsg);
 		return TRUE;
 	}
@@ -958,7 +963,7 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		DEFAULT_CHARSET,						
 		OUT_DEFAULT_PRECIS,
 		CLIP_DEFAULT_PRECIS,
-		DEFAULT_QUALITY,
+		NONANTIALIASED_QUALITY,
 		DEFAULT_PITCH,
 		strFontName.c_str());
 

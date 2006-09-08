@@ -1,11 +1,11 @@
 [Setup]
 OutputDir=setup
 SourceDir=..\
-OutputBaseFilename=Console 2.00 Beta b121
+OutputBaseFilename=Console 2.00 Beta b125
 VersionInfoVersion=2.00
 MinVersion=0,5.0.2195sp3
 AppName=Console
-AppVerName=Console 2.00 Beta build 121
+AppVerName=Console 2.00 Beta build 125
 DefaultDirName={pf}\Console
 AllowNoIcons=true
 ShowLanguageDialog=no

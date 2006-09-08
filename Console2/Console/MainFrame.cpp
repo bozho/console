@@ -34,6 +34,8 @@ MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& 
 , m_mousedragOffset(0, 0)
 , m_mapViews()
 , m_strWindowTitle(L"")
+, m_dwRows(0)
+, m_dwColumns(0)
 , m_dwWindowWidth(0)
 , m_dwWindowHeight(0)
 , m_bRestoringWindow(false)
@@ -232,10 +234,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 	if (consoleSettings.bSaveSize)
 	{
-		SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
-	
-		consoleSettings.dwRows		= consoleParams->dwRows;
-		consoleSettings.dwColumns	= consoleParams->dwColumns;
+		consoleSettings.dwRows		= m_dwRows;
+		consoleSettings.dwColumns	= m_dwColumns;
 
 		bSaveSettings = true;
 	}
@@ -570,6 +570,11 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
+	// update rows/columns
+	SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
+	m_dwRows	= consoleParams->dwRows;
+	m_dwColumns	= consoleParams->dwColumns;
+
 	AdjustWindowSize(false);
 	UpdateStatusBar();
 	return 0;
@@ -584,24 +589,6 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 {
 	CloseTab(reinterpret_cast<HWND>(wParam));
 	return 0;
-
-/*
-	ConsoleViewMap::iterator	findIt			= m_mapViews.find(hwndConsoleView);
-
-	m_TabCtrl.
-
-	if (findIt == m_mapViews.end()) return 0;
-
-	RemoveTab(hwndConsoleView);
-
-	if (m_activeView.get() == findIt->second.get()) m_activeView.reset();
-	findIt->second->DestroyWindow();
-	m_mapViews.erase(findIt);
-	
-	if (m_mapViews.size() == 0) PostMessage(WM_CLOSE);
-
-	return 0;
-*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1317,6 +1304,12 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 		dwRows		= consoleParams->dwRows;
 		dwColumns	= consoleParams->dwColumns;
 	}
+	else
+	{
+		// initialize member variables for the first view
+		m_dwRows	= dwRows;
+		m_dwColumns	= dwColumns;
+	}
 
 	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
 
@@ -1442,9 +1435,8 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 void MainFrame::UpdateStatusBar()
 {
 	CString strRowsCols;
-	SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
 
-	strRowsCols.Format(IDPANE_ROWS_COLUMNS, consoleParams->dwRows, consoleParams->dwColumns);
+	strRowsCols.Format(IDPANE_ROWS_COLUMNS, m_dwRows, m_dwColumns);
 	UISetText(1, strRowsCols);
 
 	UIUpdateStatusBar();

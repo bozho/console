@@ -201,6 +201,9 @@ class MainFrame
 
 		CString			m_strWindowTitle;
 
+		DWORD			m_dwRows;
+		DWORD			m_dwColumns;
+
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;
 

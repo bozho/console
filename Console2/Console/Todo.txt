@@ -30,5 +30,5 @@
 
 *** done *** - Toolbar: tooltips for buttons
 
-- handle save crash
+*** done *** - handle save crash
 

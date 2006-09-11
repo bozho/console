@@ -153,6 +153,7 @@ class ConsoleView
 		bool	m_bInitializing;
 		bool	m_bAppActive;
 		bool	m_bActive;
+		bool	m_bUseTextAlphaBlend;
 		bool	m_bConsoleWindowVisible;
 
 		DWORD	m_dwStartupRows;
@@ -178,6 +179,8 @@ class ConsoleView
 
 		shared_ptr<TabData>				m_tabData;
 		shared_ptr<BackgroundImage>		m_background;
+
+		CBrush							m_backgroundBrush;
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;

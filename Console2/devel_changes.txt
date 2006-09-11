@@ -11,6 +11,8 @@ Build 126
 - [internal] custom handling for WM_SYSKEYDOWN and WM_SYSKEYUP messages (they 
   are not translated); this should pass all keystrokes to console (WM_KEYDOWN 
   and WM_KEYUP are already handled this way)
+  
+- added ClearType support; it works for 32bit color settings only
 
 
 Build 125

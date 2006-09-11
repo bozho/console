@@ -33,6 +33,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, 
 , m_bInitializing(true)
 , m_bAppActive(true)
 , m_bActive(true)
+, m_bUseTextAlphaBlend(false)
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
@@ -49,6 +50,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, 
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
 , m_background()
+, m_backgroundBrush(NULL)
 , m_cursor()
 , m_selectionHandler()
 {
@@ -896,6 +898,25 @@ void ConsoleView::CreateOffscreenBuffers()
 		CreateFont(wstring(L"Courier New"));
 	}
 
+	// get ClearType status
+	BOOL	bSmoothing		= FALSE;
+	UINT	uiSmoothingType= 0;
+	CDC		dcDdesktop(::GetDC(NULL));
+	
+	::SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, (void*)&bSmoothing, 0);
+	::SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, (void*)&uiSmoothingType, 0);
+
+	if ((dcDdesktop.GetDeviceCaps(BITSPIXEL)*dcDdesktop.GetDeviceCaps(PLANES) == 32) && // 32-bit depth only
+		bSmoothing && 
+		(uiSmoothingType == FE_FONTSMOOTHINGCLEARTYPE))
+	{
+		m_bUseTextAlphaBlend = true;
+	}
+	else
+	{
+		m_bUseTextAlphaBlend = false;
+	}
+
 	// get max window rect based on font and console size
 	GetMaxRect(rectWindowMax);
 //	GetWindowRect(&rectWindow);
@@ -904,16 +925,16 @@ void ConsoleView::CreateOffscreenBuffers()
 	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
 	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
 
-	// initial paint brush
-	CBrush brushBackground;
-	brushBackground.CreateSolidBrush(m_tabData->crBackgroundColor);
+	// create background brush
+	if (!m_backgroundBrush.IsNull()) m_backgroundBrush.DeleteObject();
+	m_backgroundBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 
 	// initial offscreen paint
-	m_dcOffscreen.FillRect(&rectWindowMax, brushBackground);
+	m_dcOffscreen.FillRect(&rectWindowMax, m_backgroundBrush);
 
 	// set text DC stuff
 	m_dcText.SetBkMode(OPAQUE);
-	m_dcText.FillRect(&rectWindowMax, brushBackground);
+	m_dcText.FillRect(&rectWindowMax, m_backgroundBrush);
 
 	// create selection handler
 	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindowMax, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
@@ -963,7 +984,8 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		DEFAULT_CHARSET,						
 		OUT_DEFAULT_PRECIS,
 		CLIP_DEFAULT_PRECIS,
-		NONANTIALIASED_QUALITY,
+//		NONANTIALIASED_QUALITY,
+		DEFAULT_QUALITY,
 		DEFAULT_PITCH,
 		strFontName.c_str());
 
@@ -1215,7 +1237,6 @@ void ConsoleView::RepaintText()
 {
 	SIZE	bitmapSize;
 	CRect	bitmapRect;
-	CBrush	bkgdBrush;
 
 	m_bmpText.GetSize(bitmapSize);
 	bitmapRect.left		= 0;
@@ -1223,8 +1244,7 @@ void ConsoleView::RepaintText()
 	bitmapRect.right	= bitmapSize.cx;
 	bitmapRect.bottom	= bitmapSize.cy;
 
-	bkgdBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
-	m_dcText.FillRect(&bitmapRect, bkgdBrush);
+	m_dcText.FillRect(&bitmapRect, m_backgroundBrush);
 	
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
@@ -1407,10 +1427,8 @@ void ConsoleView::RepaintText()
 void ConsoleView::RepaintTextChanges()
 {
 	SIZE	bitmapSize;
-	CBrush	bkgdBrush;
 
 	m_bmpText.GetSize(bitmapSize);
-	bkgdBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
@@ -1461,7 +1479,7 @@ void ConsoleView::RepaintTextChanges()
 					}
 */
 					
-					m_dcText.FillRect(&rect, bkgdBrush);
+					m_dcText.FillRect(&rect, m_backgroundBrush);
 					attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
 
 					// here we decide how to paint text over the backgound
@@ -1642,18 +1660,43 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 							SRCCOPY);
 		}
 
-		// TransparentBlt seems to fail for small rectangles, so we blit entire window here
-		m_dcOffscreen.TransparentBlt(
-						rectWindow.left, 
-						rectWindow.top, 
-						rectWindow.right, 
-						rectWindow.bottom, 
-						m_dcText, 
-						rectWindow.left, 
-						rectWindow.top, 
-						rectWindow.right, 
-						rectWindow.bottom, 
-						m_tabData->crBackgroundColor);
+		// if ClearType is active, use AlphaBlend
+		if (m_bUseTextAlphaBlend)
+		{
+			BLENDFUNCTION blendFn;
+
+			blendFn.BlendOp				= AC_SRC_OVER;
+			blendFn.BlendFlags			= 0;
+			blendFn.SourceConstantAlpha	= 255;
+			blendFn.AlphaFormat			= AC_SRC_ALPHA;
+
+			m_dcOffscreen.AlphaBlend(
+							rectWindow.left, 
+							rectWindow.top, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							m_dcText, 
+							rectWindow.left, 
+							rectWindow.top, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							blendFn);
+		}
+		else
+		{
+			// TransparentBlt seems to fail for small rectangles, so we blit entire window here
+			m_dcOffscreen.TransparentBlt(
+							rectWindow.left, 
+							rectWindow.top, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							m_dcText, 
+							rectWindow.left, 
+							rectWindow.top, 
+							rectWindow.right, 
+							rectWindow.bottom, 
+							m_tabData->crBackgroundColor);
+		}
 
 /*
 		BOOL b = m_dcOffscreen.TransparentBlt(
@@ -1674,15 +1717,41 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 	}
 	else
 	{
-		m_dcOffscreen.BitBlt(
-						rectBlit.left, 
-						rectBlit.top, 
-						rectBlit.right, 
-						rectBlit.bottom, 
-						m_dcText, 
-						rectBlit.left, 
-						rectBlit.top, 
-						SRCCOPY);
+		// if ClearType is active, use AlphaBlend
+		if (m_bUseTextAlphaBlend)
+		{
+			BLENDFUNCTION blendFn;
+
+			blendFn.BlendOp				= AC_SRC_OVER;
+			blendFn.BlendFlags			= 0;
+			blendFn.SourceConstantAlpha	= 255;
+			blendFn.AlphaFormat			= AC_SRC_ALPHA;
+
+			m_dcOffscreen.FillRect(rectBlit, m_backgroundBrush);
+			m_dcOffscreen.AlphaBlend(
+							rectBlit.left, 
+							rectBlit.top, 
+							rectBlit.right, 
+							rectBlit.bottom, 
+							m_dcText, 
+							rectBlit.left, 
+							rectBlit.top, 
+							rectBlit.right, 
+							rectBlit.bottom, 
+							blendFn);
+		}
+		else
+		{
+			m_dcOffscreen.BitBlt(
+							rectBlit.left, 
+							rectBlit.top, 
+							rectBlit.right, 
+							rectBlit.bottom, 
+							m_dcText, 
+							rectBlit.left, 
+							rectBlit.top, 
+							SRCCOPY);
+		}
 	}
 
 	// blit cursor

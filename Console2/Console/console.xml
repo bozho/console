@@ -21,7 +21,7 @@
 		</colors>
 	</console>
 	<appearance>
-		<font name="FixedMedium8x13" size="10" bold="0" italic="0">
+		<font name="Consolas" size="12" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>

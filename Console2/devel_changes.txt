@@ -14,6 +14,10 @@ Build 126
   
 - added ClearType support; it works for 32bit color settings only
 
+- fixed a little bug with tray icon
+
+- ALT+ENTER doesn't switch real console to full screen
+
 
 Build 125
 ---------

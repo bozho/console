@@ -423,14 +423,14 @@ BEGIN
     CONTROL         "Hide single tab",IDC_CHECK_HIDE_SINGLE_TAB,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,22,60,59,10
     GROUPBOX        "Controls",IDC_STATIC,0,0,88,77
-    CONTROL         "&Caption",IDC_CHECK_STYLE_CAPTION,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,102,12,41,10
-    CONTROL         "Resi&zable",IDC_CHECK_STYLE_RESIZABLE,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,102,24,46,10
-    CONTROL         "Bo&rder",IDC_CHECK_STYLE_BORDER,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,102,36,37,10
-    CONTROL         "Tas&kbar button",IDC_CHECK_STYLE_TASKBAR,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,154,12,61,10
+    CONTROL         "&Caption *",IDC_CHECK_STYLE_CAPTION,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,102,12,47,10
+    CONTROL         "Resi&zable *",IDC_CHECK_STYLE_RESIZABLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,102,24,52,10
+    CONTROL         "Bo&rder *",IDC_CHECK_STYLE_BORDER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,102,36,43,10
+    CONTROL         "Tas&kbar button *",IDC_CHECK_STYLE_TASKBAR,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,154,12,68,10
     CONTROL         "Tra&y icon",IDC_CHECK_STYLE_TRAY,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,154,24,45,10
     LTEXT           "Inside &border:",IDC_STATIC,102,53,46,8
@@ -438,7 +438,7 @@ BEGIN
     CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,191,50,11,14
-    GROUPBOX        "Styles *",IDC_STATIC,92,0,134,77
+    GROUPBOX        "Styles",IDC_STATIC,92,0,134,77
     CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",
                     BS_AUTORADIOBUTTON | WS_GROUP,8,93,33,10
     CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",
@@ -735,7 +735,7 @@ BEGIN
             VALUE "Comments", "Tabbed cool console window (THIS IS NOT A SHELL :-)"
             VALUE "CompanyName", "Ingenuity Unlimited Ltd."
             VALUE "FileDescription", "Main Console module"
-            VALUE "FileVersion", "2.00, Build 126 2006.08.28"
+            VALUE "FileVersion", "2.00, Build 126 2006.09.13"
             VALUE "InternalName", "Console"
             VALUE "LegalCopyright", "Copyright © 2001-2006 Marko Bozikovic"
             VALUE "LegalTrademarks", "Copyright © 2001-2006 Marko Bozikovic"

@@ -1817,9 +1817,9 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 
 bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
-	if(uMsg == WM_KEYDOWN)
+	if (uMsg == WM_KEYDOWN)
 	{
-		if((::GetKeyState(VK_SCROLL) & 0x01) == 0x01)
+		if ((::GetKeyState(VK_SCROLL) & 0x01) == 0x01)
 		{
 			switch(wParam)
 			{
@@ -1847,6 +1847,14 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 					DoScroll(SB_HORZ, SB_LINERIGHT, 0); 
 					return true;
 			}
+		}
+	}
+	
+	if ((uMsg == WM_SYSKEYDOWN) || (uMsg == WM_SYSKEYUP))
+	{
+		if ((wParam == VK_RETURN) && ((::GetKeyState(VK_MENU) & 0x80) == 0x80))
+		{
+			return true;
 		}
 	}
 

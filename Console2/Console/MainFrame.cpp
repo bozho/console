@@ -1038,10 +1038,18 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	
-		SetTransparency();
 		CreateAcceleratorTable();
+		SetTransparency();
 
-		// TODO: tray icon
+		// tray icon
+		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
+		{
+			SetTrayIcon(NIM_ADD);
+		}
+		else
+		{
+			SetTrayIcon(NIM_DELETE);
+		}
 
 		ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 		ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);

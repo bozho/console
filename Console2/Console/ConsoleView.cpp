@@ -1246,7 +1246,8 @@ void ConsoleView::RepaintText()
 
 	m_dcText.FillRect(&bitmapRect, m_backgroundBrush);
 	
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+	StylesSettings&					stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
+	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 
 	DWORD dwX			= stylesSettings.dwInsideBoder;
 	DWORD dwY			= stylesSettings.dwInsideBoder;
@@ -1255,168 +1256,108 @@ void ConsoleView::RepaintText()
 	WORD attrBG;
 
 	// stuff used for caching
-//	int			nBkMode		= TRANSPARENT;
+	int			nBkMode		= TRANSPARENT;
 	COLORREF	crBkColor	= RGB(0, 0, 0);
 	COLORREF	crTxtColor	= RGB(0, 0, 0);
 	
-/*
-	int			nNewBkMode		= TRANSPARENT;
-	COLORREF	crNewBkColor	= RGB(0, 0, 0);
-	COLORREF	crNewTxtColor	= RGB(0, 0, 0);
-*/
-	
-	bool		bTextOut		= false;
+	bool		bTextOut	= false;
 	
 	wstring		strText(L"");
 
 	::CopyMemory(
 		m_screenBuffer.get(), 
 		m_consoleHandler.GetConsoleBuffer().Get(), 
-		sizeof(CHAR_INFO) * m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns);
+		sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
 
-	if (m_nCharWidth > 0)
+	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
-		// fixed pitch font
-		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
-		{
-			
-			dwX = stylesSettings.dwInsideBoder;
-			dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
+		dwX = stylesSettings.dwInsideBoder;
+		dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
 
-//			nBkMode			= TRANSPARENT;
-			crBkColor		= RGB(0, 0, 0);
-			crTxtColor		= RGB(0, 0, 0);
-			
-			bTextOut		= false;
-			
+		nBkMode			= TRANSPARENT;
+		crBkColor		= RGB(0, 0, 0);
+		crTxtColor		= RGB(0, 0, 0);
+		
+		bTextOut		= false;
+		
+		attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
+		
+		// here we decide how to paint text over the background
+		if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
+		{
+			nBkMode		= TRANSPARENT;
+		}
+		else
+		{
+			nBkMode		= OPAQUE;
+			crBkColor	= m_consoleSettings.consoleColors[attrBG];
+		}
+
+		m_dcText.SetBkMode(nBkMode);
+		m_dcText.SetBkColor(crBkColor);
+
+		crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+		m_dcText.SetTextColor(crTxtColor);
+
+		strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
+		++dwOffset;
+
+		for (DWORD j = 1; j < consoleParams->dwColumns; ++j)
+		{
 			attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
-			
-			// here we decide how to paint text over the background
-/*
-			if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground)
+
+			if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
 			{
-				m_dcText.SetBkMode(TRANSPARENT);
-				nBkMode		= TRANSPARENT;
+				if (nBkMode != TRANSPARENT)
+				{
+					nBkMode = TRANSPARENT;
+					bTextOut = true;
+				}
 			}
 			else
 			{
-				m_dcText.SetBkMode(OPAQUE);
-				nBkMode		= OPAQUE;
-				m_dcText.SetBkColor(g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
-				crBkColor	= g_settingsHandler->GetFontSettings().consoleColors[attrBG];
-			}
-*/
-
-			crBkColor	= m_consoleSettings.consoleColors[attrBG];
-			m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
-			
-			m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-			crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
-			
-			strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
-			++dwOffset;
-
-			for (DWORD j = 1; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
-			{
-				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
-
-/*
-				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground)
+				if (nBkMode != OPAQUE)
 				{
-					if (nBkMode != TRANSPARENT)
-					{
-						nBkMode = TRANSPARENT;
-						bTextOut = true;
-					}
-				}
-				else
-				{
-					if (nBkMode != OPAQUE)
-					{
-						nBkMode = OPAQUE;
-						bTextOut = true;
-					}
-*/
-					if (crBkColor != m_consoleSettings.consoleColors[attrBG])
-					{
-						crBkColor = m_consoleSettings.consoleColors[attrBG];
-						bTextOut = true;
-					}
-//				}
-
-				if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]))
-				{
-					crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+					nBkMode = OPAQUE;
 					bTextOut = true;
 				}
-
-				if (bTextOut)
+				if (crBkColor != m_consoleSettings.consoleColors[attrBG])
 				{
-					m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
-					dwX += static_cast<int>(strText.length() * m_nCharWidth);
-
-//					m_dcText.SetBkMode(nBkMode);
-					m_dcText.SetBkColor(crBkColor);
-					m_dcText.SetTextColor(crTxtColor);
-
-					strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
-					
+					crBkColor = m_consoleSettings.consoleColors[attrBG];
+					bTextOut = true;
 				}
-				else
-				{
-					strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
-				}
-					
-				++dwOffset;
 			}
 
-			if (strText.length() > 0)
+			if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]))
+			{
+				crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+				bTextOut = true;
+			}
+
+			if (bTextOut)
 			{
 				m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
-			}
-		}
+				dwX += static_cast<int>(strText.length() * m_nCharWidth);
 
-/*
-	}
-	else
-	{
-		// variable pitch font
-		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
-		{
-			dwX = windowSettings.dwInsideBoder;
-			dwY = i*m_nCharHeight + windowSettings.dwInsideBoder;
-			
-			for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
+				m_dcText.SetBkMode(nBkMode);
+				m_dcText.SetBkColor(crBkColor);
+				m_dcText.SetTextColor(crTxtColor);
+
+				strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
+			}
+			else
 			{
-				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
-
-				// here we decide how to paint text over the backgound
-/ *
-				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground)
-				{
-					m_dcText.SetBkMode(TRANSPARENT);
-				}
-				else
-				{
-					m_dcText.SetBkMode(OPAQUE);
-* /
-					m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
-//				}
-				
-				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
-				int nWidth;
-				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
-				dwX += nWidth;
-				++dwOffset;
+				strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
 			}
+				
+			++dwOffset;
 		}
-*/
+
+		if (strText.length() > 0)
+		{
+			m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
+		}
 	}
-	
-//	if (m_pCursor) DrawCursor(TRUE);
-	
-//	InvalidateRect(NULL, FALSE);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1440,143 +1381,46 @@ void ConsoleView::RepaintTextChanges()
 
 	SharedMemory<CHAR_INFO>& sharedScreenBuffer = m_consoleHandler.GetConsoleBuffer();
 
-
-	if (m_nCharWidth > 0)
+	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
-		// fixed pitch font
-		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
+		dwX = stylesSettings.dwInsideBoder;
+		dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
+
+		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
 		{
-			dwX = stylesSettings.dwInsideBoder;
-			dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
-
-			for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
+			if (memcmp(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO)))
 			{
-				if (memcmp(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO)))
-				{
-					memcpy(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO));
+				memcpy(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO));
 
-					CRect rect;
-					rect.top	= dwY;
-					rect.left	= dwX;
-					rect.bottom	= dwY + m_nCharHeight;
-					rect.right	= dwX + m_nCharWidth;
-					
-/*
-					if (m_bBitmapBackground)
-					{
-						if (m_bRelativeBackground)
-						{
-							::BitBlt(m_hdcConsole, dwX, dwY, m_nCharWidth, m_nCharHeight, m_hdcBackground, m_nX+m_nXBorderSize-m_nBackgroundOffsetX+(int)dwX, m_nY+m_nCaptionSize+m_nYBorderSize-m_nBackgroundOffsetY+(int)dwY, SRCCOPY);
-						}
-						else
-						{
-							::BitBlt(m_hdcConsole, dwX, dwY, m_nCharWidth, m_nCharHeight, m_hdcBackground, dwX, dwY, SRCCOPY);
-						}
-					}
-					else
-					{
-						::FillRect(m_hdcConsole, &rect, m_hBkBrush);
-					}
-*/
-					
-					m_dcText.FillRect(&rect, m_backgroundBrush);
-					attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
-
-					// here we decide how to paint text over the backgound
-/*
-					if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground)
-					{
-						::SetBkMode(m_hdcConsole, TRANSPARENT);
-					}
-					else
-					{
-						::SetBkMode(m_hdcConsole, OPAQUE);
-						::SetBkColor(m_hdcConsole, g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
-					}
-*/
-					
-					m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
-					m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-					m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
-
-//					::InvalidateRect(m_hWnd, &rect, FALSE);
-				}
-
-				dwX += m_nCharWidth;
-				++dwOffset;
-			}
-		}
-		
-/*
-	}
-	else
-	{
-		// variable pitch font
-		memcpy(m_screenBuffer.get(), sharedScreenBuffer.Get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns);
-	
-		CRect rect;
-		rect.top	= 0;
-		rect.left	= 0;
-		rect.bottom	= bitmapSize.cy;
-		rect.right	= bitmapSize.cx;
-		
-/ *
-		if (m_bBitmapBackground)
-		{
-			if (m_bRelativeBackground)
-			{
-				::BitBlt(m_hdcConsole, 0, 0, m_nClientWidth, m_nClientHeight, m_hdcBackground, m_nX+m_nXBorderSize-m_nBackgroundOffsetX, m_nY+m_nCaptionSize+m_nYBorderSize-m_nBackgroundOffsetY, SRCCOPY);
-			}
-			else
-			{
-				::BitBlt(m_hdcConsole, 0, 0, m_nClientWidth, m_nClientHeight, m_hdcBackground, 0, 0, SRCCOPY);
-			}
-		}
-		else
-		{
-			::FillRect(m_hdcConsole, &rect, m_hBkBrush);
-		}
-* /
-		m_dcText.FillRect(&rect, bkgdBrush);
-		
-		for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
-		{
-			dwX = windowSettings.dwInsideBoder;
-			dwY = i*m_nCharHeight + windowSettings.dwInsideBoder;
-			
-			for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
-			{
-				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
+				CRect rect;
+				rect.top	= dwY;
+				rect.left	= dwX;
+				rect.bottom	= dwY + m_nCharHeight;
+				rect.right	= dwX + m_nCharWidth;
 				
+				m_dcText.FillRect(&rect, m_backgroundBrush);
+				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
+
 				// here we decide how to paint text over the backgound
-/ *
-				if (g_settingsHandler->GetFontSettings().consoleColors[attrBG] == m_crConsoleBackground)
+				if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
 				{
-					::SetBkMode(m_hdcConsole, TRANSPARENT);
+					m_dcText.SetBkMode(TRANSPARENT);
 				}
 				else
 				{
-					::SetBkMode(m_hdcConsole, OPAQUE);
-					::SetBkColor(m_hdcConsole, g_settingsHandler->GetFontSettings().consoleColors[attrBG]);
+					m_dcText.SetBkMode(OPAQUE);
+					m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				}
-* /
-
+				
 				m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
-				int nWidth;
-				m_dcText.GetCharWidth32(m_screenBuffer[dwOffset].Char.UnicodeChar, m_screenBuffer[dwOffset].Char.UnicodeChar, &nWidth);
-				dwX += nWidth;
-				++dwOffset;
 			}
+
+			dwX += m_nCharWidth;
+			++dwOffset;
 		}
-		
-//		::InvalidateRect(m_hWnd, NULL, FALSE);
-//		}
-*/
 	}
-	
-//	if (m_pCursor) DrawCursor();
 }
 
 /////////////////////////////////////////////////////////////////////////////

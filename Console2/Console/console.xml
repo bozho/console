@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="25" columns="80" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="1">
+	<console change_refresh="10" refresh="100" rows="46" columns="112" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="1">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -21,7 +21,7 @@
 		</colors>
 	</console>
 	<appearance>
-		<font name="Consolas" size="12" bold="0" italic="0">
+		<font name="Courier New" size="10" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
@@ -69,7 +69,7 @@
 	<tabs>
 		<tab title="Console2">
 			<console shell="" init_dir=""/>
-			<cursor style="0" r="255" g="255" b="255"/>
+			<cursor style="11" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
 					<tint opacity="0" r="0" g="0" b="0"/>
@@ -81,7 +81,7 @@
 			<cursor style="0" r="255" g="255" b="255"/>
 			<background type="1" r="0" g="0" b="0">
 				<image file="F:\Smece\back2.bmp" relative="0" extend="0" position="1">
-					<tint opacity="0" r="0" g="0" b="0"/>
+					<tint opacity="70" r="0" g="255" b="0"/>
 				</image>
 			</background>
 		</tab>

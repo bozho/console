@@ -8,6 +8,10 @@ Build 127
 
 - added .bat and .cmd file types to "open shell" dialog
 
+- fixed a small background tinting problem
+
+- fixed a problem with non-black solid backgrounds
+
 
 Build 126
 ---------

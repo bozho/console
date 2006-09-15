@@ -209,13 +209,13 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 	DWORD	dwPrimaryDisplayWidth	= ::GetSystemMetrics(SM_CXSCREEN);
 	DWORD	dwPrimaryDisplayHeight	= ::GetSystemMetrics(SM_CYSCREEN);
 
-	bkImage->dwImageWidth		= ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
+	bkImage->dwImageWidth	= ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	bkImage->dwImageHeight	= ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
 	CDC		dcTemplate;
 	CBitmap	bmpTemplate;
 
-	dcTemplate.CreateCompatibleDC(dc);
+	dcTemplate.CreateCompatibleDC(NULL);
 
 	// set template bitmap dimensions
 	DWORD	dwTemplateWidth		= bkImage->originalImage.getWidth();
@@ -320,7 +320,7 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 	CDC		dcTemplate;
 	CBitmap	bmpTemplate;
 
-	dcTemplate.CreateCompatibleDC(dc);
+	dcTemplate.CreateCompatibleDC(NULL);
 
 	bkImage->dwImageWidth = clientRect.Width();
 	bkImage->dwImageHeight= clientRect.Height();
@@ -477,7 +477,7 @@ void ImageHandler::TintImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage
 	bf.AlphaFormat			= 0;
 
 	dcTint.CreateCompatibleDC(dc);
-	bmpTint.CreateCompatibleBitmap(dcTint, bkImage->dwImageWidth, bkImage->dwImageHeight);
+	bmpTint.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
 	dcTint.SelectBitmap(bmpTint);
 	dcTint.FillRect(&rect, tintBrush);
 

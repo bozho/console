@@ -163,7 +163,7 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /
 					NULL, 
 					NULL, 
 					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
-					L"Executable Files (*.exe)\0*.exe\0All Files (*.*)\0*.*\0\0");
+					L"Executable Files (*.exe)\0*.exe\0Batch Files (*.bat;*.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0");
 
 	if (fileDialog.DoModal() == IDOK)
 	{

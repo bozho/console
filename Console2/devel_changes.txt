@@ -1,6 +1,14 @@
 v2.00
 =====
 
+Build 127
+---------
+
+- added "Exit Console" command
+
+- added .bat and .cmd file types to "open shell" dialog
+
+
 Build 126
 ---------
 

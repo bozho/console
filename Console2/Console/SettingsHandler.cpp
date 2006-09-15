@@ -959,6 +959,8 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 HotKeys::HotKeys()
 {
 
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));
+
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab1",		ID_NEW_TAB_1,		L"New Tab 1")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab2",		ID_NEW_TAB_1 + 1,	L"New Tab 2")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab3",		ID_NEW_TAB_1 + 2,	L"New Tab 3")));

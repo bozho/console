@@ -264,6 +264,25 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 	dcTemplate.SelectBitmap(bmpTemplate);
 
 	bkImage->image.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+
+/*
+	BITMAPINFO bf;
+	::ZeroMemory(&bf, sizeof(BITMAPINFO));
+
+	 DWORD dwBytesPerLine =   (((32 * bkImage->dwImageWidth) + 31) / 32 * 4); 
+	bf.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	bf.bmiHeader.biWidth = bkImage->dwImageWidth;
+	bf.bmiHeader.biHeight= bkImage->dwImageHeight;
+	bf.bmiHeader.biPlanes = 1;
+	bf.bmiHeader.biBitCount = 32;
+	bf.bmiHeader.biCompression = BI_RGB;
+	bf.bmiHeader.biSizeImage = dwBytesPerLine*bkImage->dwImageHeight;
+
+	void* p = NULL;
+
+
+	bkImage->image.CreateDIBSection(dc, &bf, BI_RGB, &p, NULL, 0);
+*/
 	bkImage->dcImage.SelectBitmap(bkImage->image);
 
 	CBrush	backgroundBrush(::CreateSolidBrush(bkImage->imageData.crBackground));

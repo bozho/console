@@ -12,6 +12,11 @@ Build 127
 
 - fixed a problem with non-black solid backgrounds
 
+- fixed a problem with client area mouse-dragging with cursor near left or top 
+  edge
+
+- File->Tabs menu is updated properly after closing the settings dialog
+
 
 Build 126
 ---------

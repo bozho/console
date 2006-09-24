@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="46" columns="112" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="1">
+	<console change_refresh="10" refresh="100" rows="18" columns="71" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="1">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -26,7 +26,7 @@
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
 		<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1" hide_single_tab="1"/>
-		<styles caption="1" resizable="1" taskbar_button="0" border="1" inside_border="2" tray_icon="1"/>
+		<styles caption="1" resizable="1" taskbar_button="1" border="1" inside_border="2" tray_icon="1"/>
 		<position x="-1" y="-1" dock="-1" snap="0" z_order="0" save_position="0"/>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
@@ -82,6 +82,15 @@
 			<background type="1" r="0" g="0" b="0">
 				<image file="F:\Smece\back2.bmp" relative="0" extend="0" position="1">
 					<tint opacity="70" r="0" g="255" b="0"/>
+				</image>
+			</background>
+		</tab>
+		<tab title="asd">
+			<console shell="cmd.exe" init_dir=""/>
+			<cursor style="0" r="255" g="255" b="255"/>
+			<background type="0" r="0" g="0" b="0">
+				<image file="" relative="0" extend="0" position="0">
+					<tint opacity="0" r="0" g="0" b="0"/>
 				</image>
 			</background>
 		</tab>

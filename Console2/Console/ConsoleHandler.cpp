@@ -308,7 +308,8 @@ bool ConsoleHandler::InjectHookDLL()
 	if (hRemoteThread.get() == NULL) return false;
 
 	// wait for the thread to finish
-	::WaitForSingleObject(hRemoteThread.get(), INFINITE);
+//	::WaitForSingleObject(hRemoteThread.get(), INFINITE);
+	if (::WaitForSingleObject(hRemoteThread.get(), 10000) == WAIT_TIMEOUT) return false;
 
 #pragma warning(pop)
 

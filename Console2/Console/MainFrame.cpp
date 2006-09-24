@@ -105,7 +105,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
-	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
+//	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
 	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
 
 	// create initial console window(s)
@@ -520,11 +520,12 @@ LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
 LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	UINT	uiFlags = static_cast<UINT>(wParam);
-	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
 	if (uiFlags & MK_LBUTTON)
 	{
 		ClientToScreen(&point);
+
 		SetWindowPos(
 			NULL, 
 			point.x - m_mousedragOffset.x, 
@@ -1038,6 +1039,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	
+		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
+
 		CreateAcceleratorTable();
 		SetTransparency();
 
@@ -1328,7 +1331,14 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 											WS_CHILD | WS_VISIBLE,// | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
 											0);
 
-	if (hwndConsoleView == NULL) return false;
+	if (hwndConsoleView == NULL)
+	{
+		CString	strMessage;
+
+		strMessage.Format(IDS_TAB_CREATE_FAILED, g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str());
+		::MessageBox(m_hWnd, strMessage, L"Error", MB_OK|MB_ICONERROR);
+		return false;
+	}
 
 	m_mapViews.insert(ConsoleViewMap::value_type(hwndConsoleView, consoleView));
 

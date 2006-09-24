@@ -888,7 +888,7 @@ void ConsoleView::OnConsoleClose()
 
 void ConsoleView::CreateOffscreenBuffers()
 {
-	CPaintDC	dcWindow(m_hWnd);
+	CWindowDC	dcWindow(m_hWnd);
 	CRect		rectWindowMax;
 //	CRect		rectWindow;
 
@@ -957,7 +957,7 @@ void ConsoleView::CreateOffscreenBuffers()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::CreateOffscreenBitmap(const CPaintDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap)
+void ConsoleView::CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap)
 {
 	if (!bitmap.IsNull()) return;// bitmap.DeleteObject();
 	bitmap.CreateCompatibleBitmap(dcWindow, rect.right, rect.bottom);

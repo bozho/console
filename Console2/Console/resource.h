@@ -5,6 +5,7 @@
 #define IDR_POPUP_MENU_TAB              4
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
+#define IDS_TAB_CREATE_FAILED           129
 #define IDI_ICON1                       203
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205

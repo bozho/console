@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="18" columns="71" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="1">
+	<console change_refresh="10" refresh="100" rows="40" columns="120" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="0">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -70,9 +70,9 @@
 		<tab title="Console2">
 			<console shell="" init_dir=""/>
 			<cursor style="11" r="255" g="255" b="255"/>
-			<background type="0" r="0" g="0" b="0">
+			<background type="2" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">
-					<tint opacity="0" r="0" g="0" b="0"/>
+					<tint opacity="153" r="0" g="0" b="0"/>
 				</image>
 			</background>
 		</tab>

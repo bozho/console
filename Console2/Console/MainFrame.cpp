@@ -38,6 +38,7 @@ MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& 
 , m_dwColumns(0)
 , m_dwWindowWidth(0)
 , m_dwWindowHeight(0)
+, m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
 {
@@ -395,6 +396,11 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	m_dwResizeWindowEdge = static_cast<DWORD>(wParam);
+	return 0;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -560,6 +566,7 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 	}
 
 	SendMessage(WM_NULL, 0, 0);
+	m_dwResizeWindowEdge = WMSZ_BOTTOM;
 
 	return 0;
 }
@@ -1779,7 +1786,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 		if (m_activeView.get() == NULL) return;
 
 		// if we're being maximized, AdjustRectAndResize will use client rect supplied
-		m_activeView->AdjustRectAndResize(clientRect, !bMaxOrRestore);
+		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
 		
 		// for other views, first set view size and then resize their Windows consoles
 		for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
@@ -1795,7 +1802,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 							SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
 		
 			// if we're being maximized, AdjustRectAndResize will use client rect supplied
-			it->second->AdjustRectAndResize(clientRect, !bMaxOrRestore);
+			it->second->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
 		}
 	}
 	else

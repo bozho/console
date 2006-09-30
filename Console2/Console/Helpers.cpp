@@ -92,3 +92,32 @@ void Helpers::GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rect
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bitmap)
+{
+	HBITMAP hBmp = bitmap.CreateCompatibleBitmap(dc, dwWidth, dwHeight);
+	if (hBmp != NULL) return hBmp;
+
+	// failed to create compatible bitmap, fall back to DIB section...
+	BITMAPINFO	bmpInfo;
+	void*		pBits = NULL;
+	
+	::ZeroMemory(&bmpInfo, sizeof(BITMAPINFO));
+
+//	DWORD dwBytesPerLine =   (((32 * bkImage->dwImageWidth) + 31) / 32 * 4); 
+	bmpInfo.bmiHeader.biSize		= sizeof(BITMAPINFOHEADER);
+	bmpInfo.bmiHeader.biWidth		= dwWidth;
+	bmpInfo.bmiHeader.biHeight		= dwHeight;
+	bmpInfo.bmiHeader.biPlanes		= static_cast<WORD>(::GetDeviceCaps(dc, PLANES));
+	bmpInfo.bmiHeader.biBitCount	= static_cast<WORD>(::GetDeviceCaps(dc, BITSPIXEL));
+	bmpInfo.bmiHeader.biCompression	= BI_RGB;
+	bmpInfo.bmiHeader.biSizeImage	= 0;//dwBytesPerLine*bkImage->dwImageHeight;
+
+
+	return bitmap.CreateDIBSection(dc, &bmpInfo, BI_RGB, &pBits, NULL, 0);
+}
+
+//////////////////////////////////////////////////////////////////////////////

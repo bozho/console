@@ -20,6 +20,8 @@ class Helpers
 		static void GetDesktopRect(HWND hWnd, CRect& rectDesktop);
 		static void GetDesktopRect(const CPoint& point, CRect& rectDesktop);
 
+		static HBITMAP CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bitmap);
+
 	private:
 
 		static void GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

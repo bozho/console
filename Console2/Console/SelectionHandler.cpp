@@ -16,7 +16,8 @@
 SelectionHandler::SelectionHandler(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectConsoleView, int nCharWidth, int nCharHeight, COLORREF crSelectionColor)
 : m_consoleView(hwndConsoleView)
 , m_dcSelection(::CreateCompatibleDC(NULL))
-, m_bmpSelection(::CreateCompatibleBitmap(dcConsoleView, rectConsoleView.right - rectConsoleView.left, rectConsoleView.bottom - rectConsoleView.top))
+//, m_bmpSelection(::CreateCompatibleBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height()))
+, m_bmpSelection(NULL)
 , m_rectConsoleView(rectConsoleView)
 , m_nCharWidth(nCharWidth)
 , m_nCharHeight(nCharHeight)
@@ -28,6 +29,7 @@ SelectionHandler::SelectionHandler(HWND hwndConsoleView, const CDC& dcConsoleVie
 , m_sXMax(0)
 , m_sYMax(0)
 {
+	Helpers::CreateBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height(), m_bmpSelection);
 	m_dcSelection.SelectBitmap(m_bmpSelection);
 	m_dcSelection.SetBkColor(RGB(0, 0, 0));
 }

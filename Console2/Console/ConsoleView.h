@@ -92,7 +92,7 @@ class ConsoleView
 
 		void GetRect(CRect& clientRect);
 		bool GetMaxRect(CRect& maxClientRect);
-		void AdjustRectAndResize(CRect& clientRect, bool bGetClientRect);
+		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bGetClientRect);
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
 		shared_ptr<TabData> GetTabData() { return m_tabData; }

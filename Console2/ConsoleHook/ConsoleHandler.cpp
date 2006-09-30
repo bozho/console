@@ -240,12 +240,13 @@ void ConsoleHandler::ReadConsoleBuffer()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows)
+void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge)
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
-
+	TRACE(L"Old win pos: %ix%i - %ix%i\n", csbi.srWindow.Left, csbi.srWindow.Top, csbi.srWindow.Right, csbi.srWindow.Bottom);
+	
 	// check against max size
 	TRACE(L"Columns: %i\n", dwColumns);
 	TRACE(L"Max columns: %i\n", m_consoleParams->dwMaxColumns);
@@ -262,48 +263,167 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 	if (m_consoleParams->dwBufferColumns == 0)
 	{
-		TRACE(L"1: %i\n", dwColumns);
 		coordBufferSize.X = static_cast<SHORT>(dwColumns);
 	}
 	else
 	{
-		TRACE(L"2\n");
 		coordBufferSize.X = static_cast<SHORT>(m_consoleParams->dwBufferColumns);
 	}
 
 	if (m_consoleParams->dwBufferRows == 0)
 	{
-		TRACE(L"3\n");
 		coordBufferSize.Y = static_cast<SHORT>(dwRows);
 	}
 	else
 	{
-		TRACE(L"4\n");
 		coordBufferSize.Y = static_cast<SHORT>(m_consoleParams->dwBufferRows);
 	}
-	
+
 	SMALL_RECT	srConsoleRect;
-	srConsoleRect.Top	= 0;
+
+	// vertical size
+	switch (dwResizeWindowEdge)
+	{
+		case WMSZ_TOP :
+		case WMSZ_TOPLEFT :
+		case WMSZ_TOPRIGHT :
+		{
+			if ((csbi.srWindow.Top == 0) || (csbi.srWindow.Bottom - static_cast<SHORT>(dwRows - 1) <= 0))
+			{
+				TRACE(L"3\n");
+				srConsoleRect.Top	= 0;
+				srConsoleRect.Bottom= static_cast<SHORT>(dwRows - 1);
+			}
+			else
+			{
+				TRACE(L"4\n");
+				srConsoleRect.Top	= csbi.srWindow.Bottom - static_cast<SHORT>(dwRows);
+				srConsoleRect.Bottom= csbi.srWindow.Bottom;
+			}
+
+			break;
+		}
+
+		case WMSZ_BOTTOM :
+		case WMSZ_BOTTOMLEFT :
+		case WMSZ_BOTTOMRIGHT :
+		{
+			if (csbi.srWindow.Top + static_cast<SHORT>(dwRows) > static_cast<SHORT>(m_consoleParams->dwBufferRows))
+			{
+				TRACE(L"1\n");
+				srConsoleRect.Top	= static_cast<SHORT>(m_consoleParams->dwBufferRows - dwRows);
+				srConsoleRect.Bottom= static_cast<SHORT>(m_consoleParams->dwBufferRows - 1);
+			}
+			else
+			{
+				TRACE(L"2\n");
+				srConsoleRect.Top	= csbi.srWindow.Top;
+				srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
+			}
+
+			break;
+		}
+
+		default :
+		{
+			TRACE(L"5\n");
+			srConsoleRect.Top	= csbi.srWindow.Top;
+			srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
+		}
+	}
+
+	// horizontal size
+	switch (dwResizeWindowEdge)
+	{
+		case WMSZ_LEFT :
+		case WMSZ_TOPLEFT :
+		case WMSZ_BOTTOMLEFT :
+		{
+			if (csbi.srWindow.Right - static_cast<SHORT>(dwColumns - 1) <= 0)
+			{
+				TRACE(L"3\n");
+				srConsoleRect.Left	= 0;
+				srConsoleRect.Right	= static_cast<SHORT>(dwColumns - 1);
+			}
+			else
+			{
+				TRACE(L"4\n");
+				srConsoleRect.Left	= csbi.srWindow.Right - static_cast<SHORT>(dwColumns);
+				srConsoleRect.Right	= csbi.srWindow.Right;
+			}
+
+			break;
+		}
+
+		case WMSZ_RIGHT :
+		case WMSZ_TOPRIGHT :
+		case WMSZ_BOTTOMRIGHT :
+		{
+			if (csbi.srWindow.Left + static_cast<SHORT>(dwColumns) > static_cast<SHORT>(m_consoleParams->dwBufferColumns))
+			{
+				TRACE(L"1\n");
+				srConsoleRect.Left	= static_cast<SHORT>(m_consoleParams->dwBufferColumns - dwColumns);
+				srConsoleRect.Right	= static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1);
+			}
+			else
+			{
+				TRACE(L"2\n");
+				srConsoleRect.Left	= csbi.srWindow.Left;
+				srConsoleRect.Right	= csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
+			}
+
+			break;
+		}
+
+		default :
+		{
+			TRACE(L"5\n");
+			srConsoleRect.Left	= csbi.srWindow.Left;
+			srConsoleRect.Right	= csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
+		}
+	}
+
+
+/*
+	if (csbi.srWindow.Bottom == static_cast<SHORT>(m_consoleParams->dwBufferRows - 1))
+	{
+		srConsoleRect.Top	= static_cast<SHORT>(m_consoleParams->dwBufferRows - dwRows);
+		srConsoleRect.Bottom= static_cast<SHORT>(m_consoleParams->dwBufferRows - 1);
+	}
+	else
+	{
+		srConsoleRect.Top	= csbi.srWindow.Top;
+		srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows) - 1;
+	}
+*/
+
+//	srConsoleRect.Top	= 0;
+//	srConsoleRect.Bottom= static_cast<SHORT>(dwRows - 1);
+/*
 	srConsoleRect.Left	= 0;
 	srConsoleRect.Right	= static_cast<SHORT>(dwColumns - 1);
-	srConsoleRect.Bottom= static_cast<SHORT>(dwRows - 1);
+*/
 
-	TRACE(L"New console size: %ix%i\n", srConsoleRect.Right, srConsoleRect.Bottom);
+	TRACE(L"New win pos: %ix%i - %ix%i\n", srConsoleRect.Left, srConsoleRect.Top, srConsoleRect.Right, srConsoleRect.Bottom);
 	TRACE(L"Buffer size: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
 
+	// this is the easiest way to ensure proper console resize
+	::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
+	::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 /*
 	::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
 	::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 */
 
 	// order of setting window size and screen buffer size depends on current and desired dimensions
+/*
 	if ((dwColumns < (DWORD) csbi.dwSize.X) ||
 		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) dwColumns * m_consoleParams->dwBufferRows))
 	{
 //		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 		
 		TRACE(L"Console 1\n");
-/*
+/ *
 		if ((m_consoleParams->dwBufferRows > dwRows) && 
 			(static_cast<DWORD>(csbi.dwSize.Y) > m_consoleParams->dwBufferRows))
 		{
@@ -312,7 +432,7 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 			coordBuffersSize.Y				= csbi.dwSize.Y;
 			m_consoleParams->dwBufferRows	= static_cast<DWORD>(csbi.dwSize.Y);
 		}
-*/
+* /
 		
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 		::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
@@ -325,17 +445,18 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 //				((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 
 		// why did we need this???
-/*
+/ *
 		if (csbi.dwSize.Y < m_consoleParams->dwBufferRows)
 		{
 			m_consoleParams->dwBufferRows = coordBuffersSize.Y = csbi.dwSize.Y;
 		}
-*/
+* /
 		TRACE(L"Console 2\n");
 		
 		::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 	}
+*/
 
 
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
@@ -505,7 +626,7 @@ DWORD ConsoleHandler::MonitorThread()
 //	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 
 	SetConsoleParams(hStdOut.get());
-	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows);
+	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
 
 	HANDLE	arrWaitHandles[] =
 	{
@@ -596,7 +717,7 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
-				ResizeConsoleWindow(hStdOut.get(), m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows);
+				ResizeConsoleWindow(hStdOut.get(), m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows, m_newConsoleSize->dwResizeWindowEdge);
 				ReadConsoleBuffer();
 
 				::ResetEvent(hStdOut.get());

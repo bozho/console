@@ -582,7 +582,7 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::AdjustRectAndResize(CRect& clientRect, bool bGetClientRect)
+void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bGetClientRect)
 {
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
@@ -607,10 +607,12 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, bool bGetClientRect)
 	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
 
-	SharedMemoryLock memLock(m_consoleHandler.GetNewConsoleSize());
+	SharedMemory<ConsoleSize>&	newConsoleSize = m_consoleHandler.GetNewConsoleSize();
+	SharedMemoryLock			memLock(newConsoleSize);
 
-	m_consoleHandler.GetNewConsoleSize()->dwColumns	= dwColumns;
-	m_consoleHandler.GetNewConsoleSize()->dwRows	= dwRows;
+	newConsoleSize->dwColumns			= dwColumns;
+	newConsoleSize->dwRows				= dwRows;
+	newConsoleSize->dwResizeWindowEdge	= dwResizeWindowEdge;
 
 /*
 	TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
@@ -960,7 +962,9 @@ void ConsoleView::CreateOffscreenBuffers()
 void ConsoleView::CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap)
 {
 	if (!bitmap.IsNull()) return;// bitmap.DeleteObject();
-	bitmap.CreateCompatibleBitmap(dcWindow, rect.right, rect.bottom);
+
+	Helpers::CreateBitmap(dcWindow, rect.Width(), rect.Height(), bitmap);
+//	bitmap.CreateCompatibleBitmap(dcWindow, rect.right, rect.bottom);
 	cdc.SelectBitmap(bitmap);
 }
 

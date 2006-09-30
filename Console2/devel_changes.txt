@@ -17,6 +17,10 @@ Build 127
 
 - File->Tabs menu is updated properly after closing the settings dialog
 
+- [internal] implemented a fallback mechanism for allocating bitmaps
+
+- fixed broken buffer position after window resize
+
 
 Build 126
 ---------

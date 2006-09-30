@@ -45,6 +45,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
 			MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 			MESSAGE_HANDLER(WM_SIZE, OnSize)
+			MESSAGE_HANDLER(WM_SIZING, OnSizing)
 			MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, OnWindowPosChanging)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
@@ -98,6 +99,7 @@ class MainFrame
 
 		LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
@@ -206,6 +208,7 @@ class MainFrame
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;
+		DWORD			m_dwResizeWindowEdge;
 
 		bool			m_bRestoringWindow;
 		CRect			m_rectRestoredWnd;

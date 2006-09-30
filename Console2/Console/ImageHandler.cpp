@@ -263,26 +263,9 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 
 	dcTemplate.SelectBitmap(bmpTemplate);
 
-	bkImage->image.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+//	bkImage->image.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+	Helpers::CreateBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight, bkImage->image);
 
-/*
-	BITMAPINFO bf;
-	::ZeroMemory(&bf, sizeof(BITMAPINFO));
-
-	 DWORD dwBytesPerLine =   (((32 * bkImage->dwImageWidth) + 31) / 32 * 4); 
-	bf.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bf.bmiHeader.biWidth = bkImage->dwImageWidth;
-	bf.bmiHeader.biHeight= bkImage->dwImageHeight;
-	bf.bmiHeader.biPlanes = 1;
-	bf.bmiHeader.biBitCount = 32;
-	bf.bmiHeader.biCompression = BI_RGB;
-	bf.bmiHeader.biSizeImage = dwBytesPerLine*bkImage->dwImageHeight;
-
-	void* p = NULL;
-
-
-	bkImage->image.CreateDIBSection(dc, &bf, BI_RGB, &p, NULL, 0);
-*/
 	bkImage->dcImage.SelectBitmap(bkImage->image);
 
 	CBrush	backgroundBrush(::CreateSolidBrush(bkImage->imageData.crBackground));
@@ -373,7 +356,9 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 	dcTemplate.SelectBitmap(bmpTemplate);
 
 	if (!bkImage->image.IsNull()) bkImage->image.DeleteObject();
-	bkImage->image.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+
+//	bkImage->image.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+	Helpers::CreateBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight, bkImage->image);
 	bkImage->dcImage.SelectBitmap(bkImage->image);
 
 	CBrush backgroundBrush(::CreateSolidBrush(bkImage->imageData.crBackground));
@@ -496,7 +481,8 @@ void ImageHandler::TintImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage
 	bf.AlphaFormat			= 0;
 
 	dcTint.CreateCompatibleDC(dc);
-	bmpTint.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+//	bmpTint.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
+	Helpers::CreateBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight, bmpTint);
 	dcTint.SelectBitmap(bmpTint);
 	dcTint.FillRect(&rect, tintBrush);
 

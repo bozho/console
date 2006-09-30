@@ -27,7 +27,7 @@ class ConsoleHandler
 
 		void ReadConsoleBuffer();
 
-		void ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows);
+		void ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge);
 
 		void PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText);
 

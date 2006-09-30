@@ -49,12 +49,14 @@ class Cursor
 		Cursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 		: m_hwndConsoleView(hwndConsoleView)
 		, m_dcCursor(::CreateCompatibleDC(NULL))
-		, m_bmpCursor(::CreateCompatibleBitmap(dcConsoleView, rectCursor.right - rectCursor.left, rectCursor.bottom - rectCursor.top))
+//		, m_bmpCursor(::CreateCompatibleBitmap(dcConsoleView, rectCursor.Width(), rectCursor.Height()))
+		, m_bmpCursor(NULL)
 		, m_rectCursor(rectCursor)
 		, m_crCursorColor(crCursorColor)
 		, m_paintBrush(::CreateSolidBrush(crCursorColor))
 		, m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 		{
+			Helpers::CreateBitmap(dcConsoleView, rectCursor.Width(), rectCursor.Height(), m_bmpCursor);
 			m_dcCursor.SelectBitmap(m_bmpCursor);
 			m_dcCursor.SetBkColor(RGB(0, 0, 0));
 		}

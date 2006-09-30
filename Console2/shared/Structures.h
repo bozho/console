@@ -77,14 +77,18 @@ struct ConsoleParams
 
 struct ConsoleSize
 {
-	ConsoleSize(DWORD rows, DWORD columns)
+	ConsoleSize(DWORD rows, DWORD columns, DWORD resizeWindowEdge)
 	: dwRows(rows)
 	, dwColumns(columns)
+	, dwResizeWindowEdge(resizeWindowEdge)
 	{
 	}
 
 	DWORD	dwRows;
 	DWORD	dwColumns;
+
+	// window edge used for resizing, one of WMSZ_* constants
+	DWORD	dwResizeWindowEdge;
 };
 
 

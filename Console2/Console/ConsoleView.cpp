@@ -1220,8 +1220,8 @@ void ConsoleView::UpdateTitle()
 void ConsoleView::Repaint()
 {
 	// repaint text layer
-	if (GetBufferDifference() > 15)
-	{
+ 	if (GetBufferDifference() > 15)
+ 	{
 		RepaintText();
 	}
 	else
@@ -1284,7 +1284,7 @@ void ConsoleView::RepaintText()
 		
 		bTextOut		= false;
 		
-		attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
+		attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
 		
 		// here we decide how to paint text over the background
 		if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
@@ -1306,9 +1306,11 @@ void ConsoleView::RepaintText()
 		strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
 		++dwOffset;
 
-		for (DWORD j = 1; j < consoleParams->dwColumns; ++j)
+		for (DWORD j = 1; j < consoleParams->dwColumns; ++j, ++dwOffset)
 		{
-			attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
+			if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+			
+			attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
 
 			if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
 			{
@@ -1353,8 +1355,6 @@ void ConsoleView::RepaintText()
 			{
 				strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
 			}
-				
-			++dwOffset;
 		}
 
 		if (strText.length() > 0)
@@ -1390,22 +1390,26 @@ void ConsoleView::RepaintTextChanges()
 		dwX = stylesSettings.dwInsideBoder;
 		dwY = i*m_nCharHeight + stylesSettings.dwInsideBoder;
 
-		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
+		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{
 			if (memcmp(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO)))
 			{
 				memcpy(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO));
 
+				if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+
 				CRect rect;
 				rect.top	= dwY;
 				rect.left	= dwX;
 				rect.bottom	= dwY + m_nCharHeight;
-				rect.right	= dwX + m_nCharWidth;
+				// we have to erase two spaces for double-width characters
+				rect.right	= (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_LEADING_BYTE) ? dwX + 2*m_nCharWidth : dwX + m_nCharWidth;
 				
 				m_dcText.FillRect(&rect, m_backgroundBrush);
-				attrBG = m_screenBuffer[dwOffset].Attributes >> 4;
 
-				// here we decide how to paint text over the backgound
+				attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
+
+				// here we decide how to paint text over the background
 				if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
 				{
 					m_dcText.SetBkMode(TRANSPARENT);
@@ -1420,9 +1424,6 @@ void ConsoleView::RepaintTextChanges()
 				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 			}
-
-			dwX += m_nCharWidth;
-			++dwOffset;
 		}
 	}
 }

@@ -407,23 +407,14 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 	TRACE(L"New win pos: %ix%i - %ix%i\n", srConsoleRect.Left, srConsoleRect.Top, srConsoleRect.Right, srConsoleRect.Bottom);
 	TRACE(L"Buffer size: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
 
-	// this is the easiest way to ensure proper console resize
-	::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
-	::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
-/*
-	::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
-	::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
-*/
-
 	// order of setting window size and screen buffer size depends on current and desired dimensions
-/*
 	if ((dwColumns < (DWORD) csbi.dwSize.X) ||
 		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) dwColumns * m_consoleParams->dwBufferRows))
 	{
 //		((DWORD) csbi.dwSize.X * csbi.dwSize.Y > (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 		
 		TRACE(L"Console 1\n");
-/ *
+/*
 		if ((m_consoleParams->dwBufferRows > dwRows) && 
 			(static_cast<DWORD>(csbi.dwSize.Y) > m_consoleParams->dwBufferRows))
 		{
@@ -432,7 +423,7 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 			coordBuffersSize.Y				= csbi.dwSize.Y;
 			m_consoleParams->dwBufferRows	= static_cast<DWORD>(csbi.dwSize.Y);
 		}
-* /
+*/
 		
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 		::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
@@ -445,18 +436,18 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 //				((DWORD) csbi.dwSize.X * csbi.dwSize.Y < (DWORD) m_consoleParams->dwBufferColumns * m_consoleParams->dwBufferRows)) {
 
 		// why did we need this???
-/ *
+/*
 		if (csbi.dwSize.Y < m_consoleParams->dwBufferRows)
 		{
 			m_consoleParams->dwBufferRows = coordBuffersSize.Y = csbi.dwSize.Y;
 		}
-* /
+*/
 		TRACE(L"Console 2\n");
 		
 		::SetConsoleScreenBufferSize(hStdOut, coordBufferSize);
 		::SetConsoleWindowInfo(hStdOut, TRUE, &srConsoleRect);
 	}
-*/
+
 
 
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);

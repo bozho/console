@@ -21,6 +21,9 @@ Build 127
 
 - fixed broken buffer position after window resize
 
+- [internal] implemented proper rendering of double-width characters (Chinese,
+  Japanese)
+
 
 Build 126
 ---------

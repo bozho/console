@@ -364,6 +364,8 @@ struct HotKeys : public SettingsBase
 	typedef Commands::index<commandID>::type		CommandIDIndex;
 
 	Commands	commands;
+
+	bool		bUseScrollLock;
 };
 
 //////////////////////////////////////////////////////////////////////////////

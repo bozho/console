@@ -68,7 +68,6 @@ using namespace std;
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/tokenizer.hpp>
-#include <boost/algorithm/string/trim.hpp>
 using namespace boost;
 #pragma warning(pop)
 
@@ -99,7 +98,7 @@ using namespace boost::multi_index;
 
 #define	VERSION_MAJOR	2
 #define	VERSION_MINOR	0
-#define	VERSION_BUILD	127
+#define	VERSION_BUILD	128
 
 //////////////////////////////////////////////////////////////////////////////
 

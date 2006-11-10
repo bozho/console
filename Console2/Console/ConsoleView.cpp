@@ -48,6 +48,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, 
 , m_screenBuffer()
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
+, m_hotkeys(g_settingsHandler->GetHotKeys())
 , m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
 , m_background()
 , m_backgroundBrush(NULL)
@@ -345,14 +346,15 @@ LRESULT ConsoleView::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
 LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	UINT				uiFlags = static_cast<UINT>(wParam);
-	CPoint				point(LOWORD(lParam), HIWORD(lParam));
+	CPoint				point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	MouseDragSettings&	mouseDragSettings = g_settingsHandler->GetBehaviorSettings().mouseDragSettings;
 
 	if (!mouseDragSettings.bMouseDrag || (mouseDragSettings.bInverseShift == !(uiFlags & MK_SHIFT)))
 	{
 		// start selection
 		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
-		m_selectionHandler->StartSelection(point, static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwColumns - 1), static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwRows - 1));
+
+		m_selectionHandler->StartSelection(point);
 	}
 	else
 	{
@@ -374,7 +376,7 @@ LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 
 LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
 	if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
 	{
@@ -432,13 +434,34 @@ LRESULT ConsoleView::OnMButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	UINT	uiFlags = static_cast<UINT>(wParam);
-	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
 	if (uiFlags & MK_LBUTTON)
 	{
 		if ((m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) ||
 			(m_selectionHandler->GetState() == SelectionHandler::selstateSelecting))
 		{
+			CRect	rectClient;
+			GetClientRect(&rectClient);
+
+			if (point.x < rectClient.left)
+			{
+				DoScroll(SB_HORZ, SB_LINELEFT, 0);
+			}			
+			else if (point.x > rectClient.right)
+			{
+				DoScroll(SB_HORZ, SB_LINERIGHT, 0);
+			}
+			
+			if (point.y < rectClient.top)
+			{
+				DoScroll(SB_VERT, SB_LINEUP, 0);
+			}
+			else if (point.y > rectClient.bottom)
+			{
+				DoScroll(SB_VERT, SB_LINEDOWN, 0);
+			}
+
 			m_selectionHandler->UpdateSelection(point);
 			BitBltOffscreen();
 		}
@@ -619,7 +642,7 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
 	TRACE(L"================================================================\n");
 */
 
-	m_consoleHandler.GetNewConsoleSize().SetEvent();
+	m_consoleHandler.GetNewConsoleSize().SetReqEvent();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -757,7 +780,19 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 		return;
 	}
 
-	m_selectionHandler->CopySelection(pPoint, m_consoleHandler.GetConsoleBuffer());
+	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+	SharedMemoryLock			memLock(consoleBuffer);
+
+	if (pPoint != NULL)
+	{
+		m_selectionHandler->CopySelection(*pPoint);
+	}
+	else
+	{
+		// called by mainframe
+		m_selectionHandler->CopySelection();
+	}
+
 	m_selectionHandler->ClearSelection();
 	BitBltOffscreen();
 }
@@ -870,6 +905,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
 	}
 
+	m_selectionHandler->UpdateSelection();
 	Repaint();
 }
 
@@ -939,7 +975,15 @@ void ConsoleView::CreateOffscreenBuffers()
 	m_dcText.FillRect(&rectWindowMax, m_backgroundBrush);
 
 	// create selection handler
-	m_selectionHandler.reset(new SelectionHandler(m_hWnd, dcWindow, rectWindowMax, m_nCharWidth, m_nCharHeight, RGB(255, 255, 255)));
+	m_selectionHandler.reset(new SelectionHandler(
+									m_hWnd, 
+									dcWindow, 
+									rectWindowMax, 
+									m_consoleHandler.GetConsoleParams(), 
+									m_consoleHandler.GetConsoleInfo(), 
+									m_consoleHandler.GetCopyInfo(),
+									m_nCharWidth, 
+									m_nCharHeight, RGB(255, 255, 255)));
 
 	// create and initialize cursor
 	CRect		rectCursor(0, 0, m_nCharWidth, m_nCharHeight);
@@ -1150,7 +1194,7 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 			newScrollPos->cy = 0;
 		}
 
-		newScrollPos.SetEvent();
+		newScrollPos.SetReqEvent();
 	}
 }
 
@@ -1161,14 +1205,15 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 DWORD ConsoleView::GetBufferDifference()
 {
-	SharedMemory<CHAR_INFO>& sharedScreenBuffer = m_consoleHandler.GetConsoleBuffer();
+	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+	SharedMemoryLock			memLock(consoleBuffer);
 
 	DWORD dwCount				= m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns;
 	DWORD dwChangedPositions	= 0;
 
 	for (DWORD i = 0; i < dwCount; ++i)
 	{
-		if (sharedScreenBuffer[i].Char.UnicodeChar != m_screenBuffer[i].Char.UnicodeChar) ++dwChangedPositions;
+		if (consoleBuffer[i].Char.UnicodeChar != m_screenBuffer[i].Char.UnicodeChar) ++dwChangedPositions;
 	}
 
 	return dwChangedPositions*100/dwCount;
@@ -1268,10 +1313,15 @@ void ConsoleView::RepaintText()
 	
 	wstring		strText(L"");
 
-	::CopyMemory(
-		m_screenBuffer.get(), 
-		m_consoleHandler.GetConsoleBuffer().Get(), 
-		sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
+	{
+		SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+		SharedMemoryLock			memLock(consoleBuffer);
+		
+		::CopyMemory(
+			m_screenBuffer.get(), 
+			consoleBuffer.Get(), 
+			sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
+	}
 
 	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
@@ -1383,7 +1433,8 @@ void ConsoleView::RepaintTextChanges()
 	
 	WORD	attrBG;
 
-	SharedMemory<CHAR_INFO>& sharedScreenBuffer = m_consoleHandler.GetConsoleBuffer();
+	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+	SharedMemoryLock			memLock(consoleBuffer);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
@@ -1392,9 +1443,9 @@ void ConsoleView::RepaintTextChanges()
 
 		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{
-			if (memcmp(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO)))
+			if (memcmp(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
 			{
-				memcpy(&(m_screenBuffer[dwOffset]), &(sharedScreenBuffer[dwOffset]), sizeof(CHAR_INFO));
+				memcpy(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
 
 				if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
 
@@ -1610,16 +1661,23 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-		rectCursor			= m_cursor->GetCursorRect();
-		rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
-		rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
-		rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
-		rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
+		// don't blit if cursor is outside visible window
+		if ((consoleInfo->dwCursorPosition.X >= consoleInfo->srWindow.Left) &&
+			(consoleInfo->dwCursorPosition.X <= consoleInfo->srWindow.Right) &&
+			(consoleInfo->dwCursorPosition.Y >= consoleInfo->srWindow.Top) &&
+			(consoleInfo->dwCursorPosition.Y <= consoleInfo->srWindow.Bottom))
+		{
+			rectCursor			= m_cursor->GetCursorRect();
+			rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
+			rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
+			rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBoder;
+			rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBoder;
 
-		m_cursor->BitBlt(
-					m_dcOffscreen, 
-					rectCursor.left, 
-					rectCursor.top);
+			m_cursor->BitBlt(
+						m_dcOffscreen, 
+						rectCursor.left, 
+						rectCursor.top);
+		}
 	}
 
 	// blit selection
@@ -1634,6 +1692,8 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 {
 	if (!pszText || (wcslen(pszText) == 0)) return;
+
+	SharedMemoryLock memLock(m_consoleHandler.GetPasteInfo());
 
 	void* pRemoteMemory = ::VirtualAllocEx(
 								m_consoleHandler.GetConsoleHandle().get(),
@@ -1655,8 +1715,8 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 		return;
 	}
 
-	m_consoleHandler.GetConsolePasteInfo() = reinterpret_cast<UINT_PTR>(pRemoteMemory);
-	m_consoleHandler.GetConsolePasteInfo().SetEvent();
+	m_consoleHandler.GetPasteInfo() = reinterpret_cast<UINT_PTR>(pRemoteMemory);
+	m_consoleHandler.GetPasteInfo().SetReqEvent();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1668,7 +1728,7 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 {
 	if (uMsg == WM_KEYDOWN)
 	{
-		if ((::GetKeyState(VK_SCROLL) & 0x01) == 0x01)
+		if (m_hotkeys.bUseScrollLock && ((::GetKeyState(VK_SCROLL) & 0x01) == 0x01))
 		{
 			switch(wParam)
 			{
@@ -1711,3 +1771,4 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 }
 
 /////////////////////////////////////////////////////////////////////////////
+

@@ -77,10 +77,10 @@ struct ConsoleParams
 
 struct ConsoleSize
 {
-	ConsoleSize(DWORD rows, DWORD columns, DWORD resizeWindowEdge)
-	: dwRows(rows)
-	, dwColumns(columns)
-	, dwResizeWindowEdge(resizeWindowEdge)
+	ConsoleSize()
+	: dwRows(0)
+	, dwColumns(0)
+	, dwResizeWindowEdge(0)
 	{
 	}
 
@@ -89,6 +89,33 @@ struct ConsoleSize
 
 	// window edge used for resizing, one of WMSZ_* constants
 	DWORD	dwResizeWindowEdge;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct ConsoleCopy
+{
+	ConsoleCopy()
+	: coordStart()
+	, coordEnd()
+	, bNoWrap(false)
+	, bTrimSpaces(false)
+	{
+	}
+
+	COORD	coordStart;
+	COORD	coordEnd;
+	bool	bNoWrap;
+	bool	bTrimSpaces;
 };
 
 

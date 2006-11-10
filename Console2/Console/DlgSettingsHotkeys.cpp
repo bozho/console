@@ -15,6 +15,7 @@
 
 DlgSettingsHotkeys::DlgSettingsHotkeys(CComPtr<IXMLDOMElement>& pOptionsRoot)
 : DlgSettingsBase(pOptionsRoot)
+, m_nUseScrollLock(0)
 {
 	IDD = IDD_SETTINGS_HOTKEYS;
 }
@@ -33,6 +34,8 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 {
 	m_hotKeys.Load(m_pOptionsRoot);
 
+	m_nUseScrollLock = m_hotKeys.bUseScrollLock ? 1 : 0;
+
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_HOTKEYS));
 	m_editCommand.Attach(GetDlgItem(IDC_EDIT_COMMAND));
 	m_hotKeyEdit.SubclassWindow(GetDlgItem(IDC_EDIT_HOTKEY));
@@ -42,7 +45,7 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_listCtrl.InsertColumn(0, L"Command");
 	m_listCtrl.InsertColumn(1, L"Hotkey");
 
-	m_listCtrl.SetColumnWidth(0, 100);
+	m_listCtrl.SetColumnWidth(0, 170);
 	m_listCtrl.SetColumnWidth(1, 218);
 
 	HotKeys::CommandsSequence::iterator	it = m_hotKeys.commands.begin();
@@ -134,6 +137,17 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT DlgSettingsHotkeys::OnBtnClear(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_hotKeyEdit.SetHotKey(0, 0);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	if (wID == IDOK)
@@ -141,6 +155,11 @@ LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 		DoDataExchange(DDX_SAVE);
 
 		HotKeys& hotKeys = g_settingsHandler->GetHotKeys();
+
+		m_hotKeys.bUseScrollLock = (m_nUseScrollLock > 0);
+
+
+		hotKeys.bUseScrollLock = m_hotKeys.bUseScrollLock;
 
 		hotKeys.commands.clear();
 		hotKeys.commands.insert(hotKeys.commands.begin(), m_hotKeys.commands.begin(), m_hotKeys.commands.end());

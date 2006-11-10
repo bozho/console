@@ -29,7 +29,8 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleParams()
 , m_consoleInfo()
 , m_consoleBuffer()
-, m_consolePaste()
+, m_consoleCopyInfo()
+, m_consolePasteInfo()
 , m_newConsoleSize()
 , m_newScrollPos()
 , m_hMonitorThread()
@@ -172,7 +173,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	::CloseHandle(pi.hThread);
 
 	// wait for hook DLL to set console handle
-	if (::WaitForSingleObject(m_consoleParams.GetEvent(), 10000) == WAIT_TIMEOUT) return false;
+	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT) return false;
 
 	return true;
 }
@@ -222,25 +223,28 @@ void ConsoleHandler::StopMonitorThread()
 bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId)
 {
 	// create startup params shared memory
-	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str());
+	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str(), 1, syncObjRequest);
 
 	// create console info shared memory
-	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str());
+	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
 
 	// create console info shared memory
-	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str());
+	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
 
 	// TODO: max console size
-	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200);
+	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200, syncObjRequest);
 
-	// paste info 
-	m_consolePaste.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str());
+	// copy info
+	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
+
+	// paste info
+	m_consolePasteInfo.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
 
 	// new console size
-	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str());
+	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str(), 1, syncObjRequest);
 
 	// new scroll position
-	m_newScrollPos.Create((SharedMemNames::formatNewScrollPos % dwConsoleProcessId).str());
+	m_newScrollPos.Create((SharedMemNames::formatNewScrollPos % dwConsoleProcessId).str(), 1, syncObjRequest);
 
 	// TODO: separate function for default settings
 	m_consoleParams->dwRows		= 25;
@@ -339,11 +343,9 @@ DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter)
 
 DWORD ConsoleHandler::MonitorThread()
 {
-	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetEvent() };
+	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetReqEvent() };
 	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1)
 	{
-		SharedMemoryLock	memLock(m_consoleBuffer);
-
 		DWORD				dwColumns	= m_consoleInfo->srWindow.Right - m_consoleInfo->srWindow.Left + 1;
 		DWORD				dwRows		= m_consoleInfo->srWindow.Bottom - m_consoleInfo->srWindow.Top + 1;
 		bool				bResize		= false;

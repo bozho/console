@@ -32,3 +32,5 @@
 
 *** done *** - handle save crash
 
+- thread-safe tab switch
+

@@ -1,6 +1,27 @@
 v2.00
 =====
 
+Build 128
+---------
+
+- added 'Clear' button to hotkeys dialog
+
+- added 'Use Scroll Lock for scrolling' option to hotkeys dialog; if on, arrow
+  keys and page up/down keys are used for scrolling when Scroll Lock is on
+
+- improved cursor rendering a bit
+
+- improved selection handling:
+   - selection now selects entire buffer row, not just the visible part
+   - scrolling with active selection works as expected
+   - you can now scroll Console window while selecting text
+   
+- improved copy operation, entire buffer row is now copied (not just the 
+  visible part)
+  
+- added hotkeys for scrolling
+
+
 Build 127
 ---------
 

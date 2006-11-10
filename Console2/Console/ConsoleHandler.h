@@ -35,7 +35,8 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& GetConsoleInfo()	{ return m_consoleInfo; }
 		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
 		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
-		SharedMemory<UINT_PTR>& GetConsolePasteInfo()				{ return m_consolePaste; }
+		SharedMemory<ConsoleCopy>& GetCopyInfo()					{ return m_consoleCopyInfo; }
+		SharedMemory<UINT_PTR>& GetPasteInfo()						{ return m_consolePasteInfo; }
 		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
 		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
 
@@ -67,7 +68,8 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>	m_consoleInfo;
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
-		SharedMemory<UINT_PTR>						m_consolePaste;
+		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
+		SharedMemory<UINT_PTR>						m_consolePasteInfo;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;
 		SharedMemory<SIZE>							m_newScrollPos;

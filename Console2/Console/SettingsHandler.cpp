@@ -957,7 +957,9 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 //////////////////////////////////////////////////////////////////////////////
 
 HotKeys::HotKeys()
+: bUseScrollLock(false)
 {
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));
 
@@ -992,7 +994,14 @@ HotKeys::HotKeys()
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,		L"Copy")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,		L"Paste")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer one row up")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer one row down")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		L"Scroll buffer one page up")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	L"Scroll buffer one page down")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			L"Scroll buffer one column left")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer one column right")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer one page left")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer one page right")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 }
@@ -1005,9 +1014,15 @@ HotKeys::HotKeys()
 bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	HRESULT						hr = S_OK;
+
+	CComPtr<IXMLDOMElement>		pHotkeysElement;
 	CComPtr<IXMLDOMNodeList>	pHotKeyNodes;
 
-	hr = pSettingsRoot->selectNodes(CComBSTR(L"hotkeys/hotkey"), &pHotKeyNodes);
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
+
+	XmlHelper::GetAttribute(pHotkeysElement, CComBSTR(L"use_scroll_lock"), bUseScrollLock, false);
+
+	hr = pHotkeysElement->selectNodes(CComBSTR(L"hotkey"), &pHotKeyNodes);
 	if (FAILED(hr)) return false;
 
 	long	lListLength;
@@ -1064,6 +1079,8 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	CComPtr<IXMLDOMNodeList>	pHotKeyChildNodes;
 
 	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"hotkeys"), pHotkeysElement))) return false;
+
+	XmlHelper::SetAttribute(pHotkeysElement, CComBSTR(L"use_scroll_lock"), bUseScrollLock);
 
 	if (FAILED(pHotkeysElement->get_childNodes(&pHotKeyChildNodes))) return false;
 

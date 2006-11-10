@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="40" columns="120" buffer_rows="1000" buffer_columns="0" shell="" init_dir="" save_size="0">
+	<console change_refresh="10" refresh="100" rows="40" columns="80" buffer_rows="1000" buffer_columns="80" shell="" init_dir="" save_size="0">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -21,7 +21,7 @@
 		</colors>
 	</console>
 	<appearance>
-		<font name="MS Gothic" size="10" bold="0" italic="0">
+		<font name="DejaVu Sans Mono" size="9" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
@@ -31,11 +31,11 @@
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
 	<behavior>
-		<copy_paste copy_on_select="0" no_wrap="0" trim_spaces="1"/>
+		<copy_paste copy_on_select="0" no_wrap="1" trim_spaces="1"/>
 		<mouse_drag on="1" inverse_shift="0"/>
 		<scroll page_scroll_rows="0"/>
 	</behavior>
-	<hotkeys>
+	<hotkeys use_scroll_lock="1">
 		<hotkey ctrl="0" shift="0" alt="1" extended="0" code="115" command="exit"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="112" command="newtab1"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="113" command="newtab2"/>
@@ -63,6 +63,14 @@
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="82" command="renametab"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="1" code="45" command="copy"/>
 		<hotkey ctrl="0" shift="1" alt="0" extended="1" code="45" command="paste"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollrowup"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollrowdown"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageup"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpagedown"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollcolleft"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollcolright"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageleft"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageright"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="112" command="help"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="112" command="dumpbuffer"/>
 	</hotkeys>

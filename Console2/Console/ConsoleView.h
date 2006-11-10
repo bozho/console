@@ -177,6 +177,7 @@ class ConsoleView
 
 		ConsoleSettings&				m_consoleSettings;
 		AppearanceSettings&				m_appearanceSettings;
+		HotKeys&						m_hotkeys;
 
 		shared_ptr<TabData>				m_tabData;
 		shared_ptr<BackgroundImage>		m_background;

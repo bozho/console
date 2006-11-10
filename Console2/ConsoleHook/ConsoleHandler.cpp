@@ -21,7 +21,8 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleInfo()
 , m_cursorInfo()
 , m_consoleBuffer()
-, m_consolePaste()
+, m_consoleCopyInfo()
+, m_consolePasteInfo()
 , m_newConsoleSize()
 , m_newScrollPos()
 , m_hMonitorThread()
@@ -88,25 +89,28 @@ bool ConsoleHandler::OpenSharedMemory()
 	DWORD dwProcessId = ::GetCurrentProcessId();
 
 	// TODO: error handling
-	m_consoleParams.Open((SharedMemNames::formatConsoleParams % dwProcessId).str());
+	m_consoleParams.Open((SharedMemNames::formatConsoleParams % dwProcessId).str(), syncObjRequest);
 
 	// open console info shared memory object
-	m_consoleInfo.Open((SharedMemNames::formatInfo % dwProcessId).str());
+	m_consoleInfo.Open((SharedMemNames::formatInfo % dwProcessId).str(), syncObjRequest);
 
 	// open console info shared memory object
-	m_cursorInfo.Open((SharedMemNames::formatCursorInfo % dwProcessId).str());
+	m_cursorInfo.Open((SharedMemNames::formatCursorInfo % dwProcessId).str(), syncObjRequest);
 
 	// open console buffer shared memory object
-	m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str());
+	m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str(), syncObjRequest);
+
+	// copy info
+	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwProcessId).str(), 2, syncObjBoth);
 
 	// paste info 
-	m_consolePaste.Open((SharedMemNames::formatPasteInfo % dwProcessId).str());
+	m_consolePasteInfo.Open((SharedMemNames::formatPasteInfo % dwProcessId).str(), syncObjRequest);
 
 	// open new console size shared memory object
-	m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str());
+	m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str(), syncObjRequest);
 
 	// new scroll position
-	m_newScrollPos.Open((SharedMemNames::formatNewScrollPos % dwProcessId).str());
+	m_newScrollPos.Open((SharedMemNames::formatNewScrollPos % dwProcessId).str(), syncObjRequest);
 
 	return true;
 }
@@ -153,14 +157,11 @@ void ConsoleHandler::ReadConsoleBuffer()
 	shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
 
 	COORD		coordBufferSize;
-	COORD		coordStart;
+	// start coordinates for the buffer are always (0, 0) - we use offset
+	COORD		coordStart = {0, 0};
 	SMALL_RECT	srBuffer;
 
 //	TRACE(L"===================================================================\n");
-
-	// start coordinates for the buffer are always (0, 0) - we use offset
-	coordStart.X		= 0;
-	coordStart.Y		= 0;
 
 	// ReadConsoleOutput seems to fail for large (around 6k CHAR_INFO's) buffers
 	// here we calculate max buffer size (row count) for safe reading
@@ -231,7 +232,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 		::CopyMemory(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
 		::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
 
-		m_consoleBuffer.SetEvent();
+		m_consoleBuffer.SetReqEvent();
 	}
 }
 
@@ -464,6 +465,135 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::CopyConsoleText()
+{
+	if (!::OpenClipboard(NULL)) return;
+
+	COORD&	coordStart	= m_consoleCopyInfo->coordStart;
+	COORD&	coordEnd	= m_consoleCopyInfo->coordEnd;
+
+	TRACE(L"Copy request: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
+
+	shared_ptr<void> hStdOut(
+						::CreateFile(
+							L"CONOUT$",
+							GENERIC_WRITE | GENERIC_READ,
+							FILE_SHARE_READ | FILE_SHARE_WRITE,
+							NULL,
+							OPEN_EXISTING,
+							0,
+							0),
+							::CloseHandle);
+
+	// get total console size
+	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
+	wstring						strText(L"");
+
+	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
+
+	for (SHORT i = coordStart.Y; i <= coordEnd.Y; ++i)
+	{
+		SMALL_RECT				srBuffer;
+		COORD					coordFrom		= {0, 0};
+		COORD					coordBufferSize	= {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
+		shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
+
+//		TRACE(L"i: %i, coordStart.Y: %i, coordStart.X: %i\n", i, coordStart.Y, coordStart.X);
+		srBuffer.Left	= (i == coordStart.Y) ? coordStart.X : 0;
+		srBuffer.Top	= i;
+//		srBuffer.Right	= ((coordEnd.Y > coordStart.Y) && (i == coordEnd.Y)) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? m_consoleParams->dwBufferColumns - 1 : m_consoleParams->dwColumns - 1;
+		srBuffer.Right	= (i == coordEnd.Y) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
+		srBuffer.Bottom	= i;
+
+
+//		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
+
+		::ReadConsoleOutput(
+			hStdOut.get(), 
+			pScreenBuffer.get(), 
+			coordBufferSize, 
+			coordFrom, 
+			&srBuffer);
+
+//		TRACE(L"Read region:    (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
+
+		wstring strRow(L"");
+		bool	bWrap = true;
+
+		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left; ++x)
+		{
+			if (pScreenBuffer[x].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+			strRow += pScreenBuffer[x].Char.UnicodeChar;
+		}
+
+		// handle trim/wrap settings
+		if (i == coordStart.Y)
+		{
+			// first row
+			if ((m_consoleCopyInfo->bNoWrap && 
+				(coordStart.Y < coordEnd.Y) &&
+				(strRow[strRow.length() - 1] != L' ')) ||
+				(coordStart.Y == coordEnd.Y))
+			{
+				bWrap = false;
+			}
+		}
+		else if (i == coordEnd.Y)
+		{
+			// last row
+			if (strRow.length() < static_cast<size_t>(srBuffer.Right))
+			{
+				bWrap = false;
+			}
+		}
+		else
+		{
+			// rows in between
+			if (m_consoleCopyInfo->bNoWrap && 
+				(strRow.length() == static_cast<size_t>(srBuffer.Right)) && 
+				(strRow[strRow.length() - 1] != L' '))
+			{
+				bWrap = false;
+			}
+		}
+
+		if (m_consoleCopyInfo->bTrimSpaces) trim_right(strRow);
+		if (bWrap) strRow += wstring(L"\n");
+
+		TRACE(L"row: {%s}\n", strRow.c_str());
+
+		strText += strRow;
+	}
+
+	::EmptyClipboard();
+
+	HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, (strText.length()+1)*sizeof(wchar_t));
+
+	if (hText == NULL)
+	{ 
+		::CloseClipboard();
+		return;
+	} 
+
+	::CopyMemory(static_cast<wchar_t*>(::GlobalLock(hText)), strText.c_str(), (strText.length()+1)*sizeof(wchar_t));
+
+	::GlobalUnlock(hText);
+
+	if (::SetClipboardData(CF_UNICODETEXT, hText) == NULL)
+	{
+		// we need to global-free data only if copying failed
+		::GlobalFree(hText);
+	}
+	::CloseClipboard();
+	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText)
 {
 	size_t	textLen			= wcslen(pszText.get());
@@ -547,7 +677,7 @@ void ConsoleHandler::SetConsoleParams(HANDLE hStdOut)
 	::GetConsoleScreenBufferInfo(hStdOut, m_consoleInfo.Get());
 	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
 
-	m_consoleParams.SetEvent();
+	m_consoleParams.SetReqEvent();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -625,9 +755,10 @@ DWORD ConsoleHandler::MonitorThread()
 		hStdOut.get(), 
 		hStdOut.get(), 
 //		hStdErr, 
-		m_consolePaste.GetEvent(), 
-		m_newConsoleSize.GetEvent(),
-		m_newScrollPos.GetEvent()
+		m_consoleCopyInfo.GetReqEvent(), 
+		m_consolePasteInfo.GetReqEvent(), 
+		m_newConsoleSize.GetReqEvent(),
+		m_newScrollPos.GetReqEvent()
 	};
 
 	DWORD	dwWaitRes		= 0;
@@ -692,11 +823,23 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			// paste request
+			// copy request
 			case WAIT_OBJECT_0 + 3 :
 			{
+				SharedMemoryLock memLock(m_consoleCopyInfo);
+
+				CopyConsoleText();
+				m_consoleCopyInfo.SetRespEvent();
+				break;
+			}
+
+			// paste request
+			case WAIT_OBJECT_0 + 4 :
+			{
+				SharedMemoryLock memLock(m_consolePasteInfo);
+
 				shared_ptr<wchar_t>	pszPasteBuffer(
-										reinterpret_cast<wchar_t*>(*m_consolePaste.Get()),
+										reinterpret_cast<wchar_t*>(*m_consolePasteInfo.Get()),
 										bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
 
 				PasteConsoleText(hStdIn.get(), pszPasteBuffer);
@@ -704,7 +847,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console resize request
-			case WAIT_OBJECT_0 + 4 :
+			case WAIT_OBJECT_0 + 5 :
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
@@ -717,7 +860,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console scroll request
-			case WAIT_OBJECT_0 + 5 :
+			case WAIT_OBJECT_0 + 6 :
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 

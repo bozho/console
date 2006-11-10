@@ -23,14 +23,26 @@ class SelectionHandler
 		};
 
 	public:
-		SelectionHandler(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectConsoleView, int nCharWidth, int nCharHeight, COLORREF crSelectionColor);
+		SelectionHandler(
+			const CWindow& consoleView, 
+			const CDC& dcConsoleView, 
+			const CRect& rectConsoleView, 
+			SharedMemory<ConsoleParams>& consoleParams, 
+			SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo, 
+			SharedMemory<ConsoleCopy>& consoleCopyInfo, 
+			int nCharWidth, 
+			int nCharHeight, 
+			COLORREF crSelectionColor);
+
 		~SelectionHandler();
 
 	public:
 
-		void StartSelection(const CPoint& pointInitial, SHORT sXMax, SHORT sYMax);
-		void UpdateSelection(const CPoint& point);
-		void CopySelection(const CPoint* pPoint, const SharedMemory<CHAR_INFO>& consoleBuffer);
+		void StartSelection(const CPoint& pointInit);
+		void UpdateSelection(const CPoint& pointCurrent);
+		void UpdateSelection();
+		void CopySelection(const CPoint& pointCurrent);
+		void CopySelection();
 		void EndSelection();
 		void ClearSelection();
 
@@ -41,6 +53,8 @@ class SelectionHandler
 	private:
 
 		void GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd);
+		COORD GetConsoleCoord(const CPoint& clientPoint);
+		void GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect);
 
 	private:
 
@@ -51,6 +65,9 @@ class SelectionHandler
 
 		CRect			m_rectConsoleView;
 
+		SharedMemory<ConsoleParams>&				m_consoleParams;
+		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>&	m_consoleInfo;
+		SharedMemory<ConsoleCopy>&					m_consoleCopyInfo;
 		int				m_nCharWidth;
 		int				m_nCharHeight;
 
@@ -61,9 +78,6 @@ class SelectionHandler
 
 		COORD			m_coordInitial;
 		COORD			m_coordCurrent;
-		SHORT			m_sXMax;
-		SHORT			m_sYMax;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

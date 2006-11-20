@@ -426,7 +426,7 @@ StylesSettings::StylesSettings()
 , bResizable(true)
 , bTaskbarButton(true)
 , bBorder(true)
-, dwInsideBoder(2)
+, dwInsideBorder(2)
 , bTrayIcon(false)
 {
 }
@@ -446,7 +446,7 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"resizable"), bResizable, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"border"), bBorder, true);
-	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBoder, 2);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder, 2);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon, false);
 
 	return true;
@@ -467,7 +467,7 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"resizable"), bResizable);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"taskbar_button"), bTaskbarButton);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"border"), bBorder);
-	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBoder);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon);
 
 	return true;
@@ -484,7 +484,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	bResizable		= other.bResizable;
 	bTaskbarButton	= other.bTaskbarButton;
 	bBorder			= other.bBorder;
-	dwInsideBoder	= other.dwInsideBoder;
+	dwInsideBorder	= other.dwInsideBorder;
 	bTrayIcon		= other.bTrayIcon;
 
 	return *this;
@@ -994,14 +994,14 @@ HotKeys::HotKeys()
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,		L"Copy")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,		L"Paste")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer one row up")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer one row down")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		L"Scroll buffer one page up")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	L"Scroll buffer one page down")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			L"Scroll buffer one column left")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer one column right")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer one page left")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer one page right")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer row up")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer row down")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		L"Scroll buffer page up")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	L"Scroll buffer page down")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			L"Scroll buffer column left")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer column right")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer page left")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 }

@@ -38,8 +38,8 @@ class SelectionHandler
 
 	public:
 
-		void StartSelection(const CPoint& pointInit);
-		void UpdateSelection(const CPoint& pointCurrent);
+		void StartSelection(const CPoint& pointInit, shared_array<CHAR_INFO> screenBuffer);
+		void UpdateSelection(const CPoint& pointCurrent, shared_array<CHAR_INFO> screenBuffer);
 		void UpdateSelection();
 		void CopySelection(const CPoint& pointCurrent);
 		void CopySelection();

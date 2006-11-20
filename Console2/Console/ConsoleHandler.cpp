@@ -31,6 +31,7 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleBuffer()
 , m_consoleCopyInfo()
 , m_consolePasteInfo()
+, m_consoleMouseEvent()
 , m_newConsoleSize()
 , m_newScrollPos()
 , m_hMonitorThread()
@@ -214,6 +215,23 @@ void ConsoleHandler::StopMonitorThread()
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::SendMouseEvent()
+{
+	{
+		SharedMemoryLock	memLock(m_consoleMouseEvent);
+
+		// TODO: implement
+		m_consoleMouseEvent.SetReqEvent();
+	}
+
+	::WaitForSingleObject(m_consoleMouseEvent.GetRespEvent(), INFINITE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -239,6 +257,9 @@ bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId)
 
 	// paste info
 	m_consolePasteInfo.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
+
+	// mouse event
+	m_consoleMouseEvent.Create((SharedMemNames::formatMouseEvent % dwConsoleProcessId).str(), 1, syncObjBoth);
 
 	// new console size
 	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str(), 1, syncObjRequest);

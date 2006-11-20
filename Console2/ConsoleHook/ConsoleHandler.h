@@ -33,6 +33,8 @@ class ConsoleHandler
 
 		void PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText);
 
+		void SendMouseEvent(HANDLE hStdIn);
+
 		void ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta);
 
 		void SetConsoleParams(HANDLE hStdOut);
@@ -52,6 +54,7 @@ class ConsoleHandler
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
 		SharedMemory<UINT_PTR>						m_consolePasteInfo;
+		SharedMemory<MOUSE_EVENT_RECORD>			m_consoleMouseEvent;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;
 		SharedMemory<SIZE>							m_newScrollPos;

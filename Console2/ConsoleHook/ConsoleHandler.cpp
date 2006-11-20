@@ -23,6 +23,7 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleBuffer()
 , m_consoleCopyInfo()
 , m_consolePasteInfo()
+, m_consoleMouseEvent()
 , m_newConsoleSize()
 , m_newScrollPos()
 , m_hMonitorThread()
@@ -101,10 +102,13 @@ bool ConsoleHandler::OpenSharedMemory()
 	m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str(), syncObjRequest);
 
 	// copy info
-	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwProcessId).str(), 2, syncObjBoth);
+	m_consoleCopyInfo.Open((SharedMemNames::formatCopyInfo % dwProcessId).str(), syncObjBoth);
 
 	// paste info 
 	m_consolePasteInfo.Open((SharedMemNames::formatPasteInfo % dwProcessId).str(), syncObjRequest);
+
+	// mouse event
+	m_consoleMouseEvent.Open((SharedMemNames::formatMouseEvent % dwProcessId).str(), syncObjBoth);
 
 	// open new console size shared memory object
 	m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str(), syncObjRequest);
@@ -622,6 +626,29 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::SendMouseEvent(HANDLE hStdIn)
+{
+	DWORD	dwEvents = 0;
+
+	INPUT_RECORD mouseEvent;
+	::ZeroMemory(&mouseEvent, sizeof(INPUT_RECORD));
+
+	mouseEvent.EventType	= MOUSE_EVENT;
+	mouseEvent.Event.MouseEvent.dwMousePosition.X = 0;
+	mouseEvent.Event.MouseEvent.dwMousePosition.Y = 0;
+	mouseEvent.Event.MouseEvent.dwButtonState = FROM_LEFT_1ST_BUTTON_PRESSED;
+	mouseEvent.Event.MouseEvent.dwControlKeyState = 0;
+	mouseEvent.Event.MouseEvent.dwEventFlags	= 0;
+
+
+	::WriteConsoleInput(hStdIn, &mouseEvent, 1, &dwEvents);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta)
 {
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -757,6 +784,7 @@ DWORD ConsoleHandler::MonitorThread()
 //		hStdErr, 
 		m_consoleCopyInfo.GetReqEvent(), 
 		m_consolePasteInfo.GetReqEvent(), 
+		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
 		m_newScrollPos.GetReqEvent()
 	};
@@ -846,8 +874,18 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			// console resize request
+			// mouse event request
 			case WAIT_OBJECT_0 + 5 :
+			{
+				SharedMemoryLock memLock(m_consoleMouseEvent);
+
+				SendMouseEvent(hStdIn.get());
+				m_consoleMouseEvent.SetRespEvent();
+				break;
+			}
+
+			// console resize request
+			case WAIT_OBJECT_0 + 6 :
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
@@ -860,7 +898,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console scroll request
-			case WAIT_OBJECT_0 + 6 :
+			case WAIT_OBJECT_0 + 7 :
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 

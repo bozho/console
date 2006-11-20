@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="40" columns="80" buffer_rows="1000" buffer_columns="80" shell="" init_dir="" save_size="0">
+	<console change_refresh="10" refresh="100" rows="40" columns="80" buffer_rows="1000" buffer_columns="160" shell="" init_dir="" save_size="0">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -21,7 +21,7 @@
 		</colors>
 	</console>
 	<appearance>
-		<font name="DejaVu Sans Mono" size="9" bold="0" italic="0">
+		<font name="DejaVu Sans Mono" size="10" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
@@ -36,6 +36,7 @@
 		<scroll page_scroll_rows="0"/>
 	</behavior>
 	<hotkeys use_scroll_lock="1">
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="112" command="help"/>
 		<hotkey ctrl="0" shift="0" alt="1" extended="0" code="115" command="exit"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="112" command="newtab1"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="113" command="newtab2"/>
@@ -71,7 +72,6 @@
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollcolright"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageleft"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageright"/>
-		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="112" command="help"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="112" command="dumpbuffer"/>
 	</hotkeys>
 	<tabs>

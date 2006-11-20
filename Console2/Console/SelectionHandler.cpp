@@ -62,7 +62,7 @@ SelectionHandler::~SelectionHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const CPoint& pointInit)
+void SelectionHandler::StartSelection(const CPoint& pointInit, shared_array<CHAR_INFO> screenBuffer)
 {
 	if (m_selectionState > selstateNoSelection) return;
 
@@ -73,6 +73,13 @@ void SelectionHandler::StartSelection(const CPoint& pointInit)
 	m_coordCurrent.X	= m_coordInitial.X;
 	m_coordCurrent.Y	= m_coordInitial.Y;
 
+	SMALL_RECT&	 srWindow = m_consoleInfo->srWindow;
+
+ 	if (screenBuffer[(m_coordCurrent.Y - srWindow.Top) * m_consoleParams->dwColumns + (m_coordCurrent.X - srWindow.Left)].Attributes & COMMON_LVB_LEADING_BYTE)
+ 	{
+		++m_coordCurrent.X;
+	}
+
 	m_selectionState	= selstateStartedSelecting;
 }
 
@@ -81,7 +88,7 @@ void SelectionHandler::StartSelection(const CPoint& pointInit)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::UpdateSelection(const CPoint& pointCurrent)
+void SelectionHandler::UpdateSelection(const CPoint& pointCurrent, shared_array<CHAR_INFO> screenBuffer)
 {
 	if ((m_selectionState != selstateStartedSelecting) &&
 		(m_selectionState != selstateSelecting))
@@ -94,6 +101,13 @@ void SelectionHandler::UpdateSelection(const CPoint& pointCurrent)
 
 //	TRACE(L"Update selection current: %ix%i\n", coordCurrent.X, coordCurrent.Y);
 	m_coordCurrent = coordCurrent;
+
+	SMALL_RECT&	 srWindow = m_consoleInfo->srWindow;
+
+ 	if (screenBuffer[(m_coordCurrent.Y - srWindow.Top) * m_consoleParams->dwColumns + (m_coordCurrent.X - srWindow.Left)].Attributes & COMMON_LVB_LEADING_BYTE)
+ 	{
+		++m_coordCurrent.X;
+	}
 
 	UpdateSelection();
 }
@@ -169,7 +183,7 @@ void SelectionHandler::UpdateSelection()
 		fillEnd.Y = coordEnd.Y;
 
 		GetFillRect(fillStart, fillEnd, fillRect);
-		TRACE(L"fill rect: (%ix%i) - (%ix%i)\n", fillRect.left, fillRect.top, fillRect.right, fillRect.bottom);
+//		TRACE(L"fill rect: (%ix%i) - (%ix%i)\n", fillRect.left, fillRect.top, fillRect.right, fillRect.bottom);
 		m_dcSelection.FillRect(&fillRect, m_paintBrush);
 	}
 }
@@ -343,8 +357,8 @@ COORD SelectionHandler::GetConsoleCoord(const CPoint& clientPoint)
 	COORD			consolePoint;
 	SHORT			maxX = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
 
-	consolePoint.X = static_cast<SHORT>((point.x - static_cast<LONG>(stylesSettings.dwInsideBoder)) / m_nCharWidth + m_consoleInfo->srWindow.Left);
-	consolePoint.Y = static_cast<SHORT>((point.y - static_cast<LONG>(stylesSettings.dwInsideBoder)) / m_nCharHeight + m_consoleInfo->srWindow.Top);
+	consolePoint.X = static_cast<SHORT>((point.x - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharWidth + m_consoleInfo->srWindow.Left);
+	consolePoint.Y = static_cast<SHORT>((point.y - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharHeight + m_consoleInfo->srWindow.Top);
 
 	if (consolePoint.X < 0)
 	{
@@ -352,7 +366,15 @@ COORD SelectionHandler::GetConsoleCoord(const CPoint& clientPoint)
 		--consolePoint.Y;
 	}
 
+	if (consolePoint.X > m_consoleInfo->srWindow.Right) consolePoint.X = m_consoleInfo->srWindow.Right;
+
 	if (consolePoint.Y < 0) consolePoint.Y = 0;
+
+	if (consolePoint.Y > m_consoleInfo->srWindow.Bottom)
+	{
+		consolePoint.X = maxX;
+		consolePoint.Y = m_consoleInfo->srWindow.Bottom;
+	}
 
 	return consolePoint;
 }
@@ -370,23 +392,23 @@ void SelectionHandler::GetFillRect(const COORD& coordStart, const COORD& coordEn
 
 	m_consoleView.GetClientRect(&rectConsoleView);
 
-	fillRect.left	= (coordStart.X - srWindow.Left) * m_nCharWidth + static_cast<LONG>(stylesSettings.dwInsideBoder);
-	fillRect.top	= (coordStart.Y - srWindow.Top) * m_nCharHeight + static_cast<LONG>(stylesSettings.dwInsideBoder);
+	fillRect.left	= (coordStart.X - srWindow.Left) * m_nCharWidth + static_cast<LONG>(stylesSettings.dwInsideBorder);
+	fillRect.top	= (coordStart.Y - srWindow.Top) * m_nCharHeight + static_cast<LONG>(stylesSettings.dwInsideBorder);
 
-	fillRect.right	= (coordEnd.X - srWindow.Left + 1) * m_nCharWidth + static_cast<LONG>(stylesSettings.dwInsideBoder);
-	fillRect.bottom	= (coordEnd.Y - srWindow.Top + 1) * m_nCharHeight + static_cast<LONG>(stylesSettings.dwInsideBoder);
+	fillRect.right	= (coordEnd.X - srWindow.Left + 1) * m_nCharWidth + static_cast<LONG>(stylesSettings.dwInsideBorder);
+	fillRect.bottom	= (coordEnd.Y - srWindow.Top + 1) * m_nCharHeight + static_cast<LONG>(stylesSettings.dwInsideBorder);
 
-	if (fillRect.left < static_cast<LONG>(stylesSettings.dwInsideBoder)) fillRect.left = stylesSettings.dwInsideBoder;
-	if (fillRect.top < static_cast<LONG>(stylesSettings.dwInsideBoder)) fillRect.top = stylesSettings.dwInsideBoder;
+	if (fillRect.left < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.left = stylesSettings.dwInsideBorder;
+	if (fillRect.top < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.top = stylesSettings.dwInsideBorder;
 
-	if (fillRect.left > (rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBoder))) fillRect.right = rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBoder);
-	if (fillRect.top > (rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBoder))) fillRect.bottom = rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBoder);
+	if (fillRect.left > (rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.right = rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder);
+	if (fillRect.top > (rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.bottom = rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder);
 
-	if (fillRect.right < static_cast<LONG>(stylesSettings.dwInsideBoder)) fillRect.right = stylesSettings.dwInsideBoder;
-	if (fillRect.bottom < static_cast<LONG>(stylesSettings.dwInsideBoder)) fillRect.bottom = stylesSettings.dwInsideBoder;
+	if (fillRect.right < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.right = stylesSettings.dwInsideBorder;
+	if (fillRect.bottom < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.bottom = stylesSettings.dwInsideBorder;
 
-	if (fillRect.right > (rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBoder))) fillRect.right = rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBoder);
-	if (fillRect.bottom > (rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBoder))) fillRect.bottom = rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBoder);
+	if (fillRect.right > (rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.right = rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder);
+	if (fillRect.bottom > (rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.bottom = rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -122,7 +122,7 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 	{
 		DoDataExchange(DDX_SAVE);
 
-		if (m_stylesSettings.dwInsideBoder > 10) m_stylesSettings.dwInsideBoder = 10;
+		if (m_stylesSettings.dwInsideBorder > 10) m_stylesSettings.dwInsideBorder = 10;
 
 		m_controlsSettings.bShowMenu		= (m_nShowMenu > 0);
 		m_controlsSettings.bShowToolbar		= (m_nShowToolbar > 0);

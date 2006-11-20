@@ -143,7 +143,7 @@ struct StylesSettings : public SettingsBase
 	bool			bResizable;
 	bool			bTaskbarButton;
 	bool			bBorder;
-	DWORD			dwInsideBoder;
+	DWORD			dwInsideBorder;
 	bool			bTrayIcon;
 };
 

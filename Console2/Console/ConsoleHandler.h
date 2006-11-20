@@ -40,6 +40,8 @@ class ConsoleHandler
 		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
 		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
 
+		void SendMouseEvent();
+
 	private:
 
 		bool CreateSharedMemory(DWORD dwConsoleProcessId);
@@ -70,6 +72,7 @@ class ConsoleHandler
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
 		SharedMemory<UINT_PTR>						m_consolePasteInfo;
+		SharedMemory<MOUSE_EVENT_RECORD>			m_consoleMouseEvent;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;
 		SharedMemory<SIZE>							m_newScrollPos;

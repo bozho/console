@@ -216,12 +216,17 @@ void ConsoleHandler::StopMonitorThread()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SendMouseEvent()
+void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwEventFlags)
 {
 	{
 		SharedMemoryLock	memLock(m_consoleMouseEvent);
 
 		// TODO: implement
+		m_consoleMouseEvent->dwMousePosition	= mousePos;
+		m_consoleMouseEvent->dwButtonState		= dwMouseButtonState;
+		m_consoleMouseEvent->dwControlKeyState	= 0;
+		m_consoleMouseEvent->dwEventFlags		= dwEventFlags;
+
 		m_consoleMouseEvent.SetReqEvent();
 	}
 

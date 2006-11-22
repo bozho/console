@@ -780,69 +780,6 @@ CopyPasteSettings& CopyPasteSettings::operator=(const CopyPasteSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
-MouseDragSettings::MouseDragSettings()
-: bMouseDrag(false)
-, bInverseShift(false)
-{
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool MouseDragSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
-{
-	CComPtr<IXMLDOMElement>	pMouseDragElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
-
-	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag, false);
-	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift, false);
-
-	return true;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool MouseDragSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
-{
-	CComPtr<IXMLDOMElement>	pMouseDragElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/mouse_drag"), pMouseDragElement))) return false;
-
-	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag);
-	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift);
-
-	return true;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-MouseDragSettings& MouseDragSettings::operator=(const MouseDragSettings& other)
-{
-	bMouseDrag		= other.bMouseDrag;
-	bInverseShift	= other.bInverseShift;
-
-	return *this;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 ScrollSettings::ScrollSettings()
 : dwPageScrollRows(0)
 {
@@ -914,7 +851,6 @@ BehaviorSettings::BehaviorSettings()
 bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	copyPasteSettings.Load(pSettingsRoot);
-	mouseDragSettings.Load(pSettingsRoot);
 	scrollSettings.Load(pSettingsRoot);
 	return true;
 }
@@ -927,7 +863,6 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	copyPasteSettings.Save(pSettingsRoot);
-	mouseDragSettings.Save(pSettingsRoot);
 	scrollSettings.Save(pSettingsRoot);
 	return true;
 }
@@ -940,7 +875,6 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 {
 	copyPasteSettings	= other.copyPasteSettings;
-	mouseDragSettings	= other.mouseDragSettings;
 	scrollSettings		= other.scrollSettings;
 
 	return *this;
@@ -1142,6 +1076,97 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	}
 
 	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+MouseSettings::MouseSettings()
+: bUseDrag(false)
+, dwDragModifiers(mkNone)
+, bUseSelection(false)
+, dwSelectionModifiers(mkNone)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool MouseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pMouseDragElement;
+	CComPtr<IXMLDOMElement>	pMouseSelectElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/drag"), pMouseDragElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/select"), pMouseSelectElement))) return false;
+
+	bool	bUseCtrl	= false;
+	bool	bUseShift	= false;
+	bool	bUseAlt		= false;
+
+	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"on"), bUseDrag, false);
+	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"ctrl"), bUseCtrl, false);
+	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"shift"), bUseShift, false);
+	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"alt"), bUseAlt, false);
+
+	if (bUseCtrl)	dwDragModifiers |= (int)mkCtrl;
+	if (bUseShift)	dwDragModifiers |= mkShift;
+	if (bUseAlt)	dwDragModifiers |= mkAlt;
+
+	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"on"), bUseSelection, false);
+	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"ctrl"), bUseCtrl, false);
+	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"shift"), bUseShift, false);
+	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"alt"), bUseAlt, false);
+
+	if (bUseCtrl)	dwSelectionModifiers |= mkCtrl;
+	if (bUseShift)	dwSelectionModifiers |= mkShift;
+	if (bUseAlt)	dwSelectionModifiers |= mkAlt;
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool MouseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pMouseDragElement;
+	CComPtr<IXMLDOMElement>	pMouseSelectElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/drag"), pMouseDragElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/select"), pMouseSelectElement))) return false;
+
+// 	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag);
+// 	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+MouseSettings& MouseSettings::operator=(const MouseSettings& other)
+{
+	bUseDrag		= other.bUseDrag;
+	dwDragModifiers	= other.dwDragModifiers;
+
+	bUseSelection		= other.bUseSelection;
+	dwSelectionModifiers= other.dwSelectionModifiers;
+
+	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1453,6 +1478,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	m_appearanceSettings.Load(m_pSettingsRoot);
 	m_behaviorSettings.Load(m_pSettingsRoot);
 	m_hotKeys.Load(m_pSettingsRoot);
+	m_mouseSettings.Load(m_pSettingsRoot);
 
 	m_tabSettings.SetDefaults(m_consoleSettings.strShell, m_consoleSettings.strInitialDir);
 	m_tabSettings.Load(m_pSettingsRoot);
@@ -1471,6 +1497,7 @@ bool SettingsHandler::SaveSettings()
 	m_appearanceSettings.Save(m_pSettingsRoot);
 	m_behaviorSettings.Save(m_pSettingsRoot);
 	m_hotKeys.Save(m_pSettingsRoot);
+	m_mouseSettings.Save(m_pSettingsRoot);
 	m_tabSettings.Save(m_pSettingsRoot);
 
 	HRESULT hr = m_pSettingsDocument->save(CComVariant(m_strSettingsFileName.c_str()));

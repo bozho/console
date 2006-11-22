@@ -55,6 +55,7 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, 
 , m_cursor()
 , m_selectionHandler()
 {
+	TRACE(L"Scroll width: %i\n", m_nHScrollWidth);
 }
 
 ConsoleView::~ConsoleView()
@@ -347,18 +348,14 @@ LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 {
 	UINT				uiFlags = static_cast<UINT>(wParam);
 	CPoint				point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	MouseDragSettings&	mouseDragSettings = g_settingsHandler->GetBehaviorSettings().mouseDragSettings;
+	MouseSettings&		mouseSettings	= g_settingsHandler->GetMouseSettings();
+	DWORD				dwModifierKeys	= MouseSettings::mkNone;
 
-//	m_consoleHandler.SendMouseEvent();
+	if (uiFlags & MK_CONTROL)		dwModifierKeys	|= MouseSettings::mkCtrl;
+	if (uiFlags & MK_SHIFT)			dwModifierKeys	|= MouseSettings::mkShift;
+	if (GetKeyState(VK_MENU) < 0)	dwModifierKeys	|= MouseSettings::mkAlt;
 
-	if (!mouseDragSettings.bMouseDrag || (mouseDragSettings.bInverseShift == !(uiFlags & MK_SHIFT)))
-	{
-		// start selection
-		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
-
-		m_selectionHandler->StartSelection(point, m_screenBuffer);
-	}
-	else
+	if (mouseSettings.bUseDrag && (mouseSettings.dwDragModifiers == dwModifierKeys))
 	{
 		// mouse drag
 		// selection active, return
@@ -366,6 +363,18 @@ LRESULT ConsoleView::OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 
 		ClientToScreen(&point);
 		GetParent().PostMessage(UM_START_MOUSE_DRAG, wParam, MAKELPARAM(point.x, point.y));
+	}
+	else if (mouseSettings.bUseSelection && (mouseSettings.dwSelectionModifiers == dwModifierKeys))
+	{
+		// start selection
+		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected) return 0;
+
+		m_selectionHandler->StartSelection(GetConsoleCoord(point), m_screenBuffer);
+	}
+	else
+	{
+		// send mouse event to console
+		m_consoleHandler.SendMouseEvent(GetConsoleCoord(point), FROM_LEFT_1ST_BUTTON_PRESSED, 0);
 	}
 
 	return 0;
@@ -401,6 +410,35 @@ LRESULT ConsoleView::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 		{
 			Copy(NULL);
 		}
+	}
+	else
+	{
+		// send mouse event to console
+	 	m_consoleHandler.SendMouseEvent(GetConsoleCoord(point), 0, 0);
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnLButtonBblClk(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	UINT	uiFlags = static_cast<UINT>(wParam);
+	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+	DWORD	dwModifierKeys	= MouseSettings::mkNone;
+
+	if (uiFlags & MK_CONTROL)		dwModifierKeys	|= MouseSettings::mkCtrl;
+	if (uiFlags & MK_SHIFT)			dwModifierKeys	|= MouseSettings::mkShift;
+	if (GetKeyState(VK_MENU) < 0)	dwModifierKeys	|= MouseSettings::mkAlt;
+
+	if (dwModifierKeys == MouseSettings::mkNone)
+	{
+		// send mouse event to console
+		m_consoleHandler.SendMouseEvent(GetConsoleCoord(point), FROM_LEFT_1ST_BUTTON_PRESSED, DOUBLE_CLICK);
 	}
 
 	return 0;
@@ -466,8 +504,13 @@ LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BO
 				DoScroll(SB_VERT, SB_LINEDOWN, 0);
 			}
 
-			m_selectionHandler->UpdateSelection(point, m_screenBuffer);
+			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
 			BitBltOffscreen();
+		}
+		else
+		{
+			// send mouse event to console
+			m_consoleHandler.SendMouseEvent(GetConsoleCoord(point), FROM_LEFT_1ST_BUTTON_PRESSED, MOUSE_MOVED);
 		}
 	}
 
@@ -789,7 +832,7 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 
 	if (pPoint != NULL)
 	{
-		m_selectionHandler->CopySelection(*pPoint);
+		m_selectionHandler->CopySelection(GetConsoleCoord(*pPoint));
 	}
 	else
 	{
@@ -1068,8 +1111,8 @@ void ConsoleView::InitializeScrollbars()
 {
 	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
 
-	m_bShowVScroll = consoleParams->dwBufferRows > consoleParams->dwRows;
-	m_bShowHScroll = consoleParams->dwBufferColumns > consoleParams->dwColumns;
+ 	m_bShowVScroll = consoleParams->dwBufferRows > consoleParams->dwRows;
+ 	m_bShowHScroll = consoleParams->dwBufferColumns > consoleParams->dwColumns;
 
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
 	::InitializeFlatSB(m_hWnd);
@@ -1772,6 +1815,45 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 	}
 
 	return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
+{
+	StylesSettings& stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
+
+	DWORD			dwColumns		= m_consoleHandler.GetConsoleParams()->dwColumns;
+	DWORD			dwBufferColumns	= m_consoleHandler.GetConsoleParams()->dwBufferColumns;
+	SMALL_RECT&		srWindow		= m_consoleHandler.GetConsoleInfo()->srWindow;
+
+	CPoint			point(clientPoint);
+	COORD			consolePoint;
+	SHORT			maxX = (dwBufferColumns > 0) ? static_cast<SHORT>(dwBufferColumns - 1) : static_cast<SHORT>(dwColumns - 1);
+
+	consolePoint.X = static_cast<SHORT>((point.x - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharWidth + srWindow.Left);
+	consolePoint.Y = static_cast<SHORT>((point.y - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharHeight + srWindow.Top);
+
+	if (consolePoint.X < 0)
+	{
+		consolePoint.X = maxX;
+		--consolePoint.Y;
+	}
+
+	if (consolePoint.X > srWindow.Right) consolePoint.X = srWindow.Right;
+
+	if (consolePoint.Y < 0) consolePoint.Y = 0;
+
+	if (consolePoint.Y > srWindow.Bottom)
+	{
+		consolePoint.X = maxX;
+		consolePoint.Y = srWindow.Bottom;
+	}
+
+	return consolePoint;
 }
 
 /////////////////////////////////////////////////////////////////////////////

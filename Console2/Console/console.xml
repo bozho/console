@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="40" columns="80" buffer_rows="1000" buffer_columns="160" shell="" init_dir="" save_size="0">
+	<console change_refresh="10" refresh="100" rows="25" columns="80" buffer_rows="0" buffer_columns="90" shell="" init_dir="" save_size="0">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -21,7 +21,7 @@
 		</colors>
 	</console>
 	<appearance>
-		<font name="DejaVu Sans Mono" size="10" bold="0" italic="0">
+		<font name="Courier New" size="10" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
@@ -32,7 +32,6 @@
 	</appearance>
 	<behavior>
 		<copy_paste copy_on_select="0" no_wrap="1" trim_spaces="1"/>
-		<mouse_drag on="1" inverse_shift="0"/>
 		<scroll page_scroll_rows="0"/>
 	</behavior>
 	<hotkeys use_scroll_lock="1">
@@ -74,6 +73,10 @@
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageright"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="112" command="dumpbuffer"/>
 	</hotkeys>
+	<mouse>
+		<drag on="1" ctrl="1" shift="0" alt="0"/>
+		<select on="1" ctrl="0" shift="1" alt="0"/>
+	</mouse>
 	<tabs>
 		<tab title="Console2">
 			<console shell="" init_dir=""/>

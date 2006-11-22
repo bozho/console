@@ -634,13 +634,8 @@ void ConsoleHandler::SendMouseEvent(HANDLE hStdIn)
 	::ZeroMemory(&mouseEvent, sizeof(INPUT_RECORD));
 
 	mouseEvent.EventType	= MOUSE_EVENT;
-	mouseEvent.Event.MouseEvent.dwMousePosition.X = 0;
-	mouseEvent.Event.MouseEvent.dwMousePosition.Y = 0;
-	mouseEvent.Event.MouseEvent.dwButtonState = FROM_LEFT_1ST_BUTTON_PRESSED;
-	mouseEvent.Event.MouseEvent.dwControlKeyState = 0;
-	mouseEvent.Event.MouseEvent.dwEventFlags	= 0;
 
-
+	::CopyMemory(&mouseEvent.Event.MouseEvent, m_consoleMouseEvent.Get(), sizeof(MOUSE_EVENT_RECORD));
 	::WriteConsoleInput(hStdIn, &mouseEvent, 1, &dwEvents);
 }
 

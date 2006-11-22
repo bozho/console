@@ -268,24 +268,6 @@ struct CopyPasteSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct MouseDragSettings : public SettingsBase
-{
-	MouseDragSettings();
-
-	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
-
-	MouseDragSettings& operator=(const MouseDragSettings& other);
-
-	bool	bMouseDrag;
-	bool	bInverseShift;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 struct ScrollSettings : public SettingsBase
 {
 	ScrollSettings();
@@ -313,7 +295,6 @@ struct BehaviorSettings : public SettingsBase
 	BehaviorSettings& operator=(const BehaviorSettings& other);
 
 	CopyPasteSettings	copyPasteSettings;
-	MouseDragSettings	mouseDragSettings;
 	ScrollSettings		scrollSettings;
 };
 
@@ -366,6 +347,37 @@ struct HotKeys : public SettingsBase
 	Commands	commands;
 
 	bool		bUseScrollLock;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct MouseSettings : public SettingsBase
+{
+	enum ModifierKeys
+	{
+		mkNone	= 0x00,
+		mkCtrl	= 0x01,
+		mkShift	= 0x02,
+		mkAlt	= 0x04
+	};
+
+	MouseSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	MouseSettings& operator=(const MouseSettings& other);
+
+	// drag
+	bool	bUseDrag;
+	DWORD	dwDragModifiers;
+
+	// select
+	bool	bUseSelection;
+	DWORD	dwSelectionModifiers;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -467,6 +479,7 @@ class SettingsHandler
 		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
 		BehaviorSettings& GetBehaviorSettings() { return m_behaviorSettings; }
 		HotKeys& GetHotKeys() { return m_hotKeys; }
+		MouseSettings& GetMouseSettings() { return m_mouseSettings; }
 		TabSettings& GetTabSettings() { return m_tabSettings; }
 
 	private:
@@ -482,6 +495,7 @@ class SettingsHandler
 		AppearanceSettings	m_appearanceSettings;
 		BehaviorSettings	m_behaviorSettings;
 		HotKeys				m_hotKeys;
+		MouseSettings		m_mouseSettings;
 
 		TabSettings			m_tabSettings;
 };

@@ -57,6 +57,7 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
+			MESSAGE_HANDLER(WM_LBUTTONDBLCLK, OnLButtonBblClk)
 			MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
 			MESSAGE_HANDLER(WM_MBUTTONDOWN, OnMButtonDown)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
@@ -81,6 +82,7 @@ class ConsoleView
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnLButtonBblClk(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
@@ -144,6 +146,7 @@ class ConsoleView
 
 		bool TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/);
 
+		COORD GetConsoleCoord(const CPoint& clientPoint);
 
 	private:
 

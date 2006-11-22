@@ -62,13 +62,13 @@ SelectionHandler::~SelectionHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const CPoint& pointInit, shared_array<CHAR_INFO> screenBuffer)
+void SelectionHandler::StartSelection(const COORD& coordInit, shared_array<CHAR_INFO> screenBuffer)
 {
 	if (m_selectionState > selstateNoSelection) return;
 
 	m_consoleView.SetCapture();
 
-	m_coordInitial		= GetConsoleCoord(pointInit);
+	m_coordInitial		= coordInit;
 
 	m_coordCurrent.X	= m_coordInitial.X;
 	m_coordCurrent.Y	= m_coordInitial.Y;
@@ -88,7 +88,7 @@ void SelectionHandler::StartSelection(const CPoint& pointInit, shared_array<CHAR
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::UpdateSelection(const CPoint& pointCurrent, shared_array<CHAR_INFO> screenBuffer)
+void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<CHAR_INFO> screenBuffer)
 {
 	if ((m_selectionState != selstateStartedSelecting) &&
 		(m_selectionState != selstateSelecting))
@@ -96,7 +96,6 @@ void SelectionHandler::UpdateSelection(const CPoint& pointCurrent, shared_array<
 		return;
 	}
 
-	COORD coordCurrent = GetConsoleCoord(pointCurrent);
 	if ((coordCurrent.X == m_coordCurrent.X) && (coordCurrent.Y == m_coordCurrent.Y)) return;
 
 //	TRACE(L"Update selection current: %ix%i\n", coordCurrent.X, coordCurrent.Y);
@@ -193,14 +192,13 @@ void SelectionHandler::UpdateSelection()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::CopySelection(const CPoint& pointCurrent)
+void SelectionHandler::CopySelection(const COORD& coordCurrent)
 {
 	if (m_selectionState < selstateSelecting) return;
 
 	bool	bCopy = false;
 	COORD	coordStart;
 	COORD	coordEnd;
-	COORD	coordCurrent = GetConsoleCoord(pointCurrent);
 
 	GetSelectionCoordinates(coordStart, coordEnd);
 
@@ -346,40 +344,6 @@ void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEn
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-COORD SelectionHandler::GetConsoleCoord(const CPoint& clientPoint)
-{
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-	CPoint			point(clientPoint);
-	COORD			consolePoint;
-	SHORT			maxX = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
-
-	consolePoint.X = static_cast<SHORT>((point.x - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharWidth + m_consoleInfo->srWindow.Left);
-	consolePoint.Y = static_cast<SHORT>((point.y - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharHeight + m_consoleInfo->srWindow.Top);
-
-	if (consolePoint.X < 0)
-	{
-		consolePoint.X = maxX;
-		--consolePoint.Y;
-	}
-
-	if (consolePoint.X > m_consoleInfo->srWindow.Right) consolePoint.X = m_consoleInfo->srWindow.Right;
-
-	if (consolePoint.Y < 0) consolePoint.Y = 0;
-
-	if (consolePoint.Y > m_consoleInfo->srWindow.Bottom)
-	{
-		consolePoint.X = maxX;
-		consolePoint.Y = m_consoleInfo->srWindow.Bottom;
-	}
-
-	return consolePoint;
-}
-
-/////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////

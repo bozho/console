@@ -38,10 +38,10 @@ class SelectionHandler
 
 	public:
 
-		void StartSelection(const CPoint& pointInit, shared_array<CHAR_INFO> screenBuffer);
-		void UpdateSelection(const CPoint& pointCurrent, shared_array<CHAR_INFO> screenBuffer);
+		void StartSelection(const COORD& coordInit, shared_array<CHAR_INFO> screenBuffer);
+		void UpdateSelection(const COORD& coordCurrent, shared_array<CHAR_INFO> screenBuffer);
 		void UpdateSelection();
-		void CopySelection(const CPoint& pointCurrent);
+		void CopySelection(const COORD& coordCurrent);
 		void CopySelection();
 		void EndSelection();
 		void ClearSelection();
@@ -53,7 +53,6 @@ class SelectionHandler
 	private:
 
 		void GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd);
-		COORD GetConsoleCoord(const CPoint& clientPoint);
 		void GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect);
 
 	private:

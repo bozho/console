@@ -202,6 +202,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 
+	TRACE(L"initial dims: %ix%i\n", m_dwWindowWidth, m_dwWindowHeight);
+
+
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -342,9 +345,11 @@ LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 		return 1;
 	}
 
-//	TRACE(L"minmax: (%i, %i) - (%i, %i)\n", maxClientRect.left, maxClientRect.top, maxClientRect.right, maxClientRect.bottom);
+	TRACE(L"minmax: %ix%i\n", maxClientRect.Width(), maxClientRect.Height());
 
 	AdjustWindowRect(maxClientRect);
+
+	TRACE(L"minmax: %ix%i\n", maxClientRect.Width(), maxClientRect.Height());
 
 	pMinMax->ptMaxSize.x = maxClientRect.Width();
 	pMinMax->ptMaxSize.y = maxClientRect.Height() + 4;
@@ -389,6 +394,12 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 		}
 */
 	}
+
+// 	CRect rectWindow;
+// 	GetWindowRect(&rectWindow);
+// 
+// 	TRACE(L"OnSize dims: %ix%i\n", rectWindow.Width(), rectWindow.Height());
+
 
 	bHandled = FALSE;
 	return 0;
@@ -556,13 +567,20 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 	CRect rectWindow;
 	GetWindowRect(&rectWindow);
 
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
 	DWORD dwWindowWidth	= rectWindow.Width();
 	DWORD dwWindowHeight= rectWindow.Height();
+
+	TRACE(L"old dims: %ix%i\n", m_dwWindowWidth, m_dwWindowHeight);
+	TRACE(L"new dims: %ix%i\n", dwWindowWidth, dwWindowHeight);
+	TRACE(L"client dims: %ix%i\n", rectClient.Width(), rectClient.Height());
 
 	if ((dwWindowWidth != m_dwWindowWidth) ||
 		(dwWindowHeight != m_dwWindowHeight))
 	{
-		AdjustWindowSize(true, (wParam == 1));
+		AdjustWindowSize(true, false);
 	}
 
 	SendMessage(WM_NULL, 0, 0);
@@ -1233,6 +1251,8 @@ void MainFrame::AdjustWindowRect(CRect& rect)
 
 	rect.bottom	+= GetTabAreaHeight(); //+0
 //	rect.right	+= 0;
+
+	TRACE(L"AdjustWindowRect: %ix%i\n", rect.Width(), rect.Height());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1813,6 +1833,8 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 
 	AdjustWindowRect(clientRect);
 
+	TRACE(L"AdjustWindowSize: %ix%i\n", clientRect.Width(), clientRect.Height());
+
 	SetWindowPos(
 		0, 
 		0, 
@@ -1825,6 +1847,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	CRect rectWindow;
 
 	GetWindowRect(&rectWindow);
+	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 

@@ -21,6 +21,8 @@ Build 128
   
 - added hotkeys for scrolling
 
+- added basic mouse events support
+
 
 Build 127
 ---------

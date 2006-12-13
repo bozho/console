@@ -80,8 +80,8 @@ class ConsoleView
 		LRESULT OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnLButtonDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnLButtonBblClk(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -145,6 +145,8 @@ class ConsoleView
 		void SendTextToConsole(const wchar_t* pszText);
 
 		bool TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/);
+		void HandleMouseClick(UINT uMsg, UINT uiFlags, const CPoint& point);
+		void ForwardMouseClick(UINT uMsg, const CPoint& point);
 
 		COORD GetConsoleCoord(const CPoint& clientPoint);
 
@@ -189,6 +191,8 @@ class ConsoleView
 
 		shared_ptr<Cursor>				m_cursor;
 		shared_ptr<SelectionHandler>	m_selectionHandler;
+
+		MouseSettings::Command			m_mouseCommand;
 
 // static members
 private:

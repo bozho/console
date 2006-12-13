@@ -1089,11 +1089,12 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 //////////////////////////////////////////////////////////////////////////////
 
 MouseSettings::MouseSettings()
-: bUseDrag(false)
-, dwDragModifiers(mkNone)
-, bUseSelection(false)
-, dwSelectionModifiers(mkNone)
+: commands()
 {
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"")));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1103,33 +1104,50 @@ MouseSettings::MouseSettings()
 
 bool MouseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	CComPtr<IXMLDOMElement>	pMouseDragElement;
-	CComPtr<IXMLDOMElement>	pMouseSelectElement;
+	HRESULT						hr = S_OK;
 
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/drag"), pMouseDragElement))) return false;
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/select"), pMouseSelectElement))) return false;
+	CComPtr<IXMLDOMElement>		pActionsElement;
+	CComPtr<IXMLDOMNodeList>	pActionNodes;
 
-	bool	bUseCtrl	= false;
-	bool	bUseShift	= false;
-	bool	bUseAlt		= false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/actions"), pActionsElement))) return false;
 
-	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"on"), bUseDrag, false);
-	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"ctrl"), bUseCtrl, false);
-	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"shift"), bUseShift, false);
-	XmlHelper::GetAttribute(pMouseDragElement, CComBSTR(L"alt"), bUseAlt, false);
+	hr = pActionsElement->selectNodes(CComBSTR(L"action"), &pActionNodes);
+	if (FAILED(hr)) return false;
 
-	if (bUseCtrl)	dwDragModifiers |= (int)mkCtrl;
-	if (bUseShift)	dwDragModifiers |= mkShift;
-	if (bUseAlt)	dwDragModifiers |= mkAlt;
+	long	lListLength;
+	pActionNodes->get_length(&lListLength);
 
-	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"on"), bUseSelection, false);
-	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"ctrl"), bUseCtrl, false);
-	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"shift"), bUseShift, false);
-	XmlHelper::GetAttribute(pMouseSelectElement, CComBSTR(L"alt"), bUseAlt, false);
+	for (long i = 0; i < lListLength; ++i)
+	{
+		CComPtr<IXMLDOMNode>	pActionNode;
+		CComPtr<IXMLDOMElement>	pActionElement;
 
-	if (bUseCtrl)	dwSelectionModifiers |= mkCtrl;
-	if (bUseShift)	dwSelectionModifiers |= mkShift;
-	if (bUseAlt)	dwSelectionModifiers |= mkAlt;
+		pActionNodes->get_item(i, &pActionNode);
+		if (FAILED(pActionNode.QueryInterface(&pActionElement))) continue;
+
+		wstring	strName;
+		DWORD	dwButton;
+		bool	bUseCtrl;
+		bool	bUseShift;
+		bool	bUseAlt;
+		
+		XmlHelper::GetAttribute(pActionElement, CComBSTR(L"name"), strName, L"");
+		XmlHelper::GetAttribute(pActionElement, CComBSTR(L"button"), dwButton, 0);
+		XmlHelper::GetAttribute(pActionElement, CComBSTR(L"ctrl"), bUseCtrl, false);
+		XmlHelper::GetAttribute(pActionElement, CComBSTR(L"shift"), bUseShift, false);
+		XmlHelper::GetAttribute(pActionElement, CComBSTR(L"alt"), bUseAlt, false);
+
+		typedef Commands::index<commandName>::type		CommandNameIndex;
+
+		CommandNameIndex::iterator it = commands.get<commandName>().find(strName);
+		if (it == commands.get<commandName>().end()) continue;
+
+		(*it)->action.clickType = clickSingle;
+		(*it)->action.button	= static_cast<Button>(dwButton);
+		if (bUseCtrl)	(*it)->action.modifiers |= mkCtrl;
+		if (bUseShift)	(*it)->action.modifiers |= mkShift;
+		if (bUseAlt)	(*it)->action.modifiers |= mkAlt;
+	}
 
 	return true;
 }
@@ -1155,6 +1173,7 @@ bool MouseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
+/*
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1171,6 +1190,7 @@ MouseSettings& MouseSettings::operator=(const MouseSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+*/
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////

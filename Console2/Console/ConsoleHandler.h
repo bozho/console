@@ -40,7 +40,7 @@ class ConsoleHandler
 		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
 		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
 
-		void SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwEventFlags);
+		void SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwControlKeyState, DWORD dwEventFlags);
 
 	private:
 

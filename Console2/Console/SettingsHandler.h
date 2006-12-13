@@ -356,6 +356,25 @@ struct HotKeys : public SettingsBase
 
 struct MouseSettings : public SettingsBase
 {
+	enum Command
+	{
+		cmdNone		= 0,
+		cmdDrag		= 1,
+		cmdSelect	= 2,
+		cmdCopy		= 3,
+		cmdMenu		= 4,
+	};
+
+	enum Button
+	{
+		btnNone		= 0,
+		btnLeft		= 1,
+		btnRight	= 2,
+		btnMiddle	= 3,
+		btn4th		= 4,
+		btn5th		= 5,
+	};
+
 	enum ModifierKeys
 	{
 		mkNone	= 0x00,
@@ -364,20 +383,107 @@ struct MouseSettings : public SettingsBase
 		mkAlt	= 0x04
 	};
 
+	enum ClickType
+	{
+		clickNone	= 0,
+		clickSingle	= 1,
+		clickDouble	= 2
+	};
+	
 	MouseSettings();
 
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
-	MouseSettings& operator=(const MouseSettings& other);
+//	MouseSettings& operator=(const MouseSettings& other);
 
-	// drag
-	bool	bUseDrag;
-	DWORD	dwDragModifiers;
+	struct Action
+	{
+		Action()
+		: button(btnNone)
+		, modifiers(mkNone)
+		, clickType(clickNone)
+		{
+		}
 
-	// select
-	bool	bUseSelection;
-	DWORD	dwSelectionModifiers;
+		bool operator<(const Action& other) const
+		{
+			if (button < other.button) return true;
+			if (modifiers < other.modifiers) return true;
+			if (clickType < other.clickType) return true;
+
+			return false;
+		}
+
+		Button		button;
+		DWORD		modifiers;
+		ClickType	clickType;
+	};
+
+	struct CommandData
+	{
+		CommandData(Command cmd, wstring strCmd, wstring strDesc)
+		: command(cmd)
+		, strCommand(strCmd)
+		, strDescription(strDesc)
+		{
+		}
+
+		Command	command;
+		wstring	strCommand;
+		wstring	strDescription;
+		Action	action;
+	};
+
+	struct commandID{};
+	struct commandName{};
+	struct commandAction{};
+
+	typedef multi_index_container<
+				shared_ptr<CommandData>,
+				indexed_by
+				<
+					sequenced<>,
+					ordered_unique<tag<commandName>,		member<CommandData, wstring, &CommandData::strCommand> >,
+					ordered_unique<tag<commandID>,			member<CommandData, Command, &CommandData::command> >,
+					ordered_non_unique<tag<commandAction>,	member<CommandData, Action, &CommandData::action> >
+				> >									Commands;
+
+	typedef nth_index<Commands,0>::type				CommandsSequence;
+	// these typedefs seem to produce internal compiler errors with 7.1 compiler
+	// we'll use them where needed in the code
+/*
+	typedef Commands::index<commandID>::type		CommandIDIndex;
+	typedef Commands::index<commandName>::type		CommandNameIndex;
+	typedef Commands::index<commandAction>::type	CommandActionIndex;
+*/
+
+	Commands	commands;
+
+
+
+
+
+/*
+	struct ActionData
+	{
+		ActionData(Action act, ClickType clkType)
+		: action(act)
+		, button(btnNone)
+		, modifiers(mkNone)
+		, clickType(clkType)
+		{}
+
+		Action		action;
+		Button		button;
+		DWORD		modifiers;
+		ClickType	clickType;
+	};
+
+	typedef	map<wstring, ActionData>	Actions;
+
+	Actions		m_actions;
+*/
 };
 
 //////////////////////////////////////////////////////////////////////////////

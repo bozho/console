@@ -216,7 +216,7 @@ void ConsoleHandler::StopMonitorThread()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwEventFlags)
+void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwControlKeyState, DWORD dwEventFlags)
 {
 	{
 		SharedMemoryLock	memLock(m_consoleMouseEvent);
@@ -224,7 +224,7 @@ void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonSt
 		// TODO: implement
 		m_consoleMouseEvent->dwMousePosition	= mousePos;
 		m_consoleMouseEvent->dwButtonState		= dwMouseButtonState;
-		m_consoleMouseEvent->dwControlKeyState	= 0;
+		m_consoleMouseEvent->dwControlKeyState	= dwControlKeyState;
 		m_consoleMouseEvent->dwEventFlags		= dwEventFlags;
 
 		m_consoleMouseEvent.SetReqEvent();
@@ -374,13 +374,19 @@ DWORD ConsoleHandler::MonitorThread()
 	{
 		DWORD				dwColumns	= m_consoleInfo->srWindow.Right - m_consoleInfo->srWindow.Left + 1;
 		DWORD				dwRows		= m_consoleInfo->srWindow.Bottom - m_consoleInfo->srWindow.Top + 1;
+		DWORD				dwBufferColumns	= m_consoleInfo->dwSize.X;
+		DWORD				dwBufferRows	= m_consoleInfo->dwSize.Y;
 		bool				bResize		= false;
 
 		if ((m_consoleParams->dwColumns != dwColumns) ||
-			(m_consoleParams->dwRows != dwRows))
+			(m_consoleParams->dwRows != dwRows) ||
+			(m_consoleParams->dwBufferColumns != dwBufferColumns) ||
+			(m_consoleParams->dwBufferRows != dwBufferRows))
 		{
 			m_consoleParams->dwColumns	= dwColumns;
 			m_consoleParams->dwRows		= dwRows;
+			m_consoleParams->dwBufferColumns= dwBufferColumns;
+			m_consoleParams->dwBufferRows	= dwBufferRows;
 			bResize = true;
 		}
 

@@ -601,24 +601,38 @@ void ConsoleHandler::CopyConsoleText()
 void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText)
 {
 	size_t	textLen			= wcslen(pszText.get());
-	DWORD	dwTextWritten	= 0;
-	
-	scoped_array<INPUT_RECORD> pKeyEvents(new INPUT_RECORD[textLen]);
-	::ZeroMemory(pKeyEvents.get(), sizeof(INPUT_RECORD)*textLen);
-	
-	for (size_t i = 0; i < textLen; ++i)
-	{
-		if ((pszText.get()[i] == L'\r') && (pszText.get()[i+1] == L'\n')) continue;
+	size_t	partLen			= 512;
+	size_t	parts			= textLen/partLen;
 
-		pKeyEvents[i].EventType							= KEY_EVENT;
-		pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
-		pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
-		pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= LOBYTE(::VkKeyScan(pszText.get()[i]));
-		pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
-		pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText.get()[i];
-		pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
+	for (size_t part = 0; part < parts+1; ++part)
+	{
+		size_t	offset = part*partLen;
+		
+		if (part == parts)
+		{
+			// last part, modify part size
+			partLen = textLen - parts*partLen;
+		}
+		
+		scoped_array<INPUT_RECORD> pKeyEvents(new INPUT_RECORD[partLen]);
+		::ZeroMemory(pKeyEvents.get(), sizeof(INPUT_RECORD)*partLen);
+
+		for (size_t i = 0; i < partLen; ++i, ++offset)
+		{
+			if ((pszText.get()[offset] == L'\r') && (pszText.get()[offset+1] == L'\n')) continue;
+
+			pKeyEvents[i].EventType							= KEY_EVENT;
+			pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
+			pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
+			pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= LOBYTE(::VkKeyScan(pszText.get()[offset]));
+			pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
+			pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText.get()[offset];
+			pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
+		}
+
+		DWORD	dwTextWritten	= 0;
+		::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(partLen), &dwTextWritten);
 	}
-	::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(textLen), &dwTextWritten);
 }
 
 //////////////////////////////////////////////////////////////////////////////

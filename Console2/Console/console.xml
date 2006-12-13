@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="25" columns="80" buffer_rows="0" buffer_columns="90" shell="" init_dir="" save_size="0">
+	<console change_refresh="10" refresh="100" rows="25" columns="80" buffer_rows="1000" buffer_columns="90" shell="" init_dir="" save_size="0">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -24,7 +24,7 @@
 		<font name="Courier New" size="10" bold="0" italic="0">
 			<color use="0" r="128" g="0" b="128"/>
 		</font>
-		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="0" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
+		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="1" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
 		<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1" hide_single_tab="1"/>
 		<styles caption="1" resizable="1" taskbar_button="1" border="1" inside_border="2" tray_icon="1"/>
 		<position x="-1" y="-1" dock="-1" snap="0" z_order="0" save_position="0"/>
@@ -74,8 +74,12 @@
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="112" command="dumpbuffer"/>
 	</hotkeys>
 	<mouse>
-		<drag on="1" ctrl="1" shift="0" alt="0"/>
-		<select on="1" ctrl="0" shift="1" alt="0"/>
+		<actions>
+			<action name="drag" button="1" ctrl="1" shift="0" alt="0"/>
+			<action name="select" button="1" ctrl="0" shift="1" alt="0"/>
+			<action name="copy" button="1" ctrl="0" shift="0" alt="0"/>
+			<action name="menu" button="2" ctrl="0" shift="0" alt="0"/>
+		</actions>
 	</mouse>
 	<tabs>
 		<tab title="Console2">

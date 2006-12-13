@@ -23,6 +23,10 @@ Build 128
 
 - added basic mouse events support
 
+- fixed a small bug with tab and window name updating
+
+- fixed a bug with pasting large text
+
 
 Build 127
 ---------

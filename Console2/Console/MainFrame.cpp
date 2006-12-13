@@ -797,6 +797,8 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 {
 	NMCTC2ITEMS*				pTabItems	= reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 
+	AppearanceSettings&			appearanceSettings = g_settingsHandler->GetAppearanceSettings();
+
 	CTabViewTabItem*			pTabItem1	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
 	CTabViewTabItem*			pTabItem2	= m_TabCtrl.GetItem(pTabItems->iItem2);
 
@@ -820,7 +822,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 			m_activeView = it->second;
 			it->second->SetActive(true);
 
-			if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseTabIcon) SetWindowIcons();
+			if (appearanceSettings.windowSettings.bUseTabIcon) SetWindowIcons();
 
 		}
 		else
@@ -829,7 +831,12 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 		}
 	}
 
-	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
+	if (appearanceSettings.stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
+	
+	if (appearanceSettings.windowSettings.bUseTabTitles && (m_activeView.get() != NULL))
+	{
+		SetWindowText(m_activeView->GetTitle());
+	}
 
 	bHandled = FALSE;
 	return 0;
@@ -1037,13 +1044,17 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	
 		m_activeView->SetTitle(dlg.m_strTabName);
 
-		CString	strTabTitle(dlg.m_strTabName+m_activeView->GetConsoleCommand());
+		CString	strTabTitle(dlg.m_strTabName);
+
+		if (windowSettings.bShowCommandInTabs) strTabTitle += m_activeView->GetConsoleCommand();
 
 		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
 		{
 			strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles) + CString(L"...");
 		}
 		UpdateTabText(*m_activeView, strTabTitle);
+
+		if (windowSettings.bUseTabTitles) SetWindowText(m_activeView->GetTitle());
 	}
 
 	return 0;

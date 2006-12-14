@@ -78,7 +78,8 @@
 			<action name="drag" button="1" ctrl="1" shift="0" alt="0"/>
 			<action name="select" button="1" ctrl="0" shift="1" alt="0"/>
 			<action name="copy" button="1" ctrl="0" shift="0" alt="0"/>
-			<action name="menu" button="2" ctrl="0" shift="0" alt="0"/>
+			<action name="paste" button="3" ctrl="0" shift="0" alt="0"/>
+			<action name="menu" button="2" ctrl="1" shift="0" alt="0"/>
 		</actions>
 	</mouse>
 	<tabs>

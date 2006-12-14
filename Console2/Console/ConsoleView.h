@@ -55,11 +55,13 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
-			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnLButtonDown)
-			MESSAGE_HANDLER(WM_LBUTTONUP, OnLButtonUp)
-			MESSAGE_HANDLER(WM_LBUTTONDBLCLK, OnLButtonBblClk)
-			MESSAGE_HANDLER(WM_RBUTTONUP, OnRButtonUp)
-			MESSAGE_HANDLER(WM_MBUTTONDOWN, OnMButtonDown)
+			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnMouseButton)
+			MESSAGE_HANDLER(WM_LBUTTONUP, OnMouseButton)
+			MESSAGE_HANDLER(WM_LBUTTONDBLCLK, OnMouseButton)
+			MESSAGE_HANDLER(WM_RBUTTONDOWN, OnMouseButton)
+			MESSAGE_HANDLER(WM_RBUTTONUP, OnMouseButton)
+			MESSAGE_HANDLER(WM_MBUTTONDOWN, OnMouseButton)
+			MESSAGE_HANDLER(WM_MBUTTONUP, OnMouseButton)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGEREQUEST, OnInputLangChangeRequest)
@@ -80,11 +82,14 @@ class ConsoleView
 		LRESULT OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnLButtonBblClk(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnRButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
-		LRESULT OnMButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+/*
+		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& / *bHandled* /);
+		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& / *bHandled* /);
+		LRESULT OnLButtonBblClk(UINT / *uMsg* /, WPARAM wParam, LPARAM lParam, BOOL& / *bHandled* /);
+		LRESULT OnRButtonUp(UINT / *uMsg* /, WPARAM / *wParam* /, LPARAM lParam, BOOL& / *bHandled* /);
+		LRESULT OnMButtonDown(UINT / *uMsg* /, WPARAM / *wParam* /, LPARAM / *lParam* /, BOOL& / *bHandled* /);
+*/
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);

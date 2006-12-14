@@ -27,6 +27,8 @@ Build 128
 
 - fixed a bug with pasting large text
 
+- added support for configurable mouse commands
+
 
 Build 127
 ---------

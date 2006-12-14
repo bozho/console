@@ -1091,9 +1091,10 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 MouseSettings::MouseSettings()
 : commands()
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"")));
 }
 

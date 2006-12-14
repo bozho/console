@@ -694,9 +694,8 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	POINT	point;
-	point.x = LOWORD(lParam);
-	point.y = HIWORD(lParam);
-	::ClientToScreen(m_hWnd, &point);
+	point.x = GET_X_LPARAM(lParam);
+	point.y = GET_Y_LPARAM(lParam);
 	
 	CMenu		contextMenu;
 	CMenu		tabsMenu;

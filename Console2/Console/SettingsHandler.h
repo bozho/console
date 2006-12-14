@@ -359,10 +359,11 @@ struct MouseSettings : public SettingsBase
 	enum Command
 	{
 		cmdNone		= 0,
-		cmdDrag		= 1,
+		cmdCopy		= 1,
 		cmdSelect	= 2,
-		cmdCopy		= 3,
-		cmdMenu		= 4,
+		cmdPaste	= 3,
+		cmdDrag		= 4,
+		cmdMenu		= 5,
 	};
 
 	enum Button
@@ -406,11 +407,14 @@ struct MouseSettings : public SettingsBase
 		{
 		}
 
-		bool operator<(const Action& other) const
+		bool operator==(const Action& other) const
 		{
-			if (button < other.button) return true;
-			if (modifiers < other.modifiers) return true;
-			if (clickType < other.clickType) return true;
+			if ((button == other.button) &&
+				(modifiers == other.modifiers) &&
+				(clickType == other.clickType))
+			{
+				return true;
+			}
 
 			return false;
 		}
@@ -437,7 +441,6 @@ struct MouseSettings : public SettingsBase
 
 	struct commandID{};
 	struct commandName{};
-	struct commandAction{};
 
 	typedef multi_index_container<
 				shared_ptr<CommandData>,
@@ -445,8 +448,7 @@ struct MouseSettings : public SettingsBase
 				<
 					sequenced<>,
 					ordered_unique<tag<commandName>,		member<CommandData, wstring, &CommandData::strCommand> >,
-					ordered_unique<tag<commandID>,			member<CommandData, Command, &CommandData::command> >,
-					ordered_non_unique<tag<commandAction>,	member<CommandData, Action, &CommandData::action> >
+					ordered_unique<tag<commandID>,			member<CommandData, Command, &CommandData::command> >
 				> >									Commands;
 
 	typedef nth_index<Commands,0>::type				CommandsSequence;
@@ -455,35 +457,9 @@ struct MouseSettings : public SettingsBase
 /*
 	typedef Commands::index<commandID>::type		CommandIDIndex;
 	typedef Commands::index<commandName>::type		CommandNameIndex;
-	typedef Commands::index<commandAction>::type	CommandActionIndex;
 */
 
 	Commands	commands;
-
-
-
-
-
-/*
-	struct ActionData
-	{
-		ActionData(Action act, ClickType clkType)
-		: action(act)
-		, button(btnNone)
-		, modifiers(mkNone)
-		, clickType(clkType)
-		{}
-
-		Action		action;
-		Button		button;
-		DWORD		modifiers;
-		ClickType	clickType;
-	};
-
-	typedef	map<wstring, ActionData>	Actions;
-
-	Actions		m_actions;
-*/
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -536,29 +536,24 @@ IDD_SETTINGS_BEHAVIOR DIALOGEX 0, 0, 226, 254
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    GROUPBOX        "Copy && Paste",IDC_STATIC,0,0,105,66
     CONTROL         "Copy on select",IDC_CHECK_COPY_ON_SELECT,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,10,15,62,10
     CONTROL         "Don't wrap long lines",IDC_CHECK_NO_WRAP,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,10,30,82,10
     CONTROL         "Trim trailing spaces",IDC_CHECK_TRIM_SPACES,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,10,45,77,10
-    GROUPBOX        "Mouse",IDC_STATIC,114,0,112,66
-    CONTROL         "Mouse drag",IDC_CHECK_DRAG_ON,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,124,15,62,10
-    CONTROL         "Use shift for dragging",IDC_CHECK_INVERSE_SHIFT,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,124,30,86,10
+    GROUPBOX        "Copy && Paste",IDC_STATIC,0,0,105,66
     CONTROL         "Scroll one screen",IDC_PAGE_SCROLL,"Button",
-                    BS_AUTORADIOBUTTON | WS_GROUP,10,80,70,10
-    CONTROL         "Scroll",IDC_PAGE_SCROLL2,"Button",BS_AUTORADIOBUTTON,10,
-                    97,29,10
-    EDITTEXT        IDC_SCROLL_PAGE_ROWS,43,95,33,14,ES_AUTOHSCROLL | 
+                    BS_AUTORADIOBUTTON | WS_GROUP,124,15,70,10
+    CONTROL         "Scroll",IDC_PAGE_SCROLL2,"Button",BS_AUTORADIOBUTTON,
+                    124,30,29,10
+    EDITTEXT        IDC_SCROLL_PAGE_ROWS,155,28,33,14,ES_AUTOHSCROLL | 
                     WS_GROUP
     CONTROL         "",IDC_SPIN_SCROLL_PAGE_ROWS,"msctls_updown32",
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
-                    UDS_ARROWKEYS,78,78,11,14
-    LTEXT           "rows",IDC_STATIC_ROWS,80,98,16,8
-    GROUPBOX        "Page Scrolling",IDC_STATIC,0,68,105,49
+                    UDS_ARROWKEYS,190,14,11,14
+    LTEXT           "rows",IDC_STATIC_ROWS,192,31,16,8
+    GROUPBOX        "Page Scrolling",IDC_STATIC,114,0,105,66
 END
 
 IDD_SETTINGS_TABS_1 DIALOGEX 0, 0, 223, 171

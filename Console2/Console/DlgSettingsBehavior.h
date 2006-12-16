@@ -24,8 +24,6 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_COPY_ON_SELECT, m_nCopyOnSelect)
 			DDX_CHECK(IDC_CHECK_NO_WRAP, m_nNoWrap)
 			DDX_CHECK(IDC_CHECK_TRIM_SPACES, m_nTrimSpaces)
-			DDX_CHECK(IDC_CHECK_DRAG_ON, m_nMouseDrag)
-			DDX_CHECK(IDC_CHECK_INVERSE_SHIFT, m_nInverseShift)
 			DDX_RADIO(IDC_PAGE_SCROLL, m_nScrollPageType)
 			DDX_UINT(IDC_SCROLL_PAGE_ROWS, m_behaviorSettings.scrollSettings.dwPageScrollRows)
 		END_DDX_MAP()
@@ -59,9 +57,6 @@ class DlgSettingsBehavior
 		int					m_nCopyOnSelect;
 		int					m_nNoWrap;
 		int					m_nTrimSpaces;
-
-		int					m_nMouseDrag;
-		int					m_nInverseShift;
 
 		int					m_nScrollPageType;
 };

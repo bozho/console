@@ -37,9 +37,6 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	m_nNoWrap		= m_behaviorSettings.copyPasteSettings.bNoWrap ? 1 : 0;
 	m_nTrimSpaces	= m_behaviorSettings.copyPasteSettings.bTrimSpaces ? 1 : 0;
 
-// 	m_nMouseDrag	= m_behaviorSettings.mouseDragSettings.bMouseDrag ? 1 : 0;
-// 	m_nInverseShift	= m_behaviorSettings.mouseDragSettings.bInverseShift ? 1 : 0;
-
 	m_nScrollPageType= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
 
 	CUpDownCtrl	spin;
@@ -72,9 +69,6 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 		m_behaviorSettings.copyPasteSettings.bCopyOnSelect	= (m_nCopyOnSelect > 0);
 		m_behaviorSettings.copyPasteSettings.bNoWrap		= (m_nNoWrap > 0);
 		m_behaviorSettings.copyPasteSettings.bTrimSpaces	= (m_nTrimSpaces > 0);
-
-// 		m_behaviorSettings.mouseDragSettings.bMouseDrag		= (m_nMouseDrag > 0);
-// 		m_behaviorSettings.mouseDragSettings.bInverseShift	= (m_nInverseShift > 0);
 
 		if (m_nScrollPageType == 0) m_behaviorSettings.scrollSettings.dwPageScrollRows = 0;
 

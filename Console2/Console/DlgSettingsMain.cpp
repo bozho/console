@@ -8,6 +8,7 @@
 #include "DlgSettingsStyles.h"
 #include "DlgSettingsBehavior.h"
 #include "DlgSettingsHotkeys.h"
+#include "DlgSettingsMouse.h"
 #include "DlgSettingsTabs.h"
 #include "DlgSettingsMain.h"
 
@@ -148,13 +149,18 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create hotkeys settings dialog
 	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pSettingsRoot)));
-	AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
+	HTREEITEM htiHotkeys = AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
+
+	// create mouse commands settings dialog
+	shared_ptr<DlgSettingsBase>	dlgMouseCmds(dynamic_cast<DlgSettingsBase*>(new DlgSettingsMouse(m_pSettingsRoot)));
+	AddDialogToTree(L"Mouse", dlgMouseCmds, rect, htiHotkeys);
 
 	// create tabs settings dialog
 	shared_ptr<DlgSettingsBase>	dlgTabs(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTabs(m_pSettingsRoot)));
 	AddDialogToTree(L"Tabs", dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);
+	m_treeCtrl.Expand(htiHotkeys);
 	m_treeCtrl.SelectItem(m_treeCtrl.GetRootItem());
 }
 

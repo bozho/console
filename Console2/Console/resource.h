@@ -19,6 +19,7 @@
 #define IDD_SETTINGS_BEHAVIOR           212
 #define IDD_SETTINGS_TABS_1             213
 #define IDD_SETTINGS_TABS_2             214
+#define IDD_SETTINGS_MOUSE              215
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
 #define IDC_TREE_SECTIONS               1002
@@ -189,6 +190,12 @@
 #define IDC_CHECK_SAVE_SIZE             1157
 #define IDC_CHECK_USE_SCROLL_LOCK       1158
 #define IDPANE_ROWS_COLUMNS             1159
+#define IDC_LIST_MOUSE_COMMANDS         1160
+#define IDC_COMBO_BUTTONS               1161
+#define IDC_CHECK_CTRL                  1162
+#define IDC_CHECK_SHIFT                 1163
+#define IDC_CHECK_SHIFT2                1164
+#define IDC_CHECK_ALT                   1164
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -211,7 +218,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        211
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1160
+#define _APS_NEXT_CONTROL_VALUE         1163
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

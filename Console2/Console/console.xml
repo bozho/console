@@ -75,11 +75,11 @@
 	</hotkeys>
 	<mouse>
 		<actions>
-			<action name="drag" button="1" ctrl="1" shift="0" alt="0"/>
-			<action name="select" button="1" ctrl="0" shift="1" alt="0"/>
-			<action name="copy" button="1" ctrl="0" shift="0" alt="0"/>
-			<action name="paste" button="3" ctrl="0" shift="0" alt="0"/>
-			<action name="menu" button="2" ctrl="1" shift="0" alt="0"/>
+			<action ctrl="0" shift="0" alt="0" button="1" name="copy"/>
+			<action ctrl="0" shift="1" alt="0" button="1" name="select"/>
+			<action ctrl="0" shift="0" alt="0" button="3" name="paste"/>
+			<action ctrl="1" shift="0" alt="0" button="1" name="drag"/>
+			<action ctrl="1" shift="0" alt="0" button="2" name="menu"/>
 		</actions>
 	</mouse>
 	<tabs>

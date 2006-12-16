@@ -158,11 +158,14 @@ LRESULT DlgSettingsHotkeys::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 
 		m_hotKeys.bUseScrollLock = (m_nUseScrollLock > 0);
 
+		hotKeys = m_hotKeys;
 
+/*
 		hotKeys.bUseScrollLock = m_hotKeys.bUseScrollLock;
 
 		hotKeys.commands.clear();
 		hotKeys.commands.insert(hotKeys.commands.begin(), m_hotKeys.commands.begin(), m_hotKeys.commands.end());
+*/
 
 		hotKeys.Save(m_pOptionsRoot);
 	}

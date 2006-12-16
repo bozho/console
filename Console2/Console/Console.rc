@@ -623,6 +623,30 @@ BEGIN
     LTEXT           "255",IDC_TINT_OPACITY_VAL,199,145,14,8,0,WS_EX_RIGHT
 END
 
+IDD_SETTINGS_MOUSE DIALOGEX 0, 0, 226, 254
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_MOUSE_COMMANDS,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | 
+                    WS_BORDER | WS_TABSTOP,0,0,225,179,WS_EX_CLIENTEDGE
+    LTEXT           "&Command:",IDC_STATIC,10,190,34,8
+    EDITTEXT        IDC_EDIT_COMMAND,47,187,67,14,ES_AUTOHSCROLL | 
+                    ES_READONLY
+    LTEXT           "&Button:",IDC_STATIC,10,211,25,8
+    COMBOBOX        IDC_COMBO_BUTTONS,47,208,67,49,CBS_DROPDOWNLIST | 
+                    WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Modifiers:",IDC_STATIC,10,232,32,8
+    CONTROL         "Co&ntrol",IDC_CHECK_CTRL,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,47,231,39,10
+    CONTROL         "&Shift",IDC_CHECK_SHIFT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,95,231,31,10
+    CONTROL         "Al&t",IDC_CHECK_ALT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,130,231,25,10
+    PUSHBUTTON      "&Assign",IDC_BTN_ASSIGN,119,208,42,14
+    PUSHBUTTON      "&Clear",IDC_BTN_CLEAR,168,208,42,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

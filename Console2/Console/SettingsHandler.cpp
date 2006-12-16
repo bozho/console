@@ -1042,25 +1042,24 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	{
 		CComPtr<IXMLDOMElement>	pNewHotkeyElement;
 		CComPtr<IXMLDOMNode>	pNewHotkeyOut;
-		CComVariant				varAttrVal;
+		bool					bAttrVal;
 
 		pSettingsDoc->createElement(CComBSTR(L"hotkey"), &pNewHotkeyElement);
 
-		varAttrVal = ((*itCommand)->accelHotkey.fVirt & FCONTROL) ? L"1" : L"0";
-        pNewHotkeyElement->setAttribute(CComBSTR(L"ctrl"), varAttrVal);
+		bAttrVal = ((*itCommand)->accelHotkey.fVirt & FCONTROL) ? true : false;
+		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"ctrl"), bAttrVal);
 
-		varAttrVal = ((*itCommand)->accelHotkey.fVirt & FSHIFT) ? L"1" : L"0";
-		pNewHotkeyElement->setAttribute(CComBSTR(L"shift"), varAttrVal);
+		bAttrVal = ((*itCommand)->accelHotkey.fVirt & FSHIFT) ? true : false;
+		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"shift"), bAttrVal);
 
-		varAttrVal = ((*itCommand)->accelHotkey.fVirt & FALT) ? L"1" : L"0";
-		pNewHotkeyElement->setAttribute(CComBSTR(L"alt"), varAttrVal);
+		bAttrVal = ((*itCommand)->accelHotkey.fVirt & FALT) ? true : false;
+		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"alt"), bAttrVal);
 
-		varAttrVal = ((*itCommand)->bExtended) ? L"1" : L"0";
-		pNewHotkeyElement->setAttribute(CComBSTR(L"extended"), varAttrVal);
+		bAttrVal = ((*itCommand)->bExtended) ? true : false;
+		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"extended"), bAttrVal);
 
-		pNewHotkeyElement->setAttribute(CComBSTR(L"code"), CComVariant((*itCommand)->accelHotkey.key));
-
-		pNewHotkeyElement->setAttribute(CComBSTR(L"command"), CComVariant((*itCommand)->strCommand.c_str()));
+		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"code"), (*itCommand)->accelHotkey.key);
+		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"command"), (*itCommand)->strCommand);
 
 		pHotkeysElement->appendChild(pNewHotkeyElement, &pNewHotkeyOut);
 
@@ -1082,6 +1081,21 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+HotKeys& HotKeys::operator=(const HotKeys& other)
+{
+	bUseScrollLock = other.bUseScrollLock;
+
+	commands.clear();
+	commands.insert(commands.begin(), other.commands.begin(), other.commands.end());
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1091,11 +1105,11 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 MouseSettings::MouseSettings()
 : commands()
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"Copy selection")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"Select text")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"Paste text")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"Drag window")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"Context menu")));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1160,38 +1174,85 @@ bool MouseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 bool MouseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	CComPtr<IXMLDOMElement>	pMouseDragElement;
-	CComPtr<IXMLDOMElement>	pMouseSelectElement;
+	HRESULT						hr = S_OK;
+	CComPtr<IXMLDOMElement>		pMouseActionsElement;
+	CComPtr<IXMLDOMNodeList>	pMouseActionsChildNodes;
 
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/drag"), pMouseDragElement))) return false;
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/select"), pMouseSelectElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"mouse/actions"), pMouseActionsElement))) return false;
 
-// 	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"on"), bMouseDrag);
-// 	XmlHelper::SetAttribute(pMouseDragElement, CComBSTR(L"inverse_shift"), bInverseShift);
+	if (FAILED(pMouseActionsElement->get_childNodes(&pMouseActionsChildNodes))) return false;
+
+	long	lListLength;
+	pMouseActionsChildNodes->get_length(&lListLength);
+
+	for (long i = lListLength - 1; i >= 0; --i)
+	{
+		CComPtr<IXMLDOMNode>	pMouseActionsChildNode;
+		CComPtr<IXMLDOMNode>	pRemovedMouseActionsNode;
+		if (FAILED(pMouseActionsChildNodes->get_item(i, &pMouseActionsChildNode))) continue;
+
+		hr = pMouseActionsElement->removeChild(pMouseActionsChildNode, &pRemovedMouseActionsNode);
+	}
+
+	CComPtr<IXMLDOMDocument>	pSettingsDoc;
+
+	CommandsSequence::iterator	itCommand;
+	CommandsSequence::iterator	itLastCommand = commands.end();
+	--itLastCommand;
+
+	pMouseActionsElement->get_ownerDocument(&pSettingsDoc);
+
+	for (itCommand = commands.begin(); itCommand != commands.end(); ++itCommand)
+	{
+		CComPtr<IXMLDOMElement>	pNewMouseActionsElement;
+		CComPtr<IXMLDOMNode>	pNewMouseActionsOut;
+		bool					bVal;
+
+		pSettingsDoc->createElement(CComBSTR(L"action"), &pNewMouseActionsElement);
+
+		bVal = ((*itCommand)->action.modifiers & mkCtrl) ? true : false;
+		XmlHelper::SetAttribute(pNewMouseActionsElement, CComBSTR(L"ctrl"), bVal);
+
+		bVal = ((*itCommand)->action.modifiers & mkShift) ? true : false;
+		XmlHelper::SetAttribute(pNewMouseActionsElement, CComBSTR(L"shift"), bVal);
+
+		bVal = ((*itCommand)->action.modifiers & mkAlt) ? true : false;
+		XmlHelper::SetAttribute(pNewMouseActionsElement, CComBSTR(L"alt"), bVal);
+
+		XmlHelper::SetAttribute(pNewMouseActionsElement, CComBSTR(L"button"), static_cast<int>((*itCommand)->action.button));
+		XmlHelper::SetAttribute(pNewMouseActionsElement, CComBSTR(L"name"), (*itCommand)->strCommand);
+
+		pMouseActionsElement->appendChild(pNewMouseActionsElement, &pNewMouseActionsOut);
+
+		// this is just for pretty printing
+		if (itCommand == itLastCommand)
+		{
+			SettingsBase::AddTextNode(pSettingsDoc, pMouseActionsElement, CComBSTR(L"\n\t\t"));
+		}
+		else
+		{
+			SettingsBase::AddTextNode(pSettingsDoc, pMouseActionsElement, CComBSTR(L"\n\t\t\t"));
+		}
+	}
 
 	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-/*
 
 //////////////////////////////////////////////////////////////////////////////
 
 MouseSettings& MouseSettings::operator=(const MouseSettings& other)
 {
-	bUseDrag		= other.bUseDrag;
-	dwDragModifiers	= other.dwDragModifiers;
-
-	bUseSelection		= other.bUseSelection;
-	dwSelectionModifiers= other.dwSelectionModifiers;
+	commands.clear();
+	commands.insert(commands.begin(), other.commands.begin(), other.commands.end());
 
 	return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-*/
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -1331,19 +1392,17 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		CComPtr<IXMLDOMElement>	pNewTabElement;
 		CComPtr<IXMLDOMNode>	pNewTabOut;
 
-		CComVariant				varAttrVal;
-
 		pSettingsDoc->createElement(CComBSTR(L"tab"), &pNewTabElement);
 
 		// set tab attributes
 		if ((*itTab)->strTitle.length() > 0)
 		{
-			pNewTabElement->setAttribute(CComBSTR(L"title"), CComVariant((*itTab)->strTitle.c_str()));
+			XmlHelper::SetAttribute(pNewTabElement, CComBSTR(L"title"), (*itTab)->strTitle);
 		}
 
 		if ((*itTab)->strIcon.length() > 0)
 		{
-			pNewTabElement->setAttribute(CComBSTR(L"icon"), CComVariant((*itTab)->strIcon.c_str()));
+			XmlHelper::SetAttribute(pNewTabElement, CComBSTR(L"icon"), (*itTab)->strIcon);
 		}
 
 		// add <console> tag
@@ -1352,8 +1411,8 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		pSettingsDoc->createElement(CComBSTR(L"console"), &pNewConsoleElement);
 
-		pNewConsoleElement->setAttribute(CComBSTR(L"shell"), CComVariant((*itTab)->strShell.c_str()));
-		pNewConsoleElement->setAttribute(CComBSTR(L"init_dir"), CComVariant((*itTab)->strInitialDir.c_str()));
+		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"shell"), (*itTab)->strShell);
+		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"init_dir"), (*itTab)->strInitialDir);
 
 		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewConsoleElement, &pNewConsoleOut);
@@ -1364,10 +1423,11 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		pSettingsDoc->createElement(CComBSTR(L"cursor"), &pNewCursorElement);
 
-		pNewCursorElement->setAttribute(CComBSTR(L"style"), CComVariant((*itTab)->dwCursorStyle));
-		pNewCursorElement->setAttribute(CComBSTR(L"r"), CComVariant(GetRValue((*itTab)->crCursorColor)));
-		pNewCursorElement->setAttribute(CComBSTR(L"g"), CComVariant(GetGValue((*itTab)->crCursorColor)));
-		pNewCursorElement->setAttribute(CComBSTR(L"b"), CComVariant(GetBValue((*itTab)->crCursorColor)));
+		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"style"), (*itTab)->dwCursorStyle);
+		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"r"), GetRValue((*itTab)->crCursorColor));
+		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"g"), GetGValue((*itTab)->crCursorColor));
+		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"b"), GetBValue((*itTab)->crCursorColor));
+
 
 		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewCursorElement, &pNewCursorOut);
@@ -1378,10 +1438,11 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		pSettingsDoc->createElement(CComBSTR(L"background"), &pNewBkElement);
 
-		pNewBkElement->setAttribute(CComBSTR(L"type"), CComVariant((*itTab)->backgroundImageType));
-		pNewBkElement->setAttribute(CComBSTR(L"r"), CComVariant(GetRValue((*itTab)->crBackgroundColor)));
-		pNewBkElement->setAttribute(CComBSTR(L"g"), CComVariant(GetGValue((*itTab)->crBackgroundColor)));
-		pNewBkElement->setAttribute(CComBSTR(L"b"), CComVariant(GetBValue((*itTab)->crBackgroundColor)));
+		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"type"), (*itTab)->backgroundImageType);
+		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"r"), GetRValue((*itTab)->crBackgroundColor));
+		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"g"), GetGValue((*itTab)->crBackgroundColor));
+		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"b"), GetBValue((*itTab)->crBackgroundColor));
+
 
 		// add <image> tag
 		CComPtr<IXMLDOMElement>	pNewImageElement;
@@ -1391,17 +1452,17 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		if ((*itTab)->backgroundImageType == bktypeImage)
 		{
-			pNewImageElement->setAttribute(CComBSTR(L"file"), CComVariant((*itTab)->imageData.strFilename.c_str()));
-			pNewImageElement->setAttribute(CComBSTR(L"relative"), CComVariant((*itTab)->imageData.bRelative ? 1 : 0));
-			pNewImageElement->setAttribute(CComBSTR(L"extend"), CComVariant((*itTab)->imageData.bExtend ? 1 : 0));
-			pNewImageElement->setAttribute(CComBSTR(L"position"), CComVariant(static_cast<DWORD>((*itTab)->imageData.imagePosition)));
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"file"), (*itTab)->imageData.strFilename);
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"relative"), (*itTab)->imageData.bRelative ? true : false);
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"extend"), (*itTab)->imageData.bExtend ? true : false);
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"position"), static_cast<DWORD>((*itTab)->imageData.imagePosition));
 		}
 		else
 		{
-			pNewImageElement->setAttribute(CComBSTR(L"file"), CComVariant(L""));
-			pNewImageElement->setAttribute(CComBSTR(L"relative"), CComVariant(0));
-			pNewImageElement->setAttribute(CComBSTR(L"extend"), CComVariant(0));
-			pNewImageElement->setAttribute(CComBSTR(L"position"), CComVariant(0));
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"file"), wstring(L""));
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"relative"), false);
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"extend"), false);
+			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"position"), 0);
 		}
 
 		// add <tint> tag
@@ -1410,10 +1471,10 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		pSettingsDoc->createElement(CComBSTR(L"tint"), &pNewTintElement);
 
-		pNewTintElement->setAttribute(CComBSTR(L"opacity"), CComVariant((*itTab)->imageData.byTintOpacity));
-		pNewTintElement->setAttribute(CComBSTR(L"r"), CComVariant(GetRValue((*itTab)->imageData.crTint)));
-		pNewTintElement->setAttribute(CComBSTR(L"g"), CComVariant(GetGValue((*itTab)->imageData.crTint)));
-		pNewTintElement->setAttribute(CComBSTR(L"b"), CComVariant(GetBValue((*itTab)->imageData.crTint)));
+		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"opacity"), (*itTab)->imageData.byTintOpacity);
+		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"r"), GetRValue((*itTab)->imageData.crTint));
+		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"g"), GetGValue((*itTab)->imageData.crTint));
+		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"b"), GetBValue((*itTab)->imageData.crTint));
 
 
 		SettingsBase::AddTextNode(pSettingsDoc, pNewImageElement, CComBSTR(L"\n\t\t\t\t\t"));

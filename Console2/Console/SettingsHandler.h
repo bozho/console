@@ -310,6 +310,8 @@ struct HotKeys : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
+	HotKeys& operator=(const HotKeys& other);
+
 	struct CommandData
 	{
 		CommandData(const wstring& command, WORD commandID, const wstring& description)
@@ -396,7 +398,7 @@ struct MouseSettings : public SettingsBase
 	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
 
-//	MouseSettings& operator=(const MouseSettings& other);
+	MouseSettings& operator=(const MouseSettings& other);
 
 	struct Action
 	{

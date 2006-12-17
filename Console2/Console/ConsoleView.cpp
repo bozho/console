@@ -345,10 +345,201 @@ LRESULT ConsoleView::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-//LRESULT ConsoleView::OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	HandleMouseClick(uMsg, static_cast<UINT>(wParam), CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)));
+	UINT						uiKeys			= GET_KEYSTATE_WPARAM(wParam); 
+	UINT						uiXButton		= GET_XBUTTON_WPARAM(wParam);
+
+	CPoint						point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+	MouseSettings&				mouseSettings	= g_settingsHandler->GetMouseSettings();
+	bool						bMouseButtonUp	= false;
+	MouseSettings::Action		mouseAction;
+
+	// get modifiers
+	if (uiKeys & MK_CONTROL)		mouseAction.modifiers |= MouseSettings::mkCtrl;
+	if (uiKeys & MK_SHIFT)			mouseAction.modifiers |= MouseSettings::mkShift;
+	if (GetKeyState(VK_MENU) < 0)	mouseAction.modifiers |= MouseSettings::mkAlt;
+
+	// get mouse button
+	switch (uMsg)
+	{
+		case WM_LBUTTONDOWN :
+		case WM_LBUTTONUP :
+		case WM_LBUTTONDBLCLK :
+			mouseAction.button = MouseSettings::btnLeft;
+			break;
+
+		case WM_RBUTTONDOWN :
+		case WM_RBUTTONUP :
+		case WM_RBUTTONDBLCLK :
+			mouseAction.button = MouseSettings::btnRight;
+			break;
+
+		case WM_MBUTTONDOWN :
+		case WM_MBUTTONUP :
+		case WM_MBUTTONDBLCLK :
+			mouseAction.button = MouseSettings::btnMiddle;
+			break;
+
+		case WM_XBUTTONDOWN :
+		case WM_XBUTTONUP :
+		case WM_XBUTTONDBLCLK :
+			if (uiXButton == XBUTTON1)
+			{
+				mouseAction.button = MouseSettings::btn4th;
+			}
+			else
+			{
+				mouseAction.button = MouseSettings::btn5th;
+			}
+			break;
+	}
+
+	// get click type
+	switch (uMsg)
+	{
+		case WM_LBUTTONDOWN :
+		case WM_RBUTTONDOWN :
+		case WM_MBUTTONDOWN :
+		case WM_XBUTTONDOWN :
+			mouseAction.clickType = MouseSettings::clickSingle;
+			break;
+
+		case WM_LBUTTONDBLCLK :
+		case WM_RBUTTONDBLCLK :
+		case WM_MBUTTONDBLCLK :
+		case WM_XBUTTONDBLCLK :
+			mouseAction.clickType = MouseSettings::clickDouble;
+			break;
+
+		case WM_LBUTTONUP :
+		case WM_RBUTTONUP :
+		case WM_MBUTTONUP :
+		case WM_XBUTTONUP :
+			bMouseButtonUp = true;
+			break;
+	}
+
+	do
+	{
+		if (m_mouseCommand == MouseSettings::cmdNone)
+		{
+			// no current mouse action
+			typedef MouseSettings::Commands::index<MouseSettings::commandID>::type	CommandIDIndex;
+
+			CommandIDIndex::iterator it;
+
+			// copy command
+			if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
+			{
+				it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdCopy);
+
+				if ((*it)->action == mouseAction)
+				{
+					m_mouseCommand = MouseSettings::cmdCopy;
+					return 0;
+				}
+			}
+
+			// select command
+			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdSelect);
+			if ((*it)->action == mouseAction)
+			{
+				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_screenBuffer);
+
+				m_mouseCommand = MouseSettings::cmdSelect;
+				return 0;
+			}
+			
+			// paste command
+			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdPaste);
+			if ((*it)->action == mouseAction)
+			{
+				m_mouseCommand = MouseSettings::cmdPaste;
+				return 0;
+			}
+
+			// drag command
+			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdDrag);
+			if ((*it)->action == mouseAction)
+			{
+				CPoint clientPoint(point);
+
+				ClientToScreen(&clientPoint);
+				GetParent().PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uiKeys, uiXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
+
+				// we don't set active command here, main frame handles mouse drag
+				return 0;
+			}
+
+			// menu command
+			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdMenu);
+			if ((*it)->action == mouseAction)
+			{
+				m_mouseCommand = MouseSettings::cmdMenu;
+				return 0;
+			}
+		}
+		else
+		{
+			// we have an active command, handle it...
+			switch (m_mouseCommand)
+			{
+				case MouseSettings::cmdCopy :
+				{
+					Copy(&point);
+					break;
+				}
+
+				case MouseSettings::cmdSelect :
+				{
+					if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
+					{
+						m_selectionHandler->EndSelection();
+						m_selectionHandler->ClearSelection();
+					}
+					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting)
+					{
+						m_selectionHandler->EndSelection();
+
+						// copy on select
+						if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
+						{
+							Copy(NULL);
+						}
+					}
+
+					break;
+				}
+
+				case MouseSettings::cmdPaste :
+				{
+					Paste();
+					break;
+				}
+
+				case MouseSettings::cmdMenu :
+				{
+					CPoint	screenPoint(point);
+					ClientToScreen(&screenPoint);
+					GetParent().SendMessage(UM_SHOW_POPUP_MENU, 0, MAKELPARAM(screenPoint.x, screenPoint.y));
+					break;
+				}
+
+				default :
+				{
+					if (bMouseButtonUp) return 0;
+				}
+			}
+
+			m_mouseCommand = MouseSettings::cmdNone;
+			return 0;
+		}
+
+	} while(false);
+
+	ForwardMouseClick(uMsg, point);
+
 	return 0;
 }
 
@@ -357,47 +548,37 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	UINT	uiFlags = static_cast<UINT>(wParam);
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
-	if (uiFlags & MK_LBUTTON)
+	if (m_mouseCommand == MouseSettings::cmdSelect)
 	{
-		if ((m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) ||
-			(m_selectionHandler->GetState() == SelectionHandler::selstateSelecting))
+		CRect	rectClient;
+		GetClientRect(&rectClient);
+
+		DWORD dwInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
+
+		if (point.x < rectClient.left + static_cast<LONG>(dwInsideBorder))
 		{
-			CRect	rectClient;
-			GetClientRect(&rectClient);
-
-			DWORD dwInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
-
-			if (point.x < rectClient.left + static_cast<LONG>(dwInsideBorder))
-			{
-				DoScroll(SB_HORZ, SB_LINELEFT, 0);
-			}			
-			else if (point.x > rectClient.right - static_cast<LONG>(dwInsideBorder))
-			{
-				DoScroll(SB_HORZ, SB_LINERIGHT, 0);
-			}
-			
-			if (point.y < rectClient.top + static_cast<LONG>(dwInsideBorder))
-			{
-				DoScroll(SB_VERT, SB_LINEUP, 0);
-			}
-			else if (point.y > rectClient.bottom - static_cast<LONG>(dwInsideBorder))
-			{
-				DoScroll(SB_VERT, SB_LINEDOWN, 0);
-			}
-
-			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
-			BitBltOffscreen();
-		}
-		else
+			DoScroll(SB_HORZ, SB_LINELEFT, 0);
+		}			
+		else if (point.x > rectClient.right - static_cast<LONG>(dwInsideBorder))
 		{
-			// send mouse event to console
-			m_consoleHandler.SendMouseEvent(GetConsoleCoord(point), FROM_LEFT_1ST_BUTTON_PRESSED, 0, MOUSE_MOVED);
+			DoScroll(SB_HORZ, SB_LINERIGHT, 0);
 		}
+		
+		if (point.y < rectClient.top + static_cast<LONG>(dwInsideBorder))
+		{
+			DoScroll(SB_VERT, SB_LINEUP, 0);
+		}
+		else if (point.y > rectClient.bottom - static_cast<LONG>(dwInsideBorder))
+		{
+			DoScroll(SB_VERT, SB_LINEDOWN, 0);
+		}
+
+		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+		BitBltOffscreen();
 	}
 
 	return 0;
@@ -1715,187 +1896,6 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 	}
 
 	return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::HandleMouseClick(UINT uMsg, UINT uiFlags, const CPoint& point)
-{
-	MouseSettings&				mouseSettings	= g_settingsHandler->GetMouseSettings();
-	bool						bMouseButtonUp	= false;
-	MouseSettings::Action		mouseAction;
-
-	// get modifiers
-	if (uiFlags & MK_CONTROL)		mouseAction.modifiers |= MouseSettings::mkCtrl;
-	if (uiFlags & MK_SHIFT)			mouseAction.modifiers |= MouseSettings::mkShift;
-	if (GetKeyState(VK_MENU) < 0)	mouseAction.modifiers |= MouseSettings::mkAlt;
-
-	// get mouse button
-	switch (uMsg)
-	{
-		case WM_LBUTTONDOWN :
-		case WM_LBUTTONUP :
-		case WM_LBUTTONDBLCLK :
-			mouseAction.button = MouseSettings::btnLeft;
-			break;
-
-		case WM_RBUTTONDOWN :
-		case WM_RBUTTONUP :
-		case WM_RBUTTONDBLCLK :
-			mouseAction.button = MouseSettings::btnRight;
-			break;
-
-		case WM_MBUTTONDOWN :
-		case WM_MBUTTONUP :
-		case WM_MBUTTONDBLCLK :
-			mouseAction.button = MouseSettings::btnMiddle;
-			break;
-	}
-
-	// get click type
-	switch (uMsg)
-	{
-		case WM_LBUTTONDOWN :
-		case WM_RBUTTONDOWN :
-		case WM_MBUTTONDOWN :
-			mouseAction.clickType = MouseSettings::clickSingle;
-			break;
-
-		case WM_LBUTTONDBLCLK :
-		case WM_RBUTTONDBLCLK :
-		case WM_MBUTTONDBLCLK :
-			mouseAction.clickType = MouseSettings::clickDouble;
-			break;
-
-		case WM_LBUTTONUP :
-		case WM_RBUTTONUP :
-		case WM_MBUTTONUP :
-			bMouseButtonUp = true;
-			break;
-	}
-
-	do
-	{
-		if (m_mouseCommand == MouseSettings::cmdNone)
-		{
-			// no current mouse action
-			typedef MouseSettings::Commands::index<MouseSettings::commandID>::type	CommandIDIndex;
-
-			CommandIDIndex::iterator it;
-
-			// copy command
-			if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
-			{
-				it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdCopy);
-
-				if ((*it)->action == mouseAction)
-				{
-					m_mouseCommand = MouseSettings::cmdCopy;
-					return;
-				}
-			}
-
-			// select command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdSelect);
-			if ((*it)->action == mouseAction)
-			{
-				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_screenBuffer);
-
-				m_mouseCommand = MouseSettings::cmdSelect;
-				return;
-			}
-			
-			// paste command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdPaste);
-			if ((*it)->action == mouseAction)
-			{
-				m_mouseCommand = MouseSettings::cmdPaste;
-				return;
-			}
-
-			// drag command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdDrag);
-			if ((*it)->action == mouseAction)
-			{
-				CPoint clientPoint(point);
-
-				ClientToScreen(&clientPoint);
-				GetParent().PostMessage(UM_START_MOUSE_DRAG, static_cast<WPARAM>(uiFlags), MAKELPARAM(clientPoint.x, clientPoint.y));
-
-				// we don't set active command here, main frame handles mouse drag
-				return;
-			}
-
-			// menu command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdMenu);
-			if ((*it)->action == mouseAction)
-			{
-				m_mouseCommand = MouseSettings::cmdMenu;
-				return;
-			}
-		}
-		else
-		{
-			// we have an active command, handle it...
-			switch (m_mouseCommand)
-			{
-				case MouseSettings::cmdCopy :
-				{
-					Copy(&point);
-					break;
-				}
-
-				case MouseSettings::cmdSelect :
-				{
-					if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
-					{
-						m_selectionHandler->EndSelection();
-						m_selectionHandler->ClearSelection();
-					}
-					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting)
-					{
-						m_selectionHandler->EndSelection();
-
-						// copy on select
-						if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
-						{
-							Copy(NULL);
-						}
-					}
-
-					break;
-				}
-
-				case MouseSettings::cmdPaste :
-				{
-					Paste();
-					break;
-				}
-
-				case MouseSettings::cmdMenu :
-				{
-					CPoint	screenPoint(point);
-					ClientToScreen(&screenPoint);
-					GetParent().SendMessage(UM_SHOW_POPUP_MENU, 0, MAKELPARAM(screenPoint.x, screenPoint.y));
-					break;
-				}
-
-				default :
-				{
-					if (bMouseButtonUp) return;
-				}
-			}
-
-			m_mouseCommand = MouseSettings::cmdNone;
-			return;
-		}
-
-	} while(false);
-
-	ForwardMouseClick(uMsg, point);
 }
 
 /////////////////////////////////////////////////////////////////////////////

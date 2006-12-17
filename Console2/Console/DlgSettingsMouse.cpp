@@ -54,6 +54,8 @@ LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	m_comboButtons.AddString(L"Left");
 	m_comboButtons.AddString(L"Right");
 	m_comboButtons.AddString(L"Middle");
+	m_comboButtons.AddString(L"Fourth");
+	m_comboButtons.AddString(L"Fifth");
 
 	MouseSettings::CommandsSequence::iterator it = m_mouseSettings.commands.begin();
 	for (; it != m_mouseSettings.commands.end(); ++it)

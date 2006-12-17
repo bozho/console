@@ -521,11 +521,17 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnMouseButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	if (::GetCapture() == m_hWnd)
+	{
+		::ReleaseCapture();
+	}
+	else
+	{
+		bHandled = FALSE;
+	}
 
-	::ReleaseCapture();
 	return 0;
 }
 
@@ -534,12 +540,11 @@ LRESULT MainFrame::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	UINT	uiFlags = static_cast<UINT>(wParam);
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
-	if (uiFlags & MK_LBUTTON)
+	if (::GetCapture() == m_hWnd)
 	{
 		ClientToScreen(&point);
 

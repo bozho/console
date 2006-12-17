@@ -62,6 +62,8 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_RBUTTONUP, OnMouseButton)
 			MESSAGE_HANDLER(WM_MBUTTONDOWN, OnMouseButton)
 			MESSAGE_HANDLER(WM_MBUTTONUP, OnMouseButton)
+			MESSAGE_HANDLER(WM_XBUTTONDOWN, OnMouseButton)
+			MESSAGE_HANDLER(WM_XBUTTONUP, OnMouseButton)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGEREQUEST, OnInputLangChangeRequest)
@@ -83,14 +85,7 @@ class ConsoleView
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
-/*
-		LRESULT OnLButtonDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& / *bHandled* /);
-		LRESULT OnLButtonUp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& / *bHandled* /);
-		LRESULT OnLButtonBblClk(UINT / *uMsg* /, WPARAM wParam, LPARAM lParam, BOOL& / *bHandled* /);
-		LRESULT OnRButtonUp(UINT / *uMsg* /, WPARAM / *wParam* /, LPARAM lParam, BOOL& / *bHandled* /);
-		LRESULT OnMButtonDown(UINT / *uMsg* /, WPARAM / *wParam* /, LPARAM / *lParam* /, BOOL& / *bHandled* /);
-*/
-		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -150,7 +145,6 @@ class ConsoleView
 		void SendTextToConsole(const wchar_t* pszText);
 
 		bool TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/);
-		void HandleMouseClick(UINT uMsg, UINT uiFlags, const CPoint& point);
 		void ForwardMouseClick(UINT uMsg, const CPoint& point);
 
 		COORD GetConsoleCoord(const CPoint& clientPoint);

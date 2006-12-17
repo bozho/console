@@ -635,9 +635,9 @@ BEGIN
     CONTROL         "Co&ntrol",IDC_CHECK_CTRL,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,47,231,39,10
     CONTROL         "&Shift",IDC_CHECK_SHIFT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,95,231,31,10
+                    WS_TABSTOP,92,231,31,10
     CONTROL         "Al&t",IDC_CHECK_ALT,"Button",BS_AUTOCHECKBOX | 
-                    WS_TABSTOP,130,231,25,10
+                    WS_TABSTOP,129,231,25,10
     PUSHBUTTON      "&Assign",IDC_BTN_ASSIGN,119,208,42,14
     PUSHBUTTON      "&Clear",IDC_BTN_CLEAR,168,208,42,14
 END

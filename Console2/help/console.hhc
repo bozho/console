@@ -61,15 +61,29 @@
 				<param name="Local" value="html\settings_hotkeys.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Mouse">
+				<param name="Local" value="html\settings_mouse.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Tabs">
 				<param name="Local" value="html\settings_tabs.html">
 				</OBJECT>
 		</UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Language settings">
+			<param name="Local" value="html\language.html">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Known bugs and limitations">
 		<param name="Local" value="html\bugs_limitations.html">
 		</OBJECT>
+	<UL>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Reporting problems">
+			<param name="Local" value="html\reporting_problems.html">
+			</OBJECT>
+	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Changelog">
 		<param name="Local" value="html\changelog.html">

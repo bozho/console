@@ -347,17 +347,19 @@ LRESULT ConsoleView::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
 
 LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	UINT						uiKeys			= GET_KEYSTATE_WPARAM(wParam); 
-	UINT						uiXButton		= GET_XBUTTON_WPARAM(wParam);
+	UINT						uKeys			= GET_KEYSTATE_WPARAM(wParam); 
+	UINT						uXButton		= GET_XBUTTON_WPARAM(wParam);
 
 	CPoint						point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	MouseSettings&				mouseSettings	= g_settingsHandler->GetMouseSettings();
 	bool						bMouseButtonUp	= false;
 	MouseSettings::Action		mouseAction;
 
+	LRESULT						ret = 0;
+
 	// get modifiers
-	if (uiKeys & MK_CONTROL)		mouseAction.modifiers |= MouseSettings::mkCtrl;
-	if (uiKeys & MK_SHIFT)			mouseAction.modifiers |= MouseSettings::mkShift;
+	if (uKeys & MK_CONTROL)			mouseAction.modifiers |= MouseSettings::mkCtrl;
+	if (uKeys & MK_SHIFT)			mouseAction.modifiers |= MouseSettings::mkShift;
 	if (GetKeyState(VK_MENU) < 0)	mouseAction.modifiers |= MouseSettings::mkAlt;
 
 	// get mouse button
@@ -384,7 +386,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case WM_XBUTTONDOWN :
 		case WM_XBUTTONUP :
 		case WM_XBUTTONDBLCLK :
-			if (uiXButton == XBUTTON1)
+			if (uXButton == XBUTTON1)
 			{
 				mouseAction.button = MouseSettings::btn4th;
 			}
@@ -392,6 +394,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			{
 				mouseAction.button = MouseSettings::btn5th;
 			}
+			ret = 1;
 			break;
 	}
 
@@ -466,7 +469,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				CPoint clientPoint(point);
 
 				ClientToScreen(&clientPoint);
-				GetParent().PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uiKeys, uiXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
+				GetParent().PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uKeys, uXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
 
 				// we don't set active command here, main frame handles mouse drag
 				return 0;
@@ -538,7 +541,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	} while(false);
 
-	ForwardMouseClick(uMsg, point);
+	ForwardMouseClick(uMsg, wParam, point);
 
 	return 0;
 }
@@ -548,8 +551,9 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	UINT	uFlags = static_cast<UINT>(wParam);
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
 	if (m_mouseCommand == MouseSettings::cmdSelect)
@@ -579,6 +583,15 @@ LRESULT ConsoleView::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam
 
 		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
 		BitBltOffscreen();
+	}
+	else if ((m_mouseCommand == MouseSettings::cmdNone) && 
+			 ((uFlags & (MK_LBUTTON | MK_RBUTTON | MK_MBUTTON | MK_XBUTTON1 | MK_XBUTTON2)) != 0))
+	{
+		ForwardMouseClick(uMsg, wParam, point);
+	}
+	else
+	{
+		bHandled = FALSE;
 	}
 
 	return 0;
@@ -621,11 +634,11 @@ LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM l
 LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	HDROP	hDrop = reinterpret_cast<HDROP>(wParam);
-	UINT	uiFilesCount = ::DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
+	UINT	uFilesCount = ::DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0);
 	CString	strFilenames;
 
 	// concatenate all filenames
-	for (UINT i = 0; i < uiFilesCount; ++i)
+	for (UINT i = 0; i < uFilesCount; ++i)
 	{
 		CString	strFilename;
 		::DragQueryFile(hDrop, i, strFilename.GetBuffer(MAX_PATH), MAX_PATH);
@@ -641,6 +654,82 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	::DragFinish(hDrop);
 	
 	SendTextToConsole(strFilenames);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled)
+{
+	int	nScrollType	= 0;
+	int nScrollCode	= 0;
+
+	switch (wID)
+	{
+		case ID_SCROLL_UP :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_LINEUP;
+			break;
+		}
+
+		case ID_SCROLL_LEFT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_LINELEFT;
+			break;
+		}
+
+		case ID_SCROLL_DOWN :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_LINEDOWN;
+			break;
+		}
+
+		case ID_SCROLL_RIGHT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_LINERIGHT;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_UP :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_PAGEUP;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_LEFT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_PAGELEFT;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_DOWN :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_PAGEDOWN;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_RIGHT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_PAGERIGHT;
+			break;
+		}
+
+
+		default : bHandled = FALSE; return 0;
+	}
+
+	DoScroll(nScrollType, nScrollCode, 0);
 	return 0;
 }
 
@@ -1065,15 +1154,15 @@ void ConsoleView::CreateOffscreenBuffers()
 
 	// get ClearType status
 	BOOL	bSmoothing		= FALSE;
-	UINT	uiSmoothingType= 0;
+	UINT	uSmoothingType	= 0;
 	CDC		dcDdesktop(::GetDC(NULL));
 	
 	::SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, (void*)&bSmoothing, 0);
-	::SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, (void*)&uiSmoothingType, 0);
+	::SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, (void*)&uSmoothingType, 0);
 
 	if ((dcDdesktop.GetDeviceCaps(BITSPIXEL)*dcDdesktop.GetDeviceCaps(PLANES) == 32) && // 32-bit depth only
 		bSmoothing && 
-		(uiSmoothingType == FE_FONTSMOOTHINGCLEARTYPE))
+		(uSmoothingType == FE_FONTSMOOTHINGCLEARTYPE))
 	{
 		m_bUseTextAlphaBlend = true;
 	}
@@ -1903,39 +1992,113 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::ForwardMouseClick(UINT uMsg, const CPoint& point)
+void ConsoleView::ForwardMouseClick(UINT uMsg, WPARAM wParam, const CPoint& point)
 {
 	DWORD dwMouseButtonState= 0;
 	DWORD dwControlKeyState	= 0;
 	DWORD dwEventFlags		= 0;
 
-
-	switch (uMsg)
+	if (uMsg == WM_MOUSEMOVE)
 	{
-		case WM_LBUTTONDOWN : 
+		dwEventFlags |= MOUSE_MOVED;
+
+		UINT	uFlags = static_cast<UINT>(wParam);
+
+		if ((uFlags & MK_LBUTTON) != 0)
 		{
 			dwMouseButtonState = FROM_LEFT_1ST_BUTTON_PRESSED;
-			break;
 		}
-
-		case WM_LBUTTONDBLCLK : 
-		{
-			dwMouseButtonState	 = FROM_LEFT_1ST_BUTTON_PRESSED;
-			dwEventFlags		|= DOUBLE_CLICK;
-			break;
-		}
-
-		case WM_RBUTTONDOWN : 
+		else if ((uFlags & MK_RBUTTON) != 0)
 		{
 			dwMouseButtonState = RIGHTMOST_BUTTON_PRESSED;
-			break;
 		}
-
-		case WM_RBUTTONDBLCLK : 
+		else if ((uFlags & MK_MBUTTON) != 0)
 		{
-			dwMouseButtonState	 = RIGHTMOST_BUTTON_PRESSED;
-			dwEventFlags		|= DOUBLE_CLICK;
-			break;
+			dwMouseButtonState = FROM_LEFT_2ND_BUTTON_PRESSED;
+		}
+		else if ((uFlags & MK_XBUTTON1) != 0)
+		{
+			dwMouseButtonState = FROM_LEFT_3RD_BUTTON_PRESSED;
+		}
+		else if ((uFlags & MK_XBUTTON2) != 0)
+		{
+			dwMouseButtonState = FROM_LEFT_4TH_BUTTON_PRESSED;
+		}
+	}
+	else
+	{
+		// one of mouse click messages
+//		UINT	uKeys			= GET_KEYSTATE_WPARAM(wParam); 
+		UINT	uXButton		= GET_XBUTTON_WPARAM(wParam);
+
+		switch (uMsg)
+		{
+			case WM_LBUTTONDOWN : 
+			{
+				dwMouseButtonState = FROM_LEFT_1ST_BUTTON_PRESSED;
+				break;
+			}
+
+			case WM_LBUTTONDBLCLK : 
+			{
+				dwMouseButtonState	 = FROM_LEFT_1ST_BUTTON_PRESSED;
+				dwEventFlags		|= DOUBLE_CLICK;
+				break;
+			}
+
+			case WM_RBUTTONDOWN : 
+			{
+				dwMouseButtonState = RIGHTMOST_BUTTON_PRESSED;
+				break;
+			}
+
+			case WM_RBUTTONDBLCLK : 
+			{
+				dwMouseButtonState	 = RIGHTMOST_BUTTON_PRESSED;
+				dwEventFlags		|= DOUBLE_CLICK;
+				break;
+			}
+
+			case WM_MBUTTONDOWN : 
+			{
+				dwMouseButtonState = FROM_LEFT_2ND_BUTTON_PRESSED;
+				break;
+			}
+
+			case WM_MBUTTONDBLCLK : 
+			{
+				dwMouseButtonState	 = FROM_LEFT_2ND_BUTTON_PRESSED;
+				dwEventFlags		|= DOUBLE_CLICK;
+				break;
+			}
+
+			case WM_XBUTTONDOWN : 
+			{
+				if (uXButton == XBUTTON1)
+				{
+					dwMouseButtonState = FROM_LEFT_3RD_BUTTON_PRESSED;
+				}
+				else
+				{
+					dwMouseButtonState = FROM_LEFT_4TH_BUTTON_PRESSED;
+				}
+				break;
+			}
+
+			case WM_XBUTTONDBLCLK : 
+			{
+				if (uXButton == XBUTTON1)
+				{
+					dwMouseButtonState	= FROM_LEFT_3RD_BUTTON_PRESSED;
+					dwEventFlags		|= DOUBLE_CLICK;
+				}
+				else
+				{
+					dwMouseButtonState	= FROM_LEFT_4TH_BUTTON_PRESSED;
+					dwEventFlags		|= DOUBLE_CLICK;
+				}
+				break;
+			}
 		}
 	}
 

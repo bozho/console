@@ -59,8 +59,7 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 {
 	if (!m_acceleratorTable.IsNull() && m_acceleratorTable.TranslateAccelerator(m_hWnd, pMsg)) return TRUE;
 
-	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg))
-		return TRUE;
+	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg)) return TRUE;
 
 	if (m_activeView.get() == NULL) return FALSE;
 

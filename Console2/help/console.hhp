@@ -26,9 +26,12 @@ html\settings_appearance.html
 html\settings_appearance_more.html
 html\settings_behavior.html
 html\settings_hotkeys.html
+html\settings_mouse.html
 html\settings_tabs.html
+html\language.html
 html\tips_tricks.html
 html\bugs_limitations.html
+html\reporting_problems.html
 html\changelog.html
 
 [INFOTYPES]

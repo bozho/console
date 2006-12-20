@@ -385,8 +385,8 @@ DWORD ConsoleHandler::MonitorThread()
 		{
 			m_consoleParams->dwColumns	= dwColumns;
 			m_consoleParams->dwRows		= dwRows;
-			m_consoleParams->dwBufferColumns= dwBufferColumns;
-			m_consoleParams->dwBufferRows	= dwBufferRows;
+			if (m_consoleParams->dwBufferColumns != 0)	m_consoleParams->dwBufferColumns= dwBufferColumns;
+			if (m_consoleParams->dwBufferRows != 0)		m_consoleParams->dwBufferRows	= dwBufferRows;
 			bResize = true;
 		}
 

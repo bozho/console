@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <settings>
-	<console change_refresh="10" refresh="100" rows="25" columns="80" buffer_rows="1000" buffer_columns="90" shell="" init_dir="" save_size="0">
+	<console change_refresh="10" refresh="100" rows="25" columns="90" buffer_rows="0" buffer_columns="0" shell="" init_dir="" save_size="0">
 		<colors>
 			<color id="0" r="0" g="0" b="0"/>
 			<color id="1" r="0" g="0" b="128"/>
@@ -34,7 +34,7 @@
 		<copy_paste copy_on_select="0" no_wrap="1" trim_spaces="1"/>
 		<scroll page_scroll_rows="0"/>
 	</behavior>
-	<hotkeys use_scroll_lock="1">
+	<hotkeys use_scroll_lock="0">
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="112" command="help"/>
 		<hotkey ctrl="0" shift="0" alt="1" extended="0" code="115" command="exit"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="112" command="newtab1"/>
@@ -75,11 +75,11 @@
 	</hotkeys>
 	<mouse>
 		<actions>
-			<action ctrl="0" shift="0" alt="0" button="1" name="copy"/>
-			<action ctrl="0" shift="1" alt="0" button="1" name="select"/>
-			<action ctrl="0" shift="0" alt="0" button="3" name="paste"/>
-			<action ctrl="1" shift="0" alt="0" button="1" name="drag"/>
-			<action ctrl="1" shift="0" alt="0" button="2" name="menu"/>
+			<action ctrl="0" shift="0" alt="0" button="0" name="copy"/>
+			<action ctrl="0" shift="0" alt="0" button="0" name="select"/>
+			<action ctrl="0" shift="0" alt="0" button="0" name="paste"/>
+			<action ctrl="0" shift="0" alt="0" button="0" name="drag"/>
+			<action ctrl="0" shift="0" alt="0" button="2" name="menu"/>
 		</actions>
 	</mouse>
 	<tabs>

@@ -1,6 +1,16 @@
 v2.00
 =====
 
+Build 129
+---------
+
+- fixed small bugs with mouse event forwarding (mouse move, some mouse clicks)
+
+- fixed a bug with scrolling hotkeys
+
+- (finally) window resizing works reliably
+
+
 Build 128
 ---------
 

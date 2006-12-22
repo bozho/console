@@ -346,7 +346,8 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		case WMSZ_TOPLEFT :
 		case WMSZ_BOTTOMLEFT :
 		{
-			if (csbi.srWindow.Right - static_cast<SHORT>(dwColumns - 1) <= 0)
+			TRACE(L"LEFT: %i, %i\n", dwColumns, csbi.srWindow.Right);
+			if ((csbi.srWindow.Left == 0) || (csbi.srWindow.Right - static_cast<SHORT>(dwColumns - 1) <= 0))
 			{
 				TRACE(L"3\n");
 				srConsoleRect.Left	= 0;

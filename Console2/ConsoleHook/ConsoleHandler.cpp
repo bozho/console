@@ -297,13 +297,11 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if ((csbi.srWindow.Top == 0) || (csbi.srWindow.Bottom - static_cast<SHORT>(dwRows - 1) <= 0))
 			{
-				TRACE(L"3\n");
 				srConsoleRect.Top	= 0;
 				srConsoleRect.Bottom= static_cast<SHORT>(dwRows - 1);
 			}
 			else
 			{
-				TRACE(L"4\n");
 				srConsoleRect.Top	= csbi.srWindow.Bottom - static_cast<SHORT>(dwRows);
 				srConsoleRect.Bottom= csbi.srWindow.Bottom;
 			}
@@ -317,13 +315,11 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if (csbi.srWindow.Top + static_cast<SHORT>(dwRows) > static_cast<SHORT>(m_consoleParams->dwBufferRows))
 			{
-				TRACE(L"1\n");
 				srConsoleRect.Top	= static_cast<SHORT>(m_consoleParams->dwBufferRows - dwRows);
 				srConsoleRect.Bottom= static_cast<SHORT>(m_consoleParams->dwBufferRows - 1);
 			}
 			else
 			{
-				TRACE(L"2\n");
 				srConsoleRect.Top	= csbi.srWindow.Top;
 				srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
 			}
@@ -333,7 +329,6 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 		default :
 		{
-			TRACE(L"5\n");
 			srConsoleRect.Top	= csbi.srWindow.Top;
 			srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
 		}
@@ -346,16 +341,13 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		case WMSZ_TOPLEFT :
 		case WMSZ_BOTTOMLEFT :
 		{
-			TRACE(L"LEFT: %i, %i\n", dwColumns, csbi.srWindow.Right);
 			if ((csbi.srWindow.Left == 0) || (csbi.srWindow.Right - static_cast<SHORT>(dwColumns - 1) <= 0))
 			{
-				TRACE(L"3\n");
 				srConsoleRect.Left	= 0;
 				srConsoleRect.Right	= static_cast<SHORT>(dwColumns - 1);
 			}
 			else
 			{
-				TRACE(L"4\n");
 				srConsoleRect.Left	= csbi.srWindow.Right - static_cast<SHORT>(dwColumns);
 				srConsoleRect.Right	= csbi.srWindow.Right;
 			}
@@ -369,13 +361,11 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if (csbi.srWindow.Left + static_cast<SHORT>(dwColumns) > static_cast<SHORT>(m_consoleParams->dwBufferColumns))
 			{
-				TRACE(L"1\n");
 				srConsoleRect.Left	= static_cast<SHORT>(m_consoleParams->dwBufferColumns - dwColumns);
 				srConsoleRect.Right	= static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1);
 			}
 			else
 			{
-				TRACE(L"2\n");
 				srConsoleRect.Left	= csbi.srWindow.Left;
 				srConsoleRect.Right	= csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
 			}
@@ -385,13 +375,10 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 		default :
 		{
-			TRACE(L"5\n");
 			srConsoleRect.Left	= csbi.srWindow.Left;
 			srConsoleRect.Right	= csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
 		}
 	}
-
-
 
 	TRACE(L"New win pos: %ix%i - %ix%i\n", srConsoleRect.Left, srConsoleRect.Top, srConsoleRect.Right, srConsoleRect.Bottom);
 	TRACE(L"Buffer size: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);

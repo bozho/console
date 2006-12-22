@@ -10,6 +10,8 @@ Build 129
 
 - (finally) window resizing works reliably
 
+- fixed a newline problem (I hope :-)
+
 
 Build 128
 ---------

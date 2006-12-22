@@ -590,15 +590,28 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 
 		for (size_t i = 0; i < partLen; ++i, ++offset)
 		{
-			if ((pszText.get()[offset] == L'\r') && (pszText.get()[offset+1] == L'\n')) continue;
+			if ((pszText.get()[offset] == L'\r') || (pszText.get()[offset] == L'\n'))
+			{
+				pKeyEvents[i].EventType							= KEY_EVENT;
+				pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
+				pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
+				pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= VK_RETURN;
+				pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
+				pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= L'\n';
+				pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
 
-			pKeyEvents[i].EventType							= KEY_EVENT;
-			pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
-			pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
-			pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= LOBYTE(::VkKeyScan(pszText.get()[offset]));
-			pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
-			pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText.get()[offset];
-			pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
+				if ((pszText.get()[offset] == L'\r') && (pszText.get()[offset+1] == L'\n')) ++offset;
+			}
+			else
+			{
+				pKeyEvents[i].EventType							= KEY_EVENT;
+				pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
+				pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
+				pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= LOBYTE(::VkKeyScan(pszText.get()[offset]));
+				pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
+				pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText.get()[offset];
+				pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
+			}
 		}
 
 		DWORD	dwTextWritten	= 0;

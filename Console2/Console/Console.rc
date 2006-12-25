@@ -183,21 +183,24 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,129,34,50,14
 END
 
-IDD_SETTINGS_MAIN DIALOGEX 0, 0, 354, 306
+IDD_SETTINGS_MAIN DIALOGEX 0, 0, 354, 321
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | 
     WS_SYSMENU
 CAPTION "Console Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "OK",IDOK,241,285,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,297,285,50,14
     CONTROL         "",IDC_TREE_SECTIONS,"SysTreeView32",TVS_HASBUTTONS | 
                     TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | 
                     TVS_NOSCROLL | WS_BORDER | WS_TABSTOP,7,7,98,265
     CONTROL         "",IDC_CHILD_PLACEHOLDER,"Static",SS_BLACKFRAME,112,7,
                     235,265
+    CONTROL         "Save settings to user directory",
+                    IDC_CHECK_USER_DATA_DIR,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,280,115,10
     LTEXT           "Settings marked with * will take effect after restart",
-                    IDC_STATIC,7,280,164,8
+                    IDC_STATIC,7,296,164,8
+    PUSHBUTTON      "OK",IDOK,241,300,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,297,300,50,14
 END
 
 IDD_SETTINGS_CONSOLE DIALOGEX 0, 0, 226, 254
@@ -674,7 +677,8 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 347
         TOPMARGIN, 7
-        BOTTOMMARGIN, 299
+        BOTTOMMARGIN, 314
+        HORZGUIDE, 285
     END
 
     IDD_SETTINGS_CONSOLE, DIALOG

@@ -119,7 +119,9 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	if (strConfigFile.length() == 0)
 	{
-		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
+		strConfigFile = wstring(L"console.xml");
+//		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
+//		strConfigFile = wstring(::_wgetenv(L"APPDATA")) + wstring(L"\\Console\\console.xml");
 	}
 
 	if (!g_settingsHandler->LoadSettings(strConfigFile))

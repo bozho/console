@@ -11,23 +11,28 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, const wstring& strDefaultFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement)
+HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement)
 {
 	HRESULT hr					= S_OK;
-	VARIANT_BOOL bLoadSuccess	= false;
+	VARIANT_BOOL bLoadSuccess	= 0; // FALSE
+
+	pXmlDocument.Release();
+	pRootElement.Release();
 	
 	hr = pXmlDocument.CoCreateInstance(__uuidof(DOMDocument));
-	if (FAILED(hr) || (pXmlDocument.p == NULL)) return false;
+	if (FAILED(hr) || (pXmlDocument.p == NULL)) return E_FAIL;
 
-	if (strFilename.length() > 0)
-	{
-		hr = pXmlDocument->load(CComVariant(strFilename.c_str()), &bLoadSuccess);
-	}
+	hr = pXmlDocument->load(CComVariant(strFilename.c_str()), &bLoadSuccess);
+	if (FAILED(hr) || (!bLoadSuccess)) return E_FAIL;
 
+/*
 	if (FAILED(hr) || (!bLoadSuccess))
 	{
-		if (strDefaultFilename.length() == 0) return E_FAIL;
+		if (strDefaultFilename.length() == 0) return wstring(L"");
 
+		strXmlFilename = Helpers::GetModulePath(NULL) + strDefaultFilename;
+
+/ *
 		wchar_t szModuleFileName[MAX_PATH + 1];
 		::ZeroMemory(szModuleFileName, (MAX_PATH+1)*sizeof(wchar_t));
 		::GetModuleFileName(NULL, szModuleFileName, MAX_PATH);
@@ -36,10 +41,12 @@ HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, const wstring& st
 		wstring strDefaultOptionsFileName(strModuleFileName.substr(0, strModuleFileName.rfind(L'\\')+1));
 
 		strDefaultOptionsFileName += strDefaultFilename;
+* /
 
-		hr = pXmlDocument->load(CComVariant(strDefaultOptionsFileName.c_str()), &bLoadSuccess);
-		if (FAILED(hr) || (!bLoadSuccess)) return E_FAIL;
+		hr = pXmlDocument->load(CComVariant(strXmlFilename.c_str()), &bLoadSuccess);
+		if (FAILED(hr) || (!bLoadSuccess)) return wstring(L"");
 	}
+*/
 
 	hr = pXmlDocument->get_documentElement(&pRootElement);
 	if (FAILED(hr)) return E_FAIL;

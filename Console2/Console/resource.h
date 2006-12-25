@@ -194,7 +194,7 @@
 #define IDC_COMBO_BUTTONS               1161
 #define IDC_CHECK_CTRL                  1162
 #define IDC_CHECK_SHIFT                 1163
-#define IDC_CHECK_SHIFT2                1164
+#define IDC_CHECK_USER_DATA_DIR         1163
 #define IDC_CHECK_ALT                   1164
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -216,9 +216,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        211
+#define _APS_NEXT_RESOURCE_VALUE        212
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1163
+#define _APS_NEXT_CONTROL_VALUE         1164
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

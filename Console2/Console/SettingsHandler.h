@@ -549,6 +549,15 @@ private:
 class SettingsHandler
 {
 	public:
+
+		enum SettingsDirType
+		{
+			dirTypeExe		= 0,
+			dirTypeUser		= 1,
+			dirTypeCustom	=2
+		};
+
+	public:
 		SettingsHandler();
 		~SettingsHandler();
 
@@ -557,7 +566,10 @@ class SettingsHandler
 		bool LoadSettings(const wstring& strSettingsFileName);
 		bool SaveSettings();
 
-		wstring	GetSettingsFileName() const { return m_strSettingsFileName; }
+		wstring	GetSettingsFileName() const { return m_strSettingsPath+m_strSettingsFileName; }
+
+		SettingsDirType GetSettingsDirType() const { return m_settingsDirType; }
+		void SetUserDataDir(SettingsDirType settingsDirType);
 
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
@@ -573,7 +585,10 @@ class SettingsHandler
 
 	private:
 
+		wstring				m_strSettingsPath;
 		wstring				m_strSettingsFileName;
+
+		SettingsDirType		m_settingsDirType;
 
 		ConsoleSettings		m_consoleSettings;
 		AppearanceSettings	m_appearanceSettings;

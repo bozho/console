@@ -12,6 +12,8 @@ Build 129
 
 - fixed a newline problem (I hope :-)
 
+- settings can be saved to user's APPDATA directory
+
 
 Build 128
 ---------

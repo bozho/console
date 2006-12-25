@@ -46,7 +46,11 @@ class DlgSettingsMain
 
 	private:
 
+		wstring						m_strSettingsFileName;
+
 		CTreeViewCtrl				m_treeCtrl;
+		CButton						m_checkUserDataDir;
+
 		SettingsDlgsMap				m_settingsDlgMap;
 		
 		CComPtr<IXMLDOMDocument>	m_pSettingsDocument;

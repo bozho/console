@@ -23,7 +23,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 DlgSettingsMain::DlgSettingsMain()
-: m_treeCtrl()
+: m_strSettingsFileName(L"")
+, m_treeCtrl()
 , m_settingsDlgMap()
 , m_pSettingsDocument()
 , m_pSettingsRoot()
@@ -46,13 +47,16 @@ LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	hr = XmlHelper::OpenXmlDocument(
 						g_settingsHandler->GetSettingsFileName(), 
-						L"console.xml", 
 						m_pSettingsDocument, 
 						m_pSettingsRoot);
 
 	if (FAILED(hr)) return FALSE;
 
 	m_treeCtrl.Attach(GetDlgItem(IDC_TREE_SECTIONS));
+	m_checkUserDataDir.Attach(GetDlgItem(IDC_CHECK_USER_DATA_DIR));
+
+	m_checkUserDataDir.SetCheck((g_settingsHandler->GetSettingsDirType() == SettingsHandler::dirTypeUser) ? 1 : 0);
+	if (g_settingsHandler->GetSettingsDirType() == SettingsHandler::dirTypeCustom) m_checkUserDataDir.EnableWindow(FALSE);
 
 	CreateSettingsTree();
 
@@ -74,6 +78,10 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 
 	if (wID == IDOK)
 	{
+		if (m_checkUserDataDir.IsWindowEnabled())
+		{
+			g_settingsHandler->SetUserDataDir((m_checkUserDataDir.GetCheck() == 1) ? SettingsHandler::dirTypeUser : SettingsHandler::dirTypeExe);
+		}
 		m_pSettingsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
 	}
 

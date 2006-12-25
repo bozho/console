@@ -4,6 +4,8 @@
 #include "XmlHelper.h"
 #include "SettingsHandler.h"
 
+using namespace boost::algorithm;
+
 //////////////////////////////////////////////////////////////////////////////
 
 extern shared_ptr<ImageHandler>		g_imageHandler;
@@ -1526,8 +1528,14 @@ void TabSettings::SetDefaults(const wstring& defaultShell, const wstring& defaul
 
 SettingsHandler::SettingsHandler()
 : m_pSettingsDocument()
-, m_pSettingsRoot()
+, m_strSettingsPath(L"")
 , m_strSettingsFileName(L"")
+, m_settingsDirType(dirTypeExe)
+, m_consoleSettings()
+, m_appearanceSettings()
+, m_behaviorSettings()
+, m_hotKeys()
+, m_mouseSettings()
 , m_tabSettings()
 {
 }
@@ -1550,10 +1558,59 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 {
 	HRESULT hr = S_OK;
 
-	m_strSettingsFileName = strSettingsFileName;
+	size_t pos = strSettingsFileName.rfind(L'\\');
 
-	hr = XmlHelper::OpenXmlDocument(m_strSettingsFileName, L"console.xml", m_pSettingsDocument, m_pSettingsRoot);
-	if (FAILED(hr)) return false;
+	if (pos == wstring::npos)
+	{
+		// no path, first try with user's APPDATA dir
+		m_strSettingsPath		= wstring(_wgetenv(L"APPDATA")) + wstring(L"\\Console\\");
+		m_strSettingsFileName	= strSettingsFileName;
+		m_settingsDirType		= dirTypeUser;
+
+		hr = XmlHelper::OpenXmlDocument(
+							m_strSettingsPath + m_strSettingsFileName, 
+							m_pSettingsDocument, 
+							m_pSettingsRoot);
+
+		if (FAILED(hr))
+		{
+			m_strSettingsPath	= Helpers::GetModulePath(NULL);
+			m_settingsDirType	= dirTypeExe;
+
+			hr = XmlHelper::OpenXmlDocument(
+								m_strSettingsPath + m_strSettingsFileName, 
+								m_pSettingsDocument, 
+								m_pSettingsRoot);
+
+			if (FAILED(hr)) return false;
+		}
+	}
+	else
+	{
+		// settings file name with a path
+		m_strSettingsPath		= strSettingsFileName.substr(0, pos+1);
+		m_strSettingsFileName	= strSettingsFileName.substr(pos+1);
+
+		if (equals(m_strSettingsPath, wstring(_wgetenv(L"APPDATA")) + wstring(L"\\Console\\"), is_iequal()))
+		{
+			m_settingsDirType = dirTypeUser;
+		}
+		else if (equals(m_strSettingsPath, Helpers::GetModulePath(NULL), is_iequal()))
+		{
+			m_settingsDirType = dirTypeExe;
+		}
+		else
+		{
+			m_settingsDirType = dirTypeCustom;
+		}
+
+		hr = XmlHelper::OpenXmlDocument(
+							strSettingsFileName, 
+							m_pSettingsDocument, 
+							m_pSettingsRoot);
+
+		if (FAILED(hr)) return false;
+	}
 
 	// load settings' sections
 	m_consoleSettings.Load(m_pSettingsRoot);
@@ -1590,3 +1647,21 @@ bool SettingsHandler::SaveSettings()
 //////////////////////////////////////////////////////////////////////////////
 
 
+//////////////////////////////////////////////////////////////////////////////
+
+void SettingsHandler::SetUserDataDir(SettingsDirType settingsDirType)
+{
+	if (settingsDirType == dirTypeExe)
+	{
+		m_strSettingsPath = Helpers::GetModulePath(NULL);
+	}
+	else if (settingsDirType == dirTypeUser)
+	{
+		m_strSettingsPath = wstring(_wgetenv(L"APPDATA")) + wstring(L"\\Console\\");
+		::CreateDirectory(m_strSettingsPath.c_str(), NULL);
+	}
+
+	m_settingsDirType = settingsDirType;
+}
+
+//////////////////////////////////////////////////////////////////////////////

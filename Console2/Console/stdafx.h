@@ -68,6 +68,7 @@ using namespace std;
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/algorithm/string.hpp>
 using namespace boost;
 #pragma warning(pop)
 

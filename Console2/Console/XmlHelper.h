@@ -16,7 +16,7 @@ class XmlHelper
 {
 	public:
 		
-		static HRESULT OpenXmlDocument(const wstring& strFilename, const wstring& strDefaultFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement);
+		static HRESULT OpenXmlDocument(const wstring& strFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement);
 
 		static HRESULT GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement);
 

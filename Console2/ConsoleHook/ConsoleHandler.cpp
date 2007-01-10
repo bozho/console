@@ -447,7 +447,7 @@ void ConsoleHandler::CopyConsoleText()
 	COORD&	coordStart	= m_consoleCopyInfo->coordStart;
 	COORD&	coordEnd	= m_consoleCopyInfo->coordEnd;
 
-	TRACE(L"Copy request: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
+//	TRACE(L"Copy request: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
 
 	shared_ptr<void> hStdOut(
 						::CreateFile(
@@ -534,8 +534,6 @@ void ConsoleHandler::CopyConsoleText()
 
 		if (m_consoleCopyInfo->bTrimSpaces) trim_right(strRow);
 		if (bWrap) strRow += wstring(L"\n");
-
-		TRACE(L"row: {%s}\n", strRow.c_str());
 
 		strText += strRow;
 	}

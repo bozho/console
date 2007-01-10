@@ -70,12 +70,20 @@ void SelectionHandler::StartSelection(const COORD& coordInit, shared_array<CHAR_
 
 	m_coordInitial		= coordInit;
 
+	TRACE(L"Start sel. X: %i Y: %i\n", m_coordInitial.X, m_coordInitial.Y);
+
 	m_coordCurrent.X	= m_coordInitial.X;
 	m_coordCurrent.Y	= m_coordInitial.Y;
 
 	SMALL_RECT&	 srWindow = m_consoleInfo->srWindow;
 
- 	if (screenBuffer[(m_coordCurrent.Y - srWindow.Top) * m_consoleParams->dwColumns + (m_coordCurrent.X - srWindow.Left)].Attributes & COMMON_LVB_LEADING_BYTE)
+	int nDeltaX = m_coordCurrent.X - srWindow.Left;
+	int nDeltaY = m_coordCurrent.Y - srWindow.Top;
+
+	if (nDeltaX < 0) nDeltaX = 0;
+	if (nDeltaY < 0) nDeltaY = 0;
+
+ 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].Attributes & COMMON_LVB_LEADING_BYTE)
  	{
 		++m_coordCurrent.X;
 	}
@@ -101,10 +109,17 @@ void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<C
 //	TRACE(L"Update selection current: %ix%i\n", coordCurrent.X, coordCurrent.Y);
 	m_coordCurrent = coordCurrent;
 
+
 	SMALL_RECT&	 srWindow = m_consoleInfo->srWindow;
 
- 	if (screenBuffer[(m_coordCurrent.Y - srWindow.Top) * m_consoleParams->dwColumns + (m_coordCurrent.X - srWindow.Left)].Attributes & COMMON_LVB_LEADING_BYTE)
- 	{
+	int nDeltaX = m_coordCurrent.X - srWindow.Left;
+	int nDeltaY = m_coordCurrent.Y - srWindow.Top;
+
+	if (nDeltaX < 0) nDeltaX = 0;
+	if (nDeltaY < 0) nDeltaY = 0;
+
+ 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].Attributes & COMMON_LVB_LEADING_BYTE)
+	{
 		++m_coordCurrent.X;
 	}
 

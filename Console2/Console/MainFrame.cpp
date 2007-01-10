@@ -1266,7 +1266,7 @@ void MainFrame::AdjustWindowRect(CRect& rect)
 	rect.bottom	+= GetTabAreaHeight(); //+0
 //	rect.right	+= 0;
 
-	TRACE(L"AdjustWindowRect: %ix%i\n", rect.Width(), rect.Height());
+//	TRACE(L"AdjustWindowRect: %ix%i\n", rect.Width(), rect.Height());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1847,7 +1847,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 
 	AdjustWindowRect(clientRect);
 
-	TRACE(L"AdjustWindowSize: %ix%i\n", clientRect.Width(), clientRect.Height());
+//	TRACE(L"AdjustWindowSize: %ix%i\n", clientRect.Width(), clientRect.Height());
 
 	SetWindowPos(
 		0, 
@@ -1861,7 +1861,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	CRect rectWindow;
 
 	GetWindowRect(&rectWindow);
-	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
+//	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 

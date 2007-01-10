@@ -380,13 +380,19 @@ DWORD ConsoleHandler::MonitorThread()
 
 		if ((m_consoleParams->dwColumns != dwColumns) ||
 			(m_consoleParams->dwRows != dwRows) ||
-			(m_consoleParams->dwBufferColumns != dwBufferColumns) ||
-			(m_consoleParams->dwBufferRows != dwBufferRows))
+			((m_consoleParams->dwBufferColumns != 0) && (m_consoleParams->dwBufferColumns != dwBufferColumns)) ||
+			((m_consoleParams->dwBufferRows != 0) && (m_consoleParams->dwBufferRows != dwBufferRows)))
 		{
 			m_consoleParams->dwColumns	= dwColumns;
 			m_consoleParams->dwRows		= dwRows;
+
+			// TODO: why exactly did I put this condition?
+/*
 			if (m_consoleParams->dwBufferColumns != 0)	m_consoleParams->dwBufferColumns= dwBufferColumns;
 			if (m_consoleParams->dwBufferRows != 0)		m_consoleParams->dwBufferRows	= dwBufferRows;
+*/
+			m_consoleParams->dwBufferColumns= dwBufferColumns;
+			m_consoleParams->dwBufferRows	= dwBufferRows;
 			bResize = true;
 		}
 

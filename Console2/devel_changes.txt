@@ -1,6 +1,14 @@
 v2.00
 =====
 
+Build 130
+---------
+
+- fixed a bug with disappearing selection while scrolling
+
+- fixed a bug with scrolling upwards while selecting text
+
+
 Build 129
 ---------
 

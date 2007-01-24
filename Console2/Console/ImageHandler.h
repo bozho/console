@@ -103,6 +103,7 @@ struct BackgroundImage
 	, dwOriginalImageHeight(0)
 	, dwImageWidth(0)
 	, dwImageHeight(0)
+	, bWallpaper(false)
 	, originalImage()
 	, image()
 	, dcImage()
@@ -116,7 +117,9 @@ struct BackgroundImage
 	DWORD				dwImageWidth;
 	DWORD				dwImageHeight;
 
-	fipImage			originalImage;
+	bool				bWallpaper;
+
+	shared_ptr<fipImage> originalImage;
 
 	CBitmap				image;
 	CDC					dcImage;
@@ -156,11 +159,13 @@ class ImageHandler
 
 		shared_ptr<BackgroundImage> GetImage(const ImageData& imageData);
 		shared_ptr<BackgroundImage> GetDesktopImage(ImageData& imageData);
+		void ReloadDesktopImages();
 
 		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage);
 
 	private:
 
+		bool GetDesktopImageData(ImageData& imageData);
 		bool LoadImage(shared_ptr<BackgroundImage>& bkImage);
 
 		void CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage);

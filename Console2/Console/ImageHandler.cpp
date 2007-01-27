@@ -106,6 +106,13 @@ void ImageHandler::UpdateImageBitmap(const CDC& dc, const CRect& clientRect, sha
 	}
 	else
 	{
+		if ((bkImage->dwImageWidth == static_cast<DWORD>(clientRect.Width())) &&
+			(bkImage->dwImageHeight == static_cast<DWORD>(clientRect.Height())))
+		{
+			// no client size change, nothing to do
+			return;
+		}
+
 		CreateImage(dc, clientRect, bkImage);
 	}
 }
@@ -349,17 +356,11 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 
 void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage)
 {
-	if ((bkImage->dwImageWidth == static_cast<DWORD>(clientRect.Width())) &&
-		(bkImage->dwImageHeight == static_cast<DWORD>(clientRect.Height())))
-	{
-		// no client size change, nothing to do
-		return;
-	}
-
 	bkImage->dwImageWidth = clientRect.Width();
 	bkImage->dwImageHeight= clientRect.Height();
 
 	// create background bitmap
+	if (!bkImage->image.IsNull()) bkImage->image.DeleteObject();
 	Helpers::CreateBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight, bkImage->image);
 	bkImage->dcImage.SelectBitmap(bkImage->image);
 
@@ -521,7 +522,12 @@ void ImageHandler::TintImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage
 	bf.SourceConstantAlpha	= bkImage->imageData.byTintOpacity;
 	bf.AlphaFormat			= 0;
 
-	dcTint.CreateCompatibleDC(dc);
+	if (dcTint.CreateCompatibleDC(dc) == NULL)
+	{
+		// this can sometimes fail with 'not enough storage available' error
+		// when resizing the window fast
+		return;
+	}
 //	bmpTint.CreateCompatibleBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight);
 	Helpers::CreateBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight, bmpTint);
 	dcTint.SelectBitmap(bmpTint);

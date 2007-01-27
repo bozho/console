@@ -110,6 +110,7 @@ class ConsoleView
 
 		void RecreateOffscreenBuffers();
 		void RepaintView();
+
 		void SetActive(bool bActive);
 		void SetTitle(const CString& strTitle);
 
@@ -210,7 +211,6 @@ private:
 
 		static int						m_nCharHeight;
 		static int						m_nCharWidth;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

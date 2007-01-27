@@ -29,3 +29,57 @@ class Helpers
 };
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+class CriticalSection
+{
+	public:
+
+		CriticalSection()
+		{
+			::InitializeCriticalSection(&m_cs);
+		}
+
+		~CriticalSection()
+		{
+			::DeleteCriticalSection(&m_cs);
+		}
+
+	public:
+
+		void Enter();
+		void Leave();
+
+	private:
+
+		CRITICAL_SECTION m_cs;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+class CritSectionLock
+{
+	public:
+
+		explicit CritSectionLock(CriticalSection& critSection)
+		: m_critSection(critSection)
+		{
+			m_critSection.Enter();
+		}
+
+		~CritSectionLock()
+		{
+			m_critSection.Leave();
+		}
+
+	private:
+
+		CriticalSection& m_critSection;
+};
+
+//////////////////////////////////////////////////////////////////////////////

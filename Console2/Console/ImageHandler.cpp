@@ -205,20 +205,18 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 {
 	USES_CONVERSION;
 
+	CriticalSectionLock	lock(bkImage->updateCritSec);
+
 	if (bkImage.get() == NULL) return false;
 
-	// create background CDC...
+		// if we're reloading, delete old bitmap and DC
 	if (!bkImage->dcImage.IsNull())
 	{
-		// if we're reloading, delete old bitmap and DC
 		bkImage->dcImage.SelectBitmap(NULL);
 		bkImage->dcImage.DeleteDC();
 	}
 
-	// ... and paint bitmap
 	if (!bkImage->image.IsNull()) bkImage->image.DeleteObject();
-
-	bkImage->dcImage.CreateCompatibleDC(NULL);
 
 	// create new original image
 	bkImage->originalImage.reset(new fipImage());
@@ -245,11 +243,16 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 
 void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage)
 {
+	CriticalSectionLock	lock(bkImage->updateCritSec);
+
 	DWORD	dwPrimaryDisplayWidth	= ::GetSystemMetrics(SM_CXSCREEN);
 	DWORD	dwPrimaryDisplayHeight	= ::GetSystemMetrics(SM_CYSCREEN);
 
 	bkImage->dwImageWidth	= ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
 	bkImage->dwImageHeight	= ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+	// create background DC
+	bkImage->dcImage.CreateCompatibleDC(NULL);
 
 	// create background bitmap
 	Helpers::CreateBitmap(dc, bkImage->dwImageWidth, bkImage->dwImageHeight, bkImage->image);
@@ -356,8 +359,13 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 
 void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage)
 {
+	CriticalSectionLock	lock(bkImage->updateCritSec);
+
 	bkImage->dwImageWidth = clientRect.Width();
 	bkImage->dwImageHeight= clientRect.Height();
+
+	// create background DC
+	if (bkImage->dcImage.IsNull()) bkImage->dcImage.CreateCompatibleDC(NULL);
 
 	// create background bitmap
 	if (!bkImage->image.IsNull()) bkImage->image.DeleteObject();

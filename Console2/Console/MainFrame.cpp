@@ -600,7 +600,6 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	// TODO: we need this to be thread safe
 	g_imageHandler->ReloadDesktopImages();
 	m_activeView->Invalidate();
 

@@ -10,6 +10,9 @@ Build 130
 
 - Console handles wallpaper changes now
 
+- [internal] wallpaper changes, non-relative background image resizing and tab
+  switching should be thread safe now
+
 
 Build 129
 ---------

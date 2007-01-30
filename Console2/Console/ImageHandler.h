@@ -107,6 +107,7 @@ struct BackgroundImage
 	, originalImage()
 	, image()
 	, dcImage()
+	, updateCritSec()
 	{
 	}
 
@@ -123,6 +124,8 @@ struct BackgroundImage
 
 	CBitmap				image;
 	CDC					dcImage;
+
+	CriticalSection		updateCritSec;
 };
 
 struct MonitorEnumData

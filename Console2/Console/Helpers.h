@@ -62,17 +62,17 @@ class CriticalSection
 
 //////////////////////////////////////////////////////////////////////////////
 
-class CritSectionLock
+class CriticalSectionLock
 {
 	public:
 
-		explicit CritSectionLock(CriticalSection& critSection)
+		explicit CriticalSectionLock(CriticalSection& critSection)
 		: m_critSection(critSection)
 		{
 			m_critSection.Enter();
 		}
 
-		~CritSectionLock()
+		~CriticalSectionLock()
 		{
 			m_critSection.Leave();
 		}

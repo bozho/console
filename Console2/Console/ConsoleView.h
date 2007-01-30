@@ -121,6 +121,9 @@ class ConsoleView
 		void Copy(const CPoint* pPoint = NULL);
 		void Paste();
 
+
+		CriticalSection& GetActiveCS() { return m_activeCritSec; }
+
 		void DumpBuffer();
 
 	private:
@@ -197,6 +200,8 @@ class ConsoleView
 		shared_ptr<SelectionHandler>	m_selectionHandler;
 
 		MouseSettings::Command			m_mouseCommand;
+
+		CriticalSection					m_activeCritSec;
 
 // static members
 private:

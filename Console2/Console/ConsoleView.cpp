@@ -55,8 +55,8 @@ ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, 
 , m_cursor()
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
+, m_activeCritSec()
 {
-	TRACE(L"Scroll width: %i\n", m_nHScrollWidth);
 }
 
 ConsoleView::~ConsoleView()
@@ -604,6 +604,8 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	CriticalSectionLock	lock(m_activeCritSec);
+
 	if (m_bActive && (wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
 	{
 		m_cursor->PrepareNext();
@@ -902,6 +904,7 @@ void ConsoleView::RepaintView()
 
 void ConsoleView::SetActive(bool bActive)
 {
+	CriticalSectionLock	lock(m_activeCritSec);
 	m_bActive = bActive;
 	if (m_bActive)
 	{
@@ -1059,6 +1062,8 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
+	CriticalSectionLock	lock(m_activeCritSec);
+
 	// console size changed, resize offscreen buffers
 	if (bResize)
 	{
@@ -1745,6 +1750,8 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 
 	if (m_tabData->backgroundImageType != bktypeNone)
 	{
+		CriticalSectionLock	lock(m_background->updateCritSec);
+
 		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_background);
 
 		if (m_tabData->imageData.bRelative)

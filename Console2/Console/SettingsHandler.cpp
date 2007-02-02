@@ -1320,12 +1320,16 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 			DWORD dwBackgroundImageType = 0;
 
 			XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"type"), dwBackgroundImageType, 0);
-			XmlHelper::GetRGBAttribute(pBackgroundElement, tabData->crBackgroundColor, RGB(0, 0, 0));
-
 			tabData->backgroundImageType = static_cast<BackgroundImageType>(dwBackgroundImageType);
 
-			if (tabData->backgroundImageType != bktypeNone)
+			if (tabData->backgroundImageType == bktypeNone)
 			{
+				XmlHelper::GetRGBAttribute(pBackgroundElement, tabData->crBackgroundColor, RGB(0, 0, 0));
+			}
+			else
+			{
+				tabData->crBackgroundColor = RGB(0, 0, 0);
+
 				// load image settings and let ImageHandler return appropriate bitmap
 				CComPtr<IXMLDOMElement>	pImageElement;
 				CComPtr<IXMLDOMElement>	pTintElement;

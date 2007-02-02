@@ -287,6 +287,12 @@ void DlgSettingsTabs::SetTabData(TabData* pTabData)
 	pTabData->strInitialDir				= m_page1.m_strInitialDir;
 
 	pTabData->backgroundImageType		= static_cast<BackgroundImageType>(m_page2.m_nBkType);
+
+	if (pTabData->backgroundImageType != bktypeNone)
+	{
+		pTabData->crBackgroundColor = RGB(0, 0, 0);
+	}
+
 	pTabData->imageData.strFilename		= m_page2.m_strBkImage;
 	pTabData->imageData.bRelative		= m_page2.m_nRelative > 0;
 	pTabData->imageData.bExtend			= m_page2.m_nExtend > 0;

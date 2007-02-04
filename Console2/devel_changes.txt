@@ -12,6 +12,9 @@ Build 130
 
 - fixed a small background color problem
 
+- added support for environment variables in config file name, shell command
+  line, startup directory, icons and background images
+
 - [internal] wallpaper changes, non-relative background image resizing and tab
   switching should be thread safe now
 

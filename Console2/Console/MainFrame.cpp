@@ -1660,7 +1660,7 @@ void MainFrame::SetWindowIcons()
 		{
 			m_icon.Attach(static_cast<HICON>(::LoadImage(
 													NULL, 
-													windowSettings.strIcon.c_str(), 
+													Helpers::ExpandEnvironmentStrings(windowSettings.strIcon).c_str(), 
 													IMAGE_ICON, 
 													0, 
 													0, 
@@ -1668,7 +1668,7 @@ void MainFrame::SetWindowIcons()
 
 			m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
 													NULL, 
-													windowSettings.strIcon.c_str(), 
+													Helpers::ExpandEnvironmentStrings(windowSettings.strIcon).c_str(), 
 													IMAGE_ICON, 
 													16, 
 													16, 

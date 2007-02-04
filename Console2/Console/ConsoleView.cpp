@@ -113,7 +113,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	{
 		bigIcon = static_cast<HICON>(::LoadImage(
 											NULL, 
-											m_tabData->strIcon.c_str(), 
+											Helpers::ExpandEnvironmentStrings(m_tabData->strIcon).c_str(), 
 											IMAGE_ICON, 
 											0, 
 											0, 
@@ -121,7 +121,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 		smallIcon = static_cast<HICON>(::LoadImage(
 											NULL, 
-											m_tabData->strIcon.c_str(), 
+											Helpers::ExpandEnvironmentStrings(m_tabData->strIcon).c_str(), 
 											IMAGE_ICON, 
 											16, 
 											16, 

@@ -222,7 +222,7 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 	bkImage->originalImage.reset(new fipImage());
 
 	// load background image
-	if (!bkImage->originalImage->load(W2A(bkImage->imageData.strFilename.c_str())))
+	if (!bkImage->originalImage->load(W2A(Helpers::ExpandEnvironmentStrings(bkImage->imageData.strFilename).c_str())))
 	{
 		bkImage->originalImage.reset();
 		return false;

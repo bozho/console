@@ -73,9 +73,9 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strInitialCmd, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns, bool bDebugFlag)
 {
-	wstring	strShell(strCustomShell);
+	wstring	strShellCmdLine(strCustomShell);
 	
-	if (strShell.length() == 0)
+	if (strShellCmdLine.length() == 0)
 	{
 		wchar_t	szComspec[MAX_PATH];
 
@@ -83,22 +83,20 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 		if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
 		{
-			strShell = szComspec;		
+			strShellCmdLine = szComspec;		
 		}
 		else
 		{
-			strShell = L"cmd.exe";
+			strShellCmdLine = L"cmd.exe";
 		}
 	}
 
 	if (strInitialCmd.length() > 0)
 	{
-		strShell += L" ";
-		strShell += strInitialCmd;
+		strShellCmdLine += L" ";
+		strShellCmdLine += strInitialCmd;
 	}
 
-	// TODO: build command line
-	wstring	strShellCmdLine(strShell);
 	wstring	strStartupTitle(strConsoleTitle);
 
 	if (strStartupTitle.length() == 0)
@@ -128,7 +126,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	si.dwFlags		= STARTF_USESHOWWINDOW;
 	si.cb			= sizeof(STARTUPINFO);
 	si.wShowWindow	= SW_HIDE;
-	si.lpTitle		= (wchar_t*)(strStartupTitle.c_str());
+	si.lpTitle		= const_cast<wchar_t*>(strStartupTitle.c_str());
 
 	PROCESS_INFORMATION pi;
 	DWORD				dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED;
@@ -138,13 +136,13 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	if (!::CreateProcess(
 			NULL,
-			(wchar_t*)(strShellCmdLine.c_str()),
+			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStrings(strShellCmdLine).c_str()),
 			NULL,
 			NULL,
 			FALSE,
 			dwStartupFlags,
 			NULL,
-			(strStartupDir.length() > 0) ? strStartupDir.c_str() : NULL,
+			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(Helpers::ExpandEnvironmentStrings(strStartupDir).c_str()) : NULL,
 			&si,
 			&pi))
 	{

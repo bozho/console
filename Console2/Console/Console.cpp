@@ -124,7 +124,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 //		strConfigFile = wstring(::_wgetenv(L"APPDATA")) + wstring(L"\\Console\\console.xml");
 	}
 
-	if (!g_settingsHandler->LoadSettings(strConfigFile))
+	if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
 	{
 		//TODO: error handling
 		return -1;

@@ -51,8 +51,15 @@ class CriticalSection
 
 	public:
 
-		void Enter();
-		void Leave();
+		void Enter()
+		{
+			::EnterCriticalSection(&m_cs);			
+		}
+		
+		void Leave()
+		{
+			::LeaveCriticalSection(&m_cs);			
+		}
 
 	private:
 

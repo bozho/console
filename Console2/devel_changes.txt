@@ -17,6 +17,10 @@ Build 130
 
 - [internal] wallpaper changes, non-relative background image resizing and tab
   switching should be thread safe now
+  
+- mouse cursor is changed to 'text select' cursor while selecting
+
+- added drop down menu to 'new tab' toolbar button
 
 
 Build 129

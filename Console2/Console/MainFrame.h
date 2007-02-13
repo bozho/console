@@ -64,6 +64,7 @@ class MainFrame
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
 			NOTIFY_CODE_HANDLER(CTCN_MCLICK, OnTabMiddleClick);
 			NOTIFY_CODE_HANDLER(RBN_HEIGHTCHANGE, OnRebarHeightChanged)
+			NOTIFY_HANDLER(ATL_IDW_TOOLBAR, TBN_DROPDOWN, OnToolbarDropDown)
 			COMMAND_RANGE_HANDLER(ID_NEW_TAB_1, ID_NEW_TAB_1 + 99, OnFileNewTab)
 			COMMAND_ID_HANDLER(ID_FILE_NEW_TAB, OnFileNewTab)
 			COMMAND_RANGE_HANDLER(ID_SWITCH_TAB_1, ID_SWITCH_TAB_1 + 9, OnSwitchTab)
@@ -123,6 +124,8 @@ class MainFrame
 		LRESULT OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 
 		LRESULT OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
+
+		LRESULT OnToolbarDropDown(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 		LRESULT OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -219,6 +222,7 @@ class MainFrame
 		bool			m_bRestoringWindow;
 		CRect			m_rectRestoredWnd;
 
+		CToolBarCtrl	m_toolbar;
 		CAccelerator	m_acceleratorTable;
 		CMultiPaneStatusBarCtrl m_statusBar;
 

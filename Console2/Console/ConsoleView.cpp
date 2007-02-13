@@ -451,6 +451,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdSelect);
 			if ((*it)->action == mouseAction)
 			{
+				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;
@@ -499,6 +500,8 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				case MouseSettings::cmdSelect :
 				{
+					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
 					if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
 					{
 						m_selectionHandler->EndSelection();

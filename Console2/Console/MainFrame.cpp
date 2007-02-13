@@ -96,6 +96,18 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 
+	TBBUTTONINFO tbi;
+	m_toolbar.Attach(hWndToolBar);
+	m_toolbar.SendMessage(TB_SETEXTENDEDSTYLE, 0, static_cast<WPARAM>(TBSTYLE_EX_DRAWDDARROWS));
+
+	tbi.dwMask	= TBIF_STYLE;
+	tbi.cbSize	= sizeof(TBBUTTONINFO);
+	
+	m_toolbar.GetButtonInfo(ID_FILE_NEW_TAB, &tbi);
+
+	tbi.fsStyle |= TBSTYLE_DROPDOWN;
+	m_toolbar.SetButtonInfo(ID_FILE_NEW_TAB, &tbi);
+
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 	AddSimpleReBarBand(hWndCmdBar);
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
@@ -904,6 +916,24 @@ LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& 
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnToolbarDropDown(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
+{
+	POINT	cursorPos;
+	::GetCursorPos(&cursorPos);
+
+	CRect	buttonRect;
+	m_toolbar.GetItemRect(0, &buttonRect);
+	m_toolbar.ClientToScreen(&buttonRect);
+
+	m_tabsMenu.TrackPopupMenu(0, buttonRect.left, buttonRect.bottom, m_hWnd);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	if (wID == ID_FILE_NEW_TAB)
@@ -1490,13 +1520,15 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	}
 
 	// set tabs menu as popup submenu
-	CMenuItemInfo	menuItem;
+	if (!mainMenu.IsNull())
+	{
+		CMenuItemInfo	menuItem;
 
-	menuItem.fMask		= MIIM_SUBMENU;
-	menuItem.hSubMenu	= HMENU(tabsMenu);
+		menuItem.fMask		= MIIM_SUBMENU;
+		menuItem.hSubMenu	= HMENU(tabsMenu);
 
-	mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
-
+		mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

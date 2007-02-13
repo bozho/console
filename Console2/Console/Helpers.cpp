@@ -137,16 +137,3 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 //////////////////////////////////////////////////////////////////////////////
 
-
-
-void CriticalSection::Enter()
-{
-//	TRACE(L"ENTER thread: %i\n", ::GetCurrentThreadId());
-	::EnterCriticalSection(&m_cs);
-}
-
-void CriticalSection::Leave()
-{
-//	TRACE(L"LEAVE thread: %i\n", ::GetCurrentThreadId());
-	::LeaveCriticalSection(&m_cs);
-}

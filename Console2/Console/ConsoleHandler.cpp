@@ -384,13 +384,13 @@ DWORD ConsoleHandler::MonitorThread()
 			m_consoleParams->dwColumns	= dwColumns;
 			m_consoleParams->dwRows		= dwRows;
 
-			// TODO: why exactly did I put this condition?
-/*
+			// TODO: improve this
+			// this will handle console applications that change console buffer 
+			// size (like Far manager).
+			// This is not a perfect solution, but it's the best one I have
+			// for now
 			if (m_consoleParams->dwBufferColumns != 0)	m_consoleParams->dwBufferColumns= dwBufferColumns;
 			if (m_consoleParams->dwBufferRows != 0)		m_consoleParams->dwBufferRows	= dwBufferRows;
-*/
-//			m_consoleParams->dwBufferColumns= dwBufferColumns;
-//			m_consoleParams->dwBufferRows	= dwBufferRows;
 			bResize = true;
 		}
 

@@ -250,6 +250,9 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	CriticalSectionLock	lock(m_activeCritSec);
+	if (!m_bActive) return 0;
+
 	CPaintDC	dc(m_hWnd);
 
 	if ((m_tabData->backgroundImageType != bktypeNone) && m_tabData->imageData.bRelative)
@@ -604,7 +607,7 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-//	CriticalSectionLock	lock(m_activeCritSec);
+	CriticalSectionLock	lock(m_activeCritSec);
 
 	if (m_bActive && (wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
 	{
@@ -904,7 +907,7 @@ void ConsoleView::RepaintView()
 
 void ConsoleView::SetActive(bool bActive)
 {
-//	CriticalSectionLock	lock(m_activeCritSec);
+	CriticalSectionLock	lock(m_activeCritSec);
 	m_bActive = bActive;
 	if (m_bActive)
 	{
@@ -1062,8 +1065,6 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
-//	CriticalSectionLock	lock(m_activeCritSec);
-
 	// console size changed, resize offscreen buffers
 	if (bResize)
 	{
@@ -1073,7 +1074,10 @@ void ConsoleView::OnConsoleChange(bool bResize)
 */
 		InitializeScrollbars();
 
-		if (m_bActive) RecreateOffscreenBuffers();
+		{
+			CriticalSectionLock	lock(m_activeCritSec);
+			if (m_bActive) RecreateOffscreenBuffers();
+		}
 
 		// TODO: put this in console size change handler
 		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
@@ -1086,6 +1090,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	UpdateTitle();
 	
 	// if the view is not visible, don't repaint
+	CriticalSectionLock	lock(m_activeCritSec);
 	if (!m_bActive) return;
 
 	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
@@ -1750,8 +1755,6 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 
 	if (m_tabData->backgroundImageType != bktypeNone)
 	{
-//		CriticalSectionLock	lock(m_background->updateCritSec);
-
 		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_background);
 
 		if (m_tabData->imageData.bRelative)

@@ -167,7 +167,7 @@ BEGIN
                     WS_EX_ACCEPTFILES
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
-    CTEXT           "Copyright (C) 2001-2006\nMarko Bozikovic",IDC_STATIC,25,
+    CTEXT           "Copyright (C) 2001-2007\nMarko Bozikovic",IDC_STATIC,25,
                     71,78,17
 END
 

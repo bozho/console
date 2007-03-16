@@ -22,6 +22,9 @@ Build 130
 
 - added drop down menu to 'new tab' toolbar button
 
+- [internal] an attempt to fix freezing when copying/pasting while a command
+  is running
+
 
 Build 129
 ---------

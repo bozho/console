@@ -87,7 +87,7 @@ LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL
 	if (pCommandData->accelHotkey.fVirt & FCONTROL)	wModifiers |= HOTKEYF_CONTROL;
 	if (pCommandData->accelHotkey.fVirt & FSHIFT)	wModifiers |= HOTKEYF_SHIFT;
 	if (pCommandData->accelHotkey.fVirt & FALT)		wModifiers |= HOTKEYF_ALT;
-	if (pCommandData->bExtended)						wModifiers |= HOTKEYF_EXT;
+	if (pCommandData->bExtended)					wModifiers |= HOTKEYF_EXT;
 
 	CString strItemText;
 

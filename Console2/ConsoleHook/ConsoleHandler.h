@@ -23,7 +23,7 @@ class ConsoleHandler
 
 	private:
 
-		bool OpenSharedMemory();
+		bool OpenSharedObjects();
 
 		void ReadConsoleBuffer();
 
@@ -31,7 +31,11 @@ class ConsoleHandler
 
 		void CopyConsoleText();
 
-		void PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszText);
+		void PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszPasteBuffer);
+
+		void SetResetKeyInput(scoped_array<INPUT>& kbdInputs, WORD wVk, short& sCount);
+
+		void WriteConsoleInput(HANDLE hStdIn, scoped_array<INPUT_RECORD>& consoleInputs, size_t& consoleInputCount, size_t maxConsoleInputCount);
 
 		void SendMouseEvent(HANDLE hStdIn);
 

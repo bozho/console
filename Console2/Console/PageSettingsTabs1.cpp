@@ -101,7 +101,8 @@ LRESULT PageSettingsTabs1::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM
 LRESULT PageSettingsTabs1::OnTabTitleChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	CWindow(GetDlgItem(IDC_TAB_TITLE)).GetWindowText(m_strTitle);
-	GetParent().SendMessage(UM_TAB_TITLE_CHANGED, 0, 0);
+//	GetParent().SendMessage(UM_TAB_TITLE_CHANGED, 0, 0);
+	GetParent().PostMessage(UM_TAB_TITLE_CHANGED, 0, 0);
 	return 0;
 }
 

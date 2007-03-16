@@ -44,7 +44,7 @@ class ConsoleHandler
 
 	private:
 
-		bool CreateSharedMemory(DWORD dwConsoleProcessId);
+		bool CreateSharedObjects(DWORD dwConsoleProcessId);
 
 		bool InjectHookDLL();
 

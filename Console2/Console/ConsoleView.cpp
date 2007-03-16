@@ -4,6 +4,7 @@
 #include <fstream>
 
 #include "Console.h"
+#include "MainFrame.h"
 #include "ConsoleView.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,8 +27,9 @@ int		ConsoleView::m_nCharWidth(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
-: m_strCmdLineInitialDir(strCmdLineInitialDir)
+ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
+: m_mainFrame(mainFrame)
+, m_strCmdLineInitialDir(strCmdLineInitialDir)
 , m_strInitialCmd(strInitialCmd)
 , m_strDbgCmdLine(strDbgCmdLine)
 , m_bInitializing(true)
@@ -81,9 +83,12 @@ BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
 		(pMsg->message == WM_SYSKEYUP))
 	{
 		// Avoid calling ::TranslateMessage for WM_KEYDOWN, WM_KEYUP,
-		// WM_SYSKEYDOWN and WM_SYSKEYUP.
+		// WM_SYSKEYDOWN and WM_SYSKEYUP (except for wParam == VK_PACKET, 
+		// which is sent by SendInput when pasting text).
+		///
 		// This prevents WM_CHAR and WM_SYSCHAR messages, enabling stuff like
 		// handling 'dead' characters input and passing all keys to console.
+		if (pMsg->wParam == VK_PACKET) return FALSE;
 		::DispatchMessage(pMsg);
 		return TRUE;
 	}
@@ -98,11 +103,6 @@ BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
 
 LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-/*
-	m_dcOffscreen.CreateCompatibleDC(NULL);
-	m_dcText.CreateCompatibleDC(NULL);
-*/
-
 	// set view title
 	SetWindowText(m_strTitle);
 
@@ -298,7 +298,7 @@ LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
 	if ((wParam == VK_SPACE) && (lParam & (0x1 << 29)))
 	{
-		return ::DefWindowProc(GetParent(), uMsg, wParam, lParam);
+		return ::DefWindowProc(m_mainFrame, uMsg, wParam, lParam);
 	}
 
 	return OnConsoleFwdMsg(uMsg, wParam, lParam, bHandled);
@@ -311,6 +311,8 @@ LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	if (((uMsg == WM_KEYDOWN) || (uMsg == WM_KEYUP)) && (wParam == VK_PACKET)) return 0;
+
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
 //		TRACE(L"Msg: 0x%04X\n", uMsg);
@@ -473,7 +475,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				CPoint clientPoint(point);
 
 				ClientToScreen(&clientPoint);
-				GetParent().PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uKeys, uXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
+				m_mainFrame.PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uKeys, uXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
 
 				// we don't set active command here, main frame handles mouse drag
 				return 0;
@@ -531,7 +533,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				{
 					CPoint	screenPoint(point);
 					ClientToScreen(&screenPoint);
-					GetParent().SendMessage(UM_SHOW_POPUP_MENU, 0, MAKELPARAM(screenPoint.x, screenPoint.y));
+					m_mainFrame.SendMessage(UM_SHOW_POPUP_MENU, 0, MAKELPARAM(screenPoint.x, screenPoint.y));
 					break;
 				}
 
@@ -660,7 +662,8 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 	}
 	::DragFinish(hDrop);
-	
+
+	// TODO: fix this
 	SendTextToConsole(strFilenames);
 	return 0;
 }
@@ -992,8 +995,8 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 		return;
 	}
 
-	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-	SharedMemoryLock			memLock(consoleBuffer);
+// 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+// 	SharedMemoryLock			memLock(consoleBuffer);
 
 	if (pPoint != NULL)
 	{
@@ -1016,17 +1019,20 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 
 void ConsoleView::Paste()
 {
-	if (!IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
-	
-	if (::OpenClipboard(m_hWnd))
+	if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
+
+	SharedMemory<UINT_PTR>&	pasteInfo = m_consoleHandler.GetPasteInfo();
+
 	{
-		HANDLE	hData = ::GetClipboardData(CF_UNICODETEXT);
+		SharedMemoryLock		memLock(pasteInfo);
 
-		SendTextToConsole(reinterpret_cast<wchar_t*>(::GlobalLock(hData)));
-
-		::GlobalUnlock(hData);
-		::CloseClipboard();
+		pasteInfo = 0;
+		pasteInfo.SetReqEvent();
 	}
+
+	TRACE(L"Waiting for paste response event\n");
+	::WaitForSingleObject(pasteInfo.GetRespEvent(), INFINITE);
+	TRACE(L"Done waiting for paste response event\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1087,7 +1093,8 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
 
 		// notify parent about resize
-		GetParent().SendMessage(UM_CONSOLE_RESIZED, 0, 0);
+//		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
+		m_mainFrame.PostMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
 	UpdateTitle();
@@ -1145,7 +1152,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 
 void ConsoleView::OnConsoleClose()
 {
-	if (::IsWindow(m_hWnd)) ::PostMessage(GetParent(), UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hWnd), 0);
+	if (::IsWindow(m_hWnd)) m_mainFrame.PostMessage(UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hWnd), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1455,8 +1462,6 @@ DWORD ConsoleView::GetBufferDifference()
 
 void ConsoleView::UpdateTitle()
 {
-	CString	strCommandText(L"");
-
 	if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle)
 	{
 		CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
@@ -1470,20 +1475,11 @@ void ConsoleView::UpdateTitle()
 		m_strTitle = strConsoleTitle;
 		SetWindowText(m_strTitle);
 	}
-	else
-	{
-		strCommandText = GetConsoleCommand();
-	}
 
-/*
-	m_strTitle = strTitleText;
-	SetWindowText(m_strTitle);
-*/
-
-	GetParent().SendMessage(
+	m_mainFrame.PostMessage(
 					UM_UPDATE_TITLES, 
 					reinterpret_cast<WPARAM>(m_hWnd), 
-					reinterpret_cast<LPARAM>(LPCTSTR(strCommandText)));
+					0);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1920,32 +1916,134 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 
 void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 {
-	if (!pszText || (wcslen(pszText) == 0)) return;
+/*
+	if (pszText == NULL) return;
 
-	SharedMemoryLock memLock(m_consoleHandler.GetPasteInfo());
+	size_t textLen = wcslen(pszText);
 
-	void* pRemoteMemory = ::VirtualAllocEx(
-								m_consoleHandler.GetConsoleHandle().get(),
-								NULL, 
-								(wcslen(pszText)+1)*sizeof(wchar_t), 
-								MEM_COMMIT, 
-								PAGE_READWRITE);
+	if (textLen == 0) return;
 
-	if (pRemoteMemory == NULL) return;
+	size_t	partLen	= 256;
+	size_t	parts	= textLen/partLen;
 
-	if (!::WriteProcessMemory(
-				m_consoleHandler.GetConsoleHandle().get(),
-				pRemoteMemory, 
-				(PVOID)pszText, 
-				(wcslen(pszText)+1)*sizeof(wchar_t), 
-				NULL))
+	for (size_t part = 0; part < parts+1; ++part)
 	{
-		::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
-		return;
+		size_t	offset = part*partLen;
+		
+		if (part == parts)
+		{
+			// last part, modify part size
+			partLen = textLen - parts*partLen;
+		}
+		
+		scoped_array<INPUT> kbdInputs(new INPUT[2*partLen]);
+		::ZeroMemory(kbdInputs.get(), sizeof(INPUT_RECORD)*2*partLen);
+
+		for (size_t i = 0; i < partLen; ++i, ++offset)
+		{
+			if ((pszText[offset] == L'\r') || (pszText[offset] == L'\n'))
+			{
+				kbdInputs[2*i].type			= INPUT_KEYBOARD;
+				kbdInputs[2*i].ki.dwFlags	= 0;
+				kbdInputs[2*i].ki.wVk		= VK_RETURN;
+
+				kbdInputs[2*i+1].type		= INPUT_KEYBOARD;
+				kbdInputs[2*i+1].ki.dwFlags	= KEYEVENTF_KEYUP;
+				kbdInputs[2*i+1].ki.wVk		= VK_RETURN;
+
+				if ((pszText[offset] == L'\r') && (pszText[offset+1] == L'\n')) ++offset;
+
+				::SendInput(2, kbdInputs.get() + 2*i, sizeof(INPUT));
+			}
+			else
+			{
+				kbdInputs[2*i].type			= INPUT_KEYBOARD;
+				kbdInputs[2*i].ki.dwFlags	= KEYEVENTF_UNICODE;
+				kbdInputs[2*i].ki.wScan		= pszText[offset];
+
+				kbdInputs[2*i+1].type		= INPUT_KEYBOARD;
+				kbdInputs[2*i+1].ki.dwFlags	= KEYEVENTF_UNICODE|KEYEVENTF_KEYUP;
+				kbdInputs[2*i+1].ki.wVk		= pszText[offset];
+
+				::SendInput(2, kbdInputs.get() + 2*i, sizeof(INPUT));
+			}
+		}
+
+//		::SendInput(2*partLen, kbdInputs.get(), sizeof(INPUT));
+	}
+*/
+
+
+
+/*
+	INPUT inp[2];
+
+	for (size_t i = 0; i < textLen; ++i)
+	{
+		if ((pszText[i] == L'\r') || (pszText[i] == L'\n'))
+		{
+			memset(inp,0,sizeof(INPUT));
+			inp[0].type = INPUT_KEYBOARD;
+			inp[0].ki.dwFlags = 0; // to avoid shift, and so on
+			inp[1] = inp[0];
+			inp[1].ki.dwFlags |= KEYEVENTF_KEYUP;
+
+			inp[0].ki.wVk = inp[1].ki.wVk = VK_RETURN;
+			::SendInput(2, inp, sizeof(INPUT));
+
+			if ((pszText[i] == L'\r') && (pszText[i+1] == L'\n')) ++i;
+		}
+		else
+		{
+			memset(inp,0,sizeof(INPUT));
+			inp[0].type = INPUT_KEYBOARD;
+			inp[0].ki.dwFlags = KEYEVENTF_UNICODE; // to avoid shift, and so on
+			inp[1] = inp[0];
+			inp[1].ki.dwFlags |= KEYEVENTF_KEYUP;
+
+			inp[0].ki.wScan = inp[1].ki.wScan = pszText[i];
+			::SendInput(2, inp, sizeof(INPUT));
+		}
+
+	}
+*/
+
+	if (pszText == NULL) return;
+
+	size_t textLen = wcslen(pszText);
+
+	if (textLen == 0) return;
+
+	SharedMemory<UINT_PTR>&	pasteInfo = m_consoleHandler.GetPasteInfo();
+
+	{
+		SharedMemoryLock		memLock(pasteInfo);
+
+		void* pRemoteMemory = ::VirtualAllocEx(
+									m_consoleHandler.GetConsoleHandle().get(),
+									NULL, 
+									(textLen+1)*sizeof(wchar_t), 
+									MEM_COMMIT, 
+									PAGE_READWRITE);
+
+		if (pRemoteMemory == NULL) return;
+
+		if (!::WriteProcessMemory(
+					m_consoleHandler.GetConsoleHandle().get(),
+					pRemoteMemory, 
+					(PVOID)pszText, 
+					(textLen+1)*sizeof(wchar_t), 
+					NULL))
+		{
+			::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
+			return;
+		}
+
+		pasteInfo = reinterpret_cast<UINT_PTR>(pRemoteMemory);
+		pasteInfo.SetReqEvent();
 	}
 
-	m_consoleHandler.GetPasteInfo() = reinterpret_cast<UINT_PTR>(pRemoteMemory);
-	m_consoleHandler.GetPasteInfo().SetReqEvent();
+	::WaitForSingleObject(pasteInfo.GetRespEvent(), INFINITE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

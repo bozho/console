@@ -651,7 +651,7 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /* bHandled */)
+LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
 	shared_ptr<ConsoleView>	consoleView(m_mapViews.find(reinterpret_cast<HWND>(wParam))->second);
 	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
@@ -675,7 +675,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, B
 	}
 	else
 	{
-		CString	strCommandText(reinterpret_cast<wchar_t*>(lParam));
+		CString	strCommandText(consoleView->GetConsoleCommand());
 		CString	strTabTitle(consoleView->GetTitle());
 
 		m_strWindowTitle = windowSettings.strTitle.c_str();
@@ -1406,7 +1406,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 		m_dwColumns	= dwColumns;
 	}
 
-	shared_ptr<ConsoleView> consoleView(new ConsoleView(dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
+	shared_ptr<ConsoleView> consoleView(new ConsoleView(*this, dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
 
 	HWND hwndConsoleView = consoleView->Create(
 											m_hWnd, 

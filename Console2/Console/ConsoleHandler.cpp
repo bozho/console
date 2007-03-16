@@ -150,7 +150,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	}
 
 	// create shared memory objects
-	CreateSharedMemory(pi.dwProcessId);
+	CreateSharedObjects(pi.dwProcessId);
 
 	// write startup params
 	m_consoleParams->dwConsoleMainThreadId	= pi.dwThreadId;
@@ -241,7 +241,7 @@ void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonSt
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId)
+bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId)
 {
 	// create startup params shared memory
 	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str(), 1, syncObjRequest);
@@ -258,8 +258,8 @@ bool ConsoleHandler::CreateSharedMemory(DWORD dwConsoleProcessId)
 	// copy info
 	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
 
-	// paste info
-	m_consolePasteInfo.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
+	// paste info (used for pasting and sending text to console)
+	m_consolePasteInfo.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
 
 	// mouse event
 	m_consoleMouseEvent.Create((SharedMemNames::formatMouseEvent % dwConsoleProcessId).str(), 1, syncObjBoth);

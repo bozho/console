@@ -10,21 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////
-// User-defined message for notifying main window
-
-#define UM_CONSOLE_RESIZED	WM_USER + 0x1000
-#define UM_CONSOLE_CLOSED	WM_USER + 0x1001
-#define UM_UPDATE_TITLES	WM_USER + 0x1002
-#define UM_SHOW_POPUP_MENU	WM_USER + 0x1003
-#define UM_START_MOUSE_DRAG	WM_USER + 0x1004
-#define UM_TRAY_NOTIFY		WM_USER + 0x1005
-
-#define IDC_TRAY_ICON		0x0001
-
-//////////////////////////////////////////////////////////////////////////////
-
+class MainFrame;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +21,7 @@ class ConsoleView
 //		DECLARE_WND_CLASS(NULL)
 		DECLARE_WND_CLASS_EX(NULL, CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 
-		ConsoleView(DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -50,6 +36,8 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_SYSKEYUP, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_KEYDOWN, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_KEYUP, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_CHAR, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_SYSCHAR, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_DEADCHAR, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_SYSDEADCHAR, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnConsoleFwdMsg)
@@ -158,6 +146,8 @@ class ConsoleView
 		COORD GetConsoleCoord(const CPoint& clientPoint);
 
 	private:
+
+		MainFrame& m_mainFrame;
 
 		wstring m_strCmdLineInitialDir;
 		wstring m_strInitialCmd;

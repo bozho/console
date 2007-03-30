@@ -536,7 +536,15 @@ void ConsoleHandler::CopyConsoleText()
 		}
 
 		if (m_consoleCopyInfo->bTrimSpaces) trim_right(strRow);
-		if (bWrap) strRow += wstring(L"\n");
+		if (bWrap)
+		{
+			switch(m_consoleCopyInfo->copyNewlineChar)
+			{
+				case newlineCRLF: strRow += wstring(L"\r\n"); break;
+				case newlineLF	: strRow += wstring(L"\n"); break;
+				default			: strRow += wstring(L"\r\n"); break;
+			}
+		}
 
 		strText += strRow;
 	}

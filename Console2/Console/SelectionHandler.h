@@ -41,7 +41,7 @@ class SelectionHandler
 		void StartSelection(const COORD& coordInit, shared_array<CHAR_INFO> screenBuffer);
 		void UpdateSelection(const COORD& coordCurrent, shared_array<CHAR_INFO> screenBuffer);
 		void UpdateSelection();
-		void CopySelection(const COORD& coordCurrent);
+		bool CopySelection(const COORD& coordCurrent);
 		void CopySelection();
 		void EndSelection();
 		void ClearSelection();

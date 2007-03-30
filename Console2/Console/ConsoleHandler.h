@@ -5,8 +5,6 @@
 #include "FastDelegate.h"
 #pragma warning(pop)
 
-#include "../shared/SharedMemory.h"
-#include "../shared/Structures.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

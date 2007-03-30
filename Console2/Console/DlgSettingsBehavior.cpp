@@ -34,8 +34,10 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	m_behaviorSettings.Load(m_pOptionsRoot);
 
 	m_nCopyOnSelect	= m_behaviorSettings.copyPasteSettings.bCopyOnSelect ? 1 : 0;
+	m_nClearOnCopy	= m_behaviorSettings.copyPasteSettings.bClearOnCopy ? 1 : 0;
 	m_nNoWrap		= m_behaviorSettings.copyPasteSettings.bNoWrap ? 1 : 0;
 	m_nTrimSpaces	= m_behaviorSettings.copyPasteSettings.bTrimSpaces ? 1 : 0;
+	m_nCopyNewlineChar= static_cast<int>(m_behaviorSettings.copyPasteSettings.copyNewlineChar);
 
 	m_nScrollPageType= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
 
@@ -67,8 +69,10 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 		DoDataExchange(DDX_SAVE);
 
 		m_behaviorSettings.copyPasteSettings.bCopyOnSelect	= (m_nCopyOnSelect > 0);
+		m_behaviorSettings.copyPasteSettings.bClearOnCopy	= (m_nClearOnCopy > 0);
 		m_behaviorSettings.copyPasteSettings.bNoWrap		= (m_nNoWrap > 0);
 		m_behaviorSettings.copyPasteSettings.bTrimSpaces	= (m_nTrimSpaces > 0);
+		m_behaviorSettings.copyPasteSettings.copyNewlineChar= static_cast<CopyNewlineChar>(m_nCopyNewlineChar);
 
 		if (m_nScrollPageType == 0) m_behaviorSettings.scrollSettings.dwPageScrollRows = 0;
 

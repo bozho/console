@@ -22,8 +22,10 @@ class DlgSettingsBehavior
 
 		BEGIN_DDX_MAP(DlgSettingsBehavior)
 			DDX_CHECK(IDC_CHECK_COPY_ON_SELECT, m_nCopyOnSelect)
+			DDX_CHECK(IDC_CHECK_CLEAR_ON_COPY, m_nClearOnCopy)
 			DDX_CHECK(IDC_CHECK_NO_WRAP, m_nNoWrap)
 			DDX_CHECK(IDC_CHECK_TRIM_SPACES, m_nTrimSpaces)
+			DDX_RADIO(IDC_RADIO_COPY_NEWLINE_CHAR, m_nCopyNewlineChar)
 			DDX_RADIO(IDC_PAGE_SCROLL, m_nScrollPageType)
 			DDX_UINT(IDC_SCROLL_PAGE_ROWS, m_behaviorSettings.scrollSettings.dwPageScrollRows)
 		END_DDX_MAP()
@@ -55,8 +57,11 @@ class DlgSettingsBehavior
 		BehaviorSettings	m_behaviorSettings;
 
 		int					m_nCopyOnSelect;
+		int					m_nClearOnCopy;
 		int					m_nNoWrap;
 		int					m_nTrimSpaces;
+
+		int					m_nCopyNewlineChar;
 
 		int					m_nScrollPageType;
 };

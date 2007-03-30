@@ -207,9 +207,9 @@ void SelectionHandler::UpdateSelection()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::CopySelection(const COORD& coordCurrent)
+bool SelectionHandler::CopySelection(const COORD& coordCurrent)
 {
-	if (m_selectionState < selstateSelecting) return;
+	if (m_selectionState < selstateSelecting) return false;
 
 	bool	bCopy = false;
 	COORD	coordStart;
@@ -236,6 +236,8 @@ void SelectionHandler::CopySelection(const COORD& coordCurrent)
 	}
 
 	if (bCopy) CopySelection();
+
+	return bCopy;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -254,6 +256,7 @@ void SelectionHandler::CopySelection()
 
 		m_consoleCopyInfo->bNoWrap		= g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bNoWrap;
 		m_consoleCopyInfo->bTrimSpaces	= g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bTrimSpaces;
+		m_consoleCopyInfo->copyNewlineChar= g_settingsHandler->GetBehaviorSettings().copyPasteSettings.copyNewlineChar;
 
 		m_consoleCopyInfo.SetReqEvent();
 	}

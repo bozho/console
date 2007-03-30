@@ -717,8 +717,10 @@ AppearanceSettings& AppearanceSettings::operator=(const AppearanceSettings& othe
 
 CopyPasteSettings::CopyPasteSettings()
 : bCopyOnSelect(false)
+, bClearOnCopy(true)
 , bNoWrap(false)
 , bTrimSpaces(false)
+, copyNewlineChar(newlineCRLF)
 {
 }
 
@@ -733,9 +735,15 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
 
+	int nNewlineChar;
+
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_on_select"), bCopyOnSelect, false);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"clear_on_copy"), bClearOnCopy, true);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces, false);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), nNewlineChar, 0);
+
+	copyNewlineChar = static_cast<CopyNewlineChar>(nNewlineChar);
 
 	return true;
 }
@@ -752,8 +760,10 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/copy_paste"), pCopyPasteElement))) return false;
 
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"copy_on_select"), bCopyOnSelect);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"clear_on_copy"), bClearOnCopy);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), static_cast<int>(copyNewlineChar));
 
 	return true;
 }
@@ -766,8 +776,10 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 CopyPasteSettings& CopyPasteSettings::operator=(const CopyPasteSettings& other)
 {
 	bCopyOnSelect	= other.bCopyOnSelect;
+	bClearOnCopy	= other.bClearOnCopy;
 	bNoWrap			= other.bNoWrap;
 	bTrimSpaces		= other.bTrimSpaces;
+	copyNewlineChar	= other.copyNewlineChar;
 
 	return *this;
 }
@@ -1567,14 +1579,25 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	if (pos == wstring::npos)
 	{
 		// no path, first try with user's APPDATA dir
-		m_strSettingsPath		= wstring(_wgetenv(L"APPDATA")) + wstring(L"\\Console\\");
-		m_strSettingsFileName	= strSettingsFileName;
-		m_settingsDirType		= dirTypeUser;
 
-		hr = XmlHelper::OpenXmlDocument(
-							m_strSettingsPath + m_strSettingsFileName, 
-							m_pSettingsDocument, 
-							m_pSettingsRoot);
+		wchar_t* wszAppData = _wgetenv(L"APPDATA");
+
+		m_strSettingsFileName = strSettingsFileName;
+
+		if (wszAppData == NULL)
+		{
+			hr = E_FAIL;
+		}
+		else
+		{
+			m_strSettingsPath	= wstring(wszAppData) + wstring(L"\\Console\\");
+			m_settingsDirType	= dirTypeUser;
+
+			hr = XmlHelper::OpenXmlDocument(
+								m_strSettingsPath + m_strSettingsFileName, 
+								m_pSettingsDocument, 
+								m_pSettingsRoot);
+		}
 
 		if (FAILED(hr))
 		{

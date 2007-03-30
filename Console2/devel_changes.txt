@@ -1,6 +1,16 @@
 v2.00
 =====
 
+Build 131
+---------
+
+- [internal] fixed a problem with runas and local settings
+
+- added 'clear selection on copy' option
+
+- added customizable newline character for mulitline copy
+
+
 Build 130
 ---------
 

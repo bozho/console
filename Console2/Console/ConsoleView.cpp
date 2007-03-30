@@ -998,17 +998,20 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 // 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
 // 	SharedMemoryLock			memLock(consoleBuffer);
 
+	bool bCopied = false;
+
 	if (pPoint != NULL)
 	{
-		m_selectionHandler->CopySelection(GetConsoleCoord(*pPoint));
+		bCopied = m_selectionHandler->CopySelection(GetConsoleCoord(*pPoint));
 	}
 	else
 	{
 		// called by mainframe
 		m_selectionHandler->CopySelection();
+		bCopied = true;
 	}
 
-	m_selectionHandler->ClearSelection();
+	if (!bCopied || g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bClearOnCopy) m_selectionHandler->ClearSelection();
 	BitBltOffscreen();
 }
 

@@ -81,6 +81,9 @@ using namespace boost;
 using namespace boost::multi_index;
 #pragma warning(pop)
 
+#include "../shared/SharedMemory.h"
+#include "../shared/Structures.h"
+
 #include "Helpers.h"
 #include "ConsoleHandler.h"
 #include "ImageHandler.h"
@@ -99,7 +102,7 @@ using namespace boost::multi_index;
 
 #define	VERSION_MAJOR	2
 #define	VERSION_MINOR	0
-#define	VERSION_BUILD	130
+#define	VERSION_BUILD	131
 
 //////////////////////////////////////////////////////////////////////////////
 

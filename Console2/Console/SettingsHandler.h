@@ -258,9 +258,12 @@ struct CopyPasteSettings : public SettingsBase
 
 	CopyPasteSettings& operator=(const CopyPasteSettings& other);
 
-	bool	bCopyOnSelect;
-	bool	bNoWrap;
-	bool	bTrimSpaces;
+	bool			bCopyOnSelect;
+	bool			bClearOnCopy;
+	bool			bNoWrap;
+	bool			bTrimSpaces;
+
+	CopyNewlineChar	copyNewlineChar;
 };
 
 //////////////////////////////////////////////////////////////////////////////

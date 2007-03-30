@@ -102,6 +102,17 @@ struct ConsoleSize
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum CopyNewlineChar
+{
+	newlineCRLF	= 0,
+	newlineLF	= 1
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct ConsoleCopy
 {
 	ConsoleCopy()
@@ -109,6 +120,7 @@ struct ConsoleCopy
 	, coordEnd()
 	, bNoWrap(false)
 	, bTrimSpaces(false)
+	, copyNewlineChar(newlineCRLF)
 	{
 	}
 
@@ -116,6 +128,7 @@ struct ConsoleCopy
 	COORD	coordEnd;
 	bool	bNoWrap;
 	bool	bTrimSpaces;
+	CopyNewlineChar	copyNewlineChar;
 };
 
 

@@ -176,6 +176,7 @@
 #define IDC_CHECK1                      1145
 #define IDC_CHECK_DRAG_ON               1146
 #define IDC_TABS                        1146
+#define IDC_CHECK_CLEAR_ON_COPY         1146
 #define IDC_CHECK_INVERSE_SHIFT         1147
 #define IDC_CHECK_USE_CONSOLE_TITLE     1147
 #define IDC_CHECK_TRIM_TAB_TITLES       1148
@@ -196,6 +197,10 @@
 #define IDC_CHECK_SHIFT                 1163
 #define IDC_CHECK_USER_DATA_DIR         1163
 #define IDC_CHECK_ALT                   1164
+#define IDC_RADIO1                      1164
+#define IDC_RADIO_COPY_NEWLINE_CHAR     1164
+#define IDC_RADIO2                      1165
+#define IDC_RADIO3                      1166
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -218,7 +223,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        212
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1164
+#define _APS_NEXT_CONTROL_VALUE         1167
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

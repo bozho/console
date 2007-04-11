@@ -35,17 +35,11 @@ PageSettingsTabs1::PageSettingsTabs1()
 
 LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	ExecuteDlgInit(IDD);
+
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
 	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
-
-//	for (int i = 0; i < sizeof(Cursor::s_cursorNames)/sizeof(wchar_t*); ++i)
-	// TODO: fix
-	for (int i = 0; i < 12; ++i)
-	{
-		m_comboCursor.AddString(Cursor::s_cursorNames[i]);
-	}
-
 	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
 
 	DoDataExchange(DDX_LOAD);

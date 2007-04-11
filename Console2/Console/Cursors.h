@@ -89,9 +89,11 @@ class Cursor
 
 		UINT_PTR	m_uiTimer;
 
+/*
 	public:
 
 		static wchar_t*	s_cursorNames[];
+*/
 };
 
 //////////////////////////////////////////////////////////////////////////////

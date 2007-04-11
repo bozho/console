@@ -10,6 +10,8 @@ Build 131
 
 - added customizable newline character for mulitline copy
 
+- added font smoothing settings
+
 
 Build 130
 ---------

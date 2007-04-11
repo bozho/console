@@ -31,6 +31,12 @@ DlgSettingsAppearance::DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRo
 
 LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	ExecuteDlgInit(IDD);
+
+	m_comboFontSmoothing.Attach(GetDlgItem(IDC_COMBO_SMOOTHING));
+	m_comboDocking.Attach(GetDlgItem(IDC_COMBO_DOCKING));
+	m_comboZOrder.Attach(GetDlgItem(IDC_COMBO_ZORDER));
+
 	m_windowSettings.Load(m_pOptionsRoot);
 	m_fontSettings.Load(m_pOptionsRoot);
 	m_positionSettings.Load(m_pOptionsRoot);
@@ -47,6 +53,9 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_strFontName	= m_fontSettings.strName.c_str();
 	m_nFontBold		= m_fontSettings.bBold ? 1 : 0;
 	m_nFontItalic	= m_fontSettings.bItalic ? 1 : 0;
+
+	m_comboFontSmoothing.SetCurSel(static_cast<int>(m_fontSettings.fontSmoothing));
+
 	m_nUseFontColor	= m_fontSettings.bUseColor ? 1 : 0;
 
 	m_nUsePosition	= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : 1;
@@ -57,8 +66,8 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_nSnapToEdges	= (m_positionSettings.nSnapDistance == -1) ? 0 : 1;
 	if (m_nSnapToEdges == 0) m_positionSettings.nSnapDistance = 0;
 
-	m_nDocking		= static_cast<int>(m_positionSettings.dockPosition) + 1;
-	m_nZOrder		= static_cast<int>(m_positionSettings.zOrder);
+	m_comboDocking.SetCurSel(static_cast<int>(m_positionSettings.dockPosition) + 1);
+	m_comboZOrder.SetCurSel(static_cast<int>(m_positionSettings.zOrder));
 
 	CUpDownCtrl	spin;
 	UDACCEL udAccel;
@@ -144,6 +153,9 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_fontSettings.strName			= m_strFontName;
 		m_fontSettings.bBold			= (m_nFontBold > 0);
 		m_fontSettings.bItalic			= (m_nFontItalic > 0);
+
+		m_fontSettings.fontSmoothing	= static_cast<FontSmoothing>(m_comboFontSmoothing.GetCurSel());
+
 		m_fontSettings.bUseColor		= (m_nUseFontColor > 0);
 
 		if (m_nUsePosition > 0)
@@ -168,8 +180,8 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 			m_positionSettings.nSnapDistance = -1;
 		}
 
-		m_positionSettings.dockPosition	= static_cast<DockPosition>(m_nDocking - 1);
-		m_positionSettings.zOrder		= static_cast<ZOrder>(m_nZOrder);
+		m_positionSettings.dockPosition	= static_cast<DockPosition>(m_comboDocking.GetCurSel() - 1);
+		m_positionSettings.zOrder		= static_cast<ZOrder>(m_comboZOrder.GetCurSel());
 
 		WindowSettings&		windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 		FontSettings&		fontSettings	= g_settingsHandler->GetAppearanceSettings().fontSettings;

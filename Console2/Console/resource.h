@@ -197,10 +197,12 @@
 #define IDC_CHECK_SHIFT                 1163
 #define IDC_CHECK_USER_DATA_DIR         1163
 #define IDC_CHECK_ALT                   1164
-#define IDC_RADIO1                      1164
 #define IDC_RADIO_COPY_NEWLINE_CHAR     1164
 #define IDC_RADIO2                      1165
-#define IDC_RADIO3                      1166
+#define IDC_COMBO_DOCKING               1167
+#define IDC_COMBO_ZORDER                1168
+#define IDC_COMBO_ZORDER2               1169
+#define IDC_COMBO_SMOOTHING             1169
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -221,9 +223,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        212
+#define _APS_NEXT_RESOURCE_VALUE        213
 #define _APS_NEXT_COMMAND_VALUE         32791
-#define _APS_NEXT_CONTROL_VALUE         1167
+#define _APS_NEXT_CONTROL_VALUE         1168
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

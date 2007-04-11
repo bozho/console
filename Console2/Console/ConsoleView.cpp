@@ -1259,6 +1259,16 @@ void ConsoleView::CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& 
 bool ConsoleView::CreateFont(const wstring& strFontName)
 {
 	if (!m_fontText.IsNull()) return true;// m_fontText.DeleteObject();
+
+	BYTE	byFontQuality = DEFAULT_QUALITY;
+
+	switch (m_appearanceSettings.fontSettings.fontSmoothing)
+	{
+		case fontSmoothDefault	: byFontQuality = DEFAULT_QUALITY;			break;
+		case fontSmoothNone		: byFontQuality = NONANTIALIASED_QUALITY;	break;
+		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;		break;
+		default : DEFAULT_QUALITY;
+	}
 	m_fontText.CreateFont(
 		-::MulDiv(m_appearanceSettings.fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
@@ -1271,8 +1281,7 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		DEFAULT_CHARSET,						
 		OUT_DEFAULT_PRECIS,
 		CLIP_DEFAULT_PRECIS,
-//		NONANTIALIASED_QUALITY,
-		DEFAULT_QUALITY,
+		byFontQuality,
 		DEFAULT_PITCH,
 		strFontName.c_str());
 

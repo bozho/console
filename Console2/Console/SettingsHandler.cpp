@@ -175,6 +175,7 @@ FontSettings::FontSettings()
 , dwSize(10)
 , bBold(false)
 , bItalic(false)
+, fontSmoothing(fontSmoothDefault)
 , bUseColor(false)
 , crFontColor(0)
 {
@@ -192,10 +193,15 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/font"), pFontElement))) return false;
 
+	int nFontSmoothing;
+
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"name"), strName, wstring(L"Courier New"));
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"size"), dwSize, 10);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold"), bBold, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic"), bItalic, false);
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"smoothing"), nFontSmoothing, 0);
+
+	fontSmoothing = static_cast<FontSmoothing>(nFontSmoothing);
 
 	CComPtr<IXMLDOMElement>	pColorElement;
 
@@ -222,6 +228,7 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"size"), dwSize);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold"), bBold);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic"), bItalic);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"smoothing"), static_cast<int>(fontSmoothing));
 
 	CComPtr<IXMLDOMElement>	pColorElement;
 
@@ -240,13 +247,14 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 FontSettings& FontSettings::operator=(const FontSettings& other)
 {
-	strName		= other.strName;
-	dwSize		= other.dwSize;
-	bBold		= other.bBold;
-	bItalic		= other.bItalic;
+	strName			= other.strName;
+	dwSize			= other.dwSize;
+	bBold			= other.bBold;
+	bItalic			= other.bItalic;
+	fontSmoothing	= other.fontSmoothing;
 
-	bUseColor	= other.bUseColor;
-	crFontColor	= other.crFontColor;
+	bUseColor		= other.bUseColor;
+	crFontColor		= other.crFontColor;
 
 	return *this;
 }

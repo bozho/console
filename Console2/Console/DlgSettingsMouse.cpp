@@ -31,6 +31,8 @@ DlgSettingsMouse::DlgSettingsMouse(CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	ExecuteDlgInit(IDD);
+
 	m_mouseSettings.Load(m_pOptionsRoot);
 
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_MOUSE_COMMANDS));
@@ -48,14 +50,6 @@ LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	m_listCtrl.SetColumnWidth(0, 170);
 	m_listCtrl.SetColumnWidth(1, 218);
-
-	// set button names
-	m_comboButtons.AddString(L"None");
-	m_comboButtons.AddString(L"Left");
-	m_comboButtons.AddString(L"Right");
-	m_comboButtons.AddString(L"Middle");
-	m_comboButtons.AddString(L"Fourth");
-	m_comboButtons.AddString(L"Fifth");
 
 	MouseSettings::CommandsSequence::iterator it = m_mouseSettings.commands.begin();
 	for (; it != m_mouseSettings.commands.end(); ++it)

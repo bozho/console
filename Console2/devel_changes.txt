@@ -14,6 +14,11 @@ Build 131
 
 - [internal] Console now checks that saved window position is inside desktop
 
+- 'Dump screen buffer' command now dumps visible text to C:\console.dump
+
+- added -w command line option for setting main window title; it overrides all
+  other main window title settings (e.g. 'use tab titles' setting)
+
 
 Build 130
 ---------

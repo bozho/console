@@ -25,7 +25,15 @@ class MainFrame
 
 		CCommandBarCtrl m_CmdBar;
 
-		MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, const vector<wstring>& startupCmds, int nMultiStartSleep, const wstring& strDbgCmdLine);
+		MainFrame
+		(
+			const wstring strWindowTitle,
+			const vector<wstring>& startupTabs, 
+			const vector<wstring>& startupDirs, 
+			const vector<wstring>& startupCmds, 
+			int nMultiStartSleep, 
+			const wstring& strDbgCmdLine
+		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 		virtual BOOL OnIdle();
@@ -212,6 +220,7 @@ class MainFrame
 		CIcon			m_icon;
 		CIcon			m_smallIcon;
 
+		CString			m_strCmdLineWindowTitle;
 		CString			m_strWindowTitle;
 
 		DWORD			m_dwRows;

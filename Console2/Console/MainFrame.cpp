@@ -18,7 +18,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& startupDirs, const vector<wstring>& startupCmds, int nMultiStartSleep, const wstring& strDbgCmdLine)
+MainFrame::MainFrame
+(
+	const wstring strWindowTitle,
+	const vector<wstring>& startupTabs, 
+	const vector<wstring>& startupDirs, 
+	const vector<wstring>& startupCmds, 
+	int nMultiStartSleep, 
+	const wstring& strDbgCmdLine
+)
 : m_startupTabs(startupTabs)
 , m_startupDirs(startupDirs)
 , m_startupCmds(startupCmds)
@@ -33,7 +41,8 @@ MainFrame::MainFrame(const vector<wstring>& startupTabs, const vector<wstring>& 
 , m_zOrder(zorderNormal)
 , m_mousedragOffset(0, 0)
 , m_mapViews()
-, m_strWindowTitle(L"")
+, m_strCmdLineWindowTitle(strWindowTitle.c_str())
+, m_strWindowTitle(strWindowTitle.c_str())
 , m_dwRows(0)
 , m_dwColumns(0)
 , m_dwWindowWidth(0)
@@ -209,7 +218,10 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	DockWindow(positionSettings.dockPosition);
 	SetZOrder(positionSettings.zOrder);
 
-	m_strWindowTitle = g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str();
+	if (m_strCmdLineWindowTitle.GetLength() == 0)
+	{
+		m_strWindowTitle = g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str();
+	}
 	SetWindowText(m_strWindowTitle);
 
 	SetWindowIcons();
@@ -679,7 +691,9 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		}
 		UpdateTabText(consoleView->m_hWnd, strTabTitle);
 
-		if ((windowSettings.bUseTabTitles) && (consoleView == m_activeView))
+		if ((m_strCmdLineWindowTitle.GetLength() == 0) &&
+			(windowSettings.bUseTabTitles) && 
+			(consoleView == m_activeView))
 		{
 			m_strWindowTitle = consoleView->GetTitle();
 			SetWindowText(m_strWindowTitle);
@@ -691,11 +705,15 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		CString	strCommandText(consoleView->GetConsoleCommand());
 		CString	strTabTitle(consoleView->GetTitle());
 
-		m_strWindowTitle = windowSettings.strTitle.c_str();
+		if (m_strCmdLineWindowTitle.GetLength() == 0) m_strWindowTitle = windowSettings.strTitle.c_str();
 
 		if (consoleView == m_activeView)
 		{
-			if (windowSettings.bUseTabTitles)	m_strWindowTitle = strTabTitle;
+			if ((m_strCmdLineWindowTitle.GetLength() == 0) && (windowSettings.bUseTabTitles))
+			{
+				m_strWindowTitle = strTabTitle;
+			}
+
 			if (windowSettings.bShowCommand)	m_strWindowTitle += strCommandText;
 
 			SetWindowText(m_strWindowTitle);
@@ -710,20 +728,6 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		}
 		UpdateTabText(consoleView->m_hWnd, strTabTitle);
 	}
-
-/*
-	if ((windowSettings.bUseTabTitles) && (consoleView == m_activeView->m_hWnd))
-	{
-		m_strWindowTitle = strConsoleTitle;
-		SetWindowText(m_strWindowTitle);
-		SetTrayIcon(NIM_MODIFY);
-	}
-*/
-
-/*
-	TRACE(L"Boink: %s\n", strConsoleTitle);
-	UpdateTabText(consoleView, strConsoleTitle);
-*/
 
 	return 0;
 }

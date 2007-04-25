@@ -915,6 +915,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 HotKeys::HotKeys()
 : bUseScrollLock(false)
 {
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"settings",		ID_EDIT_SETTINGS,	L"Settings dialog")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));

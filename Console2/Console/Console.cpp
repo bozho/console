@@ -36,7 +36,17 @@ shared_ptr<ImageHandler>	g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstring>& startupTabs, vector<wstring>& startupDirs, vector<wstring>& startupCmds, int& nMultiStartSleep, wstring& strDbgCmdLine)
+void ParseCommandLine
+(
+	LPTSTR lptstrCmdLine, 
+	wstring& strConfigFile, 
+	wstring& strWindowTitle, 
+	vector<wstring>& startupTabs, 
+	vector<wstring>& startupDirs, 
+	vector<wstring>& startupCmds, 
+	int& nMultiStartSleep, 
+	wstring& strDbgCmdLine
+)
 {
 	int						argc = 0;
 	shared_array<LPWSTR>	argv(::CommandLineToArgvW(lptstrCmdLine, &argc), ::GlobalFree);
@@ -51,6 +61,13 @@ void ParseCommandLine(LPTSTR lptstrCmdLine, wstring& strConfigFile, vector<wstri
 			++i;
 			if (i == argc) break;
 			strConfigFile = argv[i];
+		}
+		else if (wstring(argv[i]) == wstring(L"-w"))
+		{
+			// startup tab name
+			++i;
+			if (i == argc) break;
+			strWindowTitle = argv[i];
 		}
 		else if (wstring(argv[i]) == wstring(L"-t"))
 		{
@@ -109,13 +126,22 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	_Module.AddMessageLoop(&theLoop);
 
 	wstring			strConfigFile(L"");
+	wstring			strWindowTitle(L"");
 	vector<wstring>	startupTabs;
 	vector<wstring>	startupDirs;
 	vector<wstring>	startupCmds;
 	int				nMultiStartSleep = 0;
 	wstring			strDbgCmdLine(L"");
 
-	ParseCommandLine(lpstrCmdLine, strConfigFile, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
+	ParseCommandLine(
+		lpstrCmdLine, 
+		strConfigFile, 
+		strWindowTitle, 
+		startupTabs, 
+		startupDirs, 
+		startupCmds, 
+		nMultiStartSleep, 
+		strDbgCmdLine);
 
 	if (strConfigFile.length() == 0)
 	{
@@ -131,7 +157,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	}
 
 	// create main window
-	MainFrame wndMain(startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
+	MainFrame wndMain(strWindowTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
 
 	if(wndMain.CreateEx() == NULL)
 	{

@@ -1060,7 +1060,7 @@ void ConsoleView::DumpBuffer()
 	}
 
 	wofstream of;
-	of.open("F:\\Smece\\console_dump.log");
+	of.open("C:\\console.dump");
 	of << strText;
 	of.close();
 }

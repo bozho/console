@@ -12,6 +12,8 @@ Build 131
 
 - added font smoothing settings
 
+- [internal] Console now checks that saved window position is inside desktop
+
 
 Build 130
 ---------

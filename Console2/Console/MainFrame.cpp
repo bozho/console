@@ -189,7 +189,20 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	if ((!positionSettings.bSavePosition) && 
 		(positionSettings.nX == -1) || (positionSettings.nY == -1))
 	{
+		// do not reposition the window
 		dwFlags |= SWP_NOMOVE;
+	}
+	else
+	{
+		// check we're not out of desktop bounds 
+		int	nDesktopLeft	= ::GetSystemMetrics(SM_XVIRTUALSCREEN);
+		int	nDesktopTop		= ::GetSystemMetrics(SM_YVIRTUALSCREEN);
+
+		int	nDesktopRight	= nDesktopLeft + ::GetSystemMetrics(SM_CXVIRTUALSCREEN);
+		int	nDesktopBottom	= nDesktopTop + ::GetSystemMetrics(SM_CYVIRTUALSCREEN);
+
+		if ((positionSettings.nX < nDesktopLeft) || (positionSettings.nX > nDesktopRight)) positionSettings.nX = 50;
+		if ((positionSettings.nY < nDesktopTop) || (positionSettings.nY > nDesktopBottom)) positionSettings.nY = 50;
 	}
 
 	SetWindowPos(NULL, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);

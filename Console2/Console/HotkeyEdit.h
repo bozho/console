@@ -51,6 +51,8 @@ class CHotkeyEditT
 		bool	m_bCtrlDown;
 		bool	m_bShiftDown;
 		bool	m_bAltDown;
+		bool	m_bWinDown;
+		bool	m_bAppDown;
 
 		UINT	m_uiVirtualKey;
 		bool	m_bExtended;

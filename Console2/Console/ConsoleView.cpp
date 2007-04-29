@@ -1020,6 +1020,23 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::ClearSelection()
+{
+	if ((m_selectionHandler->GetState() != SelectionHandler::selstateSelecting) &&
+		(m_selectionHandler->GetState() != SelectionHandler::selstateSelected))
+	{
+		return;
+	}
+
+	m_selectionHandler->ClearSelection();
+	BitBltOffscreen();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::Paste()
 {
 	if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) return;

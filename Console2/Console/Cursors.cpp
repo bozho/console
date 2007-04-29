@@ -232,7 +232,10 @@ BlockCursor::BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_bVisible(true)
 {
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
+	UINT uiRate = ::GetCaretBlinkTime();
+	if (uiRate == 0) uiRate = 500;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 BlockCursor::~BlockCursor()
@@ -364,7 +367,10 @@ PulseBlockCursor::PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleVie
 		m_nMaxSize = (m_rectCursor.bottom - m_rectCursor.top) >> 1;
 	}
 
-	m_uiTimer = ::SetTimer(m_hwndConsoleView, CURSOR_TIMER, 100, NULL);
+	UINT uiRate = ::GetCaretBlinkTime() / static_cast<UINT>(2*m_nMaxSize);
+	if (uiRate < 50) uiRate = 50;
+
+	m_uiTimer = ::SetTimer(m_hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 PulseBlockCursor::~PulseBlockCursor()
@@ -451,7 +457,10 @@ BarCursor::BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect
 {
 	m_dcCursor.SelectPen(m_pen);
 
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
+	UINT uiRate = ::GetCaretBlinkTime();
+	if (uiRate == 0) uiRate = 500;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 BarCursor::~BarCursor()
@@ -468,8 +477,8 @@ void BarCursor::Draw(bool bActive /* = true */)
 {
 	if (bActive && m_bVisible)
 	{
-		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.top + 2, NULL);
-		m_dcCursor.LineTo(m_rectCursor.left, m_rectCursor.bottom - 2);
+		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.top + 1, NULL);
+		m_dcCursor.LineTo(m_rectCursor.left, m_rectCursor.bottom);
 	}
 	else
 	{
@@ -637,16 +646,16 @@ HLineCursor::HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_rectCursor.bottom - m_rectCursor.top - 1))
-	{
-		m_nSize = m_rectCursor.bottom - m_rectCursor.top - 1;
-		m_nPosition = 0;
-		m_nStep = 1;
-	}
+	m_nSize = m_rectCursor.bottom - m_rectCursor.top - 1;
+	m_nPosition = 0;
+	m_nStep = 1;
 
 	m_dcCursor.SelectPen(m_pen);
 
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
+	UINT uiRate = ::GetCaretBlinkTime()/static_cast<UINT>(m_nSize);
+	if (uiRate < 50) uiRate = 50;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 HLineCursor::~HLineCursor()
@@ -728,16 +737,16 @@ VLineCursor::VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 , m_nStep(0)
 {
 	// set the size of the cursor
-	if (m_nSize != (m_rectCursor.Width() - 1))
-	{
-		m_nSize = m_rectCursor.Width() - 1;
-		m_nPosition = 0;
-		m_nStep = 1;
-	}
+	m_nSize = m_rectCursor.Width() - 1;
+	m_nPosition = 0;
+	m_nStep = 1;
 
 	m_dcCursor.SelectPen(m_pen);
 
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
+	UINT uiRate = ::GetCaretBlinkTime()/static_cast<UINT>(m_nSize);
+	if (uiRate < 50) uiRate = 50;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 VLineCursor::~VLineCursor()
@@ -815,7 +824,10 @@ RectCursor::RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRe
 : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_bVisible(true)
 {
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 750, NULL);
+	UINT uiRate = ::GetCaretBlinkTime();
+	if (uiRate == 0) uiRate = 500;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 RectCursor::~RectCursor()
@@ -945,7 +957,10 @@ PulseRectCursor::PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView,
 		m_nMaxSize = (m_rectCursor.bottom - m_rectCursor.top) >> 1;
 	}
 
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 100, NULL);
+	UINT uiRate = ::GetCaretBlinkTime()/static_cast<UINT>(2*m_nMaxSize);
+	if (uiRate < 50) uiRate = 50;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 PulseRectCursor::~PulseRectCursor()
@@ -1033,7 +1048,10 @@ FadeBlockCursor::FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView,
 	m_blendFunction.SourceConstantAlpha	= 255;
 	m_blendFunction.AlphaFormat			= 0;
 
-	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, 35, NULL);
+	UINT uiRate = ::GetCaretBlinkTime()/static_cast<UINT>(ALPHA_STEP+2);
+	if (uiRate < 50) uiRate = 50;
+
+	m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
 }
 
 FadeBlockCursor::~FadeBlockCursor()

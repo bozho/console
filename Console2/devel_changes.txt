@@ -19,6 +19,12 @@ Build 131
 - added -w command line option for setting main window title; it overrides all
   other main window title settings (e.g. 'use tab titles' setting)
 
+- for blinking cursors, blinking rates are now proporional to caret blinking
+  rate set in Control Panel
+
+- added 'clear selection' commands to menu and hotkeys; mouse 'copy' command
+  description is now 'Copy/clear selection'
+
 
 Build 130
 ---------

@@ -705,7 +705,14 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		CString	strCommandText(consoleView->GetConsoleCommand());
 		CString	strTabTitle(consoleView->GetTitle());
 
-		if (m_strCmdLineWindowTitle.GetLength() == 0) m_strWindowTitle = windowSettings.strTitle.c_str();
+		if (m_strCmdLineWindowTitle.GetLength() != 0)
+		{
+			m_strWindowTitle = m_strCmdLineWindowTitle;
+		}
+		else
+		{
+			m_strWindowTitle = windowSettings.strTitle.c_str();
+		}
 
 		if (consoleView == m_activeView)
 		{
@@ -1072,6 +1079,20 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 	if (m_activeView.get() == NULL) return 0;
 
 	m_activeView->Copy();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (m_activeView.get() == NULL) return 0;
+
+	m_activeView->ClearSelection();
 
 	return 0;
 }

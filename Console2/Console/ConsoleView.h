@@ -107,6 +107,7 @@ class ConsoleView
 		CIcon& GetIcon(bool bBigIcon = true) { return bBigIcon ? bigIcon : smallIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
+		void ClearSelection();
 		void Paste();
 
 

@@ -90,6 +90,7 @@ BEGIN
     POPUP "Edit"
     BEGIN
         MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "Cl&ear selection",            32791
         MENUITEM "&Paste",                      ID_EDIT_PASTE
         MENUITEM SEPARATOR
         MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
@@ -127,6 +128,7 @@ BEGIN
         POPUP "&Edit"
         BEGIN
             MENUITEM "&Copy",                       57634
+            MENUITEM "Cl&ear selection",            32791
             MENUITEM "&Paste",                      57637
             MENUITEM SEPARATOR
             MENUITEM "&Rename Tab",                 32781

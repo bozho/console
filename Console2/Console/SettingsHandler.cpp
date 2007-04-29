@@ -948,8 +948,9 @@ HotKeys::HotKeys()
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"closetab",		ID_FILE_CLOSE_TAB,	L"Close tab")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"renametab",	ID_EDIT_RENAME_TAB,	L"Rename tab")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,		L"Copy")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,		L"Paste")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				L"Copy selection")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	L"Clear selection")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				L"Paste")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer row up")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer row down")));
@@ -1128,7 +1129,7 @@ HotKeys& HotKeys::operator=(const HotKeys& other)
 MouseSettings::MouseSettings()
 : commands()
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"Copy selection")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"Copy/clear selection")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"Select text")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"Paste text")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"Drag window")));

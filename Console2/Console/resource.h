@@ -201,7 +201,6 @@
 #define IDC_RADIO2                      1165
 #define IDC_COMBO_DOCKING               1167
 #define IDC_COMBO_ZORDER                1168
-#define IDC_COMBO_ZORDER2               1169
 #define IDC_COMBO_SMOOTHING             1169
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -218,13 +217,14 @@
 #define ID__VIEW                        32787
 #define ID__HELP                        32788
 #define ID_VIEW_TABS                    32789
+#define ID_EDIT_CLEAR_SELECTION         32791
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        213
-#define _APS_NEXT_COMMAND_VALUE         32791
+#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_COMMAND_VALUE         32792
 #define _APS_NEXT_CONTROL_VALUE         1168
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

@@ -41,7 +41,7 @@ class ConsoleHandler
 
 		void ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta);
 
-		void SetConsoleParams(HANDLE hStdOut);
+		void SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut);
 
 	private:
 

@@ -746,9 +746,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	POINT	point;
-	point.x = GET_X_LPARAM(lParam);
-	point.y = GET_Y_LPARAM(lParam);
+	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	
 	CMenu		contextMenu;
 	CMenu		tabsMenu;
@@ -770,7 +768,7 @@ LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	CPoint	point(LOWORD(lParam), HIWORD(lParam));
+	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	CRect	windowRect;
 
 	GetWindowRect(windowRect);
@@ -796,7 +794,7 @@ LRESULT MainFrame::OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam,
 		{
 			//if (m_bPopupMenuDisabled) return 0;
 
-			POINT	posCursor;
+			CPoint	posCursor;
 			
 			::GetCursorPos(&posCursor);
 			// show popup menu
@@ -942,7 +940,7 @@ LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& 
 
 LRESULT MainFrame::OnToolbarDropDown(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
-	POINT	cursorPos;
+	CPoint	cursorPos;
 	::GetCursorPos(&cursorPos);
 
 	CRect	buttonRect;

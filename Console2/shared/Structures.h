@@ -16,21 +16,7 @@ struct ConsoleParams
 	, dwMaxRows(0)
 	, dwMaxColumns(0)
 	, hwndConsoleWindow(NULL)
-	{
-	}
-
-	ConsoleParams(DWORD consoleMainThreadId, DWORD parentProcessId, DWORD notificationTimeout, DWORD refreshInterval, DWORD rows, DWORD columns, DWORD bufferRows, DWORD bufferColumns)
-	: dwConsoleMainThreadId(consoleMainThreadId)
-	, dwParentProcessId(parentProcessId)
-	, dwNotificationTimeout(notificationTimeout)
-	, dwRefreshInterval(refreshInterval)
-	, dwRows(rows)
-	, dwColumns(columns)
-	, dwBufferRows(bufferRows)
-	, dwBufferColumns(bufferColumns)
-	, dwMaxRows(0)
-	, dwMaxColumns(0)
-	, hwndConsoleWindow(NULL)
+	, dwHookThreadId(0)
 	{
 	}
 
@@ -46,6 +32,7 @@ struct ConsoleParams
 	, dwMaxRows(other.dwMaxRows)
 	, dwMaxColumns(other.dwMaxColumns)
 	, hwndConsoleWindow(other.hwndConsoleWindow)
+	, dwHookThreadId(other.dwHookThreadId)
 	{
 	}
 
@@ -63,6 +50,7 @@ struct ConsoleParams
 	DWORD	dwMaxRows;
 	DWORD	dwMaxColumns;
 	HWND	hwndConsoleWindow;
+	DWORD	dwHookThreadId;
 };
 
 //////////////////////////////////////////////////////////////////////////////

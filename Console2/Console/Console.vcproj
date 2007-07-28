@@ -365,7 +365,13 @@
 					RelativePath="..\help\html\introduction.html">
 				</File>
 				<File
+					RelativePath="..\help\html\language.html">
+				</File>
+				<File
 					RelativePath="..\help\html\menus.html">
+				</File>
+				<File
+					RelativePath="..\help\html\reporting_problems.html">
 				</File>
 				<File
 					RelativePath="..\help\html\running.html">
@@ -384,6 +390,9 @@
 				</File>
 				<File
 					RelativePath="..\help\html\settings_hotkeys.html">
+				</File>
+				<File
+					RelativePath="..\help\html\settings_mouse.html">
 				</File>
 				<File
 					RelativePath="..\help\html\settings_tabs.html">

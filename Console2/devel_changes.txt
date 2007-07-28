@@ -1,6 +1,16 @@
 v2.00
 =====
 
+Build 132
+---------
+
+- fixed a problem with ClearType artifacts
+
+- [internal] attempt to fix new tab's initial painting problems
+
+- fixed 'disappear when dragged' bug for multiple monitors
+
+
 Build 131
 ---------
 

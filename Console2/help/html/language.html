@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+	<title>Language</title>
+	<meta http-equiv="content-type" content='text/html; charset=utf-8' />
+	<link rel="stylesheet" type="text/css" href="../styles/help.css" />
+</head>
+
+<body>
+	<h1>Language</h1>
+
+	<p>
+		Here's how to properly setup your language and font settings for Console.
+	</p>
+
+	<p>
+		<b>Please read this carefully</b>, especially if you're using 
+		double-width character languages. As far as I know, they're:
+		<br />
+		<ul>
+			<li>Japanese Shift-JIS (codepage 932)</li>
+			<li>Simplified Chinese GBK (codepage 936)</li>
+			<li>Korean (codepage 949)</li>
+			<li>Traditional Chinese Big5 (codepage 950)</li>
+		</ul>
+	</p>
+
+	<p>
+		So, to setup your language:
+		
+		<ol>
+			<li>
+				Start registry editor (Start->Run, type regedit). Find 
+				HKEY_CURRENT_USER\Console key. If there is a subkey named 
+				"Console2 command window", delete it.
+				<br /><br />
+				<b>NOTE:</b> PLEASE be careful when deleting stuff from 
+				registry. You can break things.
+			</li>
+			
+			<li>
+				Open Control Panel and run "Regional and Language options". Go 
+				to "Advanced" tab. In the "Language for non-Unicode programs" 
+				find your language. This is especially critical for double 
+				width character languages. Click OK. you may get a dialog 
+				saying that required files are already installed on the hard 
+				disk. You can click 'yes' here to skip installing language 
+				files from a Windows CD/DVD. After that you will get 'restart 
+				computer' dialog. Click yes.			
+			</li>
+			
+			<li>
+				After restart, run Console. Unhide windows console 
+				(View->Console window) and open its properties dialog. Go to 
+				"Font" tab. Raster Fonts will be selected in the fonts list. 
+				Choose the other, TrueType font. For most languages, this will 
+				be Lucida Console. For double-width character languages, these 
+				should be proper fonts (I don't read Japanese/Chinese/Korean 
+				ideograms, I just read these from the registry :-)
+				<br /><br />
+				<ul>
+					<li>Japanese (932) - MS Gothic</li>
+					<li>Simplified Chinese (936) - NSimSun</li>
+					<li>Korean (949) - GulimChe</li>
+					<li>Traditional Chinese (950) - MingLiU</li>
+				</ul>
+				
+				Anyway, select proper TrueType console font and set its size 
+				to something small (8 or 10 points). Small size will allow you 
+				bigger max Console window size.
+				<br /><br />
+				Click OK. "Apply Properties" dialog will appear, select "Save 
+				properties for future windows with same title" and click OK. 
+				This will save Windows console settings for Console. You can 
+				check your registry again, HKEY_CURRENT_USER\Console key. 
+				There should be "Console2 command window" subkey there again.
+			</li>
+			
+			<li>
+				You can now open Console settings and choose whatever 
+				fixed-width font you like (make sure it has characters you 
+				need :-)
+			</li>
+		</ol>
+	</p>
+
+	<p>
+		Unfortunatelly, all of this is needed due to historic reasons: Windows 
+		console still uses codepages, and this seems to be the only way to set 
+		all of the options properly.
+	</p>
+	
+	<p>
+		<b>NOTE:</b> I have noted that even Windows console shows some strange 
+		behavior with double-width character languages. As usual, if you 
+		notice something strange, unhide the hidden console window first and 
+		check what's happening there.
+	</p>
+	
+	<p>
+		<b>NOTE 2:</b> When Console gets setup procedure, 
+		non-DBCS-language-users will not have to do this. Setup procedure will 
+		do this automagically. I will try to automate this for our 
+		Japanese/Chinese/Korean friends :-)
+	</p>
+	
+	<p>
+		I hope I haven't forgotten anything... I tested this on Japanese Win2k 
+		and WinXP with East Asian Language support installed, so it should 
+		work.
+	</p>
+
+</body>
+
+</html>

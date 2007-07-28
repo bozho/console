@@ -842,7 +842,7 @@ void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SetConsoleParams(HANDLE hStdOut)
+void ConsoleHandler::SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut)
 {
 	// get max console size
 	COORD		coordMaxSize;
@@ -862,8 +862,9 @@ void ConsoleHandler::SetConsoleParams(HANDLE hStdOut)
 	if ((m_consoleParams->dwBufferRows != 0) && (m_consoleParams->dwMaxRows > m_consoleParams->dwBufferRows)) m_consoleParams->dwMaxRows = m_consoleParams->dwBufferRows;
 	if ((m_consoleParams->dwBufferColumns != 0) && (m_consoleParams->dwMaxColumns > m_consoleParams->dwBufferColumns)) m_consoleParams->dwMaxColumns = m_consoleParams->dwBufferColumns;
 
-	// set console window handle
-	m_consoleParams->hwndConsoleWindow = ::GetConsoleWindow();
+	// set console window handle and hook monitor thread id
+	m_consoleParams->hwndConsoleWindow	= ::GetConsoleWindow();
+	m_consoleParams->dwHookThreadId		= dwHookThreadId;
 
 	TRACE(L"Max columns: %i, max rows: %i\n", m_consoleParams->dwMaxColumns, m_consoleParams->dwMaxRows);
 
@@ -940,20 +941,23 @@ DWORD ConsoleHandler::MonitorThread()
 
 //	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
 
-	SetConsoleParams(hStdOut.get());
+	SetConsoleParams(::GetCurrentThreadId(), hStdOut.get());
+
+	::SuspendThread(GetCurrentThread());
+
 	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
+	ReadConsoleBuffer();
 
 	HANDLE	arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(), 
-//		hStdOut.get(), 
+		hStdOut.get(), 
 //		hStdErr, 
 		m_consoleCopyInfo.GetReqEvent(), 
 		m_consolePasteInfo.GetReqEvent(), 
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
 		m_newScrollPos.GetReqEvent(),
-		hStdOut.get(), 
 	};
 
 	DWORD	dwWaitRes		= 0;
@@ -1004,9 +1008,8 @@ DWORD ConsoleHandler::MonitorThread()
 
 		switch (dwWaitRes)
 		{
-//			case WAIT_OBJECT_0 + 1 :
-			case WAIT_OBJECT_0 + 6 :
-//			case WAIT_OBJECT_0 + 3 :
+			case WAIT_OBJECT_0 + 1 :
+//			case WAIT_OBJECT_0 + 2 :
 				// something changed in the console
 				::Sleep(m_consoleParams->dwNotificationTimeout);
 			case WAIT_TIMEOUT :
@@ -1019,7 +1022,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// copy request
-			case WAIT_OBJECT_0 + 1 :
+			case WAIT_OBJECT_0 + 2 :
 			{
 				SharedMemoryLock memLock(m_consoleCopyInfo);
 
@@ -1029,7 +1032,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// paste request
-			case WAIT_OBJECT_0 + 2 :
+			case WAIT_OBJECT_0 + 3 :
 			{
 				SharedMemoryLock memLock(m_consolePasteInfo);
 
@@ -1048,7 +1051,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// mouse event request
-			case WAIT_OBJECT_0 + 3 :
+			case WAIT_OBJECT_0 + 4 :
 			{
 				SharedMemoryLock memLock(m_consoleMouseEvent);
 
@@ -1058,7 +1061,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console resize request
-			case WAIT_OBJECT_0 + 4 :
+			case WAIT_OBJECT_0 + 5 :
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
@@ -1071,7 +1074,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console scroll request
-			case WAIT_OBJECT_0 + 5 :
+			case WAIT_OBJECT_0 + 6 :
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 

@@ -1564,7 +1564,7 @@ void ConsoleView::RepaintText()
 	COLORREF	crTxtColor	= RGB(0, 0, 0);
 	
 	bool		bTextOut	= false;
-	
+
 	wstring		strText(L"");
 
 	{
@@ -1646,7 +1646,11 @@ void ConsoleView::RepaintText()
 
 			if (bTextOut)
 			{
-				m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
+//				m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
+
+				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
+
+				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 				dwX += static_cast<int>(strText.length() * m_nCharWidth);
 
 				m_dcText.SetBkMode(nBkMode);
@@ -1663,7 +1667,9 @@ void ConsoleView::RepaintText()
 
 		if (strText.length() > 0)
 		{
-			m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
+//			m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
+			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
+			m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 		}
 	}
 }
@@ -1727,7 +1733,11 @@ void ConsoleView::RepaintTextChanges()
 				
 				m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
-				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
+//				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
+
+				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth, dwY+m_nCharHeight);
+
+				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1, NULL);
 			}
 		}
 	}
@@ -1787,7 +1797,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 
 		if (m_tabData->imageData.bRelative)
 		{
-			POINT	pointClientScreen = {0, 0};
+			CPoint	pointClientScreen(0, 0);
 			ClientToScreen(&pointClientScreen);
 
 			m_dcOffscreen.BitBlt(

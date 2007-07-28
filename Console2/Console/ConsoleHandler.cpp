@@ -367,6 +367,12 @@ DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter)
 
 DWORD ConsoleHandler::MonitorThread()
 {
+	{
+		// resume hook monitor thread
+		shared_ptr<void> hHookMonitorThread(::OpenThread(THREAD_ALL_ACCESS, FALSE, m_consoleParams->dwHookThreadId), ::CloseHandle);
+		::ResumeThread(hHookMonitorThread.get());
+	}
+
 	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetReqEvent() };
 	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1)
 	{

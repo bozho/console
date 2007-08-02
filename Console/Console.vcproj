@@ -4,10 +4,10 @@
 	Version="7.10"
 	Name="Console"
 	ProjectGUID="{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
-	SccProjectName="&quot;$/Console2&quot;, QDAAAAAA"
+	SccProjectName=""
 	SccAuxPath=""
-	SccLocalPath=".."
-	SccProvider="MSSCCI:Microsoft Visual SourceSafe">
+	SccLocalPath=""
+	SccProvider="">
 	<Platforms>
 		<Platform
 			Name="Win32"/>

@@ -5,10 +5,10 @@
 	Name="ConsoleHook"
 	ProjectGUID="{69234D74-7133-48FF-8DDB-9901FFC4D7FF}"
 	RootNamespace="ConsoleHook"
-	SccProjectName="&quot;$/Console2&quot;, QDAAAAAA"
+	SccProjectName=""
 	SccAuxPath=""
-	SccLocalPath=".."
-	SccProvider="MSSCCI:Microsoft Visual SourceSafe"
+	SccLocalPath=""
+	SccProvider=""
 	Keyword="Win32Proj">
 	<Platforms>
 		<Platform

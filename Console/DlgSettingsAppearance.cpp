@@ -242,7 +242,7 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 	lf.lfWeight	= (m_nFontBold > 0) ? FW_BOLD : FW_NORMAL;
 	lf.lfItalic	= static_cast<BYTE>(m_nFontItalic);
 
-	CFontDialog	fontDlg(&lf);
+	CFontDialog	fontDlg(&lf, CF_FIXEDPITCHONLY|CF_SCREENFONTS);
 
 
 	if (fontDlg.DoModal() == IDOK)

@@ -10,6 +10,9 @@ Build 132
 
 - fixed 'disappear when dragged' bug for multiple monitors
 
+- font dialog now shows only fixed-pitch fonts (thanks to Anduin Withers for
+  the patch)
+
 
 Build 131
 ---------

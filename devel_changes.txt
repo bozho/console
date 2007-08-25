@@ -12,6 +12,8 @@ Build 132
 
 - font dialog now shows only fixed-pitch fonts (thanks to Anduin Withers for
   the patch)
+  
+- [internal] fixed a critical lock deadlock causing problems on Vista
 
 
 Build 131

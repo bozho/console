@@ -250,8 +250,10 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	CriticalSectionLock	lock(m_activeCritSec);
-	if (!m_bActive) return 0;
+	{
+		CriticalSectionLock	lock(m_activeCritSec);
+		if (!m_bActive) return 0;
+	}
 
 	CPaintDC	dc(m_hWnd);
 
@@ -612,9 +614,12 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	CriticalSectionLock	lock(m_activeCritSec);
+	{
+		CriticalSectionLock	lock(m_activeCritSec);
+		if (!m_bActive) return 0;
+	}
 
-	if (m_bActive && (wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
+	if ((wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
 	{
 		m_cursor->PrepareNext();
 		m_cursor->Draw(m_bAppActive);
@@ -913,13 +918,14 @@ void ConsoleView::RepaintView()
 
 void ConsoleView::SetActive(bool bActive)
 {
-	CriticalSectionLock	lock(m_activeCritSec);
-	m_bActive = bActive;
-	if (m_bActive)
 	{
-		RepaintView();
-		UpdateTitle();
+		CriticalSectionLock	lock(m_activeCritSec);
+		m_bActive = bActive;
+		if (!m_bActive) return;
 	}
+
+	RepaintView();
+	UpdateTitle();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1120,8 +1126,10 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	UpdateTitle();
 	
 	// if the view is not visible, don't repaint
-	CriticalSectionLock	lock(m_activeCritSec);
-	if (!m_bActive) return;
+	{
+		CriticalSectionLock	lock(m_activeCritSec);
+		if (!m_bActive) return;
+	}
 
 	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
@@ -1295,7 +1303,7 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		m_appearanceSettings.fontSettings.bItalic,
 		FALSE,
 		FALSE,
-		DEFAULT_CHARSET,						
+ 		DEFAULT_CHARSET,
 		OUT_DEFAULT_PRECIS,
 		CLIP_DEFAULT_PRECIS,
 		byFontQuality,

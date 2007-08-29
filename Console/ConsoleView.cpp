@@ -58,6 +58,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
 , m_activeCritSec()
+, m_bFlashTimerRunning(false)
+, m_nFlashes(0)
 {
 }
 
@@ -230,6 +232,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 LRESULT ConsoleView::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	if (m_bFlashTimerRunning) KillTimer(FLASH_TAB_TIMER);
 	return 0;
 }
 
@@ -614,6 +617,30 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	if (wParam == FLASH_TAB_TIMER)
+	{
+		{
+			CriticalSectionLock	lock(m_activeCritSec);
+			// if we got activated, kill timer
+			if (m_bActive)
+			{
+				KillTimer(FLASH_TAB_TIMER);
+				m_bFlashTimerRunning = false;
+				m_mainFrame.HighlightTab(m_hWnd, false);
+				return 0;
+			}
+		}
+
+		m_mainFrame.HighlightTab(m_hWnd, (m_nFlashes % 2) == 0);
+		if (++m_nFlashes == 6)
+		{
+			KillTimer(FLASH_TAB_TIMER);
+			m_bFlashTimerRunning = false;
+		}
+
+		return 0;
+	}
+
 	{
 		CriticalSectionLock	lock(m_activeCritSec);
 		if (!m_bActive) return 0;
@@ -1128,7 +1155,16 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	// if the view is not visible, don't repaint
 	{
 		CriticalSectionLock	lock(m_activeCritSec);
-		if (!m_bActive) return;
+		if (!m_bActive)
+		{
+			if (!m_bFlashTimerRunning)
+			{
+				m_nFlashes = 0;
+				m_bFlashTimerRunning = true;
+				SetTimer(FLASH_TAB_TIMER, 500);
+			}
+			return;
+		}
 	}
 
 	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();

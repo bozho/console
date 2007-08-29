@@ -15,6 +15,11 @@ Build 132
   
 - [internal] fixed a critical lock deadlock causing problems on Vista
 
+- [FR#1718013] middle click on an empty place on a tab bar will open a new
+  default tab
+  
+- [FR#1725807] inactive tabs will flash three times if there is activity
+
 
 Build 131
 ---------

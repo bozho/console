@@ -917,7 +917,14 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 	NMCTC2ITEMS*		pTabItems	= reinterpret_cast<NMCTC2ITEMS*>(pnmh);
 	CTabViewTabItem*	pTabItem	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
 
-	CloseTab(pTabItem);
+	if (pTabItem == NULL)
+	{
+		CreateNewConsole(0);
+	}
+	else
+	{
+		CloseTab(pTabItem);
+	}
 
 	return 0;
 }

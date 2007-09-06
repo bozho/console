@@ -1,6 +1,12 @@
 v2.00
 =====
 
+Build 133
+---------
+
+- [BR#1780513] fixed a problem with long lines being wrapped when they shouldn't
+
+
 Build 132
 ---------
 

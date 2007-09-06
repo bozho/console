@@ -508,10 +508,18 @@ void ConsoleHandler::CopyConsoleText()
 		if (i == coordStart.Y)
 		{
 			// first row
-			if ((m_consoleCopyInfo->bNoWrap && 
-				(coordStart.Y < coordEnd.Y) &&
-				(strRow[strRow.length() - 1] != L' ')) ||
-				(coordStart.Y == coordEnd.Y))
+			if
+			(
+				(coordStart.Y == coordEnd.Y)
+				||
+				(
+					m_consoleCopyInfo->bNoWrap
+					&& 
+					(coordStart.Y < coordEnd.Y)
+					&&
+					(strRow[strRow.length() - 1] != L' ')
+				)
+			)
 			{
 				bWrap = false;
 			}
@@ -519,7 +527,7 @@ void ConsoleHandler::CopyConsoleText()
 		else if (i == coordEnd.Y)
 		{
 			// last row
-			if (strRow.length() < static_cast<size_t>(srBuffer.Right))
+			if (strRow.length() < static_cast<size_t>(coordBufferSize.X))
 			{
 				bWrap = false;
 			}
@@ -527,9 +535,7 @@ void ConsoleHandler::CopyConsoleText()
 		else
 		{
 			// rows in between
-			if (m_consoleCopyInfo->bNoWrap && 
-				(strRow.length() == static_cast<size_t>(srBuffer.Right)) && 
-				(strRow[strRow.length() - 1] != L' '))
+			if (m_consoleCopyInfo->bNoWrap && (strRow[strRow.length() - 1] != L' '))
 			{
 				bWrap = false;
 			}
@@ -570,7 +576,6 @@ void ConsoleHandler::CopyConsoleText()
 	}
 	::CloseClipboard();
 	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
-
 }
 
 //////////////////////////////////////////////////////////////////////////////

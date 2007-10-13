@@ -41,6 +41,9 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 
 	m_nScrollPageType= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
 
+	m_nFlashInactiveTab= m_behaviorSettings.tabHighlightSettings.dwFlashes > 0 ? 1 : 0;
+	m_nLeaveHighlighted= m_behaviorSettings.tabHighlightSettings.bStayHighlighted ? 1 : 0;
+
 	CUpDownCtrl	spin;
 	UDACCEL		udAccel;
 
@@ -51,9 +54,18 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	spin.SetAccel(1, &udAccel);
 	spin.Detach();
 
-	EnableScrollControls();
-	
+	spin.Attach(GetDlgItem(IDC_SPIN_TAB_FLASHES));
+	spin.SetRange(1, 500);
+	udAccel.nSec = 2;
+	udAccel.nInc = 1;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
 	DoDataExchange(DDX_LOAD);
+
+	EnableScrollControls();
+	EnableFlashTabControls();
+
 	return TRUE;
 }
 
@@ -75,6 +87,9 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 		m_behaviorSettings.copyPasteSettings.copyNewlineChar= static_cast<CopyNewlineChar>(m_nCopyNewlineChar);
 
 		if (m_nScrollPageType == 0) m_behaviorSettings.scrollSettings.dwPageScrollRows = 0;
+
+		if (m_nFlashInactiveTab == 0) m_behaviorSettings.tabHighlightSettings.dwFlashes = 0;
+		m_behaviorSettings.tabHighlightSettings.bStayHighlighted = (m_nLeaveHighlighted > 0);
 
 		BehaviorSettings& behaviorSettings = g_settingsHandler->GetBehaviorSettings();
 
@@ -102,6 +117,18 @@ LRESULT DlgSettingsBehavior::OnClickedScrollType(WORD /*wNotifyCode*/, WORD /*wI
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsBehavior::OnClickedFlashTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableFlashTabControls();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -116,9 +143,40 @@ void DlgSettingsBehavior::EnableScrollControls()
 
 	if (m_nScrollPageType > 0)
 	{
+		if (m_behaviorSettings.scrollSettings.dwPageScrollRows == 0)
+		{
+			m_behaviorSettings.scrollSettings.dwPageScrollRows = 1;
+			DoDataExchange(DDX_LOAD);
+		}
+
 		GetDlgItem(IDC_SCROLL_PAGE_ROWS).EnableWindow();
 		GetDlgItem(IDC_SPIN_SCROLL_PAGE_ROWS).EnableWindow();
 		GetDlgItem(IDC_STATIC_ROWS).EnableWindow();
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsBehavior::EnableFlashTabControls()
+{
+	GetDlgItem(IDC_TAB_FLASHES).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_TAB_FLASHES).EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_LEAVE_HIGHLIGHTED).EnableWindow(FALSE);
+
+	if (m_nFlashInactiveTab > 0)
+	{
+		if (m_behaviorSettings.tabHighlightSettings.dwFlashes == 0)
+		{
+			m_behaviorSettings.tabHighlightSettings.dwFlashes = 1;
+			DoDataExchange(DDX_LOAD);
+		}
+
+		GetDlgItem(IDC_TAB_FLASHES).EnableWindow();
+		GetDlgItem(IDC_SPIN_TAB_FLASHES).EnableWindow();
+		GetDlgItem(IDC_CHECK_LEAVE_HIGHLIGHTED).EnableWindow();
 	}
 }
 

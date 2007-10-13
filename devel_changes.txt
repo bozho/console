@@ -6,6 +6,10 @@ Build 133
 
 - [BR#1780513] fixed a problem with long lines being wrapped when they shouldn't
 
+- [BR#1524127] fixed a problem (workaround) with ALT+SPACE not showing the system menu (thanks to akirill for the patch)
+
+- [FR#1725807] added some inactive tab flashing configuration options
+
 
 Build 132
 ---------

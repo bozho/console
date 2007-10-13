@@ -187,7 +187,9 @@
 #define IDC_SPIN_SCROLL_PAGE_ROWS       1153
 #define IDC_STATIC_ROWS                 1154
 #define IDC_STATIC_VERSION              1155
+#define IDC_TAB_FLASHES                 1155
 #define IDC_CHECK_SAVE_POSITION         1156
+#define IDC_SPIN_TAB_FLASHES            1156
 #define IDC_CHECK_SAVE_SIZE             1157
 #define IDC_CHECK_USE_SCROLL_LOCK       1158
 #define IDPANE_ROWS_COLUMNS             1159
@@ -201,7 +203,10 @@
 #define IDC_RADIO2                      1165
 #define IDC_COMBO_DOCKING               1167
 #define IDC_COMBO_ZORDER                1168
+#define IDC_CHECK_FLASH_TAB             1168
 #define IDC_COMBO_SMOOTHING             1169
+#define IDC_CHECK3                      1170
+#define IDC_CHECK_LEAVE_HIGHLIGHTED     1170
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -225,7 +230,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        215
 #define _APS_NEXT_COMMAND_VALUE         32792
-#define _APS_NEXT_CONTROL_VALUE         1168
+#define _APS_NEXT_CONTROL_VALUE         1171
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

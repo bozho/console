@@ -907,7 +907,7 @@ DWORD ConsoleHandler::MonitorThread()
 
 	// TODO: error handling
 	// open shared objects (shared memory, events, etc)
-	OpenSharedObjects();
+	if (!OpenSharedObjects()) return 0;
 	
 	// read parent process ID and get process handle
 	m_hParentProcess = shared_ptr<void>(

@@ -344,6 +344,25 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnSysKeydown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+/*
+	if ((wParam == VK_SPACE) && (lParam & (0x1 << 29)))
+	{
+		// send the SC_KEYMENU directly to the main frame, because DefWindowProc does not handle the message correctly
+		return SendMessage(WM_SYSCOMMAND, SC_KEYMENU, VK_SPACE);
+	}
+*/
+
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
 
@@ -443,11 +462,17 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	m_dwResizeWindowEdge = static_cast<DWORD>(wParam);
 	return 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -873,6 +898,9 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 			it->second->SetActive(true);
 
 			if (appearanceSettings.windowSettings.bUseTabIcon) SetWindowIcons();
+
+			// clear the highlight in case it's on
+			HighlightTab(m_activeView->m_hWnd, false);
 
 		}
 		else

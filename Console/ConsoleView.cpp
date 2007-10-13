@@ -303,7 +303,7 @@ LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 {
 	if ((wParam == VK_SPACE) && (lParam & (0x1 << 29)))
 	{
-		return ::DefWindowProc(m_mainFrame, uMsg, wParam, lParam);
+		return m_mainFrame.SendMessage(WM_SYSCOMMAND, SC_KEYMENU, VK_SPACE);
 	}
 
 	return OnConsoleFwdMsg(uMsg, wParam, lParam, bHandled);
@@ -626,14 +626,19 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 			{
 				KillTimer(FLASH_TAB_TIMER);
 				m_bFlashTimerRunning = false;
-				m_mainFrame.HighlightTab(m_hWnd, false);
+//				m_mainFrame.HighlightTab(m_hWnd, false);
 				return 0;
 			}
 		}
 
 		m_mainFrame.HighlightTab(m_hWnd, (m_nFlashes % 2) == 0);
-		if (++m_nFlashes == 6)
+		if (++m_nFlashes == g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes * 2)
 		{
+			if (g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.bStayHighlighted)
+			{
+				m_mainFrame.HighlightTab(m_hWnd, true);
+			}
+
 			KillTimer(FLASH_TAB_TIMER);
 			m_bFlashTimerRunning = false;
 		}
@@ -1157,7 +1162,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		CriticalSectionLock	lock(m_activeCritSec);
 		if (!m_bActive)
 		{
-			if (!m_bFlashTimerRunning)
+			if ((g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && (!m_bFlashTimerRunning))
 			{
 				m_nFlashes = 0;
 				m_bFlashTimerRunning = true;

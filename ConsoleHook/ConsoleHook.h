@@ -9,4 +9,3 @@
 #else
 #define CONSOLEHOOK_API __declspec(dllimport)
 #endif
-

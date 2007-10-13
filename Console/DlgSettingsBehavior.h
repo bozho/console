@@ -28,6 +28,9 @@ class DlgSettingsBehavior
 			DDX_RADIO(IDC_RADIO_COPY_NEWLINE_CHAR, m_nCopyNewlineChar)
 			DDX_RADIO(IDC_PAGE_SCROLL, m_nScrollPageType)
 			DDX_UINT(IDC_SCROLL_PAGE_ROWS, m_behaviorSettings.scrollSettings.dwPageScrollRows)
+			DDX_CHECK(IDC_CHECK_FLASH_TAB, m_nFlashInactiveTab)
+			DDX_UINT(IDC_TAB_FLASHES, m_behaviorSettings.tabHighlightSettings.dwFlashes)
+			DDX_CHECK(IDC_CHECK_LEAVE_HIGHLIGHTED, m_nLeaveHighlighted)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior)
@@ -35,6 +38,7 @@ class DlgSettingsBehavior
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_RANGE_CODE_HANDLER(IDC_PAGE_SCROLL, IDC_PAGE_SCROLL2, BN_CLICKED, OnClickedScrollType)
+			COMMAND_HANDLER(IDC_CHECK_FLASH_TAB, BN_CLICKED, OnClickedFlashTab)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -46,10 +50,12 @@ class DlgSettingsBehavior
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedScrollType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedFlashTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
 
 		void EnableScrollControls();
+		void EnableFlashTabControls();
 
 
 	private:
@@ -64,6 +70,10 @@ class DlgSettingsBehavior
 		int					m_nCopyNewlineChar;
 
 		int					m_nScrollPageType;
+
+		int					m_nFlashInactiveTab;
+		int					m_nLeaveHighlighted;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

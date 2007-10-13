@@ -42,7 +42,7 @@ ConsoleHandler::ConsoleHandler()
 ConsoleHandler::~ConsoleHandler()
 {
 	StopMonitorThread();
-	
+
 	if ((m_consoleParams.Get() != NULL) && 
 		(m_consoleParams->hwndConsoleWindow))
 	{
@@ -300,10 +300,6 @@ bool ConsoleHandler::InjectHookDLL()
 														PAGE_READWRITE)),
 							bind<BOOL>(::VirtualFreeEx, m_hConsoleProcess.get(), _1, NULL, MEM_RELEASE));
 
-
-#pragma warning(push)
-#pragma warning(disable: 4127)
-
 	if (pszHookDllPathRemote.get() == NULL) return false;
 
 	// write the memory
@@ -338,8 +334,6 @@ bool ConsoleHandler::InjectHookDLL()
 	// wait for the thread to finish
 //	::WaitForSingleObject(hRemoteThread.get(), INFINITE);
 	if (::WaitForSingleObject(hRemoteThread.get(), 10000) == WAIT_TIMEOUT) return false;
-
-#pragma warning(pop)
 
 	return true;
 }

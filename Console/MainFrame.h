@@ -52,6 +52,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_CLOSE, OnClose)
 			MESSAGE_HANDLER(WM_ACTIVATEAPP, OnActivateApp)
+			MESSAGE_HANDLER(WM_SYSKEYDOWN, OnSysKeydown)
 			MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
 			MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 			MESSAGE_HANDLER(WM_SIZE, OnSize)
@@ -111,6 +112,7 @@ class MainFrame
 		LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 
+		LRESULT OnSysKeydown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 
 		LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);

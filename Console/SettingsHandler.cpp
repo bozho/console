@@ -861,6 +861,70 @@ ScrollSettings& ScrollSettings::operator=(const ScrollSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+TabHighlightSettings::TabHighlightSettings()
+: dwFlashes(0)
+, bStayHighlighted(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool TabHighlightSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pTabElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/tab_highlight"), pTabElement))) return false;
+
+	XmlHelper::GetAttribute(pTabElement, CComBSTR(L"flashes"), dwFlashes, 0);
+	XmlHelper::GetAttribute(pTabElement, CComBSTR(L"stay_highligted"), bStayHighlighted, false);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool TabHighlightSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pTabElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/tab_highlight"), pTabElement))) return false;
+
+	XmlHelper::SetAttribute(pTabElement, CComBSTR(L"flashes"), dwFlashes);
+	XmlHelper::SetAttribute(pTabElement, CComBSTR(L"stay_highligted"), bStayHighlighted);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+TabHighlightSettings& TabHighlightSettings::operator=(const TabHighlightSettings& other)
+{
+	dwFlashes		= other.dwFlashes;
+	bStayHighlighted= other.bStayHighlighted;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -874,6 +938,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	copyPasteSettings.Load(pSettingsRoot);
 	scrollSettings.Load(pSettingsRoot);
+	tabHighlightSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -886,6 +951,7 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	copyPasteSettings.Save(pSettingsRoot);
 	scrollSettings.Save(pSettingsRoot);
+	tabHighlightSettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -898,6 +964,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 {
 	copyPasteSettings	= other.copyPasteSettings;
 	scrollSettings		= other.scrollSettings;
+	tabHighlightSettings= other.tabHighlightSettings;
 
 	return *this;
 }

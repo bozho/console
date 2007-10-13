@@ -306,6 +306,24 @@ struct ScrollSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct TabHighlightSettings : public SettingsBase
+{
+	TabHighlightSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	TabHighlightSettings& operator=(const TabHighlightSettings& other);
+
+	DWORD	dwFlashes;
+	bool	bStayHighlighted;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -315,8 +333,9 @@ struct BehaviorSettings : public SettingsBase
 
 	BehaviorSettings& operator=(const BehaviorSettings& other);
 
-	CopyPasteSettings	copyPasteSettings;
-	ScrollSettings		scrollSettings;
+	CopyPasteSettings		copyPasteSettings;
+	ScrollSettings			scrollSettings;
+	TabHighlightSettings	tabHighlightSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

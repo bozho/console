@@ -549,12 +549,24 @@ BEGIN
     CONTROL         "Scroll",IDC_PAGE_SCROLL2,"Button",BS_AUTORADIOBUTTON,
                     121,85,29,10
     EDITTEXT        IDC_SCROLL_PAGE_ROWS,153,83,33,14,ES_AUTOHSCROLL | 
-                    WS_GROUP
+                    ES_NUMBER | WS_GROUP
     CONTROL         "",IDC_SPIN_SCROLL_PAGE_ROWS,"msctls_updown32",
                     UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
                     UDS_ARROWKEYS,187,69,11,14
     LTEXT           "rows",IDC_STATIC_ROWS,189,86,16,8
     GROUPBOX        "Page Scrolling",IDC_STATIC,110,55,106,50
+    CONTROL         "Flash inactive tabs",IDC_CHECK_FLASH_TAB,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,124,75,10
+    LTEXT           "Flashes:",IDC_STATIC,19,141,28,8
+    EDITTEXT        IDC_TAB_FLASHES,48,138,33,14,ES_AUTOHSCROLL | ES_NUMBER | 
+                    WS_GROUP
+    CONTROL         "",IDC_SPIN_TAB_FLASHES,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,75,134,11,14
+    CONTROL         "Leave highlighted",IDC_CHECK_LEAVE_HIGHLIGHTED,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,19,155,72,10
+    GROUPBOX        "Inactive tab activity flash",IDC_STATIC,0,110,105,66,
+                    WS_GROUP
 END
 
 IDD_SETTINGS_TABS_1 DIALOGEX 0, 0, 223, 171
@@ -721,6 +733,10 @@ BEGIN
         HORZGUIDE, 74
         HORZGUIDE, 88
         HORZGUIDE, 105
+        HORZGUIDE, 110
+        HORZGUIDE, 129
+        HORZGUIDE, 145
+        HORZGUIDE, 160
     END
 
     IDD_SETTINGS_TABS_1, DIALOG

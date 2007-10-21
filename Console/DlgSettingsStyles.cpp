@@ -95,6 +95,15 @@ LRESULT DlgSettingsStyles::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM
 		dc.FillRect(&rect, brush);
 		return 0;
 	}
+	else if (staticCtl.m_hWnd == GetDlgItem(IDC_SELECTION_COLOR))
+	{
+		CBrush	brush(::CreateSolidBrush(m_stylesSettings.crSelectionColor));
+		CRect	rect;
+
+		staticCtl.GetClientRect(&rect);
+		dc.FillRect(&rect, brush);
+		return 0;
+	}
 
 	bHandled = FALSE;
 	return 0;
@@ -181,6 +190,25 @@ LRESULT DlgSettingsStyles::OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/,
 	{
 		// update color
 		m_transparencySettings.crColorKey = dlg.GetColor();
+		CWindow(hWndCtl).Invalidate();
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsStyles::OnClickedSelColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
+{
+	CColorDialog	dlg(m_stylesSettings.crSelectionColor, CC_FULLOPEN);
+
+	if (dlg.DoModal() == IDOK)
+	{
+		// update color
+		m_stylesSettings.crSelectionColor = dlg.GetColor();
 		CWindow(hWndCtl).Invalidate();
 	}
 

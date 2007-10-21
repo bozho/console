@@ -21,8 +21,7 @@ SelectionHandler::SelectionHandler(
 					SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo, 
 					SharedMemory<ConsoleCopy>& consoleCopyInfo, 
 					int nCharWidth, 
-					int nCharHeight, 
-					COLORREF crSelectionColor)
+					int nCharHeight)
 : m_consoleView(consoleView)
 , m_dcSelection(::CreateCompatibleDC(NULL))
 //, m_bmpSelection(::CreateCompatibleBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height()))
@@ -33,7 +32,7 @@ SelectionHandler::SelectionHandler(
 , m_consoleInfo(consoleInfo)
 , m_consoleCopyInfo(consoleCopyInfo)
 , m_nCharHeight(nCharHeight)
-, m_paintBrush(::CreateSolidBrush(crSelectionColor))
+, m_paintBrush()
 , m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 , m_selectionState(selstateNoSelection)
 , m_coordInitial()
@@ -62,9 +61,12 @@ SelectionHandler::~SelectionHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const COORD& coordInit, shared_array<CHAR_INFO> screenBuffer)
+void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CHAR_INFO> screenBuffer)
 {
 	if (m_selectionState > selstateNoSelection) return;
+
+	if (!m_paintBrush.IsNull()) m_paintBrush.DeleteObject();
+	m_paintBrush.CreateSolidBrush(crSelectionColor);
 
 	m_consoleView.SetCapture();
 

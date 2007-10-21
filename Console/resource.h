@@ -102,6 +102,8 @@
 #define IDC_BTN_ASSIGN                  1077
 #define IDC_EDIT_HOTKEY                 1078
 #define IDC_EDIT_COMMAND                1079
+#define IDC_KEY_COLOR2                  1079
+#define IDC_SELECTION_COLOR             1079
 #define IDC_BTN_CLEAR                   1080
 #define IDC_FONT_COLOR                  1081
 #define IDC_CHECK_USE_COLOR             1082
@@ -205,7 +207,6 @@
 #define IDC_COMBO_ZORDER                1168
 #define IDC_CHECK_FLASH_TAB             1168
 #define IDC_COMBO_SMOOTHING             1169
-#define IDC_CHECK3                      1170
 #define IDC_CHECK_LEAVE_HIGHLIGHTED     1170
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100

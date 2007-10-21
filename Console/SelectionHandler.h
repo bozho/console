@@ -31,14 +31,13 @@ class SelectionHandler
 			SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo, 
 			SharedMemory<ConsoleCopy>& consoleCopyInfo, 
 			int nCharWidth, 
-			int nCharHeight, 
-			COLORREF crSelectionColor);
+			int nCharHeight);
 
 		~SelectionHandler();
 
 	public:
 
-		void StartSelection(const COORD& coordInit, shared_array<CHAR_INFO> screenBuffer);
+		void StartSelection(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CHAR_INFO> screenBuffer);
 		void UpdateSelection(const COORD& coordCurrent, shared_array<CHAR_INFO> screenBuffer);
 		void UpdateSelection();
 		bool CopySelection(const COORD& coordCurrent);

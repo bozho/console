@@ -105,7 +105,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 //		strStartupTitle = str(wformat(L"Console2 command window 0x%08X") % this);
 	}
 
-	wstring strStartupDir(strInitialDir);
+	wstring strStartupDir(Helpers::ExpandEnvironmentStrings(strInitialDir));
 
 	if (strStartupDir.length())
 	{
@@ -142,7 +142,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 			FALSE,
 			dwStartupFlags,
 			NULL,
-			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(Helpers::ExpandEnvironmentStrings(strStartupDir).c_str()) : NULL,
+			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
 	{

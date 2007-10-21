@@ -157,6 +157,7 @@ struct StylesSettings : public SettingsBase
 	bool			bBorder;
 	DWORD			dwInsideBorder;
 	bool			bTrayIcon;
+	COLORREF		crSelectionColor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -438,6 +438,7 @@ StylesSettings::StylesSettings()
 , bBorder(true)
 , dwInsideBorder(2)
 , bTrayIcon(false)
+, crSelectionColor(RGB(255, 255, 255))
 {
 }
 
@@ -458,6 +459,12 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"border"), bBorder, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder, 2);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon, false);
+
+	CComPtr<IXMLDOMElement>	pSelColorElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement))) return false;
+
+	XmlHelper::GetRGBAttribute(pSelColorElement, crSelectionColor, RGB(255, 255, 255));
 
 	return true;
 }
@@ -480,6 +487,12 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon);
 
+	CComPtr<IXMLDOMElement>	pSelColorElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement))) return false;
+
+	XmlHelper::SetRGBAttribute(pSelColorElement, crSelectionColor);
+
 	return true;
 }
 
@@ -496,6 +509,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	bBorder			= other.bBorder;
 	dwInsideBorder	= other.dwInsideBorder;
 	bTrayIcon		= other.bTrayIcon;
+	crSelectionColor= other.crSelectionColor;
 
 	return *this;
 }

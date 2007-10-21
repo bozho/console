@@ -26,7 +26,9 @@
 		</font>
 		<window title="Debug console" icon="F:\Smece\a.ico" use_tab_icon="1" use_console_title="1" show_cmd="1" show_cmd_tabs="1" use_tab_title="1" trim_tab_titles="20"/>
 		<controls show_menu="1" show_toolbar="1" show_statusbar="1" show_tabs="1" hide_single_tab="1"/>
-		<styles caption="1" resizable="1" taskbar_button="1" border="1" inside_border="2" tray_icon="1"/>
+		<styles caption="1" resizable="1" taskbar_button="1" border="1" inside_border="2" tray_icon="1">
+			<selection_color r="255" g="255" b="255" />
+		</styles>
 		<position x="-1" y="-1" dock="-1" snap="0" z_order="0" save_position="0"/>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
 	</appearance>
@@ -64,6 +66,7 @@
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="87" command="closetab"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="82" command="renametab"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="1" code="45" command="copy"/>
+		<hotkey ctrl="1" shift="0" alt="0" extended="1" code="46" command="clear_selection"/>
 		<hotkey ctrl="0" shift="1" alt="0" extended="1" code="45" command="paste"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollrowup"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollrowdown"/>

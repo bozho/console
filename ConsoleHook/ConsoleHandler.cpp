@@ -704,6 +704,7 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 		{
 			if ((pszText[offset] == L'\r') || (pszText[offset] == L'\n'))
 			{
+/*
 				pKeyEvents[i].EventType							= KEY_EVENT;
 				pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
 				pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
@@ -711,8 +712,22 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 				pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
 				pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= L'\n';
 				pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
+*/
 
 				if ((pszText[offset] == L'\r') && (pszText[offset+1] == L'\n')) ++offset;
+
+				if (keyEventCount > 0)
+				{
+					DWORD dwTextWritten = 0;
+					::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
+				}
+
+				::PostMessage(m_consoleParams->hwndConsoleWindow, WM_KEYDOWN, VK_RETURN, 0x001C0001);
+				::PostMessage(m_consoleParams->hwndConsoleWindow, WM_KEYUP, VK_RETURN, 0xC01C0001);
+
+				keyEventCount = static_cast<size_t>(-1);
+				partLen -= i;
+				i = static_cast<size_t>(-1);
 			}
 			else
 			{
@@ -726,9 +741,9 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 			}
 		}
 
-		DWORD dwTextWritten = 0;
 		if (keyEventCount > 0)
 		{
+			DWORD dwTextWritten = 0;
 			::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
 		}
 	}
@@ -956,13 +971,13 @@ DWORD ConsoleHandler::MonitorThread()
 	HANDLE	arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(), 
-		hStdOut.get(), 
 //		hStdErr, 
 		m_consoleCopyInfo.GetReqEvent(), 
 		m_consolePasteInfo.GetReqEvent(), 
+		m_newScrollPos.GetReqEvent(),
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
-		m_newScrollPos.GetReqEvent(),
+		hStdOut.get(),
 	};
 
 	DWORD	dwWaitRes		= 0;
@@ -1013,21 +1028,8 @@ DWORD ConsoleHandler::MonitorThread()
 
 		switch (dwWaitRes)
 		{
-			case WAIT_OBJECT_0 + 1 :
-//			case WAIT_OBJECT_0 + 2 :
-				// something changed in the console
-				::Sleep(m_consoleParams->dwNotificationTimeout);
-			case WAIT_TIMEOUT :
-			{
-				// refresh timer
-				ReadConsoleBuffer();
-				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
-				break;
-			}
-
 			// copy request
-			case WAIT_OBJECT_0 + 2 :
+			case WAIT_OBJECT_0 + 1 :
 			{
 				SharedMemoryLock memLock(m_consoleCopyInfo);
 
@@ -1037,7 +1039,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// paste request
-			case WAIT_OBJECT_0 + 3 :
+			case WAIT_OBJECT_0 + 2 :
 			{
 				SharedMemoryLock memLock(m_consolePasteInfo);
 
@@ -1052,6 +1054,19 @@ DWORD ConsoleHandler::MonitorThread()
 
 				PasteConsoleText(hStdIn.get(), pszPasteBuffer);
 				m_consolePasteInfo.SetRespEvent();
+				break;
+			}
+
+			// console scroll request
+			case WAIT_OBJECT_0 + 3 :
+			{
+				SharedMemoryLock memLock(m_newScrollPos);
+
+				ScrollConsole(hStdOut.get(), m_newScrollPos->cx, m_newScrollPos->cy);
+				ReadConsoleBuffer();
+
+				::ResetEvent(hStdOut.get());
+//				::ResetEvent(hStdErr);
 				break;
 			}
 
@@ -1078,18 +1093,19 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			// console scroll request
 			case WAIT_OBJECT_0 + 6 :
+//			case WAIT_OBJECT_0 + 2 :
+				// something changed in the console
+				::Sleep(m_consoleParams->dwNotificationTimeout);
+			case WAIT_TIMEOUT :
 			{
-				SharedMemoryLock memLock(m_newScrollPos);
-
-				ScrollConsole(hStdOut.get(), m_newScrollPos->cx, m_newScrollPos->cy);
+				// refresh timer
 				ReadConsoleBuffer();
-
 				::ResetEvent(hStdOut.get());
 //				::ResetEvent(hStdErr);
 				break;
 			}
+
 		}
 	}
 

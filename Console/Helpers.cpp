@@ -30,10 +30,10 @@ wstring Helpers::GetModulePath(HINSTANCE hInstance)
 
 wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 {
-	shared_array<wchar_t> szExpanded(new wchar_t[0x4000]);
+	shared_array<wchar_t> szExpanded(new wchar_t[0x8000]);
 
-	::ZeroMemory(szExpanded.get(), 0x4000*sizeof(wchar_t));
-	::ExpandEnvironmentStrings(str.c_str(), szExpanded.get(), 0x4000);
+	::ZeroMemory(szExpanded.get(), 0x8000*sizeof(wchar_t));
+	::ExpandEnvironmentStrings(str.c_str(), szExpanded.get(), 0x8000);
 
 	return wstring(szExpanded.get());
 }

@@ -4,11 +4,24 @@ v2.00
 Build 133
 ---------
 
-- [BR#1780513] fixed a problem with long lines being wrapped when they shouldn't
+- [BR#1780513] fixed a problem with long lines being wrapped when they
+  shouldn't
 
-- [BR#1524127] fixed a problem (workaround) with ALT+SPACE not showing the system menu (thanks to akirill for the patch)
+- [BR#1524127] fixed a problem (workaround) with ALT+SPACE not showing the
+  system menu (thanks to akirill for the patch)
 
 - [FR#1725807] added some inactive tab flashing configuration options
+
+- [BR#1814653] fixed a screen lock-up on mouse click during fast screen
+  changes
+
+- mouse messages are discarded when Console window is activated using the
+  mouse - this will prevent things like starting a selection when activating 
+  a Console window
+  
+- [FR#1722611] you can now set selection color
+
+- [BR#1732360] attempt at fixing the newline problem
 
 
 Build 132

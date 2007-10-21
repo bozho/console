@@ -59,7 +59,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_mouseCommand(MouseSettings::cmdNone)
 , m_activeCritSec()
 , m_bFlashTimerRunning(false)
-, m_nFlashes(0)
+, m_dwFlashes(0)
 {
 }
 
@@ -320,7 +320,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-//		TRACE(L"Msg: 0x%04X\n", uMsg);
+		TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
 		::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	}
 
@@ -459,7 +459,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if ((*it)->action == mouseAction)
 			{
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
-				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_screenBuffer);
+				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
@@ -615,6 +615,42 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT ConsoleView::OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	// discards mouse message when activating the window using mouse
+	LRESULT ret = ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
+
+	HWND hwndTopLevel	= ::GetForegroundWindow();
+	HWND hwndParent		= NULL;
+
+	do
+	{
+		hwndParent = ::GetParent(hwndTopLevel);
+		if (hwndParent != NULL) hwndTopLevel = hwndParent;
+	}
+	while (hwndParent != NULL);
+
+	// if we're not active, discard the mouse message
+	if (hwndTopLevel != m_mainFrame.m_hWnd)
+	{
+		if (ret == MA_ACTIVATE)
+		{
+			ret = MA_ACTIVATEANDEAT;
+		}
+		else if (ret == MA_NOACTIVATE)
+		{
+			ret = MA_NOACTIVATEANDEAT;
+		}
+	}
+
+	return ret;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	if (wParam == FLASH_TAB_TIMER)
@@ -631,8 +667,8 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 			}
 		}
 
-		m_mainFrame.HighlightTab(m_hWnd, (m_nFlashes % 2) == 0);
-		if (++m_nFlashes == g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes * 2)
+		m_mainFrame.HighlightTab(m_hWnd, (m_dwFlashes % 2) == 0);
+		if (++m_dwFlashes == g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes * 2)
 		{
 			if (g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.bStayHighlighted)
 			{
@@ -1164,7 +1200,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		{
 			if ((g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && (!m_bFlashTimerRunning))
 			{
-				m_nFlashes = 0;
+				m_dwFlashes = 0;
 				m_bFlashTimerRunning = true;
 				SetTimer(FLASH_TAB_TIMER, 500);
 			}
@@ -1288,7 +1324,7 @@ void ConsoleView::CreateOffscreenBuffers()
 									m_consoleHandler.GetConsoleInfo(), 
 									m_consoleHandler.GetCopyInfo(),
 									m_nCharWidth, 
-									m_nCharHeight, RGB(255, 255, 255)));
+									m_nCharHeight));
 
 	// create and initialize cursor
 	CRect		rectCursor(0, 0, m_nCharWidth, m_nCharHeight);

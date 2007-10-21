@@ -54,6 +54,7 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_XBUTTONDOWN, OnMouseButton)
 			MESSAGE_HANDLER(WM_XBUTTONUP, OnMouseButton)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+			MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGEREQUEST, OnInputLangChangeRequest)
 			MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
@@ -77,6 +78,7 @@ class ConsoleView
 		LRESULT OnScrollCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -196,7 +198,7 @@ class ConsoleView
 		CriticalSection					m_activeCritSec;
 
 		bool							m_bFlashTimerRunning;
-		int								m_nFlashes;
+		DWORD							m_dwFlashes;
 
 // static members
 private:

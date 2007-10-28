@@ -169,6 +169,8 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 													0)),
 												::UnmapViewOfFile);
 
+	::ZeroMemory(m_pSharedMem.get(), m_dwSize * sizeof(T));
+
 	if (syncObjects > syncObjNone) CreateSyncObjects(syncObjects, strName);
 
 	//if (m_pSharedMem.get() == NULL) return false;

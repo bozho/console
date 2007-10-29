@@ -1096,6 +1096,8 @@ DWORD ConsoleHandler::MonitorThread()
 			case WAIT_OBJECT_0 + 6 :
 //			case WAIT_OBJECT_0 + 2 :
 				// something changed in the console
+				// this has to be the last event, since it's the most 
+				// frequent one
 				::Sleep(m_consoleParams->dwNotificationTimeout);
 			case WAIT_TIMEOUT :
 			{

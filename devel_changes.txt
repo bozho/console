@@ -1,6 +1,13 @@
 v2.00
 =====
 
+Build 134
+---------
+
+- [BR#1808717] attempt at fixing the disappearing text bug; this may fix some
+  other bugs
+
+
 Build 133
 ---------
 

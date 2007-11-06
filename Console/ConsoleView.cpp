@@ -1933,7 +1933,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 		}
 		else
 		{
-			// TransparentBlt seems to fail for small rectangles, so we blit entire window here
+			// TransparentBlt seems to fail for rectangles not completely on screen, so we blit entire client area here
 			m_dcOffscreen.TransparentBlt(
 							rectWindow.left, 
 							rectWindow.top, 
@@ -1946,23 +1946,6 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 							rectWindow.bottom, 
 							m_tabData->crBackgroundColor);
 		}
-
-/*
-		BOOL b = m_dcOffscreen.TransparentBlt(
-						dc.m_ps.rcPaint.left, 
-						dc.m_ps.rcPaint.top, 
-						dc.m_ps.rcPaint.right, 
-						dc.m_ps.rcPaint.bottom, 
-						m_dcText, 
-						dc.m_ps.rcPaint.left, 
-						dc.m_ps.rcPaint.top, 
-						dc.m_ps.rcPaint.right, 
-						dc.m_ps.rcPaint.bottom, 
-						m_tabData->crBackgroundColor);
-
-		TRACE(L"B: %i, %i\n", b ? 1 : 0, ::GetLastError());
-*/
-
 	}
 	else
 	{
@@ -1976,17 +1959,17 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 			blendFn.SourceConstantAlpha	= 255;
 			blendFn.AlphaFormat			= AC_SRC_ALPHA;
 
-			m_dcOffscreen.FillRect(rectBlit, m_backgroundBrush);
+			m_dcOffscreen.FillRect(rectWindow, m_backgroundBrush);
 			m_dcOffscreen.AlphaBlend(
-							rectBlit.left, 
-							rectBlit.top, 
-							rectBlit.right, 
-							rectBlit.bottom, 
+							rectWindow.left, 
+							rectWindow.top, 
+							rectWindow.right, 
+							rectWindow.bottom, 
 							m_dcText, 
-							rectBlit.left, 
-							rectBlit.top, 
-							rectBlit.right, 
-							rectBlit.bottom, 
+							rectWindow.left, 
+							rectWindow.top, 
+							rectWindow.right, 
+							rectWindow.bottom, 
 							blendFn);
 		}
 		else

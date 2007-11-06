@@ -19,8 +19,8 @@ class ConsoleView
 	: public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> >
 {
 	public:
-//		DECLARE_WND_CLASS(NULL)
-		DECLARE_WND_CLASS_EX(NULL, CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
+		DECLARE_WND_CLASS(NULL)
+//		DECLARE_WND_CLASS_EX(NULL, CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 
 		ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();

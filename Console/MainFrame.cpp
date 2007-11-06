@@ -1958,7 +1958,12 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	else
 	{
 		if (m_activeView.get() == NULL) return;
+		CRect maxClientRect;
+		m_activeView->GetMaxRect(maxClientRect);
 		m_activeView->GetRect(clientRect);
+
+		if (clientRect.Width() > maxClientRect.Width()) clientRect.right = maxClientRect.right;
+		if (clientRect.Height() > maxClientRect.Height()) clientRect.bottom = maxClientRect.bottom;
 	}
 
 	AdjustWindowRect(clientRect);

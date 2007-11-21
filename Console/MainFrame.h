@@ -21,7 +21,7 @@ class MainFrame
 	, public CIdleHandler
 {
 	public:
-		DECLARE_FRAME_WND_CLASS(NULL, IDR_MAINFRAME)
+		DECLARE_FRAME_WND_CLASS(L"Console_2_Main", IDR_MAINFRAME)
 
 		CCommandBarCtrl m_CmdBar;
 

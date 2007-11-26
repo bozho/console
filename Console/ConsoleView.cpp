@@ -1648,6 +1648,7 @@ void ConsoleView::RepaintText()
 	COLORREF	crBkColor	= RGB(0, 0, 0);
 	COLORREF	crTxtColor	= RGB(0, 0, 0);
 	
+	int			nCharWidths	= 0;
 	bool		bTextOut	= false;
 
 	wstring		strText(L"");
@@ -1671,6 +1672,7 @@ void ConsoleView::RepaintText()
 		crBkColor		= RGB(0, 0, 0);
 		crTxtColor		= RGB(0, 0, 0);
 		
+		nCharWidths		= 0;
 		bTextOut		= false;
 		
 		attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
@@ -1692,12 +1694,17 @@ void ConsoleView::RepaintText()
 		crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
 		m_dcText.SetTextColor(crTxtColor);
 
-		strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
+		strText		= m_screenBuffer[dwOffset].Char.UnicodeChar;
+		nCharWidths	= 1;
 		++dwOffset;
 
 		for (DWORD j = 1; j < consoleParams->dwColumns; ++j, ++dwOffset)
 		{
-			if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+			if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE)
+			{
+				++nCharWidths;
+				continue;
+			}
 			
 			attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
 
@@ -1733,28 +1740,34 @@ void ConsoleView::RepaintText()
 			{
 //				m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
 
-				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
+//				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
+				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*nCharWidths, dwY+m_nCharHeight);
 
-				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
-				dwX += static_cast<int>(strText.length() * m_nCharWidth);
+				m_dcText.ExtTextOut(dwX, dwY, 0, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
+//				dwX += static_cast<int>(strText.length() * m_nCharWidth);
+				dwX += static_cast<int>(nCharWidths * m_nCharWidth);
 
 				m_dcText.SetBkMode(nBkMode);
 				m_dcText.SetBkColor(crBkColor);
 				m_dcText.SetTextColor(crTxtColor);
 
-				strText = m_screenBuffer[dwOffset].Char.UnicodeChar;
+				strText		= m_screenBuffer[dwOffset].Char.UnicodeChar;
+				nCharWidths	= 1;
+				bTextOut	= false;
 			}
 			else
 			{
 				strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
+				++nCharWidths;
 			}
 		}
 
 		if (strText.length() > 0)
 		{
 //			m_dcText.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
-			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
-			m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
+//			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
+			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*nCharWidths, dwY+m_nCharHeight);
+			m_dcText.ExtTextOut(dwX, dwY, 0, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 		}
 	}
 }
@@ -1820,9 +1833,9 @@ void ConsoleView::RepaintTextChanges()
 				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
 //				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 
-				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth, dwY+m_nCharHeight);
+//				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth, dwY+m_nCharHeight);
 
-				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1, NULL);
+				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1, NULL);
 			}
 		}
 	}

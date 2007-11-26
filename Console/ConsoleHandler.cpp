@@ -255,6 +255,12 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId)
 	// TODO: max console size
 	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200, syncObjRequest);
 
+	// initialize buffer with spaces
+	CHAR_INFO ci;
+	ci.Attributes		= 0;
+	ci.Char.UnicodeChar	= L' ';
+	for (int i = 0; i < 200*200; ++i) ::CopyMemory(&m_consoleBuffer[i], &ci, sizeof(CHAR_INFO));
+
 	// copy info
 	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
 

@@ -113,8 +113,8 @@ void Helpers::GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rect
 
 HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bitmap)
 {
-	HBITMAP hBmp = bitmap.CreateCompatibleBitmap(dc, dwWidth, dwHeight);
-	if (hBmp != NULL) return hBmp;
+//	HBITMAP hBmp = bitmap.CreateCompatibleBitmap(dc, dwWidth, dwHeight);
+//	if (hBmp != NULL) return hBmp;
 
 	// failed to create compatible bitmap, fall back to DIB section...
 	BITMAPINFO	bmpInfo;

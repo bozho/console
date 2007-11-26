@@ -1,6 +1,18 @@
 v2.00
 =====
 
+Build 135
+---------
+
+- [internal] all bitmaps are now DIBs. Mixing DDBs and DIBs was causing 
+  problems with multiple monitors and relative backgrounds
+  
+- [internal] character buffer is initialized with spaces
+
+- [internal] fixed a problem with double-width characters (introduced when 
+  fixing ClearType artifacts)
+
+
 Build 134
 ---------
 

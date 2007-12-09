@@ -114,9 +114,6 @@ class ConsoleView
 		void ClearSelection();
 		void Paste();
 
-
-		CriticalSection& GetActiveCS() { return m_activeCritSec; }
-
 		void DumpBuffer();
 
 	private:
@@ -196,7 +193,8 @@ class ConsoleView
 
 		MouseSettings::Command			m_mouseCommand;
 
-		CriticalSection					m_activeCritSec;
+		Mutex							m_repaintMutex;
+		Mutex							m_activeMutex;
 
 		bool							m_bFlashTimerRunning;
 		DWORD							m_dwFlashes;

@@ -57,7 +57,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_cursor()
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
-, m_activeCritSec()
+, m_repaintMutex(NULL, FALSE, NULL)
+, m_activeMutex(NULL, FALSE, NULL)
 , m_bFlashTimerRunning(false)
 , m_dwFlashes(0)
 {
@@ -254,7 +255,7 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	{
-		CriticalSectionLock	lock(m_activeCritSec);
+		MutexLock	activeLock(m_activeMutex);
 		if (!m_bActive) return 0;
 	}
 
@@ -656,7 +657,7 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 	if (wParam == FLASH_TAB_TIMER)
 	{
 		{
-			CriticalSectionLock	lock(m_activeCritSec);
+			MutexLock	activeLock(m_activeMutex);
 			// if we got activated, kill timer
 			if (m_bActive)
 			{
@@ -683,7 +684,7 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 	}
 
 	{
-		CriticalSectionLock	lock(m_activeCritSec);
+		MutexLock activeLock(m_activeMutex);
 		if (!m_bActive) return 0;
 	}
 
@@ -987,7 +988,7 @@ void ConsoleView::RepaintView()
 void ConsoleView::SetActive(bool bActive)
 {
 	{
-		CriticalSectionLock	lock(m_activeCritSec);
+		MutexLock	activeLock(m_activeMutex);
 		m_bActive = bActive;
 		if (!m_bActive) return;
 	}
@@ -1178,7 +1179,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		InitializeScrollbars();
 
 		{
-			CriticalSectionLock	lock(m_activeCritSec);
+			MutexLock	activeLock(m_activeMutex);
 			if (m_bActive) RecreateOffscreenBuffers();
 		}
 
@@ -1195,7 +1196,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	
 	// if the view is not visible, don't repaint
 	{
-		CriticalSectionLock	lock(m_activeCritSec);
+		MutexLock	activeLock(m_activeMutex);
 		if (!m_bActive)
 		{
 			if ((g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && (!m_bFlashTimerRunning))
@@ -1267,6 +1268,8 @@ void ConsoleView::OnConsoleClose()
 
 void ConsoleView::CreateOffscreenBuffers()
 {
+	MutexLock	repaintLock(m_repaintMutex);
+	
 	CWindowDC	dcWindow(m_hWnd);
 	CRect		rectWindowMax;
 //	CRect		rectWindow;
@@ -1663,6 +1666,8 @@ void ConsoleView::RepaintText()
 			sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
 	}
 
+	MutexLock	repaintLock(m_repaintMutex);
+
 	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
 		dwX = stylesSettings.dwInsideBorder;
@@ -1793,6 +1798,7 @@ void ConsoleView::RepaintTextChanges()
 
 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
 	SharedMemoryLock			memLock(consoleBuffer);
+	MutexLock					repaintLock(m_repaintMutex);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{

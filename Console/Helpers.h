@@ -92,3 +92,53 @@ class CriticalSectionLock
 };
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+class Mutex
+{
+	public:
+		Mutex(SECURITY_ATTRIBUTES* pSecAttribs, BOOL bInitialOwner,	LPCTSTR pszName)
+		: m_mutex(::CreateMutex(pSecAttribs, bInitialOwner, pszName), ::CloseHandle)
+		{
+		}
+
+		HANDLE get()
+		{
+			return static_cast<HANDLE>(m_mutex.get());
+		}
+
+	private:
+
+		shared_ptr<void>	m_mutex;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+class MutexLock
+{
+	public:
+
+		explicit MutexLock(Mutex& mutex)
+		: m_mutex(mutex)
+		{
+			::WaitForSingleObject(m_mutex.get(), INFINITE);
+		}
+
+		~MutexLock()
+		{
+			::ReleaseMutex(m_mutex.get());
+		}
+
+	private:
+
+		Mutex&	m_mutex;
+};
+
+
+
+//////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,15 @@
 v2.00
 =====
 
+Build 137
+---------
+
+- [internal] (another) attempt at fix text repainting problems (many thans to
+  akirill for help)
+  
+- [BR#1848984] resizing Console will not flash inactive tabs
+
+
 Build 136
 ---------
 

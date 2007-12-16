@@ -57,7 +57,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_cursor()
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
-, m_repaintMutex(NULL, FALSE, NULL)
+, m_repaintSection()
 , m_activeMutex(NULL, FALSE, NULL)
 , m_bFlashTimerRunning(false)
 , m_dwFlashes(0)
@@ -963,6 +963,8 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 
 void ConsoleView::RecreateOffscreenBuffers()
 {
+	CriticalSectionLock	repaintLock(m_repaintSection);
+	
 	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
 	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
 	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
@@ -976,6 +978,8 @@ void ConsoleView::RecreateOffscreenBuffers()
 
 void ConsoleView::RepaintView()
 {
+	CriticalSectionLock	repaintLock(m_repaintSection);
+
 	RepaintText();
 	BitBltOffscreen();
 }
@@ -1199,7 +1203,9 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		MutexLock	activeLock(m_activeMutex);
 		if (!m_bActive)
 		{
-			if ((g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && (!m_bFlashTimerRunning))
+			if ((!bResize) && 
+				(g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && 
+				(!m_bFlashTimerRunning))
 			{
 				m_dwFlashes = 0;
 				m_bFlashTimerRunning = true;
@@ -1268,8 +1274,6 @@ void ConsoleView::OnConsoleClose()
 
 void ConsoleView::CreateOffscreenBuffers()
 {
-	MutexLock	repaintLock(m_repaintMutex);
-	
 	CWindowDC	dcWindow(m_hWnd);
 	CRect		rectWindowMax;
 //	CRect		rectWindow;
@@ -1606,6 +1610,8 @@ void ConsoleView::UpdateTitle()
 
 void ConsoleView::Repaint()
 {
+	CriticalSectionLock	repaintLock(m_repaintSection);
+
 	// repaint text layer
  	if (GetBufferDifference() > 15)
  	{
@@ -1665,8 +1671,6 @@ void ConsoleView::RepaintText()
 			consoleBuffer.Get(), 
 			sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
 	}
-
-	MutexLock	repaintLock(m_repaintMutex);
 
 	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
@@ -1798,7 +1802,6 @@ void ConsoleView::RepaintTextChanges()
 
 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
 	SharedMemoryLock			memLock(consoleBuffer);
-	MutexLock					repaintLock(m_repaintMutex);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{

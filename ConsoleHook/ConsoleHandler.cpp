@@ -966,7 +966,9 @@ DWORD ConsoleHandler::MonitorThread()
 	::SuspendThread(GetCurrentThread());
 
 	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
-	ReadConsoleBuffer();
+
+	// FIX: this seems to case problems on startup
+//	ReadConsoleBuffer();
 
 	HANDLE	arrWaitHandles[] =
 	{

@@ -766,8 +766,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2,0,0,136
- PRODUCTVERSION 2,0,0,136
+ FILEVERSION 2,0,0,137
+ PRODUCTVERSION 2,0,0,137
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -785,13 +785,13 @@ BEGIN
             VALUE "Comments", "Tabbed cool console window (THIS IS NOT A SHELL :-)"
             VALUE "CompanyName", "Ingenuity Unlimited Ltd."
             VALUE "FileDescription", "Main Console module"
-            VALUE "FileVersion", "2.00, Build 136 2007.12.09"
+            VALUE "FileVersion", "2.00, Build 137 2007.12.16"
             VALUE "InternalName", "Console"
             VALUE "LegalCopyright", "Copyright © 2001-2007 Marko Bozikovic"
             VALUE "LegalTrademarks", "Copyright © 2001-2007 Marko Bozikovic"
             VALUE "OriginalFilename", "Console.exe"
             VALUE "ProductName", "Console"
-            VALUE "ProductVersion", "2.00.00.136"
+            VALUE "ProductVersion", "2.00.00.137"
         END
     END
     BLOCK "VarFileInfo"

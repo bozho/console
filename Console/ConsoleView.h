@@ -193,7 +193,7 @@ class ConsoleView
 
 		MouseSettings::Command			m_mouseCommand;
 
-		Mutex							m_repaintMutex;
+		CriticalSection					m_repaintSection;
 		Mutex							m_activeMutex;
 
 		bool							m_bFlashTimerRunning;

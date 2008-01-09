@@ -172,3 +172,15 @@ void Trace(const wchar_t* pszFormat, ...);
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct CharInfo
+{
+	CharInfo()
+	: changed(false)
+	{
+		::ZeroMemory(&charInfo, sizeof(CHAR_INFO));
+	}
+
+	CHAR_INFO	charInfo;
+	bool		changed;
+};
+

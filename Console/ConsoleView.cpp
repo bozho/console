@@ -193,7 +193,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	if (!m_consoleHandler.StartShellProcess(
 								strShell, 
-								strInitialDir, 
+								strInitialDir,
 								m_strInitialCmd,
 								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 								m_dwStartupRows, 
@@ -218,8 +218,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	CreateOffscreenBuffers();
 
 	// TODO: put this in console size change handler
-	m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
-	::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
+	m_screenBuffer.reset(new CharInfo[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
+//	::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
 
 	m_consoleHandler.StartMonitorThread();
 
@@ -1148,7 +1148,7 @@ void ConsoleView::DumpBuffer()
 	{
 		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
 		{
-			strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
+			strText += m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
 			++dwOffset;
 		}
 
@@ -1173,6 +1173,9 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
+	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
+	DWORD							dwBufferSize	= consoleParams->dwRows * consoleParams->dwColumns;
+
 	// console size changed, resize offscreen buffers
 	if (bResize)
 	{
@@ -1188,12 +1191,30 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		}
 
 		// TODO: put this in console size change handler
-		m_screenBuffer.reset(new CHAR_INFO[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
-		::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
+		CriticalSectionLock repaintLock(m_repaintSection);
+		m_screenBuffer.reset(new CharInfo[dwBufferSize]);
+//		m_screenBuffer.reset(new CharInfo[consoleParams->dwRows*consoleParams->dwColumns]);
+//		::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
 
 		// notify parent about resize
 //		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 		m_mainFrame.PostMessage(UM_CONSOLE_RESIZED, 0, 0);
+	}
+
+	// copy changed data
+	{
+		SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+		SharedMemoryLock			memLock(consoleBuffer);
+		CriticalSectionLock			repaintLock(m_repaintSection);
+
+		for (DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
+		{
+			if (memcmp(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
+			{
+				memcpy(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
+				m_screenBuffer[dwOffset].changed = true;
+			}
+		}
 	}
 
 	UpdateTitle();
@@ -1562,15 +1583,16 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 DWORD ConsoleView::GetBufferDifference()
 {
-	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-	SharedMemoryLock			memLock(consoleBuffer);
+//	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+//	SharedMemoryLock			memLock(consoleBuffer);
 
 	DWORD dwCount				= m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns;
 	DWORD dwChangedPositions	= 0;
 
 	for (DWORD i = 0; i < dwCount; ++i)
 	{
-		if (consoleBuffer[i].Char.UnicodeChar != m_screenBuffer[i].Char.UnicodeChar) ++dwChangedPositions;
+//		if (consoleBuffer[i].Char.UnicodeChar != m_screenBuffer[i].Char.UnicodeChar) ++dwChangedPositions;
+		if (m_screenBuffer[i].changed) ++dwChangedPositions;
 	}
 
 	return dwChangedPositions*100/dwCount;
@@ -1662,15 +1684,15 @@ void ConsoleView::RepaintText()
 
 	wstring		strText(L"");
 
-	{
-		SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-		SharedMemoryLock			memLock(consoleBuffer);
-		
-		::CopyMemory(
-			m_screenBuffer.get(), 
-			consoleBuffer.Get(), 
-			sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
-	}
+//	{
+//		SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+//		SharedMemoryLock			memLock(consoleBuffer);
+//		
+//		::CopyMemory(
+//			m_screenBuffer.get(), 
+//			consoleBuffer.Get(), 
+//			sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
+//	}
 
 	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
@@ -1684,7 +1706,7 @@ void ConsoleView::RepaintText()
 		nCharWidths		= 0;
 		bTextOut		= false;
 		
-		attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
+		attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 		
 		// here we decide how to paint text over the background
 		if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
@@ -1700,22 +1722,25 @@ void ConsoleView::RepaintText()
 		m_dcText.SetBkMode(nBkMode);
 		m_dcText.SetBkColor(crBkColor);
 
-		crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+		crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
 		m_dcText.SetTextColor(crTxtColor);
 
-		strText		= m_screenBuffer[dwOffset].Char.UnicodeChar;
+		strText		= m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
+		m_screenBuffer[dwOffset].changed = false;
+
 		nCharWidths	= 1;
 		++dwOffset;
 
 		for (DWORD j = 1; j < consoleParams->dwColumns; ++j, ++dwOffset)
 		{
-			if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE)
+			if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE)
 			{
+				m_screenBuffer[dwOffset].changed = false;
 				++nCharWidths;
 				continue;
 			}
 			
-			attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
+			attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 
 			if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
 			{
@@ -1739,9 +1764,9 @@ void ConsoleView::RepaintText()
 				}
 			}
 
-			if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]))
+			if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]))
 			{
-				crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF];
+				crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
 				bTextOut = true;
 			}
 
@@ -1760,13 +1785,15 @@ void ConsoleView::RepaintText()
 				m_dcText.SetBkColor(crBkColor);
 				m_dcText.SetTextColor(crTxtColor);
 
-				strText		= m_screenBuffer[dwOffset].Char.UnicodeChar;
+				strText		= m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
+				m_screenBuffer[dwOffset].changed = false;
 				nCharWidths	= 1;
 				bTextOut	= false;
 			}
 			else
 			{
-				strText += m_screenBuffer[dwOffset].Char.UnicodeChar;
+				strText += m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
+				m_screenBuffer[dwOffset].changed = false;
 				++nCharWidths;
 			}
 		}
@@ -1800,8 +1827,8 @@ void ConsoleView::RepaintTextChanges()
 	
 	WORD	attrBG;
 
-	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-	SharedMemoryLock			memLock(consoleBuffer);
+//	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+//	SharedMemoryLock			memLock(consoleBuffer);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
@@ -1810,22 +1837,25 @@ void ConsoleView::RepaintTextChanges()
 
 		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{
-			if (memcmp(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
+//			if (memcmp(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
+			if (m_screenBuffer[dwOffset].changed)
 			{
-				memcpy(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
+//				memcpy(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
 
-				if (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+				m_screenBuffer[dwOffset].changed = false;
+
+				if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;
 
 				CRect rect;
 				rect.top	= dwY;
 				rect.left	= dwX;
 				rect.bottom	= dwY + m_nCharHeight;
 				// we have to erase two spaces for double-width characters
-				rect.right	= (m_screenBuffer[dwOffset].Attributes & COMMON_LVB_LEADING_BYTE) ? dwX + 2*m_nCharWidth : dwX + m_nCharWidth;
+				rect.right	= (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) ? dwX + 2*m_nCharWidth : dwX + m_nCharWidth;
 				
 				m_dcText.FillRect(&rect, m_backgroundBrush);
 
-				attrBG = (m_screenBuffer[dwOffset].Attributes & 0xFF) >> 4;
+				attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 
 				// here we decide how to paint text over the background
 				if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
@@ -1839,12 +1869,12 @@ void ConsoleView::RepaintTextChanges()
 				}
 				
 				m_dcText.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
-				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].Attributes & 0xF]);
+				m_dcText.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]);
 //				m_dcText.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1);
 
 //				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth, dwY+m_nCharHeight);
 
-				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, &(m_screenBuffer[dwOffset].Char.UnicodeChar), 1, NULL);
+				m_dcText.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, &(m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar), 1, NULL);
 			}
 		}
 	}

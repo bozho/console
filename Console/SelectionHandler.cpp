@@ -61,7 +61,7 @@ SelectionHandler::~SelectionHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CHAR_INFO> screenBuffer)
+void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CharInfo> screenBuffer)
 {
 	if (m_selectionState > selstateNoSelection) return;
 
@@ -85,7 +85,7 @@ void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelecti
 	if (nDeltaX < 0) nDeltaX = 0;
 	if (nDeltaY < 0) nDeltaY = 0;
 
- 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].Attributes & COMMON_LVB_LEADING_BYTE)
+ 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes & COMMON_LVB_LEADING_BYTE)
  	{
 		++m_coordCurrent.X;
 	}
@@ -98,7 +98,7 @@ void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelecti
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<CHAR_INFO> screenBuffer)
+void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<CharInfo> screenBuffer)
 {
 	if ((m_selectionState != selstateStartedSelecting) &&
 		(m_selectionState != selstateSelecting))
@@ -120,7 +120,7 @@ void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<C
 	if (nDeltaX < 0) nDeltaX = 0;
 	if (nDeltaY < 0) nDeltaY = 0;
 
- 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].Attributes & COMMON_LVB_LEADING_BYTE)
+ 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes & COMMON_LVB_LEADING_BYTE)
 	{
 		++m_coordCurrent.X;
 	}

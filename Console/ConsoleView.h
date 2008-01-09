@@ -177,7 +177,7 @@ class ConsoleView
 
 		ConsoleHandler					m_consoleHandler;
 
-		shared_array<CHAR_INFO>			m_screenBuffer;
+		shared_array<CharInfo>			m_screenBuffer;
 
 		ConsoleSettings&				m_consoleSettings;
 		AppearanceSettings&				m_appearanceSettings;

@@ -102,7 +102,7 @@ using namespace boost::multi_index;
 
 #define	VERSION_MAJOR	2
 #define	VERSION_MINOR	0
-#define	VERSION_BUILD	137
+#define	VERSION_BUILD	138
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -117,14 +117,15 @@ using namespace boost::multi_index;
 
 
 //////////////////////////////////////////////////////////////////////////////
-// User-defined message for notifying main window
+// User-defined messages
 
-#define UM_CONSOLE_RESIZED	WM_USER + 0x1000
-#define UM_CONSOLE_CLOSED	WM_USER + 0x1001
-#define UM_UPDATE_TITLES	WM_USER + 0x1002
-#define UM_SHOW_POPUP_MENU	WM_USER + 0x1003
-#define UM_START_MOUSE_DRAG	WM_USER + 0x1004
-#define UM_TRAY_NOTIFY		WM_USER + 0x1005
+#define UM_UPDATE_CONSOLE_VIEW	WM_USER + 0x1000
+#define UM_CONSOLE_RESIZED		WM_USER + 0x1001
+#define UM_CONSOLE_CLOSED		WM_USER + 0x1002
+#define UM_UPDATE_TITLES		WM_USER + 0x1003
+#define UM_SHOW_POPUP_MENU		WM_USER + 0x1004
+#define UM_START_MOUSE_DRAG		WM_USER + 0x1005
+#define UM_TRAY_NOTIFY			WM_USER + 0x1006
 
 #define IDC_TRAY_ICON		0x0001
 
@@ -171,16 +172,4 @@ void Trace(const wchar_t* pszFormat, ...);
 #endif // _DEBUG
 
 //////////////////////////////////////////////////////////////////////////////
-
-struct CharInfo
-{
-	CharInfo()
-	: changed(false)
-	{
-		::ZeroMemory(&charInfo, sizeof(CHAR_INFO));
-	}
-
-	CHAR_INFO	charInfo;
-	bool		changed;
-};
 

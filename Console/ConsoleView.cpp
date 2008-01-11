@@ -57,8 +57,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_cursor()
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
-, m_repaintSection()
-, m_activeMutex(NULL, FALSE, NULL)
+, m_bufferMutex(NULL, FALSE, NULL)
 , m_bFlashTimerRunning(false)
 , m_dwFlashes(0)
 {
@@ -254,10 +253,7 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	{
-		MutexLock	activeLock(m_activeMutex);
-		if (!m_bActive) return 0;
-	}
+	if (!m_bActive) return 0;
 
 	CPaintDC	dc(m_hWnd);
 
@@ -460,6 +456,8 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if ((*it)->action == mouseAction)
 			{
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
+
+				MutexLock bufferLock(m_bufferMutex);
 				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;
@@ -595,7 +593,11 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 			DoScroll(SB_VERT, SB_LINEDOWN, 0);
 		}
 
-		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+		{
+			MutexLock bufferLock(m_bufferMutex);
+			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+		}
+
 		BitBltOffscreen();
 	}
 	else if ((m_mouseCommand == MouseSettings::cmdNone) && 
@@ -656,16 +658,12 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 {
 	if (wParam == FLASH_TAB_TIMER)
 	{
+		// if we got activated, kill timer
+		if (m_bActive)
 		{
-			MutexLock	activeLock(m_activeMutex);
-			// if we got activated, kill timer
-			if (m_bActive)
-			{
-				KillTimer(FLASH_TAB_TIMER);
-				m_bFlashTimerRunning = false;
-//				m_mainFrame.HighlightTab(m_hWnd, false);
-				return 0;
-			}
+			KillTimer(FLASH_TAB_TIMER);
+			m_bFlashTimerRunning = false;
+			return 0;
 		}
 
 		m_mainFrame.HighlightTab(m_hWnd, (m_dwFlashes % 2) == 0);
@@ -683,10 +681,7 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 		return 0;
 	}
 
-	{
-		MutexLock activeLock(m_activeMutex);
-		if (!m_bActive) return 0;
-	}
+	if (!m_bActive) return 0;
 
 	if ((wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
 	{
@@ -739,6 +734,91 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 	// TODO: fix this
 	SendTextToConsole(strFilenames);
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	bool bResize = (wParam == 1);
+
+	// console size changed, resize offscreen buffers
+	if (bResize)
+	{
+/*
+		TRACE(L"================================================================\n");
+		TRACE(L"Resizing console wnd: 0x%08X\n", m_hWnd);
+*/
+		InitializeScrollbars();
+
+		if (m_bActive) RecreateOffscreenBuffers();
+
+		// notify parent about resize
+//		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
+		m_mainFrame.PostMessage(UM_CONSOLE_RESIZED, 0, 0);
+	}
+
+	UpdateTitle();
+	
+	// if the view is not visible, don't repaint
+	if (!m_bActive)
+	{
+		if ((!bResize) && 
+			(g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && 
+			(!m_bFlashTimerRunning))
+		{
+			m_dwFlashes = 0;
+			m_bFlashTimerRunning = true;
+			SetTimer(FLASH_TAB_TIMER, 500);
+		}
+		return 0;
+	}
+
+	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+
+	if (m_bShowVScroll)
+	{
+		SCROLLINFO si;
+		si.cbSize = sizeof(si); 
+		si.fMask  = SIF_POS; 
+		si.nPos   = consoleInfo->srWindow.Top; 
+		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+
+/*
+		TRACE(L"----------------------------------------------------------------\n");
+		TRACE(L"VScroll pos: %i\n", consoleInfo->srWindow.Top);
+*/
+	}
+
+	if (m_bShowHScroll)
+	{
+		SCROLLINFO si;
+		si.cbSize = sizeof(si); 
+		si.fMask  = SIF_POS; 
+		si.nPos   = consoleInfo->srWindow.Left; 
+		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
+	}
+
+	if ((m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) ||
+		(m_selectionHandler->GetState() == SelectionHandler::selstateSelecting))
+	{
+		CPoint	point;
+		::GetCursorPos(&point);
+		ScreenToClient(&point);
+
+		MutexLock bufferLock(m_bufferMutex);
+		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+	}
+	else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
+	{
+		m_selectionHandler->UpdateSelection();
+	}
+
+	Repaint();
 	return 0;
 }
 
@@ -963,8 +1043,6 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 
 void ConsoleView::RecreateOffscreenBuffers()
 {
-	CriticalSectionLock	repaintLock(m_repaintSection);
-	
 	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
 	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
 	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
@@ -978,8 +1056,6 @@ void ConsoleView::RecreateOffscreenBuffers()
 
 void ConsoleView::RepaintView()
 {
-	CriticalSectionLock	repaintLock(m_repaintSection);
-
 	RepaintText();
 	BitBltOffscreen();
 }
@@ -991,11 +1067,8 @@ void ConsoleView::RepaintView()
 
 void ConsoleView::SetActive(bool bActive)
 {
-	{
-		MutexLock	activeLock(m_activeMutex);
-		m_bActive = bActive;
-		if (!m_bActive) return;
-	}
+	m_bActive = bActive;
+	if (!m_bActive) return;
 
 	RepaintView();
 	UpdateTitle();
@@ -1008,31 +1081,6 @@ void ConsoleView::SetActive(bool bActive)
 
 void ConsoleView::SetTitle(const CString& strTitle)
 {
-/*
-	if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle)
-	{
-		// if we're using console titles, update it
-		CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
-		consoleWnd.SetWindowText(strTitle);
-
-		m_strTitle = strTitle;
-	}
-	else
-	{
-		// we're not using console window title, parse the command part
-		int		nPos = m_strTitle.Find(L'-');
-
-		if (nPos == -1)
-		{
-			m_strTitle = strTitle;
-		}
-		else
-		{
-			m_strTitle = strTitle + m_strTitle.Right(m_strTitle.GetLength() - nPos + 1);
-		}
-	}
-*/
-
 	m_strTitle = strTitle;
 	SetWindowText(m_strTitle);
 }
@@ -1073,9 +1121,6 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 	{
 		return;
 	}
-
-// 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-// 	SharedMemoryLock			memLock(consoleBuffer);
 
 	bool bCopied = false;
 
@@ -1123,7 +1168,7 @@ void ConsoleView::Paste()
 	SharedMemory<UINT_PTR>&	pasteInfo = m_consoleHandler.GetPasteInfo();
 
 	{
-		SharedMemoryLock		memLock(pasteInfo);
+		SharedMemoryLock memLock(pasteInfo);
 
 		pasteInfo = 0;
 		pasteInfo.SetReqEvent();
@@ -1142,7 +1187,8 @@ void ConsoleView::Paste()
 void ConsoleView::DumpBuffer()
 {
 	wstring		strText(L"");
-	DWORD dwOffset		= 0;
+	DWORD		dwOffset = 0;
+	MutexLock	bufferLock(m_bufferMutex);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
@@ -1176,106 +1222,28 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 	DWORD							dwBufferSize	= consoleParams->dwRows * consoleParams->dwColumns;
 
-	// console size changed, resize offscreen buffers
+	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+
+	SharedMemoryLock	sharedBufferLock(consoleBuffer);
+	MutexLock			localBufferLock(m_bufferMutex);
+
+	// console size changed, resize local buffer
 	if (bResize)
 	{
-/*
-		TRACE(L"================================================================\n");
-		TRACE(L"Resizing console wnd: 0x%08X\n", m_hWnd);
-*/
-		InitializeScrollbars();
-
-		{
-			MutexLock	activeLock(m_activeMutex);
-			if (m_bActive) RecreateOffscreenBuffers();
-		}
-
-		// TODO: put this in console size change handler
-		CriticalSectionLock repaintLock(m_repaintSection);
 		m_screenBuffer.reset(new CharInfo[dwBufferSize]);
-//		m_screenBuffer.reset(new CharInfo[consoleParams->dwRows*consoleParams->dwColumns]);
-//		::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
-
-		// notify parent about resize
-//		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
-		m_mainFrame.PostMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
 	// copy changed data
+	for (DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
 	{
-		SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-		SharedMemoryLock			memLock(consoleBuffer);
-		CriticalSectionLock			repaintLock(m_repaintSection);
-
-		for (DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
+		if (memcmp(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
 		{
-			if (memcmp(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
-			{
-				memcpy(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
-				m_screenBuffer[dwOffset].changed = true;
-			}
+			memcpy(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
+			m_screenBuffer[dwOffset].changed = true;
 		}
 	}
 
-	UpdateTitle();
-	
-	// if the view is not visible, don't repaint
-	{
-		MutexLock	activeLock(m_activeMutex);
-		if (!m_bActive)
-		{
-			if ((!bResize) && 
-				(g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && 
-				(!m_bFlashTimerRunning))
-			{
-				m_dwFlashes = 0;
-				m_bFlashTimerRunning = true;
-				SetTimer(FLASH_TAB_TIMER, 500);
-			}
-			return;
-		}
-	}
-
-	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
-
-	if (m_bShowVScroll)
-	{
-		SCROLLINFO si;
-		si.cbSize = sizeof(si); 
-		si.fMask  = SIF_POS; 
-		si.nPos   = consoleInfo->srWindow.Top; 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
-
-/*
-		TRACE(L"----------------------------------------------------------------\n");
-		TRACE(L"VScroll pos: %i\n", consoleInfo->srWindow.Top);
-*/
-	}
-
-	if (m_bShowHScroll)
-	{
-		SCROLLINFO si;
-		si.cbSize = sizeof(si); 
-		si.fMask  = SIF_POS; 
-		si.nPos   = consoleInfo->srWindow.Left; 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
-	}
-
-	if ((m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) ||
-		(m_selectionHandler->GetState() == SelectionHandler::selstateSelecting))
-	{
-		CPoint	point;
-		::GetCursorPos(&point);
-		ScreenToClient(&point);
-
-		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
-	}
-	else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
-	{
-		m_selectionHandler->UpdateSelection();
-	}
-
-	Repaint();
+	PostMessage(UM_UPDATE_CONSOLE_VIEW, bResize ? 1 : 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1377,7 +1345,6 @@ void ConsoleView::CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& 
 	if (!bitmap.IsNull()) return;// bitmap.DeleteObject();
 
 	Helpers::CreateBitmap(dcWindow, rect.Width(), rect.Height(), bitmap);
-//	bitmap.CreateCompatibleBitmap(dcWindow, rect.right, rect.bottom);
 	cdc.SelectBitmap(bitmap);
 }
 
@@ -1484,20 +1451,6 @@ void ConsoleView::InitializeScrollbars()
 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE) ;
 	}
-
-/*
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, FSB_FLAT_MODE, TRUE);
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CXVSCROLL , 5, TRUE);
-*/
-
-/*
-	// set scrollbar properties
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, m_nScrollbarStyle, FALSE);
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VBKGCOLOR, m_crScrollbarColor, FALSE);
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CXVSCROLL , m_nScrollbarWidth, FALSE);
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CYVSCROLL, m_nScrollbarButtonHeight, FALSE);
-	::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_CYVTHUMB, m_nScrollbarThunmbHeight, TRUE);
-*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1583,15 +1536,12 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 DWORD ConsoleView::GetBufferDifference()
 {
-//	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-//	SharedMemoryLock			memLock(consoleBuffer);
-
-	DWORD dwCount				= m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns;
-	DWORD dwChangedPositions	= 0;
+	DWORD		dwCount				= m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns;
+	DWORD		dwChangedPositions	= 0;
+	MutexLock	bufferLock(m_bufferMutex);
 
 	for (DWORD i = 0; i < dwCount; ++i)
 	{
-//		if (consoleBuffer[i].Char.UnicodeChar != m_screenBuffer[i].Char.UnicodeChar) ++dwChangedPositions;
 		if (m_screenBuffer[i].changed) ++dwChangedPositions;
 	}
 
@@ -1632,8 +1582,6 @@ void ConsoleView::UpdateTitle()
 
 void ConsoleView::Repaint()
 {
-	CriticalSectionLock	repaintLock(m_repaintSection);
-
 	// repaint text layer
  	if (GetBufferDifference() > 15)
  	{
@@ -1667,6 +1615,7 @@ void ConsoleView::RepaintText()
 	
 	StylesSettings&					stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
+	MutexLock						bufferLock(m_bufferMutex);
 
 	DWORD dwX			= stylesSettings.dwInsideBorder;
 	DWORD dwY			= stylesSettings.dwInsideBorder;
@@ -1683,16 +1632,6 @@ void ConsoleView::RepaintText()
 	bool		bTextOut	= false;
 
 	wstring		strText(L"");
-
-//	{
-//		SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-//		SharedMemoryLock			memLock(consoleBuffer);
-//		
-//		::CopyMemory(
-//			m_screenBuffer.get(), 
-//			consoleBuffer.Get(), 
-//			sizeof(CHAR_INFO) * consoleParams->dwRows * consoleParams->dwColumns);
-//	}
 
 	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
@@ -1827,8 +1766,7 @@ void ConsoleView::RepaintTextChanges()
 	
 	WORD	attrBG;
 
-//	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-//	SharedMemoryLock			memLock(consoleBuffer);
+	MutexLock bufferLock(m_bufferMutex);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
@@ -1837,11 +1775,8 @@ void ConsoleView::RepaintTextChanges()
 
 		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{
-//			if (memcmp(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
 			if (m_screenBuffer[dwOffset].changed)
 			{
-//				memcpy(&(m_screenBuffer[dwOffset]), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
-
 				m_screenBuffer[dwOffset].changed = false;
 
 				if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;

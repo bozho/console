@@ -228,7 +228,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 		(m_dwScreenBufferSize != dwScreenBufferSize) ||
 		(::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0))
 	{
-		SharedMemoryLock memLock(m_consoleBuffer);
+		SharedMemoryLock bufferLock(m_consoleBuffer);
 
 		// update screen buffer variables
 		m_dwScreenBufferSize = dwScreenBufferSize;

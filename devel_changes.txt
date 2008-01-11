@@ -1,11 +1,18 @@
 v2.00
 =====
 
+Build 138
+---------
+
+- [internal] (yet another) attempt at fixing text repainting - moved all GDI
+  calls to the main thread
+
+
 Build 137
 ---------
 
-- [internal] (another) attempt at fix text repainting problems (many thans to
-  akirill for help)
+- [internal] (another) attempt at fixing text repainting problems (many thans
+  to akirill for help)
   
 - [BR#1848984] resizing Console will not flash inactive tabs
 

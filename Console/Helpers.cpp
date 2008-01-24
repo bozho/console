@@ -132,7 +132,7 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 	bmpInfo.bmiHeader.biSizeImage	= 0;//dwBytesPerLine*bkImage->dwImageHeight;
 
 
-	return bitmap.CreateDIBSection(dc, &bmpInfo, BI_RGB, &pBits, NULL, 0);
+	return bitmap.CreateDIBSection(dc, &bmpInfo, DIB_RGB_COLORS, &pBits, NULL, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////

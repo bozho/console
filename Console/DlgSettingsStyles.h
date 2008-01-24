@@ -26,6 +26,7 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar)
 			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs)
 			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_nHideSingleTab)
+			DDX_CHECK(IDC_CHECK_SHOW_SCROLLBARS, m_nShowScrollbars)
 			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption)
 			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable)
 			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder)
@@ -82,6 +83,7 @@ class DlgSettingsStyles
 		int							m_nShowStatusbar;
 		int							m_nShowTabs;
 		int							m_nHideSingleTab;
+		int							m_nShowScrollbars;
 
 		int							m_nShowCaption;
 		int							m_nResizable;

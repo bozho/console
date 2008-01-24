@@ -120,6 +120,8 @@
 #define IDC_CHECK_HIDE_SINGLE_TAB       1092
 #define IDC_CHECK_STYLE_TRAY            1093
 #define IDC_POS_Y                       1094
+#define IDC_CHECK_HIDE_SCROLLBARS       1094
+#define IDC_CHECK_SHOW_SCROLLBARS       1094
 #define IDC_RADIO_DOCK_NONE             1095
 #define IDC_RADIO_DOCK_TL               1096
 #define IDC_RADIO_DOCK_TR               1097

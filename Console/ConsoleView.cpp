@@ -744,6 +744,8 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	if (m_bInitializing) return false;
+
 	bool bResize = (wParam == 1);
 
 	// console size changed, resize offscreen buffers
@@ -758,8 +760,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		if (m_bActive) RecreateOffscreenBuffers();
 
 		// notify parent about resize
-//		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
-		m_mainFrame.PostMessage(UM_CONSOLE_RESIZED, 0, 0);
+		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
 	UpdateTitle();
@@ -1294,7 +1295,7 @@ void ConsoleView::CreateOffscreenBuffers()
 
 	// get max window rect based on font and console size
 	GetMaxRect(rectWindowMax);
-//	GetWindowRect(&rectWindow);
+//	GetWindowRect(&rectWindowMax);
 
 	// create offscreen bitmaps
 	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
@@ -1409,14 +1410,14 @@ void ConsoleView::InitializeScrollbars()
 {
 	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
 
- 	m_bShowVScroll = consoleParams->dwBufferRows > consoleParams->dwRows;
- 	m_bShowHScroll = consoleParams->dwBufferColumns > consoleParams->dwColumns;
+ 	m_bShowVScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows);
+ 	m_bShowHScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
 
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
 	::InitializeFlatSB(m_hWnd);
 
-	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
-	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
+  	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
+  	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
 
 /*
 	TRACE(L"InitializeScrollbars, console wnd: 0x%08X\n", m_hWnd);
@@ -1424,7 +1425,7 @@ void ConsoleView::InitializeScrollbars()
 	TRACE(L"----------------------------------------------------------------\n");
 */
 
-	if (m_bShowVScroll)
+	if (consoleParams->dwBufferRows > consoleParams->dwRows)
 	{
 		// set vertical scrollbar stuff
 		SCROLLINFO	si ;
@@ -1435,10 +1436,10 @@ void ConsoleView::InitializeScrollbars()
 		si.nMax		= consoleParams->dwBufferRows - 1;
 		si.nMin		= 0 ;
 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+		::FlatSB_SetScrollInfo(m_hWnd, m_appearanceSettings.controlsSettings.bShowScrollbars ? SB_VERT : SB_CTL, &si, TRUE);
 	}
 
-	if (m_bShowHScroll)
+	if (consoleParams->dwBufferColumns > consoleParams->dwColumns)
 	{
 		// set vertical scrollbar stuff
 		SCROLLINFO	si ;
@@ -1449,7 +1450,7 @@ void ConsoleView::InitializeScrollbars()
 		si.nMax		= consoleParams->dwBufferColumns - 1;
 		si.nMin		= 0 ;
 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE) ;
+		::FlatSB_SetScrollInfo(m_hWnd, m_appearanceSettings.controlsSettings.bShowScrollbars ? SB_HORZ : SB_CTL, &si, TRUE);
 	}
 }
 

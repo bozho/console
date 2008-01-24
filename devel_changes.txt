@@ -1,6 +1,12 @@
 v2.00
 =====
 
+Build 139
+---------
+
+- [FR#1529565] scrollbars can be hidden now
+
+
 Build 138
 ---------
 

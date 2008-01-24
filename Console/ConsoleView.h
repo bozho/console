@@ -124,6 +124,7 @@ class ConsoleView
 		void Paste();
 
 		void DumpBuffer();
+		void InitializeScrollbars();
 
 	private:
 
@@ -134,7 +135,6 @@ class ConsoleView
 		void CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap);
 		bool CreateFont(const wstring& strFontName);
 
-		void InitializeScrollbars();
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
 		DWORD GetBufferDifference();

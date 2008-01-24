@@ -421,8 +421,10 @@ BEGIN
                     BS_AUTOCHECKBOX | WS_TABSTOP,10,36,68,10
     CONTROL         "Show t&abs",IDC_CHECK_SHOW_TABS,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,10,48,49,10
-    CONTROL         "Hide single tab",IDC_CHECK_HIDE_SINGLE_TAB,"Button",
+    CONTROL         "Hide &single tab",IDC_CHECK_HIDE_SINGLE_TAB,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,22,60,59,10
+    CONTROL         "Show scro&llbars",IDC_CHECK_SHOW_SCROLLBARS,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,10,73,72,10
     GROUPBOX        "Controls",IDC_STATIC,0,0,88,92
     CONTROL         "&Caption *",IDC_CHECK_STYLE_CAPTION,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,102,12,47,10
@@ -711,6 +713,11 @@ BEGIN
         HORZGUIDE, 75
         HORZGUIDE, 90
         HORZGUIDE, 100
+    END
+
+    IDD_SETTINGS_STYLES, DIALOG
+    BEGIN
+        VERTGUIDE, 10
     END
 
     IDD_SETTINGS_TEMP, DIALOG

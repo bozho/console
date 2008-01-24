@@ -1225,6 +1225,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
+		m_activeView->InitializeScrollbars();
 		m_activeView->RecreateOffscreenBuffers();
 		AdjustWindowSize(false);
 		m_activeView->RepaintView();

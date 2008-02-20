@@ -33,6 +33,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_strInitialCmd(strInitialCmd)
 , m_strDbgCmdLine(strDbgCmdLine)
 , m_bInitializing(true)
+, m_bResizing(false)
 , m_bAppActive(true)
 , m_bActive(true)
 , m_bUseTextAlphaBlend(false)
@@ -243,7 +244,7 @@ LRESULT ConsoleView::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	return 0;
+	return 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -263,6 +264,14 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 		UpdateOffscreen(dc.m_ps.rcPaint);
 	}
 
+	// this is the best way I know how to detect if the window is being 
+	// repainted while sizing
+	// the flag is set in MainFrame::OnSizing and MainFrame::OnExitSizeMove
+	if (m_bResizing)
+	{
+		dc.FillRect(&dc.m_ps.rcPaint, m_backgroundBrush);
+	}
+	
 	dc.BitBlt(
 		dc.m_ps.rcPaint.left, 
 		dc.m_ps.rcPaint.top, 
@@ -1045,6 +1054,7 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 void ConsoleView::RecreateOffscreenBuffers()
 {
 	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
+	if (!m_backgroundBrush.IsNull())m_backgroundBrush.DeleteObject();
 	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
 	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
 	CreateOffscreenBuffers();
@@ -1059,6 +1069,16 @@ void ConsoleView::RepaintView()
 {
 	RepaintText();
 	BitBltOffscreen();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::SetResizing(bool bResizing)
+{
+	m_bResizing = bResizing;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1295,14 +1315,13 @@ void ConsoleView::CreateOffscreenBuffers()
 
 	// get max window rect based on font and console size
 	GetMaxRect(rectWindowMax);
-//	GetWindowRect(&rectWindowMax);
+	GetRect(rectWindowMax);
 
-	// create offscreen bitmaps
-	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
-	CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
+	// create offscreen bitmaps if needed
+	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
+	if (m_bmpText.IsNull()) CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
 
 	// create background brush
-	if (!m_backgroundBrush.IsNull()) m_backgroundBrush.DeleteObject();
 	m_backgroundBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
 
 	// initial offscreen paint
@@ -1862,7 +1881,8 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 {
 	CRect	rectWindow;
-	GetClientRect(&rectWindow);
+//	GetClientRect(&rectWindow);
+	GetRect(rectWindow);
 
 	if (m_tabData->backgroundImageType != bktypeNone)
 	{
@@ -1882,7 +1902,6 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 							rectBlit.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
 							rectBlit.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
 							SRCCOPY);
-
 		}
 		else
 		{

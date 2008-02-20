@@ -467,6 +467,8 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	if (m_activeView.get() != NULL) m_activeView->SetResizing(true);
+
 	m_dwResizeWindowEdge = static_cast<DWORD>(wParam);
 	return 0;
 }
@@ -557,11 +559,11 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		}
 
 
-		// only for relative backgrounds
 		if (m_activeView.get() != NULL)
 		{
 			shared_ptr<TabData> tabData = m_activeView->GetTabData();
 
+			// only for relative backgrounds
 			if (tabData->imageData.bRelative)
 			{
 				CRect rectClient;
@@ -651,6 +653,8 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 	SendMessage(WM_NULL, 0, 0);
 	m_dwResizeWindowEdge = WMSZ_BOTTOM;
+
+	if (m_activeView.get() != NULL) m_activeView->SetResizing(false);
 
 	return 0;
 }

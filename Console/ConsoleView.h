@@ -112,6 +112,7 @@ class ConsoleView
 		void RecreateOffscreenBuffers();
 		void RepaintView();
 
+		void SetResizing(bool bResizing);
 		void SetActive(bool bActive);
 		void SetTitle(const CString& strTitle);
 
@@ -165,6 +166,7 @@ class ConsoleView
 		wstring	m_strDbgCmdLine;
 
 		bool	m_bInitializing;
+		bool	m_bResizing;
 		bool	m_bAppActive;
 		bool	m_bActive;
 		bool	m_bUseTextAlphaBlend;

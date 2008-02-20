@@ -6,6 +6,8 @@ Build 139
 
 - [FR#1529565] scrollbars can be hidden now
 
+- [BR#1876652] redone painting a bit, memory usage lower
+
 
 Build 138
 ---------

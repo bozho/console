@@ -1,33 +1,31 @@
-Microsoft Visual Studio Solution File, Format Version 8.00
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleHook", "ConsoleHook\ConsoleHook.vcproj", "{69234D74-7133-48FF-8DDB-9901FFC4D7FF}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Console\Console.vcproj", "{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
-	ProjectSection(ProjectDependencies) = postProject
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DA1A8A1D-90C0-49B9-A9B2-DF2C574F19E6}"
+	ProjectSection(SolutionItems) = preProject
+		setup\console.iss = setup\console.iss
+		devel_changes.txt = devel_changes.txt
 	EndProjectSection
 EndProject
 Global
-	GlobalSection(SolutionConfiguration) = preSolution
-		Debug = Debug
-		Release = Release
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
 	EndGlobalSection
-	GlobalSection(ProjectConfiguration) = postSolution
-		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Debug.ActiveCfg = Debug|Win32
-		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Debug.Build.0 = Debug|Win32
-		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Release.ActiveCfg = Release|Win32
-		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Release.Build.0 = Release|Win32
-		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Debug.ActiveCfg = Debug|Win32
-		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Debug.Build.0 = Debug|Win32
-		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release.ActiveCfg = Release|Win32
-		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release.Build.0 = Release|Win32
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Debug|Win32.Build.0 = Debug|Win32
+		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Release|Win32.ActiveCfg = Release|Win32
+		{69234D74-7133-48FF-8DDB-9901FFC4D7FF}.Release|Win32.Build.0 = Release|Win32
+		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Debug|Win32.Build.0 = Debug|Win32
+		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release|Win32.ActiveCfg = Release|Win32
+		{6EA5C354-A242-49F3-88D1-559EACA7FB8A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
-	GlobalSection(SolutionItems) = postSolution
-		setup\console.iss = setup\console.iss
-		devel_changes.txt = devel_changes.txt
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-	EndGlobalSection
-	GlobalSection(ExtensibilityAddIns) = postSolution
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal

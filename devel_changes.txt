@@ -1,6 +1,17 @@
 v2.00
 =====
 
+Build 140
+---------
+
+- [BR#1919569] attempt at fixing problems with invisible GUI apps started from Console
+  (this solution does cause console window's taskbar button to flash briefly)
+  
+- upgraded to Visual Studio 2008
+
+- updated several function calls that got 'depreciated' warnings when built with VS 2008
+
+
 Build 139
 ---------
 

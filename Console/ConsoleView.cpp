@@ -1031,6 +1031,14 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
 void ConsoleView::SetConsoleWindowVisible(bool bVisible)
 {
 	m_bConsoleWindowVisible = bVisible;
+
+	if (bVisible)
+	{
+		CPoint point;
+		::GetCursorPos(&point);
+		::SetWindowPos(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, NULL, point.x, point.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+	}
+
 	::ShowWindow(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, bVisible ? SW_SHOW : SW_HIDE);
 }
 
@@ -1318,8 +1326,8 @@ void ConsoleView::CreateOffscreenBuffers()
 	GetRect(rectWindowMax);
 
 	// create offscreen bitmaps if needed
-	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcOffscreen, m_bmpOffscreen);
-	if (m_bmpText.IsNull()) CreateOffscreenBitmap(dcWindow, rectWindowMax, m_dcText, m_bmpText);
+	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(m_dcOffscreen, rectWindowMax, m_bmpOffscreen);
+	if (m_bmpText.IsNull()) CreateOffscreenBitmap(m_dcText, rectWindowMax, m_bmpText);
 
 	// create background brush
 	m_backgroundBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
@@ -1360,11 +1368,11 @@ void ConsoleView::CreateOffscreenBuffers()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap)
+void ConsoleView::CreateOffscreenBitmap(CDC& cdc, const CRect& rect, CBitmap& bitmap)
 {
 	if (!bitmap.IsNull()) return;// bitmap.DeleteObject();
 
-	Helpers::CreateBitmap(dcWindow, rect.Width(), rect.Height(), bitmap);
+	Helpers::CreateBitmap(cdc, rect.Width(), rect.Height(), bitmap);
 	cdc.SelectBitmap(bitmap);
 }
 

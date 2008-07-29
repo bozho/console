@@ -133,7 +133,7 @@ class ConsoleView
 		void OnConsoleClose();
 
 		void CreateOffscreenBuffers();
-		void CreateOffscreenBitmap(const CWindowDC& dcWindow, const CRect& rect, CDC& cdc, CBitmap& bitmap);
+		void CreateOffscreenBitmap(CDC& cdc, const CRect& rect, CBitmap& bitmap);
 		bool CreateFont(const wstring& strFontName);
 
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);

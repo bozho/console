@@ -21,6 +21,8 @@
 #define _WTL_NO_CSTRING
 #define _WTL_NO_WTYPES
 
+#pragma warning(push)
+#pragma warning(disable: 4996)
 #include <atlapp.h>
 
 extern CAppModule _Module;
@@ -35,6 +37,7 @@ extern CAppModule _Module;
 #include <atlctrlw.h>
 #include <atlctrlx.h>
 #include <atltheme.h>
+#pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)

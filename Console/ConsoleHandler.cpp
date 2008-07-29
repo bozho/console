@@ -123,10 +123,19 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	// setup the startup info struct
 	STARTUPINFO si;
 	::ZeroMemory(&si, sizeof(STARTUPINFO));
-	si.dwFlags		= STARTF_USESHOWWINDOW;
+	// we don't use wShowWindow member to hide to console window, since this causes
+	// problems with some GUI apps started from Console that use SW_SHOWDEFAULT to 
+	// initially show their main window (i.e. the window inherits our SW_HIDE flag and 
+	// remains invisible :-)
+	//
+	// This approach can flash console window's taskbar button, but nothing is perfect :)
+//	si.dwFlags		= STARTF_USESHOWWINDOW;
+	si.dwFlags		= STARTF_USEPOSITION;
 	si.cb			= sizeof(STARTUPINFO);
 	si.wShowWindow	= SW_HIDE;
 	si.lpTitle		= const_cast<wchar_t*>(strStartupTitle.c_str());
+	si.dwX			= 0x7FFF;
+	si.dwY			= 0x7FFF;
 
 	PROCESS_INFORMATION pi;
 	DWORD				dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED;
@@ -173,6 +182,8 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	// wait for hook DLL to set console handle
 	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT) return false;
+
+	::ShowWindow(m_consoleParams->hwndConsoleWindow, SW_HIDE);
 
 	return true;
 }

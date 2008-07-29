@@ -1,138 +1,197 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="Console"
 	ProjectGUID="{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
-	SccProjectName=""
-	SccAuxPath=""
-	SccLocalPath=""
-	SccProvider="">
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\bin\Debug"
 			IntermediateDirectory="..\obj\Console\Debug"
 			ConfigurationType="1"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="1">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/Console.tlb"
+				HeaderFileName="Console.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="Console_i.c"
+				ProxyFileName="Console_p.c"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200"
 				Optimization="0"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
-				MinimalRebuild="FALSE"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib"
 				LinkIncremental="2"
 				DelayLoadDLLs="uxtheme.dll"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				SubSystem="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="FALSE"
-				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(IntDir)/Console.tlb"
-				HeaderFileName="Console.h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="Console_i.c"
-				ProxyFileName="Console_p.c"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\bin\Release"
 			IntermediateDirectory="..\obj\Console\Release"
 			ConfigurationType="1"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE"
-			CharacterSet="1">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="false"
+				TargetEnvironment="1"
+				GenerateStublessProxies="true"
+				TypeLibraryName="$(IntDir)/Console.tlb"
+				HeaderFileName="Console.h"
+				DLLDataFileName=""
+				InterfaceIdentifierFileName="Console_i.c"
+				ProxyFileName="Console_p.c"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
-				ExceptionHandling="TRUE"
+				ExceptionHandling="1"
 				RuntimeLibrary="2"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="4"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="0"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="0"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="$(IntDir)"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib"
 				LinkIncremental="1"
 				DelayLoadDLLs="uxtheme.dll"
 				SubSystem="2"
-				TargetMachine="1"/>
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="FALSE"
-				TargetEnvironment="1"
-				GenerateStublessProxies="TRUE"
-				TypeLibraryName="$(IntDir)/Console.tlb"
-				HeaderFileName="Console.h"
-				DLLDataFileName=""
-				InterfaceIdentifierFileName="Console_i.c"
-				ProxyFileName="Console_p.c"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -140,287 +199,376 @@
 	<Files>
 		<Filter
 			Name="Source Files"
-			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm">
+			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
+			>
 			<File
-				RelativePath=".\AboutDlg.cpp">
+				RelativePath=".\AboutDlg.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\Console.cpp">
+				RelativePath=".\Console.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ConsoleHandler.cpp">
+				RelativePath=".\ConsoleHandler.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ConsoleView.cpp">
+				RelativePath=".\ConsoleView.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\Cursors.cpp">
+				RelativePath=".\Cursors.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgRenameTab.cpp">
+				RelativePath=".\DlgRenameTab.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsAppearance.cpp">
+				RelativePath=".\DlgSettingsAppearance.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsBehavior.cpp">
+				RelativePath=".\DlgSettingsBehavior.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsConsole.cpp">
+				RelativePath=".\DlgSettingsConsole.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsHotkeys.cpp">
+				RelativePath=".\DlgSettingsHotkeys.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsMain.cpp">
+				RelativePath=".\DlgSettingsMain.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsMouse.cpp">
+				RelativePath=".\DlgSettingsMouse.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsStyles.cpp">
+				RelativePath=".\DlgSettingsStyles.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsTabs.cpp">
+				RelativePath=".\DlgSettingsTabs.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\Helpers.cpp">
+				RelativePath=".\Helpers.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\ImageHandler.cpp">
+				RelativePath=".\ImageHandler.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\MainFrame.cpp">
+				RelativePath=".\MainFrame.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\PageSettingsTabs1.cpp">
+				RelativePath=".\PageSettingsTabs1.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\PageSettingsTabs2.cpp">
+				RelativePath=".\PageSettingsTabs2.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SelectionHandler.cpp">
+				RelativePath=".\SelectionHandler.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\SettingsHandler.cpp">
+				RelativePath=".\SettingsHandler.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\stdafx.cpp">
+				RelativePath=".\stdafx.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
+						UsePrecompiledHeader="1"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\XmlHelper.cpp">
+				RelativePath=".\XmlHelper.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc">
+			Filter="h;hpp;hxx;hm;inl;inc"
+			>
 			<File
-				RelativePath=".\AboutDlg.h">
+				RelativePath=".\AboutDlg.h"
+				>
 			</File>
 			<File
-				RelativePath=".\Console.h">
+				RelativePath=".\Console.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ConsoleHandler.h">
+				RelativePath=".\ConsoleHandler.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ConsoleView.h">
+				RelativePath=".\ConsoleView.h"
+				>
 			</File>
 			<File
-				RelativePath=".\Cursors.h">
+				RelativePath=".\Cursors.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgRenameTab.h">
+				RelativePath=".\DlgRenameTab.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsAppearance.h">
+				RelativePath=".\DlgSettingsAppearance.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsBase.h">
+				RelativePath=".\DlgSettingsBase.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsBehavior.h">
+				RelativePath=".\DlgSettingsBehavior.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsConsole.h">
+				RelativePath=".\DlgSettingsConsole.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsHotkeys.h">
+				RelativePath=".\DlgSettingsHotkeys.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsMain.h">
+				RelativePath=".\DlgSettingsMain.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsMouse.h">
+				RelativePath=".\DlgSettingsMouse.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsStyles.h">
+				RelativePath=".\DlgSettingsStyles.h"
+				>
 			</File>
 			<File
-				RelativePath=".\DlgSettingsTabs.h">
+				RelativePath=".\DlgSettingsTabs.h"
+				>
 			</File>
 			<File
-				RelativePath=".\FastDelegate.h">
+				RelativePath=".\FastDelegate.h"
+				>
 			</File>
 			<File
-				RelativePath=".\Helpers.h">
+				RelativePath=".\Helpers.h"
+				>
 			</File>
 			<File
-				RelativePath=".\HotkeyEdit.h">
+				RelativePath=".\HotkeyEdit.h"
+				>
 			</File>
 			<File
-				RelativePath=".\ImageHandler.h">
+				RelativePath=".\ImageHandler.h"
+				>
 			</File>
 			<File
-				RelativePath=".\MainFrame.h">
+				RelativePath=".\MainFrame.h"
+				>
 			</File>
 			<File
-				RelativePath=".\PageSettingsTabs1.h">
+				RelativePath=".\PageSettingsTabs1.h"
+				>
 			</File>
 			<File
-				RelativePath=".\PageSettingsTabs2.h">
+				RelativePath=".\PageSettingsTabs2.h"
+				>
 			</File>
 			<File
-				RelativePath=".\resource.h">
+				RelativePath=".\resource.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SelectionHandler.h">
+				RelativePath=".\SelectionHandler.h"
+				>
 			</File>
 			<File
-				RelativePath=".\SettingsHandler.h">
+				RelativePath=".\SettingsHandler.h"
+				>
 			</File>
 			<File
-				RelativePath="..\shared\SharedMemNames.h">
+				RelativePath="..\shared\SharedMemNames.h"
+				>
 			</File>
 			<File
-				RelativePath="..\shared\SharedMemory.h">
+				RelativePath="..\shared\SharedMemory.h"
+				>
 			</File>
 			<File
-				RelativePath=".\stdafx.h">
+				RelativePath=".\stdafx.h"
+				>
 			</File>
 			<File
-				RelativePath="..\shared\Structures.h">
+				RelativePath="..\shared\Structures.h"
+				>
 			</File>
 			<File
-				RelativePath=".\XmlHelper.h">
+				RelativePath=".\XmlHelper.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest">
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
+			>
 			<File
-				RelativePath=".\res\Console.exe.manifest">
+				RelativePath=".\res\Console.exe.manifest"
+				>
 			</File>
 			<File
-				RelativePath=".\res\Console.ico">
+				RelativePath=".\res\Console.ico"
+				>
 			</File>
 			<File
-				RelativePath=".\Console.rc">
+				RelativePath=".\Console.rc"
+				>
 			</File>
 			<File
-				RelativePath=".\res\toolbar.bmp">
+				RelativePath=".\res\toolbar.bmp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Help Files"
-			Filter="">
+			>
 			<File
-				RelativePath="..\help\console.hhc">
+				RelativePath="..\help\console.hhc"
+				>
 			</File>
 			<File
-				RelativePath="..\help\console.hhk">
+				RelativePath="..\help\console.hhk"
+				>
 			</File>
 			<File
-				RelativePath="..\help\console.hhp">
+				RelativePath="..\help\console.hhp"
+				>
 			</File>
 			<Filter
 				Name="html"
-				Filter="">
+				>
 				<File
-					RelativePath="..\help\html\acknowledgements.html">
+					RelativePath="..\help\html\acknowledgements.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\bugs_limitations.html">
+					RelativePath="..\help\html\bugs_limitations.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\changelog.html">
+					RelativePath="..\help\html\changelog.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\copyright.html">
+					RelativePath="..\help\html\copyright.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\gpl.html">
+					RelativePath="..\help\html\gpl.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\introduction.html">
+					RelativePath="..\help\html\introduction.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\language.html">
+					RelativePath="..\help\html\language.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\menus.html">
+					RelativePath="..\help\html\menus.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\reporting_problems.html">
+					RelativePath="..\help\html\reporting_problems.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\running.html">
+					RelativePath="..\help\html\running.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_appearance.html">
+					RelativePath="..\help\html\settings_appearance.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_appearance_more.html">
+					RelativePath="..\help\html\settings_appearance_more.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_behavior.html">
+					RelativePath="..\help\html\settings_behavior.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_console.html">
+					RelativePath="..\help\html\settings_console.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_hotkeys.html">
+					RelativePath="..\help\html\settings_hotkeys.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_mouse.html">
+					RelativePath="..\help\html\settings_mouse.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\settings_tabs.html">
+					RelativePath="..\help\html\settings_tabs.html"
+					>
 				</File>
 				<File
-					RelativePath="..\help\html\tips_tricks.html">
+					RelativePath="..\help\html\tips_tricks.html"
+					>
 				</File>
 			</Filter>
 			<Filter
 				Name="styles"
-				Filter="">
+				>
 				<File
-					RelativePath="..\help\styles\help.css">
+					RelativePath="..\help\styles\help.css"
+					>
 				</File>
 			</Filter>
 		</Filter>
 		<File
-			RelativePath=".\console.xml">
+			RelativePath=".\console.xml"
+			>
 		</File>
 		<File
-			RelativePath=".\Todo.txt">
+			RelativePath=".\Todo.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
 		<Global
 			Name="RESOURCE_FILE"
-			Value="Console.rc"/>
+			Value="Console.rc"
+		/>
 	</Globals>
 </VisualStudioProject>

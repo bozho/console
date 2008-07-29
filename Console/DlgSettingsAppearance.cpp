@@ -237,7 +237,7 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseFont(WORD /*wNotifyCode*/, WORD
 	LOGFONT	lf;
 	::ZeroMemory(&lf, sizeof(LOGFONT));
 
-	wcsncpy(lf.lfFaceName, LPCTSTR(m_strFontName), 32);
+	wcsncpy_s(lf.lfFaceName, _countof(lf.lfFaceName), LPCTSTR(m_strFontName), 32);
 	lf.lfHeight	= -MulDiv(m_fontSettings.dwSize, GetDeviceCaps(::GetDC(NULL), LOGPIXELSY), 72);
 	lf.lfWeight	= (m_nFontBold > 0) ? FW_BOLD : FW_NORMAL;
 	lf.lfItalic	= static_cast<BYTE>(m_nFontItalic);

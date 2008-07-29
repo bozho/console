@@ -1675,7 +1675,9 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	{
 		// no path, first try with user's APPDATA dir
 
-		wchar_t* wszAppData = _wgetenv(L"APPDATA");
+		wchar_t wszAppData[32767];
+		::ZeroMemory(wszAppData, sizeof(wszAppData));
+		::GetEnvironmentVariable(L"APPDATA", wszAppData, _countof(wszAppData));
 
 		m_strSettingsFileName = strSettingsFileName;
 
@@ -1713,7 +1715,11 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 		m_strSettingsPath		= strSettingsFileName.substr(0, pos+1);
 		m_strSettingsFileName	= strSettingsFileName.substr(pos+1);
 
-		if (equals(m_strSettingsPath, wstring(_wgetenv(L"APPDATA")) + wstring(L"\\Console\\"), is_iequal()))
+		wchar_t wszAppData[32767];
+		::ZeroMemory(wszAppData, sizeof(wszAppData));
+		::GetEnvironmentVariable(L"APPDATA", wszAppData, _countof(wszAppData));
+
+		if (equals(m_strSettingsPath, wstring(wszAppData) + wstring(L"\\Console\\"), is_iequal()))
 		{
 			m_settingsDirType = dirTypeUser;
 		}
@@ -1779,7 +1785,11 @@ void SettingsHandler::SetUserDataDir(SettingsDirType settingsDirType)
 	}
 	else if (settingsDirType == dirTypeUser)
 	{
-		m_strSettingsPath = wstring(_wgetenv(L"APPDATA")) + wstring(L"\\Console\\");
+		wchar_t wszAppData[32767];
+		::ZeroMemory(wszAppData, sizeof(wszAppData));
+		::GetEnvironmentVariable(L"APPDATA", wszAppData, _countof(wszAppData));
+
+		m_strSettingsPath = wstring(wszAppData) + wstring(L"\\Console\\");
 		::CreateDirectory(m_strSettingsPath.c_str(), NULL);
 	}
 

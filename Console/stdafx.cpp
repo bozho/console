@@ -54,7 +54,7 @@ void Trace(const wchar_t* pszFormat, ...)
 	va_list	vaList;
 
 	va_start(vaList, pszFormat);
-	vswprintf(szOutput, pszFormat, vaList);
+	vswprintf(szOutput, _countof(szOutput), pszFormat, vaList);
 	::OutputDebugString(szOutput);
 }
 

@@ -2183,7 +2183,9 @@ BOOL MainFrame::SetTrayIcon(DWORD dwMessage) {
 		strToolTip += _T(" ...");
 	}
 	
-	wcsncpy(tnd.szTip, strToolTip.c_str(), (sizeof(tnd.szTip)-1)/sizeof(wchar_t));
+	// we're still using v4.0 controls, so the size of the tooltip can be at most 64 chars
+	// TODO: there should be a macro somewhere
+	wcsncpy_s(tnd.szTip, _countof(tnd.szTip), strToolTip.c_str(), (sizeof(tnd.szTip)-1)/sizeof(wchar_t));
 	return ::Shell_NotifyIcon(dwMessage, &tnd);
 }
 

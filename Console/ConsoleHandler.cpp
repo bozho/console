@@ -139,8 +139,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	si.dwY			= 0x7FFF;
 
 	PROCESS_INFORMATION pi;
-	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock, if not NULL, will
-	// contain Unicode strings
+	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
 	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
 
 	// TODO: not supported yet

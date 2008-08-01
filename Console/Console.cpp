@@ -156,6 +156,10 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		return -1;
 	}
 
+	// update environment block (we might've been started by a process 
+	// that doesn't have a fresh environment block
+	ConsoleHandler::UpdateEnvironmentBlock();
+
 	// create main window
 	MainFrame wndMain(strWindowTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
 

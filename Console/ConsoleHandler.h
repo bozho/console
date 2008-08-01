@@ -40,6 +40,8 @@ class ConsoleHandler
 
 		void SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwControlKeyState, DWORD dwEventFlags);
 
+		static void UpdateEnvironmentBlock();
+
 	private:
 
 		bool CreateSharedObjects(DWORD dwConsoleProcessId);
@@ -77,6 +79,8 @@ class ConsoleHandler
 
 		shared_ptr<void>							m_hMonitorThread;
 		shared_ptr<void>							m_hMonitorThreadExit;
+
+		static shared_ptr<void>						s_environmentBlock;
 };
 
 //////////////////////////////////////////////////////////////////////////////

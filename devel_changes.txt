@@ -11,6 +11,11 @@ Build 140
 
 - updated several function calls that got 'depreciated' warnings when built with VS 2008
 
+- pasting is now done using Windows' console 'paste' command
+
+- Console now tracks environment variables' changes (new tabs are opened with the latest 
+  set of environment variables)
+
 
 Build 139
 ---------

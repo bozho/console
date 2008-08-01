@@ -39,6 +39,8 @@ extern CAppModule _Module;
 #include <atltheme.h>
 #pragma warning(pop)
 
+#include "userenv.h"
+
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)
 #include "atlgdix.h"
@@ -131,6 +133,14 @@ using namespace boost::multi_index;
 #define UM_TRAY_NOTIFY			WM_USER + 0x1006
 
 #define IDC_TRAY_ICON		0x0001
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+// Windows' console window menu commands
+
+#define SC_CONSOLE_PASTE	0xFFF1
 
 //////////////////////////////////////////////////////////////////////////////
 

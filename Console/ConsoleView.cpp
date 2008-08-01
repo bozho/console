@@ -1193,7 +1193,9 @@ void ConsoleView::ClearSelection()
 void ConsoleView::Paste()
 {
 	if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
+	::SendMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
 
+/*
 	SharedMemory<UINT_PTR>&	pasteInfo = m_consoleHandler.GetPasteInfo();
 
 	{
@@ -1206,6 +1208,7 @@ void ConsoleView::Paste()
 	TRACE(L"Waiting for paste response event\n");
 	::WaitForSingleObject(pasteInfo.GetRespEvent(), INFINITE);
 	TRACE(L"Done waiting for paste response event\n");
+	*/
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -21,6 +21,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+shared_ptr<void> ConsoleHandler::s_environmentBlock;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +139,9 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	si.dwY			= 0x7FFF;
 
 	PROCESS_INFORMATION pi;
-	DWORD				dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED;
+	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock, if not NULL, will
+	// contain Unicode strings
+	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
 
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
@@ -150,7 +153,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 			NULL,
 			FALSE,
 			dwStartupFlags,
-			NULL,
+			s_environmentBlock.get(),
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
@@ -240,6 +243,23 @@ void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonSt
 	}
 
 	::WaitForSingleObject(m_consoleMouseEvent.GetRespEvent(), INFINITE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::UpdateEnvironmentBlock()
+{
+	void*	pEnvironment	= NULL;
+	HANDLE	hProcessToken	= NULL;
+
+	::OpenProcessToken(::GetCurrentProcess(), TOKEN_ALL_ACCESS, &hProcessToken);
+	::CreateEnvironmentBlock(&pEnvironment, hProcessToken, FALSE);
+	::CloseHandle(hProcessToken);
+
+	s_environmentBlock.reset(pEnvironment, ::DestroyEnvironmentBlock);
 }
 
 //////////////////////////////////////////////////////////////////////////////

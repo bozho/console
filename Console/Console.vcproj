@@ -4,6 +4,7 @@
 	Version="9.00"
 	Name="Console"
 	ProjectGUID="{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
+	RootNamespace="Console"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -74,7 +75,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib"
+				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib userenv.lib"
 				LinkIncremental="2"
 				DelayLoadDLLs="uxtheme.dll"
 				GenerateDebugInformation="true"
@@ -163,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib"
+				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib userenv.lib"
 				LinkIncremental="1"
 				DelayLoadDLLs="uxtheme.dll"
 				SubSystem="2"

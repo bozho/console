@@ -664,10 +664,21 @@ LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	g_imageHandler->ReloadDesktopImages();
-	m_activeView->Invalidate();
+	if (lParam == 0) return 0;
+
+	wstring strArea(reinterpret_cast<wchar_t*>(lParam));
+
+	if (strArea == L"Windows")
+	{
+		g_imageHandler->ReloadDesktopImages();
+		m_activeView->Invalidate();
+	}
+	else if (strArea == L"Environment")
+	{
+		ConsoleHandler::UpdateEnvironmentBlock();
+	}
 
 	return 0;
 }

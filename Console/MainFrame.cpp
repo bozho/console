@@ -358,7 +358,7 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		{
 			case animTypeSlide :
 			{
-				dwFlags = AW_SLIDE; break;
+				dwFlags = AW_SLIDE;
 
 				switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwHorzDirection)
 				{
@@ -371,6 +371,8 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 					case animDirPositive : dwFlags |= AW_VER_POSITIVE; break;
 					case animDirNegative : dwFlags |= AW_VER_NEGATIVE; break;
 				}
+
+				break;
 			}
 
 			case animTypeZoom	: dwFlags = AW_CENTER; break;

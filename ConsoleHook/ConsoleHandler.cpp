@@ -893,10 +893,6 @@ void ConsoleHandler::SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut)
 	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
 
 	m_consoleParams.SetReqEvent();
-
-	HMENU sysMenu = ::GetSystemMenu(m_consoleParams->hwndConsoleWindow, FALSE);
-
-	TRACE(L"System menu: %08X", (DWORD)sysMenu);
 }
 
 //////////////////////////////////////////////////////////////////////////////

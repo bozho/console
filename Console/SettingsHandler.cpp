@@ -888,7 +888,6 @@ TabHighlightSettings::TabHighlightSettings()
 //////////////////////////////////////////////////////////////////////////////
 
 
-
 //////////////////////////////////////////////////////////////////////////////
 
 bool TabHighlightSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
@@ -943,6 +942,77 @@ TabHighlightSettings& TabHighlightSettings::operator=(const TabHighlightSettings
 
 //////////////////////////////////////////////////////////////////////////////
 
+AnimateSettings::AnimateSettings()
+: dwType(animTypeNone)
+, dwHorzDirection(animDirNone)
+, dwVertDirection(animDirNone)
+, dwTime(0)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool AnimateSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pAnimateElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/animate"), pAnimateElement))) return false;
+
+	XmlHelper::GetAttribute(pAnimateElement, CComBSTR(L"type"), dwType, animTypeNone);
+	XmlHelper::GetAttribute(pAnimateElement, CComBSTR(L"horz_direction"), dwHorzDirection, animDirNone);
+	XmlHelper::GetAttribute(pAnimateElement, CComBSTR(L"vert_direction"), dwVertDirection, animDirNone);
+	XmlHelper::GetAttribute(pAnimateElement, CComBSTR(L"time"), dwTime, 200);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool AnimateSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pAnimateElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/animate"), pAnimateElement))) return false;
+
+	XmlHelper::SetAttribute(pAnimateElement, CComBSTR(L"type"), dwType);
+	XmlHelper::SetAttribute(pAnimateElement, CComBSTR(L"horz_direction"), dwHorzDirection);
+	XmlHelper::SetAttribute(pAnimateElement, CComBSTR(L"vert_direction"), dwVertDirection);
+	XmlHelper::SetAttribute(pAnimateElement, CComBSTR(L"time"), dwTime);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+AnimateSettings& AnimateSettings::operator=(const AnimateSettings& other)
+{
+	dwType			= other.dwType;
+	dwHorzDirection	= other.dwHorzDirection;
+	dwVertDirection	= other.dwVertDirection;
+	dwTime			= other.dwTime;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -957,6 +1027,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	copyPasteSettings.Load(pSettingsRoot);
 	scrollSettings.Load(pSettingsRoot);
 	tabHighlightSettings.Load(pSettingsRoot);
+	animateSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -970,6 +1041,7 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	copyPasteSettings.Save(pSettingsRoot);
 	scrollSettings.Save(pSettingsRoot);
 	tabHighlightSettings.Save(pSettingsRoot);
+	animateSettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -983,6 +1055,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 	copyPasteSettings	= other.copyPasteSettings;
 	scrollSettings		= other.scrollSettings;
 	tabHighlightSettings= other.tabHighlightSettings;
+	animateSettings		= other.animateSettings;
 
 	return *this;
 }
@@ -1047,6 +1120,9 @@ HotKeys::HotKeys()
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
+
+	// global commands
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate Console (global)", true)));
 }
 
 //////////////////////////////////////////////////////////////////////////////

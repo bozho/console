@@ -35,6 +35,30 @@ shared_ptr<ImageHandler>	g_imageHandler;
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Invisible parent window class for the main window if no taskbar should be shown
+
+class NoTaskbarParent
+	: public CWindowImpl<NoTaskbarParent, CWindow, CWinTraits<WS_POPUP, WS_EX_TOOLWINDOW> >
+{
+	public:
+		DECLARE_WND_CLASS(L"NoTaskbarParent")
+
+		NoTaskbarParent() {}
+		~NoTaskbarParent() {}
+
+		BEGIN_MSG_MAP(NoTaskbarParent)
+		END_MSG_MAP()
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 void ParseCommandLine
 (
@@ -161,9 +185,15 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	ConsoleHandler::UpdateEnvironmentBlock();
 
 	// create main window
+	NoTaskbarParent noTaskbarParent;
 	MainFrame wndMain(strWindowTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
 
-	if(wndMain.CreateEx() == NULL)
+	if (!g_settingsHandler->GetAppearanceSettings().stylesSettings.bTaskbarButton)
+	{
+		noTaskbarParent.Create(NULL);
+	}
+
+	if(wndMain.CreateEx(noTaskbarParent.m_hWnd) == NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
 		return 0;
@@ -173,7 +203,10 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	int nRet = theLoop.Run();
 
+	if (noTaskbarParent.m_hWnd != NULL) noTaskbarParent.DestroyWindow();
+
 	_Module.RemoveMessageLoop();
+
 	return nRet;
 }
 

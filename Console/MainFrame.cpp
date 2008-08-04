@@ -27,7 +27,8 @@ MainFrame::MainFrame
 	int nMultiStartSleep, 
 	const wstring& strDbgCmdLine
 )
-: m_startupTabs(startupTabs)
+: m_bOnCreateDone(false)
+, m_startupTabs(startupTabs)
 , m_startupDirs(startupDirs)
 , m_startupCmds(startupCmds)
 , m_nMultiStartSleep(nMultiStartSleep)
@@ -247,6 +248,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	pLoop->AddMessageFilter(this);
 	pLoop->AddIdleHandler(this);
 
+	// this is the only way I know that other message handlers can be aware 
+	// if they're being called after OnCreate has finished
+	m_bOnCreateDone = true;
 	return 0;
 }
 
@@ -304,6 +308,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_DELETE);
 
+	UnregisterGlobalHotkeys();
+
 	bHandled = false;
 	return 0;
 }
@@ -315,16 +321,18 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	BOOL bActivating = static_cast<BOOL>(wParam);
+
 	if (m_activeView.get() == NULL) return 0;
 
-	m_activeView->SetAppActiveStatus(static_cast<BOOL>(wParam) == TRUE);
+	m_activeView->SetAppActiveStatus(bActivating ? true : false);
 
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
 	if ((transparencySettings.transType == transAlpha) && 
 		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
 	{
-		if (static_cast<BOOL>(wParam))
+		if (bActivating)
 		{
 			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
 		}
@@ -335,7 +343,78 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		
 	}
 
+	// we're being called while OnCreate is running, return here
+	if (!m_bOnCreateDone)
+	{
+		bHandled = FALSE;
+		return 0;
+	}
+
+	if (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType != animTypeNone)
+	{
+		DWORD	dwFlags = (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType == animTypeBlend) ? AW_BLEND : AW_SLIDE;
+
+		switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType)
+		{
+			case animTypeSlide :
+			{
+				dwFlags = AW_SLIDE; break;
+
+				switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwHorzDirection)
+				{
+					case animDirPositive : dwFlags |= AW_HOR_POSITIVE; break;
+					case animDirNegative : dwFlags |= AW_HOR_NEGATIVE; break;
+				}
+
+				switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwVertDirection)
+				{
+					case animDirPositive : dwFlags |= AW_VER_POSITIVE; break;
+					case animDirNegative : dwFlags |= AW_VER_NEGATIVE; break;
+				}
+			}
+
+			case animTypeZoom	: dwFlags = AW_CENTER; break;
+			case animTypeBlend	: dwFlags = AW_BLEND; break;
+		}
+
+		if (!bActivating) dwFlags |= AW_HIDE;
+
+		::AnimateWindow(m_hWnd, g_settingsHandler->GetBehaviorSettings().animateSettings.dwTime, dwFlags);
+
+		if (bActivating)
+		{
+			POINT	cursorPos;
+			CRect	windowRect;
+
+			::GetCursorPos(&cursorPos);
+			GetWindowRect(&windowRect);
+
+			if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
+			if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
+
+			::SetCursorPos(cursorPos.x, cursorPos.y);
+
+			::RedrawWindow(m_hWnd, NULL, NULL, RDW_ERASE|RDW_INVALIDATE|RDW_ERASENOW|RDW_UPDATENOW|RDW_ALLCHILDREN);
+			::SetForegroundWindow(m_hWnd);
+		}
+	}
+
 	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	switch (wParam)
+	{
+		case IDC_GLOBAL_ACTIVATE : PostMessage(WM_ACTIVATEAPP, TRUE, 0); break;
+	}
+
 	return 0;
 }
 
@@ -1209,7 +1288,9 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	
 		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 
+		UnregisterGlobalHotkeys();
 		CreateAcceleratorTable();
+
 		SetTransparency();
 
 		// tray icon
@@ -1648,10 +1729,12 @@ void MainFrame::SetWindowStyles()
 	dwStyle &= ~WS_MAXIMIZEBOX;
 	if (!stylesSettings.bCaption)	dwStyle &= ~WS_CAPTION;
 	if (!stylesSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
+
 	if (!stylesSettings.bTaskbarButton)
 	{
+		// remove minimize button
 		dwStyle		&= ~WS_MINIMIZEBOX;
-		dwExStyle	|= WS_EX_TOOLWINDOW;
+//		dwExStyle	|= WS_EX_TOOLWINDOW;
 		dwExStyle	&= ~WS_EX_APPWINDOW;
 	}
 
@@ -2148,12 +2231,50 @@ void MainFrame::CreateAcceleratorTable()
 	for (int i = 0; it != hotKeys.commands.end(); ++i, ++it)
 	{
 		if ((*it)->accelHotkey.cmd == 0) continue;
-		::CopyMemory(&(accelTable[i]), &((*it)->accelHotkey), sizeof(ACCEL));
-		++nAcceleratorCount;
+		if ((*it)->accelHotkey.key == 0) continue;
+
+		if ((*it)->bGlobal)
+		{
+
+			UINT uiModifiers = 0;
+
+			if ((*it)->accelHotkey.fVirt & FSHIFT)	uiModifiers |= MOD_SHIFT;
+			if ((*it)->accelHotkey.fVirt & FCONTROL)uiModifiers |= MOD_CONTROL;
+			if ((*it)->accelHotkey.fVirt & FALT)	uiModifiers |= MOD_ALT;
+
+			::RegisterHotKey(m_hWnd, (*it)->wCommandID, uiModifiers, (*it)->accelHotkey.key);
+		}
+		else
+		{
+			::CopyMemory(&(accelTable[i]), &((*it)->accelHotkey), sizeof(ACCEL));
+			++nAcceleratorCount;
+		}
 	}
 
 	if (!m_acceleratorTable.IsNull()) m_acceleratorTable.DestroyObject();
 	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), nAcceleratorCount);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::UnregisterGlobalHotkeys()
+{
+	HotKeys&							hotKeys	= g_settingsHandler->GetHotKeys();
+	HotKeys::CommandsSequence::iterator it		= hotKeys.commands.begin();
+
+	for (int i = 0; it != hotKeys.commands.end(); ++i, ++it)
+	{
+		if ((*it)->accelHotkey.cmd == 0) continue;
+		if ((*it)->accelHotkey.key == 0) continue;
+
+		if ((*it)->bGlobal)
+		{
+			::UnregisterHotKey(m_hWnd, (*it)->wCommandID);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

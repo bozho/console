@@ -326,6 +326,51 @@ struct TabHighlightSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum AnimationDirection
+{
+	animDirNone		= 0,
+	animDirPositive	= 1,
+	animDirNegative	= 2
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+enum AnimationType
+{
+	animTypeNone	= 0,
+	animTypeSlide	= 1,
+	animTypeZoom	= 2,
+	animTypeBlend	= 3
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct AnimateSettings : public SettingsBase
+{
+	AnimateSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	AnimateSettings& operator=(const AnimateSettings& other);
+
+	DWORD	dwType;
+	DWORD	dwHorzDirection;
+	DWORD	dwVertDirection;
+	DWORD	dwTime;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -338,6 +383,7 @@ struct BehaviorSettings : public SettingsBase
 	CopyPasteSettings		copyPasteSettings;
 	ScrollSettings			scrollSettings;
 	TabHighlightSettings	tabHighlightSettings;
+	AnimateSettings			animateSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -356,11 +402,12 @@ struct HotKeys : public SettingsBase
 
 	struct CommandData
 	{
-		CommandData(const wstring& command, WORD commandID, const wstring& description)
+		CommandData(const wstring& command, WORD commandID, const wstring& description, bool global = false)
 		: strCommand(command)
 		, wCommandID(commandID)
 		, strDescription(description)
 		, bExtended(false)
+		, bGlobal(global)
 		{
 			::ZeroMemory(&accelHotkey, sizeof(ACCEL));
 		}
@@ -370,6 +417,7 @@ struct HotKeys : public SettingsBase
 		wstring	strDescription;
 		ACCEL	accelHotkey;
 		bool	bExtended;
+		bool	bGlobal;
 	};
 
 	struct command{};

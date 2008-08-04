@@ -52,6 +52,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_CLOSE, OnClose)
 			MESSAGE_HANDLER(WM_ACTIVATEAPP, OnActivateApp)
+			MESSAGE_HANDLER(WM_HOTKEY, OnHotKey)
 			MESSAGE_HANDLER(WM_SYSKEYDOWN, OnSysKeydown)
 			MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
 			MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
@@ -112,6 +113,7 @@ class MainFrame
 		LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 
+		LRESULT OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnSysKeydown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 
@@ -195,10 +197,13 @@ class MainFrame
 		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 		void SetTransparency();
 		void CreateAcceleratorTable();
+		void UnregisterGlobalHotkeys();
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
 
 	private:
+
+		bool					m_bOnCreateDone;
 
 		const vector<wstring>&	m_startupTabs;
 		const vector<wstring>&	m_startupDirs;

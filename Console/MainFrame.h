@@ -1,14 +1,24 @@
 #pragma once
 
+#include "AnimationWindow.h"
+
 //////////////////////////////////////////////////////////////////////////////
 
 #define ID_NEW_TAB_FIRST		1000
+
+// Timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
+// when the Console window is resized using a mouse)
+// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
+// message after resizing a window.
+#define	TIMER_SIZING			42
+#define	TIMER_SIZING_INTERVAL	100
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 class ConsoleView;
+
 
 typedef map<HWND, shared_ptr<ConsoleView> >	ConsoleViewMap;
 
@@ -65,6 +75,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_XBUTTONUP, OnMouseButtonUp)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
 			MESSAGE_HANDLER(WM_EXITSIZEMOVE, OnExitSizeMove)
+			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
 			MESSAGE_HANDLER(UM_CONSOLE_RESIZED, OnConsoleResized)
 			MESSAGE_HANDLER(UM_CONSOLE_CLOSED, OnConsoleClosed)
@@ -124,6 +135,7 @@ class MainFrame
 		LRESULT OnMouseButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
@@ -194,6 +206,7 @@ class MainFrame
 		void ShowTabs(BOOL bShow);
 		void ShowStatusbar(BOOL bShow);
 
+		void ResizeWindow();
 		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 		void SetTransparency();
 		void CreateAcceleratorTable();
@@ -248,6 +261,8 @@ class MainFrame
 
 		CDC				m_dcOffscreen;
 		CDC				m_dcText;
+
+		shared_ptr<AnimationWindow>	m_animationWindow;
 
 };
 

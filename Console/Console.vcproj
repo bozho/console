@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AnimationWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Console.cpp"
 				>
 			</File>
@@ -317,6 +321,10 @@
 			>
 			<File
 				RelativePath=".\AboutDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AnimationWindow.h"
 				>
 			</File>
 			<File

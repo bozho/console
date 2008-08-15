@@ -15,6 +15,8 @@ Build 140
 
 - Console now tracks environment variables' changes (new tabs are opened with the latest 
   set of environment variables)
+  
+- [BR#2026519] Console now handles resizing by other apps properly
 
 
 Build 139

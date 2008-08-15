@@ -383,7 +383,7 @@ struct BehaviorSettings : public SettingsBase
 	CopyPasteSettings		copyPasteSettings;
 	ScrollSettings			scrollSettings;
 	TabHighlightSettings	tabHighlightSettings;
-	AnimateSettings			animateSettings;
+//	AnimateSettings			animateSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

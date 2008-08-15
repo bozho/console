@@ -51,6 +51,7 @@ MainFrame::MainFrame
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
+, m_animationWindow()
 {
 
 }
@@ -350,8 +351,9 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		return 0;
 	}
 
-	if (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType != animTypeNone)
-	{
+//	if (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType != animTypeNone)
+//	{
+/*
 		DWORD	dwFlags = (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType == animTypeBlend) ? AW_BLEND : AW_SLIDE;
 
 		switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType)
@@ -382,24 +384,27 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		if (!bActivating) dwFlags |= AW_HIDE;
 
 		::AnimateWindow(m_hWnd, g_settingsHandler->GetBehaviorSettings().animateSettings.dwTime, dwFlags);
-
+*/
+/*
 		if (bActivating)
 		{
-			POINT	cursorPos;
-			CRect	windowRect;
-
-			::GetCursorPos(&cursorPos);
-			GetWindowRect(&windowRect);
-
-			if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
-			if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
-
-			::SetCursorPos(cursorPos.x, cursorPos.y);
-
-			::RedrawWindow(m_hWnd, NULL, NULL, RDW_ERASE|RDW_INVALIDATE|RDW_ERASENOW|RDW_UPDATENOW|RDW_ALLCHILDREN);
-			::SetForegroundWindow(m_hWnd);
+			TRACE(L"Activating\n");
+			m_animationWindow->HA();
+			m_animationWindow.reset();
 		}
-	}
+		else
+		{
+			TRACE(L"Deactivating\n");
+			AnimationWindowOptions opt(m_hWnd);
+			m_animationWindow.reset(new AnimationWindow(opt));
+
+			m_animationWindow->Create();
+			m_animationWindow->SA();
+		}
+*/
+
+//		if (bActivating) ::RedrawWindow(m_hWnd, NULL, NULL, RDW_ERASE|RDW_INVALIDATE|RDW_ERASENOW|RDW_UPDATENOW|RDW_ALLCHILDREN);
+//	}
 
 	bHandled = FALSE;
 	return 0;
@@ -414,7 +419,24 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
 {
 	switch (wParam)
 	{
-		case IDC_GLOBAL_ACTIVATE : PostMessage(WM_ACTIVATEAPP, TRUE, 0); break;
+		case IDC_GLOBAL_ACTIVATE :
+		{
+			PostMessage(WM_ACTIVATEAPP, TRUE, 0);
+
+			POINT	cursorPos;
+			CRect	windowRect;
+
+			::GetCursorPos(&cursorPos);
+			GetWindowRect(&windowRect);
+
+			if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
+			if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
+
+			::SetCursorPos(cursorPos.x, cursorPos.y);
+			::SetForegroundWindow(m_hWnd);
+			break;
+		}
+
 	}
 
 	return 0;
@@ -503,6 +525,12 @@ LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	// Start timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
+	// when the Console window is resized using a mouse)
+	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
+	// message after resizing a window.
+	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
+
 	if (wParam == SIZE_MAXIMIZED)
 	{
 		PostMessage(WM_EXITSIZEMOVE, 1, 0);
@@ -548,6 +576,12 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHa
 
 LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	// Start timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
+	// when the Console window is resized using a mouse)
+	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
+	// message after resizing a window.
+	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
+
 	if (m_activeView.get() != NULL) m_activeView->SetResizing(true);
 
 	m_dwResizeWindowEdge = static_cast<DWORD>(wParam);
@@ -713,29 +747,22 @@ LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
 
 LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	CRect rectWindow;
-	GetWindowRect(&rectWindow);
+	ResizeWindow();
+	return 0;
+}
 
-	CRect rectClient;
-	GetClientRect(&rectClient);
+//////////////////////////////////////////////////////////////////////////////
 
-	DWORD dwWindowWidth	= rectWindow.Width();
-	DWORD dwWindowHeight= rectWindow.Height();
 
-	TRACE(L"old dims: %ix%i\n", m_dwWindowWidth, m_dwWindowHeight);
-	TRACE(L"new dims: %ix%i\n", dwWindowWidth, dwWindowHeight);
-	TRACE(L"client dims: %ix%i\n", rectClient.Width(), rectClient.Height());
+//////////////////////////////////////////////////////////////////////////////
 
-	if ((dwWindowWidth != m_dwWindowWidth) ||
-		(dwWindowHeight != m_dwWindowHeight))
+LRESULT MainFrame::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	if (wParam == TIMER_SIZING)
 	{
-		AdjustWindowSize(true, false);
+		KillTimer(TIMER_SIZING);
+		ResizeWindow();
 	}
-
-	SendMessage(WM_NULL, 0, 0);
-	m_dwResizeWindowEdge = WMSZ_BOTTOM;
-
-	if (m_activeView.get() != NULL) m_activeView->SetResizing(false);
 
 	return 0;
 }
@@ -2000,6 +2027,38 @@ void MainFrame::ShowTabs(BOOL bShow)
 	UpdateLayout();
 	AdjustWindowSize(false);
 	DockWindow(m_dockPosition);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::ResizeWindow()
+{
+	CRect rectWindow;
+	GetWindowRect(&rectWindow);
+
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
+	DWORD dwWindowWidth	= rectWindow.Width();
+	DWORD dwWindowHeight= rectWindow.Height();
+
+	TRACE(L"old dims: %ix%i\n", m_dwWindowWidth, m_dwWindowHeight);
+	TRACE(L"new dims: %ix%i\n", dwWindowWidth, dwWindowHeight);
+	TRACE(L"client dims: %ix%i\n", rectClient.Width(), rectClient.Height());
+
+	if ((dwWindowWidth != m_dwWindowWidth) ||
+		(dwWindowHeight != m_dwWindowHeight))
+	{
+		AdjustWindowSize(true, false);
+	}
+
+	SendMessage(WM_NULL, 0, 0);
+	m_dwResizeWindowEdge = WMSZ_BOTTOM;
+
+	if (m_activeView.get() != NULL) m_activeView->SetResizing(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1027,7 +1027,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	copyPasteSettings.Load(pSettingsRoot);
 	scrollSettings.Load(pSettingsRoot);
 	tabHighlightSettings.Load(pSettingsRoot);
-	animateSettings.Load(pSettingsRoot);
+//	animateSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -1041,7 +1041,7 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	copyPasteSettings.Save(pSettingsRoot);
 	scrollSettings.Save(pSettingsRoot);
 	tabHighlightSettings.Save(pSettingsRoot);
-	animateSettings.Save(pSettingsRoot);
+//	animateSettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -1055,7 +1055,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 	copyPasteSettings	= other.copyPasteSettings;
 	scrollSettings		= other.scrollSettings;
 	tabHighlightSettings= other.tabHighlightSettings;
-	animateSettings		= other.animateSettings;
+//	animateSettings		= other.animateSettings;
 
 	return *this;
 }

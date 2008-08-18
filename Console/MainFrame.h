@@ -210,6 +210,7 @@ class MainFrame
 		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 		void SetTransparency();
 		void CreateAcceleratorTable();
+		void RegisterGlobalHotkeys();
 		void UnregisterGlobalHotkeys();
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);

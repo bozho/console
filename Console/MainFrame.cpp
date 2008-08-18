@@ -229,6 +229,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	SetWindowIcons();
 
 	CreateAcceleratorTable();
+	RegisterGlobalHotkeys();
+
 	SetTransparency();
 	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
 
@@ -1311,13 +1313,15 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 	DlgSettingsMain dlg;
 
+	// unregister global hotkeys here, they might change
+	UnregisterGlobalHotkeys();
+
 	if (dlg.DoModal() == IDOK)
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	
 		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 
-		UnregisterGlobalHotkeys();
 		CreateAcceleratorTable();
 
 		SetTransparency();
@@ -1355,6 +1359,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		AdjustWindowSize(false);
 		m_activeView->RepaintView();
 	}
+
+	RegisterGlobalHotkeys();
 
 	return 0;
 }
@@ -2295,27 +2301,40 @@ void MainFrame::CreateAcceleratorTable()
 
 		if ((*it)->accelHotkey.cmd == 0) continue;
 		if ((*it)->accelHotkey.key == 0) continue;
+		if ((*it)->bGlobal) continue;
 
-		if ((*it)->bGlobal)
-		{
-
-			UINT uiModifiers = 0;
-
-			if ((*it)->accelHotkey.fVirt & FSHIFT)	uiModifiers |= MOD_SHIFT;
-			if ((*it)->accelHotkey.fVirt & FCONTROL)uiModifiers |= MOD_CONTROL;
-			if ((*it)->accelHotkey.fVirt & FALT)	uiModifiers |= MOD_ALT;
-
-			::RegisterHotKey(m_hWnd, (*it)->wCommandID, uiModifiers, (*it)->accelHotkey.key);
-		}
-		else
-		{
-			::CopyMemory(&(accelTable[nAccelCount]), &((*it)->accelHotkey), sizeof(ACCEL));
-			++nAccelCount;
-		}
+		::CopyMemory(&(accelTable[nAccelCount]), &((*it)->accelHotkey), sizeof(ACCEL));
+		++nAccelCount;
 	}
 
 	if (!m_acceleratorTable.IsNull()) m_acceleratorTable.DestroyObject();
 	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), nAccelCount);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::RegisterGlobalHotkeys()
+{
+	HotKeys&							hotKeys	= g_settingsHandler->GetHotKeys();
+	HotKeys::CommandsSequence::iterator it		= hotKeys.commands.begin();
+
+	for (; it != hotKeys.commands.end(); ++it)
+	{
+		if ((*it)->accelHotkey.cmd == 0) continue;
+		if ((*it)->accelHotkey.key == 0) continue;
+		if (!(*it)->bGlobal) continue;
+
+		UINT uiModifiers = 0;
+
+		if ((*it)->accelHotkey.fVirt & FSHIFT)	uiModifiers |= MOD_SHIFT;
+		if ((*it)->accelHotkey.fVirt & FCONTROL)uiModifiers |= MOD_CONTROL;
+		if ((*it)->accelHotkey.fVirt & FALT)	uiModifiers |= MOD_ALT;
+
+		::RegisterHotKey(m_hWnd, (*it)->wCommandID, uiModifiers, (*it)->accelHotkey.key);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2328,15 +2347,13 @@ void MainFrame::UnregisterGlobalHotkeys()
 	HotKeys&							hotKeys	= g_settingsHandler->GetHotKeys();
 	HotKeys::CommandsSequence::iterator it		= hotKeys.commands.begin();
 
-	for (int i = 0; it != hotKeys.commands.end(); ++i, ++it)
+	for (; it != hotKeys.commands.end(); ++it)
 	{
 		if ((*it)->accelHotkey.cmd == 0) continue;
 		if ((*it)->accelHotkey.key == 0) continue;
+		if (!(*it)->bGlobal) continue;
 
-		if ((*it)->bGlobal)
-		{
-			::UnregisterHotKey(m_hWnd, (*it)->wCommandID);
-		}
+		::UnregisterHotKey(m_hWnd, (*it)->wCommandID);
 	}
 }
 

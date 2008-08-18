@@ -2287,10 +2287,12 @@ void MainFrame::CreateAcceleratorTable()
 	HotKeys::CommandsSequence::iterator it		= hotKeys.commands.begin();
 
 	shared_array<ACCEL>					accelTable(new ACCEL[hotKeys.commands.size()]);
-	int									nAcceleratorCount = 0;
+	int									nAccelCount = 0;
 
-	for (int i = 0; it != hotKeys.commands.end(); ++i, ++it)
+	for (; it != hotKeys.commands.end(); ++it)
 	{
+		shared_ptr<HotKeys::CommandData> c(*it);
+
 		if ((*it)->accelHotkey.cmd == 0) continue;
 		if ((*it)->accelHotkey.key == 0) continue;
 
@@ -2307,13 +2309,13 @@ void MainFrame::CreateAcceleratorTable()
 		}
 		else
 		{
-			::CopyMemory(&(accelTable[i]), &((*it)->accelHotkey), sizeof(ACCEL));
-			++nAcceleratorCount;
+			::CopyMemory(&(accelTable[nAccelCount]), &((*it)->accelHotkey), sizeof(ACCEL));
+			++nAccelCount;
 		}
 	}
 
 	if (!m_acceleratorTable.IsNull()) m_acceleratorTable.DestroyObject();
-	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), nAcceleratorCount);
+	m_acceleratorTable.CreateAcceleratorTable(accelTable.get(), nAccelCount);
 }
 
 //////////////////////////////////////////////////////////////////////////////

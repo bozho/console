@@ -18,6 +18,8 @@ Build 140
   
 - [BR#2026519] Console now handles resizing by other apps properly
 
+- added support for a global hotkey for activating Console
+
 
 Build 139
 ---------

@@ -12,6 +12,9 @@ Build 141
 
 - [BR#1969628] fixed a painting problem with applications that reduce buffer size
 
+- [BR#2114134] attempt at fixing the crash caused by a new process exiting before new 
+  Console tab is initialized
+
 
 Build 140
 ---------

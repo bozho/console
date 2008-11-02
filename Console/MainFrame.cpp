@@ -41,7 +41,8 @@ MainFrame::MainFrame
 , m_dockPosition(dockNone)
 , m_zOrder(zorderNormal)
 , m_mousedragOffset(0, 0)
-, m_mapViews()
+, m_views()
+, m_viewsMutex(NULL, FALSE, NULL)
 , m_strCmdLineWindowTitle(strWindowTitle.c_str())
 , m_strWindowTitle(strWindowTitle.c_str())
 , m_dwRows(0)
@@ -190,9 +191,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
 	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
 
-	if ((m_mapViews.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
 	{
-		ShowTabs(FALSE);
+		MutexLock lock(m_viewsMutex);
+		if ((m_views.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
+		{
+			ShowTabs(FALSE);
+		}
 	}
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
@@ -302,7 +306,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 	if (bSaveSettings) g_settingsHandler->SaveSettings();
 
 	// destroy all views
-	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
+	MutexLock viewMapLock(m_viewsMutex);
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 	{
 		RemoveTab(it->second->m_hWnd);
 		if (m_activeView.get() == it->second.get()) m_activeView.reset();
@@ -829,7 +834,12 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 
 LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	shared_ptr<ConsoleView>	consoleView(m_mapViews.find(reinterpret_cast<HWND>(wParam))->second);
+	MutexLock					viewMapLock(m_viewsMutex);
+	ConsoleViewMap::iterator	itView = m_views.find(reinterpret_cast<HWND>(wParam));
+
+	if (itView == m_views.end()) return 0;
+
+	shared_ptr<ConsoleView>	consoleView(itView->second);
 	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 
 	if (windowSettings.bUseConsoleTitle)
@@ -1003,12 +1013,13 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 	CTabViewTabItem*			pTabItem1	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
 	CTabViewTabItem*			pTabItem2	= m_TabCtrl.GetItem(pTabItems->iItem2);
 
+	MutexLock					viewMapLock(m_viewsMutex);
 	ConsoleViewMap::iterator	it;
 
 	if (pTabItem1)
 	{
-		it = m_mapViews.find(pTabItem1->GetTabView());
-		if (it != m_mapViews.end())
+		it = m_views.find(pTabItem1->GetTabView());
+		if (it != m_views.end())
 		{
 			it->second->SetActive(false);
 		}
@@ -1016,8 +1027,8 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 	if (pTabItem2)
 	{
-		it = m_mapViews.find(pTabItem2->GetTabView());
-		if (it != m_mapViews.end())
+		it = m_views.find(pTabItem2->GetTabView());
+		if (it != m_views.end())
 		{
 			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
 			m_activeView = it->second;
@@ -1342,8 +1353,10 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 		BOOL bShowTabs = FALSE;
 
+		MutexLock	viewMapLock(m_viewsMutex);
+		
 		if ( controlsSettings.bShowTabs && 
-			(!controlsSettings.bHideSingleTab || (m_mapViews.size() > 1))
+			(!controlsSettings.bHideSingleTab || (m_views.size() > 1))
 		   )
 		{
 			bShowTabs = TRUE;
@@ -1480,10 +1493,10 @@ LRESULT MainFrame::OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, 
 
 shared_ptr<ConsoleView> MainFrame::GetActiveView()
 {
-	if (m_mapViews.size() == 0) return shared_ptr<ConsoleView>();
+	if (m_views.size() == 0) return shared_ptr<ConsoleView>();
 
-	ConsoleViewMap::iterator	findIt		= m_mapViews.find(m_hWndActive);
-	if (findIt == m_mapViews.end()) return shared_ptr<ConsoleView>();
+	ConsoleViewMap::iterator	findIt		= m_views.find(m_hWndActive);
+	if (findIt == m_views.end()) return shared_ptr<ConsoleView>();
 
 	return findIt->second;
 }
@@ -1563,7 +1576,7 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
 	m_activeView->AdjustRectAndResize(rectView);
 	
 	// for other views, first set view size and then resize their Windows consoles
-	for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 	{
 		if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
 
@@ -1597,9 +1610,10 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	DWORD dwRows	= g_settingsHandler->GetConsoleSettings().dwRows;
 	DWORD dwColumns	= g_settingsHandler->GetConsoleSettings().dwColumns;
 
-	if (m_mapViews.size() > 0)
+	MutexLock	viewMapLock(m_viewsMutex);
+	if (m_views.size() > 0)
 	{
-		SharedMemory<ConsoleParams>& consoleParams = m_mapViews.begin()->second->GetConsoleHandler().GetConsoleParams();
+		SharedMemory<ConsoleParams>& consoleParams = m_views.begin()->second->GetConsoleHandler().GetConsoleParams();
 		dwRows		= consoleParams->dwRows;
 		dwColumns	= consoleParams->dwColumns;
 	}
@@ -1628,7 +1642,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 		return false;
 	}
 
-	m_mapViews.insert(ConsoleViewMap::value_type(hwndConsoleView, consoleView));
+	m_views.insert(ConsoleViewMap::value_type(hwndConsoleView, consoleView));
 
 	CString strTabTitle;
 	consoleView->GetWindowText(strTabTitle);
@@ -1638,7 +1652,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	::SetForegroundWindow(m_hWnd);
 
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
-		((m_mapViews.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+		((m_views.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
 	   )
 	{
 		ShowTabs(TRUE);
@@ -1665,22 +1679,23 @@ void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
 
 void MainFrame::CloseTab(HWND hwndConsoleView)
 {
-	ConsoleViewMap::iterator	it = m_mapViews.find(hwndConsoleView);
-	if (it == m_mapViews.end()) return;
+	MutexLock					viewMapLock(m_viewsMutex);
+	ConsoleViewMap::iterator	it = m_views.find(hwndConsoleView);
+	if (it == m_views.end()) return;
 
 	RemoveTab(hwndConsoleView);
 	if (m_activeView.get() == it->second.get()) m_activeView.reset();
 	it->second->DestroyWindow();
-	m_mapViews.erase(it);
+	m_views.erase(it);
 
-	if ((m_mapViews.size() == 1) &&
+	if ((m_views.size() == 1) &&
 		m_bTabsVisible && 
 		(g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
 	{
 		ShowTabs(FALSE);
 	}
 
-	if (m_mapViews.size() == 0) PostMessage(WM_CLOSE);
+	if (m_views.size() == 0) PostMessage(WM_CLOSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2106,7 +2121,9 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
 		
 		// for other views, first set view size and then resize their Windows consoles
-		for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
+		MutexLock	viewMapLock(m_viewsMutex);
+		
+		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 		{
 			if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
 
@@ -2184,7 +2201,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 		m_activeView->AdjustRectAndResize(clientRect);
 		
 		// for other views, first set view size and then resize their Windows consoles
-		for (ConsoleViewMap::iterator it = m_mapViews.begin(); it != m_mapViews.end(); ++it)
+		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 		{
 			if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
 

@@ -236,7 +236,8 @@ class MainFrame
 		ZOrder			m_zOrder;
 		CPoint			m_mousedragOffset;
 
-		ConsoleViewMap	m_mapViews;
+		ConsoleViewMap	m_views;
+		Mutex			m_viewsMutex;
 
 		CMenu			m_tabsMenu;
 

@@ -7,6 +7,10 @@ Build 141
 - Console will now inherit environment block on startup (it used to get a fresh 
   environment block in b140); it will still track changes in the environment, like
   it was implemented in b140
+  
+- Console is now restored if minimized when activated using a global hotkey
+
+- [BR#1969628] fixed a painting problem with applications that reduce buffer size
 
 
 Build 140

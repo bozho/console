@@ -1892,8 +1892,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 {
 	CRect	rectWindow;
-//	GetClientRect(&rectWindow);
-	GetRect(rectWindow);
+	GetClientRect(&rectWindow);
 
 	if (m_tabData->backgroundImageType != bktypeNone)
 	{

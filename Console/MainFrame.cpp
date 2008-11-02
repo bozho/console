@@ -423,6 +423,7 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
 	{
 		case IDC_GLOBAL_ACTIVATE :
 		{
+			ShowWindow(SW_RESTORE);
 			PostMessage(WM_ACTIVATEAPP, TRUE, 0);
 
 			POINT	cursorPos;

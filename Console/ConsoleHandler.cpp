@@ -110,6 +110,8 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	if (strStartupDir.length())
 	{
+		if (*(strStartupDir.end() - 1) != L'\\') strStartupDir += L'\\';
+
 		// check if startup directory exists
 		DWORD dwDirAttributes = ::GetFileAttributes(strStartupDir.c_str());
 

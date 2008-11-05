@@ -1,6 +1,14 @@
 v2.00
 =====
 
+Build 142
+---------
+
+- [BR#2214144] Console will add a backslash to startup dirs that don't end with
+  a backslash. This will fix problems with startup dir defined as 'C:'. Updated
+  documentation for -d parameter
+
+
 Build 141
 ---------
 

@@ -8,6 +8,9 @@ Build 142
   a backslash. This will fix problems with startup dir defined as 'C:'. Updated
   documentation for -d parameter
 
+- selection start will now pause window scrolling (e.g. a long dir command). ESC wil
+  unpause it (but it will not clear the selection)
+
 
 Build 141
 ---------

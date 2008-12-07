@@ -65,6 +65,9 @@ void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelecti
 {
 	if (m_selectionState > selstateNoSelection) return;
 
+	// emulate 'Mark' sysmenu item click in Windows console window (will stop scrolling until the user presses ESC)
+	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
+
 	if (!m_paintBrush.IsNull()) m_paintBrush.DeleteObject();
 	m_paintBrush.CreateSolidBrush(crSelectionColor);
 

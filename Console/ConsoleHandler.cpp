@@ -110,14 +110,13 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 
 	if (strStartupDir.length() > 0)
 	{
-		if ((strStartupDir.begin() == L'\"') && (*(strStartupDir.end() - 1) != L'\"'))
+		if ((*(strStartupDir.end() - 1) == L'\"') && (*strStartupDir.begin() != L'\"'))
 		{
-			// startup dir name starts with ", but doesn't end with ", the user passed
-			// something like "C:\" as the parameter, it got parsed to "C:"
-			// remove the leading "
+			// startup dir name ends with ", but doesn't start with ", the user passed
+			// something like "C:\" as the parameter, it got parsed to C:", remove the trailing "
 			//
-			// I added this check, since it's a common mistake.
-			strStartupDir = strStartupDir.substr(1);
+			// This is a common mistake, thus the check...
+			strStartupDir = strStartupDir.substr(0, strStartupDir.length()-1);
 		}
 
 		// startup dir doesn't end with \, add it

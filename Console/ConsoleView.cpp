@@ -1347,6 +1347,7 @@ void ConsoleView::CreateOffscreenBuffers()
 									m_hWnd, 
 									dcWindow, 
 									rectWindowMax, 
+									m_consoleHandler,
 									m_consoleHandler.GetConsoleParams(), 
 									m_consoleHandler.GetConsoleInfo(), 
 									m_consoleHandler.GetCopyInfo(),

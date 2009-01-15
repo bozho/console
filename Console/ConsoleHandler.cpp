@@ -136,20 +136,32 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	// setup the startup info struct
 	STARTUPINFO si;
 	::ZeroMemory(&si, sizeof(STARTUPINFO));
-	// we don't use wShowWindow member to hide to console window, since this causes
-	// problems with some GUI apps started from Console that use SW_SHOWDEFAULT to 
-	// initially show their main window (i.e. the window inherits our SW_HIDE flag and 
-	// remains invisible :-)
-	//
-	// This approach can flash console window's taskbar button, but nothing is perfect :)
-//	si.dwFlags		= STARTF_USESHOWWINDOW;
-	si.dwFlags		= STARTF_USEPOSITION;
-	si.cb			= sizeof(STARTUPINFO);
-	si.wShowWindow	= SW_HIDE;
-	si.lpTitle		= const_cast<wchar_t*>(strStartupTitle.c_str());
-	si.dwX			= 0x7FFF;
-	si.dwY			= 0x7FFF;
 
+	si.cb			= sizeof(STARTUPINFO);
+	si.lpTitle		= const_cast<wchar_t*>(strStartupTitle.c_str());
+
+	if (g_settingsHandler->GetConsoleSettings().bStartHidden)
+	{
+		// Starting Windows console window hidden causes problems with 
+		// some GUI apps started from Console that use SW_SHOWDEFAULT to 
+		// initially show their main window (i.e. the window inherits our 
+		// SW_HIDE flag and remains invisible :-)
+		si.dwFlags		= STARTF_USESHOWWINDOW;
+		si.wShowWindow	= SW_HIDE;
+	}
+	else
+	{
+		// To avoid invisible GUI windows, default settings will create
+		// a Windows console window far offscreen and hide the window
+		// after it has been created.
+		//
+		// This approach can flash console window's taskbar button and
+		// taskbar button can sometimes remain visible, but nothing is perfect :)
+		si.dwFlags		= STARTF_USEPOSITION;
+		si.dwX			= 0x7FFF;
+		si.dwY			= 0x7FFF;
+	}
+	
 	PROCESS_INFORMATION pi;
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
 	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;

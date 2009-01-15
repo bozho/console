@@ -9,7 +9,11 @@ Build 142
   documentation for -d parameter
 
 - selection start will now pause window scrolling (e.g. a long dir command). ESC wil
-  unpause it (but it will not clear the selection)
+  unpause it (but it will not clear the selection) Clearing the selection (copy or not)
+  will re-enable scrolling
+  
+- added option for starting Windows console window hidden (previous behavior, was causing
+  problems with some GUI apps started from Console)
 
 
 Build 141

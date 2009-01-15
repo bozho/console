@@ -45,6 +45,7 @@ ConsoleSettings::ConsoleSettings()
 , dwColumns(80)
 , dwBufferRows(200)
 , dwBufferColumns(80)
+, bStartHidden(false)
 , bSaveSize(false)
 {
 	defaultConsoleColors[0]	= 0x000000;
@@ -86,6 +87,7 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"columns"), dwColumns, 80);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows, 0);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns, 0);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden, false);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize, false);
 
 	for (DWORD i = 0; i < 16; ++i)
@@ -122,6 +124,7 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"columns"), dwColumns);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_rows"), dwBufferRows);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize);
 
 	for (DWORD i = 0; i < 16; ++i)
@@ -153,6 +156,7 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 	dwColumns				= other.dwColumns;
 	dwBufferRows			= other.dwBufferRows;
 	dwBufferColumns			= other.dwBufferColumns;
+	bStartHidden			= other.bStartHidden;
 	bSaveSize				= other.bSaveSize;
 
 	::CopyMemory(consoleColors, other.consoleColors, sizeof(COLORREF)*16);

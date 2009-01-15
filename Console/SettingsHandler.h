@@ -46,6 +46,7 @@ struct ConsoleSettings : public SettingsBase
 	DWORD		dwBufferRows;
 	DWORD		dwBufferColumns;
 
+	bool		bStartHidden;
 	bool		bSaveSize;
 
 	COLORREF	defaultConsoleColors[16];

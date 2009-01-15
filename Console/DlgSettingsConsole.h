@@ -23,6 +23,7 @@ class DlgSettingsConsole
 		BEGIN_DDX_MAP(DlgSettingsConsole)
 			DDX_TEXT(IDC_SHELL, m_strShell)
 			DDX_TEXT(IDC_INIT_DIR, m_strInitialDir)
+			DDX_CHECK(IDC_CHECK_START_HIDDEN, m_nStartHidden)
 			DDX_UINT(IDC_CHANGE_REFRESH, m_consoleSettings.dwChangeRefreshInterval)
 			DDX_UINT(IDC_REFRESH, m_consoleSettings.dwRefreshInterval)
 			DDX_UINT(IDC_ROWS, m_consoleSettings.dwRows)
@@ -65,6 +66,7 @@ class DlgSettingsConsole
 		CString						m_strShell;
 		CString						m_strInitialDir;
 
+		int							m_nStartHidden;
 		int							m_nSaveSize;
 };
 

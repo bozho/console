@@ -18,6 +18,7 @@ DlgSettingsConsole::DlgSettingsConsole(CComPtr<IXMLDOMElement>& pOptionsRoot)
 : DlgSettingsBase(pOptionsRoot)
 , m_strShell(L"")
 , m_strInitialDir(L"")
+, m_nStartHidden(0)
 , m_nSaveSize(0)
 {
 	IDD = IDD_SETTINGS_CONSOLE;
@@ -39,6 +40,7 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_strShell		= m_consoleSettings.strShell.c_str();
 	m_strInitialDir	= m_consoleSettings.strInitialDir.c_str();
 
+	m_nStartHidden	= m_consoleSettings.bStartHidden ? 1 : 0;
 	m_nSaveSize		= m_consoleSettings.bSaveSize ? 1 : 0;
 
 	CUpDownCtrl	spin;
@@ -138,6 +140,7 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 		m_consoleSettings.strShell		= m_strShell;
 		m_consoleSettings.strInitialDir	= m_strInitialDir;
 
+		m_consoleSettings.bStartHidden	= (m_nStartHidden > 0);
 		m_consoleSettings.bSaveSize		= (m_nSaveSize > 0);
 
 		// set immediate settings

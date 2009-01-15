@@ -148,8 +148,12 @@ using namespace boost::multi_index;
 //////////////////////////////////////////////////////////////////////////////
 // Windows' console window menu commands
 
-#define SC_CONSOLE_MARK		0xFFF2
-#define SC_CONSOLE_PASTE	0xFFF1
+#define SC_CONSOLE_COPY			0xFFF0
+#define SC_CONSOLE_PASTE		0xFFF1
+#define SC_CONSOLE_MARK			0xFFF2
+#define SC_CONSOLE_SCROLL		0xFFF3
+#define SC_CONSOLE_FIND			0xFFF4
+#define SC_CONSOLE_SELECT_ALL	0xFFF5
 
 //////////////////////////////////////////////////////////////////////////////
 

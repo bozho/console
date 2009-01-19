@@ -67,9 +67,8 @@ void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelecti
 {
 	if (m_selectionState > selstateNoSelection) return;
 
-	// emulate 'Mark' sysmenu item click in Windows console window (will stop scrolling until the user presses ESC)
-	// or a selection is cleared (copied or not)
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
+	// stop console scrolling while selecting
+	m_consoleHandler.StopScrolling();
 
 	if (!m_paintBrush.IsNull()) m_paintBrush.DeleteObject();
 	m_paintBrush.CreateSolidBrush(crSelectionColor);
@@ -300,13 +299,7 @@ void SelectionHandler::ClearSelection()
 
 	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
 
-	// emulate ESC keypress to end 'mark' command (we send a mark command just in case 
-	// a user has already pressed ESC as I don't know an easy way to detect if the mark
-	// command is active or not)
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_KEYDOWN, VK_ESCAPE, 0x00010001);
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_KEYUP, VK_ESCAPE, 0xC0010001);
-
+	m_consoleHandler.ResumeScrolling();
 }
 
 //////////////////////////////////////////////////////////////////////////////

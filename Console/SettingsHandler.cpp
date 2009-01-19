@@ -1113,6 +1113,7 @@ HotKeys::HotKeys()
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				L"Copy selection")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	L"Clear selection")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				L"Paste")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"stopscroll",	ID_EDIT_STOP_SCROLLING,		L"Stop scrolling")));
 
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer row up")));
 	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer row down")));

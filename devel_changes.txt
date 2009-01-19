@@ -12,6 +12,8 @@ Build 142
   unpause it (but it will not clear the selection) Clearing the selection (copy or not)
   will re-enable scrolling
   
+- added 'stop scrolling' command (and a hotkey) (ESC re-enables)
+  
 - added option for starting Windows console window hidden (previous behavior, was causing
   problems with some GUI apps started from Console)
 

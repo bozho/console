@@ -113,6 +113,8 @@ BEGIN
         MENUITEM "Cl&ear selection",            32791
         MENUITEM "&Paste",                      ID_EDIT_PASTE
         MENUITEM SEPARATOR
+        MENUITEM "Stop Scr&olling",             ID_EDIT_STOP_SCROLLING
+        MENUITEM SEPARATOR
         MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
         MENUITEM SEPARATOR
         MENUITEM "&Settings...",                ID_EDIT_SETTINGS
@@ -188,7 +190,7 @@ BEGIN
     CTEXT           "Console 2.0",IDC_STATIC_VERSION,25,56,78,8,0,WS_EX_ACCEPTFILES
     ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
     GROUPBOX        "",IDC_STATIC,7,7,115,88
-    CTEXT           "Copyright (C) 2001-2008\nMarko Bozikovic",IDC_STATIC,25,71,78,17
+    CTEXT           "Copyright (C) 2001-2009\nMarko Bozikovic",IDC_STATIC,25,71,78,17
 END
 
 IDD_RENAME_TAB DIALOGEX 0, 0, 186, 55

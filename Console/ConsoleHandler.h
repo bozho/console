@@ -40,6 +40,9 @@ class ConsoleHandler
 
 		void SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwControlKeyState, DWORD dwEventFlags);
 
+		void StopScrolling();
+		void ResumeScrolling();
+
 		static void UpdateEnvironmentBlock();
 
 	private:

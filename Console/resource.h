@@ -210,7 +210,6 @@
 #define IDC_CHECK_FLASH_TAB             1168
 #define IDC_COMBO_SMOOTHING             1169
 #define IDC_CHECK_LEAVE_HIGHLIGHTED     1170
-#define IDC_CHECK_START                 1171
 #define IDC_CHECK_START_HIDDEN          1171
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -228,13 +227,15 @@
 #define ID__HELP                        32788
 #define ID_VIEW_TABS                    32789
 #define ID_EDIT_CLEAR_SELECTION         32791
+#define ID_EDIT_STOPSCROLLING           32792
+#define ID_EDIT_STOP_SCROLLING          32793
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        215
-#define _APS_NEXT_COMMAND_VALUE         32792
+#define _APS_NEXT_COMMAND_VALUE         32794
 #define _APS_NEXT_CONTROL_VALUE         1172
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

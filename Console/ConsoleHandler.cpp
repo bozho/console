@@ -273,6 +273,33 @@ void ConsoleHandler::SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonSt
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::StopScrolling()
+{
+	// emulate 'Mark' sysmenu item click in Windows console window (will stop scrolling until the user presses ESC)
+	// or a selection is cleared (copied or not)
+	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::ResumeScrolling()
+{
+	// emulate ESC keypress to end 'mark' command (we send a mark command just in case 
+	// a user has already pressed ESC as I don't know an easy way to detect if the mark
+	// command is active or not)
+	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
+	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_KEYDOWN, VK_ESCAPE, 0x00010001);
+	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_KEYUP, VK_ESCAPE, 0xC0010001);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::UpdateEnvironmentBlock()
 {
 	void*	pEnvironment	= NULL;

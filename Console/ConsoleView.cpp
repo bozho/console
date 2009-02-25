@@ -2391,11 +2391,7 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
 
 	if (consolePoint.Y < 0) consolePoint.Y = 0;
 
-	if (consolePoint.Y > srWindow.Bottom)
-	{
-		consolePoint.X = maxX;
-		consolePoint.Y = srWindow.Bottom;
-	}
+	if (consolePoint.Y > srWindow.Bottom) consolePoint.Y = srWindow.Bottom;
 
 	return consolePoint;
 }

@@ -1,6 +1,19 @@
 v2.00
 =====
 
+Build 143
+---------
+
+- [BR#2569915] Console buffer rows can now be set to max 9999 using arrows in 
+  the settings dialog
+  
+- invalid console cursor coordinates calculation lead to crash when leaving Console
+  window while selecting text
+
+- [BR#2555908] If there was only one tab defined on Console startup, that tab could
+  be deleted. This would crash Console
+
+
 Build 142
 ---------
 

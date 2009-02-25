@@ -65,7 +65,7 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	spin.Detach();
 
 	spin.Attach(GetDlgItem(IDC_SPIN_BUFFER_ROWS));
-	spin.SetRange(10, 5000);
+	spin.SetRange(10, 9999);
 	udAccel.nSec = 0;
 	udAccel.nInc = 10;
 	spin.SetAccel(1, &udAccel);

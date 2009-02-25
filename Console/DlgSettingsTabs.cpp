@@ -49,6 +49,8 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 		m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(it->get()));
 	}
 
+	if (m_listCtrl.GetItemCount() < 2) GetDlgItem(IDC_BTN_DELETE).EnableWindow(FALSE);
+
 	m_tabCtrl.Attach(GetDlgItem(IDC_TABS));
 
 	m_tabCtrl.InsertItem(0, L"Main");

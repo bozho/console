@@ -1313,9 +1313,18 @@ void ConsoleView::CreateOffscreenBuffers()
 	::SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, (void*)&bSmoothing, 0);
 	::SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, (void*)&uSmoothingType, 0);
 
-	if ((dcDdesktop.GetDeviceCaps(BITSPIXEL)*dcDdesktop.GetDeviceCaps(PLANES) == 32) && // 32-bit depth only
-		bSmoothing && 
-		(uSmoothingType == FE_FONTSMOOTHINGCLEARTYPE))
+	if
+	(
+		(
+			(dcDdesktop.GetDeviceCaps(BITSPIXEL)*dcDdesktop.GetDeviceCaps(PLANES) == 32) // 32-bit depth only
+			&&
+			bSmoothing
+			&& 
+			(uSmoothingType == FE_FONTSMOOTHINGCLEARTYPE)
+		)
+		||
+		(m_appearanceSettings.fontSettings.fontSmoothing == fontSmoothCleartype)
+	)
 	{
 		m_bUseTextAlphaBlend = true;
 	}

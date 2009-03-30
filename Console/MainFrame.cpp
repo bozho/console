@@ -220,6 +220,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		if ((positionSettings.nY < nDesktopTop) || (positionSettings.nY > nDesktopBottom)) positionSettings.nY = 50;
 	}
 
+	SetTransparency();
 	SetWindowPos(NULL, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
 	DockWindow(positionSettings.dockPosition);
 	SetZOrder(positionSettings.zOrder);
@@ -230,13 +231,11 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	}
 	SetWindowText(m_strWindowTitle);
 
+	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
 	SetWindowIcons();
 
 	CreateAcceleratorTable();
 	RegisterGlobalHotkeys();
-
-	SetTransparency();
-	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
 
 	AdjustWindowSize(false);
 
@@ -1875,17 +1874,21 @@ void MainFrame::SetZOrder(ZOrder zOrder)
 		case zorderDesktop	: hwndZ = HWND_NOTOPMOST; break;
 	}
 
-	HWND hwndParent = NULL;
-
-	if (m_zOrder == zorderDesktop)
-	{
-		// pinned to the desktop, Program Manager is the parent
-		// TODO: automatic shell detection
-		hwndParent = ::FindWindow(L"Progman", L"Program Manager");
-	}
-
-	SetParent(hwndParent);
+	// if we're pinned to the desktop, desktop shell's main window is our parent
+	SetParent((m_zOrder == zorderDesktop) ? GetDesktopWindow() : NULL);
 	SetWindowPos(hwndZ, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+HWND MainFrame::GetDesktopWindow()
+{
+	// pinned to the desktop, Program Manager is the parent
+	// TODO: support more shells/automatic shell detection
+	return ::FindWindow(L"Progman", L"Program Manager");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2249,9 +2252,13 @@ void MainFrame::SetTransparency()
 {
 	// set transparency
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+
 	switch (transparencySettings.transType)
 	{
 		case transAlpha : 
+
+			// if Console is pinned to the desktop window, wee need to set it as top-level window temporarily
+			if (m_zOrder == zorderDesktop) SetParent(NULL);
 
 			if ((transparencySettings.byActiveAlpha == 255) &&
 				(transparencySettings.byInactiveAlpha == 255))
@@ -2269,6 +2276,9 @@ void MainFrame::SetTransparency()
 				0, 
 				transparencySettings.byActiveAlpha, 
 				LWA_ALPHA);
+
+			// back to desktop-pinned mode, if needed
+			if (m_zOrder == zorderDesktop) SetParent(GetDesktopWindow());
 
 			break;
 

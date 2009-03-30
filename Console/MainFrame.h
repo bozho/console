@@ -199,6 +199,7 @@ class MainFrame
 		void SetWindowStyles();
 		void DockWindow(DockPosition dockPosition);
 		void SetZOrder(ZOrder zOrder);
+		HWND GetDesktopWindow();
 
 		void SetWindowIcons();
 

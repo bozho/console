@@ -1,6 +1,13 @@
 v2.00
 =====
 
+Build 145
+=========
+
+- [BR#2722494] alpha transparency is now set properly for a pinned-to-desktop 
+  Console window
+
+
 Build 144
 ---------
 

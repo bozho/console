@@ -684,15 +684,13 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 		if (m_activeView.get() != NULL)
 		{
-			shared_ptr<TabData> tabData = m_activeView->GetTabData();
+			CRect rectClient;
+			GetClientRect(&rectClient);
 
-			// only for relative backgrounds
-			if (tabData->imageData.bRelative)
-			{
-				CRect rectClient;
-				GetClientRect(&rectClient);
-				InvalidateRect(&rectClient, FALSE);
-			}
+			m_activeView->MainframeMoving();
+			// we need to invalidate client rect here for proper background 
+			// repaint when using relative backgrounds
+			InvalidateRect(&rectClient, FALSE);
 		}
 
 		return 0;
@@ -858,7 +856,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		{
 			m_strWindowTitle = consoleView->GetTitle();
 			SetWindowText(m_strWindowTitle);
-			SetTrayIcon(NIM_MODIFY);
+			if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
 		}
 	}
 	else
@@ -885,7 +883,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 			if (windowSettings.bShowCommand)	m_strWindowTitle += strCommandText;
 
 			SetWindowText(m_strWindowTitle);
-			SetTrayIcon(NIM_MODIFY);
+			if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
 		}
 		
 		if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
@@ -1371,7 +1369,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		m_activeView->InitializeScrollbars();
 		m_activeView->RecreateOffscreenBuffers();
 		AdjustWindowSize(false);
-		m_activeView->RepaintView();
+		m_activeView->Repaint(true);
 	}
 
 	RegisterGlobalHotkeys();

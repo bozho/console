@@ -110,7 +110,8 @@ class ConsoleView
 		void SetAppActiveStatus(bool bAppActive);
 
 		void RecreateOffscreenBuffers();
-		void RepaintView();
+		void Repaint(bool bFullRepaint);
+		void MainframeMoving();
 
 		void SetResizing(bool bResizing);
 		void SetActive(bool bActive);
@@ -141,10 +142,9 @@ class ConsoleView
 		DWORD GetBufferDifference();
 
 		void UpdateTitle();
-		void Repaint();
 
-		void RepaintText();
-		void RepaintTextChanges();
+		void RepaintText(CDC& dc);
+		void RepaintTextChanges(CDC& dc);
 
 		void BitBltOffscreen(bool bOnlyCursor = false);
 		void UpdateOffscreen(const CRect& rectBlit);
@@ -169,6 +169,7 @@ class ConsoleView
 		bool	m_bResizing;
 		bool	m_bAppActive;
 		bool	m_bActive;
+		bool	m_bNeedFullRepaint;
 		bool	m_bUseTextAlphaBlend;
 		bool	m_bConsoleWindowVisible;
 

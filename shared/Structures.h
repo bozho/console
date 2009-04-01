@@ -135,7 +135,11 @@ struct CharInfo
 	CharInfo()
 	: changed(false)
 	{
-		::ZeroMemory(&charInfo, sizeof(CHAR_INFO));
+		// This is actually a shortcut for:
+		// charInfo.Attributes = 0;
+		// charInfo.Char.UnicodeChar = L' ';
+		// Is it faster, though?
+		*(reinterpret_cast<DWORD*>(&charInfo)) = 0x00000020;
 	}
 
 	CHAR_INFO	charInfo;

@@ -843,6 +843,9 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 	{
 		CString	strTabTitle(consoleView->GetTitle());
 
+		// We always give the tool tip the complete, untrimmed text
+		UpdateTabToolTip(consoleView->m_hWnd, strTabTitle);
+
 		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
 		{
 			strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles) + CString(L"...");
@@ -886,6 +889,9 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		}
 		
 		if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
+
+		// We always give the tool tip the complete, untrimmed text
+		UpdateTabToolTip(consoleView->m_hWnd, strTabTitle);
 
 		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
 		{
@@ -1298,6 +1304,9 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 		CString	strTabTitle(dlg.m_strTabName);
 
 		if (windowSettings.bShowCommandInTabs) strTabTitle += m_activeView->GetConsoleCommand();
+
+		// We always give the tool tip the complete, untrimmed text
+		UpdateTabToolTip(*m_activeView, strTabTitle);
 
 		if ((windowSettings.dwTrimTabTitles > 0) && (strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles)))
 		{

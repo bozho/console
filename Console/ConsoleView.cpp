@@ -36,7 +36,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_bResizing(false)
 , m_bAppActive(true)
 , m_bActive(true)
-, m_bNeedFullRepaint(true) // first OnPaint will do a full repaint
+, m_bNeedFullRepaint(false) // first OnPaint will do a full repaint
 , m_bUseTextAlphaBlend(false)
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
@@ -203,6 +203,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	{
 		return -1;
 	}
+
 	m_bInitializing = false;
 
 	// set current language in the console window
@@ -299,6 +300,9 @@ LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 	// showing the view, repaint
 	if (pWinPos->flags & SWP_SHOWWINDOW) Repaint(false);
+
+	// force full repaint for relative backgrounds
+	if (m_tabData->imageData.bRelative && !(pWinPos->flags & SWP_NOMOVE)) m_bNeedFullRepaint = true;
 
 	return 0;
 }
@@ -832,6 +836,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 	}
 
 	Repaint(false);
+
 	return 0;
 }
 
@@ -1650,29 +1655,6 @@ void ConsoleView::UpdateTitle()
 
 
 /////////////////////////////////////////////////////////////////////////////
-/*
-void ConsoleView::Repaint()
-{
-//	RepaintText(m_dcText);
-//	RepaintTextChanges(m_dcText);
-
-	// repaint text layer
- 	if (GetBufferDifference() > 15)
- 	{
-		RepaintText(m_dcText);
-	}
-	else
-	{
-		RepaintTextChanges(m_dcText);
-	}
-
-	BitBltOffscreen();
-}
-*/
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
 
 void ConsoleView::RepaintText(CDC& dc)
 {
@@ -1823,13 +1805,9 @@ void ConsoleView::RepaintText(CDC& dc)
 
 			if (bTextOut)
 			{
-//				dc.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
-
-//				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
 				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*nCharWidths, dwY+m_nCharHeight);
 
 				dc.ExtTextOut(dwX, dwY, 0, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
-//				dwX += static_cast<int>(strText.length() * m_nCharWidth);
 				dwX += static_cast<int>(nCharWidths * m_nCharWidth);
 
 				dc.SetBkMode(nBkMode);
@@ -1851,8 +1829,6 @@ void ConsoleView::RepaintText(CDC& dc)
 
 		if (strText.length() > 0)
 		{
-//			dc.TextOut(dwX, dwY, strText.c_str(), static_cast<int>(strText.length()));
-//			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*strText.length(), dwY+m_nCharHeight);
 			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*nCharWidths, dwY+m_nCharHeight);
 			dc.ExtTextOut(dwX, dwY, 0, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 		}
@@ -1921,11 +1897,6 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 							rect.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
 							rect.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
 							SRCCOPY);
-
-						// RepaintTextChanges is never called for relative backgrounds
-//						assert(false);
-						// TODO: blit relative image
-//						dc.FillRect(&rect, m_backgroundBrush);
 					}
 					else
 					{
@@ -1938,7 +1909,6 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 							rect.left, 
 							rect.top, 
 							SRCCOPY);
-//						dc.FillRect(&rect, bb);
 					}
 				}
 
@@ -1957,9 +1927,6 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 				
 				dc.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				dc.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]);
-//				dc.TextOut(dwX, dwY, &(m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar), 1);
-
-//				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth, dwY+m_nCharHeight);
 
 				dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, &(m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar), 1, NULL);
 			}
@@ -1996,7 +1963,9 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 		GetClientRect(&rectBlit);
 	}
 
-//	if ((m_tabData->backgroundImageType == bktypeNone) || !m_tabData->imageData.bRelative)
+	// we can skip this for relative background images when a full repaint 
+	// is needed (UpdateOffscreen will be called in OnPaint)
+	if (!m_tabData->imageData.bRelative || (m_tabData->imageData.bRelative && !m_bNeedFullRepaint))
 	{
 		// we don't do this for relative backgrounds here
 		UpdateOffscreen(rectBlit);
@@ -2012,122 +1981,6 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 
 void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 {
-/*
-	CRect	rectWindow;
-	GetClientRect(&rectWindow);
-
-	g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_background);
-
-	if (m_tabData->backgroundImageType != bktypeNone)
-	{
-		g_imageHandler->UpdateImageBitmap(m_dcOffscreen, rectWindow, m_background);
-
-		if (m_tabData->imageData.bRelative)
-		{
-			CPoint	pointClientScreen(0, 0);
-			ClientToScreen(&pointClientScreen);
-
-			m_dcOffscreen.BitBlt(
-							rectBlit.left, 
-							rectBlit.top, 
-							rectBlit.right, 
-							rectBlit.bottom, 
-							m_background->dcImage, 
-							rectBlit.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
-							rectBlit.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
-							SRCCOPY);
-		}
-		else
-		{
-			m_dcOffscreen.BitBlt(
-							rectBlit.left, 
-							rectBlit.top, 
-							rectBlit.right, 
-							rectBlit.bottom, 
-							m_background->dcImage, 
-							rectBlit.left, 
-							rectBlit.top, 
-							SRCCOPY);
-		}
-
-		// if ClearType is active, use AlphaBlend
-		if (m_bUseTextAlphaBlend)
-		{
-			BLENDFUNCTION blendFn;
-
-			blendFn.BlendOp				= AC_SRC_OVER;
-			blendFn.BlendFlags			= 0;
-			blendFn.SourceConstantAlpha	= 255;
-			blendFn.AlphaFormat			= AC_SRC_ALPHA;
-
-			m_dcOffscreen.AlphaBlend(
-							rectWindow.left, 
-							rectWindow.top, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_dcText, 
-							rectWindow.left, 
-							rectWindow.top, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							blendFn);
-		}
-		else
-		{
-			// TransparentBlt seems to fail for rectangles not completely on screen, so we blit entire client area here
-			m_dcOffscreen.TransparentBlt(
-							rectWindow.left, 
-							rectWindow.top, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_dcText, 
-							rectWindow.left, 
-							rectWindow.top, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_tabData->crBackgroundColor);
-		}
-	}
-	else
-	{
-		// if ClearType is active, use AlphaBlend
-		if (m_bUseTextAlphaBlend)
-		{
-			BLENDFUNCTION blendFn;
-
-			blendFn.BlendOp				= AC_SRC_OVER;
-			blendFn.BlendFlags			= 0;
-			blendFn.SourceConstantAlpha	= 255;
-			blendFn.AlphaFormat			= AC_SRC_ALPHA;
-
-			m_dcOffscreen.FillRect(rectWindow, m_backgroundBrush);
-			m_dcOffscreen.AlphaBlend(
-							rectWindow.left, 
-							rectWindow.top, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							m_dcText, 
-							rectWindow.left, 
-							rectWindow.top, 
-							rectWindow.right, 
-							rectWindow.bottom, 
-							blendFn);
-		}
-		else
-		{
-			m_dcOffscreen.BitBlt(
-							rectBlit.left, 
-							rectBlit.top, 
-							rectBlit.right, 
-							rectBlit.bottom, 
-							m_dcText, 
-							rectBlit.left, 
-							rectBlit.top, 
-							SRCCOPY);
-		}
-	}
-*/
-
 	m_dcOffscreen.BitBlt(
 					rectBlit.left, 
 					rectBlit.top, 

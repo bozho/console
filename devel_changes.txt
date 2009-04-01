@@ -7,6 +7,10 @@ Build 145
 - [BR#2722494] alpha transparency is now set properly for a pinned-to-desktop 
   Console window
 
+- [BR#2547017] Tab tooltips now show complete title (thanks to Phillip Foose for the patch)
+
+- a small speed optimization for relative backgrounds
+
 
 Build 144
 ---------

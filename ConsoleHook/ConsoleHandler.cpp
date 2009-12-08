@@ -1105,8 +1105,6 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				// refresh timer
 				ReadConsoleBuffer();
-				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
 				break;
 			}
 

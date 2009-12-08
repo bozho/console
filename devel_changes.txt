@@ -11,6 +11,8 @@ Build 145
 
 - a small speed optimization for relative backgrounds
 
+- fixed Win7 lockup (thanks to akirill for the patch)
+
 
 Build 144
 ---------

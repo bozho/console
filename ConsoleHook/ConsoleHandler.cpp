@@ -1066,9 +1066,6 @@ DWORD ConsoleHandler::MonitorThread()
 
 				ScrollConsole(hStdOut.get(), m_newScrollPos->cx, m_newScrollPos->cy);
 				ReadConsoleBuffer();
-
-				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
 				break;
 			}
 
@@ -1089,9 +1086,6 @@ DWORD ConsoleHandler::MonitorThread()
 
 				ResizeConsoleWindow(hStdOut.get(), m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows, m_newConsoleSize->dwResizeWindowEdge);
 				ReadConsoleBuffer();
-
-				::ResetEvent(hStdOut.get());
-//				::ResetEvent(hStdErr);
 				break;
 			}
 

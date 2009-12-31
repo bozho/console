@@ -1,6 +1,12 @@
 v2.00
 =====
 
+Build 146
+=========
+
+- a better Win7 lockup fix (again, thanks to akirill for the patch :-)
+
+
 Build 145
 =========
 

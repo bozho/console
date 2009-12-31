@@ -50,7 +50,7 @@ using namespace boost;
 
 #define	VERSION_MAJOR	2
 #define	VERSION_MINOR	0
-#define	VERSION_BUILD	145
+#define	VERSION_BUILD	146
 
 //////////////////////////////////////////////////////////////////////////////
 

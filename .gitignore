@@ -5,3 +5,5 @@
 bin/
 obj/
 
+*.aps
+*.user

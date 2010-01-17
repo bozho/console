@@ -1253,24 +1253,22 @@ void ConsoleView::Paste()
 
 void ConsoleView::DumpBuffer()
 {
-	wstring		strText(L"");
-	DWORD		dwOffset = 0;
+	wofstream of;
+	of.open(Helpers::ExpandEnvironmentStrings(_T("%temp%\\console.dump")).c_str());
+	DWORD       dwOffset = 0;
 	MutexLock	bufferLock(m_bufferMutex);
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
 		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
 		{
-			strText += m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
+			of << m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
 			++dwOffset;
 		}
 
-		strText += L"\n";
+		of << endl;
 	}
 
-	wofstream of;
-	of.open("C:\\console.dump");
-	of << strText;
 	of.close();
 }
 

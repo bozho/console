@@ -55,7 +55,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200"
 				Optimization="0"
-				AdditionalIncludeDirectories="../TabbingFramework"
+				AdditionalIncludeDirectories="../TabbingFramework;../wtl/wtl/include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -72,7 +72,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);../wtl/wtl/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -147,7 +147,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200"
 				Optimization="0"
-				AdditionalIncludeDirectories="../TabbingFramework"
+				AdditionalIncludeDirectories="../TabbingFramework;../wtl/wtl/include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;_DEBUG"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
@@ -164,7 +164,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_DEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);../wtl/wtl/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -238,7 +238,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200"
-				AdditionalIncludeDirectories="../TabbingFramework"
+				AdditionalIncludeDirectories="../TabbingFramework;../wtl/wtl/include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -254,7 +254,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);../wtl/wtl/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -327,7 +327,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm200"
-				AdditionalIncludeDirectories="../TabbingFramework"
+				AdditionalIncludeDirectories="../TabbingFramework;../wtl/wtl/include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;STRICT;NDEBUG"
 				ExceptionHandling="1"
 				RuntimeLibrary="2"
@@ -343,7 +343,7 @@
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="NDEBUG"
 				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
+				AdditionalIncludeDirectories="$(IntDir);../wtl/wtl/include"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"

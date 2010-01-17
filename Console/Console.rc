@@ -780,7 +780,7 @@ END
 STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "Console"
-    IDS_TAB_CREATE_FAILED   "Failed to open %s tab!\nThe process could still be running (use the Task Manager to find it and end it)"
+    IDS_TAB_CREATE_FAILED   "Failed to open %s tab!\nThe process %s could still be running (use the Task Manager to find it and end it)"
 END
 
 STRINGTABLE 

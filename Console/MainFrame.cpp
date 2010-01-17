@@ -1642,9 +1642,23 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	if (hwndConsoleView == NULL)
 	{
 		CString	strMessage;
+				
+		// copied from ConsoleView::OnCreate
+		wstring strShell;
+		shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
+		if (strDbgCmdLine.length() > 0)
+		{
+			strShell	= strDbgCmdLine;
+		}
+		else if (tabData->strShell.length() > 0)
+		{
+			strShell	= tabData->strShell;
+		}
+		// end of copy from ConsoleView::OnCreate
+ 
+		strMessage.Format(IDS_TAB_CREATE_FAILED, g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str(), strShell.c_str());
+ 		::MessageBox(m_hWnd, strMessage, L"Error", MB_OK|MB_ICONERROR);
 
-		strMessage.Format(IDS_TAB_CREATE_FAILED, g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str());
-		::MessageBox(m_hWnd, strMessage, L"Error", MB_OK|MB_ICONERROR);
 		return false;
 	}
 

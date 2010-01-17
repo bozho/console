@@ -980,6 +980,7 @@ DWORD ConsoleHandler::MonitorThread()
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
 		hStdOut.get(),
+		m_hParentProcess.get()
 	};
 
 	DWORD	dwWaitRes		= 0;
@@ -1101,6 +1102,11 @@ DWORD ConsoleHandler::MonitorThread()
 				ReadConsoleBuffer();
 				break;
 			}
+
+			// close the console if the parent process died
+			case WAIT_OBJECT_0 + 7:
+				::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
+				break;
 
 		}
 	}

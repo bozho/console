@@ -55,6 +55,12 @@ extern CAppModule _Module;
   #pragma comment(linker, "/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #endif
 
+// the next three are copies from resource.h, MODIFY IN SYNC
+// they have to be defined *before* CustomTabCtrl.h is included
+#define IDS_TABBINGFRAMEWORK_TIPS_SCROLLRIGHT 187
+#define IDS_TABBINGFRAMEWORK_TIPS_SCROLLLEFT 188
+#define IDS_TABBINGFRAMEWORK_TIPS_CLOSE 189
+
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
 //#include "SimpleTabCtrls.h"

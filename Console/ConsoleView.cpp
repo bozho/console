@@ -311,6 +311,24 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
 	if (((uMsg == WM_KEYDOWN) || (uMsg == WM_KEYUP)) && (wParam == VK_PACKET)) return 0;
 
+	if (uMsg == WM_MOUSEWHEEL && wParam & MK_CONTROL) {
+		short direction = HIWORD(wParam);
+
+		// calculate new font size in the [5, 36] interval
+		DWORD size = max(5, min(36, m_appearanceSettings.fontSettings.dwSize + direction / 120));
+
+		// only if the new size is different (to avoid flickering at extremes)
+		if (m_appearanceSettings.fontSettings.dwSize != size) {
+			// adjust the font size
+			m_appearanceSettings.fontSettings.dwSize = size;
+			RecreateOffscreenBuffers();
+			m_mainFrame.AdjustWindowSize(false);
+			Repaint(true);
+		}
+
+		return 0;
+	}
+
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
 //		TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
@@ -962,6 +980,7 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect)
 	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
 	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
 
+	/* TODO: this calculation does not work very well for multiple monitors
 	CWindow desktopWindow(::GetDesktopWindow());
 	CRect	rectDesktop;
 	bool	bRecalc = false;
@@ -985,6 +1004,7 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect)
 		maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
 		maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
 	}
+	*/
 
 	if (m_bShowVScroll) maxClientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) maxClientRect.bottom+= m_nHScrollWidth;

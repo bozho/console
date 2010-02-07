@@ -195,6 +195,7 @@ class MainFrame
 
 		void AdjustWindowRect(CRect& rect);
 		void SetSelectionSize(int iSelectionSize);
+		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 
 	private:
 
@@ -218,7 +219,6 @@ class MainFrame
 		void ShowStatusbar(BOOL bShow);
 
 		void ResizeWindow();
-		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
 		void SetMargins();
 		void SetTransparency();
 		void CreateAcceleratorTable();

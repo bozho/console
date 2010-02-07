@@ -570,17 +570,33 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL&
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	// Start timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
-	// when the Console window is resized using a mouse)
-	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
-	// message after resizing a window.
-	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
-
-	if (m_activeView.get() != NULL) m_activeView->SetResizing(true);
-
 	m_dwResizeWindowEdge = static_cast<DWORD>(wParam);
+
+	if (!m_activeView)
+		return 0;
+	
+	m_activeView->SetResizing(true);
+
+	CPoint pointSize = m_activeView->GetCellSize();
+	RECT *rectNew = (RECT *)lParam;
+
+	CRect rectWindow;
+	GetWindowRect(&rectWindow);
+
+	if (rectWindow.top != rectNew->top)
+		rectNew->top += (rectWindow.top - rectNew->top) - (rectWindow.top - rectNew->top) / pointSize.y * pointSize.y;
+
+	if (rectWindow.bottom != rectNew->bottom)
+		rectNew->bottom += (rectWindow.bottom - rectNew->bottom) - (rectWindow.bottom - rectNew->bottom) / pointSize.y * pointSize.y;
+
+	if (rectWindow.left != rectNew->left)
+		rectNew->left += (rectWindow.left - rectNew->left) - (rectWindow.left - rectNew->left) / pointSize.x * pointSize.x;
+
+	if (rectWindow.right != rectNew->right)
+		rectNew->right += (rectWindow.right - rectNew->right) - (rectWindow.right - rectNew->right) / pointSize.x * pointSize.x;
+
 	return 0;
 }
 

@@ -783,14 +783,21 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 	wstring strArea(reinterpret_cast<wchar_t*>(lParam));
 
-	if (strArea == L"Windows")
-	{
-		g_imageHandler->ReloadDesktopImages();
-		m_activeView->Invalidate();
-	}
-	else if (strArea == L"Environment")
+	// according to WM_SETTINGCHANGE doc:
+	// to change environment, lParam should be "Environment"
+	if (strArea == L"Environment")
 	{
 		ConsoleHandler::UpdateEnvironmentBlock();
+	}
+	else
+	{
+		// otherwise, we don't know what has changed
+		// technically, we can skip reloading for "Policy" and "intl", but
+		// hopefully they don't happen often, so reload everything
+		g_imageHandler->ReloadDesktopImages();
+
+		// can't use Invalidate because full repaint is in order
+		m_activeView->Repaint(true);
 	}
 
 	return 0;

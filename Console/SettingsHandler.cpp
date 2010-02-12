@@ -1772,7 +1772,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 			m_settingsDirType	= dirTypeUser;
 
 			hr = XmlHelper::OpenXmlDocument(
-								m_strSettingsPath + m_strSettingsFileName, 
+								GetSettingsFileName(), 
 								m_pSettingsDocument, 
 								m_pSettingsRoot);
 		}
@@ -1783,7 +1783,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 			m_settingsDirType	= dirTypeExe;
 
 			hr = XmlHelper::OpenXmlDocument(
-								m_strSettingsPath + m_strSettingsFileName, 
+								GetSettingsFileName(), 
 								m_pSettingsDocument, 
 								m_pSettingsRoot);
 
@@ -1848,7 +1848,7 @@ bool SettingsHandler::SaveSettings()
 	m_mouseSettings.Save(m_pSettingsRoot);
 	m_tabSettings.Save(m_pSettingsRoot);
 
-	HRESULT hr = m_pSettingsDocument->save(CComVariant(m_strSettingsFileName.c_str()));
+	HRESULT hr = m_pSettingsDocument->save(CComVariant(GetSettingsFileName().c_str()));
 
 	return SUCCEEDED(hr) ? true : false;
 }

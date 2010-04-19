@@ -6,6 +6,18 @@ Build 146
 
 - a better Win7 lockup fix (again, thanks to akirill for the patch :-)
 
+- removed msv*90.dll dependencies
+
+- better error messages on shell startup
+
+- dump buffer now dumps to %TEMP%\console.dump
+
+- configuration load fix
+
+- better handling of windows settings' change
+
+- most fixes in this build are by Kirill :-)
+
 
 Build 145
 =========

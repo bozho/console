@@ -16,6 +16,8 @@ Build 146
 
 - better handling of windows settings' change
 
+- added 64-bit build
+
 - most fixes in this build are by Kirill :-)
 
 

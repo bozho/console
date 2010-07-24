@@ -1511,7 +1511,7 @@ void ConsoleView::InitializeScrollbars()
 	TRACE(L"----------------------------------------------------------------\n");
 */
 
-	if (consoleParams->dwBufferRows > consoleParams->dwRows)
+	if (m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows))
 	{
 		// set vertical scrollbar stuff
 		SCROLLINFO	si ;
@@ -1522,10 +1522,10 @@ void ConsoleView::InitializeScrollbars()
 		si.nMax		= consoleParams->dwBufferRows - 1;
 		si.nMin		= 0 ;
 
-		::FlatSB_SetScrollInfo(m_hWnd, m_appearanceSettings.controlsSettings.bShowScrollbars ? SB_VERT : SB_CTL, &si, TRUE);
+		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 	}
 
-	if (consoleParams->dwBufferColumns > consoleParams->dwColumns)
+	if (m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns))
 	{
 		// set vertical scrollbar stuff
 		SCROLLINFO	si ;
@@ -1536,7 +1536,7 @@ void ConsoleView::InitializeScrollbars()
 		si.nMax		= consoleParams->dwBufferColumns - 1;
 		si.nMin		= 0 ;
 
-		::FlatSB_SetScrollInfo(m_hWnd, m_appearanceSettings.controlsSettings.bShowScrollbars ? SB_HORZ : SB_CTL, &si, TRUE);
+		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
 	}
 }
 

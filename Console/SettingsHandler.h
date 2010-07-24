@@ -137,6 +137,7 @@ struct ControlsSettings
 	bool			bShowTabs;
 	bool			bHideSingleTab;
 	bool			bShowScrollbars;
+	bool			bFlatScrollbars;
 };
 
 //////////////////////////////////////////////////////////////////////////////

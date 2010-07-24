@@ -123,6 +123,8 @@
 #define IDC_CHECK_HIDE_SCROLLBARS       1094
 #define IDC_CHECK_SHOW_SCROLLBARS       1094
 #define IDC_RADIO_DOCK_NONE             1095
+#define IDC_CHECK_SHOW_SCROLLBARS2      1095
+#define IDC_CHECK_FLAT_SCROLLBARS       1095
 #define IDC_RADIO_DOCK_TL               1096
 #define IDC_RADIO_DOCK_TR               1097
 #define IDC_RADIO_DOCK_BL               1098

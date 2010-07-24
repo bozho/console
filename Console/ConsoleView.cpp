@@ -1500,7 +1500,16 @@ void ConsoleView::InitializeScrollbars()
  	m_bShowHScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
 
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
-	::InitializeFlatSB(m_hWnd);
+
+	if (m_appearanceSettings.controlsSettings.bFlatScrollbars)
+	{
+		::InitializeFlatSB(m_hWnd);
+		::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, FSB_ENCARTA_MODE, TRUE);
+	}
+	else
+	{
+		::UninitializeFlatSB(m_hWnd);
+	}
 
   	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
   	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);

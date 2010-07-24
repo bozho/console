@@ -64,6 +64,7 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGEREQUEST, OnInputLangChangeRequest)
+			MESSAGE_HANDLER(WM_INPUTLANGCHANGE, OnInputLangChange)
 			MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
 			MESSAGE_HANDLER(UM_UPDATE_CONSOLE_VIEW, OnUpdateConsoleView)
 			COMMAND_RANGE_HANDLER(ID_SCROLL_UP, ID_SCROLL_ALL_RIGHT, OnScrollCommand)
@@ -89,6 +90,7 @@ class ConsoleView
 		LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnInputLangChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 

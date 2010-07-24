@@ -726,6 +726,19 @@ LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM l
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT ConsoleView::OnInputLangChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, lParam);
+	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	HDROP	hDrop = reinterpret_cast<HDROP>(wParam);

@@ -91,9 +91,9 @@
 #define IDC_SPIN_BUFFER_COLUMNS2        1066
 #define IDC_STATIC_INACTIVE_ALPHA       1067
 #define IDC_TRANSPARENCY_TYPE           1068
-#define IDC_TRANSPARENCY_TYPE1          1069
-#define IDC_TRANSPARENCY_TYPE2          1070
-#define IDC_TRANSPARENCY_TYPE3          1071
+#define IDC_TRANSPARENCY_TYPE2          1069
+#define IDC_TRANSPARENCY_TYPE3          1070
+#define IDC_TRANSPARENCY_TYPE4          1071
 #define IDC_KEY_COLOR                   1072
 #define IDC_STATIC_ACTIVE_WINDOW        1073
 #define IDC_STATIC_INACTIVE_WINDOW      1074
@@ -213,6 +213,10 @@
 #define IDC_COMBO_SMOOTHING             1169
 #define IDC_CHECK_LEAVE_HIGHLIGHTED     1170
 #define IDC_CHECK_START_HIDDEN          1171
+#define IDC_RADIO1                      1172
+#define IDC_APPTEXT                     1173
+#define IDC_APPICON                     1174
+#define ID_RENAME_TAB_OK                1175
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -236,9 +240,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        215
+#define _APS_NEXT_RESOURCE_VALUE        222
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1172
+#define _APS_NEXT_CONTROL_VALUE         1176
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

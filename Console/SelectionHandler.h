@@ -50,9 +50,9 @@ class SelectionHandler
 
 		void BitBlt(CDC& offscreenDC);
 
+		void GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd);
 	private:
 
-		void GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd);
 		void GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect);
 
 	private:

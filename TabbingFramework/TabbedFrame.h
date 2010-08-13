@@ -845,8 +845,14 @@ public:
 
 template <
 	class T,
+#ifdef _USE_AERO
+	class TTabCtrl = CAeroTabCtrl<CTabViewTabItem>,
+	class TBase = aero::CFrameWindowImpl<T, ATL::CWindow, ATL::CFrameWinTraits>
+#else
 	class TTabCtrl = CDotNetTabCtrl<CTabViewTabItem>,
-	class TBase = WTL::CFrameWindowImpl<T, ATL::CWindow, ATL::CFrameWinTraits> >
+	class TBase = WTL::CFrameWindowImpl<T, ATL::CWindow, ATL::CFrameWinTraits>
+#endif
+>
 class CTabbedFrameImpl :
 	public TBase,
 	public CCustomTabOwnerImpl<T, TTabCtrl>

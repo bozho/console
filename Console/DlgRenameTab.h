@@ -12,7 +12,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 class DlgRenameTab 
+#ifdef _USE_AERO
+  : public aero::CDialogImpl<DlgRenameTab>
+#else
 	: public CDialogImpl<DlgRenameTab>
+#endif
 	, public CWinDataExchange<DlgRenameTab>
 {
 
@@ -26,6 +30,9 @@ class DlgRenameTab
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgRenameTab)
+#ifdef _USE_AERO
+      CHAIN_MSG_MAP(aero::CDialogImpl<DlgRenameTab>)
+#endif
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)

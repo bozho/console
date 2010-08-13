@@ -6,10 +6,17 @@
 #pragma once
 
 // Change these values to use different versions
+#ifdef _USE_AERO
+#define WINVER        0x0600
+#define _WIN32_WINNT  0x0600
+#define _WIN32_IE     0x0700
+#define _RICHEDIT_VER 0x0200
+#else
 #define WINVER			0x0501
 #define _WIN32_WINNT	0x0501 
 #define _WIN32_IE		0x0400
 #define _RICHEDIT_VER	0x0100
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,18 +46,27 @@ extern CAppModule _Module;
 #include <atltheme.h>
 #pragma warning(pop)
 
-#include "userenv.h"
+#include <userenv.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)
-#include "atlgdix.h"
+#include <atlgdix.h>
+
+#ifdef _USE_AERO
+#include <dwmapi.h>
+#include <gdiplus.h>
+#include "wtlaero.h"
+#pragma comment (lib, "gdiplus.lib")
+#endif
 
 #include "CustomTabCtrl.h"
 #include "DotNetTabCtrl.h"
-//#include "SimpleTabCtrls.h"
-//#include "SimpleDlgTabCtrls.h"
+#ifdef _USE_AERO
+#include "resource.h"
+#include "AeroTabCtrl.h"
+#endif
 #include "TabbedFrame.h"
-//#include "TabbedMDI.h"
+
 #pragma warning(pop)
 
 #include <HtmlHelp.h>

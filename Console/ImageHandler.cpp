@@ -231,7 +231,7 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 	bkImage->dwOriginalImageWidth	= bkImage->originalImage->getWidth();
 	bkImage->dwOriginalImageHeight	= bkImage->originalImage->getHeight();
 
-	bkImage->originalImage->convertTo24Bits();
+	bkImage->originalImage->convertTo32Bits();
 
 	return true;
 }

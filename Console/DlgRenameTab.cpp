@@ -31,6 +31,14 @@ DlgRenameTab::DlgRenameTab(const CString& strTabName)
 LRESULT DlgRenameTab::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	DoDataExchange(DDX_LOAD);
+
+#ifdef _USE_AERO
+  AERO_CONTROL(CEdit, m_Edit, IDC_TAB_NAME)
+  AERO_CONTROL(CButton, m_Cancel, IDCANCEL)
+  AERO_CONTROL(CStatic, m_Label, IDC_STATIC)
+  AERO_CONTROL(CButton, m_Ok, IDOK)
+#endif
+
 	return TRUE;
 }
 

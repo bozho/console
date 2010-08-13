@@ -1048,10 +1048,7 @@ public:
 			}
 			if(pItem->UsingText())
 			{
-				RECT rcText = {0};
-				_CSTRING_NS::CString sText = pItem->GetText();
-				dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
-				rcItem.right += (rcText.right - rcText.left) + (m_settings.iPadding * 2);
+				rcItem.right += pItem->GetTextSize(dc) + (m_settings.iPadding * 2);
 			}
 			rcItem.right += m_settings.iMargin;
 			pItem->SetRect(rcItem);
@@ -1197,10 +1194,7 @@ public:
 			}
 			if(pItem->UsingText())
 			{
-				RECT rcText = {0};
-				_CSTRING_NS::CString sText = pItem->GetText();
-				dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
-				rcItem.right += (rcText.right - rcText.left) + (m_settings.iPadding * 2);
+			rcItem.right += pItem->GetTextSize(dc) + (m_settings.iPadding * 2);
 			}
 			rcItem.right += m_settings.iMargin;
 			pItem->SetRect(rcItem);

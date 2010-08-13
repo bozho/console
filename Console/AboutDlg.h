@@ -4,12 +4,20 @@
 
 #pragma once
 
-class CAboutDlg : public CDialogImpl<CAboutDlg>
+class CAboutDlg :
+#ifdef _USE_AERO
+  public aero::CDialogImpl<CAboutDlg>
+#else
+  public CDialogImpl<CAboutDlg>
+#endif
 {
 public:
 	enum { IDD = IDD_ABOUTBOX };
 
 	BEGIN_MSG_MAP(CAboutDlg)
+#ifdef _USE_AERO
+    CHAIN_MSG_MAP(aero::CDialogImpl<CAboutDlg>)
+#endif
 		MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 		COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 		COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)

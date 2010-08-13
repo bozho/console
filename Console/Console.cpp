@@ -219,6 +219,13 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 //	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
 
+#ifdef _USE_AERO
+  // init GDI+
+  ULONG_PTR gdiplusToken;
+  Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+  Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+#endif
+
 	g_settingsHandler.reset(new SettingsHandler());
 	g_imageHandler.reset(new ImageHandler());
 
@@ -231,6 +238,11 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 	ATLASSERT(SUCCEEDED(hRes));
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);
+
+#ifdef _USE_AERO
+  // shutdown GDI+;
+  Gdiplus::GdiplusShutdown(gdiplusToken);
+#endif
 
 	_Module.Term();
 	g_settingsHandler.reset();

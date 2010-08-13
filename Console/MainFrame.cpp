@@ -54,7 +54,10 @@ MainFrame::MainFrame
 , m_rectRestoredWnd(0, 0, 0, 0)
 , m_animationWindow()
 {
-
+  m_Margins.cxLeftWidth    = 0;
+  m_Margins.cxRightWidth   = 0;
+  m_Margins.cyTopHeight    = 0;
+  m_Margins.cyBottomHeight = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -106,7 +109,11 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// remove old menu
 	SetMenu(NULL);
 
+#ifdef _USE_AERO
+  HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+#else
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+#endif
 
 	TBBUTTONINFO tbi;
 	m_toolbar.Attach(hWndToolBar);
@@ -116,21 +123,34 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	tbi.cbSize	= sizeof(TBBUTTONINFO);
 	
 	m_toolbar.GetButtonInfo(ID_FILE_NEW_TAB, &tbi);
-
+#ifdef _USE_AERO
+  // TBSTYLE_DROPDOWN : the button separator is not drawed
+	tbi.fsStyle |= BTNS_WHOLEDROPDOWN;
+#else
 	tbi.fsStyle |= TBSTYLE_DROPDOWN;
+#endif
 	m_toolbar.SetButtonInfo(ID_FILE_NEW_TAB, &tbi);
 
+#ifdef _USE_AERO
+  CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE & ~RBS_BANDBORDERS);
+#else
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
-	AddSimpleReBarBand(hWndCmdBar);
+#endif
+  AddSimpleReBarBand(hWndCmdBar, NULL, FALSE);
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+
+#ifdef _USE_AERO
+  // we remove the grippers
+  CReBarCtrl rebar(m_hWndToolBar);
+  rebar.LockBands(true);
+#endif
 
 	CreateStatusBar();
 
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
-//	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
-	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
+	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK);
 
 	// create initial console window(s)
 	if (m_startupTabs.size() == 0)
@@ -1094,7 +1114,18 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 	if (pTabItem == NULL)
 	{
-		CreateNewConsole(0);
+
+    // I prefer choose my console with the good environment ...
+		// CreateNewConsole(0);
+		
+    if (!m_tabsMenu.IsNull())
+    {
+      // a priori y a une petite inversion X et Y ...
+      CPoint point(pTabItems->pt.y, pTabItems->pt.x);
+      CPoint screenPoint(point);
+      this->m_TabCtrl.ClientToScreen(&screenPoint);
+      m_tabsMenu.TrackPopupMenu(0, screenPoint.x, screenPoint.y, m_hWnd);
+    }
 	}
 	else
 	{
@@ -1537,82 +1568,7 @@ void MainFrame::AdjustWindowRect(CRect& rect)
 	}
 
 	rect.bottom	+= GetTabAreaHeight(); //+0
-//	rect.right	+= 0;
-
-//	TRACE(L"AdjustWindowRect: %ix%i\n", rect.Width(), rect.Height());
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-/*
-void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
-{
-	// adjust the active view
-//	if (m_activeView.get() == NULL) return;
-
-
-//	GetClientRect(&rectView);
-
-/ *
-	if (m_bToolbarVisible)
-	{
-
-		CRect		rectToolBar(0, 0, 0, 0 );
-		CRect		rectToolBarBorders(0, 0, 0, 0);
-		CReBarCtrl	rebar(m_hWndToolBar);
-		int			nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 1);
-
-		rebar.GetRect(nBandIndex, &rectToolBar);
-		rebar.GetBandBorders(nBandIndex, &rectToolBarBorders);
-		rectView.bottom	-= rectToolBar.bottom - rectToolBar.top;
-
-		rectView.bottom	-= rectToolBarBorders.top + rectToolBarBorders.bottom;
-	}
-
-	if (m_bStatusBarVisible)
-	{
-		CRect	rectStatusBar(0, 0, 0, 0);
-
-		::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
-		rectView.bottom	-= rectStatusBar.bottom - rectStatusBar.top;
-	}
-
-	rectView.bottom	-= GetTabAreaHeight(); //+0
-* /
-
-	// adjust the active view
-	if (m_activeView.get() == NULL) return;
-
-	m_activeView->AdjustRectAndResize(rectView);
-	
-	// for other views, first set view size and then resize their Windows consoles
-	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-	{
-		if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
-
-		it->second->SetWindowPos(
-						0, 
-						0, 
-						0, 
-						rectView.right - rectView.left, 
-						rectView.bottom - rectView.top, 
-						SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
-		
-		it->second->AdjustRectAndResize(rectView);
-	}
-}
-*/
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1743,26 +1699,54 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	for (it; it != tabDataVector.end(); ++it, ++dwId)
 	{
 		CMenuItemInfo	subMenuItem;
-/*
-		ICONINFO		iconInfo;
-		BITMAP			bmp;
-
-		::GetIconInfo(tabDataVector[dwId-ID_NEW_TAB_1]->tabSmallIcon, &iconInfo);
-		::GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
-*/
 
 		subMenuItem.fMask		= MIIM_STRING | MIIM_ID;
-/*
-		subMenuItem.fMask		= MIIM_BITMAP | MIIM_ID | MIIM_TYPE;
-		subMenuItem.fType		= MFT_BITMAP;
-*/
 		subMenuItem.wID			= dwId;
-//		subMenuItem.hbmpItem	= iconInfo.hbmColor;
 		subMenuItem.dwTypeData	= const_cast<wchar_t*>((*it)->strTitle.c_str());
 		subMenuItem.cch			= static_cast<UINT>((*it)->strTitle.length());
 
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
-//		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, iconInfo.hbmColor, NULL);
+
+    // To draw icons with good transparency
+    CIcon    tabSmallIcon;
+
+    // on essaye de charger l'icone
+    if( tabDataVector[dwId-ID_NEW_TAB_1]->strIcon.length() > 0 )
+    {
+      tabSmallIcon.Attach(
+        static_cast<HICON>(
+          ::LoadImage(
+            NULL, 
+            Helpers::ExpandEnvironmentStrings(tabDataVector[dwId-ID_NEW_TAB_1]->strIcon).c_str(), 
+            IMAGE_ICON, 
+            16, 
+            16, 
+            LR_DEFAULTCOLOR|LR_LOADFROMFILE)));
+    }
+    else
+    {
+      tabSmallIcon.Attach(
+        static_cast<HICON>(
+          ::LoadImage(
+            ::GetModuleHandle(NULL), 
+            MAKEINTRESOURCE(IDR_MAINFRAME), 
+            IMAGE_ICON, 
+            16, 
+            16, 
+            LR_DEFAULTCOLOR)));
+    }
+
+    CBitmap bmpCopy;
+    bmpCopy.CreateCompatibleBitmap(this->GetDC(),16,16);
+    CDC dc;
+    dc.CreateCompatibleDC(this->GetDC());
+    dc.SelectBitmap(bmpCopy.m_hBitmap);
+    dc.FillSolidRect(0,0,16,16,::GetSysColor(COLOR_MENU));
+    dc.DrawIconEx(0,0,tabSmallIcon.m_hIcon,16,16);
+
+    tabDataVector[dwId-ID_NEW_TAB_1]->hMenuBitmap = (HBITMAP) CopyImage(bmpCopy.m_hBitmap,IMAGE_BITMAP,(int)GetSystemMetrics(SM_CXMENUCHECK),(int)GetSystemMetrics(SM_CYMENUCHECK),0);
+
+    tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, tabDataVector[dwId-ID_NEW_TAB_1]->hMenuBitmap, tabDataVector[dwId-ID_NEW_TAB_1]->hMenuBitmap);
 	}
 
 	// set tabs menu as popup submenu
@@ -2131,7 +2115,6 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 		
 			// adjust for the toolbar height
 			CReBarCtrl	rebar(m_hWndToolBar);
-//			clientRect.top	+= rebar.GetBarHeight() - 4;
 			clientRect.bottom -= rebar.GetBarHeight();
 
 			if (m_bStatusBarVisible)
@@ -2201,76 +2184,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 
-/*
-	CRect clientRect;
-	GetClientRect(&clientRect);
-
-	if (bMaximizing)
-	{
-		// adjust for the toolbar height
-		CReBarCtrl	rebar(m_hWndToolBar);
-		clientRect.top	+= rebar.GetBarHeight() - 4;
-
-		if (m_bStatusBarVisible)
-		{
-			CRect	rectStatusBar(0, 0, 0, 0);
-
-			::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
-			clientRect.bottom	-= rectStatusBar.bottom - rectStatusBar.top;
-		}
-
-		clientRect.top += GetTabAreaHeight(); //+0
-	}
-
-	if (bResizeConsole)
-	{
-//		AdjustAndResizeConsoleView(clientRect);
-
-		// adjust the active view
-		if (m_activeView.get() == NULL) return;
-
-		m_activeView->AdjustRectAndResize(clientRect);
-		
-		// for other views, first set view size and then resize their Windows consoles
-		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-		{
-			if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
-
-			it->second->SetWindowPos(
-							0, 
-							0, 
-							0, 
-							clientRect.Width(), 
-							clientRect.Height(), 
-							SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
-			
-			it->second->AdjustRectAndResize(clientRect);
-		}
-	}
-	else
-	{
-		if (m_activeView.get() == NULL) return;
-
-		m_activeView->GetRect(clientRect);
-	}
-
-	AdjustWindowRect(clientRect);
-
-	SetWindowPos(
-		0, 
-		0, 
-		0, 
-		clientRect.Width(), 
-		clientRect.Height() + 4, 
-		SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
-
-	// update window width and height
-	CRect rectWindow;
-
-	GetWindowRect(&rectWindow);
-	m_dwWindowWidth	= rectWindow.Width();
-	m_dwWindowHeight= rectWindow.Height();
-*/
+  SetMargins();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2278,10 +2192,43 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::SetTransparency()
+void MainFrame::SetMargins(void)
 {
+  CReBarCtrl rebar(m_hWndToolBar);
+  m_Margins.cyTopHeight = rebar.GetBarHeight() + m_nTabAreaHeight;
+  SetTransparency();
+	}
+
+void MainFrame::SetTransparency()
+	{
 	// set transparency
+  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+
+  // RAZ
+	SetWindowLong(
+		GWL_EXSTYLE, 
+		GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
+		
+#ifdef _USE_AERO
+  BOOL fEnabled = FALSE;
+  DwmIsCompositionEnabled(&fEnabled);
+  if( fEnabled )
+		{
+    if( stylesSettings.bCaption )
+    {
+      ::DwmExtendFrameIntoClientArea(m_hWnd, &m_Margins);
+	}
+	else
+	{
+      DWM_BLURBEHIND bb = {0};
+      bb.dwFlags = DWM_BB_ENABLE;
+      bb.fEnable = FALSE;
+      bb.hRgnBlur = NULL;
+      ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+	}
+}
+#endif
 
 	switch (transparencySettings.transType)
 	{
@@ -2327,14 +2274,30 @@ void MainFrame::SetTransparency()
 			break;
 		}
 
-		default :
+    case transGlass :
 		{
-			SetWindowLong(
-					GWL_EXSTYLE, 
-					GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
+#ifdef _USE_AERO
+      if( fEnabled )
+      {
+        if( stylesSettings.bCaption )
+        {
+          MARGINS m = {-1,-1,-1,-1};
+          ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
 		}
+        else
+        {
+          DWM_BLURBEHIND bb = {0};
+          bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;
+          bb.fEnable = TRUE;
+          bb.fTransitionOnMaximized = TRUE;
+          bb.hRgnBlur = NULL;
+          ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+        }
+      }
+#endif
 
-
+      break;
+    }
 	}
 }
 
@@ -2421,6 +2384,9 @@ void MainFrame::UnregisterGlobalHotkeys()
 void MainFrame::CreateStatusBar()
 {
 	m_hWndStatusBar = m_statusBar.Create(*this);
+#ifdef _USE_AERO
+  aero::Subclass(m_ASB, m_hWndStatusBar);
+#endif
     UIAddStatusBar(m_hWndStatusBar);
 
 	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_ROWS_COLUMNS };

@@ -90,8 +90,11 @@ END
 //
 // Bitmap
 //
-
+#ifdef _USE_AERO
+IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
+#else
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+#endif
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -181,27 +184,27 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 187, 102
+IDD_ABOUTBOX DIALOGEX 0, 0, 187, 131
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,130,81,50,14
-    CTEXT           "Console 2.0",IDC_STATIC_VERSION,25,56,78,8,0,WS_EX_ACCEPTFILES
-    ICON            IDR_MAINFRAME,IDC_STATIC,55,26,20,20
-    GROUPBOX        "",IDC_STATIC,7,7,115,88
-    CTEXT           "Copyright (C) 2001-2010\nMarko Bozikovic",IDC_STATIC,25,71,78,17
+    DEFPUSHBUTTON   "OK",IDOK,130,110,50,14
+    CTEXT           "\nConsole 2.0",IDC_STATIC_VERSION,25,41,78,25,0,WS_EX_ACCEPTFILES
+    ICON            IDR_MAINFRAME,IDC_APPICON,55,26,20,20
+    GROUPBOX        "",IDC_STATIC,7,7,115,117
+    CTEXT           "\nCopyright (C) 2001-2010\nMarko Bozikovic\n\nModified by\nChristophe Bucher",IDC_APPTEXT,14,64,103,53
 END
 
-IDD_RENAME_TAB DIALOGEX 0, 0, 186, 55
+IDD_RENAME_TAB DIALOGEX 0, 0, 202, 55
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Rename Tab"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "&New tab name:",IDC_STATIC,7,11,50,8
-    EDITTEXT        IDC_TAB_NAME,58,8,121,14,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,74,34,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,129,34,50,14
+    CTEXT           "\n&New tab name:",IDC_STATIC,7,2,58,22
+    EDITTEXT        IDC_TAB_NAME,65,8,130,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,87,34,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,145,34,50,14
 END
 
 IDD_SETTINGS_MAIN DIALOGEX 0, 0, 354, 321
@@ -360,7 +363,7 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,240,101,10
 END
 
-IDD_SETTINGS_STYLES DIALOGEX 0, 0, 226, 265
+IDD_SETTINGS_STYLES DIALOGEX 0, 0, 226, 276
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -370,8 +373,7 @@ BEGIN
     CONTROL         "Show t&abs",IDC_CHECK_SHOW_TABS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,48,49,10
     CONTROL         "Hide &single tab",IDC_CHECK_HIDE_SINGLE_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,60,59,10
     CONTROL         "Show scro&llbars",IDC_CHECK_SHOW_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,73,72,10
-    CONTROL         "&Flat scrollbars",IDC_CHECK_FLAT_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,85,59,10
-    GROUPBOX        "Controls",IDC_STATIC,0,0,88,98
+    GROUPBOX        "Controls",IDC_STATIC,0,0,88,92
     CONTROL         "&Caption *",IDC_CHECK_STYLE_CAPTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,12,47,10
     CONTROL         "Resi&zable *",IDC_CHECK_STYLE_RESIZABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,24,52,10
     CONTROL         "Bo&rder *",IDC_CHECK_STYLE_BORDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,36,43,10
@@ -382,19 +384,20 @@ BEGIN
     CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,191,50,11,14
     LTEXT           "Selection col&or:",IDC_STATIC,102,74,50,8
     CONTROL         "",IDC_SELECTION_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,153,71,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Styles",IDC_STATIC,92,0,134,98
-    CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,8,114,33,10
-    CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON,8,129,34,10
-    CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON,8,218,46,10
-    LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,19,142,47,8
-    CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,153,185,22
-    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,204,155,14,8,0,WS_EX_RIGHT
-    LTEXT           "&Inactive window",IDC_STATIC_INACTIVE_WINDOW,19,177,53,8
-    CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,190,185,22
-    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,204,192,14,8,0,WS_EX_RIGHT
-    LTEXT           "Key col&or:",IDC_STATIC_KEY_COLOR,19,235,33,8
-    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,54,232,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Window transparency",IDC_STATIC,0,98,226,162
+    GROUPBOX        "Styles",IDC_STATIC,92,0,134,92
+    CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,105,33,10
+    CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON,10,120,34,10
+    CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON,10,212,46,10
+    CONTROL         "Glass",IDC_TRANSPARENCY_TYPE4,"Button",BS_AUTORADIOBUTTON,50,120,33,10
+    LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,19,134,47,8
+    CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,145,185,22
+    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,204,147,14,8,0,WS_EX_RIGHT
+    LTEXT           "&Inactive window",IDC_STATIC_INACTIVE_WINDOW,19,169,53,8
+    CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,182,185,22
+    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,204,184,14,8,0,WS_EX_RIGHT
+    LTEXT           "Key col&or:",IDC_STATIC_KEY_COLOR,19,227,33,8
+    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,54,224,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Window transparency",IDC_STATIC,0,95,226,160
 END
 
 IDD_SETTINGS_TEMP DIALOGEX 0, 0, 611, 555
@@ -545,15 +548,15 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 180
         TOPMARGIN, 7
-        BOTTOMMARGIN, 95
+        BOTTOMMARGIN, 124
     END
 
     IDD_RENAME_TAB, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 179
-        VERTGUIDE, 58
-        TOPMARGIN, 7
+        RIGHTMARGIN, 195
+        VERTGUIDE, 65
+        TOPMARGIN, 2
         BOTTOMMARGIN, 48
         HORZGUIDE, 15
     END
@@ -846,8 +849,11 @@ END
 
 STRINGTABLE 
 BEGIN
-    ID_VIEW_TOOLBAR         "Show or hide the toolbar\nToggle ToolBar"
-    ID_VIEW_STATUS_BAR      "Show or hide the status bar\nToggle StatusBar"
+    ID_VIEW_CONSOLE         "Show or hide the console"
+    ID_VIEW_MENU            "Show or hide the menu"
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar"
+    ID_VIEW_TABS            "Show or hide the status tabs"
 END
 
 STRINGTABLE 
@@ -904,7 +910,8 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

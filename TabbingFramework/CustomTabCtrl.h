@@ -453,6 +453,35 @@ public:
 		m_sText = sNewText;
 		return true;
 	}
+  virtual LONG GetTextSize(WTL::CClientDC& dc) const
+  {
+#ifdef _USE_AERO
+    RECT rcText = { 0 };
+    TCHAR szTitle[256];
+    int szTitleLen = _sntprintf_s(szTitle, 256, _TRUNCATE, _T("0. %s"), this->GetText());
+    Gdiplus::Graphics g(dc.m_hDC);
+    Gdiplus::Font font(dc.m_hDC);
+    Gdiplus::RectF rectF(0,0,1000,1000);
+    Gdiplus::RectF boundingBox;
+    Gdiplus::StringFormat stringFormat;
+      stringFormat.SetAlignment(Gdiplus::StringAlignmentNear);
+      stringFormat.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+      stringFormat.SetFormatFlags(Gdiplus::StringFormatFlagsNoWrap|Gdiplus::StringFormatFlagsMeasureTrailingSpaces);
+    g.MeasureString(
+      szTitle, szTitleLen,
+      &font,
+      rectF,
+      &stringFormat,
+      &boundingBox);
+
+    return (long)(boundingBox.Width);
+#else
+    RECT rcText = { 0 };
+		_CSTRING_NS::CString sText = this->GetText();
+		dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
+		return rcText.right-rcText.left;
+#endif
+  }
 
 	_CSTRING_NS::CString GetToolTip() const
 	{
@@ -1386,8 +1415,8 @@ public:
 			{
 				m_dwState |= ectcMouseInWindow;
 
-				pT->UpdateLayout();
-				this->Invalidate();
+				//pT->UpdateLayout();
+				//this->Invalidate();
 
 				// "OnMouseEnter"
 				//...
@@ -1562,10 +1591,10 @@ public:
 
 		m_dwState &= ~ectcMouseInWindow;
 		this->ClearCurrentHotTracking(false);
-		this->ClearCurrentMouseOverTracking(false);
+		this->ClearCurrentMouseOverTracking(true);
 
-		pT->UpdateLayout();
-		this->Invalidate();
+		//pT->UpdateLayout();
+		//this->Invalidate();
 
 		return 0;
 	}
@@ -2318,10 +2347,7 @@ public:
 				RECT rc = {xpos, 0, xpos, height};
 				if( pItem->UsingText() )
 				{
-					RECT rcText = { 0 };
-					_CSTRING_NS::CString sText = pItem->GetText();
-					dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
-					rc.right += (rcText.right-rcText.left) + (m_settings.iPadding*2);
+					rc.right += pItem->GetTextSize(dc) + (m_settings.iPadding*2);
 				}
 				pItem->SetRect(rc);
 				xpos += (rc.right-rc.left) + m_settings.iMargin;

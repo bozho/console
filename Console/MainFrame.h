@@ -33,7 +33,11 @@ class MainFrame
 	public:
 		DECLARE_FRAME_WND_CLASS(L"Console_2_Main", IDR_MAINFRAME)
 
+#ifdef _USE_AERO
+		aero::CCommandBarCtrl m_CmdBar;
+#else
 		CCommandBarCtrl m_CmdBar;
+#endif
 
 		MainFrame
 		(
@@ -210,6 +214,7 @@ class MainFrame
 
 		void ResizeWindow();
 		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
+		void SetMargins();
 		void SetTransparency();
 		void CreateAcceleratorTable();
 		void RegisterGlobalHotkeys();
@@ -267,6 +272,8 @@ class MainFrame
 		CDC				m_dcText;
 
 		shared_ptr<AnimationWindow>	m_animationWindow;
+
+		MARGINS m_Margins;
 
 };
 

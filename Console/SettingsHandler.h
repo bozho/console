@@ -221,7 +221,8 @@ enum TransparencyType
 {
 	transNone		= 0,
 	transAlpha		= 1,
-	transColorKey	= 2
+	transColorKey	= 2,
+  transGlass    = 3
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -585,8 +586,14 @@ struct TabData
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
 	, imageData()
+    , hMenuBitmap(NULL)
 	{
 	}
+
+  ~TabData()
+  {
+    ::DeleteObject(hMenuBitmap);
+  }
 
 	// custom shell settings
 	wstring							strTitle;
@@ -602,6 +609,8 @@ struct TabData
 	COLORREF						crBackgroundColor;
 
 	ImageData						imageData;
+
+  HBITMAP             hMenuBitmap;
 };
 
 //////////////////////////////////////////////////////////////////////////////

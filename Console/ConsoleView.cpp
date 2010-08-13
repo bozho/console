@@ -36,7 +36,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_bResizing(false)
 , m_bAppActive(true)
 , m_bActive(true)
-, m_bNeedFullRepaint(false) // first OnPaint will do a full repaint
+, m_bNeedFullRepaint(true) // first OnPaint will do a full repaint
 , m_bUseTextAlphaBlend(false)
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
@@ -612,6 +612,15 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 			MutexLock bufferLock(m_bufferMutex);
 			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+      COORD	coordStart;
+      COORD	coordEnd;
+      m_selectionHandler->GetSelectionCoordinates(coordStart, coordEnd);
+      int iSelextedSize = (coordEnd.Y - coordStart.Y) * m_consoleHandler.GetConsoleParams()->dwColumns +
+                          (coordEnd.X - coordStart.X) + 1;
+      TCHAR szBuff[128];
+      _sntprintf(szBuff, sizeof(szBuff), _T("[%i]"), iSelextedSize);
+      m_mainFrame.UISetText(1, szBuff);
+      m_mainFrame.UIUpdateStatusBar();
 		}
 
 		BitBltOffscreen();

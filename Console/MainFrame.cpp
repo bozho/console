@@ -1743,26 +1743,61 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	for (it; it != tabDataVector.end(); ++it, ++dwId)
 	{
 		CMenuItemInfo	subMenuItem;
-/*
-		ICONINFO		iconInfo;
-		BITMAP			bmp;
-
-		::GetIconInfo(tabDataVector[dwId-ID_NEW_TAB_1]->tabSmallIcon, &iconInfo);
-		::GetObject(iconInfo.hbmColor, sizeof(BITMAP), &bmp);
-*/
 
 		subMenuItem.fMask		= MIIM_STRING | MIIM_ID;
-/*
-		subMenuItem.fMask		= MIIM_BITMAP | MIIM_ID | MIIM_TYPE;
-		subMenuItem.fType		= MFT_BITMAP;
-*/
 		subMenuItem.wID			= dwId;
-//		subMenuItem.hbmpItem	= iconInfo.hbmColor;
 		subMenuItem.dwTypeData	= const_cast<wchar_t*>((*it)->strTitle.c_str());
 		subMenuItem.cch			= static_cast<UINT>((*it)->strTitle.length());
 
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
-//		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, iconInfo.hbmColor, NULL);
+
+		// create menu icons with proper transparency (thanks to chrisz for the patch)
+		if ((*it)->menuBitmap.m_hBitmap == NULL)
+		{
+			CIcon tabSmallIcon;
+
+			if ((*it)->strIcon.length() > 0 )
+			{
+				tabSmallIcon.Attach(
+					static_cast<HICON>(
+						::LoadImage(
+							NULL,
+							Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
+							IMAGE_ICON,
+							16,
+							16,
+							LR_DEFAULTCOLOR|LR_LOADFROMFILE
+						)
+					)
+				);
+			}
+			else
+			{
+				tabSmallIcon.Attach(
+					static_cast<HICON>(
+						::LoadImage(
+							::GetModuleHandle(NULL),
+							MAKEINTRESOURCE(IDR_MAINFRAME),
+							IMAGE_ICON,
+							16,
+							16,
+							LR_DEFAULTCOLOR
+						)
+					)
+				);
+			}
+			
+			CDC	dc;
+
+			(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
+
+			dc.CreateCompatibleDC(::GetDC(NULL));
+			dc.SelectBitmap((*it)->menuBitmap);
+			dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
+			dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
+		}
+
+		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
 	}
 
 	// set tabs menu as popup submenu

@@ -584,6 +584,7 @@ struct TabData
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
+	, menuBitmap()
 	, imageData()
 	{
 	}
@@ -600,6 +601,8 @@ struct TabData
 
 	BackgroundImageType				backgroundImageType;
 	COLORREF						crBackgroundColor;
+
+	CBitmap							menuBitmap;
 
 	ImageData						imageData;
 };

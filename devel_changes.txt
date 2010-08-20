@@ -1,6 +1,18 @@
 v2.00
 =====
 
+Build 147
+=========
+
+- fixed keyboard switching for Vista/Win7
+
+- fixed visible scrollbars on startup with 'Show scrollbars' option turned off
+
+- added support for flat scrollbars
+
+- added icons in the File->New Tab menu (thanks to chrisz for the patch)
+
+
 Build 146
 =========
 

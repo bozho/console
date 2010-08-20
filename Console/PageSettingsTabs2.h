@@ -59,7 +59,10 @@ class PageSettingsTabs2
 		void UpdateSliderText();
 		void EnableControls();
 
-	public:
+		void Load(shared_ptr<TabData>& tabData);
+		void Save();
+
+	private:
 
 		shared_ptr<TabData>	m_tabData;
 

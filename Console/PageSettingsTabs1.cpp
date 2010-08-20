@@ -18,6 +18,7 @@ PageSettingsTabs1::PageSettingsTabs1()
 : m_tabData()
 , m_strTitle(L"")
 , m_strIcon(L"")
+, m_nUseDefaultIcon(0)
 , m_strShell(L"")
 , m_strInitialDir(L"")
 {
@@ -187,3 +188,74 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wI
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs1::OnCheckDefaultIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableControls();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void PageSettingsTabs1::EnableControls()
+{
+	BOOL bEnableEditIconCtrls = TRUE;
+
+	if (m_nUseDefaultIcon > 0) bEnableEditIconCtrls = FALSE;
+
+	GetDlgItem(IDC_TAB_ICON).EnableWindow(bEnableEditIconCtrls);
+	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(bEnableEditIconCtrls);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void PageSettingsTabs1::Load(shared_ptr<TabData>& tabData)
+{
+	m_tabData			= tabData;
+
+	m_strTitle			= m_tabData->strTitle.c_str();
+	m_strIcon			= m_tabData->strIcon.c_str();
+	m_nUseDefaultIcon	= m_tabData->bUseDefaultIcon ? 1 : 0;
+
+	m_strShell			= m_tabData->strShell.c_str();
+	m_strInitialDir		= m_tabData->strInitialDir.c_str();
+
+	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
+
+	m_staticCursorColor.Invalidate();
+
+	DoDataExchange(DDX_LOAD);
+
+	EnableControls();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void PageSettingsTabs1::Save()
+{
+	DoDataExchange(DDX_SAVE);
+
+	m_tabData->strTitle			= m_strTitle;
+	m_tabData->strIcon			= m_strIcon;
+	m_tabData->bUseDefaultIcon	= (m_nUseDefaultIcon > 0);
+
+	m_tabData->strShell			= m_strShell;
+	m_tabData->strInitialDir	= m_strInitialDir;
+
+	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();
+}
+
+//////////////////////////////////////////////////////////////////////////////

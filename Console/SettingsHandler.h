@@ -578,6 +578,7 @@ struct TabData
 	TabData(const wstring& shell, const wstring& initialDir)
 	: strTitle(L"Console")
 	, strIcon(L"")
+	, bUseDefaultIcon(false)
 	, strShell(shell)
 	, strInitialDir(initialDir)
 	, dwCursorStyle(0)
@@ -592,6 +593,7 @@ struct TabData
 	// custom shell settings
 	wstring							strTitle;
 	wstring							strIcon;
+	bool							bUseDefaultIcon;
 
 	wstring							strShell;
 	wstring							strInitialDir;

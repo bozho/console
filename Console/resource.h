@@ -213,6 +213,7 @@
 #define IDC_COMBO_SMOOTHING             1169
 #define IDC_CHECK_LEAVE_HIGHLIGHTED     1170
 #define IDC_CHECK_START_HIDDEN          1171
+#define IDC_CHECK_DEFAULT_ICON          1172
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -238,7 +239,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        215
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1172
+#define _APS_NEXT_CONTROL_VALUE         1173
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

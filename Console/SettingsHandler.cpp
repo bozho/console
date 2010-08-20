@@ -1492,6 +1492,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"title"), tabData->strTitle, L"Console");
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), tabData->strIcon, L"");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"use_default_icon"), tabData->bUseDefaultIcon, false);
 
 		tabDataVector.push_back(tabData);
 
@@ -1602,6 +1603,8 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		{
 			XmlHelper::SetAttribute(pNewTabElement, CComBSTR(L"icon"), (*itTab)->strIcon);
 		}
+
+		XmlHelper::SetAttribute(pNewTabElement, CComBSTR(L"use_default_icon"), (*itTab)->bUseDefaultIcon);
 
 		// add <console> tag
 		CComPtr<IXMLDOMElement>	pNewConsoleElement;

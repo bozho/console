@@ -1752,52 +1752,64 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
 
 		// create menu icons with proper transparency (thanks to chrisz for the patch)
-		if ((*it)->menuBitmap.m_hBitmap == NULL)
+		CIcon tabSmallIcon;
+		
+		if ((*it)->bUseDefaultIcon || ((*it)->strIcon.length() > 0))
 		{
-			CIcon tabSmallIcon;
-
-			if ((*it)->strIcon.length() > 0 )
+			if ((*it)->menuBitmap.IsNull())
 			{
-				tabSmallIcon.Attach(
-					static_cast<HICON>(
-						::LoadImage(
-							NULL,
-							Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
-							IMAGE_ICON,
-							16,
-							16,
-							LR_DEFAULTCOLOR|LR_LOADFROMFILE
-						)
-					)
-				);
-			}
-			else
-			{
-				tabSmallIcon.Attach(
-					static_cast<HICON>(
-						::LoadImage(
-							::GetModuleHandle(NULL),
-							MAKEINTRESOURCE(IDR_MAINFRAME),
-							IMAGE_ICON,
-							16,
-							16,
-							LR_DEFAULTCOLOR
-						)
-					)
-				);
-			}
-			
-			CDC	dc;
 
-			(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
+				if ((*it)->strIcon.length() > 0)
+				{
+					tabSmallIcon.Attach(
+						static_cast<HICON>(
+							::LoadImage(
+								NULL,
+								Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
+								IMAGE_ICON,
+								16,
+								16,
+								LR_DEFAULTCOLOR|LR_LOADFROMFILE
+							)
+						)
+					);
+				}
+				else if ((*it)->bUseDefaultIcon)
+				{
+					tabSmallIcon.Attach(
+						static_cast<HICON>(
+							::LoadImage(
+								::GetModuleHandle(NULL),
+								MAKEINTRESOURCE(IDR_MAINFRAME),
+								IMAGE_ICON,
+								16,
+								16,
+								LR_DEFAULTCOLOR
+							)
+						)
+					);
+				}
 
-			dc.CreateCompatibleDC(::GetDC(NULL));
-			dc.SelectBitmap((*it)->menuBitmap);
-			dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
-			dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
+				CDC	dc;
+
+				(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
+
+				dc.CreateCompatibleDC(::GetDC(NULL));
+				dc.SelectBitmap((*it)->menuBitmap);
+				dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
+				dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
+			}
+		}
+		else
+		{
+			// destroy icon bitmap
+			if (!(*it)->menuBitmap.IsNull()) (*it)->menuBitmap.DeleteObject();
 		}
 
-		tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
+		if (!(*it)->menuBitmap.IsNull()) 
+		{
+			tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
+		}
 	}
 
 	// set tabs menu as popup submenu

@@ -7,6 +7,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DA1A8A1D-90C0-49B9-A9B2-DF2C574F19E6}"
 	ProjectSection(SolutionItems) = preProject
 		setup\console.iss = setup\console.iss
+		devel_changes.txt = devel_changes.txt
 	EndProjectSection
 EndProject
 Global

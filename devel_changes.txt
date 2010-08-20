@@ -12,6 +12,8 @@ Build 147
 
 - added icons in the File->New Tab menu (thanks to chrisz for the patch)
 
+- added an option for using a default program icon in the tab menu
+
 
 Build 146
 =========

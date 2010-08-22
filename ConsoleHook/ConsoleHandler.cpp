@@ -22,7 +22,7 @@ ConsoleHandler::ConsoleHandler()
 , m_cursorInfo()
 , m_consoleBuffer()
 , m_consoleCopyInfo()
-, m_consolePasteInfo()
+, m_consoleTextInfo()
 , m_consoleMouseEvent()
 , m_newConsoleSize()
 , m_newScrollPos()
@@ -104,8 +104,8 @@ bool ConsoleHandler::OpenSharedObjects()
 	// copy info
 	m_consoleCopyInfo.Open((SharedMemNames::formatCopyInfo % dwProcessId).str(), syncObjBoth);
 
-	// paste info (used for pasting and sending text to console)
-	m_consolePasteInfo.Open((SharedMemNames::formatPasteInfo % dwProcessId).str(), syncObjBoth);
+	// text info (used for sending text to console)
+	m_consoleTextInfo.Open((SharedMemNames::formatTextInfo % dwProcessId).str(), syncObjBoth);
 
 	// mouse event
 	m_consoleMouseEvent.Open((SharedMemNames::formatMouseEvent % dwProcessId).str(), syncObjBoth);
@@ -581,110 +581,14 @@ void ConsoleHandler::CopyConsoleText()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& pszPasteBuffer)
+void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& textBuffer)
 {
-	wchar_t*	pszText	= NULL;
-	HANDLE		hData	= NULL;
+	wchar_t*	pszText	= textBuffer.get();
+	size_t		textLen = wcslen(pszText);
+	size_t		partLen	= 512;
+	size_t		parts	= textLen/partLen;
+	size_t		offset	= 0;
 
-	if (pszPasteBuffer.get() == NULL)
-	{
-		// pasting text
-		if (!IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
-		
-		if (!::OpenClipboard(m_consoleParams->hwndConsoleWindow)) return; 
-
-		hData	= ::GetClipboardData(CF_UNICODETEXT);
-		pszText	= reinterpret_cast<wchar_t*>(::GlobalLock(hData));
-	}
-	else
-	{
-		// text sent to console
-		pszText = pszPasteBuffer.get();
-	}
-
-
-
-
-/*
-	size_t	textLen			= wcslen(pszText);
-	size_t	textOffset		= 0;
-
-	size_t	maxConsoleInputCount	= 512;
-	size_t	consoleInputCount		= 0;
-
-	scoped_array<INPUT_RECORD> consoleInputs(new INPUT_RECORD[maxConsoleInputCount]);
-	::ZeroMemory(consoleInputs.get(), sizeof(INPUT_RECORD)*maxConsoleInputCount);
-
-	for (; textOffset < textLen; ++textOffset)
-	{
-		if (consoleInputCount == maxConsoleInputCount)
-		{
-			WriteConsoleInput(hStdIn, consoleInputs, consoleInputCount, maxConsoleInputCount);		
-		}
-
-		if ((pszText[textOffset] == L'\r') || (pszText[textOffset] == L'\n'))
-		{
-			if (consoleInputCount > 0)
-			{
-				WriteConsoleInput(hStdIn, consoleInputs, consoleInputCount, maxConsoleInputCount);		
-			}
-
-			short	sInputCount	= 0;
-
-			// first, we need to reset SHIFT/CTRL/ALT keys
-			scoped_array<INPUT>	kbdInputs(new INPUT[5]);
-			::ZeroMemory(kbdInputs.get(), 5*sizeof(INPUT));
-
-			SetResetKeyInput(kbdInputs, VK_SHIFT,	sInputCount);
-			SetResetKeyInput(kbdInputs, VK_CONTROL, sInputCount);
-			SetResetKeyInput(kbdInputs, VK_MENU,	sInputCount);
-
-			kbdInputs[sInputCount].type			= INPUT_KEYBOARD;
-			kbdInputs[sInputCount].ki.wVk		= VK_RETURN;
-			kbdInputs[sInputCount].ki.dwFlags	= 0;
-
-			++sInputCount;
-
-			kbdInputs[sInputCount].type			= INPUT_KEYBOARD;
-			kbdInputs[sInputCount].ki.wVk		= VK_RETURN;
-			kbdInputs[sInputCount].ki.dwFlags	= KEYEVENTF_KEYUP;
-
-			++sInputCount;
-
-			::SendInput(sInputCount, kbdInputs.get(), sizeof(INPUT));
-			::Sleep(10);
-
-			if ((pszText[textOffset] == L'\r') && (pszText[textOffset+1] == L'\n')) ++textOffset;
-		}
-		else
-		{
-			consoleInputs[consoleInputCount].EventType							= KEY_EVENT;
-			consoleInputs[consoleInputCount].Event.KeyEvent.bKeyDown			= TRUE;
-			consoleInputs[consoleInputCount].Event.KeyEvent.wRepeatCount		= 1;
-			consoleInputs[consoleInputCount].Event.KeyEvent.wVirtualKeyCode		= LOBYTE(::VkKeyScan(pszText[textOffset]));
-			consoleInputs[consoleInputCount].Event.KeyEvent.wVirtualScanCode	= 0;
-			consoleInputs[consoleInputCount].Event.KeyEvent.uChar.UnicodeChar	= pszText[textOffset];
-			consoleInputs[consoleInputCount].Event.KeyEvent.dwControlKeyState	= 0;
-
-			++consoleInputCount;
-		}
-	}
-
-	if (consoleInputCount > 0)
-	{
-		WriteConsoleInput(hStdIn, consoleInputs, consoleInputCount, 0);		
-	}
-
-*/
-
-
-
-	size_t	textLen = wcslen(pszText);
-	size_t	partLen	= 512;
-	size_t	parts	= textLen/partLen;
-	size_t	offset	= 0;
-
-//	TRACE(L"Pasting %i\n", textLen);
 	for (size_t part = 0; part < parts+1; ++part)
 	{
 		size_t	keyEventCount = 0;
@@ -702,16 +606,6 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 		{
 			if ((pszText[offset] == L'\r') || (pszText[offset] == L'\n'))
 			{
-/*
-				pKeyEvents[i].EventType							= KEY_EVENT;
-				pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
-				pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
-				pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= VK_RETURN;
-				pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
-				pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= L'\n';
-				pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
-*/
-
 				if ((pszText[offset] == L'\r') && (pszText[offset+1] == L'\n')) ++offset;
 
 				if (keyEventCount > 0)
@@ -745,28 +639,6 @@ void ConsoleHandler::PasteConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& 
 			::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
 		}
 	}
-
-
-	if (pszPasteBuffer.get() == NULL)
-	{
-		::GlobalUnlock(hData);
-		::CloseClipboard();
-	}
-
-//	TRACE(L"\n");
-
-
-// 	for (DWORD i = 100; i < 1000; ++i)
-// 	{
-// 		INPUT_RECORD in;
-// 		::ZeroMemory(&in, sizeof(INPUT_RECORD));
-// 
-// 		in.EventType = MENU_EVENT;
-// 		in.Event.MenuEvent.dwCommandId = i;
-// 
-// 		DWORD	dwTextWritten	= 0;
-// 		::WriteConsoleInput(hStdIn, &in, 1, &dwTextWritten);
-// 	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -783,32 +655,6 @@ void ConsoleHandler::SetResetKeyInput(scoped_array<INPUT>& kbdInputs, WORD wVk, 
 		kbdInputs[sCount].ki.dwFlags	= KEYEVENTF_KEYUP;
 		++sCount;
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void ConsoleHandler::WriteConsoleInput(HANDLE hStdIn, scoped_array<INPUT_RECORD>& consoleInputs, size_t& consoleInputCount, size_t maxConsoleInputCount)
-{
-	if (consoleInputCount > 0)
-	{
-		DWORD dwTextWritten = 0;
-		::WriteConsoleInput(hStdIn, consoleInputs.get(), static_cast<DWORD>(consoleInputCount), &dwTextWritten);
-	}
-
-	if (maxConsoleInputCount > 0)
-	{
-		consoleInputs.reset(new INPUT_RECORD[maxConsoleInputCount]);
-		::ZeroMemory(consoleInputs.get(), sizeof(INPUT_RECORD)*maxConsoleInputCount);
-	}
-	else
-	{
-		consoleInputs.reset();
-	}
-
-	consoleInputCount = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -960,7 +806,7 @@ DWORD ConsoleHandler::MonitorThread()
 	{
 		m_hMonitorThreadExit.get(), 
 		m_consoleCopyInfo.GetReqEvent(), 
-		m_consolePasteInfo.GetReqEvent(), 
+		m_consoleTextInfo.GetReqEvent(), 
 		m_newScrollPos.GetReqEvent(),
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
@@ -988,22 +834,22 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			// paste request
+			// send text request
 			case WAIT_OBJECT_0 + 2 :
 			{
-				SharedMemoryLock memLock(m_consolePasteInfo);
+				SharedMemoryLock memLock(m_consoleTextInfo);
 
-				shared_ptr<wchar_t>	pszPasteBuffer;
+				shared_ptr<wchar_t>	textBuffer;
 				
-				if (*m_consolePasteInfo.Get() != NULL)
+				if (*m_consoleTextInfo.Get() != NULL)
 				{
-					pszPasteBuffer.reset(
-									reinterpret_cast<wchar_t*>(*m_consolePasteInfo.Get()),
+					textBuffer.reset(
+									reinterpret_cast<wchar_t*>(*m_consoleTextInfo.Get()),
 									bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
 				}
 
-				PasteConsoleText(hStdIn, pszPasteBuffer);
-				m_consolePasteInfo.SetRespEvent();
+				SendConsoleText(hStdIn, textBuffer);
+				m_consoleTextInfo.SetRespEvent();
 				break;
 			}
 

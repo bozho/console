@@ -317,7 +317,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 	UnregisterGlobalHotkeys();
 
-	bHandled = false;
+	DestroyWindow();
+	PostQuitMessage(0);
 	return 0;
 }
 

@@ -97,6 +97,9 @@ BOOL MainFrame::OnIdle()
 
 LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
+	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
+
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
@@ -130,7 +133,11 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
 //	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
-	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
+
+	DWORD dwTabStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB;
+	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM;
+	
+	CreateTabWindow(m_hWnd, rcDefault, dwTabStyles);
 
 	// create initial console window(s)
 	if (m_startupTabs.size() == 0)
@@ -182,9 +189,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
 	SetWindowStyles();
-
-	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
-	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
 	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);

@@ -128,22 +128,20 @@ void ConsoleHandler::ReadConsoleBuffer()
 {
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
-	shared_ptr<void> hStdOut(
-						::CreateFile(
+	// no need to call CloseHandle when done, we're reusing console handles
+	HANDLE hStdOut = ::CreateFile(
 							L"CONOUT$",
 							GENERIC_WRITE | GENERIC_READ,
 							FILE_SHARE_READ | FILE_SHARE_WRITE,
 							NULL,
 							OPEN_EXISTING,
 							0,
-							0),
-							::CloseHandle);
+							0);
 
-	// get total console size
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
 	COORD						coordConsoleSize;
 
-	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
+	::GetConsoleScreenBufferInfo(hStdOut, &csbiConsole);
 
 	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
 	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
@@ -190,7 +188,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 //		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 
 		::ReadConsoleOutput(
-			hStdOut.get(), 
+			hStdOut, 
 			pScreenBuffer.get() + dwScreenBufferOffset, 
 			coordBufferSize, 
 			coordStart, 
@@ -214,7 +212,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 */
 
 	::ReadConsoleOutput(
-		hStdOut.get(), 
+		hStdOut, 
 		pScreenBuffer.get() + dwScreenBufferOffset, 
 		coordBufferSize, 
 		coordStart, 
@@ -234,7 +232,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 		m_dwScreenBufferSize = dwScreenBufferSize;
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
 		::CopyMemory(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-		::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
+		::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
 
 		m_consoleBuffer.SetReqEvent();
 	}
@@ -931,41 +929,29 @@ DWORD ConsoleHandler::MonitorThread()
 
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
 
-/*
-	HANDLE	hStdOut			= ::GetStdHandle(STD_OUTPUT_HANDLE);
-	HANDLE	hStdIn			= ::GetStdHandle(STD_INPUT_HANDLE);
-*/
+	HANDLE hStdOut = ::CreateFile(
+						L"CONOUT$",
+						GENERIC_WRITE | GENERIC_READ,
+						FILE_SHARE_READ | FILE_SHARE_WRITE,
+						NULL,
+						OPEN_EXISTING,
+						0,
+						0);
 
+	HANDLE hStdIn = ::CreateFile(
+						L"CONIN$",
+						GENERIC_WRITE | GENERIC_READ,
+						FILE_SHARE_READ | FILE_SHARE_WRITE,
+						NULL,
+						OPEN_EXISTING,
+						0,
+						0);
 
-	shared_ptr<void> hStdOut(
-						::CreateFile(
-							L"CONOUT$",
-							GENERIC_WRITE | GENERIC_READ,
-							FILE_SHARE_READ | FILE_SHARE_WRITE,
-							NULL,
-							OPEN_EXISTING,
-							0,
-							0),
-							::CloseHandle);
-
-	shared_ptr<void> hStdIn(
-						::CreateFile(
-							L"CONIN$",
-							GENERIC_WRITE | GENERIC_READ,
-							FILE_SHARE_READ | FILE_SHARE_WRITE,
-							NULL,
-							OPEN_EXISTING,
-							0,
-							0),
-							::CloseHandle);
-
-//	HANDLE	hStdErr			= ::GetStdHandle(STD_ERROR_HANDLE);
-
-	SetConsoleParams(::GetCurrentThreadId(), hStdOut.get());
+	SetConsoleParams(::GetCurrentThreadId(), hStdOut);
 
 	::SuspendThread(GetCurrentThread());
 
-	ResizeConsoleWindow(hStdOut.get(), m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
+	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
 
 	// FIX: this seems to case problems on startup
 //	ReadConsoleBuffer();
@@ -973,13 +959,12 @@ DWORD ConsoleHandler::MonitorThread()
 	HANDLE	arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(), 
-//		hStdErr, 
 		m_consoleCopyInfo.GetReqEvent(), 
 		m_consolePasteInfo.GetReqEvent(), 
 		m_newScrollPos.GetReqEvent(),
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
-		hStdOut.get(),
+		hStdOut,
 		m_hParentProcess.get()
 	};
 
@@ -991,44 +976,6 @@ DWORD ConsoleHandler::MonitorThread()
 							FALSE, 
 							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
 	{
-/*
-		if (dwWaitRes == WAIT_FAILED)
-		{
-			TRACE(L"dwWaitRes: %i\n", dwWaitRes);
-
-			if (::WaitForSingleObject(m_hMonitorThreadExit.get(), 0) == WAIT_FAILED) 
-			{
-				TRACE(L"m_hMonitorThreadExit.get()\n");
-			}
-
-			if (::WaitForSingleObject(hStdOut.get(), 0) == WAIT_FAILED) 
-			{
-				TRACE(L"hStdOut.get()\n");
-			}
-
-			if (::WaitForSingleObject(hStdErr, 0) == WAIT_FAILED) 
-			{
-				TRACE(L"hStdErr\n");
-			}
-
-			if (::WaitForSingleObject(m_consolePaste.GetEvent(), 0) == WAIT_FAILED) 
-			{
-				TRACE(L"m_consolePaste.GetEvent()\n");
-			}
-
-			if (::WaitForSingleObject(m_newConsoleSize.GetEvent(), 0) == WAIT_FAILED) 
-			{
-				TRACE(L"m_newConsoleSize.GetEvent()\n");
-			}
-
-			if (::WaitForSingleObject(m_newScrollPos.GetEvent(), 0) == WAIT_FAILED) 
-			{
-				TRACE(L"m_newScrollPos.GetEvent()\n");
-			}
-
-		}
-*/
-
 		switch (dwWaitRes)
 		{
 			// copy request
@@ -1055,7 +1002,7 @@ DWORD ConsoleHandler::MonitorThread()
 									bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
 				}
 
-				PasteConsoleText(hStdIn.get(), pszPasteBuffer);
+				PasteConsoleText(hStdIn, pszPasteBuffer);
 				m_consolePasteInfo.SetRespEvent();
 				break;
 			}
@@ -1065,7 +1012,7 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 
-				ScrollConsole(hStdOut.get(), m_newScrollPos->cx, m_newScrollPos->cy);
+				ScrollConsole(hStdOut, m_newScrollPos->cx, m_newScrollPos->cy);
 				ReadConsoleBuffer();
 				break;
 			}
@@ -1075,7 +1022,7 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_consoleMouseEvent);
 
-				SendMouseEvent(hStdIn.get());
+				SendMouseEvent(hStdIn);
 				m_consoleMouseEvent.SetRespEvent();
 				break;
 			}
@@ -1085,13 +1032,12 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
-				ResizeConsoleWindow(hStdOut.get(), m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows, m_newConsoleSize->dwResizeWindowEdge);
+				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows, m_newConsoleSize->dwResizeWindowEdge);
 				ReadConsoleBuffer();
 				break;
 			}
 
 			case WAIT_OBJECT_0 + 6 :
-//			case WAIT_OBJECT_0 + 2 :
 				// something changed in the console
 				// this has to be the last event, since it's the most 
 				// frequent one

@@ -96,8 +96,6 @@ LRESULT DlgSettingsTabs::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 {
 	if (wID == IDOK)
 	{
-		TabData* pTabData = reinterpret_cast<TabData*>(m_listCtrl.GetItemData(m_listCtrl.GetSelectedIndex()));
-
 		m_page1.Save();
 		m_page2.Save();
 
@@ -198,8 +196,6 @@ LRESULT DlgSettingsTabs::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /
 	NMLISTVIEW*	pnmv		= reinterpret_cast<NMLISTVIEW*>(pnmh);
 
 	if (pnmv->iItem < 0) return 0;
-
-	TabData* pTabData		= reinterpret_cast<TabData*>(pnmv->lParam);
 
 	if (pnmv->uNewState & LVIS_SELECTED)
 	{

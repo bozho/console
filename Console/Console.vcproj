@@ -853,18 +853,6 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
 			<File
-				RelativePath=".\res\1276962560_Close_Box_Red.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\1276962821_Next.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\res\1276962835_Previous.ico"
-				>
-			</File>
-			<File
 				RelativePath=".\res\Console.ico"
 				>
 			</File>

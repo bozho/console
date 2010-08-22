@@ -111,6 +111,16 @@ public:
 
   void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
   {
+		DWORD dwStyle = this->GetStyle();
+
+		if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+      this->DrawTabBottom(rcTab, g, color);
+    else
+      this->DrawTabTop(rcTab, g, color);
+  }
+
+  void DrawTabTop(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
+  {
     Gdiplus::SolidBrush brush(color);
 
     Gdiplus::GraphicsPath gp;
@@ -159,12 +169,65 @@ public:
     g.DrawLine(&pen2, X + width, Y + radius, X + width, Y + height);
   }
 
+  void DrawTabBottom(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
+  {
+    Gdiplus::SolidBrush brush(color);
+
+    Gdiplus::GraphicsPath gp;
+
+    INT radius = m_iRadius;
+    INT X      = rcTab.left + m_iLeftSpacing;
+    INT Y      = rcTab.bottom - m_iTopMargin;
+    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing - 2;
+    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin;
+
+    gp.AddLine(X + radius, Y, X + width - radius, Y);
+    gp.AddLine(X + width - radius, Y, X + width, Y - radius);
+    gp.AddLine(X + width, Y - radius, X + width, Y - height);
+    gp.AddLine(X + width, Y - height, X, Y - height);
+    gp.AddLine(X, Y - height, X, Y - radius);
+    gp.AddLine(X, Y - radius, X + radius, Y);
+
+    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+    Gdiplus::Pen pen(color,1.0);
+    g.DrawPath(&pen, &gp);
+
+    g.SetSmoothingMode(Gdiplus::SmoothingModeNone);
+    g.FillPath(&brush, &gp);
+
+    radius += 2;
+    X      -= 1;
+    Y      += 1;
+    width  += 2;
+    height += 2;
+
+    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+    Gdiplus::Pen pen2(Gdiplus::Color(64, 0, 0,0),1.0);
+
+    g.DrawLine(&pen2, X, Y - radius, X + radius, Y);
+    g.DrawLine(&pen2, X, Y - height, X, Y - radius);
+    g.DrawLine(&pen2, X + radius, Y, X + width - radius, Y);
+    g.DrawLine(&pen2, X + width - radius, Y, X + width, Y - radius);
+    g.DrawLine(&pen2, X + width, Y - radius, X + width, Y - height);
+  }
+
 	void DrawItem_InitBounds(DWORD /*dwStyle*/, RECT /*rcItem*/, RECT& rcTab, RECT& rcText, int& nIconVerticalCenter)
 	{
-    rcText.top += m_iTopMargin;
-		rcText.left += (m_iLeftSpacing + m_iMargin);
-		rcText.right -= m_iMargin;
-		nIconVerticalCenter = (rcTab.bottom + rcTab.top - m_iTopMargin) / 2 + m_iTopMargin;
+    DWORD dwStyle = this->GetStyle();
+    if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+    {
+      rcText.bottom -= m_iTopMargin;
+      rcText.left += (m_iLeftSpacing + m_iMargin);
+      rcText.right -= m_iMargin;
+      nIconVerticalCenter = (rcTab.bottom + rcTab.top - m_iTopMargin) / 2;
+    }
+    else
+    {
+      rcText.top += m_iTopMargin;
+      rcText.left += (m_iLeftSpacing + m_iMargin);
+      rcText.right -= m_iMargin;
+      nIconVerticalCenter = (rcTab.bottom + rcTab.top - m_iTopMargin) / 2 + m_iTopMargin;
+    }
 	}
 
 	void DrawItem_TabInactive(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, RECT& rcTab)

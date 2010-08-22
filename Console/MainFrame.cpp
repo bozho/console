@@ -150,7 +150,10 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
-	CreateTabWindow(m_hWnd, rcDefault, CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK);
+  DWORD dwTabWindowOtherStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
+  if( g_settingsHandler->GetAppearanceSettings().controlsSettings.bTabsBottom )
+    dwTabWindowOtherStyles |= CTCS_BOTTOM;
+	CreateTabWindow(m_hWnd, rcDefault, dwTabWindowOtherStyles);
 
 	// create initial console window(s)
 	if (m_startupTabs.size() == 0)
@@ -2195,7 +2198,30 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 void MainFrame::SetMargins(void)
 {
   CReBarCtrl rebar(m_hWndToolBar);
-  m_Margins.cyTopHeight = rebar.GetBarHeight() + m_nTabAreaHeight;
+  DWORD dwStyle = this->m_TabCtrl.GetStyle();
+  if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+  {
+    m_Margins.cyTopHeight = rebar.GetBarHeight();
+    if( m_bTabsVisible )
+    {
+      m_Margins.cyBottomHeight = m_nTabAreaHeight;
+      if (m_bStatusBarVisible)
+      {
+        CRect rectStatusBar(0, 0, 0, 0);
+        ::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
+        m_Margins.cyBottomHeight += rectStatusBar.Height();
+      }
+    }
+    else
+    {
+      m_Margins.cyBottomHeight = 0;
+    }
+  }
+  else
+  {
+    m_Margins.cyTopHeight = rebar.GetBarHeight() + m_nTabAreaHeight;
+    m_Margins.cyBottomHeight = 0;
+  }
   SetTransparency();
 	}
 

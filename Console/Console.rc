@@ -371,10 +371,11 @@ BEGIN
     CONTROL         "Show &toolbar",IDC_CHECK_SHOW_TOOLBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,24,58,10
     CONTROL         "Sho&w status bar",IDC_CHECK_SHOW_STATUS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,36,68,10
     CONTROL         "Show t&abs",IDC_CHECK_SHOW_TABS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,48,49,10
-    CONTROL         "Hide &single tab",IDC_CHECK_HIDE_SINGLE_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,60,59,10
-    CONTROL         "Show scro&llbars",IDC_CHECK_SHOW_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,73,72,10
-    CONTROL         "&Flat scrollbars",IDC_CHECK_FLAT_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,22,85,59,10
-    GROUPBOX        "Controls",IDC_STATIC,0,0,88,98
+    CONTROL         "Hide &single tab",IDC_CHECK_HIDE_SINGLE_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,60,59,10
+    CONTROL         "Tabs &bottom *",IDC_CHECK_TABS_BOTTOM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,73,59,10
+    CONTROL         "Show scro&llbars",IDC_CHECK_SHOW_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,85,72,10
+    CONTROL         "&Flat scrollbars",IDC_CHECK_FLAT_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,21,97,59,10
+    GROUPBOX        "Controls",IDC_STATIC,0,0,88,114
     CONTROL         "&Caption *",IDC_CHECK_STYLE_CAPTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,12,47,10
     CONTROL         "Resi&zable *",IDC_CHECK_STYLE_RESIZABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,24,52,10
     CONTROL         "Bo&rder *",IDC_CHECK_STYLE_BORDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,36,43,10
@@ -385,7 +386,7 @@ BEGIN
     CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,191,50,11,14
     LTEXT           "Selection col&or:",IDC_STATIC,102,74,50,8
     CONTROL         "",IDC_SELECTION_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,153,71,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Styles",IDC_STATIC,92,0,134,98
+    GROUPBOX        "Styles",IDC_STATIC,92,0,134,114
     CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,8,114,33,10
     CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON,8,129,34,10
     CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON,8,218,46,10
@@ -398,7 +399,7 @@ BEGIN
     LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,204,192,14,8,0,WS_EX_RIGHT
     LTEXT           "Key col&or:",IDC_STATIC_KEY_COLOR,19,235,33,8
     CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,54,232,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Window transparency",IDC_STATIC,0,98,226,162
+    GROUPBOX        "Window transparency",IDC_STATIC,0,114,226,162
 END
 
 IDD_SETTINGS_TEMP DIALOGEX 0, 0, 611, 555
@@ -602,7 +603,8 @@ BEGIN
         HORZGUIDE, 65
         HORZGUIDE, 78
         HORZGUIDE, 90
-        HORZGUIDE, 98
+        HORZGUIDE, 102
+        HORZGUIDE, 114
     END
 
     IDD_SETTINGS_TEMP, DIALOG
@@ -850,11 +852,20 @@ END
 
 STRINGTABLE 
 BEGIN
+    ID_FILE_NEW_TAB         "Opens a new tab\nNew tab"
     ID_VIEW_CONSOLE         "Show or hide the console"
+END
+
+STRINGTABLE 
+BEGIN
     ID_VIEW_MENU            "Show or hide the menu"
+    ID_VIEW_TABS            "Show or hide the status tabs"
+END
+
+STRINGTABLE 
+BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar"
-    ID_VIEW_TABS            "Show or hide the status tabs"
 END
 
 STRINGTABLE 
@@ -887,11 +898,6 @@ END
 
 STRINGTABLE 
 BEGIN
-    ID_FILE_NEW_TAB         "Opens a new tab\nNew tab"
-END
-
-STRINGTABLE 
-BEGIN
     ID_NEXT_TAB             "Switch to next tab\nNext tab"
     ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
 END
@@ -911,8 +917,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

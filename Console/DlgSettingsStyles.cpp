@@ -40,6 +40,7 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_nShowStatusbar= m_controlsSettings.bShowStatusbar ? 1 : 0;
 	m_nShowTabs		= m_controlsSettings.bShowTabs ? 1 : 0;
 	m_nHideSingleTab= m_controlsSettings.bHideSingleTab ? 1 : 0;
+	m_nTabsBottom   = m_controlsSettings.bTabsBottom ? 1 : 0;
 	m_nShowScrollbars= m_controlsSettings.bShowScrollbars ? 1 : 0;
 	m_nFlatScrollbars= m_controlsSettings.bFlatScrollbars ? 1 : 0;
 
@@ -140,6 +141,7 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		m_controlsSettings.bShowStatusbar	= (m_nShowStatusbar > 0);
 		m_controlsSettings.bShowTabs		= (m_nShowTabs > 0);
 		m_controlsSettings.bHideSingleTab	= (m_nHideSingleTab > 0);
+		m_controlsSettings.bTabsBottom	= (m_nTabsBottom > 0);
 		m_controlsSettings.bShowScrollbars	= (m_nShowScrollbars > 0);
 		m_controlsSettings.bFlatScrollbars	= (m_nFlatScrollbars > 0);
 

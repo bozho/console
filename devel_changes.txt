@@ -14,6 +14,11 @@ Build 147
 
 - added an option for using a default program icon in the tab menu
 
+- fixed exit codes
+
+- fixed a problem with console applications that create new screen buffers
+  (GNUWin less, coLinux console, etc)
+
 
 Build 146
 =========

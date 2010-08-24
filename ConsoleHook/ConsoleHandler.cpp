@@ -129,19 +129,20 @@ void ConsoleHandler::ReadConsoleBuffer()
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
 	// no need to call CloseHandle when done, we're reusing console handles
-	HANDLE hStdOut = ::CreateFile(
-							L"CONOUT$",
-							GENERIC_WRITE | GENERIC_READ,
-							FILE_SHARE_READ | FILE_SHARE_WRITE,
-							NULL,
-							OPEN_EXISTING,
-							0,
-							0);
+	shared_ptr<void> hStdOut(::CreateFile(
+								L"CONOUT$",
+								GENERIC_WRITE | GENERIC_READ,
+								FILE_SHARE_READ | FILE_SHARE_WRITE,
+								NULL,
+								OPEN_EXISTING,
+								0,
+								0),
+								::CloseHandle);
 
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
 	COORD						coordConsoleSize;
 
-	::GetConsoleScreenBufferInfo(hStdOut, &csbiConsole);
+	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
 
 	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
 	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
@@ -188,7 +189,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 //		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 
 		::ReadConsoleOutput(
-			hStdOut, 
+			hStdOut.get(), 
 			pScreenBuffer.get() + dwScreenBufferOffset, 
 			coordBufferSize, 
 			coordStart, 
@@ -212,7 +213,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 */
 
 	::ReadConsoleOutput(
-		hStdOut, 
+		hStdOut.get(), 
 		pScreenBuffer.get() + dwScreenBufferOffset, 
 		coordBufferSize, 
 		coordStart, 
@@ -232,7 +233,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 		m_dwScreenBufferSize = dwScreenBufferSize;
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
 		::CopyMemory(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-		::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
+		::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
 
 		m_consoleBuffer.SetReqEvent();
 	}

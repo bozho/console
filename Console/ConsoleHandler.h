@@ -30,7 +30,7 @@ class ConsoleHandler
 		shared_ptr<void> GetConsoleHandle() const					{ return m_hConsoleProcess; }
 
 		SharedMemory<ConsoleParams>& GetConsoleParams()				{ return m_consoleParams; }
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& GetConsoleInfo()	{ return m_consoleInfo; }
+		SharedMemory<ConsoleInfo>& GetConsoleInfo()	{ return m_consoleInfo; }
 		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
 		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
 		SharedMemory<ConsoleCopy>& GetCopyInfo()					{ return m_consoleCopyInfo; }
@@ -70,7 +70,7 @@ class ConsoleHandler
 		shared_ptr<void>							m_hConsoleProcess;
 
 		SharedMemory<ConsoleParams>					m_consoleParams;
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>	m_consoleInfo;
+		SharedMemory<ConsoleInfo>	m_consoleInfo;
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;

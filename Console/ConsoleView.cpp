@@ -774,7 +774,8 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 {
 	if (m_bInitializing) return false;
 
-	bool bResize = (wParam == 1);
+	bool bResize	= ((wParam & UPDATE_CONSOLE_RESIZE) > 0);
+	bool textChanged= ((wParam & UPDATE_CONSOLE_TEXT_CHANGED) > 0);
 
 	// console size changed, resize offscreen buffers
 	if (bResize)
@@ -794,7 +795,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 	UpdateTitle();
 	
 	// if the view is not visible, don't repaint
-	if (!m_bActive)
+	if (!m_bActive && textChanged)
 	{
 		if ((!bResize) && 
 			(g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && 
@@ -807,19 +808,19 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		return 0;
 	}
 
-	SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+	SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
 	if (m_bShowVScroll)
 	{
 		SCROLLINFO si;
 		si.cbSize = sizeof(si); 
 		si.fMask  = SIF_POS; 
-		si.nPos   = consoleInfo->srWindow.Top; 
+		si.nPos   = consoleInfo->csbi.srWindow.Top; 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
 /*
 		TRACE(L"----------------------------------------------------------------\n");
-		TRACE(L"VScroll pos: %i\n", consoleInfo->srWindow.Top);
+		TRACE(L"VScroll pos: %i\n", consoleInfo->csbi.srWindow.Top);
 */
 	}
 
@@ -828,7 +829,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		SCROLLINFO si;
 		si.cbSize = sizeof(si); 
 		si.fMask  = SIF_POS; 
-		si.nPos   = consoleInfo->srWindow.Left; 
+		si.nPos   = consoleInfo->csbi.srWindow.Left; 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
 	}
 
@@ -1284,8 +1285,10 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 	DWORD							dwBufferSize	= consoleParams->dwRows * consoleParams->dwColumns;
 
+	SharedMemory<ConsoleInfo>&	consoleInfo = m_consoleHandler.GetConsoleInfo();
 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
 
+	SharedMemoryLock	consoleInfoLock(consoleInfo);
 	SharedMemoryLock	sharedBufferLock(consoleBuffer);
 	MutexLock			localBufferLock(m_bufferMutex);
 
@@ -1305,7 +1308,17 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		}
 	}
 
-	PostMessage(UM_UPDATE_CONSOLE_VIEW, bResize ? 1 : 0);
+	WPARAM wParam = 0;
+
+	if (bResize) wParam |= UPDATE_CONSOLE_RESIZE;
+
+	if (consoleInfo->textChanged)
+	{
+		wParam |= UPDATE_CONSOLE_TEXT_CHANGED;
+		consoleInfo->textChanged = false;
+	}
+
+	PostMessage(UM_UPDATE_CONSOLE_VIEW, wParam);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1953,13 +1966,13 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 		// blit only cursor
 		if (!(m_cursor) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
 
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
 		rectBlit		= m_cursor->GetCursorRect();
-		rectBlit.left	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-		rectBlit.top	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
-		rectBlit.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-		rectBlit.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
+		rectBlit.left	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
+		rectBlit.top	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
+		rectBlit.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
+		rectBlit.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
 	}
 	else
 	{
@@ -1999,20 +2012,20 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 	if (m_consoleHandler.GetCursorInfo()->bVisible && (m_cursor.get() != NULL))
 	{
 		CRect			rectCursor(0, 0, 0, 0);
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 		// don't blit if cursor is outside visible window
-		if ((consoleInfo->dwCursorPosition.X >= consoleInfo->srWindow.Left) &&
-			(consoleInfo->dwCursorPosition.X <= consoleInfo->srWindow.Right) &&
-			(consoleInfo->dwCursorPosition.Y >= consoleInfo->srWindow.Top) &&
-			(consoleInfo->dwCursorPosition.Y <= consoleInfo->srWindow.Bottom))
+		if ((consoleInfo->csbi.dwCursorPosition.X >= consoleInfo->csbi.srWindow.Left) &&
+			(consoleInfo->csbi.dwCursorPosition.X <= consoleInfo->csbi.srWindow.Right) &&
+			(consoleInfo->csbi.dwCursorPosition.Y >= consoleInfo->csbi.srWindow.Top) &&
+			(consoleInfo->csbi.dwCursorPosition.Y <= consoleInfo->csbi.srWindow.Bottom))
 		{
 			rectCursor			= m_cursor->GetCursorRect();
-			rectCursor.left		+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-			rectCursor.top		+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
-			rectCursor.right	+= (consoleInfo->dwCursorPosition.X - consoleInfo->srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-			rectCursor.bottom	+= (consoleInfo->dwCursorPosition.Y - consoleInfo->srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
+			rectCursor.left		+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
+			rectCursor.top		+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
+			rectCursor.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
+			rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
 
 			m_cursor->BitBlt(
 						m_dcOffscreen, 
@@ -2262,7 +2275,7 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
 
 	DWORD			dwColumns		= m_consoleHandler.GetConsoleParams()->dwColumns;
 	DWORD			dwBufferColumns	= m_consoleHandler.GetConsoleParams()->dwBufferColumns;
-	SMALL_RECT&		srWindow		= m_consoleHandler.GetConsoleInfo()->srWindow;
+	SMALL_RECT&		srWindow		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow;
 
 	CPoint			point(clientPoint);
 	COORD			consolePoint;

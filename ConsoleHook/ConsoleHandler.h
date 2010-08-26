@@ -51,7 +51,7 @@ class ConsoleHandler
 		shared_ptr<void>							m_hParentProcess;
 
 		SharedMemory<ConsoleParams>					m_consoleParams;
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>	m_consoleInfo;
+		SharedMemory<ConsoleInfo>	m_consoleInfo;
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;

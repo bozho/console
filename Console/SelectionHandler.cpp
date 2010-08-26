@@ -19,7 +19,7 @@ SelectionHandler::SelectionHandler(
 					const CRect& rectConsoleView, 
 					ConsoleHandler& consoleHandler,
 					SharedMemory<ConsoleParams>& consoleParams, 
-					SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo, 
+					SharedMemory<ConsoleInfo>& consoleInfo, 
 					SharedMemory<ConsoleCopy>& consoleCopyInfo, 
 					int nCharWidth, 
 					int nCharHeight)
@@ -82,7 +82,7 @@ void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelecti
 	m_coordCurrent.X	= m_coordInitial.X;
 	m_coordCurrent.Y	= m_coordInitial.Y;
 
-	SMALL_RECT&	 srWindow = m_consoleInfo->srWindow;
+	SMALL_RECT&	 srWindow = m_consoleInfo->csbi.srWindow;
 
 	int nDeltaX = m_coordCurrent.X - srWindow.Left;
 	int nDeltaY = m_coordCurrent.Y - srWindow.Top;
@@ -117,7 +117,7 @@ void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<C
 	m_coordCurrent = coordCurrent;
 
 
-	SMALL_RECT&	 srWindow = m_consoleInfo->srWindow;
+	SMALL_RECT&	 srWindow = m_consoleInfo->csbi.srWindow;
 
 	int nDeltaX = m_coordCurrent.X - srWindow.Left;
 	int nDeltaY = m_coordCurrent.Y - srWindow.Top;
@@ -378,7 +378,7 @@ void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEn
 void SelectionHandler::GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect)
 {
 	StylesSettings&	stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
-	SMALL_RECT&		srWindow		= m_consoleInfo->srWindow;
+	SMALL_RECT&		srWindow		= m_consoleInfo->csbi.srWindow;
 	CRect			rectConsoleView;
 
 	m_consoleView.GetClientRect(&rectConsoleView);

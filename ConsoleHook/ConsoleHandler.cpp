@@ -223,16 +223,25 @@ void ConsoleHandler::ReadConsoleBuffer()
 //	TRACE(L"===================================================================\n");
 
 	// compare previous buffer, and if different notify Console
-	if ((::memcmp(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
-		(m_dwScreenBufferSize != dwScreenBufferSize) ||
-		(::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0))
-	{
-		SharedMemoryLock bufferLock(m_consoleBuffer);
+	SharedMemoryLock consoleInfoLock(m_consoleInfo);
+	SharedMemoryLock bufferLock(m_consoleBuffer);
 
+	bool textChanged = (::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0);
+
+	if ((::memcmp(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
+		(m_dwScreenBufferSize != dwScreenBufferSize) ||
+		textChanged)
+	{
 		// update screen buffer variables
 		m_dwScreenBufferSize = dwScreenBufferSize;
+
+		::CopyMemory(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+		
+		// only Console sets the flag to false, after it's done repainting text
+		if (textChanged) m_consoleInfo->textChanged = true;
+
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
-		::CopyMemory(m_consoleInfo.Get(), &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
+
 		::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
 
 		m_consoleBuffer.SetReqEvent();
@@ -734,7 +743,7 @@ void ConsoleHandler::SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut)
 	TRACE(L"Max columns: %i, max rows: %i\n", m_consoleParams->dwMaxColumns, m_consoleParams->dwMaxRows);
 
 	// get initial window and cursor info
-	::GetConsoleScreenBufferInfo(hStdOut, m_consoleInfo.Get());
+	::GetConsoleScreenBufferInfo(hStdOut, &m_consoleInfo->csbi);
 	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
 
 	m_consoleParams.SetReqEvent();

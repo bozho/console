@@ -457,10 +457,10 @@ DWORD ConsoleHandler::MonitorThread()
 	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetReqEvent() };
 	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1)
 	{
-		DWORD				dwColumns	= m_consoleInfo->srWindow.Right - m_consoleInfo->srWindow.Left + 1;
-		DWORD				dwRows		= m_consoleInfo->srWindow.Bottom - m_consoleInfo->srWindow.Top + 1;
-		DWORD				dwBufferColumns	= m_consoleInfo->dwSize.X;
-		DWORD				dwBufferRows	= m_consoleInfo->dwSize.Y;
+		DWORD				dwColumns	= m_consoleInfo->csbi.srWindow.Right - m_consoleInfo->csbi.srWindow.Left + 1;
+		DWORD				dwRows		= m_consoleInfo->csbi.srWindow.Bottom - m_consoleInfo->csbi.srWindow.Top + 1;
+		DWORD				dwBufferColumns	= m_consoleInfo->csbi.dwSize.X;
+		DWORD				dwBufferRows	= m_consoleInfo->csbi.dwSize.Y;
 		bool				bResize		= false;
 
 		if ((m_consoleParams->dwColumns != dwColumns) ||

@@ -29,7 +29,7 @@ class SelectionHandler
 			const CRect& rectConsoleView, 
 			ConsoleHandler& consoleHandler,
 			SharedMemory<ConsoleParams>& consoleParams, 
-			SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo, 
+			SharedMemory<ConsoleInfo>& consoleInfo, 
 			SharedMemory<ConsoleCopy>& consoleCopyInfo, 
 			int nCharWidth, 
 			int nCharHeight);
@@ -66,7 +66,7 @@ class SelectionHandler
 
 		ConsoleHandler&								m_consoleHandler;
 		SharedMemory<ConsoleParams>&				m_consoleParams;
-		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>&	m_consoleInfo;
+		SharedMemory<ConsoleInfo>&	m_consoleInfo;
 		SharedMemory<ConsoleCopy>&					m_consoleCopyInfo;
 		int				m_nCharWidth;
 		int				m_nCharHeight;

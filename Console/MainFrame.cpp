@@ -73,7 +73,7 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 
 	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg)) return TRUE;
 
-	if (m_activeView.get() == NULL) return FALSE;
+	if (!m_activeView) return FALSE;
 
 	return m_activeView->PreTranslateMessage(pMsg);
 }
@@ -344,7 +344,7 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 {
 	BOOL bActivating = static_cast<BOOL>(wParam);
 
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->SetAppActiveStatus(bActivating ? true : false);
 
@@ -518,7 +518,7 @@ LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 	CRect					maxClientRect;
 
-	if ((m_activeView.get() == NULL) || (!m_activeView->GetMaxRect(maxClientRect)))
+	if (!(m_activeView) || (!m_activeView->GetMaxRect(maxClientRect)))
 	{
 		bHandled = false;
 		return 1;
@@ -1242,7 +1242,7 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->Paste();
 
@@ -1256,7 +1256,7 @@ LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->Copy();
 
@@ -1270,7 +1270,7 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->ClearSelection();
 
@@ -1284,7 +1284,7 @@ LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->Paste();
 
@@ -1298,7 +1298,7 @@ LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->GetConsoleHandler().StopScrolling();
 
@@ -1312,7 +1312,7 @@ LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	DlgRenameTab dlg(m_activeView->GetTitle());
 
@@ -1348,7 +1348,7 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	DlgSettingsMain dlg;
 
@@ -1489,7 +1489,7 @@ LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnDumpBuffer(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() == NULL) return 0;
+	if (!m_activeView) return 0;
 
 	m_activeView->DumpBuffer();
 
@@ -1565,7 +1565,7 @@ void MainFrame::AdjustWindowRect(CRect& rect)
 void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
 {
 	// adjust the active view
-//	if (m_activeView.get() == NULL) return;
+//	if (!m_activeView) return;
 
 
 //	GetClientRect(&rectView);
@@ -1598,7 +1598,7 @@ void MainFrame::AdjustAndResizeConsoleView(CRect& rectView)
 * /
 
 	// adjust the active view
-	if (m_activeView.get() == NULL) return;
+	if (!m_activeView) return;
 
 	m_activeView->AdjustRectAndResize(rectView);
 	
@@ -2207,7 +2207,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 		}
 
 		// adjust the active view
-		if (m_activeView.get() == NULL) return;
+		if (!m_activeView) return;
 
 		// if we're being maximized, AdjustRectAndResize will use client rect supplied
 		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
@@ -2233,7 +2233,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	}
 	else
 	{
-		if (m_activeView.get() == NULL) return;
+		if (!m_activeView) return;
 		CRect maxClientRect;
 		m_activeView->GetMaxRect(maxClientRect);
 		m_activeView->GetRect(clientRect);
@@ -2288,7 +2288,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 //		AdjustAndResizeConsoleView(clientRect);
 
 		// adjust the active view
-		if (m_activeView.get() == NULL) return;
+		if (!m_activeView) return;
 
 		m_activeView->AdjustRectAndResize(clientRect);
 		
@@ -2310,7 +2310,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	}
 	else
 	{
-		if (m_activeView.get() == NULL) return;
+		if (!m_activeView) return;
 
 		m_activeView->GetRect(clientRect);
 	}

@@ -87,6 +87,14 @@ BOOL MainFrame::OnIdle()
 {
 	UpdateStatusBar();
 	UIUpdateToolBar();
+
+	if (m_activeView.get() != NULL)
+	{
+		UIEnable(ID_EDIT_COPY, m_activeView->CanCopy() ? TRUE : FALSE);
+		UIEnable(ID_EDIT_CLEAR_SELECTION, m_activeView->CanClearSelection() ? TRUE : FALSE);
+		UIEnable(ID_EDIT_PASTE, m_activeView->CanPaste() ? TRUE : FALSE);
+	}
+
 	return FALSE;
 }
 
@@ -187,6 +195,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UISetCheck(ID_VIEW_TOOLBAR, 1);
 	UISetCheck(ID_VIEW_TABS, 1);
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
+	UISetBlockAccelerators(true);
 
 	SetWindowStyles();
 

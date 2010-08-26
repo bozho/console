@@ -127,6 +127,10 @@ class ConsoleView
 		void ClearSelection();
 		void Paste();
 
+		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }
+		bool CanClearSelection() const { return m_selectionHandler->GetState() > SelectionHandler::selstateNoSelection; }
+		bool CanPaste() const { return (m_selectionHandler->GetState() == SelectionHandler::selstateNoSelection) && (::IsClipboardFormatAvailable(CF_UNICODETEXT) || ::IsClipboardFormatAvailable(CF_TEXT) || ::IsClipboardFormatAvailable(CF_OEMTEXT)) ; }
+
 		void DumpBuffer();
 		void InitializeScrollbars();
 

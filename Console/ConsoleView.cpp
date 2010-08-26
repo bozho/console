@@ -131,7 +131,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 		m_background = g_imageHandler->GetDesktopImage(m_tabData->imageData);
 	}
 
-	if (m_background.get() == NULL) m_tabData->backgroundImageType = bktypeNone;
+	if (!m_background) m_tabData->backgroundImageType = bktypeNone;
 
 	// TODO: error handling
 	wstring strInitialDir(m_consoleSettings.strInitialDir);
@@ -1925,7 +1925,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 	if (bOnlyCursor)
 	{
 		// blit only cursor
-		if ((m_cursor.get() == NULL) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
+		if (!(m_cursor) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
 
 		SharedMemory<CONSOLE_SCREEN_BUFFER_INFO>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 

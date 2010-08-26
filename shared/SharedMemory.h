@@ -159,7 +159,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 									::CloseHandle);
 
 	// TODO: error handling
-	//if (m_hSharedMem.get() == NULL) return false;
+	//if (!m_hSharedMem) return false;
 
 	m_pSharedMem = shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
@@ -173,7 +173,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 
 	if (syncObjects > syncObjNone) CreateSyncObjects(syncObjects, strName);
 
-	//if (m_pSharedMem.get() == NULL) return false;
+	//if (!m_pSharedMem) return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -193,7 +193,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 									::CloseHandle);
 
 	// TODO: error handling
-	//if (m_hSharedMem.get() == NULL) return false;
+	//if (!m_hSharedMem) return false;
 
 	m_pSharedMem = shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
@@ -205,7 +205,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 
 	if (syncObjects > syncObjNone) CreateSyncObjects(syncObjects, strName);
 
-	//if (m_pSharedMem.get() == NULL) return false;
+	//if (!m_pSharedMem) return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -216,7 +216,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 template<typename T>
 void SharedMemory<T>::Lock()
 {
-	if (m_hSharedMutex.get() == NULL) return;
+	if (!m_hSharedMutex) return;
 	::WaitForSingleObject(m_hSharedMutex.get(), INFINITE);
 }
 
@@ -228,7 +228,7 @@ void SharedMemory<T>::Lock()
 template<typename T>
 void SharedMemory<T>::Release()
 {
-	if (m_hSharedMutex.get() == NULL) return;
+	if (!m_hSharedMutex) return;
 	::ReleaseMutex(m_hSharedMutex.get());
 }
 
@@ -240,7 +240,7 @@ void SharedMemory<T>::Release()
 template<typename T>
 void SharedMemory<T>::SetReqEvent()
 {
-	if (m_hSharedReqEvent.get() == NULL) return;
+	if (!m_hSharedReqEvent) return;
 	::SetEvent(m_hSharedReqEvent.get());
 }
 
@@ -252,7 +252,7 @@ void SharedMemory<T>::SetReqEvent()
 template<typename T>
 void SharedMemory<T>::SetRespEvent()
 {
-	if (m_hSharedRespEvent.get() == NULL) return;
+	if (!m_hSharedRespEvent) return;
 	::SetEvent(m_hSharedRespEvent.get());
 }
 

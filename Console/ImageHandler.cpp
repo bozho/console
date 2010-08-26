@@ -207,7 +207,7 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 
 	CriticalSectionLock	lock(bkImage->updateCritSec);
 
-	if (bkImage.get() == NULL) return false;
+	if (!bkImage) return false;
 
 		// if we're reloading, delete old bitmap and DC
 	if (!bkImage->dcImage.IsNull())

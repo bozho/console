@@ -387,7 +387,7 @@ bool ConsoleHandler::InjectHookDLL()
 														PAGE_READWRITE)),
 							bind<BOOL>(::VirtualFreeEx, m_hConsoleProcess.get(), _1, NULL, MEM_RELEASE));
 
-	if (pszHookDllPathRemote.get() == NULL) return false;
+	if (!pszHookDllPathRemote) return false;
 
 	// write the memory
 	if (!::WriteProcessMemory(
@@ -416,7 +416,7 @@ bool ConsoleHandler::InjectHookDLL()
 							NULL),
 						::CloseHandle);
 
-	if (hRemoteThread.get() == NULL) return false;
+	if (!hRemoteThread) return false;
 
 	// wait for the thread to finish
 //	::WaitForSingleObject(hRemoteThread.get(), INFINITE);

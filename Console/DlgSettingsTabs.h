@@ -59,7 +59,6 @@ class DlgSettingsTabs
 
 	private:
 
-		void SetTabData(TabData* pTabData);
 		void MoveListItem(int nItem, int nDirection);
 
 	private:

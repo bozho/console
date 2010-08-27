@@ -25,6 +25,7 @@ class PageSettingsTabs1
 		BEGIN_DDX_MAP(PageSettingsTabs1)
 			DDX_TEXT(IDC_TAB_TITLE, m_strTitle)
 			DDX_TEXT(IDC_TAB_ICON, m_strIcon)
+			DDX_CHECK(IDC_CHECK_DEFAULT_ICON, m_nUseDefaultIcon)
 			DDX_TEXT(IDC_TAB_SHELL, m_strShell)
 			DDX_TEXT(IDC_TAB_INIT_DIR, m_strInitialDir)
 		END_DDX_MAP()
@@ -37,6 +38,7 @@ class PageSettingsTabs1
 			COMMAND_HANDLER(IDC_TAB_TITLE, EN_CHANGE, OnTabTitleChange)
 			COMMAND_HANDLER(IDC_CURSOR_COLOR, BN_CLICKED, OnClickedCursorColor)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_ICON, OnBtnBrowseIcon)
+			COMMAND_ID_HANDLER(IDC_CHECK_DEFAULT_ICON, OnCheckDefaultIcon)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_SHELL, OnClickedBtnBrowseShell)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_DIR, OnClickedBtnBrowseDir)
 		END_MSG_MAP()
@@ -55,8 +57,16 @@ class PageSettingsTabs1
 		LRESULT OnBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnCheckDefaultIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-	public:
+		void EnableControls();
+
+		void Load(shared_ptr<TabData>& tabData);
+		void Save();
+
+		const CString& GetTabTitle() const { return m_strTitle; }
+
+	private:
 
 		shared_ptr<TabData>	m_tabData;
 
@@ -65,6 +75,7 @@ class PageSettingsTabs1
 
 		CString			m_strTitle;
 		CString			m_strIcon;
+		int				m_nUseDefaultIcon;
 
 		CString			m_strShell;
 		CString			m_strInitialDir;

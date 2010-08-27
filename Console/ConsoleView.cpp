@@ -770,7 +770,6 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	}
 	::DragFinish(hDrop);
 
-	// TODO: fix this
 	SendTextToConsole(strFilenames);
 	return 0;
 }
@@ -1251,21 +1250,6 @@ void ConsoleView::Paste()
 {
 	if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
 	::SendMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
-
-/*
-	SharedMemory<UINT_PTR>&	pasteInfo = m_consoleHandler.GetPasteInfo();
-
-	{
-		SharedMemoryLock memLock(pasteInfo);
-
-		pasteInfo = 0;
-		pasteInfo.SetReqEvent();
-	}
-
-	TRACE(L"Waiting for paste response event\n");
-	::WaitForSingleObject(pasteInfo.GetRespEvent(), INFINITE);
-	TRACE(L"Done waiting for paste response event\n");
-	*/
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2057,108 +2041,16 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 
 void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 {
-/*
 	if (pszText == NULL) return;
 
 	size_t textLen = wcslen(pszText);
 
 	if (textLen == 0) return;
 
-	size_t	partLen	= 256;
-	size_t	parts	= textLen/partLen;
-
-	for (size_t part = 0; part < parts+1; ++part)
-	{
-		size_t	offset = part*partLen;
-		
-		if (part == parts)
-		{
-			// last part, modify part size
-			partLen = textLen - parts*partLen;
-		}
-		
-		scoped_array<INPUT> kbdInputs(new INPUT[2*partLen]);
-		::ZeroMemory(kbdInputs.get(), sizeof(INPUT_RECORD)*2*partLen);
-
-		for (size_t i = 0; i < partLen; ++i, ++offset)
-		{
-			if ((pszText[offset] == L'\r') || (pszText[offset] == L'\n'))
-			{
-				kbdInputs[2*i].type			= INPUT_KEYBOARD;
-				kbdInputs[2*i].ki.dwFlags	= 0;
-				kbdInputs[2*i].ki.wVk		= VK_RETURN;
-
-				kbdInputs[2*i+1].type		= INPUT_KEYBOARD;
-				kbdInputs[2*i+1].ki.dwFlags	= KEYEVENTF_KEYUP;
-				kbdInputs[2*i+1].ki.wVk		= VK_RETURN;
-
-				if ((pszText[offset] == L'\r') && (pszText[offset+1] == L'\n')) ++offset;
-
-				::SendInput(2, kbdInputs.get() + 2*i, sizeof(INPUT));
-			}
-			else
-			{
-				kbdInputs[2*i].type			= INPUT_KEYBOARD;
-				kbdInputs[2*i].ki.dwFlags	= KEYEVENTF_UNICODE;
-				kbdInputs[2*i].ki.wScan		= pszText[offset];
-
-				kbdInputs[2*i+1].type		= INPUT_KEYBOARD;
-				kbdInputs[2*i+1].ki.dwFlags	= KEYEVENTF_UNICODE|KEYEVENTF_KEYUP;
-				kbdInputs[2*i+1].ki.wVk		= pszText[offset];
-
-				::SendInput(2, kbdInputs.get() + 2*i, sizeof(INPUT));
-			}
-		}
-
-//		::SendInput(2*partLen, kbdInputs.get(), sizeof(INPUT));
-	}
-*/
-
-
-
-/*
-	INPUT inp[2];
-
-	for (size_t i = 0; i < textLen; ++i)
-	{
-		if ((pszText[i] == L'\r') || (pszText[i] == L'\n'))
-		{
-			memset(inp,0,sizeof(INPUT));
-			inp[0].type = INPUT_KEYBOARD;
-			inp[0].ki.dwFlags = 0; // to avoid shift, and so on
-			inp[1] = inp[0];
-			inp[1].ki.dwFlags |= KEYEVENTF_KEYUP;
-
-			inp[0].ki.wVk = inp[1].ki.wVk = VK_RETURN;
-			::SendInput(2, inp, sizeof(INPUT));
-
-			if ((pszText[i] == L'\r') && (pszText[i+1] == L'\n')) ++i;
-		}
-		else
-		{
-			memset(inp,0,sizeof(INPUT));
-			inp[0].type = INPUT_KEYBOARD;
-			inp[0].ki.dwFlags = KEYEVENTF_UNICODE; // to avoid shift, and so on
-			inp[1] = inp[0];
-			inp[1].ki.dwFlags |= KEYEVENTF_KEYUP;
-
-			inp[0].ki.wScan = inp[1].ki.wScan = pszText[i];
-			::SendInput(2, inp, sizeof(INPUT));
-		}
-
-	}
-*/
-
-	if (pszText == NULL) return;
-
-	size_t textLen = wcslen(pszText);
-
-	if (textLen == 0) return;
-
-	SharedMemory<UINT_PTR>&	pasteInfo = m_consoleHandler.GetPasteInfo();
+	SharedMemory<UINT_PTR>&	textInfo = m_consoleHandler.GetTextInfo();
 
 	{
-		SharedMemoryLock		memLock(pasteInfo);
+		SharedMemoryLock		memLock(textInfo);
 
 		void* pRemoteMemory = ::VirtualAllocEx(
 									m_consoleHandler.GetConsoleHandle().get(),
@@ -2180,11 +2072,11 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 			return;
 		}
 
-		pasteInfo = reinterpret_cast<UINT_PTR>(pRemoteMemory);
-		pasteInfo.SetReqEvent();
+		textInfo = reinterpret_cast<UINT_PTR>(pRemoteMemory);
+		textInfo.SetReqEvent();
 	}
 
-	::WaitForSingleObject(pasteInfo.GetRespEvent(), INFINITE);
+	::WaitForSingleObject(textInfo.GetRespEvent(), INFINITE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

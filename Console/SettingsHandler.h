@@ -136,7 +136,7 @@ struct ControlsSettings
 	bool			bShowStatusbar;
 	bool			bShowTabs;
 	bool			bHideSingleTab;
-	bool			bTabsBottom;
+	bool			bTabsOnBottom;
 	bool			bShowScrollbars;
 	bool			bFlatScrollbars;
 };
@@ -223,7 +223,7 @@ enum TransparencyType
 	transNone		= 0,
 	transAlpha		= 1,
 	transColorKey	= 2,
-  transGlass    = 3
+	transGlass		= 3
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -580,25 +580,22 @@ struct TabData
 	TabData(const wstring& shell, const wstring& initialDir)
 	: strTitle(L"Console")
 	, strIcon(L"")
+	, bUseDefaultIcon(false)
 	, strShell(shell)
 	, strInitialDir(initialDir)
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
+	, menuBitmap()
 	, imageData()
-    , hMenuBitmap(NULL)
 	{
 	}
-
-  ~TabData()
-  {
-    ::DeleteObject(hMenuBitmap);
-  }
 
 	// custom shell settings
 	wstring							strTitle;
 	wstring							strIcon;
+	bool							bUseDefaultIcon;
 
 	wstring							strShell;
 	wstring							strInitialDir;
@@ -609,9 +606,9 @@ struct TabData
 	BackgroundImageType				backgroundImageType;
 	COLORREF						crBackgroundColor;
 
-	ImageData						imageData;
+	CBitmap							menuBitmap;
 
-  HBITMAP             hMenuBitmap;
+	ImageData						imageData;
 };
 
 //////////////////////////////////////////////////////////////////////////////

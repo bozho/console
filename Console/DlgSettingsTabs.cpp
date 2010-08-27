@@ -83,7 +83,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT DlgSettingsTabs::OnTabTitleChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	m_listCtrl.SetItemText(m_listCtrl.GetSelectedIndex(), 0, m_page1.m_strTitle);
+	m_listCtrl.SetItemText(m_listCtrl.GetSelectedIndex(), 0, m_page1.GetTabTitle());
 	return 0;
 }
 
@@ -96,12 +96,10 @@ LRESULT DlgSettingsTabs::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 {
 	if (wID == IDOK)
 	{
-		TabData* pTabData = reinterpret_cast<TabData*>(m_listCtrl.GetItemData(m_listCtrl.GetSelectedIndex()));
+		m_page1.Save();
+		m_page2.Save();
 
-		m_page1.DoDataExchange(DDX_SAVE);
-		m_page2.DoDataExchange(DDX_SAVE);
 		DoDataExchange(DDX_SAVE);
-		SetTabData(pTabData);
 
 		m_tabSettings.Save(m_pOptionsRoot);
 
@@ -199,49 +197,18 @@ LRESULT DlgSettingsTabs::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /
 
 	if (pnmv->iItem < 0) return 0;
 
-	TabData* pTabData		= reinterpret_cast<TabData*>(pnmv->lParam);
-
 	if (pnmv->uNewState & LVIS_SELECTED)
 	{
 		// selecting new item
-		m_page1.m_tabData		= m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()];
-		m_page2.m_tabData		= m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()];
-
-		m_page1.m_strTitle		= pTabData->strTitle.c_str();
-		m_page1.m_strIcon		= pTabData->strIcon.c_str();
-
-		m_page1.m_strShell		= pTabData->strShell.c_str();
-		m_page1.m_strInitialDir	= pTabData->strInitialDir.c_str();
-
-		m_page2.m_nBkType		= static_cast<int>(pTabData->backgroundImageType);
-		m_page2.m_strBkImage	= pTabData->imageData.strFilename.c_str();
-		m_page2.m_nRelative		= pTabData->imageData.bRelative ? 1 : 0;
-		m_page2.m_nExtend		= pTabData->imageData.bExtend ? 1 : 0;
-
-		m_page1.m_comboCursor.SetCurSel(pTabData->dwCursorStyle);
-
-		m_page2.m_comboBkPosition.SetCurSel(static_cast<int>(pTabData->imageData.imagePosition));
-
-		m_page2.m_sliderTintOpacity.SetPos(pTabData->imageData.byTintOpacity);
-		m_page2.UpdateSliderText();
-	
-		m_page2.EnableControls();
-
-		m_page1.m_staticCursorColor.Invalidate();
-
-		m_page2.m_staticBkColor.Invalidate();
-		m_page2.m_staticTintColor.Invalidate();
-
-		m_page1.DoDataExchange(DDX_LOAD);
-		m_page2.DoDataExchange(DDX_LOAD);
+		m_page1.Load(m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()]);
+		m_page2.Load(m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()]);
 	}
 	else if (pnmv->uOldState & LVIS_SELECTED)
 	{
 		// deselecting item
-		m_page1.DoDataExchange(DDX_SAVE);
-		m_page2.DoDataExchange(DDX_SAVE);
-		SetTabData(pTabData);
-		m_listCtrl.SetItemText(pnmv->iItem, 0, m_page1.m_strTitle);
+		m_page1.Save();
+		m_page2.Save();
+		m_listCtrl.SetItemText(pnmv->iItem, 0, m_page1.GetTabTitle());
 	}
 
 	return 0;
@@ -275,36 +242,6 @@ LRESULT DlgSettingsTabs::OnTabItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void DlgSettingsTabs::SetTabData(TabData* pTabData)
-{
-	pTabData->strTitle					= m_page1.m_strTitle;
-	pTabData->strIcon					= m_page1.m_strIcon;
-
-	pTabData->strShell					= m_page1.m_strShell;
-	pTabData->strInitialDir				= m_page1.m_strInitialDir;
-
-	pTabData->backgroundImageType		= static_cast<BackgroundImageType>(m_page2.m_nBkType);
-
-	if (pTabData->backgroundImageType != bktypeNone)
-	{
-		pTabData->crBackgroundColor = RGB(0, 0, 0);
-	}
-
-	pTabData->imageData.strFilename		= m_page2.m_strBkImage;
-	pTabData->imageData.bRelative		= m_page2.m_nRelative > 0;
-	pTabData->imageData.bExtend			= m_page2.m_nExtend > 0;
-
-	pTabData->dwCursorStyle				= m_page1.m_comboCursor.GetCurSel();
-
-	pTabData->imageData.imagePosition	= static_cast<ImagePosition>(m_page2.m_comboBkPosition.GetCurSel());
-	pTabData->imageData.byTintOpacity	= static_cast<BYTE>(m_page2.m_sliderTintOpacity.GetPos());
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
 

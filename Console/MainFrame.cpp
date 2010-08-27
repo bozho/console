@@ -100,6 +100,9 @@ BOOL MainFrame::OnIdle()
 
 LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
+	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
+
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
@@ -136,7 +139,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 #else
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 #endif
-  AddSimpleReBarBand(hWndCmdBar, NULL, FALSE);
+	AddSimpleReBarBand(hWndCmdBar, NULL, FALSE);
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
 
 #ifdef _USE_AERO
@@ -150,10 +153,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
-  DWORD dwTabWindowOtherStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
-  if( g_settingsHandler->GetAppearanceSettings().controlsSettings.bTabsBottom )
-    dwTabWindowOtherStyles |= CTCS_BOTTOM;
-	CreateTabWindow(m_hWnd, rcDefault, dwTabWindowOtherStyles);
+//	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
+
+	DWORD dwTabStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
+	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM;
+	
+	CreateTabWindow(m_hWnd, rcDefault, dwTabStyles);
 
 	// create initial console window(s)
 	if (m_startupTabs.size() == 0)
@@ -205,9 +210,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 
 	SetWindowStyles();
-
-	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
-	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
 	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
@@ -340,7 +342,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 	UnregisterGlobalHotkeys();
 
-	bHandled = false;
+	DestroyWindow();
+	PostQuitMessage(0);
 	return 0;
 }
 
@@ -1710,46 +1713,65 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
 
-    // To draw icons with good transparency
-    CIcon    tabSmallIcon;
+		// create menu icons with proper transparency (thanks to chrisz for the patch)
+		CIcon tabSmallIcon;
+		
+		if ((*it)->bUseDefaultIcon || ((*it)->strIcon.length() > 0))
+		{
+			if ((*it)->menuBitmap.IsNull())
+			{
 
-    // on essaye de charger l'icone
-    if( tabDataVector[dwId-ID_NEW_TAB_1]->strIcon.length() > 0 )
-    {
-      tabSmallIcon.Attach(
-        static_cast<HICON>(
-          ::LoadImage(
-            NULL, 
-            Helpers::ExpandEnvironmentStrings(tabDataVector[dwId-ID_NEW_TAB_1]->strIcon).c_str(), 
-            IMAGE_ICON, 
-            16, 
-            16, 
-            LR_DEFAULTCOLOR|LR_LOADFROMFILE)));
-    }
-    else
-    {
-      tabSmallIcon.Attach(
-        static_cast<HICON>(
-          ::LoadImage(
-            ::GetModuleHandle(NULL), 
-            MAKEINTRESOURCE(IDR_MAINFRAME), 
-            IMAGE_ICON, 
-            16, 
-            16, 
-            LR_DEFAULTCOLOR)));
-    }
+				if ((*it)->strIcon.length() > 0)
+				{
+					tabSmallIcon.Attach(
+						static_cast<HICON>(
+							::LoadImage(
+								NULL,
+								Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
+								IMAGE_ICON,
+								16,
+								16,
+								LR_DEFAULTCOLOR|LR_LOADFROMFILE
+							)
+						)
+					);
+				}
+				else if ((*it)->bUseDefaultIcon)
+				{
+					tabSmallIcon.Attach(
+						static_cast<HICON>(
+							::LoadImage(
+								::GetModuleHandle(NULL),
+								MAKEINTRESOURCE(IDR_MAINFRAME),
+								IMAGE_ICON,
+								16,
+								16,
+								LR_DEFAULTCOLOR
+							)
+						)
+					);
+				}
 
-    CBitmap bmpCopy;
-    bmpCopy.CreateCompatibleBitmap(this->GetDC(),16,16);
-    CDC dc;
-    dc.CreateCompatibleDC(this->GetDC());
-    dc.SelectBitmap(bmpCopy.m_hBitmap);
-    dc.FillSolidRect(0,0,16,16,::GetSysColor(COLOR_MENU));
-    dc.DrawIconEx(0,0,tabSmallIcon.m_hIcon,16,16);
+				CDC	dc;
 
-    tabDataVector[dwId-ID_NEW_TAB_1]->hMenuBitmap = (HBITMAP) CopyImage(bmpCopy.m_hBitmap,IMAGE_BITMAP,(int)GetSystemMetrics(SM_CXMENUCHECK),(int)GetSystemMetrics(SM_CYMENUCHECK),0);
+				(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
 
-    tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, tabDataVector[dwId-ID_NEW_TAB_1]->hMenuBitmap, tabDataVector[dwId-ID_NEW_TAB_1]->hMenuBitmap);
+				dc.CreateCompatibleDC(::GetDC(NULL));
+				dc.SelectBitmap((*it)->menuBitmap);
+				dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
+				dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
+			}
+		}
+		else
+		{
+			// destroy icon bitmap
+			if (!(*it)->menuBitmap.IsNull()) (*it)->menuBitmap.DeleteObject();
+		}
+
+		if (!(*it)->menuBitmap.IsNull()) 
+		{
+			tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
+		}
 	}
 
 	// set tabs menu as popup submenu
@@ -2187,7 +2209,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 
-  SetMargins();
+	SetMargins();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2226,12 +2248,12 @@ void MainFrame::SetMargins(void)
 	}
 
 void MainFrame::SetTransparency()
-	{
+{
 	// set transparency
-  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
-  // RAZ
+	// RAZ
 	SetWindowLong(
 		GWL_EXSTYLE, 
 		GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
@@ -2411,13 +2433,13 @@ void MainFrame::CreateStatusBar()
 {
 	m_hWndStatusBar = m_statusBar.Create(*this);
 #ifdef _USE_AERO
-  aero::Subclass(m_ASB, m_hWndStatusBar);
+	aero::Subclass(m_ASB, m_hWndStatusBar);
 #endif
-    UIAddStatusBar(m_hWndStatusBar);
+	UIAddStatusBar(m_hWndStatusBar);
 
 	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_ROWS_COLUMNS };
- 
-    m_statusBar.SetPanes(arrPanes, sizeof(arrPanes)/sizeof(int), false);
+
+	m_statusBar.SetPanes(arrPanes, sizeof(arrPanes)/sizeof(int), false);
 	m_statusBar.SetPaneWidth(IDPANE_ROWS_COLUMNS, 50);
 }
 

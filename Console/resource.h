@@ -123,10 +123,8 @@
 #define IDC_CHECK_HIDE_SCROLLBARS       1094
 #define IDC_CHECK_SHOW_SCROLLBARS       1094
 #define IDC_RADIO_DOCK_NONE             1095
-#define IDC_CHECK_SHOW_SCROLLBARS2      1095
 #define IDC_CHECK_FLAT_SCROLLBARS       1095
 #define IDC_RADIO_DOCK_TL               1096
-#define IDC_CHECK_TABS_BOTTOM           1096
 #define IDC_RADIO_DOCK_TR               1097
 #define IDC_RADIO_DOCK_BL               1098
 #define IDC_RADIO_DOCK_BR               1099
@@ -214,10 +212,11 @@
 #define IDC_COMBO_SMOOTHING             1169
 #define IDC_CHECK_LEAVE_HIGHLIGHTED     1170
 #define IDC_CHECK_START_HIDDEN          1171
-#define IDC_RADIO1                      1172
-#define IDC_APPTEXT                     1173
-#define IDC_APPICON                     1174
-#define ID_RENAME_TAB_OK                1175
+#define IDC_CHECK_DEFAULT_ICON          1172
+#define IDC_CHECK_TABS_ON_BOTTOM        1173
+#define IDC_APPTEXT                     1174
+#define IDC_APPICON                     1175
+#define ID_RENAME_TAB_OK                1176
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -243,7 +242,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        222
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1176
+#define _APS_NEXT_CONTROL_VALUE         1177
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

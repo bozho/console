@@ -177,7 +177,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
 	{
 		//TODO: error handling
-		return -1;
+		return 1;
 	}
 
 	// create main window
@@ -192,7 +192,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	if(wndMain.CreateEx(noTaskbarParent.m_hWnd) == NULL)
 	{
 		ATLTRACE(_T("Main window creation failed!\n"));
-		return 0;
+		return 1;
 	}
 
 	wndMain.ShowWindow(nCmdShow);

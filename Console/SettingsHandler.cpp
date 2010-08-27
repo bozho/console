@@ -366,7 +366,7 @@ ControlsSettings::ControlsSettings()
 , bShowStatusbar(true)
 , bShowTabs(true)
 , bHideSingleTab(false)
-, bTabsBottom(false)
+, bTabsOnBottom(false)
 , bShowScrollbars(true)
 , bFlatScrollbars(false)
 {
@@ -388,7 +388,7 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, false);
-	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"tabs_bottom"), bTabsBottom, false);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"tabs_on_bottom"), bTabsOnBottom, false);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_scrollbars"), bShowScrollbars, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"flat_scrollbars"), bFlatScrollbars, false);
 
@@ -411,7 +411,7 @@ bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab);
-	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"tabs_bottom"), bTabsBottom);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"tabs_on_bottom"), bTabsOnBottom);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_scrollbars"), bShowScrollbars);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"flat_scrollbars"), bFlatScrollbars);
 
@@ -430,7 +430,7 @@ ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
 	bShowStatusbar	= other.bShowStatusbar;
 	bShowTabs		= other.bShowTabs;
 	bHideSingleTab	= other.bHideSingleTab;
-	bTabsBottom	= other.bTabsBottom;
+	bTabsOnBottom	= other.bTabsOnBottom;
 	bShowScrollbars	= other.bShowScrollbars;
 	bFlatScrollbars	= other.bFlatScrollbars;
 
@@ -1496,6 +1496,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"title"), tabData->strTitle, L"Console");
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), tabData->strIcon, L"");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"use_default_icon"), tabData->bUseDefaultIcon, false);
 
 		tabDataVector.push_back(tabData);
 
@@ -1606,6 +1607,8 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		{
 			XmlHelper::SetAttribute(pNewTabElement, CComBSTR(L"icon"), (*itTab)->strIcon);
 		}
+
+		XmlHelper::SetAttribute(pNewTabElement, CComBSTR(L"use_default_icon"), (*itTab)->bUseDefaultIcon);
 
 		// add <console> tag
 		CComPtr<IXMLDOMElement>	pNewConsoleElement;

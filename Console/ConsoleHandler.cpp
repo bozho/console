@@ -31,7 +31,7 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleInfo()
 , m_consoleBuffer()
 , m_consoleCopyInfo()
-, m_consolePasteInfo()
+, m_consoleTextInfo()
 , m_consoleMouseEvent()
 , m_newConsoleSize()
 , m_newScrollPos()
@@ -345,8 +345,8 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId)
 	// copy info
 	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
 
-	// paste info (used for pasting and sending text to console)
-	m_consolePasteInfo.Create((SharedMemNames::formatPasteInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
+	// text info (used for sending text to console)
+	m_consoleTextInfo.Create((SharedMemNames::formatTextInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
 
 	// mouse event
 	m_consoleMouseEvent.Create((SharedMemNames::formatMouseEvent % dwConsoleProcessId).str(), 1, syncObjBoth);

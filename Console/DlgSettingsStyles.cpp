@@ -73,6 +73,7 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	UpdateSliderText(m_sliderInactiveAlpha.m_hWnd);
 
 	EnableTabControls();
+	EnableScrollbarControls();
 	EnableTransparencyControls();
 
 	DoDataExchange(DDX_LOAD);
@@ -183,6 +184,13 @@ LRESULT DlgSettingsStyles::OnClickedShowTabs(WORD /*wNotifyCode*/, WORD /*wID*/,
 	return 0;
 }
 
+LRESULT DlgSettingsStyles::OnClickedShowScrollbars(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableScrollbarControls();
+	return 0;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -280,11 +288,22 @@ void DlgSettingsStyles::UpdateSliderText(HWND hwndSlider)
 void DlgSettingsStyles::EnableTabControls()
 {
 	GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow(FALSE);
+	GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow(FALSE);
 
 	if (m_nShowTabs > 0)
 	{
 		GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow();
 		GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow();
+	}
+}
+
+void DlgSettingsStyles::EnableScrollbarControls()
+{
+	GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow(FALSE);
+
+	if (m_nShowScrollbars > 0)
+	{
+		GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow();
 	}
 }
 

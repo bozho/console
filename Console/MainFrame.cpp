@@ -53,6 +53,7 @@ MainFrame::MainFrame
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
 , m_animationWindow()
+, m_iSelectionSize(0)
 {
   m_Margins.cxLeftWidth    = 0;
   m_Margins.cxRightWidth   = 0;
@@ -1794,11 +1795,19 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 void MainFrame::UpdateStatusBar()
 {
 	CString strRowsCols;
-
-	strRowsCols.Format(IDPANE_ROWS_COLUMNS, m_dwRows, m_dwColumns);
+	if( m_iSelectionSize )
+		strRowsCols.Format(_T("[%i]"), m_iSelectionSize);
+	else
+		strRowsCols.Format(IDPANE_ROWS_COLUMNS, m_dwRows, m_dwColumns);
 	UISetText(1, strRowsCols);
 
 	UIUpdateStatusBar();
+}
+
+void MainFrame::SetSelectionSize(int iSelectionSize)
+{
+	m_iSelectionSize = iSelectionSize;
+	UpdateStatusBar();
 }
 
 //////////////////////////////////////////////////////////////////////////////

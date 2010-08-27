@@ -527,11 +527,13 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
 					{
 						m_selectionHandler->EndSelection();
+						m_mainFrame.SetSelectionSize(0);
 						m_selectionHandler->ClearSelection();
 					}
 					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting)
 					{
 						m_selectionHandler->EndSelection();
+						m_mainFrame.SetSelectionSize(0);
 
 						// copy on select
 						if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
@@ -612,15 +614,12 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 			MutexLock bufferLock(m_bufferMutex);
 			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
-      COORD	coordStart;
-      COORD	coordEnd;
-      m_selectionHandler->GetSelectionCoordinates(coordStart, coordEnd);
-      int iSelextedSize = (coordEnd.Y - coordStart.Y) * m_consoleHandler.GetConsoleParams()->dwColumns +
-                          (coordEnd.X - coordStart.X) + 1;
-      TCHAR szBuff[128];
-      _sntprintf(szBuff, sizeof(szBuff), _T("[%i]"), iSelextedSize);
-      m_mainFrame.UISetText(1, szBuff);
-      m_mainFrame.UIUpdateStatusBar();
+			COORD	coordStart;
+			COORD	coordEnd;
+			m_selectionHandler->GetSelectionCoordinates(coordStart, coordEnd);
+			int iSelectionSize = (coordEnd.Y - coordStart.Y) * m_consoleHandler.GetConsoleParams()->dwColumns +
+			                     (coordEnd.X - coordStart.X) + 1;
+			m_mainFrame.SetSelectionSize(iSelectionSize);
 		}
 
 		BitBltOffscreen();

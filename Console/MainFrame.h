@@ -187,10 +187,8 @@ class MainFrame
 
 	public:
 
-//		shared_ptr<ConsoleView> GetActiveView();
-
 		void AdjustWindowRect(CRect& rect);
-//		void AdjustAndResizeConsoleView(CRect& rectView);
+		void SetSelectionSize(int iSelectionSize);
 
 	private:
 
@@ -256,6 +254,7 @@ class MainFrame
 
 		DWORD			m_dwRows;
 		DWORD			m_dwColumns;
+		int				m_iSelectionSize;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;

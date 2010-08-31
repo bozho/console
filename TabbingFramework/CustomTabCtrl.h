@@ -1438,8 +1438,10 @@ public:
 		else if(ectcMouseInWindow == (m_dwState & ectcMouseInWindow))
 		{
 			// hit test
-			if(::PtInRect(&m_rcCloseButton, ptCursor))
+			bool boolHitNotFound = true;
+			if(boolHitNotFound && ::PtInRect(&m_rcCloseButton, ptCursor))
 			{
+				boolHitNotFound = false;
 				if( ectcMouseOver_CloseButton != (m_dwState & ectcMouseOver))
 				{
 					this->ClearCurrentMouseOverTracking(true);
@@ -1470,8 +1472,9 @@ public:
 				}
 			}
 
-			if(::PtInRect(&m_rcScrollRight, ptCursor))
+			if(boolHitNotFound && ::PtInRect(&m_rcScrollRight, ptCursor))
 			{
+				boolHitNotFound = false;
 				if( ectcMouseOver_ScrollRight != (m_dwState & ectcMouseOver))
 				{
 					this->ClearCurrentMouseOverTracking(true);
@@ -1502,8 +1505,9 @@ public:
 				}
 			}
 
-			if(::PtInRect(&m_rcScrollLeft, ptCursor))
+			if(boolHitNotFound && ::PtInRect(&m_rcScrollLeft, ptCursor))
 			{
+				boolHitNotFound = false;
 				if( ectcMouseOver_ScrollLeft != (m_dwState & ectcMouseOver))
 				{
 					this->ClearCurrentMouseOverTracking(true);
@@ -1534,8 +1538,9 @@ public:
 				}
 			}
 
-			if(::PtInRect(&m_rcTabItemArea, ptCursor))
+			if(boolHitNotFound && ::PtInRect(&m_rcTabItemArea, ptCursor))
 			{
+				boolHitNotFound = false;
 				if( ectcMouseOver_TabItem != (m_dwState & ectcMouseOver))
 				{
 					this->ClearCurrentMouseOverTracking(true);
@@ -2383,6 +2388,14 @@ public:
 			{
 				RECT rcItemDP = {0};
 				this->GetItemRect(i, &rcItemDP);
+
+				// we must remove the close button area
+				// the tooltip tools didn't support overlapping
+				if( m_rcCloseButton.left > rcItemDP.left && m_rcCloseButton.left < rcItemDP.right )
+				{
+					rcItemDP.right = m_rcCloseButton.left - 1;
+				}
+
 				::IntersectRect(&rcIntersect, &rcItemDP, &m_rcTabItemArea);
 
 				// NOTE: Even if IntersectRect determines the rectangles

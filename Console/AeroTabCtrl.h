@@ -12,8 +12,10 @@ protected:
   signed char m_iLeftSpacing;
   signed char m_iTopMargin;
   signed char m_iRadius;
+  signed char m_iCloseButtonWidth;
+  signed char m_iCloseButtonHeight;
 
-// Constructor
+  // Constructor
 public:
 
 	CAeroTabCtrlImpl()
@@ -24,7 +26,7 @@ public:
 		m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
 	}
 
-// Message Handling
+  // Message Handling
 public:
 	DECLARE_WND_CLASS_EX(_T("WTL_CAeroTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
 
@@ -100,7 +102,7 @@ public:
 		return 0;
 	}
 
-// Overrides for painting from CDotNetTabCtrlImpl
+  // Overrides for painting from CDotNetTabCtrlImpl
 public:
 
 	void DrawBackground(RECT /*rcClient*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
@@ -228,6 +230,11 @@ public:
       rcText.right -= m_iMargin;
       nIconVerticalCenter = (rcTab.bottom + rcTab.top - m_iTopMargin) / 2 + m_iTopMargin;
     }
+
+    if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON))
+    {
+      rcText.right -= m_iCloseButtonWidth;
+    }
 	}
 
 	void DrawItem_TabInactive(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, RECT& rcTab)
@@ -302,24 +309,25 @@ public:
     this->DrawTab(rcTab, g, tabcolor);
 
 		//--------------------------------------------
-		// This is how CDotNetTabCtrlImpl interprets padding, margin, etc.:
+    // This is how CAeroTabCtrlImpl interprets padding, margin, etc.:
 		//
 		//  M - Margin
 		//  P - Padding
 		//  I - Image
+    //  C - Close button
 		//  Text - Tab Text
 		//
-		// With image:
-		//     __________________________
+    // With image & With close button:
+    //    | M | I | P | Text | P | C | M |
 		//
-		//    | M | I | P | Text | P | M |
-		//     --------------------------
+    // Without image & With close Button :
+    //    | M | P | Text | P | C | M |
 		//
-		// Without image:
-		//     ______________________
+    // With image & Without close button:
+    //    | M | I | P | Text | P | M |
 		//
+    // Without image & Without close Button :
 		//    | M | P | Text | P | M |
-		//     ----------------------
 
 		if (pItem->UsingImage() && !m_imageList.IsNull())
 		{
@@ -380,17 +388,12 @@ public:
 
 	void DrawCloseButton(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
 	{
-    RECT zone;
-    zone.top    = min(m_rcScrollLeft.top, m_rcCloseButton.top);
-    zone.left   = m_rcScrollLeft.left;
-    zone.bottom = max(m_rcScrollLeft.bottom, m_rcCloseButton.bottom);
-    zone.right  = m_rcCloseButton.right;
+    // drawed in the current tab
 
     HDC targetDC = lpNMCustomDraw->nmcd.hdc;
     HDC bufferedDC = NULL;
     BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
-    HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &zone, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
-    BufferedPaintClear(pb, &zone);
+    HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &m_rcCloseButton, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
 
     int iStateCloseButton = CBS_NORMAL;
     if( ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown) )
@@ -409,6 +412,23 @@ public:
       NULL);
 
     CloseThemeData(hTheme);
+
+    EndBufferedPaint(pb, TRUE);
+  }
+
+  void DrawScrollButtons(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
+  {
+    RECT zone;
+    zone.top    = m_rcScrollLeft.top;
+    zone.left   = m_rcScrollLeft.left;
+    zone.bottom = m_rcScrollLeft.bottom;
+    zone.right  = m_rcScrollRight.right;
+
+    HDC targetDC = lpNMCustomDraw->nmcd.hdc;
+    HDC bufferedDC = NULL;
+    BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
+    HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &zone, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
+    BufferedPaintClear(pb, &zone);
 
     int iStateScrollLeft = NAV_BB_DISABLED;
     if( m_dwState & ectcOverflowLeft )
@@ -430,7 +450,7 @@ public:
         iStateScrollRight = NAV_FB_HOT;
     }
 
-    hTheme = OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
 
     DrawThemeBackgroundEx(
       hTheme,
@@ -453,11 +473,11 @@ public:
     EndBufferedPaint(pb, TRUE);
 	}
 
-	void DrawScrollButtons(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
-	{
-	}
-
   void CalcSize_CloseButton(LPRECT prcTabItemArea)
+	{
+    DWORD dwStyle = this->GetStyle();
+
+    if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON))
 	{
     SIZE size;
 
@@ -475,37 +495,14 @@ public:
 
     CloseThemeData(hTheme);
 
-		if( (prcTabItemArea->right - prcTabItemArea->left) < size.cx )
-		{
-			::SetRectEmpty(&m_rcCloseButton);
-			return;
-		}
-
-		m_rcCloseButton = *prcTabItemArea;
-
-		DWORD dwStyle = this->GetStyle();
-
-		if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
-		{
-			m_rcCloseButton.top += 3;
+      m_iCloseButtonWidth  = size.cx;
+      m_iCloseButtonHeight = size.cy;
 		}
 		else
 		{
-			m_rcCloseButton.top += 1;
-			m_rcCloseButton.bottom -= 2;
+      m_iCloseButtonWidth  = 0;
+      m_iCloseButtonHeight = 0;
 		}
-		m_rcCloseButton.top = (m_rcCloseButton.bottom + m_rcCloseButton.top - size.cy) / 2;
-		m_rcCloseButton.bottom = m_rcCloseButton.top + size.cy;
-
-		m_rcCloseButton.left = m_rcCloseButton.right - (size.cx);
-
-		if(m_tooltip.IsWindow())
-		{
-			m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_Close, &m_rcCloseButton);
-		}
-
-		// Adjust the tab area
-		prcTabItemArea->right = m_rcCloseButton.left - 3;
 	}
 
 	void CalcSize_ScrollButtons(LPRECT prcTabItemArea)
@@ -567,6 +564,255 @@ public:
 		prcTabItemArea->right = m_rcScrollLeft.left;
 	}
 
+  void UpdateLayout_CloseButton(RECT rcItem)
+  {
+    RECT rcItemDP = {0};
+    ::CopyRect(&rcItemDP, &rcItem);
+    ::OffsetRect(&rcItemDP, m_iScrollOffset, 0);
+
+    int nIconVerticalCenter;
+    if (CTCS_BOTTOM == (this->GetStyle() & CTCS_BOTTOM))
+    {
+      nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top - m_iTopMargin) / 2;
+    }
+    else
+    {
+      nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top - m_iTopMargin) / 2 + m_iTopMargin;
+    }
+
+    // calculate the position of the close button
+    m_rcCloseButton.left   = rcItemDP.right;
+    m_rcCloseButton.right  = m_rcCloseButton.left + m_iCloseButtonWidth;
+    m_rcCloseButton.top    = rcItemDP.top + nIconVerticalCenter - m_iCloseButtonHeight / 2;
+    m_rcCloseButton.bottom = m_rcCloseButton.top + m_iCloseButtonHeight;
+
+    if(m_tooltip.IsWindow())
+    {
+      m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_Close, &m_rcCloseButton);
+    }
+  }
+
+  void UpdateLayout_Default(RECT rcTabItemArea)
+  {
+    long nMinInactiveWidth = 0x7FFFFFFF;
+    long nMaxInactiveWidth = 0;
+
+    WTL::CClientDC dc(m_hWnd);
+    HFONT hOldFont = dc.SelectFont(m_font);
+
+    LONG nTabAreaWidth = (rcTabItemArea.right - rcTabItemArea.left);
+
+    RECT rcItem = rcTabItemArea;
+    // rcItem.top and rcItem.bottom aren't really going to change
+
+    // Recalculate tab positions and widths
+    // See DrawItem_ImageAndText for a discussion of how CDotNetTabCtrlImpl
+    //  interprets margin, padding, etc.
+    size_t nCount = m_Items.GetCount();
+    int xpos = m_settings.iIndent;
+    HFONT hRestoreNormalFont = NULL;
+    for( size_t i=0; i<nCount; ++i )
+    {
+      bool bSelected = ((int)i == m_iCurSel);
+      if(bSelected)
+      {
+        hRestoreNormalFont = dc.SelectFont(m_fontSel);
+      }
+
+      TItem* pItem = m_Items[i];
+      ATLASSERT(pItem != NULL);
+      rcItem.left = rcItem.right = xpos;
+      rcItem.right += m_settings.iMargin;
+      if(pItem->UsingImage() && !m_imageList.IsNull())
+      {
+        IMAGEINFO ii = {0};
+        int nImageIndex = pItem->GetImageIndex();
+        m_imageList.GetImageInfo(nImageIndex, &ii);
+        rcItem.right += (ii.rcImage.right - ii.rcImage.left);
+      }
+      if(pItem->UsingText())
+      {
+        rcItem.right += pItem->GetTextSize(dc) + (m_settings.iPadding * 2);
+      }
+
+      // close button
+      if( bSelected )
+      {
+        UpdateLayout_CloseButton(rcItem);
+      }
+      rcItem.right += m_iCloseButtonWidth;
+
+      rcItem.right += m_settings.iMargin;
+      pItem->SetRect(rcItem);
+      xpos += (rcItem.right - rcItem.left);
+
+      if(hRestoreNormalFont != NULL)
+      {
+        dc.SelectFont(hRestoreNormalFont);
+        hRestoreNormalFont = NULL;
+      }
+
+      if(!bSelected)
+      {
+        if((rcItem.right - rcItem.left) < nMinInactiveWidth)
+        {
+          nMinInactiveWidth = (rcItem.right - rcItem.left);
+        }
+        if((rcItem.right - rcItem.left) > nMaxInactiveWidth)
+        {
+          nMaxInactiveWidth = (rcItem.right - rcItem.left);
+        }
+      }
+    }
+    xpos += m_settings.iIndent;
+
+    if(xpos > nTabAreaWidth && nCount > 0 && m_iCurSel >= 0)
+    {
+      // Our desired widths are more than the width of the client area.
+      // We need to have some or all of the tabs give up some real estate
+
+      // We'll try to let the selected tab have its fully desired width.
+      // If it can't, we'll make all the tabs the same width.
+
+      RECT rcSelected = m_Items[m_iCurSel]->GetRect();
+      LONG nSelectedWidth = (rcSelected.right - rcSelected.left);
+
+      long cxClientInactiveTabs = nTabAreaWidth - (m_settings.iIndent * 2) - nSelectedWidth;
+      long cxDesiredInactiveTabs = xpos - (m_settings.iIndent * 2) - nSelectedWidth;
+
+      double nRatioWithSelectionFullSize = 0.0;
+      if(cxDesiredInactiveTabs != 0)
+      {
+        nRatioWithSelectionFullSize = (double) (cxClientInactiveTabs) / (double)(cxDesiredInactiveTabs);
+      }
+
+      long nInactiveSameSizeWidth = (m_nMinWidthToDisplayText + (m_settings.iMargin*2) + (m_settings.iPadding));
+
+      if(cxClientInactiveTabs > (nInactiveSameSizeWidth * (long)(nCount-1)))
+      {
+        //  There should be enough room to display the entire contents of
+        //  the selected tab plus something for the inactive tabs
+
+        bool bMakeInactiveSameSize = ((nMinInactiveWidth * nRatioWithSelectionFullSize) < nInactiveSameSizeWidth);
+
+        xpos = m_settings.iIndent;
+        for(size_t i=0; i<nCount; ++i )
+        {
+          TItem* pItem = m_Items[i];
+          ATLASSERT(pItem != NULL);
+          RECT rcItemDesired = pItem->GetRect();
+          rcItem.left = rcItem.right = xpos;
+          if((int)i == m_iCurSel)
+          {
+            rcItem.right += (rcItemDesired.right - rcItemDesired.left);
+          }
+          else
+          {
+            if(bMakeInactiveSameSize && (nCount != 1))
+            {
+              rcItem.right += (long)((cxClientInactiveTabs / (nCount-1)) + 0.5);
+            }
+            else
+            {
+              rcItem.right += (long)(((rcItemDesired.right - rcItemDesired.left) * nRatioWithSelectionFullSize) + 0.5);
+            }
+          }
+          pItem->SetRect(rcItem);
+          xpos += (rcItem.right-rcItem.left);
+        }
+      }
+      else
+      {
+        // We're down pretty small, so just make all the tabs the same width
+        int cxItem = (nTabAreaWidth - (m_settings.iIndent*2)) / (int)nCount;
+
+        xpos = m_settings.iIndent;
+
+        for(size_t i=0; i<nCount; ++i)
+        {
+          rcItem.left = rcItem.right = xpos;
+          rcItem.right += cxItem;
+          m_Items[i]->SetRect(rcItem);
+          xpos += (rcItem.right-rcItem.left);
+        }
+      }
+    }
+
+    dc.SelectFont(hOldFont);
+  }
+
+  void UpdateLayout_ScrollToFit(RECT rcTabItemArea)
+  {
+    // When we scroll to fit, we ignore what's passed in for the
+    // tab item area rect, and use the client rect instead
+    RECT rcClient;
+    this->GetClientRect(&rcClient);
+
+    WTL::CClientDC dc(m_hWnd);
+    HFONT hOldFont = dc.SelectFont(m_font);
+
+    RECT rcItem = rcClient;
+
+    // Recalculate tab positions and widths
+    // See DrawItem_ImageAndText for a discussion of how CDotNetTabCtrlImpl
+    //  interprets margin, padding, etc.
+    size_t nCount = m_Items.GetCount();
+    int xpos = m_settings.iIndent;
+    HFONT hRestoreNormalFont = NULL;
+    for( size_t i=0; i<nCount; ++i )
+    {
+      bool bSelected = ((int)i == m_iCurSel);
+      if(bSelected)
+      {
+        hRestoreNormalFont = dc.SelectFont(m_fontSel);
+      }
+
+      TItem* pItem = m_Items[i];
+      ATLASSERT(pItem != NULL);
+      rcItem.left = rcItem.right = xpos;
+      rcItem.right += m_settings.iMargin;
+      if(pItem->UsingImage() && !m_imageList.IsNull())
+      {
+        IMAGEINFO ii = {0};
+        int nImageIndex = pItem->GetImageIndex();
+        m_imageList.GetImageInfo(nImageIndex, &ii);
+        rcItem.right += (ii.rcImage.right - ii.rcImage.left);
+      }
+      if(pItem->UsingText())
+      {
+        rcItem.right += pItem->GetTextSize(dc) + (m_settings.iPadding * 2);
+      }
+
+      // close button
+      if( bSelected )
+      {
+        UpdateLayout_CloseButton(rcItem);
+      }
+      rcItem.right += m_iCloseButtonWidth;
+
+      rcItem.right += m_settings.iMargin;
+      pItem->SetRect(rcItem);
+      xpos += (rcItem.right - rcItem.left);
+
+      if(hRestoreNormalFont != NULL)
+      {
+        dc.SelectFont(hRestoreNormalFont);
+        hRestoreNormalFont = NULL;
+      }
+    }
+    xpos += m_settings.iIndent;
+
+    // If we've been scrolled to the left, and resize so
+    // there's more client area to the right, adjust the
+    // scroll offset accordingly.
+    if((xpos + m_iScrollOffset) < rcTabItemArea.right)
+    {
+      m_iScrollOffset = (rcTabItemArea.right - xpos);
+    }
+
+    dc.SelectFont(hOldFont);
+  }
+
 };
 
 template <class TItem = CCustomTabItem>
@@ -577,7 +823,7 @@ protected:
 	typedef CAeroTabCtrl<TItem> thisClass;
 	typedef CAeroTabCtrlImpl<CAeroTabCtrl<TItem>, TItem> baseClass;
 
-// Constructors:
+  // Constructors:
 public:
 	CAeroTabCtrl()
 	{

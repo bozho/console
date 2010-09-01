@@ -497,6 +497,37 @@ public:
 
       m_iCloseButtonWidth  = size.cx;
       m_iCloseButtonHeight = size.cy;
+/*
+      size_t nCount = m_Items.GetCount();
+      if( m_iCurSel >=0 && (size_t)m_iCurSel < nCount )
+      {
+        RECT rcItemLP = {0}, rcItemDP = {0};
+        rcItemLP = m_Items[m_iCurSel]->GetRect();
+
+        ::CopyRect(&rcItemDP, &rcItemLP);
+        ::OffsetRect(&rcItemDP, m_iScrollOffset, 0);
+
+        int nIconVerticalCenter;
+        if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+        {
+          nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top - m_iTopMargin) / 2;
+        }
+        else
+        {
+          nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top - m_iTopMargin) / 2 + m_iTopMargin;
+        }
+
+        // calculate the position of the close button
+        m_rcCloseButton.right  = rcItemDP.right - m_iMargin;
+        m_rcCloseButton.left   = m_rcCloseButton.right - m_iCloseButtonWidth;
+        m_rcCloseButton.top    = rcItemDP.top + nIconVerticalCenter - m_iCloseButtonHeight / 2;
+        m_rcCloseButton.bottom = m_rcCloseButton.top + m_iCloseButtonHeight;
+
+        if(m_tooltip.IsWindow())
+        {
+          m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_Close, &m_rcCloseButton);
+        }
+      }*/
 		}
 		else
 		{
@@ -585,11 +616,6 @@ public:
     m_rcCloseButton.right  = m_rcCloseButton.left + m_iCloseButtonWidth;
     m_rcCloseButton.top    = rcItemDP.top + nIconVerticalCenter - m_iCloseButtonHeight / 2;
     m_rcCloseButton.bottom = m_rcCloseButton.top + m_iCloseButtonHeight;
-
-    if(m_tooltip.IsWindow())
-    {
-      m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_Close, &m_rcCloseButton);
-    }
   }
 
   void UpdateLayout_Default(RECT rcTabItemArea)

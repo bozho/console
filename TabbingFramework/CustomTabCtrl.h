@@ -1404,6 +1404,8 @@ public:
 		DWORD dwStyle = this->GetStyle();
 		POINT ptCursor = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
 
+		DWORD dwBefore = m_dwState & ectcHotTrack;
+
 		T* pT = static_cast<T*>(this);
 		if(ectcMouseInWindow != (m_dwState & ectcMouseInWindow))
 		{
@@ -1584,6 +1586,12 @@ public:
 				}
 			}
 		}
+
+		DWORD dwAfter = m_dwState & ectcHotTrack;
+
+		if( dwAfter != dwBefore )
+			if(m_tooltip.IsWindow())
+				m_tooltip.Pop();
 
 		return 1;
 	}
@@ -2160,6 +2168,12 @@ public:
 			UINT_PTR id = pToolTipInfo->hdr.idFrom;
 			if(id > 0 && id <= m_Items.GetCount())
 			{
+				if( (m_dwState & ectcHotTrack) == ectcHotTrack_CloseButton )
+				{
+					pToolTipInfo->lpszText = _T("Close");
+				}
+				else
+				{
 				TItem* pItem = m_Items[id-1];
 				ATLASSERT(pItem != NULL);
 				if(pItem)
@@ -2174,6 +2188,7 @@ public:
 					}
 				}
 			}
+		}
 		}
 
 		return 0;
@@ -2388,13 +2403,6 @@ public:
 			{
 				RECT rcItemDP = {0};
 				this->GetItemRect(i, &rcItemDP);
-
-				// we must remove the close button area
-				// the tooltip tools didn't support overlapping
-				if( m_rcCloseButton.left > rcItemDP.left && m_rcCloseButton.left < rcItemDP.right )
-				{
-					rcItemDP.right = m_rcCloseButton.left - 1;
-				}
 
 				::IntersectRect(&rcIntersect, &rcItemDP, &m_rcTabItemArea);
 

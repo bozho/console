@@ -1,6 +1,29 @@
 v2.00
 =====
 
+Build 147
+=========
+
+- fixed keyboard switching for Vista/Win7
+
+- fixed visible scrollbars on startup with 'Show scrollbars' option turned off
+
+- added support for flat scrollbars
+
+- added icons in the File->New Tab menu (thanks to chrisz for the patch)
+
+- added an option for using a default program icon in the tab menu
+
+- fixed exit codes
+
+- new inject code (many thanks to Jason Hood, creator of AnsiCon http://adoxa.110mb.com/ansicon
+  for the code) The new injection code enables running 32-bit shells from 64-bit Console, 
+  starting .NET console applications (e.g. powershell) directly, it doesn't use CreateRemoteThread,
+  so Windows patches and antivirus software that disables the call should not cause problems. The
+  code still hasn't been tested with Vista/Win7 UAC, but it does work for shell processes started
+  as another user, so we'll have that feature in Console soon as well.
+  
+
 Build 146
 =========
 

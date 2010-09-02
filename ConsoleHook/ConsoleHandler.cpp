@@ -851,10 +851,10 @@ DWORD ConsoleHandler::MonitorThread()
 
 				shared_ptr<wchar_t>	textBuffer;
 				
-				if (*m_consoleTextInfo.Get() != NULL)
+				if (m_consoleTextInfo->mem != NULL)
 				{
 					textBuffer.reset(
-									reinterpret_cast<wchar_t*>(*m_consoleTextInfo.Get()),
+									reinterpret_cast<wchar_t*>(m_consoleTextInfo->mem),
 									bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
 				}
 

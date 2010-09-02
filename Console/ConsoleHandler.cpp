@@ -372,8 +372,9 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId)
 
 bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 {
+
 	// allocate memory for parameter in the remote process
-	wstring				strHookDllPath(GetModulePath(NULL) + wstring(L"\\ConsoleHook.dll"));
+	wstring				strHookDllPath(GetModulePath(NULL));
 
 	if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES) return false;
 
@@ -384,10 +385,10 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	UINT_PTR	fnLoadLibrary	= NULL;
 
 	size_t		codeSize;
+	BOOL		isWow64Process	= FALSE;
 
 #ifdef _WIN64
 	WOW64_CONTEXT 	wow64Context;
-	BOOL			isWow64Process		= FALSE;
 	DWORD			fnWow64LoadLibrary	= 0;
 
 	::ZeroMemory(&wow64Context, sizeof(WOW64_CONTEXT));
@@ -396,6 +397,17 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 #else
 	codeSize = 20;
 #endif
+
+	if (isWow64Process)
+	{
+		// starting a 32-bit process from a 64-bit console
+		strHookDllPath += wstring(L"\\ConsoleHook32.dll");
+	}
+	else
+	{
+		// same bitness :-)
+		strHookDllPath += wstring(L"\\ConsoleHook.dll");
+	}
 
 	::ZeroMemory(&context, sizeof(CONTEXT));
 
@@ -419,14 +431,14 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		// get 32-bit kernel32
 		wstring strConsoleWowPath(GetModulePath(NULL) + wstring(L"\\ConsoleWow.exe"));
 
-		STARTUPINFO si;
-		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		STARTUPINFO siWow;
+		::ZeroMemory(&siWow, sizeof(STARTUPINFO));
 
-		si.cb			= sizeof(STARTUPINFO);
-		si.dwFlags		= STARTF_USESHOWWINDOW;
-		si.wShowWindow	= SW_HIDE;
+		siWow.cb			= sizeof(STARTUPINFO);
+		siWow.dwFlags		= STARTF_USESHOWWINDOW;
+		siWow.wShowWindow	= SW_HIDE;
 		
-		PROCESS_INFORMATION pi;
+		PROCESS_INFORMATION piWow;
 		DWORD dwStartupFlags = 0;//CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
 
 		if (!::CreateProcess(
@@ -438,14 +450,14 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				dwStartupFlags,
 				NULL,
 				NULL,
-				&si,
-				&pi))
+				&siWow,
+				&piWow))
 		{
 			return false;
 		}
 
-		shared_ptr<void> wowProcess(pi.hProcess, ::CloseHandle);
-		shared_ptr<void> wowThread(pi.hThread, ::CloseHandle);
+		shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);
+		shared_ptr<void> wowThread(piWow.hThread, ::CloseHandle);
 
 		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
 		{

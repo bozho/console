@@ -303,6 +303,9 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	if( m_views.size() > 1 && (::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL) )
+		return 0;
+
 	// save settings on exit
 	bool				bSaveSettings		= false;
 	ConsoleSettings&	consoleSettings		= g_settingsHandler->GetConsoleSettings();

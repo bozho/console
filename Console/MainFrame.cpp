@@ -219,6 +219,10 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	{
 		MutexLock lock(m_viewsMutex);
+		if (m_views.size() == 1)
+		{
+			UIEnable(ID_FILE_CLOSE_TAB, FALSE);
+		}
 		if ((m_views.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
 		{
 			ShowTabs(FALSE);
@@ -1543,23 +1547,6 @@ LRESULT MainFrame::OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, 
 
 
 //////////////////////////////////////////////////////////////////////////////
-/*
-
-shared_ptr<ConsoleView> MainFrame::GetActiveView()
-{
-	if (m_views.size() == 0) return shared_ptr<ConsoleView>();
-
-	ConsoleViewMap::iterator	findIt		= m_views.find(m_hWndActive);
-	if (findIt == m_views.end()) return shared_ptr<ConsoleView>();
-
-	return findIt->second;
-}
-
-*/
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
 
 void MainFrame::AdjustWindowRect(CRect& rect)
 {
@@ -1644,6 +1631,10 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	DisplayTab(hwndConsoleView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 
+	if (m_views.size() > 1)
+	{
+		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
+	}
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
 		((m_views.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
 	   )
@@ -1661,7 +1652,9 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 
 void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
 {
+	MutexLock					viewMapLock(m_viewsMutex);
 	if (!pTabItem) return;
+	if (m_views.size() <= 1) return;
 	CloseTab(pTabItem->GetTabView());
 }
 
@@ -1681,6 +1674,10 @@ void MainFrame::CloseTab(HWND hwndConsoleView)
 	it->second->DestroyWindow();
 	m_views.erase(it);
 
+	if (m_views.size() == 1)
+	{
+		UIEnable(ID_FILE_CLOSE_TAB, FALSE);
+	}
 	if ((m_views.size() == 1) &&
 		m_bTabsVisible && 
 		(g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))

@@ -35,17 +35,54 @@ DlgSettingsTabs::DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot)
 LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	m_tabSettings.Load(m_pOptionsRoot);
-
+	m_ImageList.Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_TABS));
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 	m_listCtrl.InsertColumn(0, L"Tab name");
 	m_listCtrl.SetColumnWidth(0, 188);
+	m_listCtrl.SetImageList(m_ImageList, LVSIL_SMALL);
+	m_listCtrl.SetIconSpacing(16, 16);
 
 	TabDataVector::iterator	it = m_tabSettings.tabDataVector.begin();
 	for (; it != m_tabSettings.tabDataVector.end(); ++it)
 	{
-		int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), (*it)->strTitle.c_str());
+		CIcon tabSmallIcon;
+		if ((*it)->bUseDefaultIcon || ((*it)->strIcon.length() > 0))
+		{
+			if ((*it)->strIcon.length() > 0)
+			{
+				tabSmallIcon.Attach(
+					static_cast<HICON>(
+						::LoadImage(
+							NULL,
+							Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
+							IMAGE_ICON,
+							16,
+							16,
+							LR_DEFAULTCOLOR|LR_LOADFROMFILE
+						)
+					)
+				);
+			}
+			else if ((*it)->bUseDefaultIcon)
+			{
+				tabSmallIcon.Attach(
+					static_cast<HICON>(
+						::LoadImage(
+							::GetModuleHandle(NULL),
+							MAKEINTRESOURCE(IDR_MAINFRAME),
+							IMAGE_ICON,
+							16,
+							16,
+							LR_DEFAULTCOLOR
+						)
+					)
+				);
+			}
+		}
+		int nIcon = tabSmallIcon.m_hIcon? m_ImageList.AddIcon(tabSmallIcon.m_hIcon) : -1;
+		int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), (*it)->strTitle.c_str(), nIcon);
 		m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(it->get()));
 	}
 
@@ -85,6 +122,53 @@ LRESULT DlgSettingsTabs::OnTabTitleChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
 {
 	m_listCtrl.SetItemText(m_listCtrl.GetSelectedIndex(), 0, m_page1.GetTabTitle());
 	return 0;
+}
+
+LRESULT DlgSettingsTabs::OnTabIconChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  wstring strIcon         = m_page1.GetTabIcon();
+  bool    bUseDefaultIcon = m_page1.UseDefaultIcon() ? true : false;
+
+  CIcon tabSmallIcon;
+  if (bUseDefaultIcon || (!strIcon.empty()))
+  {
+    if (!strIcon.empty())
+    {
+      tabSmallIcon.Attach(
+        static_cast<HICON>(
+          ::LoadImage(
+            NULL,
+            Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
+            IMAGE_ICON,
+            16,
+            16,
+            LR_DEFAULTCOLOR|LR_LOADFROMFILE
+          )
+        )
+      );
+    }
+    else if (bUseDefaultIcon)
+    {
+      tabSmallIcon.Attach(
+        static_cast<HICON>(
+          ::LoadImage(
+            ::GetModuleHandle(NULL),
+            MAKEINTRESOURCE(IDR_MAINFRAME),
+            IMAGE_ICON,
+            16,
+            16,
+            LR_DEFAULTCOLOR
+          )
+        )
+      );
+    }
+  }
+  int nIcon = tabSmallIcon.m_hIcon? m_ImageList.AddIcon(tabSmallIcon.m_hIcon) : -1;
+  // list control is not refreshed when an empty icon is set ...
+  // so the text is updated too !
+  m_listCtrl.SetItem(m_listCtrl.GetSelectedIndex(), 0, LVIF_TEXT|LVIF_IMAGE, m_page1.GetTabTitle(), nIcon, 0, 0, 0);
+
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -129,7 +213,7 @@ LRESULT DlgSettingsTabs::OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 	m_tabSettings.tabDataVector.push_back(tabData);
 
-	int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), tabData->strTitle.c_str());
+	int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), tabData->strTitle.c_str(), -1);
 	m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(tabData.get()));
 
 	m_listCtrl.SelectItem(nItem);

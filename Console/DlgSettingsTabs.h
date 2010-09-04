@@ -28,6 +28,7 @@ class DlgSettingsTabs
 		BEGIN_MSG_MAP(DlgSettingsTabs)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			MESSAGE_HANDLER(UM_TAB_TITLE_CHANGED, OnTabTitleChanged)
+			MESSAGE_HANDLER(UM_TAB_ICON_CHANGED, OnTabIconChanged)
 
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
@@ -47,6 +48,7 @@ class DlgSettingsTabs
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnTabTitleChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnTabIconChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -66,6 +68,7 @@ class DlgSettingsTabs
 		TabSettings		m_tabSettings;
 
 		CListViewCtrl	m_listCtrl;
+		WTL::CImageList m_ImageList;
 
 		CTabCtrl			m_tabCtrl;
 		PageSettingsTabs1	m_page1;

@@ -33,6 +33,7 @@ class DlgSettingsTabs
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDC_BTN_ADD, OnAdd)
+			COMMAND_ID_HANDLER(IDC_BTN_CLONE, OnClone)
 			COMMAND_ID_HANDLER(IDC_BTN_DELETE, OnDelete)
 			COMMAND_ID_HANDLER(IDC_BTN_UP, OnUp)
 			COMMAND_ID_HANDLER(IDC_BTN_DOWN, OnDown)
@@ -52,6 +53,7 @@ class DlgSettingsTabs
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClone(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnUp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnDown(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -68,7 +70,7 @@ class DlgSettingsTabs
 		TabSettings		m_tabSettings;
 
 		CListViewCtrl	m_listCtrl;
-		WTL::CImageList m_ImageList;
+    WTL::CImageList m_ImageList;
 
 		CTabCtrl			m_tabCtrl;
 		PageSettingsTabs1	m_page1;

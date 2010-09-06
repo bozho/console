@@ -35,7 +35,7 @@ DlgSettingsTabs::DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot)
 LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	m_tabSettings.Load(m_pOptionsRoot);
-	m_ImageList.Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
+  m_ImageList.Create(16, 16, ILC_COLOR32 | ILC_MASK, 4, 4);
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_TABS));
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
@@ -218,6 +218,29 @@ LRESULT DlgSettingsTabs::OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 	m_listCtrl.SelectItem(nItem);
 	GetDlgItem(IDC_BTN_DELETE).EnableWindow();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsTabs::OnClone(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nItem = m_listCtrl.GetSelectedIndex();
+
+	m_page1.Save();
+	m_page2.Save();
+
+	shared_ptr<TabData>	tabData(new TabData(*(m_tabSettings.tabDataVector[nItem].get())));
+
+	m_tabSettings.tabDataVector.insert(m_tabSettings.tabDataVector.begin() + nItem + 1, tabData);
+	int nItemClone = m_listCtrl.InsertItem(nItem + 1, tabData->strTitle.c_str(), -1);
+	m_listCtrl.SetItemData(nItemClone, reinterpret_cast<DWORD_PTR>(tabData.get()));
+
+	m_listCtrl.SelectItem(nItemClone);
 
 	return 0;
 }

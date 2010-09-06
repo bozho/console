@@ -437,10 +437,11 @@ STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_LIST_TABS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,128,75
-    PUSHBUTTON      "Add",IDC_BTN_ADD,130,5,50,14
-    PUSHBUTTON      "Delete",IDC_BTN_DELETE,130,22,50,14
-    PUSHBUTTON      "Move up",IDC_BTN_UP,130,39,50,14
-    PUSHBUTTON      "Move down",IDC_BTN_DOWN,130,56,50,14
+    PUSHBUTTON      "Add",IDC_BTN_ADD,129,0,50,14
+    PUSHBUTTON      "Clone",IDC_BTN_CLONE,129,14,50,14    
+    PUSHBUTTON      "Delete",IDC_BTN_DELETE,129,28,50,14
+    PUSHBUTTON      "Move up",IDC_BTN_UP,130,46,50,14
+    PUSHBUTTON      "Move down",IDC_BTN_DOWN,130,61,50,14
     CONTROL         "",IDC_TABS,"SysTabControl32",WS_TABSTOP,0,80,232,185
 END
 
@@ -919,8 +920,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

@@ -170,6 +170,7 @@
 #define IDC_BTN_DOWN                    1136
 #define IDC_BTN_DELETE                  1137
 #define IDC_STATIC_BK_COLOR             1138
+#define IDC_BTN_CLONE                   1138
 #define IDC_STATIC_TINT_COLOR           1139
 #define IDC_STATIC_BK_IMAGE             1140
 #define IDC_STATIC_BK_POS               1141

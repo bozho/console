@@ -599,55 +599,6 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 #endif
 
 	return true;
-
-/*
-	shared_ptr<void>	hRemoteThread;
-	shared_ptr<wchar_t>	pszHookDllPathRemote(
-							static_cast<wchar_t*>(::VirtualAllocEx(
-														m_hConsoleProcess.get(), 
-														NULL, 
-														strHookDllPath.length()*sizeof(wchar_t), 
-														MEM_COMMIT, 
-														PAGE_READWRITE)),
-							bind<BOOL>(::VirtualFreeEx, m_hConsoleProcess.get(), _1, NULL, MEM_RELEASE));
-
-	if (!pszHookDllPathRemote) return false;
-
-	// write the memory
-	if (!::WriteProcessMemory(
-				m_hConsoleProcess.get(), 
-				(PVOID)pszHookDllPathRemote.get(), 
-				(PVOID)strHookDllPath.c_str(), 
-				strHookDllPath.length()*sizeof(wchar_t), 
-				NULL))
-	{
-		return false;
-	}
-
-	// get address to LoadLibraryW function
-	PTHREAD_START_ROUTINE pfnThreadRoutine = (PTHREAD_START_ROUTINE)::GetProcAddress(::GetModuleHandle(L"Kernel32.dll"), "LoadLibraryW");
-	if (pfnThreadRoutine == NULL) return false;
-
-	// start the remote thread
-	hRemoteThread = shared_ptr<void>(
-						::CreateRemoteThread(
-							m_hConsoleProcess.get(), 
-							NULL, 
-							0, 
-							pfnThreadRoutine, 
-							(PVOID)pszHookDllPathRemote.get(), 
-							0, 
-							NULL),
-						::CloseHandle);
-
-	if (!hRemoteThread) return false;
-
-	// wait for the thread to finish
-//	::WaitForSingleObject(hRemoteThread.get(), INFINITE);
-	if (::WaitForSingleObject(hRemoteThread.get(), 10000) == WAIT_TIMEOUT) return false;
-
-	return true;
-*/
 }
 
 //////////////////////////////////////////////////////////////////////////////

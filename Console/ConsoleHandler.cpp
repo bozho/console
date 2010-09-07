@@ -439,7 +439,6 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		siWow.wShowWindow	= SW_HIDE;
 		
 		PROCESS_INFORMATION piWow;
-		DWORD dwStartupFlags = 0;//CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
 
 		if (!::CreateProcess(
 				NULL,
@@ -447,7 +446,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				NULL,
 				NULL,
 				FALSE,
-				dwStartupFlags,
+				0,
 				NULL,
 				NULL,
 				&siWow,

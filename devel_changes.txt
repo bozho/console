@@ -16,9 +16,13 @@ Build 147
 
 - fixed exit codes
 
-- fixed a problem with console applications that create new screen buffers
-  (GNUWin less, coLinux console, etc)
-
+- new inject code (many thanks to Jason Hood, creator of AnsiCon http://adoxa.110mb.com/ansicon
+  for the code) The new injection code enables running 32-bit shells from 64-bit Console, 
+  starting .NET console applications (e.g. powershell) directly, it doesn't use CreateRemoteThread,
+  so Windows patches and antivirus software that disables the call should not cause problems. The
+  code still hasn't been tested with Vista/Win7 UAC, but it does work for shell processes started
+  as another user, so we'll have that feature in Console soon as well.
+  
 
 Build 146
 =========

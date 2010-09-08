@@ -55,7 +55,7 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
-		SharedMemory<UINT_PTR>						m_consoleTextInfo;
+		SharedMemory<TextInfo>						m_consoleTextInfo;
 		SharedMemory<MOUSE_EVENT_RECORD>			m_consoleMouseEvent;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;

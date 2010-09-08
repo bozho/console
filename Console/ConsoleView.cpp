@@ -2051,7 +2051,7 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 
 	if (textLen == 0) return;
 
-	SharedMemory<UINT_PTR>&	textInfo = m_consoleHandler.GetTextInfo();
+	SharedMemory<TextInfo>&	textInfo = m_consoleHandler.GetTextInfo();
 
 	{
 		SharedMemoryLock		memLock(textInfo);
@@ -2076,7 +2076,7 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 			return;
 		}
 
-		textInfo = reinterpret_cast<UINT_PTR>(pRemoteMemory);
+		textInfo->mem = reinterpret_cast<UINT_PTR>(pRemoteMemory);
 		textInfo.SetReqEvent();
 	}
 

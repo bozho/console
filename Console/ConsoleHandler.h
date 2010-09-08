@@ -34,7 +34,7 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
 		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
 		SharedMemory<ConsoleCopy>& GetCopyInfo()					{ return m_consoleCopyInfo; }
-		SharedMemory<UINT_PTR>& GetTextInfo()						{ return m_consoleTextInfo; }
+		SharedMemory<TextInfo>& GetTextInfo()						{ return m_consoleTextInfo; }
 		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
 		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
 
@@ -49,7 +49,7 @@ class ConsoleHandler
 
 		bool CreateSharedObjects(DWORD dwConsoleProcessId);
 
-		bool InjectHookDLL();
+		bool InjectHookDLL(PROCESS_INFORMATION& pi);
 
 	private:
 		
@@ -74,7 +74,7 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
 		SharedMemory<CHAR_INFO>						m_consoleBuffer;
 		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
-		SharedMemory<UINT_PTR>						m_consoleTextInfo;
+		SharedMemory<TextInfo>						m_consoleTextInfo;
 		SharedMemory<MOUSE_EVENT_RECORD>			m_consoleMouseEvent;
 
 		SharedMemory<ConsoleSize>					m_newConsoleSize;

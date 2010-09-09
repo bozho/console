@@ -22,7 +22,18 @@ class ConsoleHandler
 	public:
 
 		void SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate);
-		bool StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strInitialCmd, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns, bool bDebugFlag);
+		bool StartShellProcess
+		(
+			const wstring& strCustomShell, 
+			const wstring& strInitialDir, 
+			const wstring& strUser,
+			const wstring& strPassword,
+			const wstring& strInitialCmd, 
+			const wstring& strConsoleTitle, 
+			DWORD dwStartupRows, 
+			DWORD dwStartupColumns, 
+			bool bDebugFlag
+		);
 
 		DWORD StartMonitorThread();
 		void StopMonitorThread();

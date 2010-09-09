@@ -43,6 +43,21 @@ wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 
 //////////////////////////////////////////////////////////////////////////////
 
+wstring Helpers::ExpandEnvironmentStringsForUser(const shared_ptr<void>& userToken, const wstring& str)
+{
+	shared_array<wchar_t> szExpanded(new wchar_t[0x8000]);
+
+	::ZeroMemory(szExpanded.get(), 0x8000*sizeof(wchar_t));
+	::ExpandEnvironmentStringsForUser(userToken.get(), str.c_str(), szExpanded.get(), 0x8000);
+
+	return wstring(szExpanded.get());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void Helpers::GetMonitorRect(HWND hWnd, CRect& rectMonitor)
 {
 	HMONITOR hMonitor = ::MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);

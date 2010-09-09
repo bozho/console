@@ -72,8 +72,51 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstring& strInitialDir, const wstring& strInitialCmd, const wstring& strConsoleTitle, DWORD dwStartupRows, DWORD dwStartupColumns, bool bDebugFlag)
+bool ConsoleHandler::StartShellProcess
+(
+	const wstring& strCustomShell, 
+	const wstring& strInitialDir, 
+	const wstring& strUser,
+	const wstring& strPassword,
+	const wstring& strInitialCmd, 
+	const wstring& strConsoleTitle, 
+	DWORD dwStartupRows, 
+	DWORD dwStartupColumns, 
+	bool bDebugFlag
+)
 {
+
+	wstring strUsername(strUser);
+	wstring strDomain;
+
+	shared_ptr<void> userToken;
+	shared_ptr<void> userEnvironment;
+
+	if (strUsername.length() > 0)
+	{
+		size_t pos = strUsername.find(L'\\');
+		if (pos != wstring::npos)
+		{
+			strDomain	= strUsername.substr(0, pos);
+			strUsername	= strUsername.substr(pos+1);
+		}
+
+		HANDLE hUserToken = NULL;
+		::LogonUser(
+			strUsername.c_str(), 
+			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
+			strPassword.c_str(), 
+			LOGON32_LOGON_INTERACTIVE, 
+			LOGON32_PROVIDER_DEFAULT, 
+			&hUserToken);
+
+		userToken.reset(hUserToken, ::CloseHandle);
+
+		void*	pEnvironment	= NULL;
+		::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE);
+		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
+	}
+
 	wstring	strShellCmdLine(strCustomShell);
 	
 	if (strShellCmdLine.length() == 0)
@@ -106,7 +149,7 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 //		strStartupTitle = str(wformat(L"Console2 command window 0x%08X") % this);
 	}
 
-	wstring strStartupDir(Helpers::ExpandEnvironmentStrings(strInitialDir));
+	wstring strStartupDir((strUsername.length() > 0) ? Helpers::ExpandEnvironmentStringsForUser(userToken, strInitialDir) : Helpers::ExpandEnvironmentStrings(strInitialDir));
 
 	if (strStartupDir.length() > 0)
 	{
@@ -169,19 +212,41 @@ bool ConsoleHandler::StartShellProcess(const wstring& strCustomShell, const wstr
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
-	if (!::CreateProcess(
+
+	if (strUsername.length() > 0)
+	{
+		if (!::CreateProcessWithLogonW(
+			strUsername.c_str(), 
+			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
+			strPassword.c_str(), 
+			LOGON_WITH_PROFILE,
 			NULL,
-			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStrings(strShellCmdLine).c_str()),
-			NULL,
-			NULL,
-			FALSE,
+			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
 			dwStartupFlags,
-			s_environmentBlock.get(),
+			userEnvironment.get(),
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
+		{
+			return false;
+		}
+	}
+	else
 	{
-		return false;
+		if (!::CreateProcess(
+				NULL,
+				const_cast<wchar_t*>(Helpers::ExpandEnvironmentStrings(strShellCmdLine).c_str()),
+				NULL,
+				NULL,
+				FALSE,
+				dwStartupFlags,
+				s_environmentBlock.get(),
+				(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
+				&si,
+				&pi))
+		{
+			return false;
+		}
 	}
 
 	// create shared memory objects

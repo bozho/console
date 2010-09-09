@@ -21,6 +21,7 @@ PageSettingsTabs1::PageSettingsTabs1()
 , m_nUseDefaultIcon(0)
 , m_strShell(L"")
 , m_strInitialDir(L"")
+, m_strUser(L"")
 {
 }
 
@@ -229,6 +230,7 @@ void PageSettingsTabs1::Load(shared_ptr<TabData>& tabData)
 
 	m_strShell			= m_tabData->strShell.c_str();
 	m_strInitialDir		= m_tabData->strInitialDir.c_str();
+	m_strUser			= m_tabData->strUser.c_str();
 
 	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
 
@@ -254,6 +256,7 @@ void PageSettingsTabs1::Save()
 
 	m_tabData->strShell			= m_strShell;
 	m_tabData->strInitialDir	= m_strInitialDir;
+	m_tabData->strUser			= m_strUser;
 
 	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();
 }

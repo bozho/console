@@ -192,9 +192,13 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 		strShell	= m_tabData->strShell;
 	}
 
+	wstring strPassword(m_tabData->strUser.length() > 0 ? L"games" : L"");
+
 	if (!m_consoleHandler.StartShellProcess(
 								strShell, 
 								strInitialDir,
+								m_tabData->strUser,
+								strPassword,
 								m_strInitialCmd,
 								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 								m_dwStartupRows, 

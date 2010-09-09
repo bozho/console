@@ -582,6 +582,7 @@ struct TabData
 	, bUseDefaultIcon(false)
 	, strShell(shell)
 	, strInitialDir(initialDir)
+	, strUser()
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
@@ -598,6 +599,7 @@ struct TabData
 
 	wstring							strShell;
 	wstring							strInitialDir;
+	wstring							strUser;
 
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;

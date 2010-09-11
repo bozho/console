@@ -24,6 +24,8 @@ class Helpers
 
 		static HBITMAP CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bitmap);
 
+		static HICON LoadSmallIcon(bool bUseDefaultIcon, wstring strIcon);
+
 	private:
 
 		static void GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

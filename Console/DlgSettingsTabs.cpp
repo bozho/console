@@ -47,40 +47,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	TabDataVector::iterator	it = m_tabSettings.tabDataVector.begin();
 	for (; it != m_tabSettings.tabDataVector.end(); ++it)
 	{
-		CIcon tabSmallIcon;
-		if ((*it)->bUseDefaultIcon || ((*it)->strIcon.length() > 0))
-		{
-			if ((*it)->strIcon.length() > 0)
-			{
-				tabSmallIcon.Attach(
-					static_cast<HICON>(
-						::LoadImage(
-							NULL,
-							Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
-							IMAGE_ICON,
-							16,
-							16,
-							LR_DEFAULTCOLOR|LR_LOADFROMFILE
-						)
-					)
-				);
-			}
-			else if ((*it)->bUseDefaultIcon)
-			{
-				tabSmallIcon.Attach(
-					static_cast<HICON>(
-						::LoadImage(
-							::GetModuleHandle(NULL),
-							MAKEINTRESOURCE(IDR_MAINFRAME),
-							IMAGE_ICON,
-							16,
-							16,
-							LR_DEFAULTCOLOR
-						)
-					)
-				);
-			}
-		}
+		CIcon tabSmallIcon(Helpers::LoadSmallIcon((*it)->bUseDefaultIcon, (*it)->strIcon));
 		int nIcon = tabSmallIcon.m_hIcon? m_ImageList.AddIcon(tabSmallIcon.m_hIcon) : -1;
 		int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), (*it)->strTitle.c_str(), nIcon);
 		m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(it->get()));
@@ -129,40 +96,7 @@ LRESULT DlgSettingsTabs::OnTabIconChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
   wstring strIcon         = m_page1.GetTabIcon();
   bool    bUseDefaultIcon = m_page1.UseDefaultIcon() ? true : false;
 
-  CIcon tabSmallIcon;
-  if (bUseDefaultIcon || (!strIcon.empty()))
-  {
-    if (!strIcon.empty())
-    {
-      tabSmallIcon.Attach(
-        static_cast<HICON>(
-          ::LoadImage(
-            NULL,
-            Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
-            IMAGE_ICON,
-            16,
-            16,
-            LR_DEFAULTCOLOR|LR_LOADFROMFILE
-          )
-        )
-      );
-    }
-    else if (bUseDefaultIcon)
-    {
-      tabSmallIcon.Attach(
-        static_cast<HICON>(
-          ::LoadImage(
-            ::GetModuleHandle(NULL),
-            MAKEINTRESOURCE(IDR_MAINFRAME),
-            IMAGE_ICON,
-            16,
-            16,
-            LR_DEFAULTCOLOR
-          )
-        )
-      );
-    }
-  }
+  CIcon tabSmallIcon(Helpers::LoadSmallIcon(bUseDefaultIcon, strIcon));
   int nIcon = tabSmallIcon.m_hIcon? m_ImageList.AddIcon(tabSmallIcon.m_hIcon) : -1;
   // list control is not refreshed when an empty icon is set ...
   // so the text is updated too !

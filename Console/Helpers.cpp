@@ -137,3 +137,43 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+HICON Helpers::LoadSmallIcon(bool bUseDefaultIcon, wstring strIcon)
+{
+  if (bUseDefaultIcon || (!strIcon.empty()))
+  {
+    if (!strIcon.empty())
+    {
+      return static_cast<HICON>(
+        ::LoadImage(
+          NULL,
+          Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
+          IMAGE_ICON,
+          16,
+          16,
+          LR_DEFAULTCOLOR|LR_LOADFROMFILE
+        )
+      );
+    }
+    else if (bUseDefaultIcon)
+    {
+      return static_cast<HICON>(
+        ::LoadImage(
+          ::GetModuleHandle(NULL),
+          MAKEINTRESOURCE(IDR_MAINFRAME),
+          IMAGE_ICON,
+          16,
+          16,
+          LR_DEFAULTCOLOR
+        )
+      );
+    }
+  }
+
+  return NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+

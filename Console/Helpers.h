@@ -24,7 +24,7 @@ class Helpers
 
 		static HBITMAP CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bitmap);
 
-		static HICON LoadSmallIcon(bool bUseDefaultIcon, wstring strIcon);
+		static HICON LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& strIcon, const wstring& strShell);
 
 	private:
 

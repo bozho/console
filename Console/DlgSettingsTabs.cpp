@@ -47,7 +47,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	TabDataVector::iterator	it = m_tabSettings.tabDataVector.begin();
 	for (; it != m_tabSettings.tabDataVector.end(); ++it)
 	{
-		CIcon tabSmallIcon(Helpers::LoadSmallIcon((*it)->bUseDefaultIcon, (*it)->strIcon));
+		CIcon tabSmallIcon(Helpers::LoadTabIcon(false, (*it)->bUseDefaultIcon, (*it)->strIcon, (*it)->strShell));
 		int nIcon = tabSmallIcon.m_hIcon? m_ImageList.AddIcon(tabSmallIcon.m_hIcon) : -1;
 		int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), (*it)->strTitle.c_str(), nIcon);
 		m_listCtrl.SetItemData(nItem, reinterpret_cast<DWORD_PTR>(it->get()));
@@ -93,10 +93,11 @@ LRESULT DlgSettingsTabs::OnTabTitleChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPA
 
 LRESULT DlgSettingsTabs::OnTabIconChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  wstring strIcon         = m_page1.GetTabIcon();
   bool    bUseDefaultIcon = m_page1.UseDefaultIcon() ? true : false;
+  wstring strIcon         = m_page1.GetTabIcon();
+  wstring strShell        = m_page1.GetTabShell();
 
-  CIcon tabSmallIcon(Helpers::LoadSmallIcon(bUseDefaultIcon, strIcon));
+  CIcon tabSmallIcon(Helpers::LoadTabIcon(false, bUseDefaultIcon, strIcon, strShell));
   int nIcon = tabSmallIcon.m_hIcon? m_ImageList.AddIcon(tabSmallIcon.m_hIcon) : -1;
   // list control is not refreshed when an empty icon is set ...
   // so the text is updated too !

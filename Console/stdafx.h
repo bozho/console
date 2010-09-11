@@ -70,6 +70,7 @@ extern CAppModule _Module;
 #pragma warning(pop)
 
 #include <HtmlHelp.h>
+#include <ShellApi.h>
 
 #pragma warning(disable: 4503) // disables 'name truncated' warnings
 

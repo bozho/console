@@ -1715,58 +1715,21 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
 
 		// create menu icons with proper transparency (thanks to chrisz for the patch)
-		CIcon tabSmallIcon;
-		
-		if ((*it)->bUseDefaultIcon || ((*it)->strIcon.length() > 0))
+		CIcon tabSmallIcon(Helpers::LoadTabIcon(false, (*it)->bUseDefaultIcon, (*it)->strIcon, (*it)->strShell));
+
+		// destroy icon bitmap
+		if (!(*it)->menuBitmap.IsNull()) (*it)->menuBitmap.DeleteObject();
+
+		if (!tabSmallIcon.IsNull())
 		{
-			if ((*it)->menuBitmap.IsNull())
-			{
+			CDC	dc;
 
-				if ((*it)->strIcon.length() > 0)
-				{
-					tabSmallIcon.Attach(
-						static_cast<HICON>(
-							::LoadImage(
-								NULL,
-								Helpers::ExpandEnvironmentStrings((*it)->strIcon).c_str(),
-								IMAGE_ICON,
-								16,
-								16,
-								LR_DEFAULTCOLOR|LR_LOADFROMFILE
-							)
-						)
-					);
-				}
-				else if ((*it)->bUseDefaultIcon)
-				{
-					tabSmallIcon.Attach(
-						static_cast<HICON>(
-							::LoadImage(
-								::GetModuleHandle(NULL),
-								MAKEINTRESOURCE(IDR_MAINFRAME),
-								IMAGE_ICON,
-								16,
-								16,
-								LR_DEFAULTCOLOR
-							)
-						)
-					);
-				}
+			(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
 
-				CDC	dc;
-
-				(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
-
-				dc.CreateCompatibleDC(::GetDC(NULL));
-				dc.SelectBitmap((*it)->menuBitmap);
-				dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
-				dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
-			}
-		}
-		else
-		{
-			// destroy icon bitmap
-			if (!(*it)->menuBitmap.IsNull()) (*it)->menuBitmap.DeleteObject();
+			dc.CreateCompatibleDC(::GetDC(NULL));
+			dc.SelectBitmap((*it)->menuBitmap);
+			dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
+			dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
 		}
 
 		if (!(*it)->menuBitmap.IsNull()) 
@@ -1958,42 +1921,8 @@ void MainFrame::SetWindowIcons()
 	}
 	else
 	{
-		if (windowSettings.strIcon.length() > 0)
-		{
-			m_icon.Attach(static_cast<HICON>(::LoadImage(
-													NULL, 
-													Helpers::ExpandEnvironmentStrings(windowSettings.strIcon).c_str(), 
-													IMAGE_ICON, 
-													0, 
-													0, 
-													LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE)));
-
-			m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
-													NULL, 
-													Helpers::ExpandEnvironmentStrings(windowSettings.strIcon).c_str(), 
-													IMAGE_ICON, 
-													16, 
-													16, 
-													LR_DEFAULTCOLOR | LR_LOADFROMFILE)));
-		}
-		else
-		{
-			m_icon.Attach(static_cast<HICON>(::LoadImage(
-													::GetModuleHandle(NULL), 
-													MAKEINTRESOURCE(IDR_MAINFRAME), 
-													IMAGE_ICON, 
-													0, 
-													0, 
-													LR_DEFAULTCOLOR | LR_DEFAULTSIZE)));
-
-			m_smallIcon.Attach(static_cast<HICON>(::LoadImage(
-													::GetModuleHandle(NULL), 
-													MAKEINTRESOURCE(IDR_MAINFRAME), 
-													IMAGE_ICON, 
-													16, 
-													16, 
-													LR_DEFAULTCOLOR)));
-		}
+		m_icon.Attach(Helpers::LoadTabIcon(true, false, windowSettings.strIcon, L""));
+		m_smallIcon.Attach(Helpers::LoadTabIcon(false, false, windowSettings.strIcon, L""));
 	}
 
 	if (!m_icon.IsNull())

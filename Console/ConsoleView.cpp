@@ -113,42 +113,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 	DragAcceptFiles(TRUE);
 
 	// load icon
-	if (m_tabData->strIcon.length() > 0)
-	{
-		bigIcon = static_cast<HICON>(::LoadImage(
-											NULL, 
-											Helpers::ExpandEnvironmentStrings(m_tabData->strIcon).c_str(), 
-											IMAGE_ICON, 
-											0, 
-											0, 
-											LR_DEFAULTCOLOR|LR_LOADFROMFILE|LR_DEFAULTSIZE));
-
-		smallIcon = static_cast<HICON>(::LoadImage(
-											NULL, 
-											Helpers::ExpandEnvironmentStrings(m_tabData->strIcon).c_str(), 
-											IMAGE_ICON, 
-											16, 
-											16, 
-											LR_DEFAULTCOLOR|LR_LOADFROMFILE));
-	}
-	else
-	{
-		bigIcon = static_cast<HICON>(::LoadImage(
-											::GetModuleHandle(NULL), 
-											MAKEINTRESOURCE(IDR_MAINFRAME), 
-											IMAGE_ICON, 
-											0, 
-											0, 
-											LR_DEFAULTCOLOR|LR_DEFAULTSIZE));
-
-		smallIcon = static_cast<HICON>(::LoadImage(
-											::GetModuleHandle(NULL), 
-											MAKEINTRESOURCE(IDR_MAINFRAME), 
-											IMAGE_ICON, 
-											16, 
-											16, 
-											LR_DEFAULTCOLOR));
-	}
+	bigIcon.Attach(Helpers::LoadTabIcon(true, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
+	smallIcon.Attach(Helpers::LoadTabIcon(false, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
 
 	// set console delegates
 	m_consoleHandler.SetupDelegates(

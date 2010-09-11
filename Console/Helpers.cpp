@@ -140,11 +140,46 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 //////////////////////////////////////////////////////////////////////////////
 
-HICON Helpers::LoadSmallIcon(bool bUseDefaultIcon, wstring strIcon)
+HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& strIcon, const wstring& strShell)
 {
-  if (bUseDefaultIcon || (!strIcon.empty()))
+  if (bUseDefaultIcon)
   {
-    if (!strIcon.empty())
+    if ( !strShell.empty() )
+    {
+      wstring strCommandLine = Helpers::ExpandEnvironmentStrings(strShell);
+      int argc = 0;
+      LPWSTR* argv = ::CommandLineToArgvW(strCommandLine.c_str(), &argc);
+      if ( argv && argc > 0 )
+      {
+        SHFILEINFO info;
+        memset(&info, 0, sizeof(info));
+        if( ::SHGetFileInfo(
+          argv[0],
+          0,
+          &info,
+          sizeof(info),
+          SHGFI_ICON | (( bBigIcon )? SHGFI_LARGEICON : SHGFI_SMALLICON)) != 0 )
+        {
+          return info.hIcon;
+        }
+      }
+      ::LocalFree(argv);
+    }
+  }
+  else if (!strIcon.empty())
+  {
+    if ( bBigIcon )
+    {
+      return static_cast<HICON>(
+        ::LoadImage(
+          NULL,
+          Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
+          IMAGE_ICON,
+          0,
+          0,
+          LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE));
+    }
+    else
     {
       return static_cast<HICON>(
         ::LoadImage(
@@ -153,11 +188,23 @@ HICON Helpers::LoadSmallIcon(bool bUseDefaultIcon, wstring strIcon)
           IMAGE_ICON,
           16,
           16,
-          LR_DEFAULTCOLOR|LR_LOADFROMFILE
-        )
-      );
+          LR_DEFAULTCOLOR | LR_LOADFROMFILE));
     }
-    else if (bUseDefaultIcon)
+  }
+  else
+  {
+    if ( bBigIcon )
+    {
+      return static_cast<HICON>(
+        ::LoadImage(
+          ::GetModuleHandle(NULL),
+          MAKEINTRESOURCE(IDR_MAINFRAME),
+          IMAGE_ICON,
+          0,
+          0,
+          LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
+    }
+    else
     {
       return static_cast<HICON>(
         ::LoadImage(
@@ -166,9 +213,7 @@ HICON Helpers::LoadSmallIcon(bool bUseDefaultIcon, wstring strIcon)
           IMAGE_ICON,
           16,
           16,
-          LR_DEFAULTCOLOR
-        )
-      );
+          LR_DEFAULTCOLOR));
     }
   }
 

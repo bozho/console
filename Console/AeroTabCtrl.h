@@ -339,14 +339,16 @@ public:
 			if((ii.rcImage.right - ii.rcImage.left) < (rcTab.right - rcTab.left))
 			{
 				int nImageHalfHeight = (ii.rcImage.bottom - ii.rcImage.top) / 2;
-        CIcon icon;
-        icon.Attach(m_imageList.ExtractIcon(nImageIndex));
-        Gdiplus::Bitmap bitmap(icon.m_hIcon);
 
-        g.DrawImage(
-          &bitmap,
-          rcText.left,
-          nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset);
+        CIcon tabSmallIcon(m_imageList.ExtractIcon(nImageIndex));
+        if( !tabSmallIcon.IsNull() )
+        {
+          WTL::CDCHandle dc(bufferedDC);
+          dc.DrawIconEx(
+            rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset,
+            tabSmallIcon.m_hIcon,
+            16, 16);
+        }
 			}
 
 			// Offset on the right of the image.

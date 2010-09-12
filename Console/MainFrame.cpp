@@ -1123,23 +1123,22 @@ LRESULT MainFrame::OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */
 
 LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
-	NMCTC2ITEMS*		pTabItems	= reinterpret_cast<NMCTC2ITEMS*>(pnmh);
-	CTabViewTabItem*	pTabItem	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
+	NMCTCITEM*			pTabItems	= reinterpret_cast<NMCTCITEM*>(pnmh);
+	CTabViewTabItem*	pTabItem	= (pTabItems->iItem != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem) : NULL;
 
 	if (pTabItem == NULL)
 	{
 
-    // I prefer choose my console with the good environment ...
+		// I prefer choose my console with the good environment ...
 		// CreateNewConsole(0);
-		
-    if (!m_tabsMenu.IsNull())
-    {
-      // a priori y a une petite inversion X et Y ...
-      CPoint point(pTabItems->pt.y, pTabItems->pt.x);
-      CPoint screenPoint(point);
-      this->m_TabCtrl.ClientToScreen(&screenPoint);
-      m_tabsMenu.TrackPopupMenu(0, screenPoint.x, screenPoint.y, m_hWnd);
-    }
+
+		if (!m_tabsMenu.IsNull())
+		{
+			CPoint point(pTabItems->pt.x, pTabItems->pt.y);
+			CPoint screenPoint(point);
+			this->m_TabCtrl.ClientToScreen(&screenPoint);
+			m_tabsMenu.TrackPopupMenu(0, screenPoint.x, screenPoint.y, m_hWnd);
+		}
 	}
 	else
 	{

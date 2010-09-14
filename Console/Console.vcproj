@@ -591,6 +591,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\DlgCredentials.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\DlgRenameTab.cpp"
 				>
 			</File>
@@ -732,6 +736,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ConsoleException.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ConsoleHandler.h"
 				>
 			</File>
@@ -741,6 +749,10 @@
 			</File>
 			<File
 				RelativePath=".\Cursors.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DlgCredentials.h"
 				>
 			</File>
 			<File

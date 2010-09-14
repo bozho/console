@@ -5,6 +5,7 @@
 
 #include "Console.h"
 #include "MainFrame.h"
+#include "ConsoleException.h"
 #include "ConsoleView.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -160,16 +161,24 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 
 	wstring strPassword(m_tabData->strUser.length() > 0 ? L"games" : L"");
 
-	if (!m_consoleHandler.StartShellProcess(
-								strShell, 
-								strInitialDir,
-								m_tabData->strUser,
-								strPassword,
-								m_strInitialCmd,
-								g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
-								m_dwStartupRows, 
-								m_dwStartupColumns,
-								bDebugFlag))
+	try
+	{
+		m_consoleHandler.StartShellProcess(
+									strShell, 
+									strInitialDir,
+									m_tabData->strUser,
+									strPassword,
+									m_strInitialCmd,
+									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
+									m_dwStartupRows, 
+									m_dwStartupColumns,
+									bDebugFlag);
+/*		{
+			return -1;
+		}
+*/
+	}
+	catch (const ConsoleException& ex)
 	{
 		return -1;
 	}

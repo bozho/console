@@ -3,6 +3,7 @@
 #include "Console.h"
 
 #include "../shared/SharedMemNames.h"
+#include "ConsoleException.h"
 #include "ConsoleHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,7 +86,6 @@ bool ConsoleHandler::StartShellProcess
 	bool bDebugFlag
 )
 {
-
 	wstring strUsername(strUser);
 	wstring strDomain;
 
@@ -116,6 +116,7 @@ bool ConsoleHandler::StartShellProcess
 		::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE);
 		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
 	}
+
 
 	wstring	strShellCmdLine(strCustomShell);
 	
@@ -216,19 +217,32 @@ bool ConsoleHandler::StartShellProcess
 	if (strUsername.length() > 0)
 	{
 		if (!::CreateProcessWithLogonW(
-			strUsername.c_str(), 
-			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
-			strPassword.c_str(), 
+			L"games", 
+			NULL, 
+			L"games", 
 			LOGON_WITH_PROFILE,
 			NULL,
-			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
+			L"cmd.exe",
 			dwStartupFlags,
-			userEnvironment.get(),
-			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
+			NULL,
+			NULL,
 			&si,
 			&pi))
+		//if (!::CreateProcessWithLogonW(
+		//	strUsername.c_str(), 
+		//	strDomain.length() > 0 ? strDomain.c_str() : NULL, 
+		//	strPassword.c_str(), 
+		//	LOGON_WITH_PROFILE,
+		//	NULL,
+		//	const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
+		//	dwStartupFlags,
+		//	userEnvironment.get(),
+		//	(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
+		//	&si,
+		//	&pi))
 		{
-			return false;
+			throw ConsoleException(str(wformat(L"Unable to start a shell as user %1%!") % strUser));
+			//return false;
 		}
 	}
 	else
@@ -250,7 +264,7 @@ bool ConsoleHandler::StartShellProcess
 	}
 
 	// create shared memory objects
-	CreateSharedObjects(pi.dwProcessId);
+	CreateSharedObjects(pi.dwProcessId, strUser);
 
 	// write startup params
 	m_consoleParams->dwConsoleMainThreadId	= pi.dwThreadId;
@@ -387,19 +401,19 @@ void ConsoleHandler::UpdateEnvironmentBlock()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId)
+bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser)
 {
 	// create startup params shared memory
-	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str(), 1, syncObjRequest);
+	m_consoleParams.Create((SharedMemNames::formatConsoleParams % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
 	// create console info shared memory
-	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
+	m_consoleInfo.Create((SharedMemNames::formatInfo % dwConsoleProcessId).str(), 1, syncObjRequest, strUser);
 
 	// create console info shared memory
-	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str(), 1, syncObjRequest);
+	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str(), 1, syncObjRequest, strUser);
 
 	// TODO: max console size
-	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200, syncObjRequest);
+	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200, syncObjRequest, strUser);
 
 	// initialize buffer with spaces
 	CHAR_INFO ci;
@@ -408,24 +422,23 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId)
 	for (int i = 0; i < 200*200; ++i) ::CopyMemory(&m_consoleBuffer[i], &ci, sizeof(CHAR_INFO));
 
 	// copy info
-	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
+	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
 	// text info (used for sending text to console)
-	m_consoleTextInfo.Create((SharedMemNames::formatTextInfo % dwConsoleProcessId).str(), 1, syncObjBoth);
+	m_consoleTextInfo.Create((SharedMemNames::formatTextInfo % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
 	// mouse event
-	m_consoleMouseEvent.Create((SharedMemNames::formatMouseEvent % dwConsoleProcessId).str(), 1, syncObjBoth);
+	m_consoleMouseEvent.Create((SharedMemNames::formatMouseEvent % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
 	// new console size
-	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str(), 1, syncObjRequest);
+	m_newConsoleSize.Create((SharedMemNames::formatNewConsoleSize % dwConsoleProcessId).str(), 1, syncObjRequest, strUser);
 
 	// new scroll position
-	m_newScrollPos.Create((SharedMemNames::formatNewScrollPos % dwConsoleProcessId).str(), 1, syncObjRequest);
+	m_newScrollPos.Create((SharedMemNames::formatNewScrollPos % dwConsoleProcessId).str(), 1, syncObjRequest, strUser);
 
 	// TODO: separate function for default settings
 	m_consoleParams->dwRows		= 25;
 	m_consoleParams->dwColumns	= 80;
-
 
 	return true;
 }
@@ -689,11 +702,8 @@ DWORD WINAPI ConsoleHandler::MonitorThreadStatic(LPVOID lpParameter)
 
 DWORD ConsoleHandler::MonitorThread()
 {
-	{
-		// resume hook monitor thread
-		shared_ptr<void> hHookMonitorThread(::OpenThread(THREAD_ALL_ACCESS, FALSE, m_consoleParams->dwHookThreadId), ::CloseHandle);
-		::ResumeThread(hHookMonitorThread.get());
-	}
+	// resume ConsoleHook's thread
+	m_consoleParams.SetRespEvent();
 
 	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetReqEvent() };
 	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1)

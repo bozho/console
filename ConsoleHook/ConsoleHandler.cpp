@@ -780,7 +780,7 @@ DWORD ConsoleHandler::MonitorThread()
 	
 	// read parent process ID and get process handle
 	m_hParentProcess = shared_ptr<void>(
-							::OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_consoleParams->dwParentProcessId),
+							::OpenProcess(SYNCHRONIZE, FALSE, m_consoleParams->dwParentProcessId),
 							::CloseHandle);
 
 	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
@@ -805,7 +805,7 @@ DWORD ConsoleHandler::MonitorThread()
 
 	SetConsoleParams(::GetCurrentThreadId(), hStdOut);
 
-	::SuspendThread(GetCurrentThread());
+	if (::WaitForSingleObject(m_consoleParams.GetRespEvent(), 10000) == WAIT_TIMEOUT) return 0;
 
 	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
 
@@ -821,7 +821,7 @@ DWORD ConsoleHandler::MonitorThread()
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
 		hStdOut,
-		m_hParentProcess.get()
+//		m_hParentProcess.get()
 	};
 
 	DWORD	dwWaitRes		= 0;

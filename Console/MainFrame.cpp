@@ -4,6 +4,7 @@
 #include "aboutdlg.h"
 #include "Console.h"
 #include "ConsoleView.h"
+#include "ConsoleException.h"
 #include "DlgRenameTab.h"
 #include "DlgSettingsMain.h"
 #include "MainFrame.h"
@@ -1659,7 +1660,6 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 											NULL, 
 											WS_CHILD | WS_VISIBLE,// | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
 											0);
-
 	if (hwndConsoleView == NULL)
 	{
 		CString	strMessage;

@@ -40,11 +40,10 @@ class DlgCredentials
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
+	public:
+
 		const CString& GetUser() const { return m_user; }
 		const CString& GetPassword() const { return m_password; }
-
-	private:
-
 
 	private:
 

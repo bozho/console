@@ -7,6 +7,7 @@
 #include "ConsoleException.h"
 #include "DlgRenameTab.h"
 #include "DlgSettingsMain.h"
+#include "DlgCredentials.h"
 #include "MainFrame.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1599,21 +1600,35 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 		m_dwColumns	= dwColumns;
 	}
 
+	shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
+
 	shared_ptr<ConsoleView> consoleView(new ConsoleView(*this, dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
+	UserCredentials			userCredentials;
+
+	if (tabData->strUser.length() > 0)
+	{
+		DlgCredentials dlg(tabData->strUser.c_str());
+
+		if (dlg.DoModal() != IDOK) return false;
+
+		userCredentials.user	= dlg.GetUser();
+		userCredentials.password= dlg.GetPassword();
+	}
 
 	HWND hwndConsoleView = consoleView->Create(
 											m_hWnd, 
 											rcDefault, 
 											NULL, 
 											WS_CHILD | WS_VISIBLE,// | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
-											0);
+											0,
+											0U,
+											reinterpret_cast<void*>(&userCredentials));
 	if (hwndConsoleView == NULL)
 	{
 		CString	strMessage;
 				
 		// copied from ConsoleView::OnCreate
 		wstring strShell;
-		shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
 		if (strDbgCmdLine.length() > 0)
 		{
 			strShell	= strDbgCmdLine;

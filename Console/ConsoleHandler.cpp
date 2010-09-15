@@ -89,8 +89,9 @@ bool ConsoleHandler::StartShellProcess
 	wstring strUsername(strUser);
 	wstring strDomain;
 
-	shared_ptr<void> userToken;
+	shared_ptr<void> userProfileKey;
 	shared_ptr<void> userEnvironment;
+	shared_ptr<void> userToken;
 
 	if (strUsername.length() > 0)
 	{
@@ -101,6 +102,7 @@ bool ConsoleHandler::StartShellProcess
 			strUsername	= strUsername.substr(pos+1);
 		}
 
+		// logon user
 		HANDLE hUserToken = NULL;
 		::LogonUser(
 			strUsername.c_str(), 
@@ -112,11 +114,21 @@ bool ConsoleHandler::StartShellProcess
 
 		userToken.reset(hUserToken, ::CloseHandle);
 
+		// load user's profile
+		// seems to be necessary on WinXP for environment strings' expainsion to work properly
+		PROFILEINFO userProfile;
+		::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
+		userProfile.dwSize = sizeof(PROFILEINFO);
+		userProfile.lpUserName = const_cast<wchar_t*>(strUser.c_str());
+		
+		::LoadUserProfile(userToken.get(), &userProfile);
+		userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
+
+		// load user's environment
 		void*	pEnvironment	= NULL;
 		::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE);
 		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
 	}
-
 
 	wstring	strShellCmdLine(strCustomShell);
 	
@@ -126,6 +138,7 @@ bool ConsoleHandler::StartShellProcess
 
 		::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
 
+		// TODO: resolve when running as another user
 		if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
 		{
 			strShellCmdLine = szComspec;		
@@ -213,36 +226,23 @@ bool ConsoleHandler::StartShellProcess
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
-
+	
 	if (strUsername.length() > 0)
 	{
 		if (!::CreateProcessWithLogonW(
-			L"games", 
-			NULL, 
-			L"games", 
+			strUsername.c_str(), 
+			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
+			strPassword.c_str(), 
 			LOGON_WITH_PROFILE,
 			NULL,
-			L"cmd.exe",
+			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
 			dwStartupFlags,
-			NULL,
-			NULL,
+			userEnvironment.get(),
+			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
-		//if (!::CreateProcessWithLogonW(
-		//	strUsername.c_str(), 
-		//	strDomain.length() > 0 ? strDomain.c_str() : NULL, 
-		//	strPassword.c_str(), 
-		//	LOGON_WITH_PROFILE,
-		//	NULL,
-		//	const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
-		//	dwStartupFlags,
-		//	userEnvironment.get(),
-		//	(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
-		//	&si,
-		//	&pi))
 		{
-			throw ConsoleException(str(wformat(L"Unable to start a shell as user %1%!") % strUser));
-			//return false;
+			throw ConsoleException(str(wformat(L"Unable to start a %1% as user %2%!") % strShellCmdLine % strUser));
 		}
 	}
 	else
@@ -259,7 +259,7 @@ bool ConsoleHandler::StartShellProcess
 				&si,
 				&pi))
 		{
-			return false;
+			throw ConsoleException(str(wformat(L"Unable to start a %1%!") % strShellCmdLine));
 		}
 	}
 

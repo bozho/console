@@ -106,7 +106,7 @@ BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	// set view title
 	SetWindowText(m_strTitle);
@@ -193,26 +193,23 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*
 		strShell	= m_tabData->strShell;
 	}
 
-	wstring strPassword(m_tabData->strUser.length() > 0 ? L"games" : L"");
-
 	try
 	{
+		CREATESTRUCT* createStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
+		UserCredentials* userCredentials = reinterpret_cast<UserCredentials*>(createStruct->lpCreateParams);
+
 		m_consoleHandler.StartShellProcess(
 									strShell, 
 									strInitialDir,
-									m_tabData->strUser,
-									strPassword,
+									userCredentials->user,
+									userCredentials->password,
 									m_strInitialCmd,
 									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 									m_dwStartupRows, 
 									m_dwStartupColumns,
 									bDebugFlag);
-/*		{
-			return -1;
-		}
-*/
 	}
-	catch (const ConsoleException& ex)
+	catch (const ConsoleException& /*ex*/)
 	{
 		return -1;
 	}

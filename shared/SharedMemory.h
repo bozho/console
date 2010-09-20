@@ -155,11 +155,9 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 	shared_ptr<SECURITY_ATTRIBUTES>	sa;
 	EXPLICIT_ACCESS					ea[2];
 
-	SID_IDENTIFIER_AUTHORITY	SIDAuthWorld	= SECURITY_WORLD_SID_AUTHORITY;
 	SID_IDENTIFIER_AUTHORITY	SIDAuthCreator	= SECURITY_CREATOR_SID_AUTHORITY;
 
 	PSID						tmpSID = NULL;
-	shared_ptr<void>			everyoneSID;	// PSID
 	shared_ptr<void>			creatorSID;		// PSID
 
 	PACL						tmpACL = NULL;
@@ -171,29 +169,6 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 
 	if (strUser.length() > 0)
 	{
-		// create a well-known SID for the Everyone group
-		if (!::AllocateAndInitializeSid(
-					&SIDAuthWorld, 
-					1,
-					SECURITY_WORLD_RID,
-					0, 0, 0, 0, 0, 0, 0,
-					&tmpSID))
-		{
-			// TODO: error handling
-			return;
-		}
-
-		everyoneSID.reset(tmpSID, ::FreeSid);
-
-		// initialize an EXPLICIT_ACCESS structure for an ACE
-		// the ACE will allow Everyone full access
-		//ea[0].grfAccessPermissions	= GENERIC_ALL;
-		//ea[0].grfAccessMode			= SET_ACCESS;
-		//ea[0].grfInheritance		= NO_INHERITANCE;
-		//ea[0].Trustee.TrusteeForm	= TRUSTEE_IS_SID; //TRUSTEE_IS_NAME;// TRUSTEE_IS_SID;
-		//ea[0].Trustee.TrusteeType	= TRUSTEE_IS_WELL_KNOWN_GROUP;// TRUSTEE_IS_USER; // TRUSTEE_IS_WELL_KNOWN_GROUP;
-		//ea[0].Trustee.ptstrName		= (LPTSTR)everyoneSID.get(); // (LPTSTR)strUsername.c_str();
-
 		// initialize an EXPLICIT_ACCESS structure for an ACE
 		// the ACE will allow Everyone full access
 		ea[0].grfAccessPermissions	= GENERIC_ALL;
@@ -226,35 +201,6 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 		ea[1].Trustee.TrusteeType	= TRUSTEE_IS_WELL_KNOWN_GROUP;
 		ea[1].Trustee.ptstrName		= (LPTSTR)creatorSID.get();
 
-
-	/*
-		// create a SID for the BUILTIN\Administrators group
-		if (!::AllocateAndInitializeSid(
-					&SIDAuthNT, 
-					2,
-					SECURITY_BUILTIN_DOMAIN_RID,
-					DOMAIN_ALIAS_RID_ADMINS,
-					0, 0, 0, 0, 0, 0,
-					&tmpSID)) 
-		{
-			// TODO: error handling
-			return;
-		}
-
-		creatorSID.reset(tmpSID, ::FreeSid);
-
-		// Initialize an EXPLICIT_ACCESS structure for an ACE.
-		// The ACE will allow the Administrators group full access
-		ea[1].grfAccessPermissions	= GENERIC_ALL;
-		ea[1].grfAccessMode			= SET_ACCESS;
-		ea[1].grfInheritance		= NO_INHERITANCE;
-		ea[1].Trustee.TrusteeForm	= TRUSTEE_IS_SID;
-		ea[1].Trustee.TrusteeType	= TRUSTEE_IS_GROUP;
-		ea[1].Trustee.ptstrName		= (LPTSTR)creatorSID.get();
-	*/
-
-
-		// create a new ACL that contains the new ACEs
 		if (::SetEntriesInAcl(2, ea, NULL, &tmpACL) != ERROR_SUCCESS) 
 		{
 			// TODO: error handling
@@ -295,105 +241,8 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 		sa->bInheritHandle		= FALSE;
 	}
 
-/*
-
-	DWORD dwRes, dwDisposition;
-	PSID pEveryoneSID = NULL, pcreatorSID = NULL;
-	PACL pACL = NULL;
-	PSECURITY_DESCRIPTOR pSD = NULL;
-	EXPLICIT_ACCESS ea[2];
-	SID_IDENTIFIER_AUTHORITY SIDAuthWorld = SECURITY_WORLD_SID_AUTHORITY;
-	SID_IDENTIFIER_AUTHORITY SIDAuthNT = SECURITY_NT_AUTHORITY;
-	SECURITY_ATTRIBUTES sa;
-	LONG lRes;
-	HKEY hkSub = NULL;
-
-	// Create a well-known SID for the Everyone group.
-	if(!AllocateAndInitializeSid(&SIDAuthWorld, 1,
-					 SECURITY_WORLD_RID,
-					 0, 0, 0, 0, 0, 0, 0,
-					 &pEveryoneSID))
-	{
-		printf("AllocateAndInitializeSid Error %u\n", GetLastError());
-		goto Cleanup;
-	}
-
-	// Initialize an EXPLICIT_ACCESS structure for an ACE.
-	// The ACE will allow Everyone read access to the key.
-	ZeroMemory(&ea, 2 * sizeof(EXPLICIT_ACCESS));
-	ea[0].grfAccessPermissions = GENERIC_ALL;
-	ea[0].grfAccessMode = SET_ACCESS;
-	ea[0].grfInheritance= NO_INHERITANCE;
-	ea[0].Trustee.TrusteeForm = TRUSTEE_IS_SID; //TRUSTEE_IS_NAME;// TRUSTEE_IS_SID;
-	ea[0].Trustee.TrusteeType = TRUSTEE_IS_WELL_KNOWN_GROUP;// TRUSTEE_IS_USER; // TRUSTEE_IS_WELL_KNOWN_GROUP;
-	ea[0].Trustee.ptstrName  = (LPTSTR) pEveryoneSID; // (LPTSTR)strUsername.c_str(); // (LPTSTR) pEveryoneSID;
-
-	// Create a SID for the BUILTIN\Administrators group.
-	if(! AllocateAndInitializeSid(&SIDAuthNT, 2,
-					 SECURITY_BUILTIN_DOMAIN_RID,
-					 DOMAIN_ALIAS_RID_ADMINS,
-					 0, 0, 0, 0, 0, 0,
-					 &pcreatorSID)) 
-	{
-		printf("AllocateAndInitializeSid Error %u\n", GetLastError());
-		goto Cleanup; 
-	}
-
-	// Initialize an EXPLICIT_ACCESS structure for an ACE.
-	// The ACE will allow the Administrators group full access to
-	// the key.
-	ea[1].grfAccessPermissions = GENERIC_ALL;
-	ea[1].grfAccessMode = SET_ACCESS;
-	ea[1].grfInheritance= NO_INHERITANCE;
-	ea[1].Trustee.TrusteeForm = TRUSTEE_IS_SID;
-	ea[1].Trustee.TrusteeType = TRUSTEE_IS_GROUP;
-	ea[1].Trustee.ptstrName  = (LPTSTR) pcreatorSID;
-
-	// Create a new ACL that contains the new ACEs.
-	dwRes = SetEntriesInAcl(2, ea, NULL, &pACL);
-	if (ERROR_SUCCESS != dwRes) 
-	{
-		printf("SetEntriesInAcl Error %u\n", GetLastError());
-		goto Cleanup;
-	}
-
-	// Initialize a security descriptor.  
-	pSD = (PSECURITY_DESCRIPTOR) LocalAlloc(LPTR, 
-							 SECURITY_DESCRIPTOR_MIN_LENGTH); 
-	if (NULL == pSD) 
-	{ 
-		printf("LocalAlloc Error %u\n", GetLastError());
-		goto Cleanup; 
-	} 
- 
-	if (!InitializeSecurityDescriptor(pSD,
-			SECURITY_DESCRIPTOR_REVISION)) 
-	{  
-		printf("InitializeSecurityDescriptor Error %u\n",
-								GetLastError());
-		goto Cleanup; 
-	} 
- 
-	// Add the ACL to the security descriptor. 
-	if (!SetSecurityDescriptorDacl(pSD, 
-			TRUE,     // bDaclPresent flag   
-			pACL, 
-			FALSE))   // not a default DACL 
-	{  
-		printf("SetSecurityDescriptorDacl Error %u\n",
-				GetLastError());
-		goto Cleanup; 
-	} 
-
-	// Initialize a security attributes structure.
-	sa.nLength = sizeof (SECURITY_ATTRIBUTES);
-	sa.lpSecurityDescriptor = pSD;
-	sa.bInheritHandle = FALSE;
-*/
-
 	m_hSharedMem = shared_ptr<void>(::CreateFileMapping(
 										INVALID_HANDLE_VALUE, 
-//										NULL,
 										sa.get(), 
 										PAGE_READWRITE, 
 										0, 

@@ -134,6 +134,8 @@ class ConsoleView
 		void DumpBuffer();
 		void InitializeScrollbars();
 
+		const CString& GetExceptionMessage() const { return m_exceptionMessage; }
+
 	private:
 
 		void OnConsoleChange(bool bResize);
@@ -162,6 +164,7 @@ class ConsoleView
 		void ForwardMouseClick(UINT uMsg, WPARAM wParam, const CPoint& point);
 
 		COORD GetConsoleCoord(const CPoint& clientPoint);
+
 
 	private:
 
@@ -215,6 +218,11 @@ class ConsoleView
 
 		bool							m_bFlashTimerRunning;
 		DWORD							m_dwFlashes;
+
+		// since message handlers are not exception-safe,
+		// we'll store error messages thrown during OnCreate
+		// handler here...
+		CString							m_exceptionMessage;
 
 // static members
 private:

@@ -945,6 +945,12 @@ BEGIN
     IDPANE_ROWS_COLUMNS     "%ix%i"
 END
 
+STRINGTABLE 
+BEGIN
+    IDS_ERR_CANT_START_SHELL "Unable to start a %1%!"
+    IDS_ERR_CANT_START_SHELL_AS_USER "Unable to start a %1% as user %2%!"
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 

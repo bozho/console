@@ -1,5 +1,6 @@
 #include "stdafx.h"
 
+#include "resource.h"
 #include "Console.h"
 
 #include "../shared/SharedMemNames.h"
@@ -242,7 +243,7 @@ bool ConsoleHandler::StartShellProcess
 			&si,
 			&pi))
 		{
-			throw ConsoleException(str(wformat(L"Unable to start a %1% as user %2%!") % strShellCmdLine % strUser));
+			throw ConsoleException(str(wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % strUser));
 		}
 	}
 	else
@@ -259,7 +260,7 @@ bool ConsoleHandler::StartShellProcess
 				&si,
 				&pi))
 		{
-			throw ConsoleException(str(wformat(L"Unable to start a %1%!") % strShellCmdLine));
+			throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine));
 		}
 	}
 

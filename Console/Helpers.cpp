@@ -152,3 +152,18 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+wstring Helpers::LoadString(UINT uID)
+{
+	int bufferSize = 0x800;
+	scoped_array<wchar_t>	str(new wchar_t[bufferSize]);
+	::ZeroMemory(str.get(), bufferSize * sizeof(wchar_t));
+	
+	bufferSize = ::LoadString(::GetModuleHandle(NULL), uID, str.get(), bufferSize);
+	
+	return wstring(str.get());
+}
+
+//////////////////////////////////////////////////////////////////////////////

@@ -217,7 +217,6 @@
 #define IDC_CHECK_DEFAULT_ICON          1172
 #define IDC_CHECK_TABS_ON_BOTTOM        1173
 #define IDC_TAB_USER                    1174
-#define IDC_USERNAME                    1175
 #define IDC_USER                        1175
 #define IDC_PASSWORD                    1176
 #define ID_NEW_TAB_1                    2000
@@ -225,6 +224,9 @@
 #define ID_NEXT_TAB                     2200
 #define ID_PREV_TAB                     2201
 #define IDC_DUMP_BUFFER                 3000
+#define IDS_ERR_CANT_START_SHELL        5000
+#define IDS_ERR_CANT_START_AS_USER      5001
+#define IDS_ERR_CANT_START_SHELL_AS_USER 5001
 #define ID_FILE_NEW_TAB                 32775
 #define ID_VIEW_CONSOLE                 32777
 #define ID_FILE_CLOSE_TAB               32779

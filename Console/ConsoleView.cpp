@@ -209,8 +209,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 									m_dwStartupColumns,
 									bDebugFlag);
 	}
-	catch (const ConsoleException& /*ex*/)
+	catch (const ConsoleException& ex)
 	{
+		m_exceptionMessage = ex.GetMessage().c_str();
 		return -1;
 	}
 

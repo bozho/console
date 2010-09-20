@@ -46,6 +46,9 @@ LRESULT DlgCredentials::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
 {
 	DoDataExchange(DDX_LOAD);
 	GetDlgItem(IDC_PASSWORD).SetFocus();
+
+	CenterWindow();
+
 	return TRUE;
 }
 

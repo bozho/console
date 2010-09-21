@@ -283,6 +283,14 @@ void PageSettingsTabs2::Load(shared_ptr<TabData>& tabData)
 void PageSettingsTabs2::Save()
 {
 	DoDataExchange(DDX_SAVE);
+
+	m_tabData->backgroundImageType		= static_cast<BackgroundImageType>(m_nBkType);
+	m_tabData->imageData.strFilename	= m_strBkImage;
+	m_tabData->imageData.bRelative		= m_nRelative > 0;
+	m_tabData->imageData.bExtend		= m_nExtend > 0;
+
+	m_tabData->imageData.imagePosition	= static_cast<ImagePosition>(m_comboBkPosition.GetCurSel());
+	m_tabData->imageData.byTintOpacity	= static_cast<BYTE>(m_sliderTintOpacity.GetPos());
 }
 
 //////////////////////////////////////////////////////////////////////////////

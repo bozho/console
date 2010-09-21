@@ -47,6 +47,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
 , m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
+, m_strUser()
 , bigIcon()
 , smallIcon()
 , m_consoleHandler()
@@ -108,9 +109,6 @@ BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
 
 LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	// set view title
-	SetWindowText(m_strTitle);
-
 	DragAcceptFiles(TRUE);
 
 	// load icon
@@ -174,12 +172,17 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 									m_dwStartupRows, 
 									m_dwStartupColumns,
 									bDebugFlag);
+
+		m_strUser = userCredentials->user.c_str();
 	}
 	catch (const ConsoleException& ex)
 	{
 		m_exceptionMessage = ex.GetMessage().c_str();
 		return -1;
 	}
+
+	// set view title
+	SetTitle(m_strTitle);
 
 	m_bInitializing = false;
 
@@ -1143,7 +1146,14 @@ void ConsoleView::SetActive(bool bActive)
 
 void ConsoleView::SetTitle(const CString& strTitle)
 {
-	m_strTitle = strTitle;
+	CString	title(strTitle);
+
+	if (m_strUser.GetLength() > 0)
+	{
+		title.Format(L"[%s] %s", m_strUser, strTitle);
+	}
+
+	m_strTitle = title;
 	SetWindowText(m_strTitle);
 }
 
@@ -1640,11 +1650,7 @@ void ConsoleView::UpdateTitle()
 
 		consoleWnd.GetWindowText(strConsoleTitle);
 
-		// if we're using console titles, update the title
-		if (strConsoleTitle == m_strTitle) return;
-
-		m_strTitle = strConsoleTitle;
-		SetWindowText(m_strTitle);
+		SetTitle(strConsoleTitle);
 	}
 
 	m_mainFrame.PostMessage(

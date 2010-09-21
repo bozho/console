@@ -118,9 +118,9 @@ class ConsoleView
 		void SetResizing(bool bResizing);
 		void SetActive(bool bActive);
 		void SetTitle(const CString& strTitle);
+		const CString& GetTitle() const { return m_strTitle; }
 
 		CString GetConsoleCommand();
-		const CString& GetTitle() const { return m_strTitle; }
 		CIcon& GetIcon(bool bBigIcon = true) { return bBigIcon ? bigIcon : smallIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
@@ -191,6 +191,7 @@ class ConsoleView
 		int		m_nHScrollWidth;
 
 		CString	m_strTitle;
+		CString	m_strUser;
 
 		CIcon	bigIcon;
 		CIcon	smallIcon;

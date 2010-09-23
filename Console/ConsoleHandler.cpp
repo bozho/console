@@ -139,14 +139,28 @@ bool ConsoleHandler::StartShellProcess
 
 		::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
 
-		// TODO: resolve when running as another user
-		if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
+		if (strUsername.length() > 0)
 		{
-			strShellCmdLine = szComspec;		
+			// resolve comspec when running as another user
+			wchar_t* pszComspec = reinterpret_cast<wchar_t*>(userEnvironment.get());
+
+			while ((pszComspec[0] != L'\x00') && (_wcsnicmp(pszComspec, L"comspec", 7) != 0)) pszComspec += wcslen(pszComspec)+1;
+
+			if (pszComspec[0] != L'\x00')
+			{
+				strShellCmdLine = (pszComspec + 8);
+			}
+
+			if (strShellCmdLine.length() == 0) strShellCmdLine = L"cmd.exe";
 		}
 		else
 		{
-			strShellCmdLine = L"cmd.exe";
+			if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
+			{
+				strShellCmdLine = szComspec;		
+			}
+
+			if (strShellCmdLine.length() == 0) strShellCmdLine = L"cmd.exe";
 		}
 	}
 

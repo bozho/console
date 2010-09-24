@@ -73,6 +73,10 @@
 			<param name="Name" value="Language settings">
 			<param name="Local" value="html\language.html">
 			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Opening tabs as another user">
+			<param name="Local" value="html\credentials.html">
+			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Known bugs and limitations">

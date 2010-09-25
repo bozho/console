@@ -49,6 +49,15 @@ LRESULT DlgCredentials::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
 
 	CenterWindow();
 
+#ifdef _USE_AERO
+  AERO_CONTROL(CStatic, m_LabelUser, IDC_STATIC_USER)
+  AERO_CONTROL(CStatic, m_LabelPassword, IDC_STATIC_PASSWORD)
+  AERO_CONTROL(CEdit, m_EditPassword, IDC_PASSWORD)
+  AERO_CONTROL(CEdit, m_EditUser, IDC_USER)
+  AERO_CONTROL(CButton, m_Cancel, IDCANCEL)
+  AERO_CONTROL(CButton, m_Ok, IDOK)
+#endif
+
 	return TRUE;
 }
 

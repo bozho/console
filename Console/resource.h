@@ -220,7 +220,9 @@
 #define IDC_USER                        1175
 #define IDC_PASSWORD                    1176
 #define IDC_APPTEXT                     1177
+#define IDC_STATIC_USER                 1177
 #define IDC_APPICON                     1178
+#define IDC_STATIC_PASSWORD             1178
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200

@@ -11,8 +11,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class DlgCredentials 
-	: public CDialogImpl<DlgCredentials>
+class DlgCredentials
+#ifdef _USE_AERO
+  : public aero::CDialogImpl<DlgCredentials>
+#else
+  : public CDialogImpl<DlgCredentials>
+#endif
 	, public CWinDataExchange<DlgCredentials>
 {
 	public:
@@ -27,6 +31,9 @@ class DlgCredentials
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgCredentials)
+#ifdef _USE_AERO
+			CHAIN_MSG_MAP(aero::CDialogImpl<DlgCredentials>)
+#endif
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)

@@ -71,7 +71,6 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-
 //////////////////////////////////////////////////////////////////////////////
 
 bool ConsoleHandler::StartShellProcess
@@ -105,29 +104,37 @@ bool ConsoleHandler::StartShellProcess
 
 		// logon user
 		HANDLE hUserToken = NULL;
-		::LogonUser(
+		if( !::LogonUser(
 			strUsername.c_str(), 
 			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
 			strPassword.c_str(), 
 			LOGON32_LOGON_INTERACTIVE, 
 			LOGON32_PROVIDER_DEFAULT, 
-			&hUserToken);
-
+			&hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
+		{
+			throw ConsoleException(str(wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
+		}
 		userToken.reset(hUserToken, ::CloseHandle);
 
+/*
 		// load user's profile
 		// seems to be necessary on WinXP for environment strings' expainsion to work properly
 		PROFILEINFO userProfile;
 		::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
 		userProfile.dwSize = sizeof(PROFILEINFO);
 		userProfile.lpUserName = const_cast<wchar_t*>(strUser.c_str());
-		
+
 		::LoadUserProfile(userToken.get(), &userProfile);
 		userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
+*/
 
 		// load user's environment
 		void*	pEnvironment	= NULL;
-		::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE);
+		if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
+		{
+			::RevertToSelf();
+			throw ConsoleException(str(wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
+		}
 		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
 	}
 
@@ -157,7 +164,7 @@ bool ConsoleHandler::StartShellProcess
 		{
 			if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
 			{
-				strShellCmdLine = szComspec;		
+				strShellCmdLine = szComspec;
 			}
 
 			if (strShellCmdLine.length() == 0) strShellCmdLine = L"cmd.exe";
@@ -233,7 +240,7 @@ bool ConsoleHandler::StartShellProcess
 		si.dwX			= 0x7FFF;
 		si.dwY			= 0x7FFF;
 	}
-	
+
 	PROCESS_INFORMATION pi;
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
 	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
@@ -241,18 +248,19 @@ bool ConsoleHandler::StartShellProcess
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
-	
 	if (strUsername.length() > 0)
 	{
-		if (!::CreateProcessWithLogonW(
+    wstring strCmdLine = Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine);
+    ::RevertToSelf();
+		if( !::CreateProcessWithLogonW(
 			strUsername.c_str(), 
 			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
 			strPassword.c_str(), 
 			LOGON_WITH_PROFILE,
 			NULL,
-			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
+			const_cast<wchar_t*>(strCmdLine.c_str()),
 			dwStartupFlags,
-			userEnvironment.get(),
+			NULL,
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))

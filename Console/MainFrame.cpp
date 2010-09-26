@@ -1607,12 +1607,52 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 
 	if (tabData->strUser.length() > 0)
 	{
+#ifdef _USE_AERO
+    // Display a dialog box to request credentials.
+    CREDUI_INFOW ui;
+    ui.cbSize = sizeof(ui);
+    ui.hwndParent = GetConsoleWindow();
+    ui.pszMessageText = tabData->strShell.c_str();
+    ui.pszCaptionText = L"Enter username and password";
+    ui.hbmBanner = NULL;
+
+    // we need a target
+    WCHAR szModuleFileName[_MAX_PATH] = L"";
+    ::GetModuleFileName(NULL, szModuleFileName, ARRAYSIZE(szModuleFileName));
+
+    WCHAR szUser    [CREDUI_MAX_USERNAME_LENGTH + 1] = L"";
+    WCHAR szPassword[CREDUI_MAX_PASSWORD_LENGTH + 1] = L"";
+    wcscpy_s(szUser, ARRAYSIZE(szUser), tabData->strUser.c_str());
+
+    DWORD rc = ::CredUIPromptForCredentials(
+      &ui,                                //__in_opt  PCREDUI_INFO pUiInfo,
+      szModuleFileName,                   //__in      PCTSTR pszTargetName,
+      NULL,                               //__in      PCtxtHandle Reserved,
+      0,                                  //__in_opt  DWORD dwAuthError,
+      szUser,                             //__inout   PCTSTR pszUserName,
+      ARRAYSIZE(szUser),                  //__in      ULONG ulUserNameMaxChars,
+      szPassword,                         //__inout   PCTSTR pszPassword,
+      ARRAYSIZE(szPassword),              //__in      ULONG ulPasswordMaxChars,
+      NULL,                               //__inout   PBOOL pfSave,
+      CREDUI_FLAGS_EXCLUDE_CERTIFICATES | //__in      DWORD dwFlags
+      CREDUI_FLAGS_ALWAYS_SHOW_UI       |
+      CREDUI_FLAGS_GENERIC_CREDENTIALS  |
+      CREDUI_FLAGS_DO_NOT_PERSIST
+    );
+
+    if( rc != NO_ERROR )
+      return false;
+
+    userCredentials.user     = szUser;
+    userCredentials.password = szPassword;
+#else
 		DlgCredentials dlg(tabData->strUser.c_str());
 
 		if (dlg.DoModal() != IDOK) return false;
 
 		userCredentials.user	= dlg.GetUser();
 		userCredentials.password= dlg.GetPassword();
+#endif
 	}
 
 	HWND hwndConsoleView = consoleView->Create(

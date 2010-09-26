@@ -71,6 +71,7 @@ extern CAppModule _Module;
 
 #include <HtmlHelp.h>
 #include <ShellApi.h>
+#include <WinCred.h>
 
 #pragma warning(disable: 4503) // disables 'name truncated' warnings
 

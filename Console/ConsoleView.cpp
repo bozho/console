@@ -783,16 +783,21 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 	UpdateTitle();
 	
 	// if the view is not visible, don't repaint
-	if (!m_bActive && textChanged)
+	if (!m_bActive)
 	{
-		if ((!bResize) && 
+		if 
+		(
+			textChanged &&
+			!bResize && 
 			(g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes > 0) && 
-			(!m_bFlashTimerRunning))
+			(!m_bFlashTimerRunning)
+		)
 		{
 			m_dwFlashes = 0;
 			m_bFlashTimerRunning = true;
 			SetTimer(FLASH_TAB_TIMER, 500);
 		}
+		
 		return 0;
 	}
 

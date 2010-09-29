@@ -133,6 +133,7 @@
 #define IDC_RADIO_Z_REGULAR             1100
 #define IDC_TRIM_TAB_TITLES             1101
 #define IDC_RADIO_Z_BOTTOM              1102
+#define IDC_TRIM_TAB_TITLES_RIGHT       1102
 #define IDC_RADIO_Z_ONTOP               1103
 #define IDC_SNAP                        1104
 #define IDC_CHECK_POSITION              1105
@@ -150,6 +151,7 @@
 #define IDC_SPIN_Y2                     1116
 #define IDC_SPIN_TRIM_TAB_TITLES        1116
 #define IDC_TAB_TITLE                   1117
+#define IDC_SPIN_TRIM_TAB_TITLES_RIGHT  1117
 #define IDC_TAB_ICON                    1118
 #define IDC_RADIO_Z_DESKTOP             1118
 #define IDC_TAB_SHELL                   1119
@@ -219,6 +221,7 @@
 #define IDC_TAB_USER                    1174
 #define IDC_USER                        1175
 #define IDC_PASSWORD                    1176
+#define IDC_STATIC_TRIM_CHARS_RIGHT     1176
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -247,7 +250,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1176
+#define _APS_NEXT_CONTROL_VALUE         1177
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

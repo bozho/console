@@ -306,7 +306,10 @@ void DlgSettingsAppearance::EnableControls()
 	GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS).EnableWindow(FALSE);
 	GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow(FALSE);
 	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow(FALSE);
+	GetDlgItem(IDC_TRIM_TAB_TITLES_RIGHT).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES_RIGHT).EnableWindow(FALSE);
 	GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_TRIM_CHARS_RIGHT).EnableWindow(FALSE);
 	GetDlgItem(IDC_WINDOW_ICON).EnableWindow(FALSE);
 	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(FALSE);
 	GetDlgItem(IDC_FONT_COLOR).EnableWindow(FALSE);
@@ -329,7 +332,10 @@ void DlgSettingsAppearance::EnableControls()
 	{
 		GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow();
 		GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow();
+		GetDlgItem(IDC_TRIM_TAB_TITLES_RIGHT).EnableWindow();
+		GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES_RIGHT).EnableWindow();
 		GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow();
+		GetDlgItem(IDC_STATIC_TRIM_CHARS_RIGHT).EnableWindow();
 	}
 	
 	if (m_nUseTabIcon == 0)

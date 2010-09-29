@@ -110,118 +110,6 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Toolbar
-//
-
-IDR_MAINFRAME TOOLBAR  16, 16
-BEGIN
-    BUTTON      ID_FILE_NEW_TAB
-    BUTTON      ID_PREV_TAB
-    BUTTON      ID_NEXT_TAB
-    SEPARATOR
-    BUTTON      ID_EDIT_COPY
-    BUTTON      ID_EDIT_PASTE
-    SEPARATOR
-    BUTTON      ID_APP_ABOUT
-    BUTTON      ID_HELP
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-#ifdef _USE_AERO
-IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
-#else
-IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-#endif
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Menu
-//
-
-IDR_MAINFRAME MENU 
-BEGIN
-    POPUP "File"
-    BEGIN
-        MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
-        MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
-        MENUITEM SEPARATOR
-        MENUITEM "E&xit",                       ID_APP_EXIT
-    END
-    POPUP "Edit"
-    BEGIN
-        MENUITEM "&Copy",                       ID_EDIT_COPY
-        MENUITEM "Cl&ear selection",            32791
-        MENUITEM "&Paste",                      ID_EDIT_PASTE
-        MENUITEM SEPARATOR
-        MENUITEM "Stop Scr&olling",             ID_EDIT_STOP_SCROLLING
-        MENUITEM SEPARATOR
-        MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
-        MENUITEM SEPARATOR
-        MENUITEM "&Settings...",                ID_EDIT_SETTINGS
-    END
-    POPUP "View"
-    BEGIN
-        MENUITEM "&Console Window",             ID_VIEW_CONSOLE
-        MENUITEM SEPARATOR
-        MENUITEM "&Menu",                       ID_VIEW_MENU
-        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
-        MENUITEM "Ta&bs",                       ID_VIEW_TABS
-    END
-    POPUP "Help"
-    BEGIN
-        MENUITEM "&Help",                       ID_HELP
-        MENUITEM SEPARATOR
-        MENUITEM "&About Console...",           ID_APP_ABOUT
-    END
-END
-
-IDR_POPUP_MENU_TAB MENU 
-BEGIN
-    POPUP "_"
-    BEGIN
-        POPUP "&File"
-        BEGIN
-            MENUITEM "&New Tab",                    32775
-            MENUITEM "&Close Tab",                  32779
-            MENUITEM SEPARATOR
-            MENUITEM "E&xit",                       57665
-        END
-        POPUP "&Edit"
-        BEGIN
-            MENUITEM "&Copy",                       57634
-            MENUITEM "Cl&ear selection",            32791
-            MENUITEM "&Paste",                      57637
-            MENUITEM SEPARATOR
-            MENUITEM "&Rename Tab",                 32781
-            MENUITEM SEPARATOR
-            MENUITEM "&Settings...",                ID_EDIT_SETTINGS
-        END
-        POPUP "&View"
-        BEGIN
-            MENUITEM "&Console Window",             32777
-            MENUITEM SEPARATOR
-            MENUITEM "&Menu",                       32784
-            MENUITEM "&Toolbar",                    59392
-            MENUITEM "&Status Bar",                 59393
-            MENUITEM "Ta&bs",                       32789
-        END
-        POPUP "&Help"
-        BEGIN
-            MENUITEM "&Help",                       57670
-            MENUITEM SEPARATOR
-            MENUITEM "&About Console...",           57664
-        END
-    END
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Dialog
 //
 
@@ -345,47 +233,50 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,100,10
     CONTROL         "S&how command",IDC_CHECK_SHOW_COMMAND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,40,65,10
     CONTROL         "Sho&w command in tabs",IDC_CHECK_SHOW_COMMAND_TABS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,50,89,10
-    CONTROL         "Trim tab titles",IDC_CHECK_TRIM_TAB_TITLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,103,50,59,10
-    EDITTEXT        IDC_TRIM_TAB_TITLES,162,48,31,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_TRIM_TAB_TITLES,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,178,35,11,14
-    LTEXT           "characters",IDC_STATIC_TRIM_CHARS,195,51,34,8
-    LTEXT           "I&con:",IDC_STATIC,10,71,18,8
-    EDITTEXT        IDC_WINDOW_ICON,33,68,165,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON,200,68,16,14
-    CONTROL         "Use tab &icons",IDC_CHECK_USE_TAB_ICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,33,85,59,10
-    GROUPBOX        "Title && icon",IDC_STATIC,0,0,235,100
-    LTEXT           "Name:",IDC_STATIC,10,118,20,8
-    EDITTEXT        IDC_FONT,33,115,110,14,ES_AUTOHSCROLL | ES_READONLY
-    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,145,115,16,14
-    LTEXT           "Si&ze:",IDC_STATIC,168,118,16,8
-    EDITTEXT        IDC_FONT_SIZE,186,115,30,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_FONT_SIZE,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,218,115,11,14
-    CONTROL         "&Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,137,29,10
-    CONTROL         "It&alic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,137,31,10
-    LTEXT           "Smoothing:",IDC_STATIC,91,138,37,8
-    COMBOBOX        IDC_COMBO_SMOOTHING,130,136,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,154,56,10
-    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,69,152,16,14,WS_EX_DLGMODALFRAME
-    GROUPBOX        "Font",IDC_STATIC,0,102,235,70
-    CONTROL         "Initial p&osition*",IDC_CHECK_POSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,189,60,10
-    LTEXT           "X:",IDC_STATIC,73,190,8,8
-    EDITTEXT        IDC_POS_X,83,187,37,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_X,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,107,177,11,14
-    LTEXT           "Y:",IDC_STATIC,126,190,8,8
-    EDITTEXT        IDC_POS_Y,136,187,37,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_Y,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,160,177,11,14
-    CONTROL         "Save on exit",IDC_CHECK_SAVE_POSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,189,52,10
-    CONTROL         "&Snap to desktop edges",IDC_CHECK_SNAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,207,89,10
-    LTEXT           "&Distance:",IDC_STATIC,104,208,31,8
-    EDITTEXT        IDC_SNAP,136,205,37,14,ES_AUTOHSCROLL
-    CONTROL         "",IDC_SPIN_SNAP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,166,212,11,14
-    LTEXT           "pixels",IDC_STATIC,179,208,19,8
-    LTEXT           "Docking *:",IDC_STATIC,10,227,34,8
-    COMBOBOX        IDC_COMBO_DOCKING,45,225,55,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Z order:",IDC_STATIC,115,227,27,8
-    COMBOBOX        IDC_COMBO_ZORDER,144,225,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    GROUPBOX        "Position",IDC_STATIC,0,174,235,72
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,131,40,89,10
+    CONTROL         "Trim tab titles to",IDC_CHECK_TRIM_TAB_TITLES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,50,64,10
+    EDITTEXT        IDC_TRIM_TAB_TITLES,19,63,31,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_TRIM_TAB_TITLES,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,8,63,11,14
+    LTEXT           "characters with",IDC_STATIC_TRIM_CHARS,53,66,50,8
+    EDITTEXT        IDC_TRIM_TAB_TITLES_RIGHT,105,63,31,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_TRIM_TAB_TITLES_RIGHT,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,199,63,11,14
+    LTEXT           "chars at the end",IDC_STATIC_TRIM_CHARS_RIGHT,139,66,54,8
+    LTEXT           "I&con:",IDC_STATIC,10,90,18,8
+    EDITTEXT        IDC_WINDOW_ICON,33,87,165,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON,200,87,16,14
+    CONTROL         "Use tab &icons",IDC_CHECK_USE_TAB_ICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,33,104,59,10
+    GROUPBOX        "Title && icon",IDC_STATIC,0,0,235,120
+    LTEXT           "Name:",IDC_STATIC,10,137,20,8
+    EDITTEXT        IDC_FONT,33,134,110,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,145,134,16,14
+    LTEXT           "Si&ze:",IDC_STATIC,168,137,16,8
+    EDITTEXT        IDC_FONT_SIZE,186,134,30,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_FONT_SIZE,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,218,134,11,14
+    CONTROL         "&Bold",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,156,29,10
+    CONTROL         "It&alic",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,156,31,10
+    LTEXT           "Smoothing:",IDC_STATIC,91,157,37,8
+    COMBOBOX        IDC_COMBO_SMOOTHING,130,155,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,173,56,10
+    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,69,171,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Font",IDC_STATIC,0,121,235,70
+    CONTROL         "Initial p&osition*",IDC_CHECK_POSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,208,60,10
+    LTEXT           "X:",IDC_STATIC,73,209,8,8
+    EDITTEXT        IDC_POS_X,83,206,37,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_X,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,107,196,11,14
+    LTEXT           "Y:",IDC_STATIC,126,209,8,8
+    EDITTEXT        IDC_POS_Y,136,206,37,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_Y,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,160,196,11,14
+    CONTROL         "Save on exit",IDC_CHECK_SAVE_POSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,179,208,52,10
+    CONTROL         "&Snap to desktop edges",IDC_CHECK_SNAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,226,89,10
+    LTEXT           "&Distance:",IDC_STATIC,104,227,31,8
+    EDITTEXT        IDC_SNAP,136,224,37,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_SNAP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,166,231,11,14
+    LTEXT           "pixels",IDC_STATIC,179,227,19,8
+    LTEXT           "Docking *:",IDC_STATIC,10,246,34,8
+    COMBOBOX        IDC_COMBO_DOCKING,45,244,55,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Z order:",IDC_STATIC,115,246,27,8
+    COMBOBOX        IDC_COMBO_ZORDER,144,244,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Position",IDC_STATIC,0,193,235,72
 END
 
 IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 226, 254
@@ -632,9 +523,7 @@ BEGIN
         HORZGUIDE, 35
         HORZGUIDE, 45
         HORZGUIDE, 55
-        HORZGUIDE, 75
-        HORZGUIDE, 90
-        HORZGUIDE, 100
+        HORZGUIDE, 70
     END
 
     IDD_SETTINGS_STYLES, DIALOG
@@ -702,6 +591,119 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW_TAB
+    BUTTON      ID_PREV_TAB
+    BUTTON      ID_NEXT_TAB
+    SEPARATOR
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+    BUTTON      ID_HELP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+#ifdef _USE_AERO
+IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
+#else
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
+        MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "&Copy",                       ID_EDIT_COPY
+        MENUITEM "Cl&ear selection",            32791
+        MENUITEM "&Paste",                      ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Stop Scr&olling",             ID_EDIT_STOP_SCROLLING
+        MENUITEM SEPARATOR
+        MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
+        MENUITEM SEPARATOR
+        MENUITEM "&Settings...",                ID_EDIT_SETTINGS
+    END
+    POPUP "View"
+    BEGIN
+        MENUITEM "&Console Window",             ID_VIEW_CONSOLE
+        MENUITEM SEPARATOR
+        MENUITEM "&Menu",                       ID_VIEW_MENU
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM "Ta&bs",                       ID_VIEW_TABS
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "&Help",                       ID_HELP
+        MENUITEM SEPARATOR
+        MENUITEM "&About Console...",           ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_MENU_TAB MENU 
+BEGIN
+    POPUP "_"
+    BEGIN
+        POPUP "&File"
+        BEGIN
+            MENUITEM "&New Tab",                    32775
+            MENUITEM "&Close Tab",                  32779
+            MENUITEM SEPARATOR
+            MENUITEM "E&xit",                       57665
+        END
+        POPUP "&Edit"
+        BEGIN
+            MENUITEM "&Copy",                       57634
+            MENUITEM "Cl&ear selection",            32791
+            MENUITEM "&Paste",                      57637
+            MENUITEM SEPARATOR
+            MENUITEM "&Rename Tab",                 32781
+            MENUITEM SEPARATOR
+            MENUITEM "&Settings...",                ID_EDIT_SETTINGS
+        END
+        POPUP "&View"
+        BEGIN
+            MENUITEM "&Console Window",             32777
+            MENUITEM SEPARATOR
+            MENUITEM "&Menu",                       32784
+            MENUITEM "&Toolbar",                    59392
+            MENUITEM "&Status Bar",                 59393
+            MENUITEM "Ta&bs",                       32789
+        END
+        POPUP "&Help"
+        BEGIN
+            MENUITEM "&Help",                       57670
+            MENUITEM SEPARATOR
+            MENUITEM "&About Console...",           57664
+        END
+    END
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -973,7 +975,6 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED

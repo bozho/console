@@ -115,6 +115,7 @@ struct WindowSettings : public SettingsBase
 	bool			bShowCommandInTabs;
 	bool			bUseTabTitles;
 	DWORD			dwTrimTabTitles;
+	DWORD			dwTrimTabTitlesRight;
 };
 
 //////////////////////////////////////////////////////////////////////////////

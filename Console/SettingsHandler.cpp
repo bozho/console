@@ -282,6 +282,7 @@ WindowSettings::WindowSettings()
 , bShowCommandInTabs(true)
 , bUseTabTitles(false)
 , dwTrimTabTitles(0)
+, dwTrimTabTitlesRight(0)
 {
 }
 
@@ -304,6 +305,7 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs, true);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles, false);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles"), dwTrimTabTitles, 0);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles_right"), dwTrimTabTitlesRight, 0);
 
 	return true;
 }
@@ -327,6 +329,7 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles"), dwTrimTabTitles);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles_right"), dwTrimTabTitlesRight);
 
 	return true;
 }
@@ -346,6 +349,7 @@ WindowSettings& WindowSettings::operator=(const WindowSettings& other)
 	bShowCommandInTabs	= other.bShowCommandInTabs;
 	bUseTabTitles		= other.bUseTabTitles;
 	dwTrimTabTitles		= other.dwTrimTabTitles;
+	dwTrimTabTitlesRight= other.dwTrimTabTitlesRight;
 
 	return *this;
 }

@@ -203,6 +203,7 @@ class MainFrame
 		void CloseTab(CTabViewTabItem* pTabItem);
 		void CloseTab(HWND hwndConsoleView);
 
+		void UpdateTabTitle(const shared_ptr<ConsoleView>& consoleView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateStatusBar();
 		void SetWindowStyles();

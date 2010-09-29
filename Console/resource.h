@@ -132,6 +132,7 @@
 #define IDC_RADIO_Z_REGULAR             1100
 #define IDC_TRIM_TAB_TITLES             1101
 #define IDC_RADIO_Z_BOTTOM              1102
+#define IDC_TRIM_TAB_TITLES_RIGHT       1102
 #define IDC_RADIO_Z_ONTOP               1103
 #define IDC_SNAP                        1104
 #define IDC_CHECK_POSITION              1105
@@ -149,6 +150,7 @@
 #define IDC_SPIN_Y2                     1116
 #define IDC_SPIN_TRIM_TAB_TITLES        1116
 #define IDC_TAB_TITLE                   1117
+#define IDC_SPIN_TRIM_TAB_TITLES_RIGHT  1117
 #define IDC_TAB_ICON                    1118
 #define IDC_RADIO_Z_DESKTOP             1118
 #define IDC_TAB_SHELL                   1119
@@ -219,6 +221,7 @@
 #define IDC_TAB_USER                    1174
 #define IDC_USER                        1175
 #define IDC_PASSWORD                    1176
+#define IDC_STATIC_TRIM_CHARS_RIGHT     1176
 #define IDC_APPTEXT                     1177
 #define IDC_STATIC_USER                 1177
 #define IDC_APPICON                     1178

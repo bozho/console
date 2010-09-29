@@ -28,6 +28,7 @@ class DlgSettingsAppearance
 			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_nShowCommandTabs)
 			DDX_CHECK(IDC_CHECK_TRIM_TAB_TITLES, m_nTrimTabTitles)
 			DDX_UINT(IDC_TRIM_TAB_TITLES, m_windowSettings.dwTrimTabTitles)
+			DDX_UINT(IDC_TRIM_TAB_TITLES_RIGHT, m_windowSettings.dwTrimTabTitlesRight)
 			DDX_TEXT(IDC_WINDOW_ICON, m_strWindowIcon)
 			DDX_CHECK(IDC_CHECK_USE_TAB_ICON, m_nUseTabIcon)
 			DDX_TEXT(IDC_FONT, m_strFontName)

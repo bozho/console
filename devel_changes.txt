@@ -27,6 +27,8 @@ Build 147
 
 - expanded 'trim tab titles' options - you can now show characters at the end of the string
 
+- improved command text resolution for tab titles.
+
 
 Build 146
 =========

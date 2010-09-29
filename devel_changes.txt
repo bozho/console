@@ -23,6 +23,10 @@ Build 147
   code still hasn't been tested with Vista/Win7 UAC, but it does work for shell processes started
   as another user, so we'll have that feature in Console soon as well.
   
+- tabs can now be opened as a different user
+
+- expanded 'trim tab titles' options - you can now show characters at the end of the string
+
 
 Build 146
 =========

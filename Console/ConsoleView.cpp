@@ -1178,7 +1178,16 @@ CString ConsoleView::GetConsoleCommand()
 
 	if (nPos == -1)
 	{
-		return CString(L"");
+		nPos = strConsoleTitle.Find(L"Console2 command window");
+
+		if (nPos == -1)
+		{
+			return CString(L" - ") + strConsoleTitle;
+		}
+		else
+		{
+			return CString();
+		}
 	}
 	else
 	{

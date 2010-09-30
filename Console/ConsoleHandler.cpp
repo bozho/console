@@ -90,9 +90,9 @@ bool ConsoleHandler::StartShellProcess
 	wstring strUsername(strUser);
 	wstring strDomain;
 
-	shared_ptr<void> userProfileKey;
-	shared_ptr<void> userEnvironment;
-	shared_ptr<void> userToken;
+//	shared_ptr<void> userProfileKey;
+//	shared_ptr<void> userEnvironment;
+//	shared_ptr<void> userToken;
 
 	if (strUsername.length() > 0)
 	{
@@ -102,7 +102,7 @@ bool ConsoleHandler::StartShellProcess
 			strDomain	= strUsername.substr(0, pos);
 			strUsername	= strUsername.substr(pos+1);
 		}
-
+/*
 		// logon user
 		HANDLE hUserToken = NULL;
 		::LogonUser(
@@ -114,7 +114,17 @@ bool ConsoleHandler::StartShellProcess
 			&hUserToken);
 
 		userToken.reset(hUserToken, ::CloseHandle);
+*/
 
+/*
+		::ImpersonateLoggedOnUser(userToken.get());
+
+		wchar_t	szComspec[MAX_PATH];
+		::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH);
+*/
+
+
+/*
 		// load user's profile
 		// seems to be necessary on WinXP for environment strings' expainsion to work properly
 		PROFILEINFO userProfile;
@@ -124,11 +134,13 @@ bool ConsoleHandler::StartShellProcess
 		
 		::LoadUserProfile(userToken.get(), &userProfile);
 		userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
-
-		// load user's environment
+*/
+/*		// load user's environment
 		void*	pEnvironment	= NULL;
 		::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE);
 		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
+		::RevertToSelf();
+*/
 	}
 
 	wstring	strShellCmdLine(strCustomShell);
@@ -141,7 +153,7 @@ bool ConsoleHandler::StartShellProcess
 
 		if (strUsername.length() > 0)
 		{
-			// resolve comspec when running as another user
+/*			// resolve comspec when running as another user
 			wchar_t* pszComspec = reinterpret_cast<wchar_t*>(userEnvironment.get());
 
 			while ((pszComspec[0] != L'\x00') && (_wcsnicmp(pszComspec, L"comspec", 7) != 0)) pszComspec += wcslen(pszComspec)+1;
@@ -150,7 +162,7 @@ bool ConsoleHandler::StartShellProcess
 			{
 				strShellCmdLine = (pszComspec + 8);
 			}
-
+*/
 			if (strShellCmdLine.length() == 0) strShellCmdLine = L"cmd.exe";
 		}
 		else
@@ -178,7 +190,8 @@ bool ConsoleHandler::StartShellProcess
 //		strStartupTitle = str(wformat(L"Console2 command window 0x%08X") % this);
 	}
 
-	wstring strStartupDir((strUsername.length() > 0) ? Helpers::ExpandEnvironmentStringsForUser(userToken, strInitialDir) : Helpers::ExpandEnvironmentStrings(strInitialDir));
+//	wstring strStartupDir((strUsername.length() > 0) ? Helpers::ExpandEnvironmentStringsForUser(userToken, strInitialDir) : Helpers::ExpandEnvironmentStrings(strInitialDir));
+	wstring strStartupDir((strUsername.length() > 0) ? strInitialDir : Helpers::ExpandEnvironmentStrings(strInitialDir));
 
 	if (strStartupDir.length() > 0)
 	{
@@ -250,9 +263,11 @@ bool ConsoleHandler::StartShellProcess
 			strPassword.c_str(), 
 			LOGON_WITH_PROFILE,
 			NULL,
-			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
+//			const_cast<wchar_t*>(Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine).c_str()),
+			const_cast<wchar_t*>(strShellCmdLine.c_str()),
 			dwStartupFlags,
-			userEnvironment.get(),
+//			userEnvironment.get(),
+			NULL,
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))

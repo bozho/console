@@ -651,7 +651,10 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			CPoint	pointCursor;
 
 			// we'll snap Console window to the desktop edges
-			::GetCursorPos(&pointCursor);
+
+			// WM_WINDOWPOSCHANGING will be called when locking a computer
+			// GetCursorPos will fail in that case; in that case we return and prevent invalid window position after unlock
+			if (!::GetCursorPos(&pointCursor)) return 0;
 			GetWindowRect(&rectWindow);
 			Helpers::GetDesktopRect(pointCursor, rectDesktop);
 			Helpers::GetMonitorRect(m_hWnd, rectMonitor);

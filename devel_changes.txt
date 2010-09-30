@@ -27,7 +27,9 @@ Build 147
 
 - expanded 'trim tab titles' options - you can now show characters at the end of the string
 
-- improved command text resolution for tab titles.
+- improved command text resolution for tab titles
+
+- fixed invalid window position after Windows unlock (BR#2912069)
 
 
 Build 146

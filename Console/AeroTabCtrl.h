@@ -576,7 +576,7 @@ public:
 
     RECT rcItemDP = {0};
     ::CopyRect(&rcItemDP, &rcItem);
-    ::OffsetRect(&rcItemDP, m_iScrollOffset, 0);
+    //::OffsetRect(&rcItemDP, m_iScrollOffset, 0);
 
     int nIconVerticalCenter;
     if (CTCS_BOTTOM == (this->GetStyle() & CTCS_BOTTOM))
@@ -642,6 +642,7 @@ public:
       if( bSelected )
       {
         UpdateLayout_CloseButton(rcItem);
+        ::OffsetRect(&m_rcCloseButton, m_iScrollOffset, 0);
       }
       rcItem.right += m_iCloseButtonWidth;
 
@@ -812,8 +813,11 @@ public:
     {
       m_iScrollOffset = (rcTabItemArea.right - xpos);
     }
+    this->UpdateScrollOverflowStatus();
 
     dc.SelectFont(hOldFont);
+
+    ::OffsetRect(&m_rcCloseButton, m_iScrollOffset, 0);
   }
 
 };

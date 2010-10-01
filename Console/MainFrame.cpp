@@ -1531,7 +1531,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	shared_ptr<ConsoleView> consoleView(new ConsoleView(*this, dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
 	UserCredentials			userCredentials;
 
-	if (tabData->strUser.length() > 0)
+	if (tabData->bRunAsUser)
 	{
 #ifdef _USE_AERO
     // Display a dialog box to request credentials.

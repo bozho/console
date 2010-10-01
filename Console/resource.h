@@ -222,6 +222,7 @@
 #define IDC_USER                        1175
 #define IDC_PASSWORD                    1176
 #define IDC_STATIC_TRIM_CHARS_RIGHT     1176
+#define IDC_CHECK_RUN_AS_USER           1177
 #define IDC_APPTEXT                     1177
 #define IDC_STATIC_USER                 1177
 #define IDC_APPICON                     1178

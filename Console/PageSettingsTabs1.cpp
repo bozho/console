@@ -21,6 +21,7 @@ PageSettingsTabs1::PageSettingsTabs1()
 , m_nUseDefaultIcon(0)
 , m_strShell(L"")
 , m_strInitialDir(L"")
+, m_bRunAsUser(false)
 , m_strUser(L"")
 {
 }
@@ -198,7 +199,7 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wI
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT PageSettingsTabs1::OnCheckDefaultIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT PageSettingsTabs1::OnCheckboxClicked(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	DoDataExchange(DDX_SAVE);
 	EnableControls();
@@ -221,6 +222,8 @@ void PageSettingsTabs1::EnableControls()
 
 	GetDlgItem(IDC_TAB_ICON).EnableWindow(bEnableEditIconCtrls);
 	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(bEnableEditIconCtrls);
+
+	GetDlgItem(IDC_TAB_USER).EnableWindow(m_bRunAsUser ? TRUE : FALSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -238,6 +241,7 @@ void PageSettingsTabs1::Load(shared_ptr<TabData>& tabData)
 
 	m_strShell			= m_tabData->strShell.c_str();
 	m_strInitialDir		= m_tabData->strInitialDir.c_str();
+	m_bRunAsUser		= m_tabData->bRunAsUser;
 	m_strUser			= m_tabData->strUser.c_str();
 
 	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
@@ -264,6 +268,7 @@ void PageSettingsTabs1::Save()
 
 	m_tabData->strShell			= m_strShell;
 	m_tabData->strInitialDir	= m_strInitialDir;
+	m_tabData->bRunAsUser		= m_bRunAsUser;
 	m_tabData->strUser			= m_strUser;
 
 	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();

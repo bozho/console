@@ -1640,7 +1640,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	shared_ptr<ConsoleView> consoleView(new ConsoleView(*this, dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
 	UserCredentials			userCredentials;
 
-	if (tabData->strUser.length() > 0)
+	if (tabData->bRunAsUser)
 	{
 		DlgCredentials dlg(tabData->strUser.c_str());
 

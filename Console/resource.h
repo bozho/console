@@ -222,6 +222,7 @@
 #define IDC_USER                        1175
 #define IDC_PASSWORD                    1176
 #define IDC_STATIC_TRIM_CHARS_RIGHT     1176
+#define IDC_CHECK_RUN_AS_USER           1177
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -250,7 +251,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1177
+#define _APS_NEXT_CONTROL_VALUE         1178
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

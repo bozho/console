@@ -150,31 +150,31 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create console settings dialog
 	shared_ptr<DlgSettingsBase>	dlgConsole(dynamic_cast<DlgSettingsBase*>(new DlgSettingsConsole(m_pSettingsRoot)));
-	AddDialogToTree(L"Console", dlgConsole, rect);
+	AddDialogToTree(IDS_SETTINGS_CONSOLE, dlgConsole, rect);
 
 	// create appearance settings dialog
 	shared_ptr<DlgSettingsBase>	dlgAppearance(dynamic_cast<DlgSettingsBase*>(new DlgSettingsAppearance(m_pSettingsRoot)));
-	HTREEITEM htiAppearance = AddDialogToTree(L"Appearance", dlgAppearance, rect);
+	HTREEITEM htiAppearance = AddDialogToTree(IDS_SETTINGS_APPEARANCE, dlgAppearance, rect);
 
 	// create styles settings dialog
 	shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pSettingsRoot)));
-	AddDialogToTree(L"More...", dlgStyles, rect, htiAppearance);
+	AddDialogToTree(IDS_SETTINGS_MORE, dlgStyles, rect, htiAppearance);
 
 	// create behavior settings dialog
 	shared_ptr<DlgSettingsBase>	dlgBehavior(dynamic_cast<DlgSettingsBase*>(new DlgSettingsBehavior(m_pSettingsRoot)));
-	AddDialogToTree(L"Behavior", dlgBehavior, rect);
+	AddDialogToTree(IDS_SETTINGS_BEHAVIOR, dlgBehavior, rect);
 
 	// create hotkeys settings dialog
 	shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pSettingsRoot)));
-	HTREEITEM htiHotkeys = AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
+	HTREEITEM htiHotkeys = AddDialogToTree(IDS_SETTINGS_HOTKEYS, dlgHotKeys, rect);
 
 	// create mouse commands settings dialog
 	shared_ptr<DlgSettingsBase>	dlgMouseCmds(dynamic_cast<DlgSettingsBase*>(new DlgSettingsMouse(m_pSettingsRoot)));
-	AddDialogToTree(L"Mouse", dlgMouseCmds, rect, htiHotkeys);
+	AddDialogToTree(IDS_SETTINGS_MOUSE, dlgMouseCmds, rect, htiHotkeys);
 
 	// create tabs settings dialog
 	shared_ptr<DlgSettingsBase>	dlgTabs(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTabs(m_pSettingsRoot)));
-	AddDialogToTree(L"Tabs", dlgTabs, rect);
+	AddDialogToTree(IDS_SETTINGS_TABS, dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);
 	m_treeCtrl.Expand(htiHotkeys);
@@ -186,12 +186,14 @@ void DlgSettingsMain::CreateSettingsTree()
 
 //////////////////////////////////////////////////////////////////////////////
 
-HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/)
+HTREEITEM DlgSettingsMain::AddDialogToTree(const UINT id, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/)
 {
 	newDlg->Create(m_hWnd, rect);
 	newDlg->SetWindowPos(HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);
 
-	HTREEITEM hItem = m_treeCtrl.InsertItem(strName.c_str(), htiParent, NULL);
+	CAtlString strName;
+	strName.LoadString (id);
+	HTREEITEM hItem = m_treeCtrl.InsertItem(strName, htiParent, NULL);
 
 	if (hItem != NULL) m_settingsDlgMap.insert(SettingsDlgsMap::value_type(hItem, newDlg));
 

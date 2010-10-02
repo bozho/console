@@ -419,6 +419,19 @@ struct HotKeys : public SettingsBase
 			::ZeroMemory(&accelHotkey, sizeof(ACCEL));
 		}
 
+		CommandData(const wstring& command, WORD commandID, const UINT descriptionID, bool global = false)
+			: strCommand(command)
+			, wCommandID(commandID)
+			, bExtended(false)
+			, bGlobal(global)
+		{
+			::ZeroMemory(&accelHotkey, sizeof(ACCEL));
+
+			CAtlString description;
+			description.LoadString (descriptionID);
+			strDescription = description;
+		}
+
 		wstring	strCommand;
 		WORD	wCommandID;
 		wstring	strDescription;
@@ -530,6 +543,15 @@ struct MouseSettings : public SettingsBase
 		, strCommand(strCmd)
 		, strDescription(strDesc)
 		{
+		}
+
+		CommandData(Command cmd, wstring strCmd, UINT descID)
+		: command(cmd)
+		, strCommand(strCmd)
+		{
+			CAtlString description;
+			description.LoadString (descID);
+			strDescription = description;
 		}
 
 		Command	command;

@@ -1097,57 +1097,57 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 HotKeys::HotKeys()
 : bUseScrollLock(false)
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"settings",		ID_EDIT_SETTINGS,	L"Settings dialog")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"settings",		ID_EDIT_SETTINGS,	IDS_COMMAND_SETTINGS_DIALOG)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			IDS_COMMAND_HELP)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		IDS_COMMAND_EXIT_CONSOLE)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab1",		ID_NEW_TAB_1,		L"New Tab 1")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab2",		ID_NEW_TAB_1 + 1,	L"New Tab 2")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab3",		ID_NEW_TAB_1 + 2,	L"New Tab 3")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab4",		ID_NEW_TAB_1 + 3,	L"New Tab 4")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab5",		ID_NEW_TAB_1 + 4,	L"New Tab 5")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab6",		ID_NEW_TAB_1 + 5,	L"New Tab 6")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab7",		ID_NEW_TAB_1 + 6,	L"New Tab 7")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab8",		ID_NEW_TAB_1 + 7,	L"New Tab 8")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab9",		ID_NEW_TAB_1 + 8,	L"New Tab 9")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab10",		ID_NEW_TAB_1 + 9,	L"New Tab 10")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab1",		ID_NEW_TAB_1,		IDS_COMMAND_NEWTAB1)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab2",		ID_NEW_TAB_1 + 1,	IDS_COMMAND_NEWTAB2)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab3",		ID_NEW_TAB_1 + 2,	IDS_COMMAND_NEWTAB3)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab4",		ID_NEW_TAB_1 + 3,	IDS_COMMAND_NEWTAB4)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab5",		ID_NEW_TAB_1 + 4,	IDS_COMMAND_NEWTAB5)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab6",		ID_NEW_TAB_1 + 5,	IDS_COMMAND_NEWTAB6)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab7",		ID_NEW_TAB_1 + 6,	IDS_COMMAND_NEWTAB7)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab8",		ID_NEW_TAB_1 + 7,	IDS_COMMAND_NEWTAB8)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab9",		ID_NEW_TAB_1 + 8,	IDS_COMMAND_NEWTAB9)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab10",		ID_NEW_TAB_1 + 9,	IDS_COMMAND_NEWTAB10)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab1",	ID_SWITCH_TAB_1,	L"Switch to tab 1")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab2",	ID_SWITCH_TAB_1 + 1,L"Switch to tab 2")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab3",	ID_SWITCH_TAB_1 + 2,L"Switch to tab 3")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab4",	ID_SWITCH_TAB_1 + 3,L"Switch to tab 4")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab5",	ID_SWITCH_TAB_1 + 4,L"Switch to tab 5")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab6",	ID_SWITCH_TAB_1 + 5,L"Switch to tab 6")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab7",	ID_SWITCH_TAB_1 + 6,L"Switch to tab 7")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab8",	ID_SWITCH_TAB_1 + 7,L"Switch to tab 8")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab9",	ID_SWITCH_TAB_1 + 8,L"Switch to tab 9")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab10",	ID_SWITCH_TAB_1 + 9,L"Switch to tab 10")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab1",	ID_SWITCH_TAB_1,	IDS_COMMAND_TAB1)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab2",	ID_SWITCH_TAB_1 + 1,IDS_COMMAND_TAB2)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab3",	ID_SWITCH_TAB_1 + 2,IDS_COMMAND_TAB3)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab4",	ID_SWITCH_TAB_1 + 3,IDS_COMMAND_TAB4)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab5",	ID_SWITCH_TAB_1 + 4,IDS_COMMAND_TAB5)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab6",	ID_SWITCH_TAB_1 + 5,IDS_COMMAND_TAB6)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab7",	ID_SWITCH_TAB_1 + 6,IDS_COMMAND_TAB7)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab8",	ID_SWITCH_TAB_1 + 7,IDS_COMMAND_TAB8)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab9",	ID_SWITCH_TAB_1 + 8,IDS_COMMAND_TAB9)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab10",	ID_SWITCH_TAB_1 + 9,IDS_COMMAND_TAB10)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"nexttab",		ID_NEXT_TAB,		L"Next tab")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"prevtab",		ID_PREV_TAB,		L"Previous tab")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"nexttab",		ID_NEXT_TAB,		IDS_COMMAND_NEXT_TAB)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"prevtab",		ID_PREV_TAB,		IDS_COMMAND_PREVIOUS_TAB)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"closetab",		ID_FILE_CLOSE_TAB,	L"Close tab")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"renametab",	ID_EDIT_RENAME_TAB,	L"Rename tab")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"closetab",		ID_FILE_CLOSE_TAB,	IDS_COMMAND_CLOSE_TAB)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"renametab",	ID_EDIT_RENAME_TAB,	IDS_COMMAND_RENAME_TAB)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				L"Copy selection")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	L"Clear selection")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				L"Paste")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"stopscroll",	ID_EDIT_STOP_SCROLLING,		L"Stop scrolling")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				IDS_COMMAND_COPY_SELECTION)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	IDS_COMMAND_CLEAR_SELECTION)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				IDS_COMMAND_PASTE)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"stopscroll",	ID_EDIT_STOP_SCROLLING,		IDS_COMMAND_STOP_SCROLLING)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer row up")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer row down")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		L"Scroll buffer page up")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	L"Scroll buffer page down")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			L"Scroll buffer column left")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer column right")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer page left")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			IDS_COMMAND_SCROLL_UP)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			IDS_COMMAND_SCROLL_DOWN)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		IDS_COMMAND_SCROLL_UP_PAGE)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	IDS_COMMAND_SCROLL_DOWN_PAGE)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			IDS_COMMAND_SCROLL_LEFT)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		IDS_COMMAND_SCROLL_RIGHT)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	IDS_COMMAND_SCROLL_LEFT_PAGE)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	IDS_COMMAND_SCROLL_RIGHT_PAGE)));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	IDS_COMMAND_DUMP_BUFFER)));
 
 	// global commands
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate Console (global)", true)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	IDS_COMMAND_ACTIVATE_CONSOLE, true)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1315,11 +1315,11 @@ HotKeys& HotKeys::operator=(const HotKeys& other)
 MouseSettings::MouseSettings()
 : commands()
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"Copy/clear selection")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"Select text")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"Paste text")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"Drag window")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"Context menu")));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	IDS_COMMAND_MOUSE_COPY)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	IDS_COMMAND_MOUSE_SELECT)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	IDS_COMMAND_MOUSE_PASTE)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	IDS_COMMAND_MOUSE_DRAG)));
+	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	IDS_COMMAND_MOUSE_MENU)));
 }
 
 //////////////////////////////////////////////////////////////////////////////

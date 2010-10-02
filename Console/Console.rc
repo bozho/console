@@ -845,6 +845,20 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Console"
     IDS_TAB_CREATE_FAILED   "Failed to open %s tab!\nThe process %s could still be running (use the Task Manager to find it and end it)"
+    IDS_SETTINGS_CONSOLE    "Console"
+    IDS_SETTINGS_APPEARANCE "Appearance"
+    IDS_SETTINGS_MORE       "More..."
+    IDS_SETTINGS_BEHAVIOR   "Behavior"
+    IDS_SETTINGS_HOTKEYS    "Hotkeys"
+    IDS_SETTINGS_MOUSE      "Mouse"
+    IDS_SETTINGS_TABS       "Tabs"
+    IDS_COMMAND_SETTINGS_DIALOG "Settings dialog"
+    IDS_COMMAND_HELP        "Help"
+    IDS_COMMAND_EXIT_CONSOLE "Exit Console"
+    IDS_COMMAND_NEWTAB1     "New Tab 1"
+    IDS_COMMAND_NEWTAB2     "New Tab 2"
+    IDS_COMMAND_NEWTAB3     "New Tab 3"
+    IDS_COMMAND_NEWTAB4     "New Tab 4"
 END
 
 STRINGTABLE 
@@ -952,6 +966,104 @@ STRINGTABLE
 BEGIN
     IDS_ERR_CANT_START_SHELL "Unable to start a %1%!"
     IDS_ERR_CANT_START_SHELL_AS_USER "Unable to start a %1% as user %2%!"
+    IDS_COMMAND_NEWTAB5     "New Tab 5"
+    IDS_COMMAND_NEWTAB6     "New Tab 6"
+    IDS_COMMAND_NEWTAB7     "New Tab 7"
+    IDS_COMMAND_NEWTAB8     "New Tab 8"
+    IDS_COMMAND_NEWTAB9     "New Tab 9"
+    IDS_COMMAND_NEWTAB10    "New Tab 10"
+    IDS_COMMAND_TAB1        "Switch to tab 1"
+    IDS_COMMAND_TAB2        "Switch to tab 2"
+    IDS_COMMAND_TAB3        "Switch to tab 3"
+    IDS_COMMAND_TAB4        "Switch to tab 4"
+    IDS_COMMAND_TAB5        "Switch to tab 5"
+    IDS_COMMAND_TAB6        "Switch to tab 6"
+    IDS_COMMAND_TAB7        "Switch to tab 7"
+    IDS_COMMAND_TAB8        "Switch to tab 8"
+    IDS_COMMAND_TAB9        "Switch to tab 9"
+    IDS_COMMAND_TAB10       "Switch to tab 10"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMMAND_NEXT_TAB    "Next tab"
+    IDS_COMMAND_PREVIOUS_TAB "Previous tab"
+    IDS_COMMAND_CLOSE_TAB   "Close tab"
+    IDS_COMMAND_RENAME_TAB  "Rename tab"
+    IDS_COMMAND_COPY_SELECTION "Copy selection"
+    IDS_COMMAND_CLEAR_SELECTION "Clear selection"
+    IDS_COMMAND_PASTE       "Paste"
+    IDS_COMMAND_SCROLL_UP   "Scroll buffer row up"
+    IDS_COMMAND_SCROLL_DOWN "Scroll buffer row down"
+    IDS_COMMAND_SCROLL_UP_PAGE "Scroll buffer page up"
+    IDS_COMMAND_SCROLL_DOWN_PAGE "Scroll buffer page down"
+    IDS_COMMAND_SCROLL_LEFT "Scroll buffer column left"
+    IDS_COMMAND_SCROLL_RIGHT "Scroll buffer column right"
+    IDS_COMMAND_SCROLL_LEFT_PAGE "Scroll buffer page left"
+    IDS_COMMAND_SCROLL_RIGHT_PAGE "Scroll buffer page right"
+    IDS_COMMAND_DUMP_BUFFER "Dump screen buffer"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMMAND_MOUSE_COPY  "Copy/clear selection"
+    IDS_COMMAND_MOUSE_SELECT "Select text"
+    IDS_COMMAND_MOUSE_PASTE "Paste text"
+    IDS_COMMAND_MOUSE_DRAG  "Drag window"
+    IDS_COMMAND_MOUSE_MENU  "Context menu"
+    IDS_SETTINGS_COLUMN_COMMAND "Command"
+    IDS_SETTINGS_COLUMN_HOTKEY "Hotkey"
+    IDS_SETTINGS_COLUMN_MOUSEACTION "Mouse action"
+    IDS_SETTINGS_COLUMN_MAINTAB "Main"
+    IDS_SETTINGS_COLUMN_BACKGROUNDTAB "Background"
+    IDS_SETTINGS_COLUMN_TABNAME "Tab name"
+    IDS_TABBINGFRAMEWORK_TIPS_SCROLLRIGHT "Scroll Right"
+    IDS_TABBINGFRAMEWORK_TIPS_SCROLLLEFT "Scroll Left"
+    IDS_TABBINGFRAMEWORK_TIPS_CLOSE "Close"
+    IDS_COMMAND_ACTIVATE_CONSOLE "Activate Console (global)"
+    IDS_COMMAND_STOP_SCROLLING "Stop scrolling"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMBO_SMOOTHING     "Default"
+    IDS_COMBO_SMOOTHING_NONE "None"
+    IDS_COMBO_SMOOTHING_CLEARTYPE "ClearType"
+    IDS_COMBO_DOCKING       "None"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMBO_DOCKING_TOPLEFT "Top Left"
+    IDS_COMBO_DOCKING_TOPRIGHT "Top Right"
+    IDS_COMBO_DOCKING_BOTTOMLEFT "Bottom Left"
+    IDS_COMBO_DOCKING_BOTTOMRIGHT "Bottom Right"
+    IDS_COMBO_ZORDER        "Regular"
+    IDS_COMBO_ZORDER_TOP    "Always on top"
+    IDS_COMBO_ZORDER_BOTTOM "Always on bottom"
+    IDS_COMBO_ZORDER_PINNED "Pinned to desktop"
+    IDS_COMBO_MOUSEBUTTONS  "None"
+    IDS_COMBO_MOUSEBUTTONS_LEFT "Left"
+    IDS_COMBO_MOUSEBUTTONS_RIGHT "Right"
+    IDS_COMBO_MOUSEBUTTONS_MIDDLE "Middle"
+    IDS_COMBO_MOUSEBUTTONS_Fourth "Fourth"
+    IDS_COMBO_MOUSEBUTTONS_FIFTH "Fifth"
+    IDS_COMBO_CURSOR        "XTerm"
+    IDS_COMBO_CURSOR_BLOCK  "Block"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMBO_CURSOR_NOBLINKBLOCK "Nonblinking block"
+    IDS_COMBO_CURSOR_PULSE  "Pulse"
+    IDS_COMBO_CURSOR_BAR    "Bar"
+    IDS_COMBO_CURSOR_NOBLINKHORZ "Nonblinking horz. line"
+    IDS_COMBO_CURSOR_HORZLINE "Horizontal line"
+    IDS_COMBO_CURSOR_VERTLINE "Vertical line"
+    IDS_COMBO_CURSOR_RECT   "Rectangle"
+    IDS_COMBO_CURSOR_NOBLINKRECT "Nonblinking rect"
+    IDS_COMBO_CURSOR_PULSERECT "Pulsating rect"
+    IDS_COMBO_CURSOR_FADEBLOCK "Fading block"
 END
 
 STRINGTABLE 
@@ -976,7 +1088,8 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

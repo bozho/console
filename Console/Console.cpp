@@ -69,7 +69,7 @@ void ParseCommandLine
 	vector<wstring>& startupDirs, 
 	vector<wstring>& startupCmds, 
 	int& nMultiStartSleep, 
-	wstring& strDbgCmdLine
+	wstring& /*strDbgCmdLine*/
 )
 {
 	int						argc = 0;

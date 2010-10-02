@@ -54,7 +54,6 @@ MainFrame::MainFrame
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
-, m_animationWindow()
 , m_iSelectionSize(0)
 {
   m_Margins.cxLeftWidth    = 0;
@@ -316,7 +315,7 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	if( m_views.size() > 1 && (::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL) )
 		return 0;
@@ -402,61 +401,6 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		return 0;
 	}
 
-//	if (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType != animTypeNone)
-//	{
-/*
-		DWORD	dwFlags = (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType == animTypeBlend) ? AW_BLEND : AW_SLIDE;
-
-		switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwType)
-		{
-			case animTypeSlide :
-			{
-				dwFlags = AW_SLIDE;
-
-				switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwHorzDirection)
-				{
-					case animDirPositive : dwFlags |= AW_HOR_POSITIVE; break;
-					case animDirNegative : dwFlags |= AW_HOR_NEGATIVE; break;
-				}
-
-				switch (g_settingsHandler->GetBehaviorSettings().animateSettings.dwVertDirection)
-				{
-					case animDirPositive : dwFlags |= AW_VER_POSITIVE; break;
-					case animDirNegative : dwFlags |= AW_VER_NEGATIVE; break;
-				}
-
-				break;
-			}
-
-			case animTypeZoom	: dwFlags = AW_CENTER; break;
-			case animTypeBlend	: dwFlags = AW_BLEND; break;
-		}
-
-		if (!bActivating) dwFlags |= AW_HIDE;
-
-		::AnimateWindow(m_hWnd, g_settingsHandler->GetBehaviorSettings().animateSettings.dwTime, dwFlags);
-*/
-/*
-		if (bActivating)
-		{
-			TRACE(L"Activating\n");
-			m_animationWindow->HA();
-			m_animationWindow.reset();
-		}
-		else
-		{
-			TRACE(L"Deactivating\n");
-			AnimationWindowOptions opt(m_hWnd);
-			m_animationWindow.reset(new AnimationWindow(opt));
-
-			m_animationWindow->Create();
-			m_animationWindow->SA();
-		}
-*/
-
-//		if (bActivating) ::RedrawWindow(m_hWnd, NULL, NULL, RDW_ERASE|RDW_INVALIDATE|RDW_ERASENOW|RDW_UPDATENOW|RDW_ALLCHILDREN);
-//	}
-
 	bHandled = FALSE;
 	return 0;
 }
@@ -499,7 +443,7 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSysKeydown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+LRESULT MainFrame::OnSysKeydown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
 /*
 	if ((wParam == VK_SPACE) && (lParam & (0x1 << 29)))
@@ -575,7 +519,7 @@ LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
 	// Start timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
 	// when the Console window is resized using a mouse)
@@ -798,7 +742,7 @@ LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	ResizeWindow();
 	return 0;

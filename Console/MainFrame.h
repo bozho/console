@@ -1,6 +1,5 @@
 #pragma once
 
-#include "AnimationWindow.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -277,8 +276,6 @@ class MainFrame
 
 		CDC				m_dcOffscreen;
 		CDC				m_dcText;
-
-		shared_ptr<AnimationWindow>	m_animationWindow;
 
 		MARGINS m_Margins;
 

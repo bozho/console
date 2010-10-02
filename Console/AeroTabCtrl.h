@@ -12,8 +12,8 @@ protected:
   signed char m_iLeftSpacing;
   signed char m_iTopMargin;
   signed char m_iRadius;
-  signed char m_iCloseButtonWidth;
-  signed char m_iCloseButtonHeight;
+  signed long m_iCloseButtonWidth;
+  signed long m_iCloseButtonHeight;
 
   // Constructor
 public:
@@ -237,11 +237,11 @@ public:
     }
 	}
 
-	void DrawItem_TabInactive(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, RECT& rcTab)
+	void DrawItem_TabInactive(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW /*lpNMCustomDraw*/, RECT& /*rcTab*/)
 	{
 	}
 
-	void DrawItem_TabSelected(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, RECT& rcTab)
+	void DrawItem_TabSelected(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW /*lpNMCustomDraw*/, RECT& /*rcTab*/)
 	{
 	}
 
@@ -475,7 +475,7 @@ public:
     EndBufferedPaint(pb, TRUE);
 	}
 
-  void CalcSize_CloseButton(LPRECT prcTabItemArea)
+  void CalcSize_CloseButton(LPRECT /*prcTabItemArea*/)
 	{
     DWORD dwStyle = this->GetStyle();
 

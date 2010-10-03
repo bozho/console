@@ -71,7 +71,10 @@ extern CAppModule _Module;
 
 #include <HtmlHelp.h>
 #include <ShellApi.h>
+#ifdef _USE_AERO
 #include <WinCred.h>
+#include <winuser.h>
+#endif
 
 #pragma warning(disable: 4503) // disables 'name truncated' warnings
 

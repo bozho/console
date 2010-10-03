@@ -195,6 +195,13 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		return 1;
 	}
 
+#ifdef _USE_AERO
+	// restore the drop files message in elevated console
+	::ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+	::ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
+	::ChangeWindowMessageFilter(0x0049, MSGFLT_ADD);
+#endif
+
 	wndMain.ShowWindow(nCmdShow);
 
 	int nRet = theLoop.Run();

@@ -13,73 +13,6 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Croatian resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HRV)
-#ifdef _WIN32
-LANGUAGE LANG_CROATIAN, SUBLANG_DEFAULT
-#pragma code_page(1250)
-#endif //_WIN32
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-3 TEXTINCLUDE 
-BEGIN
-    "\r\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_CREDENTIALS DIALOGEX 0, 0, 207, 79
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Enter username and password"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LTEXT           "&Password:",IDC_STATIC,7,31,34,8
-    EDITTEXT        IDC_PASSWORD,54,28,146,14,ES_PASSWORD | ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,93,58,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,150,58,50,14
-    LTEXT           "&Username:",IDC_STATIC,7,16,36,8
-    EDITTEXT        IDC_USER,54,13,146,14,ES_AUTOHSCROLL
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
-BEGIN
-    IDD_CREDENTIALS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 200
-        VERTGUIDE, 54
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 72
-        HORZGUIDE, 20
-        HORZGUIDE, 35
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-#endif    // Croatian resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
 // English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
@@ -472,6 +405,18 @@ BEGIN
     PUSHBUTTON      "&Clear",IDC_BTN_CLEAR,168,208,42,14
 END
 
+IDD_CREDENTIALS DIALOGEX 0, 0, 207, 79
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Enter username and password"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Password:",IDC_STATIC,7,31,34,8
+    EDITTEXT        IDC_PASSWORD,54,28,146,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,93,58,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,150,58,50,14
+    LTEXT           "&Username:",IDC_STATIC,7,16,36,8
+    EDITTEXT        IDC_USER,54,13,146,14,ES_AUTOHSCROLL
+END
 
 /////////////////////////////////////////////////////////////////////////////
 //

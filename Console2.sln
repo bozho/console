@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleWow", "ConsoleWow\ConsoleWow.vcproj", "{8A25E8AF-CC4A-4145-B878-3D99271562D4}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "console_ru", "console_ru\console_ru.vcproj", "{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -42,6 +44,14 @@ Global
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release|Win32.ActiveCfg = Release|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release|Win32.Build.0 = Release|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release|x64.ActiveCfg = Release|Win32
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Debug|Win32.Build.0 = Debug|Win32
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Debug|x64.ActiveCfg = Debug|x64
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Debug|x64.Build.0 = Debug|x64
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Release|Win32.ActiveCfg = Release|Win32
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Release|Win32.Build.0 = Release|Win32
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Release|x64.ActiveCfg = Release|x64
+		{E84BEE4D-D3E2-4AA4-89EF-DEE2EBE2D332}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

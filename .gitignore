@@ -7,3 +7,7 @@ help/console.chm
 
 *.aps
 *.user
+
+# ignore resource.h in localization projects
+# it's supposed to be copied from the main folder
+console_ru/resource.h

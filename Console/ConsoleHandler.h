@@ -87,6 +87,7 @@ class ConsoleHandler
 	private:
 
 		bool CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser);
+		void CreateWatchdog();
 
 		bool InjectHookDLL(PROCESS_INFORMATION& pi);
 

@@ -48,8 +48,6 @@ class ConsoleHandler
 
 	private:
 
-		shared_ptr<void>							m_hParentProcess;
-
 		SharedMemory<ConsoleParams>					m_consoleParams;
 		SharedMemory<ConsoleInfo>	m_consoleInfo;
 		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;

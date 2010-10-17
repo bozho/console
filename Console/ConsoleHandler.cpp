@@ -23,6 +23,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+static Mutex *theWatchdog;
 shared_ptr<void> ConsoleHandler::s_environmentBlock;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -288,6 +289,7 @@ bool ConsoleHandler::StartShellProcess
 
 	// create shared memory objects
 	CreateSharedObjects(pi.dwProcessId, strUser);
+	CreateWatchdog();
 
 	// write startup params
 	m_consoleParams->dwConsoleMainThreadId	= pi.dwThreadId;
@@ -421,7 +423,6 @@ void ConsoleHandler::UpdateEnvironmentBlock()
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-
 //////////////////////////////////////////////////////////////////////////////
 
 bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser)
@@ -464,6 +465,30 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring
 	m_consoleParams->dwColumns	= 80;
 
 	return true;
+}
+
+void ConsoleHandler::CreateWatchdog()
+{
+	if (!theWatchdog)
+	{
+		SECURITY_ATTRIBUTES  sa;
+		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+		sa.bInheritHandle = FALSE;
+
+		sa.lpSecurityDescriptor = (PSECURITY_DESCRIPTOR) LocalAlloc(LPTR,
+			SECURITY_DESCRIPTOR_MIN_LENGTH);
+		if (InitializeSecurityDescriptor(sa.lpSecurityDescriptor,
+			SECURITY_DESCRIPTOR_REVISION))
+		{
+			// Add the ACL to the security descriptor.
+			SetSecurityDescriptorDacl(sa.lpSecurityDescriptor,
+				TRUE,     // bDaclPresent flag
+				NULL,     // NULL DACL allows full access to everyone
+				FALSE);
+		}
+
+		theWatchdog = new Mutex(&sa, TRUE, (LPCTSTR)((SharedMemNames::formatWatchdog % ::GetCurrentProcessId()).str().c_str()));
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

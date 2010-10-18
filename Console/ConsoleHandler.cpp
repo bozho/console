@@ -23,8 +23,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-static Mutex *theWatchdog;
-shared_ptr<void> ConsoleHandler::s_environmentBlock;
+shared_ptr<Mutex>	ConsoleHandler::s_parentProcessWatchdog;
+shared_ptr<void>	ConsoleHandler::s_environmentBlock;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -467,27 +467,35 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring
 	return true;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::CreateWatchdog()
 {
-	if (!theWatchdog)
+	if (!s_parentProcessWatchdog)
 	{
-		SECURITY_ATTRIBUTES  sa;
-		sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-		sa.bInheritHandle = FALSE;
+		shared_ptr<void>	sd;	// PSECURITY_DESCRIPTOR
 
-		sa.lpSecurityDescriptor = (PSECURITY_DESCRIPTOR) LocalAlloc(LPTR,
-			SECURITY_DESCRIPTOR_MIN_LENGTH);
-		if (InitializeSecurityDescriptor(sa.lpSecurityDescriptor,
-			SECURITY_DESCRIPTOR_REVISION))
+		sd.reset(::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH), ::LocalFree);
+		if (::InitializeSecurityDescriptor(sd.get(), SECURITY_DESCRIPTOR_REVISION))
 		{
-			// Add the ACL to the security descriptor.
-			SetSecurityDescriptorDacl(sa.lpSecurityDescriptor,
-				TRUE,     // bDaclPresent flag
-				NULL,     // NULL DACL allows full access to everyone
-				FALSE);
+			::SetSecurityDescriptorDacl(
+				sd.get(), 
+				TRUE,		// bDaclPresent flag   
+				NULL,		// full access to everyone
+				FALSE);		// not a default DACL 
 		}
 
-		theWatchdog = new Mutex(&sa, TRUE, (LPCTSTR)((SharedMemNames::formatWatchdog % ::GetCurrentProcessId()).str().c_str()));
+		SECURITY_ATTRIBUTES	sa;
+
+		::ZeroMemory(&sa, sizeof(SECURITY_ATTRIBUTES));
+		sa.nLength				= sizeof(SECURITY_ATTRIBUTES);
+		sa.bInheritHandle		= FALSE;
+		sa.lpSecurityDescriptor	= sd.get();
+
+		s_parentProcessWatchdog.reset(new Mutex(&sa, TRUE, (LPCTSTR)((SharedMemNames::formatWatchdog % ::GetCurrentProcessId()).str().c_str())));
 	}
 }
 

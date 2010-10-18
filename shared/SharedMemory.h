@@ -237,7 +237,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 		// initialize a security attributes structure
 		sa.reset(new SECURITY_ATTRIBUTES);
 		sa->nLength				= sizeof (SECURITY_ATTRIBUTES);
-		sa->lpSecurityDescriptor	= sd.get();
+		sa->lpSecurityDescriptor= sd.get();
 		sa->bInheritHandle		= FALSE;
 	}
 

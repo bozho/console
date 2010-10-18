@@ -124,6 +124,8 @@ class ConsoleHandler
 		shared_ptr<void>							m_hMonitorThreadExit;
 
 		static shared_ptr<void>						s_environmentBlock;
+		static shared_ptr<Mutex>					s_parentProcessWatchdog;
+
 };
 
 //////////////////////////////////////////////////////////////////////////////

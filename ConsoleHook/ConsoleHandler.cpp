@@ -804,8 +804,8 @@ DWORD ConsoleHandler::MonitorThread()
 	// FIX: this seems to case problems on startup
 //	ReadConsoleBuffer();
 
-	HANDLE hWatchdog = ::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str()));
-	TRACE(L"Watchdog handle: 0x%08X\n", hWatchdog);
+	shared_ptr<void> parentProcessWatchdog(::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str())), ::CloseHandle);
+	TRACE(L"Watchdog handle: 0x%08X\n", parentProcessWatchdog.get());
 
 	HANDLE	arrWaitHandles[] =
 	{
@@ -826,9 +826,9 @@ DWORD ConsoleHandler::MonitorThread()
 							FALSE, 
 							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
 	{
-		if (hWatchdog && WAIT_ABANDONED == ::WaitForSingleObject(hWatchdog, 0))
+		if ((parentProcessWatchdog.get() != NULL) && (::WaitForSingleObject(parentProcessWatchdog.get(), 0) == WAIT_ABANDONED))
 		{
-			TRACE(L"Watchdog 0x%08X died. Time to exit", hWatchdog);
+			TRACE(L"Watchdog 0x%08X died. Time to exit", parentProcessWatchdog.get());
 			::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
 			break;
 		}
@@ -907,9 +907,6 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 		}
 	}
-
-	if (hWatchdog)
-		::CloseHandle(hWatchdog);
 
 	return 0;
 }

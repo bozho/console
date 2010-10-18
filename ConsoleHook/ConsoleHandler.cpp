@@ -16,8 +16,7 @@ using namespace boost;
 //////////////////////////////////////////////////////////////////////////////
 
 ConsoleHandler::ConsoleHandler()
-: m_hParentProcess()
-, m_consoleParams()
+: m_consoleParams()
 , m_consoleInfo()
 , m_cursorInfo()
 , m_consoleBuffer()
@@ -778,13 +777,6 @@ DWORD ConsoleHandler::MonitorThread()
 	// open shared objects (shared memory, events, etc)
 	if (!OpenSharedObjects()) return 0;
 	
-	// read parent process ID and get process handle
-	m_hParentProcess = shared_ptr<void>(
-							::OpenProcess(SYNCHRONIZE, FALSE, m_consoleParams->dwParentProcessId),
-							::CloseHandle);
-
-	TRACE(L"Parent process handle: 0x%08X\n", m_hParentProcess.get());
-
 	HANDLE hStdOut = ::CreateFile(
 						L"CONOUT$",
 						GENERIC_WRITE | GENERIC_READ,
@@ -812,6 +804,9 @@ DWORD ConsoleHandler::MonitorThread()
 	// FIX: this seems to case problems on startup
 //	ReadConsoleBuffer();
 
+	HANDLE hWatchdog = ::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str()));
+	TRACE(L"Watchdog handle: 0x%08X\n", hWatchdog);
+
 	HANDLE	arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(), 
@@ -821,17 +816,23 @@ DWORD ConsoleHandler::MonitorThread()
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
 		hStdOut,
-//		m_hParentProcess.get()
 	};
 
 	DWORD	dwWaitRes		= 0;
 
 	while ((dwWaitRes = ::WaitForMultipleObjects(
-							sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), 
+							sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]),
 							arrWaitHandles, 
 							FALSE, 
 							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
 	{
+		if (hWatchdog && WAIT_ABANDONED == ::WaitForSingleObject(hWatchdog, 0))
+		{
+			TRACE(L"Watchdog 0x%08X died. Time to exit", hWatchdog);
+			::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
+			break;
+		}
+
 		switch (dwWaitRes)
 		{
 			// copy request
@@ -904,14 +905,11 @@ DWORD ConsoleHandler::MonitorThread()
 				ReadConsoleBuffer();
 				break;
 			}
-
-			// close the console if the parent process died
-			case WAIT_OBJECT_0 + 7:
-				::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
-				break;
-
 		}
 	}
+
+	if (hWatchdog)
+		::CloseHandle(hWatchdog);
 
 	return 0;
 }

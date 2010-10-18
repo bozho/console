@@ -15,6 +15,7 @@ class SharedMemNames
 		static wformat formatMouseEvent;
 		static wformat formatNewConsoleSize;
 		static wformat formatNewScrollPos;
+		static wformat formatWatchdog;
 
 };
 
@@ -37,5 +38,6 @@ wformat SharedMemNames::formatTextInfo(L"Console2_consoleTextInfo_%1%");
 wformat SharedMemNames::formatMouseEvent(L"Console2_consoleMouseEvent_%1%");
 wformat SharedMemNames::formatNewConsoleSize(L"Console2_newConsoleSize_%1%");
 wformat SharedMemNames::formatNewScrollPos(L"Console2_newScrollPos_%1%");
+wformat SharedMemNames::formatWatchdog(L"Local\\Console2_parentProcessExit_%1%");
 
 //////////////////////////////////////////////////////////////////////////////

@@ -97,7 +97,6 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 		m_behaviorSettings.Save(m_pOptionsRoot);
 	}
 
-	DestroyWindow();
 	return 0;
 }
 

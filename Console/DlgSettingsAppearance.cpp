@@ -196,7 +196,6 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_positionSettings.Save(m_pOptionsRoot);
 	}
 
-	DestroyWindow();
 	return 0;
 }
 

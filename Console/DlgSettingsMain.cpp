@@ -73,7 +73,16 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 	SettingsDlgsMap::iterator it = m_settingsDlgMap.begin();
 	for (; it != m_settingsDlgMap.end(); ++it)
 	{
-		(it->second)->SendMessage(WM_COMMAND, wID, 0);
+		if ((it->second)->SendMessage(WM_COMMAND, wID, 0) != 0)
+		{
+			m_treeCtrl.Select(it->first, TVGN_CARET);
+			return -1;
+		}
+	}
+
+	for (it = m_settingsDlgMap.begin(); it != m_settingsDlgMap.end(); ++it)
+	{
+		it->second->DestroyWindow();
 	}
 
 	if (wID == IDOK)

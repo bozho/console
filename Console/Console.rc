@@ -982,6 +982,18 @@ BEGIN
     ID_UNGROUP_TAB          "Remove grouping of all terminals in the current tab\nUngroup Tab"
 END
 
+STRINGTABLE 
+BEGIN
+    MSG_SETTINGS_INVALID_BUFFER_ROWS 
+                            "Invalid number of console buffer rows! Must be between 0 and 9999."
+    MSG_SETTINGS_INVALID_BUFFER_COLUMNS 
+                            "Invalid number of console buffer columns! Must be between 0 and 200."
+    MSG_SETTINGS_INVALID_ROWS 
+                            "Invalid number of console rows! Must be between 0 and 200."
+    MSG_SETTINGS_INVALID_COLUMNS 
+                            "Invalid number of console columns! Must be between 0 and 200."
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -992,7 +1004,7 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

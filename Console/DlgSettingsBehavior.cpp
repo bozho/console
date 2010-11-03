@@ -33,16 +33,9 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 {
 	m_behaviorSettings.Load(m_pOptionsRoot);
 
-	m_nCopyOnSelect	= m_behaviorSettings.copyPasteSettings.bCopyOnSelect ? 1 : 0;
-	m_nClearOnCopy	= m_behaviorSettings.copyPasteSettings.bClearOnCopy ? 1 : 0;
-	m_nNoWrap		= m_behaviorSettings.copyPasteSettings.bNoWrap ? 1 : 0;
-	m_nTrimSpaces	= m_behaviorSettings.copyPasteSettings.bTrimSpaces ? 1 : 0;
-	m_nCopyNewlineChar= static_cast<int>(m_behaviorSettings.copyPasteSettings.copyNewlineChar);
-
-	m_nScrollPageType= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
-
-	m_nFlashInactiveTab= m_behaviorSettings.tabHighlightSettings.dwFlashes > 0 ? 1 : 0;
-	m_nLeaveHighlighted= m_behaviorSettings.tabHighlightSettings.bStayHighlighted ? 1 : 0;
+	m_nCopyNewlineChar	= static_cast<int>(m_behaviorSettings.copyPasteSettings.copyNewlineChar);
+	m_nScrollPageType	= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
+	m_bFlashInactiveTab	= (m_behaviorSettings.tabHighlightSettings.dwFlashes > 0);
 
 	CUpDownCtrl	spin;
 	UDACCEL		udAccel;
@@ -80,16 +73,11 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 	{
 		DoDataExchange(DDX_SAVE);
 
-		m_behaviorSettings.copyPasteSettings.bCopyOnSelect	= (m_nCopyOnSelect > 0);
-		m_behaviorSettings.copyPasteSettings.bClearOnCopy	= (m_nClearOnCopy > 0);
-		m_behaviorSettings.copyPasteSettings.bNoWrap		= (m_nNoWrap > 0);
-		m_behaviorSettings.copyPasteSettings.bTrimSpaces	= (m_nTrimSpaces > 0);
 		m_behaviorSettings.copyPasteSettings.copyNewlineChar= static_cast<CopyNewlineChar>(m_nCopyNewlineChar);
 
 		if (m_nScrollPageType == 0) m_behaviorSettings.scrollSettings.dwPageScrollRows = 0;
 
-		if (m_nFlashInactiveTab == 0) m_behaviorSettings.tabHighlightSettings.dwFlashes = 0;
-		m_behaviorSettings.tabHighlightSettings.bStayHighlighted = (m_nLeaveHighlighted > 0);
+		if (!m_bFlashInactiveTab) m_behaviorSettings.tabHighlightSettings.dwFlashes = 0;
 
 		BehaviorSettings& behaviorSettings = g_settingsHandler->GetBehaviorSettings();
 
@@ -165,7 +153,7 @@ void DlgSettingsBehavior::EnableFlashTabControls()
 	GetDlgItem(IDC_SPIN_TAB_FLASHES).EnableWindow(FALSE);
 	GetDlgItem(IDC_CHECK_LEAVE_HIGHLIGHTED).EnableWindow(FALSE);
 
-	if (m_nFlashInactiveTab > 0)
+	if (m_bFlashInactiveTab)
 	{
 		if (m_behaviorSettings.tabHighlightSettings.dwFlashes == 0)
 		{

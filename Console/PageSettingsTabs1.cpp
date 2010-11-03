@@ -18,7 +18,7 @@ PageSettingsTabs1::PageSettingsTabs1()
 : m_tabData()
 , m_strTitle(L"")
 , m_strIcon(L"")
-, m_nUseDefaultIcon(0)
+, m_bUseDefaultIcon(false)
 , m_strShell(L"")
 , m_strInitialDir(L"")
 , m_bRunAsUser(false)
@@ -210,7 +210,7 @@ void PageSettingsTabs1::EnableControls()
 {
 	BOOL bEnableEditIconCtrls = TRUE;
 
-	if (m_nUseDefaultIcon > 0) bEnableEditIconCtrls = FALSE;
+	if (m_bUseDefaultIcon) bEnableEditIconCtrls = FALSE;
 
 	GetDlgItem(IDC_TAB_ICON).EnableWindow(bEnableEditIconCtrls);
 	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(bEnableEditIconCtrls);
@@ -229,7 +229,7 @@ void PageSettingsTabs1::Load(shared_ptr<TabData>& tabData)
 
 	m_strTitle			= m_tabData->strTitle.c_str();
 	m_strIcon			= m_tabData->strIcon.c_str();
-	m_nUseDefaultIcon	= m_tabData->bUseDefaultIcon ? 1 : 0;
+	m_bUseDefaultIcon	= m_tabData->bUseDefaultIcon;
 
 	m_strShell			= m_tabData->strShell.c_str();
 	m_strInitialDir		= m_tabData->strInitialDir.c_str();
@@ -256,7 +256,7 @@ void PageSettingsTabs1::Save()
 
 	m_tabData->strTitle			= m_strTitle;
 	m_tabData->strIcon			= m_strIcon;
-	m_tabData->bUseDefaultIcon	= (m_nUseDefaultIcon > 0);
+	m_tabData->bUseDefaultIcon	= m_bUseDefaultIcon;
 
 	m_tabData->strShell			= m_strShell;
 	m_tabData->strInitialDir	= m_strInitialDir;

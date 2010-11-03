@@ -22,25 +22,25 @@ class DlgSettingsAppearance
 
 		BEGIN_DDX_MAP(DlgSettingsAppearance)
 			DDX_TEXT(IDC_WINDOW_TITLE, m_strWindowTitle)
-			DDX_CHECK(IDC_CHECK_USE_TAB_TITLE, m_nUseTabTitle)
-			DDX_CHECK(IDC_CHECK_USE_CONSOLE_TITLE, m_nUseConsoleTitle)
-			DDX_CHECK(IDC_CHECK_SHOW_COMMAND, m_nShowCommand)
-			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_nShowCommandTabs)
-			DDX_CHECK(IDC_CHECK_TRIM_TAB_TITLES, m_nTrimTabTitles)
+			DDX_CHECK(IDC_CHECK_USE_TAB_TITLE, m_windowSettings.bUseTabTitles)
+			DDX_CHECK(IDC_CHECK_USE_CONSOLE_TITLE, m_windowSettings.bUseConsoleTitle)
+			DDX_CHECK(IDC_CHECK_SHOW_COMMAND, m_windowSettings.bShowCommand)
+			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_windowSettings.bShowCommandInTabs)
+			DDX_CHECK(IDC_CHECK_TRIM_TAB_TITLES, m_bTrimTabTitles)
 			DDX_UINT(IDC_TRIM_TAB_TITLES, m_windowSettings.dwTrimTabTitles)
 			DDX_UINT(IDC_TRIM_TAB_TITLES_RIGHT, m_windowSettings.dwTrimTabTitlesRight)
 			DDX_TEXT(IDC_WINDOW_ICON, m_strWindowIcon)
-			DDX_CHECK(IDC_CHECK_USE_TAB_ICON, m_nUseTabIcon)
+			DDX_CHECK(IDC_CHECK_USE_TAB_ICON, m_windowSettings.bUseTabIcon)
 			DDX_TEXT(IDC_FONT, m_strFontName)
 			DDX_UINT(IDC_FONT_SIZE, m_fontSettings.dwSize)
-			DDX_CHECK(IDC_CHECK_BOLD, m_nFontBold)
-			DDX_CHECK(IDC_CHECK_ITALIC, m_nFontItalic)
-			DDX_CHECK(IDC_CHECK_USE_COLOR, m_nUseFontColor)
-			DDX_CHECK(IDC_CHECK_POSITION, m_nUsePosition)
+			DDX_CHECK(IDC_CHECK_BOLD, m_fontSettings.bBold)
+			DDX_CHECK(IDC_CHECK_ITALIC, m_fontSettings.bItalic)
+			DDX_CHECK(IDC_CHECK_USE_COLOR, m_fontSettings.bUseColor)
+			DDX_CHECK(IDC_CHECK_POSITION, m_bUsePosition)
 			DDX_INT(IDC_POS_X, m_nX)
 			DDX_INT(IDC_POS_Y, m_nY)
-			DDX_CHECK(IDC_CHECK_SAVE_POSITION, m_nSavePosition)
-			DDX_CHECK(IDC_CHECK_SNAP, m_nSnapToEdges)
+			DDX_CHECK(IDC_CHECK_SAVE_POSITION, m_positionSettings.bSavePosition)
+			DDX_CHECK(IDC_CHECK_SNAP, m_bSnapToEdges)
 			DDX_INT(IDC_SNAP, m_positionSettings.nSnapDistance)
 		END_DDX_MAP()
 
@@ -87,24 +87,15 @@ class DlgSettingsAppearance
 		PositionSettings			m_positionSettings;
 
 		CString						m_strWindowTitle;
-		int							m_nUseTabTitle;
-		int							m_nUseConsoleTitle;
-		int							m_nShowCommand;
-		int							m_nShowCommandTabs;
-		int							m_nTrimTabTitles;
+		bool						m_bTrimTabTitles;
 		CString						m_strWindowIcon;
-		int							m_nUseTabIcon;
 
 		CString						m_strFontName;
-		int							m_nFontBold;
-		int							m_nFontItalic;
-		int							m_nUseFontColor;
 
-		int							m_nUsePosition;
+		bool						m_bUsePosition;
 		int							m_nX;
 		int							m_nY;
-		int							m_nSavePosition;
-		int							m_nSnapToEdges;
+		bool						m_bSnapToEdges;
 
 		CComboBox					m_comboFontSmoothing;
 		CComboBox					m_comboDocking;

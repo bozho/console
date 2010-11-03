@@ -25,7 +25,7 @@ class PageSettingsTabs1
 		BEGIN_DDX_MAP(PageSettingsTabs1)
 			DDX_TEXT(IDC_TAB_TITLE, m_strTitle)
 			DDX_TEXT(IDC_TAB_ICON, m_strIcon)
-			DDX_CHECK(IDC_CHECK_DEFAULT_ICON, m_nUseDefaultIcon)
+			DDX_CHECK(IDC_CHECK_DEFAULT_ICON, m_bUseDefaultIcon)
 			DDX_TEXT(IDC_TAB_SHELL, m_strShell)
 			DDX_TEXT(IDC_TAB_INIT_DIR, m_strInitialDir)
 			DDX_CHECK(IDC_CHECK_RUN_AS_USER, m_bRunAsUser)
@@ -78,7 +78,7 @@ class PageSettingsTabs1
 
 		CString			m_strTitle;
 		CString			m_strIcon;
-		int				m_nUseDefaultIcon;
+		bool			m_bUseDefaultIcon;
 
 		CString			m_strShell;
 		CString			m_strInitialDir;

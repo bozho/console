@@ -21,19 +21,19 @@ class DlgSettingsStyles
 		DlgSettingsStyles(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsStyles)
-			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_nShowMenu)
-			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_nShowToolbar)
-			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_nShowStatusbar)
-			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_nShowTabs)
-			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_nHideSingleTab)
-			DDX_CHECK(IDC_CHECK_TABS_ON_BOTTOM, m_nTabsOnBottom)
-			DDX_CHECK(IDC_CHECK_SHOW_SCROLLBARS, m_nShowScrollbars)
-			DDX_CHECK(IDC_CHECK_FLAT_SCROLLBARS, m_nFlatScrollbars)
-			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_nShowCaption)
-			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_nResizable)
-			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder)
-			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_nTaskbarButton)
-			DDX_CHECK(IDC_CHECK_STYLE_TRAY, m_nTrayIcon)
+			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_controlsSettings.bShowMenu)
+			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_controlsSettings.bShowToolbar)
+			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_controlsSettings.bShowStatusbar)
+			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_controlsSettings.bShowTabs)
+			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_controlsSettings.bHideSingleTab)
+			DDX_CHECK(IDC_CHECK_TABS_ON_BOTTOM, m_controlsSettings.bTabsOnBottom)
+			DDX_CHECK(IDC_CHECK_SHOW_SCROLLBARS, m_controlsSettings.bShowScrollbars)
+			DDX_CHECK(IDC_CHECK_FLAT_SCROLLBARS, m_controlsSettings.bFlatScrollbars)
+			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_stylesSettings.bCaption)
+			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_stylesSettings.bResizable)
+			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_stylesSettings.bBorder)
+			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_stylesSettings.bTaskbarButton)
+			DDX_CHECK(IDC_CHECK_STYLE_TRAY, m_stylesSettings.bTrayIcon)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType))
 		END_DDX_MAP()
@@ -79,21 +79,6 @@ class DlgSettingsStyles
 
 		CTrackBarCtrl				m_sliderActiveAlpha;
 		CTrackBarCtrl				m_sliderInactiveAlpha;
-
-		int							m_nShowMenu;
-		int							m_nShowToolbar;
-		int							m_nShowStatusbar;
-		int							m_nShowTabs;
-		int							m_nHideSingleTab;
-		int							m_nTabsOnBottom;
-		int							m_nShowScrollbars;
-		int							m_nFlatScrollbars;
-
-		int							m_nShowCaption;
-		int							m_nResizable;
-		int							m_nTaskbarButton;
-		int							m_nBorder;
-		int							m_nTrayIcon;
 
 		int							m_nTransparencyType;
 };

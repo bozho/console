@@ -24,8 +24,8 @@ class PageSettingsTabs2
 		BEGIN_DDX_MAP(PageSettingsTabs2)
 			DDX_RADIO(IDC_RADIO_BK_TYPE, m_nBkType)
 			DDX_TEXT(IDC_BK_IMAGE, m_strBkImage)
-			DDX_CHECK(IDC_CHECK_BK_RELATIVE, m_nRelative)
-			DDX_CHECK(IDC_CHECK_BK_EXTEND, m_nExtend)
+			DDX_CHECK(IDC_CHECK_BK_RELATIVE, m_bRelative)
+			DDX_CHECK(IDC_CHECK_BK_EXTEND, m_bExtend)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(PageSettingsTabs2)
@@ -76,8 +76,8 @@ class PageSettingsTabs2
 
 		int				m_nBkType;
 		CString			m_strBkImage;
-		int				m_nRelative;
-		int				m_nExtend;
+		bool			m_bRelative;
+		bool			m_bExtend;
 };
 
 //////////////////////////////////////////////////////////////////////////////

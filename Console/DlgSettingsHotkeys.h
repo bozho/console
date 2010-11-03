@@ -22,7 +22,7 @@ class DlgSettingsHotkeys
 		DlgSettingsHotkeys(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsHotkeys)
-			DDX_CHECK(IDC_CHECK_USE_SCROLL_LOCK, m_nUseScrollLock)
+			DDX_CHECK(IDC_CHECK_USE_SCROLL_LOCK, m_hotKeys.bUseScrollLock)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsHotkeys)
@@ -54,8 +54,6 @@ class DlgSettingsHotkeys
 		CListViewCtrl	m_listCtrl;
 		CEdit			m_editCommand;
 		CHotkeyEdit		m_hotKeyEdit;
-
-		int				m_nUseScrollLock;
 };
 
 //////////////////////////////////////////////////////////////////////////////

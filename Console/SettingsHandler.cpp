@@ -625,6 +625,8 @@ PositionSettings& PositionSettings::operator=(const PositionSettings& other)
 //////////////////////////////////////////////////////////////////////////////
 
 
+BYTE TransparencySettings::minAlpha = 5;
+
 //////////////////////////////////////////////////////////////////////////////
 
 TransparencySettings::TransparencySettings()
@@ -650,6 +652,9 @@ bool TransparencySettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"active_alpha"), byActiveAlpha, 255);
 	XmlHelper::GetAttribute(pTransElement, CComBSTR(L"inactive_alpha"), byInactiveAlpha, 255);
 	XmlHelper::GetRGBAttribute(pTransElement, crColorKey, RGB(0, 0, 0));
+
+	if (byActiveAlpha < minAlpha) byActiveAlpha = minAlpha;
+	if (byInactiveAlpha < minAlpha) byInactiveAlpha = minAlpha;
 
 	return true;
 }

@@ -246,6 +246,8 @@ struct TransparencySettings : public SettingsBase
 	BYTE				byActiveAlpha;
 	BYTE				byInactiveAlpha;
 	COLORREF			crColorKey;
+
+	static BYTE			minAlpha;
 };
 
 //////////////////////////////////////////////////////////////////////////////

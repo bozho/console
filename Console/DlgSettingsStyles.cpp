@@ -58,12 +58,12 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	spin.Detach();
 
 	m_sliderActiveAlpha.Attach(GetDlgItem(IDC_ACTIVE_ALPHA));
-	m_sliderActiveAlpha.SetRange(0, 255);
+	m_sliderActiveAlpha.SetRange(0, 255 - TransparencySettings::minAlpha);
 	m_sliderActiveAlpha.SetTicFreq(5);
 	m_sliderActiveAlpha.SetPageSize(5);
 
 	m_sliderInactiveAlpha.Attach(GetDlgItem(IDC_INACTIVE_ALPHA));
-	m_sliderInactiveAlpha.SetRange(0, 255);
+	m_sliderInactiveAlpha.SetRange(0, 255 - TransparencySettings::minAlpha);
 	m_sliderInactiveAlpha.SetTicFreq(5);
 	m_sliderInactiveAlpha.SetPageSize(5);
 

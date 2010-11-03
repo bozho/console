@@ -166,7 +166,6 @@ LRESULT DlgSettingsMouse::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 		mouseSettings.Save(m_pOptionsRoot);
 	}
 
-	DestroyWindow();
 	return 0;
 }
 

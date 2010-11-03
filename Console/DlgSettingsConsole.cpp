@@ -136,7 +136,8 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 {
 	if (wID == IDOK)
 	{
-		DoDataExchange(DDX_SAVE);
+		if (!DoDataExchange(DDX_SAVE)) return -1;
+
 		m_consoleSettings.strShell		= m_strShell;
 		m_consoleSettings.strInitialDir	= m_strInitialDir;
 
@@ -150,7 +151,6 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 		m_consoleSettings.Save(m_pOptionsRoot);
 	}
 
-	DestroyWindow();
 	return 0;
 }
 
@@ -230,3 +230,45 @@ LRESULT DlgSettingsConsole::OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsConsole::OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data)
+{
+	CString message;
+
+	switch (nCtrlID)
+	{
+		case IDC_BUFFER_ROWS :
+		{
+			message.LoadString(MSG_SETTINGS_INVALID_BUFFER_ROWS);
+			break;
+		}
+
+		case IDC_BUFFER_COLUMNS :
+		{
+			message.LoadString(MSG_SETTINGS_INVALID_BUFFER_COLUMNS);
+			break;
+		}
+
+		case IDC_ROWS :
+		{
+			message.LoadString(MSG_SETTINGS_INVALID_ROWS);
+			break;
+		}
+
+		case IDC_COLUMNS :
+		{
+			message.LoadString(MSG_SETTINGS_INVALID_COLUMNS);
+			break;
+		}
+
+		default: break;
+	}
+
+	if (message.GetLength() > 0) ::MessageBox(this->GetParent(), message, L"Error", MB_OK|MB_ICONERROR);
+
+	DlgSettingsBase::OnDataValidateError(nCtrlID, bSave, data);
+}
+
+//////////////////////////////////////////////////////////////////////////////

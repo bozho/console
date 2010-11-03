@@ -112,7 +112,6 @@ LRESULT DlgSettingsTabs::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 									m_tabSettings.tabDataVector.end());
 	}
 
-	DestroyWindow();
 	return 0;
 }
 

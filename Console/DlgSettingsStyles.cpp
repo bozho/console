@@ -167,7 +167,6 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		m_transparencySettings.Save(m_pOptionsRoot);
 	}
 
-	DestroyWindow();
 	return 0;
 }
 

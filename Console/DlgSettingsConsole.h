@@ -26,11 +26,11 @@ class DlgSettingsConsole
 			DDX_CHECK(IDC_CHECK_START_HIDDEN, m_nStartHidden)
 			DDX_UINT(IDC_CHANGE_REFRESH, m_consoleSettings.dwChangeRefreshInterval)
 			DDX_UINT(IDC_REFRESH, m_consoleSettings.dwRefreshInterval)
-			DDX_UINT(IDC_ROWS, m_consoleSettings.dwRows)
-			DDX_UINT(IDC_COLUMNS, m_consoleSettings.dwColumns)
+			DDX_UINT_RANGE(IDC_ROWS, m_consoleSettings.dwRows, static_cast<DWORD>(10), static_cast<DWORD>(200))
+			DDX_UINT_RANGE(IDC_COLUMNS, m_consoleSettings.dwColumns, static_cast<DWORD>(10), static_cast<DWORD>(200))
 			DDX_CHECK(IDC_CHECK_SAVE_SIZE, m_nSaveSize)
-			DDX_UINT(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows)
-			DDX_UINT(IDC_BUFFER_COLUMNS, m_consoleSettings.dwBufferColumns)
+			DDX_UINT_RANGE(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows, static_cast<DWORD>(0), static_cast<DWORD>(9999))
+			DDX_UINT_RANGE(IDC_BUFFER_COLUMNS, m_consoleSettings.dwBufferColumns, static_cast<DWORD>(0), static_cast<DWORD>(200))
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsConsole)
@@ -58,6 +58,8 @@ class DlgSettingsConsole
 		LRESULT OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/);
+
+		virtual void OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data);
 
 	private:
 

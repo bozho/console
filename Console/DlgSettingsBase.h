@@ -27,6 +27,13 @@ class DlgSettingsBase
 		{
 		}
 
+	public:
+
+		virtual void OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data)
+		{
+			CWinDataExchange<DlgSettingsBase>::OnDataValidateError(nCtrlID, bSave, data);
+		}
+
 	protected:
 
 		CComPtr<IXMLDOMElement>&	m_pOptionsRoot;

@@ -1307,6 +1307,8 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
+	MutexLock handlerLock(m_consoleHandler.m_resizingMutex);
+
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 	DWORD							dwBufferSize	= consoleParams->dwRows * consoleParams->dwColumns;
 
@@ -1698,6 +1700,8 @@ void ConsoleView::UpdateTitle()
 
 void ConsoleView::RepaintText(CDC& dc)
 {
+	MutexLock handlerLock(m_consoleHandler.m_resizingMutex);
+
 	SIZE	bitmapSize;
 	CRect	bitmapRect;
 
@@ -1881,6 +1885,8 @@ void ConsoleView::RepaintText(CDC& dc)
 
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
+	MutexLock handlerLock(m_consoleHandler.m_resizingMutex);
+
 	DWORD	dwX			= m_nVInsideBorder;
 	DWORD	dwY			= m_nHInsideBorder;
 	DWORD	dwOffset	= 0;

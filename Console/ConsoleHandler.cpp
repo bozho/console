@@ -40,6 +40,7 @@ ConsoleHandler::ConsoleHandler()
 , m_newScrollPos()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
+, m_resizingMutex(NULL, FALSE, NULL)
 {
 }
 
@@ -775,6 +776,8 @@ DWORD ConsoleHandler::MonitorThread()
 			((m_consoleParams->dwBufferColumns != 0) && (m_consoleParams->dwBufferColumns != dwBufferColumns)) ||
 			((m_consoleParams->dwBufferRows != 0) && (m_consoleParams->dwBufferRows != dwBufferRows)))
 		{
+			MutexLock handlerLock(m_resizingMutex);
+
 			m_consoleParams->dwColumns	= dwColumns;
 			m_consoleParams->dwRows		= dwRows;
 

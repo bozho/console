@@ -47,6 +47,8 @@ class ConsoleHandler
 		ConsoleHandler();
 		~ConsoleHandler();
 
+		Mutex m_resizingMutex;
+
 	public:
 
 		void SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate);

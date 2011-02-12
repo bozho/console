@@ -422,7 +422,7 @@
 				UsePrecompiledHeader="2"
 				WarningLevel="4"
 				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -441,6 +441,8 @@
 				AdditionalDependencies="..\FreeImage\FreeImagePlus.lib delayimp.lib htmlhelp.lib userenv.lib Credui.lib"
 				LinkIncremental="1"
 				DelayLoadDLLs="uxtheme.dll"
+				GenerateDebugInformation="true"
+				ProgramDatabaseFile="$(TargetDir)$(TargetName).pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"

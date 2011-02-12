@@ -412,30 +412,53 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	switch (wParam)
-	{
-		case IDC_GLOBAL_ACTIVATE :
-		{
-			ShowWindow(SW_RESTORE);
-			PostMessage(WM_ACTIVATEAPP, TRUE, 0);
+  switch (wParam)
+  {
+  case IDC_GLOBAL_ACTIVATE :
+    {
+      bool bQuake = g_settingsHandler->GetAppearanceSettings().stylesSettings.bQuake;
+      bool bActivate = true;
 
-			POINT	cursorPos;
-			CRect	windowRect;
+      if( bQuake )
+      {
+        if(!::IsWindowVisible(m_hWnd))
+        {
+          ::AnimateWindow(m_hWnd, 350, AW_ACTIVATE | AW_SLIDE | AW_VER_POSITIVE);
+        }
+        else
+        {
+          ::AnimateWindow(m_hWnd, 350, AW_HIDE | AW_SLIDE | AW_VER_NEGATIVE);
+          bActivate = false;
+        }
+      }
+      else
+      {
+         ShowWindow(SW_RESTORE);
+      }
 
-			::GetCursorPos(&cursorPos);
-			GetWindowRect(&windowRect);
+      if( bActivate )
+      {
+        PostMessage(WM_ACTIVATEAPP, TRUE, 0);
 
-			if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
-			if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
+        POINT	cursorPos;
+        CRect	windowRect;
 
-			::SetCursorPos(cursorPos.x, cursorPos.y);
-			::SetForegroundWindow(m_hWnd);
-			break;
-		}
+        ::GetCursorPos(&cursorPos);
+        GetWindowRect(&windowRect);
 
-	}
+        if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
+        if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
 
-	return 0;
+        ::SetCursorPos(cursorPos.x, cursorPos.y);
+        ::SetForegroundWindow(m_hWnd);
+      }
+
+      break;
+    }
+
+  }
+
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2133,10 +2156,10 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 
 		// if we're being maximized, AdjustRectAndResize will use client rect supplied
 		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
-		
+
 		// for other views, first set view size and then resize their Windows consoles
 		MutexLock	viewMapLock(m_viewsMutex);
-		
+
 		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 		{
 			if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
@@ -2148,7 +2171,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 							clientRect.Width(), 
 							clientRect.Height(), 
 							SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
-		
+
 			// if we're being maximized, AdjustRectAndResize will use client rect supplied
 			it->second->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
 		}

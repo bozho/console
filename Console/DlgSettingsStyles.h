@@ -34,6 +34,7 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_nBorder)
 			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_nTaskbarButton)
 			DDX_CHECK(IDC_CHECK_STYLE_TRAY, m_nTrayIcon)
+      DDX_CHECK(IDC_CHECK_STYLE_QUAKE, m_nQuake)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType))
 		END_DDX_MAP()
@@ -97,6 +98,7 @@ class DlgSettingsStyles
 		int							m_nTaskbarButton;
 		int							m_nBorder;
 		int							m_nTrayIcon;
+		int							m_nQuake;
 
 		int							m_nTransparencyType;
 };

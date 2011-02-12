@@ -49,6 +49,7 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_nTaskbarButton= m_stylesSettings.bTaskbarButton ? 1 : 0;
 	m_nBorder		= m_stylesSettings.bBorder ? 1 : 0;
 	m_nTrayIcon		= m_stylesSettings.bTrayIcon ? 1 : 0;
+	m_nQuake		= m_stylesSettings.bQuake ? 1 : 0;
 	
 	CUpDownCtrl	spin;
 
@@ -151,6 +152,7 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 		m_stylesSettings.bTaskbarButton	= (m_nTaskbarButton > 0);
 		m_stylesSettings.bBorder		= (m_nBorder > 0);
 		m_stylesSettings.bTrayIcon		= (m_nTrayIcon > 0);
+		m_stylesSettings.bQuake		= (m_nQuake > 0);
 
 		m_transparencySettings.byActiveAlpha	= static_cast<BYTE>(255 - m_sliderActiveAlpha.GetPos());
 		m_transparencySettings.byInactiveAlpha	= static_cast<BYTE>(255 - m_sliderInactiveAlpha.GetPos());

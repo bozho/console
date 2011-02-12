@@ -458,6 +458,7 @@ StylesSettings::StylesSettings()
 , bBorder(true)
 , dwInsideBorder(2)
 , bTrayIcon(false)
+, bQuake(false)
 , crSelectionColor(RGB(255, 255, 255))
 {
 }
@@ -479,6 +480,7 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"border"), bBorder, true);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder, 2);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon, false);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"quake_like"), bQuake, false);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
 
@@ -506,6 +508,7 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"border"), bBorder);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"quake_like"), bQuake);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
 
@@ -529,6 +532,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	bBorder			= other.bBorder;
 	dwInsideBorder	= other.dwInsideBorder;
 	bTrayIcon		= other.bTrayIcon;
+	bQuake		= other.bQuake;
 	crSelectionColor= other.crSelectionColor;
 
 	return *this;

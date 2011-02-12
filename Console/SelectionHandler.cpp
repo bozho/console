@@ -22,7 +22,9 @@ SelectionHandler::SelectionHandler(
 					SharedMemory<ConsoleInfo>& consoleInfo, 
 					SharedMemory<ConsoleCopy>& consoleCopyInfo, 
 					int nCharWidth, 
-					int nCharHeight)
+					int nCharHeight,
+					int nVInsideBorder,
+					int nHInsideBorder)
 : m_consoleView(consoleView)
 , m_dcSelection(::CreateCompatibleDC(NULL))
 //, m_bmpSelection(::CreateCompatibleBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height()))
@@ -34,6 +36,8 @@ SelectionHandler::SelectionHandler(
 , m_consoleInfo(consoleInfo)
 , m_consoleCopyInfo(consoleCopyInfo)
 , m_nCharHeight(nCharHeight)
+, m_nVInsideBorder(nVInsideBorder)
+, m_nHInsideBorder(nHInsideBorder)
 , m_paintBrush()
 , m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 , m_selectionState(selstateNoSelection)
@@ -377,29 +381,28 @@ void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEn
 
 void SelectionHandler::GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect)
 {
-	StylesSettings&	stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
 	SMALL_RECT&		srWindow		= m_consoleInfo->csbi.srWindow;
 	CRect			rectConsoleView;
 
 	m_consoleView.GetClientRect(&rectConsoleView);
 
-	fillRect.left	= (coordStart.X - srWindow.Left) * m_nCharWidth + static_cast<LONG>(stylesSettings.dwInsideBorder);
-	fillRect.top	= (coordStart.Y - srWindow.Top) * m_nCharHeight + static_cast<LONG>(stylesSettings.dwInsideBorder);
+	fillRect.left	= (coordStart.X - srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+	fillRect.top	= (coordStart.Y - srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 
-	fillRect.right	= (coordEnd.X - srWindow.Left + 1) * m_nCharWidth + static_cast<LONG>(stylesSettings.dwInsideBorder);
-	fillRect.bottom	= (coordEnd.Y - srWindow.Top + 1) * m_nCharHeight + static_cast<LONG>(stylesSettings.dwInsideBorder);
+	fillRect.right	= (coordEnd.X - srWindow.Left + 1) * m_nCharWidth + m_nVInsideBorder;
+	fillRect.bottom	= (coordEnd.Y - srWindow.Top + 1) * m_nCharHeight + m_nHInsideBorder;
 
-	if (fillRect.left < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.left = stylesSettings.dwInsideBorder;
-	if (fillRect.top < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.top = stylesSettings.dwInsideBorder;
+	if (fillRect.left < m_nVInsideBorder) fillRect.left = m_nVInsideBorder;
+	if (fillRect.top  < m_nHInsideBorder) fillRect.top  = m_nHInsideBorder;
 
-	if (fillRect.left > (rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.right = rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder);
-	if (fillRect.top > (rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.bottom = rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder);
+	if (fillRect.left > (rectConsoleView.right  - m_nVInsideBorder)) fillRect.right  = rectConsoleView.right  - m_nVInsideBorder;
+	if (fillRect.top  > (rectConsoleView.bottom - m_nHInsideBorder)) fillRect.bottom = rectConsoleView.bottom - m_nHInsideBorder;
 
-	if (fillRect.right < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.right = stylesSettings.dwInsideBorder;
-	if (fillRect.bottom < static_cast<LONG>(stylesSettings.dwInsideBorder)) fillRect.bottom = stylesSettings.dwInsideBorder;
+	if (fillRect.right  < m_nVInsideBorder) fillRect.right  = m_nVInsideBorder;
+	if (fillRect.bottom < m_nHInsideBorder) fillRect.bottom = m_nHInsideBorder;
 
-	if (fillRect.right > (rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.right = rectConsoleView.right - static_cast<LONG>(stylesSettings.dwInsideBorder);
-	if (fillRect.bottom > (rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder))) fillRect.bottom = rectConsoleView.bottom - static_cast<LONG>(stylesSettings.dwInsideBorder);
+	if (fillRect.right  > (rectConsoleView.right  - m_nVInsideBorder)) fillRect.right  = rectConsoleView.right  - m_nVInsideBorder;
+	if (fillRect.bottom > (rectConsoleView.bottom - m_nHInsideBorder)) fillRect.bottom = rectConsoleView.bottom - m_nHInsideBorder;
 }
 
 /////////////////////////////////////////////////////////////////////////////

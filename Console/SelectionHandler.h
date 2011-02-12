@@ -32,7 +32,9 @@ class SelectionHandler
 			SharedMemory<ConsoleInfo>& consoleInfo, 
 			SharedMemory<ConsoleCopy>& consoleCopyInfo, 
 			int nCharWidth, 
-			int nCharHeight);
+			int nCharHeight,
+			int nVInsideBorder,
+			int nHInsideBorder);
 
 		~SelectionHandler();
 
@@ -70,6 +72,8 @@ class SelectionHandler
 		SharedMemory<ConsoleCopy>&					m_consoleCopyInfo;
 		int				m_nCharWidth;
 		int				m_nCharHeight;
+		int				m_nVInsideBorder;
+		int				m_nHInsideBorder;
 
 		CBrush			m_paintBrush;
 		CBrush			m_backgroundBrush;

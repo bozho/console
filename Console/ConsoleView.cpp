@@ -46,6 +46,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_bShowHScroll(false)
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
+, m_nVInsideBorder(g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder)
+, m_nHInsideBorder(g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder)
 , m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
 , m_strUser()
 , bigIcon()
@@ -201,7 +203,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 	// TODO: put this in console size change handler
 	m_screenBuffer.reset(new CharInfo[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
-//	::ZeroMemory(m_screenBuffer.get(), sizeof(CHAR_INFO)*m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns);
 
 	m_consoleHandler.StartMonitorThread();
 
@@ -589,22 +590,20 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		CRect	rectClient;
 		GetClientRect(&rectClient);
 
-		DWORD dwInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
-
-		if (point.x < rectClient.left + static_cast<LONG>(dwInsideBorder))
+    if (point.x < rectClient.left + m_nVInsideBorder)
 		{
 			DoScroll(SB_HORZ, SB_LINELEFT, 0);
-		}			
-		else if (point.x > rectClient.right - static_cast<LONG>(dwInsideBorder))
+		}
+		else if (point.x > rectClient.right - m_nVInsideBorder)
 		{
 			DoScroll(SB_HORZ, SB_LINERIGHT, 0);
 		}
 		
-		if (point.y < rectClient.top + static_cast<LONG>(dwInsideBorder))
+		if (point.y < rectClient.top + m_nHInsideBorder)
 		{
 			DoScroll(SB_VERT, SB_LINEUP, 0);
 		}
-		else if (point.y > rectClient.bottom - static_cast<LONG>(dwInsideBorder))
+		else if (point.y > rectClient.bottom - m_nHInsideBorder)
 		{
 			DoScroll(SB_VERT, SB_LINEDOWN, 0);
 		}
@@ -952,12 +951,10 @@ LRESULT ConsoleView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 
 void ConsoleView::GetRect(CRect& clientRect)
 {
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-
 	clientRect.left		= 0;
 	clientRect.top		= 0;
-	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
-	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
+	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + 2 * m_nVInsideBorder;
+	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + 2 * m_nHInsideBorder;
 
 	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
@@ -980,32 +977,6 @@ bool ConsoleView::GetMaxRect(CRect& maxClientRect)
 	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
 	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
 
-	/* TODO: this calculation does not work very well for multiple monitors
-	CWindow desktopWindow(::GetDesktopWindow());
-	CRect	rectDesktop;
-	bool	bRecalc = false;
-
-	desktopWindow.GetWindowRect(rectDesktop);
-
-	if (rectDesktop.Width() < maxClientRect.Width())
-	{
-		m_consoleHandler.GetConsoleParams()->dwMaxColumns = (rectDesktop.Width() - 2*stylesSettings.dwInsideBorder) / m_nCharWidth;
-		bRecalc = true;
-	}
-
-	if (rectDesktop.Height() < maxClientRect.Height())
-	{
-		m_consoleHandler.GetConsoleParams()->dwMaxRows = (rectDesktop.Height() - 2*stylesSettings.dwInsideBorder) / m_nCharHeight;
-		bRecalc = true;
-	}
-
-	if (bRecalc)
-	{
-		maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
-		maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
-	}
-	*/
-
 	if (m_bShowVScroll) maxClientRect.right	+= m_nVScrollWidth;
 	if (m_bShowHScroll) maxClientRect.bottom+= m_nHScrollWidth;
 
@@ -1026,21 +997,46 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
 	TRACE(L"================================================================\n");
 	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 */
+  LONG width  = clientRect.right  - clientRect.left;
+  LONG height = clientRect.bottom - clientRect.top;
 
 	// exclude scrollbars from row/col calculation
-	if (m_bShowVScroll) clientRect.right	-= m_nVScrollWidth;
-	if (m_bShowHScroll) clientRect.bottom	-= m_nHScrollWidth;
+	if (m_bShowVScroll) width  -= m_nVScrollWidth;
+	if (m_bShowHScroll) height -= m_nHScrollWidth;
 
-	// TODO: handle variable fonts
-	DWORD dwColumns	= (clientRect.Width() - 2*stylesSettings.dwInsideBorder) / m_nCharWidth;
-	DWORD dwRows	= (clientRect.Height() - 2*stylesSettings.dwInsideBorder) / m_nCharHeight;
+  // exclude inside borders from row/col calculation
+  if (!bGetClientRect)
+  {
+    m_nVInsideBorder = stylesSettings.dwInsideBorder;
+    m_nHInsideBorder = stylesSettings.dwInsideBorder;
+    width  -= (m_nVInsideBorder * 2);
+    height -= (m_nHInsideBorder * 2);
+  }
 
-	clientRect.right	= clientRect.left + dwColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
-	clientRect.bottom	= clientRect.top + dwRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
+  DWORD dwColumns = width  / m_nCharWidth;
+  DWORD dwRows    = height / m_nCharHeight;
 
-	// adjust for scrollbars
-	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
-	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
+  DWORD dwMaxColumns = this->m_consoleHandler.GetConsoleParams()->dwMaxColumns;
+  DWORD dwMaxRows    = this->m_consoleHandler.GetConsoleParams()->dwMaxRows;
+
+  if( dwColumns > dwMaxColumns )
+    dwColumns = dwMaxColumns;
+  if( dwRows > dwMaxRows )
+    dwRows = dwMaxRows;
+
+  // variable inside borders
+  if (bGetClientRect)
+  {
+    m_nVInsideBorder = (width  - dwColumns * m_nCharWidth ) / 2;
+    m_nHInsideBorder = (height - dwRows    * m_nCharHeight) / 2;
+  }
+
+  clientRect.right  = clientRect.left + dwColumns * m_nCharWidth  + m_nVInsideBorder * 2;
+  clientRect.bottom = clientRect.top +  dwRows    * m_nCharHeight + m_nHInsideBorder * 2;
+
+  // adjust for scrollbars
+  if (m_bShowVScroll) clientRect.right  += m_nVScrollWidth;
+  if (m_bShowHScroll) clientRect.bottom += m_nHScrollWidth;
 
 	SharedMemory<ConsoleSize>&	newConsoleSize = m_consoleHandler.GetNewConsoleSize();
 	SharedMemoryLock			memLock(newConsoleSize);
@@ -1323,7 +1319,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 
 	// console size changed, resize local buffer
 	if (bResize)
-	{
+  {
 		m_screenBuffer.reset(new CharInfo[dwBufferSize]);
 	}
 
@@ -1406,7 +1402,7 @@ void ConsoleView::CreateOffscreenBuffers()
 	}
 
 	// get max window rect based on font and console size
-	GetMaxRect(rectWindowMax);
+	//GetMaxRect(rectWindowMax);
 	GetRect(rectWindowMax);
 
 	// create offscreen bitmaps if needed
@@ -1432,8 +1428,10 @@ void ConsoleView::CreateOffscreenBuffers()
 									m_consoleHandler.GetConsoleParams(), 
 									m_consoleHandler.GetConsoleInfo(), 
 									m_consoleHandler.GetCopyInfo(),
-									m_nCharWidth, 
-									m_nCharHeight));
+									m_nCharWidth,
+									m_nCharHeight,
+									m_nVInsideBorder,
+									m_nHInsideBorder));
 
 	// create and initialize cursor
 	CRect		rectCursor(0, 0, m_nCharWidth, m_nCharHeight);
@@ -1749,12 +1747,11 @@ void ConsoleView::RepaintText(CDC& dc)
 		}
 	}
 
-	StylesSettings&					stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 	MutexLock						bufferLock(m_bufferMutex);
 
-	DWORD dwX			= stylesSettings.dwInsideBorder;
-	DWORD dwY			= stylesSettings.dwInsideBorder;
+	DWORD dwX			= m_nVInsideBorder;
+	DWORD dwY			= m_nHInsideBorder;
 	DWORD dwOffset		= 0;
 	
 	WORD attrBG;
@@ -1771,8 +1768,8 @@ void ConsoleView::RepaintText(CDC& dc)
 
 	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
 	{
-		dwX = stylesSettings.dwInsideBorder;
-		dwY = i*m_nCharHeight + stylesSettings.dwInsideBorder;
+		dwX = m_nVInsideBorder;
+		dwY = i*m_nCharHeight + m_nHInsideBorder;
 
 		nBkMode			= TRANSPARENT;
 		crBkColor		= RGB(0, 0, 0);
@@ -1884,10 +1881,8 @@ void ConsoleView::RepaintText(CDC& dc)
 
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-
-	DWORD	dwX			= stylesSettings.dwInsideBorder;
-	DWORD	dwY			= stylesSettings.dwInsideBorder;
+	DWORD	dwX			= m_nVInsideBorder;
+	DWORD	dwY			= m_nHInsideBorder;
 	DWORD	dwOffset	= 0;
 	
 	WORD	attrBG;
@@ -1901,8 +1896,8 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 
 	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
 	{
-		dwX = stylesSettings.dwInsideBorder;
-		dwY = i*m_nCharHeight + stylesSettings.dwInsideBorder;
+		dwX = m_nVInsideBorder;
+		dwY = i*m_nCharHeight + m_nHInsideBorder;
 
 		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{
@@ -1984,7 +1979,6 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 {
 	CRect			rectBlit;
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 	if (bOnlyCursor)
 	{
@@ -1994,10 +1988,10 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
 		rectBlit		= m_cursor->GetCursorRect();
-		rectBlit.left	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-		rectBlit.top	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
-		rectBlit.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-		rectBlit.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
+		rectBlit.left	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+		rectBlit.top	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+		rectBlit.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+		rectBlit.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 	}
 	else
 	{
@@ -2038,7 +2032,6 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 	{
 		CRect			rectCursor(0, 0, 0, 0);
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
-		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
 		// don't blit if cursor is outside visible window
 		if ((consoleInfo->csbi.dwCursorPosition.X >= consoleInfo->csbi.srWindow.Left) &&
@@ -2047,10 +2040,10 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 			(consoleInfo->csbi.dwCursorPosition.Y <= consoleInfo->csbi.srWindow.Bottom))
 		{
 			rectCursor			= m_cursor->GetCursorRect();
-			rectCursor.left		+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-			rectCursor.top		+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
-			rectCursor.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + stylesSettings.dwInsideBorder;
-			rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + stylesSettings.dwInsideBorder;
+			rectCursor.left		+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+			rectCursor.top		+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+			rectCursor.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+			rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 
 			m_cursor->BitBlt(
 						m_dcOffscreen, 
@@ -2296,8 +2289,6 @@ void ConsoleView::ForwardMouseClick(UINT uMsg, WPARAM wParam, const CPoint& poin
 
 COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
 {
-	StylesSettings& stylesSettings	= g_settingsHandler->GetAppearanceSettings().stylesSettings;
-
 	DWORD			dwColumns		= m_consoleHandler.GetConsoleParams()->dwColumns;
 	DWORD			dwBufferColumns	= m_consoleHandler.GetConsoleParams()->dwBufferColumns;
 	SMALL_RECT&		srWindow		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow;
@@ -2306,8 +2297,8 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
 	COORD			consolePoint;
 	SHORT			maxX = (dwBufferColumns > 0) ? static_cast<SHORT>(dwBufferColumns - 1) : static_cast<SHORT>(dwColumns - 1);
 
-	consolePoint.X = static_cast<SHORT>((point.x - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharWidth + srWindow.Left);
-	consolePoint.Y = static_cast<SHORT>((point.y - static_cast<LONG>(stylesSettings.dwInsideBorder)) / m_nCharHeight + srWindow.Top);
+	consolePoint.X = static_cast<SHORT>((point.x - m_nVInsideBorder) / m_nCharWidth + srWindow.Left);
+	consolePoint.Y = static_cast<SHORT>((point.y - m_nHInsideBorder) / m_nCharHeight + srWindow.Top);
 
 	if (consolePoint.X < 0)
 	{

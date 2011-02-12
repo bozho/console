@@ -190,6 +190,9 @@ class ConsoleView
 		bool	m_bShowHScroll;
 		int		m_nVScrollWidth;
 		int		m_nHScrollWidth;
+		int		m_nVInsideBorder;
+		int		m_nHInsideBorder;
+
 
 		CString	m_strTitle;
 		CString	m_strUser;

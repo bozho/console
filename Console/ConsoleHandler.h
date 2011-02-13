@@ -47,7 +47,7 @@ class ConsoleHandler
 		ConsoleHandler();
 		~ConsoleHandler();
 
-		Mutex m_resizingMutex;
+		Mutex m_bufferMutex;
 
 	public:
 

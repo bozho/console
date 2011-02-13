@@ -204,6 +204,8 @@ class ConsoleView
 		ConsoleHandler					m_consoleHandler;
 
 		shared_array<CharInfo>			m_screenBuffer;
+		DWORD	m_dwScreenRows;
+		DWORD	m_dwScreenColumns;
 
 		ConsoleSettings&				m_consoleSettings;
 		AppearanceSettings&				m_appearanceSettings;
@@ -218,8 +220,6 @@ class ConsoleView
 		shared_ptr<SelectionHandler>	m_selectionHandler;
 
 		MouseSettings::Command			m_mouseCommand;
-
-		Mutex							m_bufferMutex;
 
 		bool							m_bFlashTimerRunning;
 		DWORD							m_dwFlashes;

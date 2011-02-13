@@ -54,6 +54,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , smallIcon()
 , m_consoleHandler()
 , m_screenBuffer()
+, m_dwScreenRows(0)
+, m_dwScreenColumns(0)
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_hotkeys(g_settingsHandler->GetHotKeys())
@@ -63,7 +65,6 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_cursor()
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
-, m_bufferMutex(NULL, FALSE, NULL)
 , m_bFlashTimerRunning(false)
 , m_dwFlashes(0)
 {
@@ -202,7 +203,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	CreateOffscreenBuffers();
 
 	// TODO: put this in console size change handler
-	m_screenBuffer.reset(new CharInfo[m_consoleHandler.GetConsoleParams()->dwRows*m_consoleHandler.GetConsoleParams()->dwColumns]);
+	m_dwScreenRows    = m_consoleHandler.GetConsoleParams()->dwRows;
+	m_dwScreenColumns = m_consoleHandler.GetConsoleParams()->dwColumns;
+	m_screenBuffer.reset(new CharInfo[m_dwScreenRows * m_dwScreenColumns]);
 
 	m_consoleHandler.StartMonitorThread();
 
@@ -472,7 +475,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			{
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
-				MutexLock bufferLock(m_bufferMutex);
+				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;
@@ -609,12 +612,12 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		}
 
 		{
-			MutexLock bufferLock(m_bufferMutex);
+			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
 			COORD	coordStart;
 			COORD	coordEnd;
 			m_selectionHandler->GetSelectionCoordinates(coordStart, coordEnd);
-			int iSelectionSize = (coordEnd.Y - coordStart.Y) * m_consoleHandler.GetConsoleParams()->dwColumns +
+			int iSelectionSize = (coordEnd.Y - coordStart.Y) * m_dwScreenColumns +
 			                     (coordEnd.X - coordStart.X) + 1;
 			m_mainFrame.SetSelectionSize(iSelectionSize);
 		}
@@ -850,7 +853,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		::GetCursorPos(&point);
 		ScreenToClient(&point);
 
-		MutexLock bufferLock(m_bufferMutex);
+		MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
 	}
 	else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
@@ -1279,11 +1282,11 @@ void ConsoleView::DumpBuffer()
 	wofstream of;
 	of.open(Helpers::ExpandEnvironmentStrings(_T("%temp%\\console.dump")).c_str());
 	DWORD       dwOffset = 0;
-	MutexLock	bufferLock(m_bufferMutex);
+	MutexLock	bufferLock(m_consoleHandler.m_bufferMutex);
 
-	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
+	for (DWORD i = 0; i < m_dwScreenRows; ++i)
 	{
-		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j)
+		for (DWORD j = 0; j < m_dwScreenColumns; ++j)
 		{
 			of << m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
 			++dwOffset;
@@ -1307,23 +1310,22 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
-	MutexLock handlerLock(m_consoleHandler.m_resizingMutex);
-
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
-	DWORD							dwBufferSize	= consoleParams->dwRows * consoleParams->dwColumns;
-
 	SharedMemory<ConsoleInfo>&	consoleInfo = m_consoleHandler.GetConsoleInfo();
 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
 
 	SharedMemoryLock	consoleInfoLock(consoleInfo);
 	SharedMemoryLock	sharedBufferLock(consoleBuffer);
-	MutexLock			localBufferLock(m_bufferMutex);
+	MutexLock			localBufferLock(m_consoleHandler.m_bufferMutex);
 
 	// console size changed, resize local buffer
 	if (bResize)
-  {
-		m_screenBuffer.reset(new CharInfo[dwBufferSize]);
+	{
+		m_dwScreenRows    = consoleParams->dwRows;
+		m_dwScreenColumns = consoleParams->dwColumns;
+		m_screenBuffer.reset(new CharInfo[m_dwScreenRows * m_dwScreenColumns]);
 	}
+	DWORD dwBufferSize = m_dwScreenRows * m_dwScreenColumns;
 
 	// copy changed data
 	for (DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
@@ -1658,9 +1660,9 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 DWORD ConsoleView::GetBufferDifference()
 {
-	DWORD		dwCount				= m_consoleHandler.GetConsoleParams()->dwRows * m_consoleHandler.GetConsoleParams()->dwColumns;
+	MutexLock	bufferLock(m_consoleHandler.m_bufferMutex);
+	DWORD		dwCount				= m_dwScreenRows * m_dwScreenColumns;
 	DWORD		dwChangedPositions	= 0;
-	MutexLock	bufferLock(m_bufferMutex);
 
 	for (DWORD i = 0; i < dwCount; ++i)
 	{
@@ -1700,8 +1702,6 @@ void ConsoleView::UpdateTitle()
 
 void ConsoleView::RepaintText(CDC& dc)
 {
-	MutexLock handlerLock(m_consoleHandler.m_resizingMutex);
-
 	SIZE	bitmapSize;
 	CRect	bitmapRect;
 
@@ -1751,8 +1751,7 @@ void ConsoleView::RepaintText(CDC& dc)
 		}
 	}
 
-	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
-	MutexLock						bufferLock(m_bufferMutex);
+	MutexLock						bufferLock(m_consoleHandler.m_bufferMutex);
 
 	DWORD dwX			= m_nVInsideBorder;
 	DWORD dwY			= m_nHInsideBorder;
@@ -1770,7 +1769,7 @@ void ConsoleView::RepaintText(CDC& dc)
 
 	wstring		strText(L"");
 
-	for (DWORD i = 0; i < consoleParams->dwRows; ++i)
+  for (DWORD i = 0; i < m_dwScreenRows; ++i)
 	{
 		dwX = m_nVInsideBorder;
 		dwY = i*m_nCharHeight + m_nHInsideBorder;
@@ -1807,7 +1806,7 @@ void ConsoleView::RepaintText(CDC& dc)
 		nCharWidths	= 1;
 		++dwOffset;
 
-		for (DWORD j = 1; j < consoleParams->dwColumns; ++j, ++dwOffset)
+		for (DWORD j = 1; j < m_dwScreenColumns; ++j, ++dwOffset)
 		{
 			if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE)
 			{
@@ -1885,27 +1884,25 @@ void ConsoleView::RepaintText(CDC& dc)
 
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
-	MutexLock handlerLock(m_consoleHandler.m_resizingMutex);
-
 	DWORD	dwX			= m_nVInsideBorder;
 	DWORD	dwY			= m_nHInsideBorder;
 	DWORD	dwOffset	= 0;
 	
 	WORD	attrBG;
 
-	MutexLock bufferLock(m_bufferMutex);
+	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 
 	CRect	rectWindow;
 	GetClientRect(&rectWindow);
 
 	if (m_tabData->backgroundImageType != bktypeNone) g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
 
-	for (DWORD i = 0; i < m_consoleHandler.GetConsoleParams()->dwRows; ++i)
+	for (DWORD i = 0; i < m_dwScreenRows; ++i)
 	{
 		dwX = m_nVInsideBorder;
 		dwY = i*m_nCharHeight + m_nHInsideBorder;
 
-		for (DWORD j = 0; j < m_consoleHandler.GetConsoleParams()->dwColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
+		for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{
 			if (m_screenBuffer[dwOffset].changed)
 			{

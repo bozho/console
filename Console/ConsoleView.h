@@ -164,7 +164,7 @@ class ConsoleView
 		bool TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/);
 		void ForwardMouseClick(UINT uMsg, WPARAM wParam, const CPoint& point);
 
-		COORD GetConsoleCoord(const CPoint& clientPoint);
+		COORD GetConsoleCoord(const CPoint& clientPoint, bool bStartSelection = false);
 
 
 	private:

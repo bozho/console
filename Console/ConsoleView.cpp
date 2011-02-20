@@ -482,7 +482,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
 				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
+				m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
@@ -2277,7 +2277,7 @@ void ConsoleView::ForwardMouseClick(UINT uMsg, WPARAM wParam, const CPoint& poin
 
 /////////////////////////////////////////////////////////////////////////////
 
-COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
+COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelection)
 {
 	DWORD			dwColumns		= m_consoleHandler.GetConsoleParams()->dwColumns;
 	DWORD			dwBufferColumns	= m_consoleHandler.GetConsoleParams()->dwBufferColumns;
@@ -2292,8 +2292,15 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint)
 
 	if (consolePoint.X < 0)
 	{
-		consolePoint.X = maxX;
-		--consolePoint.Y;
+		if (bStartSelection)
+		{
+			consolePoint.X = 0;
+		}
+		else
+		{
+			consolePoint.X = maxX;
+			--consolePoint.Y;
+		}
 	}
 
 	if (consolePoint.X > srWindow.Right) consolePoint.X = srWindow.Right;

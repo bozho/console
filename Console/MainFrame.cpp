@@ -1350,7 +1350,10 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
-		m_activeView->InitializeScrollbars();
+		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+		{
+			it->second->InitializeScrollbars();
+		}
 
 		m_activeView->RecreateFont();
 		AdjustWindowSize(false);

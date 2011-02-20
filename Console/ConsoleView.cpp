@@ -199,6 +199,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	// scrollbar stuff
 	InitializeScrollbars();
 
+	// create font
+	RecreateFont();
+
 	// create offscreen buffers
 	CreateOffscreenBuffers();
 
@@ -325,8 +328,10 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		if (m_appearanceSettings.fontSettings.dwSize != size) {
 			// adjust the font size
 			m_appearanceSettings.fontSettings.dwSize = size;
-			RecreateOffscreenBuffers();
+			// recreate font with new size
+			RecreateFont();
 			m_mainFrame.AdjustWindowSize(false);
+			m_mainFrame.RecreateOffscreenBuffers();
 			Repaint(true);
 		}
 
@@ -794,7 +799,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 */
 		InitializeScrollbars();
 
-		if (m_bActive) RecreateOffscreenBuffers();
+    RecreateOffscreenBuffers();
 
 		// notify parent about resize
 		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
@@ -1092,13 +1097,22 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::RecreateOffscreenBuffers()
+void ConsoleView::RecreateFont()
 {
 	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
+	if (!CreateFont(m_appearanceSettings.fontSettings.strName))
+	{
+		CreateFont(wstring(L"Courier New"));
+	}
+}
+
+void ConsoleView::RecreateOffscreenBuffers()
+{
 	if (!m_backgroundBrush.IsNull())m_backgroundBrush.DeleteObject();
 	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
 	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
 	CreateOffscreenBuffers();
+	m_bNeedFullRepaint = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1369,13 +1383,6 @@ void ConsoleView::CreateOffscreenBuffers()
 {
 	CWindowDC	dcWindow(m_hWnd);
 	CRect		rectWindowMax;
-//	CRect		rectWindow;
-
-	// create font
-	if (!CreateFont(m_appearanceSettings.fontSettings.strName))
-	{
-		CreateFont(wstring(L"Courier New"));
-	}
 
 	// get ClearType status
 	BOOL	bSmoothing		= FALSE;

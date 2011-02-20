@@ -196,6 +196,7 @@ class MainFrame
 		void AdjustWindowRect(CRect& rect);
 		void SetSelectionSize(int iSelectionSize);
 		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
+		void RecreateOffscreenBuffers();
 
 	private:
 

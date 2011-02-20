@@ -112,6 +112,7 @@ class ConsoleView
 
 		void SetAppActiveStatus(bool bAppActive);
 
+		void RecreateFont();
 		void RecreateOffscreenBuffers();
 		void Repaint(bool bFullRepaint);
 		void MainframeMoving();

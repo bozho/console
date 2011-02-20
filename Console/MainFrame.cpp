@@ -1402,8 +1402,10 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
 		m_activeView->InitializeScrollbars();
-		m_activeView->RecreateOffscreenBuffers();
+
+		m_activeView->RecreateFont();
 		AdjustWindowSize(false);
+		RecreateOffscreenBuffers();
 		m_activeView->Repaint(true);
 	}
 
@@ -2211,6 +2213,16 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 	m_dwWindowHeight= rectWindow.Height();
 
 	SetMargins();
+}
+
+void MainFrame::RecreateOffscreenBuffers()
+{
+  MutexLock	viewMapLock(m_viewsMutex);
+
+  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  {
+    it->second->RecreateOffscreenBuffers();
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

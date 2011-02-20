@@ -100,8 +100,7 @@ class ConsoleView
 	public:
 
 		void GetRect(CRect& clientRect);
-		bool GetMaxRect(CRect& maxClientRect);
-		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bGetClientRect);
+		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bVariableInsideBorder);
 		CPoint GetCellSize() { return CPoint(m_nCharWidth, m_nCharHeight); };
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
@@ -191,9 +190,6 @@ class ConsoleView
 		bool	m_bShowHScroll;
 		int		m_nVScrollWidth;
 		int		m_nHScrollWidth;
-		int		m_nVInsideBorder;
-		int		m_nHInsideBorder;
-
 
 		CString	m_strTitle;
 		CString	m_strUser;
@@ -243,6 +239,8 @@ private:
 
 		static int						m_nCharHeight;
 		static int						m_nCharWidth;
+		static int						m_nVInsideBorder;
+		static int						m_nHInsideBorder;
 };
 
 //////////////////////////////////////////////////////////////////////////////

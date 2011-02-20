@@ -139,7 +139,6 @@ class MainFrame
 		LRESULT OnSysKeydown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 
-		LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
@@ -195,7 +194,7 @@ class MainFrame
 
 		void AdjustWindowRect(CRect& rect);
 		void SetSelectionSize(int iSelectionSize);
-		void AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore = false);
+		void AdjustWindowSize(bool bResizeConsole);
 		void RecreateOffscreenBuffers();
 
 	private:

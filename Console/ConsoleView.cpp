@@ -25,6 +25,9 @@ CFont	ConsoleView::m_fontText;
 
 int		ConsoleView::m_nCharHeight(0);
 int		ConsoleView::m_nCharWidth(0);
+int		ConsoleView::m_nVInsideBorder(0);
+int		ConsoleView::m_nHInsideBorder(0);
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,8 +49,6 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_bShowHScroll(false)
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
-, m_nVInsideBorder(g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder)
-, m_nHInsideBorder(g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder)
 , m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
 , m_strUser()
 , bigIcon()
@@ -973,34 +974,11 @@ void ConsoleView::GetRect(CRect& clientRect)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleView::GetMaxRect(CRect& maxClientRect)
-{
-	if (m_bInitializing) return false;
-
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-
-	// TODO: take care of max window size
-	maxClientRect.left	= 0;
-	maxClientRect.top	= 0;
-	maxClientRect.right	= m_consoleHandler.GetConsoleParams()->dwMaxColumns*m_nCharWidth + 2*stylesSettings.dwInsideBorder;
-	maxClientRect.bottom= m_consoleHandler.GetConsoleParams()->dwMaxRows*m_nCharHeight + 2*stylesSettings.dwInsideBorder;
-
-	if (m_bShowVScroll) maxClientRect.right	+= m_nVScrollWidth;
-	if (m_bShowHScroll) maxClientRect.bottom+= m_nHScrollWidth;
-
-	return true;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bGetClientRect)
+void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bVariableInsideBorder)
 {
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	if (bGetClientRect) GetWindowRect(&clientRect);
+	GetWindowRect(&clientRect);
 /*
 	TRACE(L"================================================================\n");
 	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
@@ -1013,7 +991,7 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
 	if (m_bShowHScroll) height -= m_nHScrollWidth;
 
   // exclude inside borders from row/col calculation
-  if (!bGetClientRect)
+  if (!bVariableInsideBorder)
   {
     m_nVInsideBorder = stylesSettings.dwInsideBorder;
     m_nHInsideBorder = stylesSettings.dwInsideBorder;
@@ -1033,7 +1011,7 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
     dwRows = dwMaxRows;
 
   // variable inside borders
-  if (bGetClientRect)
+  if (bVariableInsideBorder)
   {
     m_nVInsideBorder = (width  - dwColumns * m_nCharWidth ) / 2;
     m_nHInsideBorder = (height - dwRows    * m_nCharHeight) / 2;
@@ -1412,8 +1390,7 @@ void ConsoleView::CreateOffscreenBuffers()
 		m_bUseTextAlphaBlend = false;
 	}
 
-	// get max window rect based on font and console size
-	//GetMaxRect(rectWindowMax);
+	// get window rect based on font and console size
 	GetRect(rectWindowMax);
 
 	// create offscreen bitmaps if needed
@@ -1518,6 +1495,9 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
 	m_nCharWidth = textMetric.tmAveCharWidth;
 	m_nCharHeight = textMetric.tmHeight;
+
+	m_nVInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
+	m_nHInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
 
 	return true;
 }

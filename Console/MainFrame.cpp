@@ -507,39 +507,6 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 //////////////////////////////////////////////////////////////////////////////
 
 
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled)
-{
-	MINMAXINFO* pMinMax = (MINMAXINFO*)lParam;
-
-	CRect					maxClientRect;
-
-	if (!(m_activeView) || (!m_activeView->GetMaxRect(maxClientRect)))
-	{
-		bHandled = false;
-		return 1;
-	}
-
-	TRACE(L"minmax: %ix%i\n", maxClientRect.Width(), maxClientRect.Height());
-
-	AdjustWindowRect(maxClientRect);
-
-	TRACE(L"minmax: %ix%i\n", maxClientRect.Width(), maxClientRect.Height());
-
-	pMinMax->ptMaxSize.x = maxClientRect.Width();
-	pMinMax->ptMaxSize.y = maxClientRect.Height() + 4;
-
-	pMinMax->ptMaxTrackSize.x = pMinMax->ptMaxSize.x;
-	pMinMax->ptMaxTrackSize.y = pMinMax->ptMaxSize.y;
-
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
 //////////////////////////////////////////////////////////////////////////////
 
 LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
@@ -548,7 +515,7 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL&
 	// when the Console window is resized using a mouse)
 	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
 	// message after resizing a window.
-	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
+	//SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
 
 	if (wParam == SIZE_MAXIMIZED)
 	{
@@ -558,24 +525,6 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL&
 	{
 		m_bRestoringWindow = false;
 		PostMessage(WM_EXITSIZEMOVE, 1, 0);
-/*
-		CRect rectWindow;
-		GetWindowRect(&rectWindow);
-
-		DWORD dwWindowWidth	= LOWORD(lParam);
-		DWORD dwWindowHeight= HIWORD(lParam);
-
-		if ((dwWindowWidth != m_dwWindowWidth) ||
-			(dwWindowHeight != m_dwWindowHeight))
-		{
-//			AdjustWindowSize(true, (wParam == SIZE_MAXIMIZED));
-
-			CRect clientRect;
-			GetClientRect(&clientRect);
-			AdjustAndResizeConsoleView(clientRect);
-			AdjustWindowRect(clientRect);
-		}
-*/
 	}
 
 // 	CRect rectWindow;
@@ -2114,7 +2063,7 @@ void MainFrame::ResizeWindow()
 	if ((dwWindowWidth != m_dwWindowWidth) ||
 		(dwWindowHeight != m_dwWindowHeight))
 	{
-		AdjustWindowSize(true, false);
+		AdjustWindowSize(true);
 	}
 
 	SendMessage(WM_NULL, 0, 0);
@@ -2128,39 +2077,24 @@ void MainFrame::ResizeWindow()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= false*/)
+void MainFrame::AdjustWindowSize(bool bResizeConsole)
 {
 	CRect clientRect(0, 0, 0, 0);
 
+	bool bMaximized = false;
 	if( this->IsZoomed() )
+	{
+		bMaximized     = true;
 		bResizeConsole = true;
+	}
 
 	if (bResizeConsole)
 	{
-		if (bMaxOrRestore)
-		{
-			GetClientRect(&clientRect);
-		
-			// adjust for the toolbar height
-			CReBarCtrl	rebar(m_hWndToolBar);
-			clientRect.bottom -= rebar.GetBarHeight();
-
-			if (m_bStatusBarVisible)
-			{
-				CRect	rectStatusBar(0, 0, 0, 0);
-
-				::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
-				clientRect.bottom	-= rectStatusBar.Height();
-			}
-
-			clientRect.top += GetTabAreaHeight(); //+0
-		}
-
 		// adjust the active view
 		if (!m_activeView) return;
 
 		// if we're being maximized, AdjustRectAndResize will use client rect supplied
-		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
+		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, bMaximized);
 
 		// for other views, first set view size and then resize their Windows consoles
 		MutexLock	viewMapLock(m_viewsMutex);
@@ -2178,18 +2112,14 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole, bool bMaxOrRestore /*= fal
 							SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
 
 			// if we're being maximized, AdjustRectAndResize will use client rect supplied
-			it->second->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, !bMaxOrRestore);
+			it->second->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, bMaximized);
 		}
 	}
 	else
 	{
 		if (!m_activeView) return;
-		CRect maxClientRect;
-		m_activeView->GetMaxRect(maxClientRect);
-		m_activeView->GetRect(clientRect);
 
-		if (clientRect.Width() > maxClientRect.Width()) clientRect.right = maxClientRect.right;
-		if (clientRect.Height() > maxClientRect.Height()) clientRect.bottom = maxClientRect.bottom;
+		m_activeView->GetRect(clientRect);
 	}
 
 	AdjustWindowRect(clientRect);

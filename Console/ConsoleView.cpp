@@ -800,7 +800,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 */
 		InitializeScrollbars();
 
-    RecreateOffscreenBuffers();
+		RecreateOffscreenBuffers();
 
 		// notify parent about resize
 		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
@@ -1511,8 +1511,8 @@ void ConsoleView::InitializeScrollbars()
 {
 	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
 
- 	m_bShowVScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows);
- 	m_bShowHScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
+	m_bShowVScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows);
+	m_bShowHScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
 
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
 
@@ -1526,8 +1526,8 @@ void ConsoleView::InitializeScrollbars()
 		::UninitializeFlatSB(m_hWnd);
 	}
 
-  	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
-  	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
+	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
+	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
 
 /*
 	TRACE(L"InitializeScrollbars, console wnd: 0x%08X\n", m_hWnd);
@@ -1541,24 +1541,26 @@ void ConsoleView::InitializeScrollbars()
 		SCROLLINFO	si ;
 
 		si.cbSize	= sizeof(SCROLLINFO) ;
-		si.fMask	= SIF_PAGE | SIF_RANGE ;
+		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS;
 		si.nPage	= consoleParams->dwRows;
 		si.nMax		= consoleParams->dwBufferRows - 1;
 		si.nMin		= 0 ;
+		si.nPos		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Top;
 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 	}
 
 	if (m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns))
 	{
-		// set vertical scrollbar stuff
+		// set horizontal scrollbar stuff
 		SCROLLINFO	si ;
 
 		si.cbSize	= sizeof(SCROLLINFO) ;
-		si.fMask	= SIF_PAGE | SIF_RANGE ;
+		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS;
 		si.nPage	= consoleParams->dwColumns;
 		si.nMax		= consoleParams->dwBufferColumns - 1;
 		si.nMin		= 0 ;
+		si.nPos		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Left;
 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
 	}
@@ -1589,7 +1591,7 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 				nDelta = (nType == SB_VERT) ? -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
 			}
 			break; 
-			
+
 		case SB_PAGEDOWN: /* SB_PAGERIGHT */
 			if (scrollSettings.dwPageScrollRows > 0)
 			{

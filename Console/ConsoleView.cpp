@@ -1322,11 +1322,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	// copy changed data
 	for (DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
 	{
-		if (memcmp(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO)))
-		{
-			memcpy(&(m_screenBuffer[dwOffset].charInfo), &(consoleBuffer[dwOffset]), sizeof(CHAR_INFO));
-			m_screenBuffer[dwOffset].changed = true;
-		}
+		m_screenBuffer[dwOffset].copy(consoleBuffer.Get() + dwOffset);
 	}
 
 	WPARAM wParam = 0;
@@ -1740,7 +1736,7 @@ void ConsoleView::RepaintText(CDC& dc)
 		}
 	}
 
-	MutexLock						bufferLock(m_consoleHandler.m_bufferMutex);
+	MutexLock			bufferLock(m_consoleHandler.m_bufferMutex);
 
 	DWORD dwX			= m_nVInsideBorder;
 	DWORD dwY			= m_nHInsideBorder;
@@ -1758,7 +1754,7 @@ void ConsoleView::RepaintText(CDC& dc)
 
 	wstring		strText(L"");
 
-  for (DWORD i = 0; i < m_dwScreenRows; ++i)
+	for (DWORD i = 0; i < m_dwScreenRows; ++i)
 	{
 		dwX = m_nVInsideBorder;
 		dwY = i*m_nCharHeight + m_nHInsideBorder;
@@ -1886,10 +1882,9 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 
 	if (m_tabData->backgroundImageType != bktypeNone) g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
 
-	for (DWORD i = 0; i < m_dwScreenRows; ++i)
+	for (DWORD i = 0; i < m_dwScreenRows; ++i, dwY += m_nCharHeight)
 	{
 		dwX = m_nVInsideBorder;
-		dwY = i*m_nCharHeight + m_nHInsideBorder;
 
 		for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
 		{

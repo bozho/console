@@ -170,6 +170,17 @@ struct CharInfo
 		*(reinterpret_cast<DWORD*>(&charInfo)) = 0x00000020;
 	}
 
+  inline void copy(CHAR_INFO* pnewCharInfo)
+  {
+    DWORD* pold = reinterpret_cast<DWORD*>(&charInfo);
+    DWORD* pnew = reinterpret_cast<DWORD*>(pnewCharInfo);
+    if( *pold != *pnew )
+    {
+      *pold = *pnew;
+      changed = true;
+    }
+  }
+
 	CHAR_INFO	charInfo;
 	bool		changed;
 };

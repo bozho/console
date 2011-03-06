@@ -319,6 +319,12 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
 	if (((uMsg == WM_KEYDOWN) || (uMsg == WM_KEYUP)) && (wParam == VK_PACKET)) return 0;
 
+	if (uMsg == WM_SYSKEYUP && wParam == VK_MENU) {
+		m_mainFrame.PostMessage(WM_COMMAND, ID_VIEW_MENU);
+
+		return 0;
+	}
+
 	if (uMsg == WM_MOUSEWHEEL && wParam & MK_CONTROL) {
 		short direction = HIWORD(wParam);
 

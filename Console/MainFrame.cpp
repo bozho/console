@@ -423,11 +423,11 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
       {
         if(!::IsWindowVisible(m_hWnd))
         {
-          ::AnimateWindow(m_hWnd, 350, AW_ACTIVATE | AW_SLIDE | AW_VER_POSITIVE);
+          ::AnimateWindow(m_hWnd, 300, AW_ACTIVATE | AW_SLIDE | AW_VER_POSITIVE);
         }
-        else
+        else if(this->GetActiveView() == GetFocus())
         {
-          ::AnimateWindow(m_hWnd, 350, AW_HIDE | AW_SLIDE | AW_VER_NEGATIVE);
+          ::AnimateWindow(m_hWnd, 300, AW_HIDE | AW_SLIDE | AW_VER_NEGATIVE);
           bActivate = false;
         }
       }

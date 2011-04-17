@@ -897,6 +897,16 @@
 			<File
 				RelativePath="..\help\console.hhp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Build CHM file"
+						CommandLine="hhc $(InputPath)&#x0D;&#x0A;if errorlevel 1 goto :VCEnd&#x0D;&#x0A;echo $(InputFileName) : error : failed to create CHM file&#x0D;&#x0A;"
+						Outputs="$(InputDir)$(InputName).chm"
+					/>
+				</FileConfiguration>
 			</File>
 			<Filter
 				Name="html"

@@ -433,7 +433,7 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
       }
       else
       {
-         ShowWindow(SW_RESTORE);
+        ShowWindow(this->IsIconic()?SW_RESTORE:SW_SHOW);
       }
 
       if( bActivate )
@@ -2128,7 +2128,6 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole)
 	AdjustWindowRect(clientRect);
 
 //	TRACE(L"AdjustWindowSize: %ix%i\n", clientRect.Width(), clientRect.Height());
-
 	SetWindowPos(
 		0, 
 		0, 

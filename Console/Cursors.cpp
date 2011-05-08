@@ -1064,10 +1064,8 @@ FadeBlockCursor::~FadeBlockCursor()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FadeBlockCursor::Draw(bool /*bActive*/ /* = true */)
+void FadeBlockCursor::Draw(bool bActive /* = true */)
 {
-	m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
-/*
 	if (bActive)
 	{
 		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
@@ -1076,7 +1074,6 @@ void FadeBlockCursor::Draw(bool /*bActive*/ /* = true */)
 	{
 		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	}
-*/
 }
 
 //////////////////////////////////////////////////////////////////////////////

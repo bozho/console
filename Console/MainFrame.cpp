@@ -93,7 +93,7 @@ BOOL MainFrame::OnIdle()
 	UpdateStatusBar();
 	UIUpdateToolBar();
 
-	if (m_activeView.get() != NULL)
+	if (m_activeView)
 	{
 		UIEnable(ID_EDIT_COPY, m_activeView->CanCopy() ? TRUE : FALSE);
 		UIEnable(ID_EDIT_CLEAR_SELECTION, m_activeView->CanClearSelection() ? TRUE : FALSE);
@@ -352,7 +352,7 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 	{
 		RemoveTab(it->second->m_hWnd);
-		if (m_activeView.get() == it->second.get()) m_activeView.reset();
+		if (m_activeView == it->second) m_activeView.reset();
 		it->second->DestroyWindow();
 	}
 
@@ -548,7 +548,7 @@ LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /
 
 	if (!m_activeView)
 		return 0;
-	
+
 	m_activeView->SetResizing(true);
 
 	CPoint pointSize = m_activeView->GetCellSize();
@@ -661,7 +661,7 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		}
 
 
-		if (m_activeView.get() != NULL)
+		if (m_activeView)
 		{
 			CRect rectClient;
 			GetClientRect(&rectClient);
@@ -1014,7 +1014,6 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 			// clear the highlight in case it's on
 			HighlightTab(m_activeView->m_hWnd, false);
-
 		}
 		else
 		{
@@ -1024,7 +1023,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 	if (appearanceSettings.stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
 	
-	if (appearanceSettings.windowSettings.bUseTabTitles && (m_activeView.get() != NULL))
+	if (appearanceSettings.windowSettings.bUseTabTitles && m_activeView)
 	{
 		SetWindowText(m_activeView->GetTitle());
 	}
@@ -1421,7 +1420,7 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView.get() != NULL)
+	if (m_activeView)
 	{
 		m_activeView->SetConsoleWindowVisible(!m_activeView->GetConsoleWindowVisible());
 		UISetCheck(ID_VIEW_CONSOLE, m_activeView->GetConsoleWindowVisible() ? TRUE : FALSE);
@@ -1657,7 +1656,7 @@ void MainFrame::CloseTab(HWND hwndConsoleView)
 	if (it == m_views.end()) return;
 
 	RemoveTab(hwndConsoleView);
-	if (m_activeView.get() == it->second.get()) m_activeView.reset();
+	if (m_activeView == it->second) m_activeView.reset();
 	it->second->DestroyWindow();
 	m_views.erase(it);
 
@@ -1928,7 +1927,7 @@ void MainFrame::SetWindowIcons()
 	if (!m_icon.IsNull()) m_icon.DestroyIcon();
 	if (!m_smallIcon.IsNull()) m_smallIcon.DestroyIcon();
 
-	if (windowSettings.bUseTabIcon && (m_activeView.get() != NULL))
+	if (windowSettings.bUseTabIcon && m_activeView)
 	{
 		m_icon.Attach(m_activeView->GetIcon(true).DuplicateIcon());
 		m_smallIcon.Attach(m_activeView->GetIcon(false).DuplicateIcon());
@@ -2072,7 +2071,7 @@ void MainFrame::ResizeWindow()
 	SendMessage(WM_NULL, 0, 0);
 	m_dwResizeWindowEdge = WMSZ_BOTTOM;
 
-	if (m_activeView.get() != NULL) m_activeView->SetResizing(false);
+	if (m_activeView) m_activeView->SetResizing(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2104,7 +2103,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole)
 
 		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 		{
-			if (it->second->m_hWnd == m_activeView->m_hWnd) continue;
+			if (m_activeView == it->second) continue;
 
 			it->second->SetWindowPos(
 							0, 

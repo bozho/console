@@ -450,6 +450,244 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 //////////////////////////////////////////////////////////////////////////////
 
+class ClipboardData
+{
+public:
+  ClipboardData(void) {}
+  virtual ~ClipboardData(void) {}
+  virtual void StartRow(void) = 0;
+  virtual void EndRow(void) = 0;
+  virtual void AddChar(PCHAR_INFO) = 0;
+  virtual bool IsLastCharBlank(void) = 0;
+  virtual size_t GetRowLength(void) = 0;
+  virtual void TrimRight(void) = 0;
+  virtual void Wrap(CopyNewlineChar) = 0;
+  virtual void Publish(void) = 0;
+
+  class Global
+  {
+  public:
+    Global(const void* p, size_t size)
+    {
+      hText = ::GlobalAlloc(GMEM_MOVEABLE, size);
+      if( hText )
+      {
+        ::CopyMemory(::GlobalLock(hText), p, size);
+        ::GlobalUnlock(hText);
+      }
+    }
+    ~Global(void)
+    {
+      if( hText )
+      {
+        // we need to global-free data only if copying failed
+        ::GlobalFree(hText);
+      }
+    }
+    HGLOBAL release(void)
+    {
+      HGLOBAL h = hText;
+      hText = NULL;
+      return h;
+    }
+    HGLOBAL get(void) const
+    {
+      return hText;
+    }
+  private:
+    HGLOBAL hText;
+  };
+};
+
+class ClipboardDataUnicode : public ClipboardData
+{
+public:
+  ClipboardDataUnicode(void):strText(L"") {}
+  virtual ~ClipboardDataUnicode(void) {}
+  virtual void StartRow(void)
+  {
+    strRow = L"";
+  }
+  virtual void EndRow(void)
+  {
+    strText += strRow;
+  }
+  virtual void AddChar(PCHAR_INFO p)
+  {
+    strRow += p->Char.UnicodeChar;
+  }
+  virtual bool IsLastCharBlank(void)
+  {
+    if( strRow.length() < 1 ) return false;
+
+    return strRow[strRow.length() - 1] == L' ';
+  }
+  size_t GetRowLength(void)
+  {
+    return strRow.length();
+  }
+  virtual void TrimRight(void)
+  {
+    trim_right(strRow);
+  }
+  virtual void Wrap(CopyNewlineChar copyNewlineChar)
+  {
+    switch(copyNewlineChar)
+    {
+      case newlineCRLF: strRow += wstring(L"\r\n"); break;
+      case newlineLF:   strRow += wstring(L"\n");   break;
+      default:          strRow += wstring(L"\r\n"); break;
+    }
+  }
+  virtual void Publish(void)
+  {
+    ClipboardData::Global global(strText.c_str(), (strText.length()+1)*sizeof(wchar_t));
+
+    if( !global.get() ) return;
+
+    if( ::SetClipboardData(CF_UNICODETEXT, global.get()) )
+    {
+      global.release();
+    }
+  }
+
+private:
+  wstring strText;
+  wstring strRow;
+};
+
+class ClipboardDataRtf : public ClipboardData
+{
+public:
+  ClipboardDataRtf(ConsoleCopy* pconsoleCopy):sizeRtfLen(0)
+  {
+    strRtf = "{\\rtf\\ansi\\deff0";
+
+    strRtf += "{\\fonttbl{\\f0\\fnil ";
+    strRtf += pconsoleCopy->szFontName;
+    strRtf += ";}}";
+
+    strRtf += "{\\colortbl\n";
+    for(int i = 0; i < 16; i ++)
+    {
+      int red   = (pconsoleCopy->consoleColors[i] >> 16) & 0xff;
+      int green = (pconsoleCopy->consoleColors[i] >> 8 ) & 0xff;
+      int blue  = (pconsoleCopy->consoleColors[i]      ) & 0xff;
+      char szColor[64];
+      _snprintf(
+        szColor, sizeof(szColor),
+        "\\red%lu\\green%lu\\blue%lu;\n",
+        GetRValue(pconsoleCopy->consoleColors[i]),
+        GetGValue(pconsoleCopy->consoleColors[i]),
+        GetBValue(pconsoleCopy->consoleColors[i]));
+      strRtf += szColor;
+    }
+    strRtf += "}";
+
+    char szFont[64];
+    _snprintf(
+      szFont, sizeof(szFont),
+      "\\f0\\fs%lu%s%s\n",
+      pconsoleCopy->dwSize,
+      pconsoleCopy->bBold ? "\\b" : "",
+      pconsoleCopy->bItalic ? "\\i" : "");
+
+    strRtf += szFont;
+  }
+  virtual ~ClipboardDataRtf(void) {}
+  virtual void StartRow(void)
+  {
+    strRow = "";
+    sizeRowLen = 0;
+  }
+  virtual void EndRow(void)
+  {
+    strRtf += strRow;
+  }
+  virtual void AddChar(PCHAR_INFO p)
+  {
+    char szDummy[32];
+
+    WORD wCharForegroundAttributes = p->Attributes & 0x000f;
+    WORD wCharBackgroundAttributes = (p->Attributes >> 4) & 0x000f;
+    if( sizeRtfLen == 0 )
+    {
+      wLastCharForegroundAttributes = ~wCharForegroundAttributes;
+      wLastCharBackgroundAttributes = ~wCharBackgroundAttributes;
+    }
+    if( wLastCharBackgroundAttributes != wCharBackgroundAttributes )
+    {
+      _snprintf(
+        szDummy, sizeof(szDummy),
+        "\\highlight%hu ",
+        wCharBackgroundAttributes);
+      strRow += szDummy;
+    }
+    if( wLastCharForegroundAttributes != wCharForegroundAttributes )
+    {
+      _snprintf(
+        szDummy, sizeof(szDummy),
+        "\\cf%hu ",
+        wCharForegroundAttributes);
+      strRow += szDummy;
+    }
+    wLastCharForegroundAttributes = wCharForegroundAttributes;
+    wLastCharBackgroundAttributes = wCharBackgroundAttributes;
+
+    WCHAR wc = p->Char.UnicodeChar;
+         if( wc == L'\\' ) strRow += "\\\\";
+    else if( wc == L'{' )  strRow += "\\{";
+    else if( wc == L'}' )  strRow += "\\}";
+    else if( wc <= 0x7f )  strRow += p->Char.AsciiChar;
+    else
+    {
+      _snprintf(szDummy, sizeof(szDummy), "\\u%d?", wc);
+      strRow += szDummy;
+    }
+    sizeRowLen ++;
+    sizeRtfLen ++;
+  }
+  virtual bool IsLastCharBlank(void)
+  {
+    if( strRow.length() < 1 ) return false;
+
+    return strRow[strRow.length() - 1] == ' ';
+  }
+  size_t GetRowLength(void)
+  {
+    return sizeRowLen;
+  }
+  virtual void TrimRight(void)
+  {
+    trim_right(strRow);
+  }
+  virtual void Wrap(CopyNewlineChar /*copyNewlineChar*/)
+  {
+    strRow += "\\line\n";
+  }
+  virtual void Publish(void)
+  {
+    strRtf += "}";
+
+    ClipboardData::Global global(strRtf.c_str(), strRtf.length() + 1);
+
+    if( !global.get() ) return;
+
+    if( ::SetClipboardData(::RegisterClipboardFormat(L"Rich Text Format"), global.get()) )
+    {
+      global.release();
+    }
+  }
+
+private:
+  string strRtf;
+  string strRow;
+  size_t sizeRtfLen;
+  size_t sizeRowLen;
+  WORD   wLastCharForegroundAttributes;
+  WORD   wLastCharBackgroundAttributes;
+};
+
 void ConsoleHandler::CopyConsoleText()
 {
 	if (!::OpenClipboard(NULL)) return;
@@ -470,9 +708,13 @@ void ConsoleHandler::CopyConsoleText()
 							0),
 							::CloseHandle);
 
+  auto_ptr<ClipboardData> clipboardDataPtr[2];
+  size_t clipboardDataCount = 2;
+  clipboardDataPtr[0].reset(new ClipboardDataUnicode());
+  clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
+
 	// get total console size
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
-	wstring						strText(L"");
 
 	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
 
@@ -502,13 +744,16 @@ void ConsoleHandler::CopyConsoleText()
 
 //		TRACE(L"Read region:    (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 
-		wstring strRow(L"");
+    for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+      clipboardDataPtr[clipboardDataIndex]->StartRow();
+
 		bool	bWrap = true;
 
 		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left; ++x)
 		{
 			if (pScreenBuffer[x].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
-			strRow += pScreenBuffer[x].Char.UnicodeChar;
+      for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+        clipboardDataPtr[clipboardDataIndex]->AddChar(&(pScreenBuffer[x]));
 		}
 
 		// handle trim/wrap settings
@@ -524,7 +769,7 @@ void ConsoleHandler::CopyConsoleText()
 					&& 
 					(coordStart.Y < coordEnd.Y)
 					&&
-					(strRow[strRow.length() - 1] != L' ')
+					(!clipboardDataPtr[0]->IsLastCharBlank())
 				)
 			)
 			{
@@ -534,7 +779,7 @@ void ConsoleHandler::CopyConsoleText()
 		else if (i == coordEnd.Y)
 		{
 			// last row
-			if (strRow.length() < static_cast<size_t>(coordBufferSize.X))
+			if (clipboardDataPtr[0]->GetRowLength() < static_cast<size_t>(coordBufferSize.X))
 			{
 				bWrap = false;
 			}
@@ -542,47 +787,31 @@ void ConsoleHandler::CopyConsoleText()
 		else
 		{
 			// rows in between
-			if (m_consoleCopyInfo->bNoWrap && (strRow[strRow.length() - 1] != L' '))
+			if (m_consoleCopyInfo->bNoWrap && (!clipboardDataPtr[0]->IsLastCharBlank()))
 			{
 				bWrap = false;
 			}
 		}
 
-		if (m_consoleCopyInfo->bTrimSpaces) trim_right(strRow);
-		if (bWrap)
-		{
-			switch(m_consoleCopyInfo->copyNewlineChar)
-			{
-				case newlineCRLF: strRow += wstring(L"\r\n"); break;
-				case newlineLF	: strRow += wstring(L"\n"); break;
-				default			: strRow += wstring(L"\r\n"); break;
-			}
-		}
+    for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+    {
+      if (m_consoleCopyInfo->bTrimSpaces)
+        clipboardDataPtr[clipboardDataIndex]->TrimRight();
 
-		strText += strRow;
-	}
+      if (bWrap)
+        clipboardDataPtr[clipboardDataIndex]->Wrap(m_consoleCopyInfo->copyNewlineChar);
 
-	::EmptyClipboard();
+      clipboardDataPtr[clipboardDataIndex]->EndRow();
+    }
+  }
 
-	HGLOBAL hText = ::GlobalAlloc(GMEM_MOVEABLE, (strText.length()+1)*sizeof(wchar_t));
+  ::EmptyClipboard();
 
-	if (hText == NULL)
-	{ 
-		::CloseClipboard();
-		return;
-	} 
+  for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+    clipboardDataPtr[clipboardDataIndex]->Publish();
 
-	::CopyMemory(static_cast<wchar_t*>(::GlobalLock(hText)), strText.c_str(), (strText.length()+1)*sizeof(wchar_t));
-
-	::GlobalUnlock(hText);
-
-	if (::SetClipboardData(CF_UNICODETEXT, hText) == NULL)
-	{
-		// we need to global-free data only if copying failed
-		::GlobalFree(hText);
-	}
-	::CloseClipboard();
-	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
+  ::CloseClipboard();
+  // !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -66,10 +66,10 @@ class SelectionHandler
 
 		CRect			m_rectConsoleView;
 
-		ConsoleHandler&								m_consoleHandler;
-		SharedMemory<ConsoleParams>&				m_consoleParams;
-		SharedMemory<ConsoleInfo>&	m_consoleInfo;
-		SharedMemory<ConsoleCopy>&					m_consoleCopyInfo;
+		ConsoleHandler&               m_consoleHandler;
+		SharedMemory<ConsoleParams>&  m_consoleParams;
+		SharedMemory<ConsoleInfo>&    m_consoleInfo;
+		SharedMemory<ConsoleCopy>&    m_consoleCopyInfo;
 		int				m_nCharWidth;
 		int				m_nCharHeight;
 		int				m_nVInsideBorder;

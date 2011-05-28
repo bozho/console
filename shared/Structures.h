@@ -115,7 +115,11 @@ struct ConsoleCopy
 	, bNoWrap(false)
 	, bTrimSpaces(false)
 	, copyNewlineChar(newlineCRLF)
+  , bBold(false)
+  , bItalic(false)
+  , dwSize(24)
 	{
+    szFontName[0] = 0;
 	}
 
 	COORD	coordStart;
@@ -123,6 +127,11 @@ struct ConsoleCopy
 	bool	bNoWrap;
 	bool	bTrimSpaces;
 	CopyNewlineChar	copyNewlineChar;
+  bool  bBold;
+  bool  bItalic;
+  DWORD dwSize;
+  char szFontName [256];
+  COLORREF consoleColors[16];
 };
 
 

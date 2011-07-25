@@ -41,6 +41,7 @@ class SelectionHandler
 	public:
 
 		void StartSelection(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CharInfo> screenBuffer);
+		void SelectWord(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CharInfo> screenBuffer);
 		void UpdateSelection(const COORD& coordCurrent, shared_array<CharInfo> screenBuffer);
 		void UpdateSelection();
 		bool CopySelection(const COORD& coordCurrent);

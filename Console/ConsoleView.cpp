@@ -1275,7 +1275,7 @@ void ConsoleView::ClearSelection()
 
 void ConsoleView::Paste()
 {
-	if (!::IsClipboardFormatAvailable(CF_UNICODETEXT)) return;
+	if (!CanPaste()) return;
 	::SendMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
 }
 

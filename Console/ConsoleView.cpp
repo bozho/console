@@ -488,6 +488,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
 				MutexLock bufferLock(m_bufferMutex);
+				m_selectionHandler->ClearSelection();
 				m_selectionHandler->StartSelection(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;

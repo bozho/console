@@ -60,6 +60,62 @@ SelectionHandler::~SelectionHandler()
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+void SelectionHandler::SelectWord(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CharInfo> screenBuffer)
+{
+	if (m_selectionState > selstateNoSelection) return;
+
+	// stop console scrolling while selecting
+	m_consoleHandler.StopScrolling();
+
+	if (!m_paintBrush.IsNull()) m_paintBrush.DeleteObject();
+	m_paintBrush.CreateSolidBrush(crSelectionColor);
+
+	m_consoleView.SetCapture();
+
+	m_coordInitial		= coordInit;
+
+	m_coordCurrent.X	= m_coordInitial.X;
+	m_coordCurrent.Y	= m_coordInitial.Y;
+
+	SMALL_RECT&	 srWindow = m_consoleInfo->csbi.srWindow;
+
+	int nDeltaX = m_coordCurrent.X - srWindow.Left;
+	int nDeltaY = m_coordCurrent.Y - srWindow.Top;
+
+	if (nDeltaX < 0) nDeltaX = 0;
+	if (nDeltaY < 0) nDeltaY = 0;
+
+	int nStartSel = nDeltaY * m_consoleParams->dwColumns + nDeltaX - 1;
+	while(nStartSel >= 0)
+	{
+		if (screenBuffer[nStartSel].charInfo.Char.AsciiChar == ' ')
+			break;
+
+		--nStartSel;
+	}
+
+	++nStartSel;
+	m_coordInitial.X = short(nStartSel % m_consoleParams->dwColumns + srWindow.Left);
+	m_coordInitial.Y = short(nStartSel / m_consoleParams->dwColumns + srWindow.Top);
+
+	DWORD nEndSel = nDeltaY * m_consoleParams->dwColumns + nDeltaX;
+	while (nEndSel < m_consoleParams->dwColumns * m_consoleParams->dwRows)
+	{
+		if (screenBuffer[nEndSel].charInfo.Char.AsciiChar == ' ')
+			break;
+
+		++nEndSel;
+	}
+
+	// --nEndSel;
+	m_coordCurrent.X = short(nEndSel % m_consoleParams->dwColumns + srWindow.Left);
+	m_coordCurrent.Y = short(nEndSel / m_consoleParams->dwColumns + srWindow.Top);
+
+	// pretend we're dragging the mouse, otherwise single-char selection is disallowed
+	m_selectionState	= selstateSelecting;
+
+	UpdateSelection();
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

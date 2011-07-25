@@ -494,7 +494,21 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
 			}
-			
+
+			if (MouseSettings::clickDouble == mouseAction.clickType)
+			{
+				mouseAction.clickType = MouseSettings::clickSingle;
+				if ((*it)->action == mouseAction)
+				{
+					m_mouseCommand = MouseSettings::cmdSelect;
+
+					MutexLock bufferLock(m_bufferMutex);
+					m_selectionHandler->SelectWord(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
+				}
+
+				mouseAction.clickType = MouseSettings::clickDouble;
+			}
+
 			// paste command
 			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdPaste);
 			if ((*it)->action == mouseAction)

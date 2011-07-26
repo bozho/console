@@ -111,8 +111,7 @@ void SelectionHandler::SelectWord(const COORD& coordInit, COLORREF crSelectionCo
 	m_coordCurrent.X = short(nEndSel % m_consoleParams->dwColumns + srWindow.Left);
 	m_coordCurrent.Y = short(nEndSel / m_consoleParams->dwColumns + srWindow.Top);
 
-	// pretend we're dragging the mouse, otherwise single-char selection is disallowed
-	m_selectionState	= selstateSelecting;
+	m_selectionState	= selstateSelectWord;
 
 	UpdateSelection();
 }

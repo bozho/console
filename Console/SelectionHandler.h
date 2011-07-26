@@ -19,7 +19,8 @@ class SelectionHandler
 			selstateNoSelection		= 0x00,
 			selstateStartedSelecting= 0x01,
 			selstateSelecting		= 0x02,
-			selstateSelected		= 0x03
+			selstateSelected		= 0x03,
+			selstateSelectWord		= 0x04,
 		};
 
 	public:

@@ -553,7 +553,8 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 						m_mainFrame.SetSelectionSize(0);
 						m_selectionHandler->ClearSelection();
 					}
-					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting)
+					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting ||
+						 m_selectionHandler->GetState() == SelectionHandler::selstateSelectWord)
 					{
 						m_selectionHandler->EndSelection();
 						m_mainFrame.SetSelectionSize(0);

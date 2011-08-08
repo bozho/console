@@ -4,9 +4,9 @@
 #include <fstream>
 
 #include "Console.h"
-#include "MainFrame.h"
 #include "ConsoleException.h"
 #include "ConsoleView.h"
+#include "MainFrame.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -25,17 +25,13 @@ CFont	ConsoleView::m_fontText;
 
 int		ConsoleView::m_nCharHeight(0);
 int		ConsoleView::m_nCharWidth(0);
-int		ConsoleView::m_nVInsideBorder(0);
-int		ConsoleView::m_nHInsideBorder(0);
 
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns)
 : m_mainFrame(mainFrame)
-, m_strCmdLineInitialDir(strCmdLineInitialDir)
-, m_strInitialCmd(strInitialCmd)
-, m_strDbgCmdLine(strDbgCmdLine)
+, m_hwndTabView(hwndTabView)
 , m_bInitializing(true)
 , m_bResizing(false)
 , m_bAppActive(true)
@@ -49,10 +45,10 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_bShowHScroll(false)
 , m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
 , m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
-, m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
+, m_nVInsideBorder(0)
+, m_nHInsideBorder(0)
+, m_strTitle(strTitle)
 , m_strUser()
-, bigIcon()
-, smallIcon()
 , m_consoleHandler()
 , m_screenBuffer()
 , m_dwScreenRows(0)
@@ -60,7 +56,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_hotkeys(g_settingsHandler->GetHotKeys())
-, m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
+, m_tabData(tabData)
 , m_background()
 , m_backgroundBrush(NULL)
 , m_cursor()
@@ -115,13 +111,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 {
 	DragAcceptFiles(TRUE);
 
-	// load icon
-	bigIcon.Attach(Helpers::LoadTabIcon(true, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
-	smallIcon.Attach(Helpers::LoadTabIcon(false, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
-
 	// set console delegates
 	m_consoleHandler.SetupDelegates(
-						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
+						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange),
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// load background image
@@ -149,14 +141,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	}
 
 	wstring	strShell(m_consoleSettings.strShell);
-	bool	bDebugFlag = false;
 
-	if (m_strDbgCmdLine.length() > 0)
-	{
-		strShell	= m_strDbgCmdLine;
-		bDebugFlag	= true;
-	}
-	else if (m_tabData->strShell.length() > 0)
+	if (m_tabData->strShell.length() > 0)
 	{
 		strShell	= m_tabData->strShell;
 	}
@@ -167,15 +153,14 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		UserCredentials* userCredentials = reinterpret_cast<UserCredentials*>(createStruct->lpCreateParams);
 
 		m_consoleHandler.StartShellProcess(
-									strShell, 
+									strShell,
 									strInitialDir,
 									userCredentials->user,
 									userCredentials->password,
 									m_strInitialCmd,
 									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
-									m_dwStartupRows, 
-									m_dwStartupColumns,
-									bDebugFlag);
+									m_dwStartupRows,
+									m_dwStartupColumns);
 
 		m_strUser = userCredentials->user.c_str();
 	}
@@ -702,12 +687,12 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 			return 0;
 		}
 
-		m_mainFrame.HighlightTab(m_hWnd, (m_dwFlashes % 2) == 0);
+		m_mainFrame.HighlightTab(m_hwndTabView, (m_dwFlashes % 2) == 0);
 		if (++m_dwFlashes == g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes * 2)
 		{
 			if (g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.bStayHighlighted)
 			{
-				m_mainFrame.HighlightTab(m_hWnd, true);
+				m_mainFrame.HighlightTab(m_hwndTabView, true);
 			}
 
 			KillTimer(FLASH_TAB_TIMER);
@@ -980,10 +965,8 @@ void ConsoleView::GetRect(CRect& clientRect)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bVariableInsideBorder)
+void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
 {
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-
 	GetWindowRect(&clientRect);
 /*
 	TRACE(L"================================================================\n");
@@ -995,15 +978,6 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
 	// exclude scrollbars from row/col calculation
 	if (m_bShowVScroll) width  -= m_nVScrollWidth;
 	if (m_bShowHScroll) height -= m_nHScrollWidth;
-
-  // exclude inside borders from row/col calculation
-  if (!bVariableInsideBorder)
-  {
-    m_nVInsideBorder = stylesSettings.dwInsideBorder;
-    m_nHInsideBorder = stylesSettings.dwInsideBorder;
-    width  -= (m_nVInsideBorder * 2);
-    height -= (m_nHInsideBorder * 2);
-  }
 
   DWORD dwColumns = width  / m_nCharWidth;
   DWORD dwRows    = height / m_nCharHeight;
@@ -1017,11 +991,8 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
     dwRows = dwMaxRows;
 
   // variable inside borders
-  if (bVariableInsideBorder)
-  {
-    m_nVInsideBorder = (width  - dwColumns * m_nCharWidth ) / 2;
-    m_nHInsideBorder = (height - dwRows    * m_nCharHeight) / 2;
-  }
+  m_nVInsideBorder = (width  - dwColumns * m_nCharWidth ) / 2;
+  m_nHInsideBorder = (height - dwRows    * m_nCharHeight) / 2;
 
   clientRect.right  = clientRect.left + dwColumns * m_nCharWidth  + m_nVInsideBorder * 2;
   clientRect.bottom = clientRect.top +  dwRows    * m_nCharHeight + m_nHInsideBorder * 2;
@@ -1083,8 +1054,8 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 
 void ConsoleView::RecreateFont()
 {
-	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
-	if (!CreateFont(m_appearanceSettings.fontSettings.strName))
+	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
+	if (!CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName))
 	{
 		CreateFont(wstring(L"Courier New"));
 	}
@@ -1351,7 +1322,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 
 void ConsoleView::OnConsoleClose()
 {
-	if (::IsWindow(m_hWnd)) m_mainFrame.PostMessage(UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hWnd), 0);
+	if (::IsWindow(m_hWnd)) m_mainFrame.PostMessage(UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hwndTabView), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1460,20 +1431,20 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 
 	BYTE	byFontQuality = DEFAULT_QUALITY;
 
-	switch (m_appearanceSettings.fontSettings.fontSmoothing)
+	switch (g_settingsHandler->GetAppearanceSettings().fontSettings.fontSmoothing)
 	{
-		case fontSmoothDefault	: byFontQuality = DEFAULT_QUALITY;			break;
-		case fontSmoothNone		: byFontQuality = NONANTIALIASED_QUALITY;	break;
-		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;		break;
+		case fontSmoothDefault:   byFontQuality = DEFAULT_QUALITY;        break;
+		case fontSmoothNone:      byFontQuality = NONANTIALIASED_QUALITY; break;
+		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;      break;
 		default : DEFAULT_QUALITY;
 	}
 	m_fontText.CreateFont(
-		-::MulDiv(m_appearanceSettings.fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		m_appearanceSettings.fontSettings.bBold ? FW_BOLD : 0,
-		m_appearanceSettings.fontSettings.bItalic,
+		g_settingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
+		g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic,
 		FALSE,
 		FALSE,
  		DEFAULT_CHARSET,
@@ -1495,12 +1466,12 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 	}
 
 	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
-	m_nCharWidth = textMetric.tmAveCharWidth;
+	m_nCharWidth  = textMetric.tmAveCharWidth;
 	m_nCharHeight = textMetric.tmHeight;
-
+#if 0
 	m_nVInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
 	m_nHInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
-
+#endif
 	return true;
 }
 
@@ -1681,8 +1652,8 @@ void ConsoleView::UpdateTitle()
 	}
 
 	m_mainFrame.PostMessage(
-					UM_UPDATE_TITLES, 
-					reinterpret_cast<WPARAM>(m_hWnd), 
+					UM_UPDATE_TITLES,
+					reinterpret_cast<WPARAM>(m_hwndTabView),
 					0);
 }
 

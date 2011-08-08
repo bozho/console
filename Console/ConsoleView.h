@@ -29,7 +29,7 @@ class ConsoleView
 		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 //		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS, COLOR_WINDOW)
 
-		ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -100,7 +100,7 @@ class ConsoleView
 	public:
 
 		void GetRect(CRect& clientRect);
-		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bVariableInsideBorder);
+		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge);
 		CPoint GetCellSize() { return CPoint(m_nCharWidth, m_nCharHeight); };
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
@@ -111,7 +111,7 @@ class ConsoleView
 
 		void SetAppActiveStatus(bool bAppActive);
 
-		void RecreateFont();
+		static void RecreateFont();
 		void RecreateOffscreenBuffers();
 		void Repaint(bool bFullRepaint);
 		void MainframeMoving();
@@ -122,7 +122,6 @@ class ConsoleView
 		const CString& GetTitle() const { return m_strTitle; }
 
 		CString GetConsoleCommand();
-		CIcon& GetIcon(bool bBigIcon = true) { return bBigIcon ? bigIcon : smallIcon; }
 
 		void Copy(const CPoint* pPoint = NULL);
 		void ClearSelection();
@@ -144,7 +143,7 @@ class ConsoleView
 
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(CDC& cdc, const CRect& rect, CBitmap& bitmap);
-		bool CreateFont(const wstring& strFontName);
+		static bool CreateFont(const wstring& strFontName);
 
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
@@ -170,10 +169,10 @@ class ConsoleView
 	private:
 
 		MainFrame& m_mainFrame;
+		HWND       m_hwndTabView;
 
 		wstring m_strCmdLineInitialDir;
 		wstring m_strInitialCmd;
-		wstring	m_strDbgCmdLine;
 
 		bool	m_bInitializing;
 		bool	m_bResizing;
@@ -190,13 +189,11 @@ class ConsoleView
 		bool	m_bShowHScroll;
 		int		m_nVScrollWidth;
 		int		m_nHScrollWidth;
+    int		m_nVInsideBorder;
+    int		m_nHInsideBorder;
 
 		CString	m_strTitle;
 		CString	m_strUser;
-
-		CIcon	bigIcon;
-		CIcon	smallIcon;
-
 
 		ConsoleHandler					m_consoleHandler;
 
@@ -239,8 +236,6 @@ private:
 
 		static int						m_nCharHeight;
 		static int						m_nCharWidth;
-		static int						m_nVInsideBorder;
-		static int						m_nHInsideBorder;
 };
 
 //////////////////////////////////////////////////////////////////////////////

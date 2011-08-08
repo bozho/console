@@ -78,6 +78,7 @@ extern CAppModule _Module;
 #include "TabbedFrame.h"
 
 #pragma warning(pop)
+#include "multisplit.h"
 
 #include <HtmlHelp.h>
 #include <ShellApi.h>

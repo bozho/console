@@ -709,6 +709,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\TabView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\XmlHelper.cpp"
 				>
 			</File>
@@ -843,6 +847,10 @@
 			</File>
 			<File
 				RelativePath="..\shared\Structures.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TabView.h"
 				>
 			</File>
 			<File

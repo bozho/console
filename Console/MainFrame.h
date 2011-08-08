@@ -16,10 +16,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleView;
-
-
-typedef map<HWND, shared_ptr<ConsoleView> >	ConsoleViewMap;
+class TabView;
+typedef map<HWND, shared_ptr<TabView> >	TabViewMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +42,7 @@ class MainFrame
 			const vector<wstring>& startupTabs, 
 			const vector<wstring>& startupDirs, 
 			const vector<wstring>& startupCmds, 
-			int nMultiStartSleep, 
-			const wstring& strDbgCmdLine
+			int nMultiStartSleep
 		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -199,11 +196,11 @@ class MainFrame
 
 	private:
 
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""), const wstring& strDbgCmdLine = wstring(L""));
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
-		void CloseTab(HWND hwndConsoleView);
+		void CloseTab(HWND hwndTabView);
 
-		void UpdateTabTitle(const shared_ptr<ConsoleView>& consoleView, CString& strTabTitle);
+		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateStatusBar();
 		void SetWindowStyles();
@@ -235,9 +232,8 @@ class MainFrame
 		const vector<wstring>&	m_startupDirs;
 		const vector<wstring>&	m_startupCmds;
 		int						m_nMultiStartSleep;
-		wstring					m_strDbgCmdLine;
 
-		shared_ptr<ConsoleView>	m_activeView;
+		shared_ptr<TabView>	m_activeTabView;
 
 		BOOL			m_bMenuVisible;
 		BOOL			m_bToolbarVisible;
@@ -248,8 +244,8 @@ class MainFrame
 		ZOrder			m_zOrder;
 		CPoint			m_mousedragOffset;
 
-		ConsoleViewMap	m_views;
-		Mutex			m_viewsMutex;
+		TabViewMap	m_tabs;
+		Mutex			m_tabsMutex;
 
 		CMenu			m_tabsMenu;
 
@@ -259,8 +255,6 @@ class MainFrame
 		CString			m_strCmdLineWindowTitle;
 		CString			m_strWindowTitle;
 
-		DWORD			m_dwRows;
-		DWORD			m_dwColumns;
 		int				m_iSelectionSize;
 
 		DWORD			m_dwWindowWidth;

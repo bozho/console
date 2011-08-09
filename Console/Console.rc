@@ -313,7 +313,7 @@ BEGIN
     CONTROL         "Bo&rder *",IDC_CHECK_STYLE_BORDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,36,43,10
     CONTROL         "Tas&kbar button *",IDC_CHECK_STYLE_TASKBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,154,12,68,10
     CONTROL         "Tra&y icon",IDC_CHECK_STYLE_TRAY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,154,24,45,10
-    CONTROL         "Quake like",IDC_CHECK_STYLE_QUAKE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,154,36,49,10    
+    CONTROL         "Quake like",IDC_CHECK_STYLE_QUAKE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,154,36,49,10
     LTEXT           "Inside &border:",IDC_STATIC,102,53,46,8
     EDITTEXT        IDC_INSIDE_BORDER,153,50,33,14,ES_AUTOHSCROLL
     CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,191,50,11,14
@@ -953,6 +953,11 @@ STRINGTABLE
 BEGIN
     ID_NEXT_TAB             "Switch to next tab\nNext tab"
     ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
+    ID_NEXT_VIEW            "Switch to the next view\nNext View"
+    ID_PREV_VIEW            "Switch to the previous view\nPrevious View"
+    ID_CLOSE_VIEW           "Close the current view\nClose View"
+    ID_SPLIT_HORIZ          "Split  the current view horizontally\nSplit Horizontally"
+    ID_SPLIT_VERT           "Split  the current view vertically\nSplit Vertically"
 END
 
 STRINGTABLE 
@@ -964,6 +969,14 @@ STRINGTABLE
 BEGIN
     IDS_ERR_CANT_START_SHELL "Unable to start a %1%!"
     IDS_ERR_CANT_START_SHELL_AS_USER "Unable to start a %1% as user %2%!"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_GROUP_ALL            "Group all terminals so that any input sent to one of them, goes to all of them\nGroup All"
+    ID_UNGROUP_ALL          "Remove grouping from all terminals\nUngroup All"
+    ID_GROUP_TAB            "Group all terminals in the current tab so that any input sent to one of them, goes to all of them\nGroup Tab"
+    ID_UNGROUP_TAB          "Remove grouping of all terminals in the current tab\nUngroup Tab"
 END
 
 #endif    // English (U.S.) resources

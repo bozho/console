@@ -34,7 +34,7 @@ public:
   LRESULT OnEraseBackground (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & /*bHandled*/);
   LRESULT OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & bHandled);
 
-  shared_ptr<ConsoleView> GetActiveConsole();
+  shared_ptr<ConsoleView> GetActiveConsole(const TCHAR*);
   shared_ptr<TabData>     GetTabData() { return m_tabData; }
 
   void SetTitle(const CString& strTitle);
@@ -49,6 +49,10 @@ public:
   void RecreateOffscreenBuffers();
   void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge);
   void GetRect(CRect& clientRect);
+
+  void SplitHorizontally();
+  void SplitVertically();
+  void CloseView();
 
 private:
   HWND CreateNewConsole(void);

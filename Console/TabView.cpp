@@ -1,8 +1,10 @@
 #include "stdafx.h"
+#include "resource.h"
 
 #include "Console.h"
 #include "TabView.h"
 #include "DlgCredentials.h"
+#include "MainFrame.h"
 
 int CMultiSplitPane::splitBarWidth  = 0;
 int CMultiSplitPane::splitBarHeight = 0;
@@ -36,10 +38,29 @@ TabView::~TabView()
 
 BOOL TabView::PreTranslateMessage(MSG* pMsg)
 {
-  shared_ptr<ConsoleView> consoleView = this->GetActiveConsole();
+	if ((pMsg->message == WM_KEYDOWN) || 
+		(pMsg->message == WM_KEYUP) ||
+		(pMsg->message == WM_SYSKEYDOWN) || 
+		(pMsg->message == WM_SYSKEYUP))
+	{
+		// Avoid calling ::TranslateMessage for WM_KEYDOWN, WM_KEYUP,
+		// WM_SYSKEYDOWN and WM_SYSKEYUP (except for wParam == VK_PACKET, 
+		// which is sent by SendInput when pasting text).
+		///
+		// This prevents WM_CHAR and WM_SYSCHAR messages, enabling stuff like
+		// handling 'dead' characters input and passing all keys to console.
+		if (pMsg->wParam == VK_PACKET) return FALSE;
+		::DispatchMessage(pMsg);
+		return TRUE;
+	}
+
+	return FALSE;
+  /*
+  shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
   if( consoleView )
     return consoleView->PreTranslateMessage(pMsg);
   return FALSE;
+  */
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -189,13 +210,13 @@ HWND TabView::CreateNewConsole(void)
 	return hwndConsoleView;
 }
 
-shared_ptr<ConsoleView> TabView::GetActiveConsole()
+shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* szFrom)
 {
   shared_ptr<ConsoleView> result;
-  if( this->defaultFocusPane && defaultFocusPane->window )
+  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
   {
     MutexLock viewMapLock(m_viewsMutex);
-    ConsoleViewMap::iterator iter = m_views.find(defaultFocusPane->window);
+    ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
     if( iter != m_views.end() )
       result = iter->second;
     else
@@ -203,9 +224,9 @@ shared_ptr<ConsoleView> TabView::GetActiveConsole()
   }
   else
   {
-    TRACE(L"TabView::GetActiveConsole this->defaultFocusPane = %p\n", this->defaultFocusPane);
+    TRACE(L"TabView::GetActiveConsole multisplitClass::defaultFocusPane = %p\n", multisplitClass::defaultFocusPane);
   }
-  TRACE(L"TabView::GetActiveConsole returns %p\n", result.get());
+  TRACE(L"TabView::GetActiveConsole called by %s returns %p\n", szFrom, result.get());
   return result;
 }
 
@@ -294,5 +315,49 @@ void TabView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
   for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
   {
     it->second->AdjustRectAndResize(clientRect, dwResizeWindowEdge);
+  }
+  this->GetRect(clientRect);
+}
+
+void TabView::SplitHorizontally()
+{
+  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+  {
+    HWND hwndConsoleView = CreateNewConsole();
+    if( hwndConsoleView )
+    {
+      multisplitClass::defaultFocusPane = multisplitClass::defaultFocusPane->split(
+        hwndConsoleView,
+        CMultiSplitPane::HORIZONTAL);
+    }
+  }
+}
+
+void TabView::SplitVertically()
+{
+  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+  {
+    HWND hwndConsoleView = CreateNewConsole();
+    if( hwndConsoleView )
+    {
+      multisplitClass::defaultFocusPane = multisplitClass::defaultFocusPane->split(
+        hwndConsoleView,
+        CMultiSplitPane::VERTICAL);
+    }
+  }
+}
+
+void TabView::CloseView()
+{
+  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+  {
+    MutexLock viewMapLock(m_viewsMutex);
+    ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
+    iter->second->DestroyWindow();
+    m_views.erase(iter);
+    multisplitClass::defaultFocusPane->remove();
+
+    if( m_views.size() == 0 )
+      m_mainFrame.CloseTab(this->m_hWnd);
   }
 }

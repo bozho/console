@@ -91,7 +91,7 @@ BOOL MainFrame::OnIdle()
 
   if (m_activeTabView)
   {
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       UIEnable(ID_EDIT_COPY,            activeConsoleView->CanCopy()           ? TRUE : FALSE);
@@ -819,7 +819,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 	if (itView == m_tabs.end()) return 0;
   shared_ptr<TabView>	tabView(itView->second);
-  shared_ptr<ConsoleView> consoleView = itView->second->GetActiveConsole();
+  shared_ptr<ConsoleView> consoleView = itView->second->GetActiveConsole(_T(__FUNCTION__));
   if (!consoleView) return 0;
 
 	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
@@ -1022,7 +1022,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 	if (appearanceSettings.windowSettings.bUseTabTitles && m_activeTabView)
 	{
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
 		  SetWindowText(activeConsoleView->GetTitle());
@@ -1191,6 +1191,108 @@ LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnNextView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T(__FUNCTION__));
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnPrevView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T(__FUNCTION__));
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->CloseView();
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->SplitHorizontally();
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->SplitVertically();
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T(__FUNCTION__));
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T(__FUNCTION__));
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T(__FUNCTION__));
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnUngroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MessageBox(_T(__FUNCTION__));
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	PostMessage(WM_CLOSE);
@@ -1205,7 +1307,7 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->Paste();
@@ -1222,7 +1324,7 @@ LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->Copy();
@@ -1239,7 +1341,7 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->ClearSelection();
@@ -1256,7 +1358,7 @@ LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->Paste();
@@ -1273,7 +1375,7 @@ LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->GetConsoleHandler().StopScrolling();
@@ -1433,7 +1535,7 @@ LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 {
   if (m_activeTabView)
   {
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       activeConsoleView->SetConsoleWindowVisible(!activeConsoleView->GetConsoleWindowVisible());
@@ -1465,7 +1567,7 @@ LRESULT MainFrame::OnDumpBuffer(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 {
   if (m_activeTabView)
   {
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       activeConsoleView->DumpBuffer();
@@ -1709,7 +1811,7 @@ void MainFrame::UpdateStatusBar()
 
     if (m_activeTabView)
     {
-      shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole();
+      shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
       if( activeConsoleView )
       {
         SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();

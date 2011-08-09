@@ -101,6 +101,15 @@ class MainFrame
 			COMMAND_RANGE_HANDLER(ID_SWITCH_TAB_1, ID_SWITCH_TAB_1 + 9, OnSwitchTab)
 			COMMAND_ID_HANDLER(ID_NEXT_TAB, OnNextTab)
 			COMMAND_ID_HANDLER(ID_PREV_TAB, OnPrevTab)
+			COMMAND_ID_HANDLER(ID_NEXT_VIEW   , OnNextView)
+			COMMAND_ID_HANDLER(ID_PREV_VIEW   , OnPrevView)
+			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
+			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplitHorizontally)
+			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplitVertically)
+			COMMAND_ID_HANDLER(ID_GROUP_ALL   , OngroupAll)
+			COMMAND_ID_HANDLER(ID_UNGROUP_ALL , OnUngroupAll)
+			COMMAND_ID_HANDLER(ID_GROUP_TAB   , OnGroupTab)
+			COMMAND_ID_HANDLER(ID_UNGROUP_TAB , OnUngroupTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_TAB, OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 			COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
@@ -167,6 +176,16 @@ class MainFrame
 		LRESULT OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
+		LRESULT OnNextView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnPrevView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnUngroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 		LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -193,12 +212,12 @@ class MainFrame
 		void SetSelectionSize(int iSelectionSize);
 		void AdjustWindowSize(bool bResizeConsole);
 		void RecreateOffscreenBuffers();
+		void CloseTab(HWND hwndTabView);
 
 	private:
 
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
-		void CloseTab(HWND hwndTabView);
 
 		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);

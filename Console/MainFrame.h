@@ -243,10 +243,10 @@ class MainFrame
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
 
-	private:
+	public:
 
 		bool					m_bOnCreateDone;
-
+	private:
 		const vector<wstring>&	m_startupTabs;
 		const vector<wstring>&	m_startupDirs;
 		const vector<wstring>&	m_startupCmds;
@@ -286,9 +286,6 @@ class MainFrame
 		CToolBarCtrl	m_toolbar;
 		CAccelerator	m_acceleratorTable;
 		CMultiPaneStatusBarCtrl m_statusBar;
-
-		CDC				m_dcOffscreen;
-		CDC				m_dcText;
 
 		MARGINS m_Margins;
 

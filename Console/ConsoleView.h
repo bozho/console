@@ -96,7 +96,6 @@ class ConsoleView
 
 		LRESULT OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled);
 
-
 	public:
 
 		void GetRect(CRect& clientRect);
@@ -187,10 +186,6 @@ class ConsoleView
 
 		bool	m_bShowVScroll;
 		bool	m_bShowHScroll;
-		int		m_nVScrollWidth;
-		int		m_nHScrollWidth;
-    int		m_nVInsideBorder;
-    int		m_nHInsideBorder;
 
 		CString	m_strTitle;
 		CString	m_strUser;
@@ -226,16 +221,20 @@ class ConsoleView
 // static members
 private:
 
-		static CDC						m_dcOffscreen;
-		static CDC						m_dcText;
+  /*static*/ CDC        m_dcOffscreen;
+  /*static*/ CDC        m_dcText;
 
-		static CBitmap					m_bmpOffscreen;
-		static CBitmap					m_bmpText;
+  /*static*/ CBitmap    m_bmpOffscreen;
+  /*static*/ CBitmap    m_bmpText;
 
-		static CFont					m_fontText;
+  static CFont          m_fontText;
 
-		static int						m_nCharHeight;
-		static int						m_nCharWidth;
+  static int            m_nCharHeight;
+  static int            m_nCharWidth;
+  static int            m_nVScrollWidth;
+  static int            m_nHScrollWidth;
+  static int            m_nVInsideBorder;
+  static int            m_nHInsideBorder;
 };
 
 //////////////////////////////////////////////////////////////////////////////

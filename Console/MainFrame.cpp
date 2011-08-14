@@ -2128,6 +2128,7 @@ void MainFrame::ResizeWindow()
 
 void MainFrame::AdjustWindowSize(bool bResizeConsole)
 {
+  TRACE(L"AdjustWindowSize\n");
 	CRect clientRect(0, 0, 0, 0);
 
 	if( this->IsZoomed() )
@@ -2169,7 +2170,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole)
 
 	AdjustWindowRect(clientRect);
 
-//	TRACE(L"AdjustWindowSize: %ix%i\n", clientRect.Width(), clientRect.Height());
+	TRACE(L"AdjustWindowSize 1: %ix%i\n", clientRect.Width(), clientRect.Height());
 	SetWindowPos(
 		0,
 		0,
@@ -2182,7 +2183,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole)
 	CRect rectWindow;
 
 	GetWindowRect(&rectWindow);
-//	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
+	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 

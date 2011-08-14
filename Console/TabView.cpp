@@ -86,6 +86,9 @@ LRESULT TabView::OnCreate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHand
     if( result == 0 )
     {
       multisplitClass::tree.window = hwndConsoleView;
+      CRect rect;
+      m_views.begin()->second->GetRect(rect);
+      multisplitClass::RectSet(rect, true);
     }
   }
 
@@ -100,13 +103,15 @@ LRESULT TabView::OnEraseBackground (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 	return 1;
 }
 
-LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & bHandled)
+LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 {
-	if (wParam != SIZE_MINIMIZED)
-		RectSet ();					// to ClientRect
+  if (wParam != SIZE_MINIMIZED && m_mainFrame.m_bOnCreateDone)
+  {
+    multisplitClass::RectSet(); // to ClientRect
+  }
 
-	bHandled = FALSE;
-	return 1;
+  bHandled = FALSE;
+  return 1;
 }
 
 HWND TabView::CreateNewConsole(void)
@@ -226,7 +231,7 @@ shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* szFrom)
   {
     TRACE(L"TabView::GetActiveConsole multisplitClass::defaultFocusPane = %p\n", multisplitClass::defaultFocusPane);
   }
-  TRACE(L"TabView::GetActiveConsole called by %s returns %p\n", szFrom, result.get());
+  //TRACE(L"TabView::GetActiveConsole called by %s returns %p\n", szFrom, result.get());
   return result;
 }
 

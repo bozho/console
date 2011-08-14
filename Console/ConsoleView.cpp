@@ -15,16 +15,20 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-CDC		ConsoleView::m_dcOffscreen(::CreateCompatibleDC(NULL));
-CDC		ConsoleView::m_dcText(::CreateCompatibleDC(NULL));
+//CDC		ConsoleView::m_dcOffscreen(::CreateCompatibleDC(NULL));
+//CDC		ConsoleView::m_dcText(::CreateCompatibleDC(NULL));
 
-CBitmap	ConsoleView::m_bmpOffscreen;
-CBitmap	ConsoleView::m_bmpText;
+//CBitmap	ConsoleView::m_bmpOffscreen;
+//CBitmap	ConsoleView::m_bmpText;
 
-CFont	ConsoleView::m_fontText;
+CFont ConsoleView::m_fontText;
 
-int		ConsoleView::m_nCharHeight(0);
-int		ConsoleView::m_nCharWidth(0);
+int ConsoleView::m_nCharHeight(0);
+int ConsoleView::m_nCharWidth(0);
+int ConsoleView::m_nVScrollWidth(0);
+int ConsoleView::m_nHScrollWidth(0);
+int ConsoleView::m_nVInsideBorder(0);
+int ConsoleView::m_nHInsideBorder(0);
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,10 +47,6 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabD
 , m_dwStartupColumns(dwColumns)
 , m_bShowVScroll(false)
 , m_bShowHScroll(false)
-, m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
-, m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
-, m_nVInsideBorder(0)
-, m_nHInsideBorder(0)
 , m_strTitle(strTitle)
 , m_strUser()
 , m_consoleHandler()
@@ -64,6 +64,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabD
 , m_mouseCommand(MouseSettings::cmdNone)
 , m_bFlashTimerRunning(false)
 , m_dwFlashes(0)
+, m_dcOffscreen(::CreateCompatibleDC(NULL))
+, m_dcText(::CreateCompatibleDC(NULL))
 {
 }
 
@@ -235,6 +237,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	if (m_bNeedFullRepaint)
 	{
+    TRACE(L"ConsoleView::OnPaint\n");
 		// we need to update offscreen buffers here for first paint and relative backgrounds
 		RepaintText(m_dcText);
 		UpdateOffscreen(dc.m_ps.rcPaint);
@@ -951,13 +954,26 @@ LRESULT ConsoleView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 
 void ConsoleView::GetRect(CRect& clientRect)
 {
-	clientRect.left		= 0;
-	clientRect.top		= 0;
-	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + 2 * m_nVInsideBorder;
-	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + 2 * m_nHInsideBorder;
+  RECT rect;
+  GetWindowRect(&rect);
 
-	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
-	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
+  int width  = rect.right - rect.left;
+  int height = rect.bottom - rect.top;
+
+  clientRect.left   = 0;
+  clientRect.top    = 0;
+  clientRect.right  = m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + 2 * m_nVInsideBorder;
+  clientRect.bottom = m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + 2 * m_nHInsideBorder;
+
+  if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
+  if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
+
+  if(  width > clientRect.right  ) clientRect.right  = width;
+  if( height > clientRect.bottom ) clientRect.bottom = height;
+
+  TRACE(L"========ConsoleView::GetRect=====================================\n");
+  TRACE(L"wind: %ix%i - %ix%i\n", rect.left, rect.top, rect.right, rect.bottom);
+  TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -967,32 +983,41 @@ void ConsoleView::GetRect(CRect& clientRect)
 
 void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
 {
-	GetWindowRect(&clientRect);
-/*
-	TRACE(L"================================================================\n");
-	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
-*/
+  GetWindowRect(&clientRect);
+
+  TRACE(L"========AdjustRectAndResize=====================================\n");
+  TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+
   LONG width  = clientRect.right  - clientRect.left;
   LONG height = clientRect.bottom - clientRect.top;
 
-	// exclude scrollbars from row/col calculation
-	if (m_bShowVScroll) width  -= m_nVScrollWidth;
-	if (m_bShowHScroll) height -= m_nHScrollWidth;
+  // exclude scrollbars from row/col calculation
+  if (m_bShowVScroll) width  -= m_nVScrollWidth;
+  if (m_bShowHScroll) height -= m_nHScrollWidth;
+
+  // exclude inside borders from row/col calculation
+  width  -= (m_nVInsideBorder * 2);
+  height -= (m_nHInsideBorder * 2);
+
+  TRACE(L"exclude scrollbars and inside borders from row/col calculation\n");
+  TRACE(L"width: %i height: %i\n", width, height);
 
   DWORD dwColumns = width  / m_nCharWidth;
   DWORD dwRows    = height / m_nCharHeight;
 
+  TRACE(L"m_nCharWidth: %i m_nCharHeight: %i\n", m_nCharWidth, m_nCharHeight);
+
   DWORD dwMaxColumns = this->m_consoleHandler.GetConsoleParams()->dwMaxColumns;
   DWORD dwMaxRows    = this->m_consoleHandler.GetConsoleParams()->dwMaxRows;
+
+  TRACE(L"dwMaxColumns: %i dwMaxRows: %i\n", dwMaxColumns, dwMaxRows);
 
   if( dwColumns > dwMaxColumns )
     dwColumns = dwMaxColumns;
   if( dwRows > dwMaxRows )
     dwRows = dwMaxRows;
 
-  // variable inside borders
-  m_nVInsideBorder = (width  - dwColumns * m_nCharWidth ) / 2;
-  m_nHInsideBorder = (height - dwRows    * m_nCharHeight) / 2;
+  TRACE(L"dwColumns: %i dwRows: %i\n", dwColumns, dwRows);
 
   clientRect.right  = clientRect.left + dwColumns * m_nCharWidth  + m_nVInsideBorder * 2;
   clientRect.bottom = clientRect.top +  dwRows    * m_nCharHeight + m_nHInsideBorder * 2;
@@ -1001,19 +1026,17 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
   if (m_bShowVScroll) clientRect.right  += m_nVScrollWidth;
   if (m_bShowHScroll) clientRect.bottom += m_nHScrollWidth;
 
-	SharedMemory<ConsoleSize>&	newConsoleSize = m_consoleHandler.GetNewConsoleSize();
-	SharedMemoryLock			memLock(newConsoleSize);
+  SharedMemory<ConsoleSize>& newConsoleSize = m_consoleHandler.GetNewConsoleSize();
+  SharedMemoryLock memLock(newConsoleSize);
 
-	newConsoleSize->dwColumns			= dwColumns;
-	newConsoleSize->dwRows				= dwRows;
-	newConsoleSize->dwResizeWindowEdge	= dwResizeWindowEdge;
+  newConsoleSize->dwColumns          = dwColumns;
+  newConsoleSize->dwRows             = dwRows;
+  newConsoleSize->dwResizeWindowEdge = dwResizeWindowEdge;
 
-/*
-	TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
-	TRACE(L"================================================================\n");
-*/
+  TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
+  TRACE(L"================================================================\n");
 
-	m_consoleHandler.GetNewConsoleSize().SetReqEvent();
+  m_consoleHandler.GetNewConsoleSize().SetReqEvent();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1077,6 +1100,7 @@ void ConsoleView::RecreateOffscreenBuffers()
 
 void ConsoleView::Repaint(bool bFullRepaint)
 {
+  TRACE(L"ConsoleView::Repaint\n");
 	// OnPaint will do the work for a full repaint
 	if (!m_bNeedFullRepaint)
 	{
@@ -1369,6 +1393,7 @@ void ConsoleView::CreateOffscreenBuffers()
 	// create offscreen bitmaps if needed
 	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(m_dcOffscreen, rectWindowMax, m_bmpOffscreen);
 	if (m_bmpText.IsNull()) CreateOffscreenBitmap(m_dcText, rectWindowMax, m_bmpText);
+	m_dcText.SelectFont(m_fontText);
 
 	// create background brush
 	m_backgroundBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
@@ -1429,6 +1454,8 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 {
 	if (!m_fontText.IsNull()) return true;// m_fontText.DeleteObject();
 
+  CDC dcText(::CreateCompatibleDC(NULL));
+
 	BYTE	byFontQuality = DEFAULT_QUALITY;
 
 	switch (g_settingsHandler->GetAppearanceSettings().fontSettings.fontSmoothing)
@@ -1439,7 +1466,7 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		default : DEFAULT_QUALITY;
 	}
 	m_fontText.CreateFont(
-		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
@@ -1456,8 +1483,8 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 
 	TEXTMETRIC	textMetric;
 
-	m_dcText.SelectFont(m_fontText);
-	m_dcText.GetTextMetrics(&textMetric);
+	dcText.SelectFont(m_fontText);
+	dcText.GetTextMetrics(&textMetric);
 
 	if (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH)
 	{
@@ -1468,10 +1495,13 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
 	m_nCharWidth  = textMetric.tmAveCharWidth;
 	m_nCharHeight = textMetric.tmHeight;
-#if 0
+
+	m_nVScrollWidth = ::GetSystemMetrics(SM_CXVSCROLL);
+	m_nHScrollWidth = ::GetSystemMetrics(SM_CXHSCROLL);
+
 	m_nVInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
 	m_nHInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
-#endif
+
 	return true;
 }
 
@@ -1673,6 +1703,10 @@ void ConsoleView::RepaintText(CDC& dc)
 	bitmapRect.right	= bitmapSize.cx;
 	bitmapRect.bottom	= bitmapSize.cy;
 
+  SIZE	bitmapSize2;
+  m_dcOffscreen.GetCurrentBitmap().GetSize(bitmapSize2);
+  TRACE(L"ConsoleView::RepaintText (%ix%i on %ix%i)\n", bitmapSize.cx, bitmapSize.cy, bitmapSize2.cx, bitmapSize2.cy);
+
 	if (m_tabData->backgroundImageType == bktypeNone)
 	{
 		dc.FillRect(&bitmapRect, m_backgroundBrush);
@@ -1681,6 +1715,9 @@ void ConsoleView::RepaintText(CDC& dc)
 	{
 		CRect	rectWindow;
 		GetClientRect(&rectWindow);
+
+    TRACE(L"========UpdateImageBitmap=====================================\n");
+    TRACE(L"rect: %ix%i - %ix%i\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
 
 		g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
 
@@ -1846,6 +1883,7 @@ void ConsoleView::RepaintText(CDC& dc)
 
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
+  TRACE(L"ConsoleView::RepaintTextChanges\n");
 	DWORD	dwX			= m_nVInsideBorder;
 	DWORD	dwY			= m_nHInsideBorder;
 	DWORD	dwOffset	= 0;
@@ -2285,6 +2323,3 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelecti
 
 	return consolePoint;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-

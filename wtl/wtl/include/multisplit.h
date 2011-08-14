@@ -855,12 +855,24 @@ public :
 			POINT Point = { GET_X_LPARAM (Position), GET_Y_LPARAM (Position) };
 			pT->ScreenToClient (&Point);
 
-      this->defaultFocusPane = this->tree.getPane(Point);
+      SetDefaultFocusPane(this->tree.getPane(Point));
 			pT->SetFocus ();			// focus child window
       ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: defaultFocusPane = %p\n"), this->defaultFocusPane);
 		}
 		return Result;
 	}
+
+  void SetDefaultFocusPane(CMultiSplitPane* newDefaultPane)
+  {
+    bool boolNotify = newDefaultPane != this->defaultFocusPane;
+    this->defaultFocusPane = newDefaultPane;
+    if( boolNotify )
+      this->OnPaneChanged();
+  }
+
+  virtual void OnPaneChanged(void)
+  {
+  }
 
 	LRESULT OnSettingChange (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & /*bHandled*/)
 	{

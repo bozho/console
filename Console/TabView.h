@@ -34,6 +34,11 @@ public:
   LRESULT OnEraseBackground (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & /*bHandled*/);
   LRESULT OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & bHandled);
 
+  virtual void OnPaneChanged(void)
+  {
+    SetAppActiveStatus(true);
+  }
+
   shared_ptr<ConsoleView> GetActiveConsole(const TCHAR*);
   shared_ptr<TabData>     GetTabData() { return m_tabData; }
 

@@ -308,9 +308,20 @@ void TabView::SetActive(bool bActive)
 void TabView::SetAppActiveStatus(bool bAppActive)
 {
   MutexLock	viewMapLock(m_viewsMutex);
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  if( bAppActive )
   {
-    it->second->SetAppActiveStatus(bAppActive);
+    shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
+    for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+    {
+      it->second->SetAppActiveStatus(it->second == consoleView);
+    }
+  }
+  else
+  {
+    for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+    {
+      it->second->SetAppActiveStatus(false);
+    }
   }
 }
 
@@ -331,9 +342,9 @@ void TabView::SplitHorizontally()
     HWND hwndConsoleView = CreateNewConsole();
     if( hwndConsoleView )
     {
-      multisplitClass::defaultFocusPane = multisplitClass::defaultFocusPane->split(
+      multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
         hwndConsoleView,
-        CMultiSplitPane::HORIZONTAL);
+        CMultiSplitPane::HORIZONTAL));
     }
   }
 }
@@ -345,9 +356,9 @@ void TabView::SplitVertically()
     HWND hwndConsoleView = CreateNewConsole();
     if( hwndConsoleView )
     {
-      multisplitClass::defaultFocusPane = multisplitClass::defaultFocusPane->split(
+      multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
         hwndConsoleView,
-        CMultiSplitPane::VERTICAL);
+        CMultiSplitPane::VERTICAL));
     }
   }
 }

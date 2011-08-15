@@ -345,6 +345,16 @@ void TabView::SplitHorizontally()
       multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
         hwndConsoleView,
         CMultiSplitPane::HORIZONTAL));
+
+      if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->parent )
+      {
+        WTL::CMultiSplitPane* splitted = multisplitClass::defaultFocusPane->parent;
+        HWND hwndPane0 = 0, hwndPane1 = 0;
+        if( splitted->pane0 ) hwndPane0 = splitted->pane0->window;
+        if( splitted->pane1 ) hwndPane1 = splitted->pane1->window;
+
+        this->OnSplitBarMove(hwndPane0, hwndPane1, true);
+      }
     }
   }
 }
@@ -359,6 +369,16 @@ void TabView::SplitVertically()
       multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
         hwndConsoleView,
         CMultiSplitPane::VERTICAL));
+
+      if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->parent )
+      {
+        WTL::CMultiSplitPane* splitted = multisplitClass::defaultFocusPane->parent;
+        HWND hwndPane0 = 0, hwndPane1 = 0;
+        if( splitted->pane0 ) hwndPane0 = splitted->pane0->window;
+        if( splitted->pane1 ) hwndPane1 = splitted->pane1->window;
+
+        this->OnSplitBarMove(hwndPane0, hwndPane1, true);
+      }
     }
   }
 }
@@ -371,9 +391,27 @@ void TabView::CloseView()
     ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
     iter->second->DestroyWindow();
     m_views.erase(iter);
-    multisplitClass::defaultFocusPane->remove();
+    multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
 
     if( m_views.size() == 0 )
       m_mainFrame.CloseTab(this->m_hWnd);
+    else
+    {
+      if( multisplitClass::defaultFocusPane )
+      {
+        this->OnSplitBarMove(multisplitClass::defaultFocusPane->window, 0, true);
+      }
+    }
   }
+}
+
+void TabView::OnSplitBarMove(HWND hwndPane0, HWND hwndPane1, bool /*boolEnd*/)
+{
+  MutexLock viewMapLock(m_viewsMutex);
+  ConsoleViewMap::iterator iterPane0 = m_views.find(hwndPane0);
+  ConsoleViewMap::iterator iterPane1 = m_views.find(hwndPane1);
+
+  CRect clientRect;
+  if( iterPane0 != m_views.end() ) iterPane0->second->AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+  if( iterPane1 != m_views.end() ) iterPane1->second->AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
 }

@@ -232,12 +232,12 @@ namespace WTL
       return this->pane1;
     }
 
-    void remove(void)
+    CMultiSplitPane* remove(void)
     {
       if( this->isSplitBar() )
-        return;
+        return 0;
 
-      if( parent )
+      if( this->parent )
       {
         CMultiSplitPane* survivor =
           this->window == this->parent->pane0->window?
@@ -259,22 +259,27 @@ namespace WTL
           SWP_HIDEWINDOW);
 
         // parent = survivor
-        this->parent->window = survivor->window;
-        this->parent->splitType = survivor->splitType;
-        this->parent->splitRatio = survivor->splitRatio;
-        this->parent->pane0 = survivor->pane0;
-        this->parent->pane1 = survivor->pane1;
-        this->parent->splitType = NONE;
+        CMultiSplitPane* result = this->parent;
+        result->window = survivor->window;
+        result->splitType = survivor->splitType;
+        result->splitRatio = survivor->splitRatio;
+        result->pane0 = survivor->pane0;
+        result->pane1 = survivor->pane1;
+        result->splitType = NONE;
 
         // resize parent
-        this->parent->resize(this->parent->width, this->parent->height);
+        result->resize(result->width, result->height);
 
         // delete the two children of the parent
         delete target;
         survivor->pane0 = 0;
         survivor->pane1 = 0;
         delete survivor;
+
+        return result;
       }
+
+      return 0;
     }
 
     void resize(int width, int height)
@@ -801,21 +806,37 @@ public :
 
 	// end splitbar drag
 
-	LRESULT OnLButtonUp (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & bHandled)
-	{
-		if( this->resizingPane && !drawContentWhileResizing)
-		{
-      GhostBarDraw ();
-      T * pT = static_cast<T *> (this);
-      resizingPane->moveSplitBar(this->resizingDelta - this->resizingDelta0);
-      pT->InvalidateRect(NULL);
-      pT->UpdateWindow ();
-		}
-		this->resizingPane = 0;
-		::ReleaseCapture ();
-		bHandled = FALSE;
-		return 1;
-	}
+  LRESULT OnLButtonUp (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & bHandled)
+  {
+    if( this->resizingPane )
+    {
+      int delta = this->resizingDelta - this->resizingDelta0;
+      if( !drawContentWhileResizing )
+      {
+        GhostBarDraw ();
+        T * pT = static_cast<T *> (this);
+        resizingPane->moveSplitBar(delta);
+        pT->InvalidateRect(NULL);
+        pT->UpdateWindow ();
+      }
+
+      HWND hwndPane0 = 0, hwndPane1 = 0;
+      if( this->resizingPane->pane0 ) hwndPane0 = this->resizingPane->pane0->window;
+      if( this->resizingPane->pane1 ) hwndPane1 = this->resizingPane->pane1->window;
+
+      this->resizingPane = 0;
+      ::ReleaseCapture ();
+
+      if( delta )
+        this->OnSplitBarMove(hwndPane0, hwndPane1, true);
+    }
+    bHandled = FALSE;
+    return 1;
+  }
+
+  virtual void OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*boolEnd*/)
+  {
+  }
 
 	LRESULT OnSetFocus (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM, BOOL & bHandled)
 	{										// give focus to defaultPane child
@@ -855,9 +876,13 @@ public :
 			POINT Point = { GET_X_LPARAM (Position), GET_Y_LPARAM (Position) };
 			pT->ScreenToClient (&Point);
 
-      SetDefaultFocusPane(this->tree.getPane(Point));
-			pT->SetFocus ();			// focus child window
-      ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: defaultFocusPane = %p\n"), this->defaultFocusPane);
+      CMultiSplitPane* pane = this->tree.getPane(Point);
+      if( pane && !pane->isSplitBar() )
+      {
+        SetDefaultFocusPane(pane);
+        pT->SetFocus (); // focus child window
+        ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: defaultFocusPane = %p\n"), this->defaultFocusPane);
+      }
 		}
 		return Result;
 	}

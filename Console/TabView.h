@@ -39,6 +39,8 @@ public:
     SetAppActiveStatus(true);
   }
 
+  virtual void OnSplitBarMove(HWND hwndPane0, HWND hwndPane1, bool /*boolEnd*/);
+
   shared_ptr<ConsoleView> GetActiveConsole(const TCHAR*);
   shared_ptr<TabData>     GetTabData() { return m_tabData; }
 

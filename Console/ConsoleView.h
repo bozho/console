@@ -99,6 +99,7 @@ class ConsoleView
 	public:
 
 		void GetRect(CRect& clientRect);
+		void GetRectMax(CRect& clientMaxRect);
 		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge);
 		CPoint GetCellSize() { return CPoint(m_nCharWidth, m_nCharHeight); };
 

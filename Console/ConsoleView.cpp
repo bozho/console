@@ -237,7 +237,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	if (m_bNeedFullRepaint)
 	{
-    TRACE(L"ConsoleView::OnPaint\n");
+    //TRACE(L"ConsoleView::OnPaint\n");
 		// we need to update offscreen buffers here for first paint and relative backgrounds
 		RepaintText(m_dcText);
 		UpdateOffscreen(dc.m_ps.rcPaint);
@@ -269,10 +269,15 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 
 //////////////////////////////////////////////////////////////////////////////
-
+long l1 = 0;
 LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	WINDOWPOS* pWinPos = reinterpret_cast<WINDOWPOS*>(lParam);
+
+  if (!(pWinPos->flags & SWP_NOSIZE))
+  {
+    TRACE(L"!!! ConsoleView::OnSize (%d) !!!\n", ::InterlockedIncrement(&l1));
+  }
 
 	// showing the view, repaint
 	if (pWinPos->flags & SWP_SHOWWINDOW) Repaint(false);
@@ -965,8 +970,8 @@ void ConsoleView::GetRect(CRect& clientRect)
   clientRect.right  = m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + 2 * m_nVInsideBorder;
   clientRect.bottom = m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + 2 * m_nHInsideBorder;
 
-  if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
-  if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
+  if (m_bShowVScroll) clientRect.right  += m_nVScrollWidth;
+  if (m_bShowHScroll) clientRect.bottom += m_nHScrollWidth;
 
   if(  width > clientRect.right  ) clientRect.right  = width;
   if( height > clientRect.bottom ) clientRect.bottom = height;
@@ -976,16 +981,27 @@ void ConsoleView::GetRect(CRect& clientRect)
   TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 }
 
+void ConsoleView::GetRectMax(CRect& clientMaxRect)
+{
+  clientMaxRect.left   = 0;
+  clientMaxRect.top    = 0;
+  clientMaxRect.right  = (m_consoleHandler.GetConsoleParams()->dwColumns + 1) * m_nCharWidth  + 2 * m_nVInsideBorder;
+  clientMaxRect.bottom = (m_consoleHandler.GetConsoleParams()->dwRows    + 1) * m_nCharHeight + 2 * m_nHInsideBorder;
+
+  if (m_bShowVScroll) clientMaxRect.right  += m_nVScrollWidth;
+  if (m_bShowHScroll) clientMaxRect.bottom += m_nHScrollWidth;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
-
+long l2 = 0;
 void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
 {
   GetWindowRect(&clientRect);
 
-  TRACE(L"========AdjustRectAndResize=====================================\n");
+  TRACE(L"========AdjustRectAndResize (%d)=================================\n", ::InterlockedIncrement(&l2));
   TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 
   LONG width  = clientRect.right  - clientRect.left;
@@ -1100,7 +1116,7 @@ void ConsoleView::RecreateOffscreenBuffers()
 
 void ConsoleView::Repaint(bool bFullRepaint)
 {
-  TRACE(L"ConsoleView::Repaint\n");
+  //TRACE(L"ConsoleView::Repaint\n");
 	// OnPaint will do the work for a full repaint
 	if (!m_bNeedFullRepaint)
 	{
@@ -1388,7 +1404,7 @@ void ConsoleView::CreateOffscreenBuffers()
 	}
 
 	// get window rect based on font and console size
-	GetRect(rectWindowMax);
+	GetRectMax(rectWindowMax);
 
 	// create offscreen bitmaps if needed
 	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(m_dcOffscreen, rectWindowMax, m_bmpOffscreen);
@@ -1702,11 +1718,11 @@ void ConsoleView::RepaintText(CDC& dc)
 	bitmapRect.top		= 0;
 	bitmapRect.right	= bitmapSize.cx;
 	bitmapRect.bottom	= bitmapSize.cy;
-
+/*
   SIZE	bitmapSize2;
   m_dcOffscreen.GetCurrentBitmap().GetSize(bitmapSize2);
   TRACE(L"ConsoleView::RepaintText (%ix%i on %ix%i)\n", bitmapSize.cx, bitmapSize.cy, bitmapSize2.cx, bitmapSize2.cy);
-
+*/
 	if (m_tabData->backgroundImageType == bktypeNone)
 	{
 		dc.FillRect(&bitmapRect, m_backgroundBrush);
@@ -1883,7 +1899,7 @@ void ConsoleView::RepaintText(CDC& dc)
 
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
-  TRACE(L"ConsoleView::RepaintTextChanges\n");
+  //TRACE(L"ConsoleView::RepaintTextChanges\n");
 	DWORD	dwX			= m_nVInsideBorder;
 	DWORD	dwY			= m_nHInsideBorder;
 	DWORD	dwOffset	= 0;

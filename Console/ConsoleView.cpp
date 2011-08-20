@@ -66,6 +66,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabD
 , m_dwFlashes(0)
 , m_dcOffscreen(::CreateCompatibleDC(NULL))
 , m_dcText(::CreateCompatibleDC(NULL))
+, m_boolIsGrouped(false)
 {
 }
 
@@ -340,8 +341,11 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-//		TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
-		::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+    //TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+    if( this->IsGrouped() )
+      m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
+    else
+      ::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	}
 
 	return 0;
@@ -554,7 +558,8 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				case MouseSettings::cmdPaste :
 				{
-					Paste();
+					//Paste();
+          m_mainFrame.PasteToConsoles();
 					break;
 				}
 

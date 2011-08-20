@@ -213,6 +213,8 @@ class MainFrame
 		void AdjustWindowSize(bool bResizeConsole);
 		void RecreateOffscreenBuffers();
 		void CloseTab(HWND hwndTabView);
+    void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
+    void PasteToConsoles();
 
 	private:
 

@@ -19,6 +19,7 @@ TabView::TabView(MainFrame& mainFrame, shared_ptr<TabData> tabData)
 ,m_strTitle(tabData->strTitle.c_str())
 ,m_bigIcon()
 ,m_smallIcon()
+,m_boolIsGrouped(false)
 {
 }
 
@@ -135,6 +136,7 @@ HWND TabView::CreateNewConsole(void)
 	}
 #endif
 	shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns));
+  consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 
 	if (m_tabData->bRunAsUser)
@@ -393,4 +395,44 @@ void TabView::OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*bool
 {
   CRect clientRect(0, 0, 0, 0);
   AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void TabView::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+  MutexLock	viewMapLock(m_viewsMutex);
+  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  {
+    ::PostMessage(it->second->GetConsoleHandler().GetConsoleParams()->hwndConsoleWindow, Msg, wParam, lParam);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void TabView::PasteToConsoles()
+{
+  MutexLock	viewMapLock(m_viewsMutex);
+  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  {
+    it->second->Paste();
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void TabView::Group(bool b)
+{
+  MutexLock	viewMapLock(m_viewsMutex);
+  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  {
+    it->second->Group(b);
+  }
+  m_boolIsGrouped = b;
 }

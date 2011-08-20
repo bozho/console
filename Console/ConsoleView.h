@@ -136,6 +136,9 @@ class ConsoleView
 
 		const CString& GetExceptionMessage() const { return m_exceptionMessage; }
 
+    inline bool IsGrouped() const { return m_boolIsGrouped; }
+    void Group(bool b) { m_boolIsGrouped = b; }
+
 	private:
 
 		void OnConsoleChange(bool bResize);
@@ -181,6 +184,7 @@ class ConsoleView
 		bool	m_bNeedFullRepaint;
 		bool	m_bUseTextAlphaBlend;
 		bool	m_bConsoleWindowVisible;
+    bool  m_boolIsGrouped;
 
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;

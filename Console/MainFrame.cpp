@@ -1254,7 +1254,11 @@ LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT MainFrame::OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  MessageBox(_T(__FUNCTION__));
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->Group(true);
+  }
   return 0;
 }
 
@@ -1265,7 +1269,11 @@ LRESULT MainFrame::OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  MessageBox(_T(__FUNCTION__));
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->Group(false);
+  }
   return 0;
 }
 
@@ -1276,7 +1284,8 @@ LRESULT MainFrame::OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT MainFrame::OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  MessageBox(_T(__FUNCTION__));
+  if (!m_activeTabView) return 0;
+  m_activeTabView->Group(true);
   return 0;
 }
 
@@ -1287,7 +1296,8 @@ LRESULT MainFrame::OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnUngroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  MessageBox(_T(__FUNCTION__));
+  if (!m_activeTabView) return 0;
+  m_activeTabView->Group(false);
   return 0;
 }
 
@@ -1309,13 +1319,7 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
-  if( activeConsoleView )
-  {
-    activeConsoleView->Paste();
-  }
-
+  PasteToConsoles();
   return 0;
 }
 
@@ -1360,13 +1364,7 @@ LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
-  if( activeConsoleView )
-  {
-    activeConsoleView->Paste();
-  }
-
+  PasteToConsoles();
   return 0;
 }
 
@@ -2464,3 +2462,36 @@ BOOL MainFrame::SetTrayIcon(DWORD dwMessage) {
 
 /////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->PostMessageToConsoles(Msg, wParam, lParam);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::PasteToConsoles()
+{
+  if (!m_activeTabView) return;
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  if( activeConsoleView )
+  {
+    if( activeConsoleView->IsGrouped() )
+    {
+      MutexLock lock(m_tabsMutex);
+      for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+      {
+        it->second->PasteToConsoles();
+      }
+    }
+    else
+      activeConsoleView->Paste();
+  }
+}

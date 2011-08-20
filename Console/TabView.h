@@ -61,6 +61,12 @@ public:
   void SplitVertically();
   void CloseView();
 
+  void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
+  void PasteToConsoles();
+
+  inline bool IsGrouped() const { return m_boolIsGrouped; }
+  void Group(bool b);
+
 private:
   HWND CreateNewConsole(void);
 
@@ -72,7 +78,7 @@ private:
   CString             m_strTitle;
   CIcon               m_bigIcon;
   CIcon               m_smallIcon;
-
+  bool                m_boolIsGrouped;
 
   // static members
 private:

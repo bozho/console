@@ -880,7 +880,7 @@ public :
       if( pane && !pane->isSplitBar() )
       {
         SetDefaultFocusPane(pane);
-        pT->SetFocus (); // focus child window
+        //pT->SetFocus (); // focus child window
         ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: defaultFocusPane = %p\n"), this->defaultFocusPane);
       }
 		}
@@ -891,6 +891,8 @@ public :
   {
     bool boolNotify = newDefaultPane != this->defaultFocusPane;
     this->defaultFocusPane = newDefaultPane;
+    if( newDefaultPane && ::IsWindow(newDefaultPane->window) )
+      ::SetFocus(newDefaultPane->window);
     if( boolNotify )
       this->OnPaneChanged();
   }

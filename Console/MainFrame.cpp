@@ -1217,6 +1217,7 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 {
   if( m_activeTabView )
     m_activeTabView->CloseView();
+  ::SetForegroundWindow(m_hWnd);
   return 0;
 }
 
@@ -1229,6 +1230,7 @@ LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 {
   if( m_activeTabView )
     m_activeTabView->SplitHorizontally();
+  ::SetForegroundWindow(m_hWnd);
   return 0;
 }
 
@@ -1241,6 +1243,7 @@ LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 {
   if( m_activeTabView )
     m_activeTabView->SplitVertically();
+  ::SetForegroundWindow(m_hWnd);
   return 0;
 }
 

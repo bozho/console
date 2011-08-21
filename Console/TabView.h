@@ -60,6 +60,8 @@ public:
   void SplitHorizontally();
   void SplitVertically();
   void CloseView();
+  void NextView();
+  void PrevView();
 
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
   void PasteToConsoles();

@@ -337,6 +337,10 @@ void TabView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
   this->GetRect(clientRect);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void TabView::SplitHorizontally()
 {
   if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
@@ -371,6 +375,10 @@ void TabView::SplitVertically()
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void TabView::CloseView()
 {
   if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
@@ -390,6 +398,46 @@ void TabView::CloseView()
     }
   }
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void TabView::NextView()
+{
+  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+  {
+    MutexLock viewMapLock(m_viewsMutex);
+    if( m_views.size() > 1 )
+    {
+      ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
+      ++iter;
+      if( iter == m_views.end() )
+        iter = m_views.begin();
+      multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
+    }
+  }
+}
+
+void TabView::PrevView()
+{
+  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+  {
+    MutexLock viewMapLock(m_viewsMutex);
+    if( m_views.size() > 1 )
+    {
+      ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
+      if( iter == m_views.begin() )
+        iter = m_views.end();
+      --iter;
+      multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
+    }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
 
 void TabView::OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*boolEnd*/)
 {

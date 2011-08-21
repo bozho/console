@@ -1659,6 +1659,8 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 
 	if (m_tabs.size() > 1)
 	{
+    CRect clientRect(0, 0, 0, 0);
+    tabView->AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
 		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
 	}
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&

@@ -633,10 +633,11 @@ public :
 
 	// draw all splitter bars & empty panes, occupied panes draw themselves
 
-	void Draw (CDCHandle dc)
-	{
-		ATLASSERT(!(dc.m_hDC == 0));
+  void Draw (CDCHandle dc)
+  {
+    ATLASSERT(!(dc.m_hDC == 0));
 
+#if 0
     CPen penYellow;
     penYellow.CreatePen(PS_SOLID, 1, RGB(255, 255, 0));
     dc.SelectPen(penYellow);
@@ -651,13 +652,14 @@ public :
     dc.LineTo(visibleRect.right - 1 - marge, visibleRect.bottom - 1 - marge);
     dc.MoveTo(visibleRect.right - 1 - marge, visibleRect.top + marge);
     dc.LineTo(visibleRect.left + marge, visibleRect.bottom - 1 - marge);
+#endif
 
-		ATLTRACE(_T("CMultiSplitImpl::Draw: %d %d %d %d (%d %d)\n"),
-			visibleRect.left, visibleRect.top, visibleRect.right, visibleRect.bottom,
-			visibleRect.Width (), visibleRect.Height ());
+    ATLTRACE(_T("CMultiSplitImpl::Draw: %d %d %d %d (%d %d)\n"),
+      visibleRect.left, visibleRect.top, visibleRect.right, visibleRect.bottom,
+      visibleRect.Width (), visibleRect.Height ());
 
     this->tree.draw(dc);
-	}
+  }
 
 // Overrideable by derived classes
 
@@ -690,28 +692,25 @@ public :
 
 // Message map and handlers
 
-	typedef CMultiSplitImpl< T>	thisClass;
-	BEGIN_MSG_MAP (thisClass)
-		MESSAGE_HANDLER (WM_CREATE, OnCreate)
-		MESSAGE_HANDLER (WM_PAINT, OnPaint)
-//		MESSAGE_HANDLER (WM_PRINTCLIENT, OnPaint)
-//		if (IsInteractive ())
-		{
-			MESSAGE_HANDLER (WM_SETCURSOR, OnSetCursor)	// cursor in client area
-			MESSAGE_HANDLER (WM_MOUSEMOVE, OnMouseMove)
-			MESSAGE_HANDLER (WM_LBUTTONDOWN, OnLButtonDown)
-			MESSAGE_HANDLER (WM_LBUTTONUP, OnLButtonUp)
+  typedef CMultiSplitImpl< T>	thisClass;
+  BEGIN_MSG_MAP (thisClass)
+    MESSAGE_HANDLER (WM_CREATE, OnCreate)
+    MESSAGE_HANDLER (WM_PAINT, OnPaint)
+    //MESSAGE_HANDLER (WM_PRINTCLIENT, OnPaint)
+    MESSAGE_HANDLER (WM_SETCURSOR, OnSetCursor) // cursor in client area
+    MESSAGE_HANDLER (WM_MOUSEMOVE, OnMouseMove)
+    MESSAGE_HANDLER (WM_LBUTTONDOWN, OnLButtonDown)
+    MESSAGE_HANDLER (WM_LBUTTONUP, OnLButtonUp)
 #if 0
-		    MESSAGE_HANDLER (WM_VSCROLL, OnScroll)		// scroll bar messages
-		    MESSAGE_HANDLER (WM_HSCROLL, OnScroll)
-		    MESSAGE_HANDLER (WM_MOUSEWHEEL, OnMouseWheel)
-			MESSAGE_HANDLER (WM_LBUTTONDBLCLK, OnLButtonDoubleClick)
+    MESSAGE_HANDLER (WM_VSCROLL, OnScroll)    // scroll bar messages
+    MESSAGE_HANDLER (WM_HSCROLL, OnScroll)
+    MESSAGE_HANDLER (WM_MOUSEWHEEL, OnMouseWheel)
+    MESSAGE_HANDLER (WM_LBUTTONDBLCLK, OnLButtonDoubleClick)
 #endif
-		}
-		MESSAGE_HANDLER (WM_SETFOCUS, OnSetFocus)
-		MESSAGE_HANDLER (WM_MOUSEACTIVATE, OnMouseActivate)
-		MESSAGE_HANDLER (WM_SETTINGCHANGE, OnSettingChange)
-	END_MSG_MAP ()
+    MESSAGE_HANDLER (WM_SETFOCUS, OnSetFocus)
+    MESSAGE_HANDLER (WM_MOUSEACTIVATE, OnMouseActivate)
+    MESSAGE_HANDLER (WM_SETTINGCHANGE, OnSettingChange)
+  END_MSG_MAP ()
 
 	LRESULT OnCreate (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL & bHandled)
 	{
@@ -732,58 +731,60 @@ public :
 		return 0;
 	}
 
-	LRESULT OnSetCursor (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		T * pT = static_cast<T *> (this);
-		if (reinterpret_cast<HWND>(wParam) == pT->m_hWnd && LOWORD (lParam) == HTCLIENT)
-		{
-			DWORD Position = ::GetMessagePos ();
-			POINT Point = { GET_X_LPARAM (Position), GET_Y_LPARAM (Position) };
-			pT->ScreenToClient (&Point);
+  LRESULT OnSetCursor (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+  {
+    T * pT = static_cast<T *> (this);
+    if (reinterpret_cast<HWND>(wParam) == pT->m_hWnd && LOWORD (lParam) == HTCLIENT)
+    {
+      DWORD Position = ::GetMessagePos ();
+      POINT Point = { GET_X_LPARAM (Position), GET_Y_LPARAM (Position) };
+      pT->ScreenToClient (&Point);
       if ( this->tree.getSplitBar(Point) )
-				return 1;
-		}
-		bHandled = FALSE;
-		return 0;
-	}
+        return 1;
+    }
+    bHandled = FALSE;
+    return 0;
+  }
 
 	// Dragging splitbar resizes panes to either side of bar
 	// Pane size is checked and changed on every receipt of this message.
 
-	LRESULT OnMouseMove (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
-	{
-		T * pT = static_cast<T *> (this);
-		POINT Point = { GET_X_LPARAM (lParam), GET_Y_LPARAM (lParam) };
-		if ((wParam & MK_LBUTTON) && ::GetCapture () == pT->m_hWnd)
-		{									// resizing
+  LRESULT OnMouseMove (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+  {
+    T * pT = static_cast<T *> (this);
+    POINT Point = { GET_X_LPARAM (lParam), GET_Y_LPARAM (lParam) };
+    if ((wParam & MK_LBUTTON) && ::GetCapture () == pT->m_hWnd)
+    {
+      // resizing
       int delta = resizingPane->getSplitBarDelta(Point);
 
-			if ( delta )
-			{
-				if (drawContentWhileResizing)
-				{
+      if ( delta )
+      {
+        if (drawContentWhileResizing)
+        {
           resizingPane->moveSplitBar(delta - this->resizingDelta0);
           pT->InvalidateRect(NULL);
-					pT->UpdateWindow ();
-				}
-				else
-				{
-					GhostBarDraw ();
+          pT->UpdateWindow ();
+        }
+        else
+        {
+          GhostBarDraw ();
           this->resizingDelta = delta;
           GhostBarDraw ();
-				}
-			}
-		}
-		else
-		{									// not dragging, just set cursor
+        }
+      }
+    }
+    else
+    {
+      // not dragging, just set cursor
       CMultiSplitPane* splitBar = this->tree.getSplitBar(Point);
-			if ( splitBar )
+      if ( splitBar )
         ::SetCursor (splitBar->splitType == CMultiSplitPane::VERTICAL ? vertCursor : horzCursor);
 
-			bHandled = FALSE;
-		}
-		return 0;
-	}
+      bHandled = FALSE;
+    }
+    return 0;
+  }
 
 	// start splitbar drag
 
@@ -838,43 +839,46 @@ public :
   {
   }
 
-	LRESULT OnSetFocus (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM, BOOL & bHandled)
-	{										// give focus to defaultPane child
-//		ATLTRACE(_T("CMultiSplitImpl::OnSetFocus: %p\n"), defaultFocusPane);
+  LRESULT OnSetFocus (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM, BOOL & bHandled)
+  {
+    // give focus to defaultPane child
+    //ATLTRACE(_T("CMultiSplitImpl::OnSetFocus: %p\n"), defaultFocusPane);
     if( defaultFocusPane && defaultFocusPane->window )
-			::SetFocus(defaultFocusPane->window);
+      ::SetFocus(defaultFocusPane->window);
 
-		bHandled = FALSE;
-		return 1;
-	}
+    bHandled = FALSE;
+    return 1;
+  }
 
-	LRESULT OnMouseActivate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & /*bHandled*/)
-	{
-		T * pT = static_cast<T *> (this);
-		LRESULT Result = pT->DefWindowProc (uMsg, wParam, lParam);
-/*		LPCTSTR Text;
-		switch (Result)
-		{
-			case MA_ACTIVATE :
-				Text = _T("MA_ACTIVATE");
-				break;
-			case MA_ACTIVATEANDEAT :
-				Text = _T("MA_ACTIVATEANDEAT");
-				break;
-			case MA_NOACTIVATE :
-				Text = _T("MA_NOACTIVATE");
-				break;
-			case MA_NOACTIVATEANDEAT :
-				Text = _T("MA_NOACTIVATEANDEAT");
-				break;
-		}
-		ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: %s\n"), Text);
-*/
+  LRESULT OnMouseActivate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & /*bHandled*/)
+  {
+    T * pT = static_cast<T *> (this);
+    LRESULT Result = pT->DefWindowProc (uMsg, wParam, lParam);
+    /*
+    LPCTSTR Text;
+    switch (Result)
+    {
+    case MA_ACTIVATE :
+    Text = _T("MA_ACTIVATE");
+    break;
+    case MA_ACTIVATEANDEAT :
+    Text = _T("MA_ACTIVATEANDEAT");
+    break;
+    case MA_NOACTIVATE :
+    Text = _T("MA_NOACTIVATE");
+    break;
+    case MA_NOACTIVATEANDEAT :
+    Text = _T("MA_NOACTIVATEANDEAT");
+    break;
+    }
+    ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: %s\n"), Text);
+    */
     if (Result == MA_ACTIVATE || Result == MA_ACTIVATEANDEAT)
-		{								// select focus pane from mouse position
-			DWORD Position = ::GetMessagePos ();
-			POINT Point = { GET_X_LPARAM (Position), GET_Y_LPARAM (Position) };
-			pT->ScreenToClient (&Point);
+    {
+      // select focus pane from mouse position
+      DWORD Position = ::GetMessagePos ();
+      POINT Point = { GET_X_LPARAM (Position), GET_Y_LPARAM (Position) };
+      pT->ScreenToClient (&Point);
 
       CMultiSplitPane* pane = this->tree.getPane(Point);
       if( pane && !pane->isSplitBar() )
@@ -883,9 +887,9 @@ public :
         //pT->SetFocus (); // focus child window
         ATLTRACE(_T("CMultiSplitImpl::OnMouseActivate: defaultFocusPane = %p\n"), this->defaultFocusPane);
       }
-		}
-		return Result;
-	}
+    }
+    return Result;
+  }
 
   void SetDefaultFocusPane(CMultiSplitPane* newDefaultPane)
   {

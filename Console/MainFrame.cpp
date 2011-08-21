@@ -803,8 +803,13 @@ LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 
 LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	CloseTab(reinterpret_cast<HWND>(wParam));
-	return 0;
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    if( it->second->CloseView(reinterpret_cast<HWND>(wParam)) )
+      break;
+  }
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

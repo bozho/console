@@ -1367,7 +1367,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 
 void ConsoleView::OnConsoleClose()
 {
-	if (::IsWindow(m_hWnd)) m_mainFrame.PostMessage(UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hwndTabView), 0);
+	if (::IsWindow(m_hWnd)) m_mainFrame.PostMessage(UM_CONSOLE_CLOSED, reinterpret_cast<WPARAM>(m_hWnd), 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////

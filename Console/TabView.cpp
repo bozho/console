@@ -379,24 +379,37 @@ void TabView::SplitVertically()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void TabView::CloseView()
+bool TabView::CloseView(HWND hwnd /*= 0*/)
 {
-  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+  if( hwnd == 0 )
+  {
+    if( multisplitClass::defaultFocusPane )
+      hwnd = multisplitClass::defaultFocusPane->window;
+  }
+
+  if( hwnd )
   {
     MutexLock viewMapLock(m_viewsMutex);
-    ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
-    iter->second->DestroyWindow();
-    m_views.erase(iter);
-    multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
-
-    if( m_views.size() == 0 )
-      m_mainFrame.CloseTab(this->m_hWnd);
-    else
+    ConsoleViewMap::iterator iter = m_views.find(hwnd);
+    if( iter != m_views.end() )
     {
-      CRect clientRect(0, 0, 0, 0);
-      AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+      iter->second->DestroyWindow();
+      m_views.erase(iter);
+      multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
+
+      if( m_views.size() == 0 )
+        m_mainFrame.CloseTab(this->m_hWnd);
+      else
+      {
+        CRect clientRect(0, 0, 0, 0);
+        AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+      }
+
+      return true;
     }
   }
+
+  return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

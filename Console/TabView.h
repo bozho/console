@@ -59,7 +59,7 @@ public:
 
   void SplitHorizontally();
   void SplitVertically();
-  void CloseView();
+  bool CloseView(HWND hwnd = 0);
   void NextView();
   void PrevView();
 

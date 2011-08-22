@@ -282,6 +282,7 @@ class MainFrame
 		DWORD			m_dwWindowHeight;
 		DWORD			m_dwResizeWindowEdge;
 
+		bool			m_bAppActive;
 		bool			m_bRestoringWindow;
 		CRect			m_rectRestoredWnd;
 

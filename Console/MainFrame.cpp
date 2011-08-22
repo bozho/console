@@ -51,6 +51,7 @@ MainFrame::MainFrame
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
 , m_iSelectionSize(0)
+, m_bAppActive(true)
 {
   m_Margins.cxLeftWidth    = 0;
   m_Margins.cxRightWidth   = 0;
@@ -373,18 +374,18 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	BOOL bActivating = static_cast<BOOL>(wParam);
+  m_bAppActive = static_cast<BOOL>(wParam)? true : false;
 
 	if (!m_activeTabView) return 0;
 
-	m_activeTabView->SetAppActiveStatus(bActivating ? true : false);
+	m_activeTabView->SetAppActiveStatus(m_bAppActive);
 
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
 	if ((transparencySettings.transType == transAlpha) && 
 		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
 	{
-		if (bActivating)
+		if (m_bAppActive)
 		{
 			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
 		}
@@ -426,7 +427,7 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
         {
           ::AnimateWindow(m_hWnd, 300, AW_ACTIVATE | AW_SLIDE | AW_VER_POSITIVE);
         }
-        else if(this->GetActiveView() == GetFocus())
+        else if(m_bAppActive)
         {
           ::AnimateWindow(m_hWnd, 300, AW_HIDE | AW_SLIDE | AW_VER_NEGATIVE);
           bActivate = false;

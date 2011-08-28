@@ -278,15 +278,6 @@ void TabView::MainframeMoving()
   }
 }
 
-void TabView::RecreateOffscreenBuffers()
-{
-  MutexLock	viewMapLock(m_viewsMutex);
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-  {
-    it->second->RecreateOffscreenBuffers();
-  }
-}
-
 void TabView::SetTitle(const CString& strTitle)
 {
   m_strTitle = strTitle;

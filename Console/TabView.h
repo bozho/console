@@ -53,7 +53,6 @@ public:
   void MainframeMoving();
   void Repaint(bool bFullRepaint);
   void InitializeScrollbars();
-  void RecreateOffscreenBuffers();
   void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge);
   void GetRect(CRect& clientRect);
 

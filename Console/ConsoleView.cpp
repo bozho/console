@@ -331,9 +331,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			m_appearanceSettings.fontSettings.dwSize = size;
 			// recreate font with new size
 			RecreateFont();
-			m_mainFrame.AdjustWindowSize(false);
-			m_mainFrame.RecreateOffscreenBuffers();
-			Repaint(true);
+			m_mainFrame.AdjustWindowSize(true);
 		}
 
 		return 0;
@@ -804,8 +802,6 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 */
 		InitializeScrollbars();
 
-		RecreateOffscreenBuffers();
-
 		// notify parent about resize
 		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
@@ -1056,6 +1052,9 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
 
   TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
   TRACE(L"================================================================\n");
+
+  RecreateOffscreenBuffers();
+  Repaint(true);
 
   m_consoleHandler.GetNewConsoleSize().SetReqEvent();
 }
@@ -1324,6 +1323,7 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
+  TRACE(L" !!!!!!!!!!!!!!! ConsoleView::OnConsoleChange(%s) !!!!!!!!!!!!!!!!", bResize?L"true":L"false");
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 	SharedMemory<ConsoleInfo>&	consoleInfo = m_consoleHandler.GetConsoleInfo();
 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
@@ -1409,7 +1409,7 @@ void ConsoleView::CreateOffscreenBuffers()
 	}
 
 	// get window rect based on font and console size
-	GetRectMax(rectWindowMax);
+	GetRect(rectWindowMax);
 
 	// create offscreen bitmaps if needed
 	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(m_dcOffscreen, rectWindowMax, m_bmpOffscreen);

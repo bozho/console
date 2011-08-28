@@ -211,7 +211,6 @@ class MainFrame
 		void AdjustWindowRect(CRect& rect);
 		void SetSelectionSize(int iSelectionSize);
 		void AdjustWindowSize(bool bResizeConsole);
-		void RecreateOffscreenBuffers();
 		void CloseTab(HWND hwndTabView);
     void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
     void PasteToConsoles();

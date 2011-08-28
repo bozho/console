@@ -1477,9 +1477,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		}
 
     ConsoleView::RecreateFont();
-		AdjustWindowSize(false);
-		RecreateOffscreenBuffers();
-		m_activeTabView->Repaint(true);
+		AdjustWindowSize(true);
 	}
 
 	RegisterGlobalHotkeys();
@@ -2199,16 +2197,6 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole)
 	m_dwWindowHeight= rectWindow.Height();
 
 	SetMargins();
-}
-
-void MainFrame::RecreateOffscreenBuffers()
-{
-  MutexLock viewMapLock(m_tabsMutex);
-
-  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
-  {
-    it->second->RecreateOffscreenBuffers();
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

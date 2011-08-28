@@ -53,7 +53,7 @@ public:
   void MainframeMoving();
   void Repaint(bool bFullRepaint);
   void InitializeScrollbars();
-  void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge);
+  void AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge);
   void GetRect(CRect& clientRect);
 
   void SplitHorizontally();

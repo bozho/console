@@ -278,7 +278,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	CreateAcceleratorTable();
 	RegisterGlobalHotkeys();
 
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 
 	CRect rectWindow;
 	GetWindowRect(&rectWindow);
@@ -792,7 +792,7 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	UpdateStatusBar();
 	return 0;
 }
@@ -1093,7 +1093,7 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	return 0;
 }
 
@@ -1477,7 +1477,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		}
 
     ConsoleView::RecreateFont();
-		AdjustWindowSize(true);
+		AdjustWindowSize(ADJUSTSIZE_FONT);
 	}
 
 	RegisterGlobalHotkeys();
@@ -1659,7 +1659,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 	if (m_tabs.size() > 1)
 	{
     CRect clientRect(0, 0, 0, 0);
-    tabView->AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+    tabView->AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
 		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
 	}
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
@@ -2022,7 +2022,7 @@ void MainFrame::ShowMenu(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible ? true : false;
 
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	DockWindow(m_dockPosition);
 }
 
@@ -2043,7 +2043,7 @@ void MainFrame::ShowToolbar(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible? true : false;
 
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	DockWindow(m_dockPosition);
 }
 
@@ -2062,7 +2062,7 @@ void MainFrame::ShowStatusbar(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible? true : false;
 	
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	DockWindow(m_dockPosition);
 }
 
@@ -2094,7 +2094,7 @@ void MainFrame::ShowTabs(BOOL bShow)
 	}
 
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	DockWindow(m_dockPosition);
 }
 
@@ -2121,7 +2121,7 @@ void MainFrame::ResizeWindow()
 	if ((dwWindowWidth != m_dwWindowWidth) ||
 		(dwWindowHeight != m_dwWindowHeight))
 	{
-		AdjustWindowSize(true);
+		AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	}
 
 	SendMessage(WM_NULL, 0, 0);
@@ -2135,22 +2135,17 @@ void MainFrame::ResizeWindow()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::AdjustWindowSize(bool bResizeConsole)
+void MainFrame::AdjustWindowSize(ADJUSTSIZE as)
 {
   TRACE(L"AdjustWindowSize\n");
 	CRect clientRect(0, 0, 0, 0);
 
-	if( this->IsZoomed() )
-	{
-		bResizeConsole = true;
-	}
-
-	if (bResizeConsole)
+	if (as != ADJUSTSIZE_NONE)
 	{
 		// adjust the active view
 		if (!m_activeTabView) return;
 
-		m_activeTabView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge);
+		m_activeTabView->AdjustRectAndResize(as, clientRect, m_dwResizeWindowEdge);
 
 		// for other views, first set view size and then resize their Windows consoles
 		MutexLock	viewMapLock(m_tabsMutex);
@@ -2167,7 +2162,7 @@ void MainFrame::AdjustWindowSize(bool bResizeConsole)
 							clientRect.Height(),
 							SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
 
-			it->second->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge);
+			it->second->AdjustRectAndResize(as, clientRect, m_dwResizeWindowEdge);
 		}
 	}
 	else

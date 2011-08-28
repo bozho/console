@@ -331,7 +331,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			m_appearanceSettings.fontSettings.dwSize = size;
 			// recreate font with new size
 			RecreateFont();
-			m_mainFrame.AdjustWindowSize(true);
+			m_mainFrame.AdjustWindowSize(ADJUSTSIZE_FONT);
 		}
 
 		return 0;
@@ -998,7 +998,7 @@ void ConsoleView::GetRectMax(CRect& clientMaxRect)
 
 //////////////////////////////////////////////////////////////////////////////
 long l2 = 0;
-void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
+void ConsoleView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge)
 {
   GetWindowRect(&clientRect);
 
@@ -1053,7 +1053,7 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
   TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
   TRACE(L"================================================================\n");
 
-  RecreateOffscreenBuffers();
+  RecreateOffscreenBuffers(as);
   Repaint(true);
 
   m_consoleHandler.GetNewConsoleSize().SetReqEvent();
@@ -1104,13 +1104,16 @@ void ConsoleView::RecreateFont()
 	}
 }
 
-void ConsoleView::RecreateOffscreenBuffers()
+void ConsoleView::RecreateOffscreenBuffers(ADJUSTSIZE as)
 {
-	if (!m_backgroundBrush.IsNull())m_backgroundBrush.DeleteObject();
-	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
-	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
-	CreateOffscreenBuffers();
-	m_bNeedFullRepaint = true;
+  if (!m_backgroundBrush.IsNull())m_backgroundBrush.DeleteObject();
+  if( as == ADJUSTSIZE_WINDOW )
+  {
+    if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
+    if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
+  }
+  CreateOffscreenBuffers();
+  m_bNeedFullRepaint = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

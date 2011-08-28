@@ -100,7 +100,7 @@ class ConsoleView
 
 		void GetRect(CRect& clientRect);
 		void GetRectMax(CRect& clientMaxRect);
-		void AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge);
+		void AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge);
 		CPoint GetCellSize() { return CPoint(m_nCharWidth, m_nCharHeight); };
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
@@ -112,7 +112,7 @@ class ConsoleView
 		void SetAppActiveStatus(bool bAppActive);
 
 		static void RecreateFont();
-		void RecreateOffscreenBuffers();
+		void RecreateOffscreenBuffers(ADJUSTSIZE as);
 		void Repaint(bool bFullRepaint);
 		void MainframeMoving();
 

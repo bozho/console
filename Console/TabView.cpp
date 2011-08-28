@@ -318,12 +318,12 @@ void TabView::SetAppActiveStatus(bool bAppActive)
   }
 }
 
-void TabView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge)
+void TabView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge)
 {
   MutexLock	viewMapLock(m_viewsMutex);
   for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
   {
-    it->second->AdjustRectAndResize(clientRect, dwResizeWindowEdge);
+    it->second->AdjustRectAndResize(as, clientRect, dwResizeWindowEdge);
   }
   this->GetRect(clientRect);
 }
@@ -344,7 +344,7 @@ void TabView::SplitHorizontally()
         CMultiSplitPane::HORIZONTAL));
 
       CRect clientRect(0, 0, 0, 0);
-      AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+      AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
     }
   }
 }
@@ -361,7 +361,7 @@ void TabView::SplitVertically()
         CMultiSplitPane::VERTICAL));
 
       CRect clientRect(0, 0, 0, 0);
-      AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+      AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
     }
   }
 }
@@ -393,7 +393,7 @@ bool TabView::CloseView(HWND hwnd /*= 0*/)
       else
       {
         CRect clientRect(0, 0, 0, 0);
-        AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+        AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
       }
 
       return true;
@@ -446,7 +446,7 @@ void TabView::PrevView()
 void TabView::OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*boolEnd*/)
 {
   CRect clientRect(0, 0, 0, 0);
-  AdjustRectAndResize(clientRect, WMSZ_BOTTOM);
+  AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
 }
 
 /////////////////////////////////////////////////////////////////////////////

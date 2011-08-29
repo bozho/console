@@ -977,9 +977,9 @@ void ConsoleView::GetRect(CRect& clientRect)
   if(  width > clientRect.right  ) clientRect.right  = width;
   if( height > clientRect.bottom ) clientRect.bottom = height;
 
-  TRACE(L"========ConsoleView::GetRect=====================================\n");
-  TRACE(L"wind: %ix%i - %ix%i\n", rect.left, rect.top, rect.right, rect.bottom);
-  TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+  //TRACE(L"========ConsoleView::GetRect=====================================\n");
+  //TRACE(L"wind: %ix%i - %ix%i\n", rect.left, rect.top, rect.right, rect.bottom);
+  //TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 }
 
 void ConsoleView::GetRectMax(CRect& clientMaxRect)
@@ -997,13 +997,13 @@ void ConsoleView::GetRectMax(CRect& clientMaxRect)
 
 
 //////////////////////////////////////////////////////////////////////////////
-long l2 = 0;
+//long l2 = 0;
 void ConsoleView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge)
 {
   GetWindowRect(&clientRect);
 
-  TRACE(L"========AdjustRectAndResize (%d)=================================\n", ::InterlockedIncrement(&l2));
-  TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+  //TRACE(L"========AdjustRectAndResize (%d)=================================\n", ::InterlockedIncrement(&l2));
+  //TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
 
   LONG width  = clientRect.right  - clientRect.left;
   LONG height = clientRect.bottom - clientRect.top;
@@ -1016,25 +1016,25 @@ void ConsoleView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dw
   width  -= (m_nVInsideBorder * 2);
   height -= (m_nHInsideBorder * 2);
 
-  TRACE(L"exclude scrollbars and inside borders from row/col calculation\n");
-  TRACE(L"width: %i height: %i\n", width, height);
+  //TRACE(L"exclude scrollbars and inside borders from row/col calculation\n");
+  //TRACE(L"width: %i height: %i\n", width, height);
 
   DWORD dwColumns = width  / m_nCharWidth;
   DWORD dwRows    = height / m_nCharHeight;
 
-  TRACE(L"m_nCharWidth: %i m_nCharHeight: %i\n", m_nCharWidth, m_nCharHeight);
+  //TRACE(L"m_nCharWidth: %i m_nCharHeight: %i\n", m_nCharWidth, m_nCharHeight);
 
   DWORD dwMaxColumns = this->m_consoleHandler.GetConsoleParams()->dwMaxColumns;
   DWORD dwMaxRows    = this->m_consoleHandler.GetConsoleParams()->dwMaxRows;
 
-  TRACE(L"dwMaxColumns: %i dwMaxRows: %i\n", dwMaxColumns, dwMaxRows);
+  //TRACE(L"dwMaxColumns: %i dwMaxRows: %i\n", dwMaxColumns, dwMaxRows);
 
   if( dwColumns > dwMaxColumns )
     dwColumns = dwMaxColumns;
   if( dwRows > dwMaxRows )
     dwRows = dwMaxRows;
 
-  TRACE(L"dwColumns: %i dwRows: %i\n", dwColumns, dwRows);
+  //TRACE(L"dwColumns: %i dwRows: %i\n", dwColumns, dwRows);
 
   clientRect.right  = clientRect.left + dwColumns * m_nCharWidth  + m_nVInsideBorder * 2;
   clientRect.bottom = clientRect.top +  dwRows    * m_nCharHeight + m_nHInsideBorder * 2;
@@ -1050,8 +1050,8 @@ void ConsoleView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dw
   newConsoleSize->dwRows             = dwRows;
   newConsoleSize->dwResizeWindowEdge = dwResizeWindowEdge;
 
-  TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
-  TRACE(L"================================================================\n");
+  //TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
+  //TRACE(L"================================================================\n");
 
   RecreateOffscreenBuffers(as);
   Repaint(true);
@@ -1326,7 +1326,6 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
-  TRACE(L" !!!!!!!!!!!!!!! ConsoleView::OnConsoleChange(%s) !!!!!!!!!!!!!!!!", bResize?L"true":L"false");
 	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
 	SharedMemory<ConsoleInfo>&	consoleInfo = m_consoleHandler.GetConsoleInfo();
 	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
@@ -1740,8 +1739,8 @@ void ConsoleView::RepaintText(CDC& dc)
 		CRect	rectWindow;
 		GetClientRect(&rectWindow);
 
-    TRACE(L"========UpdateImageBitmap=====================================\n");
-    TRACE(L"rect: %ix%i - %ix%i\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
+    //TRACE(L"========UpdateImageBitmap=====================================\n");
+    //TRACE(L"rect: %ix%i - %ix%i\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
 
 		g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
 

@@ -386,6 +386,16 @@ bool TabView::CloseView(HWND hwnd /*= 0*/)
     {
       iter->second->DestroyWindow();
       m_views.erase(iter);
+
+#ifdef _DEBUG
+      ATLTRACE(L"%p-TabView::CloseView tree\n",
+          ::GetCurrentThreadId());
+      multisplitClass::tree.dump(0, 0);
+      ATLTRACE(L"%p-TabView::CloseView defaultFocusPane\n",
+          ::GetCurrentThreadId());
+      multisplitClass::defaultFocusPane->dump(0, multisplitClass::defaultFocusPane->parent);
+#endif
+
       multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
 
       if( m_views.size() == 0 )

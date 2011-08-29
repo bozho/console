@@ -244,19 +244,14 @@ namespace WTL
             this->parent->pane1:
             this->parent->pane0;
 
-        CMultiSplitPane* target =
-          this->window == this->parent->pane0->window?
-            this->parent->pane0:
-            this->parent->pane1;
-
         ::SetWindowPos(
-          target->window,
+          this->window,
           0,
           0,
           0,
           0,
           0,
-          SWP_HIDEWINDOW);
+          SWP_HIDEWINDOW|SWP_NOSIZE|SWP_NOMOVE|SWP_NOZORDER);
 
         // parent = survivor
         CMultiSplitPane* result = this->parent;
@@ -264,17 +259,26 @@ namespace WTL
         result->splitType = survivor->splitType;
         result->splitRatio = survivor->splitRatio;
         result->pane0 = survivor->pane0;
+        if( result->pane0 )
+          result->pane0->parent = result;
         result->pane1 = survivor->pane1;
-        result->splitType = NONE;
+        if( result->pane1 )
+          result->pane1->parent = result;
 
         // resize parent
         result->resize(result->width, result->height);
 
         // delete the two children of the parent
-        delete target;
         survivor->pane0 = 0;
         survivor->pane1 = 0;
         delete survivor;
+        delete this;
+
+#ifdef _DEBUG
+        ATLTRACE(L"%p-remove returns\n",
+          ::GetCurrentThreadId());
+        result->dump(0, result->parent);
+#endif
 
         return result;
       }
@@ -545,7 +549,48 @@ namespace WTL
         dc.DrawEdge (&rect, EDGE_RAISED, this->splitType == VERTICAL? (BF_LEFT | BF_RIGHT) : (BF_TOP | BF_BOTTOM));
       }
     }
+#ifdef _DEBUG
+    void dump(int level, CMultiSplitPane* parent)
+    {
+      ATLASSERT(this->parent == parent);
 
+      wchar_t szTab [256];
+      for(int i = 0; i < level; i ++)
+        szTab[i] = L' ';
+      szTab[level] = 0;
+
+      ATLTRACE(L"%p-%swindow: %p(%p)\n",
+        ::GetCurrentThreadId(),
+        szTab,
+        this->window,
+        this);
+
+      ATLTRACE(L"%p-%sparent: %p\n",
+        ::GetCurrentThreadId(),
+        szTab,
+        this->parent);
+
+      ATLTRACE(L"%p-%s  size: %dx%d\n",
+        ::GetCurrentThreadId(),
+        szTab,
+        this->width,
+        this->height);
+
+      ATLTRACE(L"%p-%s pane0: %p\n",
+        ::GetCurrentThreadId(),
+        szTab,
+        this->pane0);
+      if( this->pane0 )
+        this->pane0->dump(level + 2, this);
+
+      ATLTRACE(L"%p-%s pane1: %p\n",
+        ::GetCurrentThreadId(),
+        szTab,
+        this->pane1);
+      if( this->pane1 )
+        this->pane1->dump(level + 2, this);
+    }
+#endif
 
   private:
     bool isInRect(POINT point)

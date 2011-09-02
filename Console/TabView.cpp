@@ -108,6 +108,7 @@ LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHa
 {
   if (wParam != SIZE_MINIMIZED && m_mainFrame.m_bOnCreateDone)
   {
+    TRACE(L"TabView::OnSize -> multisplitClass::RectSet\n");
     multisplitClass::RectSet(); // to ClientRect
   }
 

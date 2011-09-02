@@ -1093,7 +1093,8 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
-	AdjustWindowSize(ADJUSTSIZE_NONE);
+  TRACE(L"MainFrame::OnRebarHeightChanged\n");
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	return 0;
 }
 
@@ -1477,7 +1478,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		}
 
     ConsoleView::RecreateFont();
-		AdjustWindowSize(ADJUSTSIZE_FONT);
+		AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	}
 
 	RegisterGlobalHotkeys();
@@ -2022,7 +2023,7 @@ void MainFrame::ShowMenu(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible ? true : false;
 
 	UpdateLayout();
-	AdjustWindowSize(ADJUSTSIZE_NONE);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2043,7 +2044,7 @@ void MainFrame::ShowToolbar(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible? true : false;
 
 	UpdateLayout();
-	AdjustWindowSize(ADJUSTSIZE_NONE);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2062,7 +2063,7 @@ void MainFrame::ShowStatusbar(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible? true : false;
 	
 	UpdateLayout();
-	AdjustWindowSize(ADJUSTSIZE_NONE);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2094,7 +2095,7 @@ void MainFrame::ShowTabs(BOOL bShow)
 	}
 
 	UpdateLayout();
-	AdjustWindowSize(ADJUSTSIZE_NONE);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2171,6 +2172,8 @@ void MainFrame::AdjustWindowSize(ADJUSTSIZE as)
 
 		m_activeTabView->GetRect(clientRect);
 	}
+
+  TRACE(L"AdjustWindowSize 0: %ix%i\n", clientRect.Width(), clientRect.Height());
 
 	AdjustWindowRect(clientRect);
 

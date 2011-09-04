@@ -1736,39 +1736,42 @@ void ConsoleView::RepaintText(CDC& dc)
 	}
 	else
 	{
-		CRect	rectWindow;
-		GetClientRect(&rectWindow);
+    CRect rectView;
+    GetClientRect(&rectView);
+    CRect rectTab;
+    ::GetClientRect(this->m_hwndTabView, &rectTab);
+    CPoint pointView(0,0);
+    ClientToScreen(&pointView);
+    CPoint pointTab(0,0);
+    ::ClientToScreen(this->m_hwndTabView, &pointTab);
 
-    //TRACE(L"========UpdateImageBitmap=====================================\n");
-    //TRACE(L"rect: %ix%i - %ix%i\n", rectWindow.left, rectWindow.top, rectWindow.right, rectWindow.bottom);
+    //TRACE(L"========UpdateImageBitmap=====================================\n"
+    //      L"rect: %ix%i - %ix%i\n", rectTab.left, rectTab.top, rectTab.right, rectTab.bottom);
 
-		g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
+		g_imageHandler->UpdateImageBitmap(dc, rectTab, m_background);
 
 		if (m_tabData->imageData.bRelative)
 		{
-			CPoint	pointClientScreen(0, 0);
-			ClientToScreen(&pointClientScreen);
-
 			dc.BitBlt(
-				rectWindow.left, 
-				rectWindow.top, 
-				rectWindow.right, 
-				rectWindow.bottom, 
-				m_background->dcImage, 
-				rectWindow.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
-				rectWindow.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+				rectView.left,
+				rectView.top,
+				rectView.right,
+				rectView.bottom,
+				m_background->dcImage,
+				rectView.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
+				rectView.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
 				SRCCOPY);
 		}
 		else
 		{
 			dc.BitBlt(
-				bitmapRect.left, 
-				bitmapRect.top, 
-				bitmapRect.right, 
-				bitmapRect.bottom, 
-				m_background->dcImage, 
-				bitmapRect.left, 
-				bitmapRect.top, 
+				bitmapRect.left,
+				bitmapRect.top,
+				bitmapRect.right,
+				bitmapRect.bottom,
+				m_background->dcImage,
+				bitmapRect.left + pointView.x - pointTab.x,
+				bitmapRect.top  + pointView.y - pointTab.y,
 				SRCCOPY);
 		}
 	}
@@ -1915,10 +1918,22 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 
 	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 
-	CRect	rectWindow;
-	GetClientRect(&rectWindow);
+  CRect rectView;
+  GetClientRect(&rectView);
+  CRect rectTab;
+  ::GetClientRect(this->m_hwndTabView, &rectTab);
+  CPoint pointView(0,0);
+  ClientToScreen(&pointView);
+  CPoint pointTab(0,0);
+  ::ClientToScreen(this->m_hwndTabView, &pointTab);
 
-	if (m_tabData->backgroundImageType != bktypeNone) g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
+  if (m_tabData->backgroundImageType != bktypeNone)
+  {
+    //TRACE(L"========UpdateImageBitmap=====================================\n"
+    //      L"rect: %ix%i - %ix%i\n", rectTab.left, rectTab.top, rectTab.right, rectTab.bottom);
+
+    g_imageHandler->UpdateImageBitmap(dc, rectTab, m_background);
+  }
 
 	for (DWORD i = 0; i < m_dwScreenRows; ++i, dwY += m_nCharHeight)
 	{
@@ -1938,7 +1953,7 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 				rect.bottom	= dwY + m_nCharHeight;
 				// we have to erase two spaces for double-width characters
 				rect.right	= (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) ? dwX + 2*m_nCharWidth : dwX + m_nCharWidth;
-				
+
 				if (m_tabData->backgroundImageType == bktypeNone)
 				{
 					dc.FillRect(&rect, m_backgroundBrush);
@@ -1947,29 +1962,26 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 				{
 					if (m_tabData->imageData.bRelative)
 					{
-						CPoint	pointClientScreen(0, 0);
-						ClientToScreen(&pointClientScreen);
-
 						dc.BitBlt(
-							rect.left, 
-							rect.top, 
-							rect.Width(), 
-							rect.Height(), 
-							m_background->dcImage, 
-							rect.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
-							rect.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+							rect.left,
+							rect.top,
+							rect.Width(),
+							rect.Height(),
+							m_background->dcImage,
+							rect.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
+							rect.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
 							SRCCOPY);
 					}
 					else
 					{
 						dc.BitBlt(
-							rect.left, 
-							rect.top, 
+							rect.left,
+							rect.top,
 							rect.Width(),
 							rect.Height(),
-							m_background->dcImage, 
-							rect.left, 
-							rect.top, 
+							m_background->dcImage,
+							rect.left + pointView.x - pointTab.x,
+							rect.top  + pointView.y - pointTab.y,
 							SRCCOPY);
 					}
 				}
@@ -2071,8 +2083,8 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 			rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 
 			m_cursor->BitBlt(
-						m_dcOffscreen, 
-						rectCursor.left, 
+						m_dcOffscreen,
+						rectCursor.left,
 						rectCursor.top);
 		}
 	}
@@ -2101,18 +2113,18 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 
 		void* pRemoteMemory = ::VirtualAllocEx(
 									m_consoleHandler.GetConsoleHandle().get(),
-									NULL, 
-									(textLen+1)*sizeof(wchar_t), 
-									MEM_COMMIT, 
+									NULL,
+									(textLen+1)*sizeof(wchar_t),
+									MEM_COMMIT,
 									PAGE_READWRITE);
 
 		if (pRemoteMemory == NULL) return;
 
 		if (!::WriteProcessMemory(
 					m_consoleHandler.GetConsoleHandle().get(),
-					pRemoteMemory, 
-					(PVOID)pszText, 
-					(textLen+1)*sizeof(wchar_t), 
+					pRemoteMemory,
+					(PVOID)pszText,
+					(textLen+1)*sizeof(wchar_t),
 					NULL))
 		{
 			::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
@@ -2139,28 +2151,28 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 		{
 			switch(wParam)
 			{
-				case VK_UP:   
-					DoScroll(SB_VERT, SB_LINEUP, 0); 
+				case VK_UP:
+					DoScroll(SB_VERT, SB_LINEUP, 0);
 					return true;
 
-				case VK_PRIOR:  
-					DoScroll(SB_VERT, SB_PAGEUP, 0); 
+				case VK_PRIOR:
+					DoScroll(SB_VERT, SB_PAGEUP, 0);
 					return true;
 
-				case VK_DOWN: 
-					DoScroll(SB_VERT, SB_LINEDOWN, 0); 
+				case VK_DOWN:
+					DoScroll(SB_VERT, SB_LINEDOWN, 0);
 					return true;
 
-				case VK_NEXT: 
-					DoScroll(SB_VERT, SB_PAGEDOWN, 0); 
+				case VK_NEXT:
+					DoScroll(SB_VERT, SB_PAGEDOWN, 0);
 					return true;
 
-				case VK_LEFT: 
-					DoScroll(SB_HORZ, SB_LINELEFT, 0); 
+				case VK_LEFT:
+					DoScroll(SB_HORZ, SB_LINELEFT, 0);
 					return true;
 
-				case VK_RIGHT:  
-					DoScroll(SB_HORZ, SB_LINERIGHT, 0); 
+				case VK_RIGHT:
+					DoScroll(SB_HORZ, SB_LINERIGHT, 0);
 					return true;
 			}
 		}

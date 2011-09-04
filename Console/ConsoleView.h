@@ -116,6 +116,7 @@ class ConsoleView
 		void Repaint(bool bFullRepaint);
 		void MainframeMoving();
 
+		void SetResizing(bool bResizing);
 		void SetActive(bool bActive);
 		void SetTitle(const CString& strTitle);
 		const CString& GetTitle() const { return m_strTitle; }

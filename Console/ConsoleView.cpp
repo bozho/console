@@ -234,7 +234,6 @@ LRESULT ConsoleView::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  m_bResizing = true;
 	return 1;
 }
 
@@ -263,7 +262,6 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	if (m_bResizing)
 	{
 		dc.FillRect(&dc.m_ps.rcPaint, m_backgroundBrush);
-    m_bResizing = false;
 	}
 	
 	dc.BitBlt(
@@ -1137,6 +1135,16 @@ void ConsoleView::MainframeMoving()
 {
 	// next OnPaint will do a full repaint
 	if (m_tabData->imageData.bRelative) m_bNeedFullRepaint = true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::SetResizing(bool bResizing)
+{
+	m_bResizing = bResizing;
 }
 
 //////////////////////////////////////////////////////////////////////////////

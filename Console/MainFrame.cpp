@@ -549,6 +549,8 @@ LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /
 	if (!m_activeView)
 		return 0;
 
+	m_activeView->SetResizing(true);
+
 	CPoint pointSize = m_activeView->GetCellSize();
 	RECT *rectNew = (RECT *)lParam;
 
@@ -2068,6 +2070,8 @@ void MainFrame::ResizeWindow()
 
 	SendMessage(WM_NULL, 0, 0);
 	m_dwResizeWindowEdge = WMSZ_BOTTOM;
+
+	if (m_activeView) m_activeView->SetResizing(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////

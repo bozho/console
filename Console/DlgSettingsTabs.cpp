@@ -42,7 +42,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_listCtrl.InsertColumn(0, L"Tab name");
 	m_listCtrl.SetColumnWidth(0, 188);
 	m_listCtrl.SetImageList(m_ImageList, LVSIL_SMALL);
-	m_listCtrl.SetIconSpacing(16, 16);
+	//m_listCtrl.SetIconSpacing(16, 16);
 
 	TabDataVector::iterator	it = m_tabSettings.tabDataVector.begin();
 	for (; it != m_tabSettings.tabDataVector.end(); ++it)

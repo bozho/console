@@ -570,12 +570,10 @@ public:
     strRtf += "{\\colortbl\n";
     for(int i = 0; i < 16; i ++)
     {
-      int red   = (pconsoleCopy->consoleColors[i] >> 16) & 0xff;
-      int green = (pconsoleCopy->consoleColors[i] >> 8 ) & 0xff;
-      int blue  = (pconsoleCopy->consoleColors[i]      ) & 0xff;
       char szColor[64];
-      _snprintf(
+      _snprintf_s(
         szColor, sizeof(szColor),
+        _TRUNCATE,
         "\\red%lu\\green%lu\\blue%lu;\n",
         GetRValue(pconsoleCopy->consoleColors[i]),
         GetGValue(pconsoleCopy->consoleColors[i]),
@@ -585,8 +583,9 @@ public:
     strRtf += "}";
 
     char szFont[64];
-    _snprintf(
+    _snprintf_s(
       szFont, sizeof(szFont),
+      _TRUNCATE,
       "\\f0\\fs%lu%s%s\n",
       pconsoleCopy->dwSize,
       pconsoleCopy->bBold ? "\\b" : "",
@@ -617,16 +616,18 @@ public:
     }
     if( wLastCharBackgroundAttributes != wCharBackgroundAttributes )
     {
-      _snprintf(
+      _snprintf_s(
         szDummy, sizeof(szDummy),
+        _TRUNCATE,
         "\\highlight%hu ",
         wCharBackgroundAttributes);
       strRow += szDummy;
     }
     if( wLastCharForegroundAttributes != wCharForegroundAttributes )
     {
-      _snprintf(
+      _snprintf_s(
         szDummy, sizeof(szDummy),
+        _TRUNCATE,
         "\\cf%hu ",
         wCharForegroundAttributes);
       strRow += szDummy;
@@ -641,7 +642,7 @@ public:
     else if( wc <= 0x7f )  strRow += p->Char.AsciiChar;
     else
     {
-      _snprintf(szDummy, sizeof(szDummy), "\\u%d?", wc);
+      _snprintf_s(szDummy, sizeof(szDummy), _TRUNCATE, "\\u%d?", wc);
       strRow += szDummy;
     }
     sizeRowLen ++;

@@ -68,8 +68,7 @@ void ParseCommandLine
 	vector<wstring>& startupTabs, 
 	vector<wstring>& startupDirs, 
 	vector<wstring>& startupCmds, 
-	int& nMultiStartSleep, 
-	wstring& /*strDbgCmdLine*/
+	int& nMultiStartSleep
 )
 {
 	int						argc = 0;
@@ -122,16 +121,6 @@ void ParseCommandLine
 			nMultiStartSleep = _wtoi(argv[i]);
 			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
 		}
-		// TODO: not working yet, need to investigate
-/*
-		else if (wstring(argv[i]) == wstring(L"-dbg"))
-		{
-			// console window replacement option (see Tip 1 in the help file)
-			++i;
-			if (i == argc) break;
-			strDbgCmdLine = argv[i];
-		}
-*/
 	}
 
 	// make sure that startupDirs and startupCmds are at least as big as startupTabs
@@ -155,7 +144,6 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	vector<wstring>	startupDirs;
 	vector<wstring>	startupCmds;
 	int				nMultiStartSleep = 0;
-	wstring			strDbgCmdLine(L"");
 
 	ParseCommandLine(
 		lpstrCmdLine, 
@@ -164,8 +152,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		startupTabs, 
 		startupDirs, 
 		startupCmds, 
-		nMultiStartSleep, 
-		strDbgCmdLine);
+		nMultiStartSleep);
 
 	if (strConfigFile.length() == 0)
 	{
@@ -182,7 +169,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	// create main window
 	NoTaskbarParent noTaskbarParent;
-	MainFrame wndMain(strWindowTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strDbgCmdLine);
+	MainFrame wndMain(strWindowTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep);
 
 	if (!g_settingsHandler->GetAppearanceSettings().stylesSettings.bTaskbarButton)
 	{

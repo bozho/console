@@ -233,6 +233,15 @@
 #define ID_NEXT_TAB                     2200
 #define ID_PREV_TAB                     2201
 #define ID_RENAME_TAB_OK                2202
+#define ID_NEXT_VIEW                    2203
+#define ID_PREV_VIEW                    2204
+#define ID_CLOSE_VIEW                   2205
+#define ID_SPLIT_HORIZ                  2206
+#define ID_SPLIT_VERT                   2207
+#define ID_GROUP_ALL                    2208
+#define ID_UNGROUP_ALL                  2209
+#define ID_GROUP_TAB                    2210
+#define ID_UNGROUP_TAB                  2211
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000
 #define IDS_ERR_CANT_START_AS_USER      5001

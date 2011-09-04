@@ -3,11 +3,11 @@
 
 #include "aboutdlg.h"
 #include "Console.h"
+#include "TabView.h"
 #include "ConsoleView.h"
 #include "ConsoleException.h"
 #include "DlgRenameTab.h"
 #include "DlgSettingsMain.h"
-#include "DlgCredentials.h"
 #include "MainFrame.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -23,19 +23,17 @@
 MainFrame::MainFrame
 (
 	const wstring strWindowTitle,
-	const vector<wstring>& startupTabs, 
-	const vector<wstring>& startupDirs, 
-	const vector<wstring>& startupCmds, 
-	int nMultiStartSleep, 
-	const wstring& strDbgCmdLine
+	const vector<wstring>& startupTabs,
+	const vector<wstring>& startupDirs,
+	const vector<wstring>& startupCmds,
+	int nMultiStartSleep
 )
 : m_bOnCreateDone(false)
 , m_startupTabs(startupTabs)
 , m_startupDirs(startupDirs)
 , m_startupCmds(startupCmds)
 , m_nMultiStartSleep(nMultiStartSleep)
-, m_strDbgCmdLine(strDbgCmdLine)
-, m_activeView()
+, m_activeTabView()
 , m_bMenuVisible(TRUE)
 , m_bToolbarVisible(TRUE)
 , m_bStatusBarVisible(TRUE)
@@ -43,18 +41,17 @@ MainFrame::MainFrame
 , m_dockPosition(dockNone)
 , m_zOrder(zorderNormal)
 , m_mousedragOffset(0, 0)
-, m_views()
-, m_viewsMutex(NULL, FALSE, NULL)
+, m_tabs()
+, m_tabsMutex(NULL, FALSE, NULL)
 , m_strCmdLineWindowTitle(strWindowTitle.c_str())
 , m_strWindowTitle(strWindowTitle.c_str())
-, m_dwRows(0)
-, m_dwColumns(0)
 , m_dwWindowWidth(0)
 , m_dwWindowHeight(0)
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
 , m_iSelectionSize(0)
+, m_bAppActive(true)
 {
   m_Margins.cxLeftWidth    = 0;
   m_Margins.cxRightWidth   = 0;
@@ -78,9 +75,9 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 
 	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg)) return TRUE;
 
-	if (!m_activeView) return FALSE;
+	if (!m_activeTabView) return FALSE;
 
-	return m_activeView->PreTranslateMessage(pMsg);
+	return m_activeTabView->PreTranslateMessage(pMsg);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,17 +87,22 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 
 BOOL MainFrame::OnIdle()
 {
-	UpdateStatusBar();
-	UIUpdateToolBar();
+  UpdateStatusBar();
+  UIUpdateToolBar();
 
-	if (m_activeView)
-	{
-		UIEnable(ID_EDIT_COPY, m_activeView->CanCopy() ? TRUE : FALSE);
-		UIEnable(ID_EDIT_CLEAR_SELECTION, m_activeView->CanClearSelection() ? TRUE : FALSE);
-		UIEnable(ID_EDIT_PASTE, m_activeView->CanPaste() ? TRUE : FALSE);
-	}
+  if (m_activeTabView)
+  {
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    if( activeConsoleView )
+    {
+      UIEnable(ID_EDIT_COPY,            activeConsoleView->CanCopy()           ? TRUE : FALSE);
+      UIEnable(ID_EDIT_CLEAR_SELECTION, activeConsoleView->CanClearSelection() ? TRUE : FALSE);
+      UIEnable(ID_EDIT_PASTE,           activeConsoleView->CanPaste()          ? TRUE : FALSE);
+      UISetCheck(ID_VIEW_CONSOLE, activeConsoleView->GetConsoleWindowVisible() ? TRUE : FALSE);
+    }
+  }
 
-	return FALSE;
+  return FALSE;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -167,7 +169,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	DWORD dwTabStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
 	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM;
-	
+
 	CreateTabWindow(m_hWnd, rcDefault, dwTabStyles);
 
 	// create initial console window(s)
@@ -179,7 +181,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		if (m_startupDirs.size() > 0) strStartupDir = m_startupDirs[0];
 		if (m_startupCmds.size() > 0) strStartupCmd = m_startupCmds[0];
 
-		if (!CreateNewConsole(0, strStartupDir, strStartupCmd, m_strDbgCmdLine)) return -1;
+		if (!CreateNewConsole(0, strStartupDir, strStartupCmd)) return -1;
 	}
 	else
 	{
@@ -196,10 +198,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 				{
 					// found it, create
 					if (CreateNewConsole(
-							static_cast<DWORD>(i), 
+							static_cast<DWORD>(i),
 							m_startupDirs[tabIndex],
-							m_startupCmds[tabIndex],
-							(i == 0) ? m_strDbgCmdLine : wstring(L"")))
+							m_startupCmds[tabIndex]))
 					{
 						bAtLeastOneStarted = true;
 					}
@@ -228,12 +229,12 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
 
 	{
-		MutexLock lock(m_viewsMutex);
-		if (m_views.size() == 1)
+		MutexLock lock(m_tabsMutex);
+		if (m_tabs.size() == 1)
 		{
 			UIEnable(ID_FILE_CLOSE_TAB, FALSE);
 		}
-		if ((m_views.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
+		if ((m_tabs.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
 		{
 			ShowTabs(FALSE);
 		}
@@ -277,7 +278,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	CreateAcceleratorTable();
 	RegisterGlobalHotkeys();
 
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 
 	CRect rectWindow;
 	GetWindowRect(&rectWindow);
@@ -317,7 +318,7 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if( m_views.size() > 1 && (::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL) )
+	if( m_tabs.size() > 1 && (::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL) )
 		return 0;
 
 	// save settings on exit
@@ -327,9 +328,10 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 	if (consoleSettings.bSaveSize)
 	{
+#if 0
 		consoleSettings.dwRows		= m_dwRows;
 		consoleSettings.dwColumns	= m_dwColumns;
-
+#endif
 		bSaveSettings = true;
 	}
 
@@ -348,11 +350,11 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 	if (bSaveSettings) g_settingsHandler->SaveSettings();
 
 	// destroy all views
-	MutexLock viewMapLock(m_viewsMutex);
-	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+	MutexLock viewMapLock(m_tabsMutex);
+	for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
 	{
 		RemoveTab(it->second->m_hWnd);
-		if (m_activeView == it->second) m_activeView.reset();
+		if (m_activeTabView == it->second) m_activeTabView.reset();
 		it->second->DestroyWindow();
 	}
 
@@ -372,18 +374,18 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
-	BOOL bActivating = static_cast<BOOL>(wParam);
+  m_bAppActive = static_cast<BOOL>(wParam)? true : false;
 
-	if (!m_activeView) return 0;
+	if (!m_activeTabView) return 0;
 
-	m_activeView->SetAppActiveStatus(bActivating ? true : false);
+	m_activeTabView->SetAppActiveStatus(m_bAppActive);
 
 	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
 	if ((transparencySettings.transType == transAlpha) && 
 		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
 	{
-		if (bActivating)
+		if (m_bAppActive)
 		{
 			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
 		}
@@ -425,7 +427,7 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
         {
           ::AnimateWindow(m_hWnd, 300, AW_ACTIVATE | AW_SLIDE | AW_VER_POSITIVE);
         }
-        else if(this->GetActiveView() == GetFocus())
+        else if(m_bAppActive)
         {
           ::AnimateWindow(m_hWnd, 300, AW_HIDE | AW_SLIDE | AW_VER_NEGATIVE);
           bActivate = false;
@@ -546,11 +548,11 @@ LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /
 {
 	m_dwResizeWindowEdge = static_cast<DWORD>(wParam);
 
-	if (!m_activeView)
+	if (!m_activeTabView)
 		return 0;
 
-	m_activeView->SetResizing(true);
-
+	m_activeTabView->SetResizing(true);
+#if 0
 	CPoint pointSize = m_activeView->GetCellSize();
 	RECT *rectNew = (RECT *)lParam;
 
@@ -568,7 +570,7 @@ LRESULT MainFrame::OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /
 
 	if (rectWindow.right != rectNew->right)
 		rectNew->right += (rectWindow.right - rectNew->right) - (rectWindow.right - rectNew->right) / pointSize.x * pointSize.x;
-
+#endif
 	return 0;
 }
 
@@ -661,12 +663,12 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		}
 
 
-		if (m_activeView)
+		if (m_activeTabView)
 		{
 			CRect rectClient;
 			GetClientRect(&rectClient);
 
-			m_activeView->MainframeMoving();
+			m_activeTabView->MainframeMoving();
 			// we need to invalidate client rect here for proper background 
 			// repaint when using relative backgrounds
 			InvalidateRect(&rectClient, FALSE);
@@ -777,7 +779,7 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 		g_imageHandler->ReloadDesktopImages();
 
 		// can't use Invalidate because full repaint is in order
-		m_activeView->Repaint(true);
+		m_activeTabView->Repaint(true);
 	}
 
 	return 0;
@@ -790,12 +792,7 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 
 LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	// update rows/columns
-	SharedMemory<ConsoleParams>& consoleParams = m_activeView->GetConsoleHandler().GetConsoleParams();
-	m_dwRows	= consoleParams->dwRows;
-	m_dwColumns	= consoleParams->dwColumns;
-
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_NONE);
 	UpdateStatusBar();
 	return 0;
 }
@@ -807,8 +804,13 @@ LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 
 LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	CloseTab(reinterpret_cast<HWND>(wParam));
-	return 0;
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    if( it->second->CloseView(reinterpret_cast<HWND>(wParam)) )
+      break;
+  }
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -818,25 +820,27 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 
 LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	MutexLock					viewMapLock(m_viewsMutex);
-	ConsoleViewMap::iterator	itView = m_views.find(reinterpret_cast<HWND>(wParam));
+	MutexLock					viewMapLock(m_tabsMutex);
+	TabViewMap::iterator	itView = m_tabs.find(reinterpret_cast<HWND>(wParam));
 
-	if (itView == m_views.end()) return 0;
+	if (itView == m_tabs.end()) return 0;
+  shared_ptr<TabView>	tabView(itView->second);
+  shared_ptr<ConsoleView> consoleView = itView->second->GetActiveConsole(_T(__FUNCTION__));
+  if (!consoleView) return 0;
 
-	shared_ptr<ConsoleView>	consoleView(itView->second);
 	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
 
 	if (windowSettings.bUseConsoleTitle)
 	{
 		CString	strTabTitle(consoleView->GetTitle());
 
-		UpdateTabTitle(consoleView, strTabTitle);
+		UpdateTabTitle(*tabView, strTabTitle);
 
 		if ((m_strCmdLineWindowTitle.GetLength() == 0) &&
 			(windowSettings.bUseTabTitles) && 
-			(consoleView == m_activeView))
+			(tabView == m_activeTabView))
 		{
-			m_strWindowTitle = consoleView->GetTitle();
+			m_strWindowTitle = strTabTitle;
 			SetWindowText(m_strWindowTitle);
 			if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
 		}
@@ -855,7 +859,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 			m_strWindowTitle = windowSettings.strTitle.c_str();
 		}
 
-		if (consoleView == m_activeView)
+		if (tabView == m_activeTabView)
 		{
 			if ((m_strCmdLineWindowTitle.GetLength() == 0) && (windowSettings.bUseTabTitles))
 			{
@@ -870,7 +874,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 		
 		if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
 
-		UpdateTabTitle(consoleView, strTabTitle);
+		UpdateTabTitle(*tabView, strTabTitle);
 	}
 
 	return 0;
@@ -989,13 +993,13 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 	CTabViewTabItem*			pTabItem1	= (pTabItems->iItem1 != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem1) : NULL;
 	CTabViewTabItem*			pTabItem2	= m_TabCtrl.GetItem(pTabItems->iItem2);
 
-	MutexLock					viewMapLock(m_viewsMutex);
-	ConsoleViewMap::iterator	it;
+	MutexLock					viewMapLock(m_tabsMutex);
+	TabViewMap::iterator	it;
 
 	if (pTabItem1)
 	{
-		it = m_views.find(pTabItem1->GetTabView());
-		if (it != m_views.end())
+		it = m_tabs.find(pTabItem1->GetTabView());
+		if (it != m_tabs.end())
 		{
 			it->second->SetActive(false);
 		}
@@ -1003,29 +1007,32 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 	if (pTabItem2)
 	{
-		it = m_views.find(pTabItem2->GetTabView());
-		if (it != m_views.end())
+		it = m_tabs.find(pTabItem2->GetTabView());
+		if (it != m_tabs.end())
 		{
-			UISetCheck(ID_VIEW_CONSOLE, it->second->GetConsoleWindowVisible() ? TRUE : FALSE);
-			m_activeView = it->second;
+			m_activeTabView = it->second;
 			it->second->SetActive(true);
 
 			if (appearanceSettings.windowSettings.bUseTabIcon) SetWindowIcons();
 
 			// clear the highlight in case it's on
-			HighlightTab(m_activeView->m_hWnd, false);
+			HighlightTab(m_activeTabView->m_hWnd, false);
 		}
 		else
 		{
-			m_activeView = shared_ptr<ConsoleView>();
+      m_activeTabView = shared_ptr<TabView>();
 		}
 	}
 
 	if (appearanceSettings.stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
-	
-	if (appearanceSettings.windowSettings.bUseTabTitles && m_activeView)
+
+	if (appearanceSettings.windowSettings.bUseTabTitles && m_activeTabView)
 	{
-		SetWindowText(m_activeView->GetTitle());
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    if( activeConsoleView )
+    {
+		  SetWindowText(activeConsoleView->GetTitle());
+    }
 	}
 
 	bHandled = FALSE;
@@ -1086,7 +1093,8 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 LRESULT MainFrame::OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
-	AdjustWindowSize(false);
+  TRACE(L"MainFrame::OnRebarHeightChanged\n");
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	return 0;
 }
 
@@ -1190,6 +1198,123 @@ LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnNextView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->NextView();
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnPrevView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->PrevView();
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->CloseView();
+  ::SetForegroundWindow(m_hWnd);
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->SplitHorizontally();
+  ::SetForegroundWindow(m_hWnd);
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->SplitVertically();
+  ::SetForegroundWindow(m_hWnd);
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->Group(true);
+  }
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->Group(false);
+  }
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if (!m_activeTabView) return 0;
+  m_activeTabView->Group(true);
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnUngroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if (!m_activeTabView) return 0;
+  m_activeTabView->Group(false);
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	PostMessage(WM_CLOSE);
@@ -1203,11 +1328,8 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
-
-	m_activeView->Paste();
-
-	return 0;
+  PasteToConsoles();
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1217,11 +1339,14 @@ LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 
 LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
+  if (!m_activeTabView) return 0;
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  if( activeConsoleView )
+  {
+    activeConsoleView->Copy();
+  }
 
-	m_activeView->Copy();
-
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1231,11 +1356,14 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
+  if (!m_activeTabView) return 0;
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  if( activeConsoleView )
+  {
+    activeConsoleView->ClearSelection();
+  }
 
-	m_activeView->ClearSelection();
-
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1245,11 +1373,8 @@ LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
-
-	m_activeView->Paste();
-
-	return 0;
+  PasteToConsoles();
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1259,11 +1384,14 @@ LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
+  if (!m_activeTabView) return 0;
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  if( activeConsoleView )
+  {
+    activeConsoleView->GetConsoleHandler().StopScrolling();
+  }
 
-	m_activeView->GetConsoleHandler().StopScrolling();
-
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1273,26 +1401,21 @@ LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
+  if (!m_activeTabView) return 0;
 
-	DlgRenameTab dlg(m_activeView->GetTitle());
+  DlgRenameTab dlg(m_activeTabView->GetTitle());
 
-	if (dlg.DoModal() == IDOK)
-	{
-	
-		m_activeView->SetTitle(dlg.m_strTabName);
+  if (dlg.DoModal() == IDOK)
+  {
+    m_activeTabView->SetTitle(dlg.m_strTabName);
 
-		WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
-		CString			strTabTitle(dlg.m_strTabName);
+    this->PostMessage(
+      UM_UPDATE_TITLES,
+      reinterpret_cast<WPARAM>(m_activeTabView->m_hWnd),
+      0);
+  }
 
-		if (windowSettings.bShowCommandInTabs) strTabTitle += m_activeView->GetConsoleCommand();
-
-		UpdateTabTitle(m_activeView, strTabTitle);
-
-		if (windowSettings.bUseTabTitles) SetWindowText(m_activeView->GetTitle());
-	}
-
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1302,7 +1425,7 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
+	if (!m_activeTabView) return 0;
 
 	DlgSettingsMain dlg;
 
@@ -1334,10 +1457,10 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 		BOOL bShowTabs = FALSE;
 
-		MutexLock	viewMapLock(m_viewsMutex);
+		MutexLock	viewMapLock(m_tabsMutex);
 		
 		if ( controlsSettings.bShowTabs && 
-			(!controlsSettings.bHideSingleTab || (m_views.size() > 1))
+			(!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
 		   )
 		{
 			bShowTabs = TRUE;
@@ -1349,15 +1472,13 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
-		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+		for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
 		{
 			it->second->InitializeScrollbars();
 		}
 
-		m_activeView->RecreateFont();
-		AdjustWindowSize(false);
-		RecreateOffscreenBuffers();
-		m_activeView->Repaint(true);
+    ConsoleView::RecreateFont();
+		AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	}
 
 	RegisterGlobalHotkeys();
@@ -1420,13 +1541,17 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (m_activeView)
-	{
-		m_activeView->SetConsoleWindowVisible(!m_activeView->GetConsoleWindowVisible());
-		UISetCheck(ID_VIEW_CONSOLE, m_activeView->GetConsoleWindowVisible() ? TRUE : FALSE);
-	}
+  if (m_activeTabView)
+  {
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    if( activeConsoleView )
+    {
+      activeConsoleView->SetConsoleWindowVisible(!activeConsoleView->GetConsoleWindowVisible());
+      UISetCheck(ID_VIEW_CONSOLE, activeConsoleView->GetConsoleWindowVisible() ? TRUE : FALSE);
+    }
+  }
 
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1448,11 +1573,16 @@ LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnDumpBuffer(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (!m_activeView) return 0;
+  if (m_activeTabView)
+  {
+    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    if( activeConsoleView )
+    {
+      activeConsoleView->DumpBuffer();
+    }
+  }
 
-	m_activeView->DumpBuffer();
-
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1497,132 +1627,44 @@ void MainFrame::AdjustWindowRect(CRect& rect)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir /*= wstring(L"")*/, const wstring& strStartupCmd /*= wstring(L"")*/, const wstring& strDbgCmdLine /*= wstring(L"")*/)
+bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir /*= wstring(L"")*/, const wstring& strStartupCmd /*= wstring(L"")*/)
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
-	DWORD dwRows	= g_settingsHandler->GetConsoleSettings().dwRows;
-	DWORD dwColumns	= g_settingsHandler->GetConsoleSettings().dwColumns;
-
-	MutexLock	viewMapLock(m_viewsMutex);
-	if (m_views.size() > 0)
-	{
-		SharedMemory<ConsoleParams>& consoleParams = m_views.begin()->second->GetConsoleHandler().GetConsoleParams();
-		dwRows		= consoleParams->dwRows;
-		dwColumns	= consoleParams->dwColumns;
-	}
-	else
-	{
-		// initialize member variables for the first view
-		m_dwRows	= dwRows;
-		m_dwColumns	= dwColumns;
-	}
+	MutexLock	tabMapLock(m_tabsMutex);
 
 	shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
 
-	shared_ptr<ConsoleView> consoleView(new ConsoleView(*this, dwTabIndex, strStartupDir, strStartupCmd, strDbgCmdLine, dwRows, dwColumns));
-	UserCredentials			userCredentials;
+	shared_ptr<TabView> tabView(new TabView(*this, tabData));
 
-	if (tabData->bRunAsUser)
-	{
-#ifdef _USE_AERO
-    // Display a dialog box to request credentials.
-    CREDUI_INFOW ui;
-    ui.cbSize = sizeof(ui);
-    ui.hwndParent = GetConsoleWindow();
-    ui.pszMessageText = tabData->strShell.c_str();
-    ui.pszCaptionText = L"Enter username and password";
-    ui.hbmBanner = NULL;
-
-    // we need a target
-    WCHAR szModuleFileName[_MAX_PATH] = L"";
-    ::GetModuleFileName(NULL, szModuleFileName, ARRAYSIZE(szModuleFileName));
-
-    WCHAR szUser    [CREDUI_MAX_USERNAME_LENGTH + 1] = L"";
-    WCHAR szPassword[CREDUI_MAX_PASSWORD_LENGTH + 1] = L"";
-    wcscpy_s(szUser, ARRAYSIZE(szUser), tabData->strUser.c_str());
-
-    DWORD rc = ::CredUIPromptForCredentials(
-      &ui,                                //__in_opt  PCREDUI_INFO pUiInfo,
-      szModuleFileName,                   //__in      PCTSTR pszTargetName,
-      NULL,                               //__in      PCtxtHandle Reserved,
-      0,                                  //__in_opt  DWORD dwAuthError,
-      szUser,                             //__inout   PCTSTR pszUserName,
-      ARRAYSIZE(szUser),                  //__in      ULONG ulUserNameMaxChars,
-      szPassword,                         //__inout   PCTSTR pszPassword,
-      ARRAYSIZE(szPassword),              //__in      ULONG ulPasswordMaxChars,
-      NULL,                               //__inout   PBOOL pfSave,
-      CREDUI_FLAGS_EXCLUDE_CERTIFICATES | //__in      DWORD dwFlags
-      CREDUI_FLAGS_ALWAYS_SHOW_UI       |
-      CREDUI_FLAGS_GENERIC_CREDENTIALS  |
-      CREDUI_FLAGS_DO_NOT_PERSIST
-    );
-
-    if( rc != NO_ERROR )
-      return false;
-
-    userCredentials.user     = szUser;
-    userCredentials.password = szPassword;
-#else
-		DlgCredentials dlg(tabData->strUser.c_str());
-
-		if (dlg.DoModal() != IDOK) return false;
-
-		userCredentials.user	= dlg.GetUser();
-		userCredentials.password= dlg.GetPassword();
-#endif
-	}
-
-	HWND hwndConsoleView = consoleView->Create(
+	HWND hwndTabView = tabView->Create(
 											m_hWnd, 
 											rcDefault, 
 											NULL, 
-											WS_CHILD | WS_VISIBLE,// | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
-											0,
-											0U,
-											reinterpret_cast<void*>(&userCredentials));
+											WS_CHILD | WS_VISIBLE);
 
-	if (hwndConsoleView == NULL)
+	if (hwndTabView == NULL)
 	{
-		CString	strMessage(consoleView->GetExceptionMessage());
-				
-		if (strMessage.GetLength() == 0)
-		{
-			// copied from ConsoleView::OnCreate
-			wstring strShell;
-			if (strDbgCmdLine.length() > 0)
-			{
-				strShell	= strDbgCmdLine;
-			}
-			else if (tabData->strShell.length() > 0)
-			{
-				strShell	= tabData->strShell;
-			}
-			// end of copy from ConsoleView::OnCreate
-	 
-			strMessage.Format(IDS_TAB_CREATE_FAILED, g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str(), strShell.c_str());
-		}
-
- 		::MessageBox(m_hWnd, strMessage, L"Error", MB_OK|MB_ICONERROR);
-
 		return false;
 	}
 
-	m_views.insert(ConsoleViewMap::value_type(hwndConsoleView, consoleView));
+	m_tabs.insert(TabViewMap::value_type(hwndTabView, tabView));
 
 	CString strTabTitle;
-	consoleView->GetWindowText(strTabTitle);
+	tabView->GetWindowText(strTabTitle);
 
-	AddTabWithIcon(*consoleView, strTabTitle, consoleView->GetIcon(false));
-	DisplayTab(hwndConsoleView, FALSE);
+	AddTabWithIcon(hwndTabView, strTabTitle, tabView->GetIcon(false));
+	DisplayTab(hwndTabView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 
-	if (m_views.size() > 1)
+	if (m_tabs.size() > 1)
 	{
+    CRect clientRect(0, 0, 0, 0);
+    tabView->AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
 		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
 	}
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
-		((m_views.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+		((m_tabs.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
 	   )
 	{
 		ShowTabs(TRUE);
@@ -1638,10 +1680,10 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 
 void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
 {
-	MutexLock					viewMapLock(m_viewsMutex);
-	if (!pTabItem) return;
-	if (m_views.size() <= 1) return;
-	CloseTab(pTabItem->GetTabView());
+  MutexLock viewMapLock(m_tabsMutex);
+  if (!pTabItem) return;
+  if (m_tabs.size() <= 1) return;
+  CloseTab(pTabItem->GetTabView());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1649,29 +1691,29 @@ void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::CloseTab(HWND hwndConsoleView)
+void MainFrame::CloseTab(HWND hwndTabView)
 {
-	MutexLock					viewMapLock(m_viewsMutex);
-	ConsoleViewMap::iterator	it = m_views.find(hwndConsoleView);
-	if (it == m_views.end()) return;
+  MutexLock viewMapLock(m_tabsMutex);
+  TabViewMap::iterator it = m_tabs.find(hwndTabView);
+  if (it == m_tabs.end()) return;
 
-	RemoveTab(hwndConsoleView);
-	if (m_activeView == it->second) m_activeView.reset();
-	it->second->DestroyWindow();
-	m_views.erase(it);
+  RemoveTab(hwndTabView);
+  if (m_activeTabView == it->second) m_activeTabView.reset();
+  it->second->DestroyWindow();
+  m_tabs.erase(it);
 
-	if (m_views.size() == 1)
-	{
-		UIEnable(ID_FILE_CLOSE_TAB, FALSE);
-	}
-	if ((m_views.size() == 1) &&
-		m_bTabsVisible && 
-		(g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
-	{
-		ShowTabs(FALSE);
-	}
+  if (m_tabs.size() == 1)
+  {
+    UIEnable(ID_FILE_CLOSE_TAB, FALSE);
+  }
+  if ((m_tabs.size() == 1) &&
+    m_bTabsVisible && 
+    (g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+  {
+    ShowTabs(FALSE);
+  }
 
-	if (m_views.size() == 0) PostMessage(WM_CLOSE);
+  if (m_tabs.size() == 0) PostMessage(WM_CLOSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1679,10 +1721,10 @@ void MainFrame::CloseTab(HWND hwndConsoleView)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::UpdateTabTitle(const shared_ptr<ConsoleView>& consoleView, CString& strTabTitle)
+void MainFrame::UpdateTabTitle(HWND hwndTabView, CString& strTabTitle)
 {
 	// we always set the tool tip text to the complete, untrimmed title
-	UpdateTabToolTip(*consoleView, strTabTitle);
+	UpdateTabToolTip(hwndTabView, strTabTitle);
 
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
@@ -1698,7 +1740,7 @@ void MainFrame::UpdateTabTitle(const shared_ptr<ConsoleView>& consoleView, CStri
 		strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles - windowSettings.dwTrimTabTitlesRight) + CString(L"...") + strTabTitle.Right(windowSettings.dwTrimTabTitlesRight);
 	}
 	
-	UpdateTabText(*consoleView, strTabTitle);
+	UpdateTabText(hwndTabView, strTabTitle);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1770,14 +1812,29 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
 void MainFrame::UpdateStatusBar()
 {
-	CString strRowsCols;
-	if( m_iSelectionSize )
-		strRowsCols.Format(_T("[%i]"), m_iSelectionSize);
-	else
-		strRowsCols.Format(IDPANE_ROWS_COLUMNS, m_dwRows, m_dwColumns);
-	UISetText(1, strRowsCols);
+  CString strRowsCols;
+  if( m_iSelectionSize )
+    strRowsCols.Format(_T("[%i]"), m_iSelectionSize);
+  else
+  {
+    DWORD dwRows = 0, dwColumns = 0;
 
-	UIUpdateStatusBar();
+    if (m_activeTabView)
+    {
+      shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+      if( activeConsoleView )
+      {
+        SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
+        dwRows    = consoleParams->dwRows;
+        dwColumns = consoleParams->dwColumns;
+      }
+    }
+
+    strRowsCols.Format(IDPANE_ROWS_COLUMNS, dwRows, dwColumns);
+  }
+  UISetText(1, strRowsCols);
+
+  UIUpdateStatusBar();
 }
 
 void MainFrame::SetSelectionSize(int iSelectionSize)
@@ -1927,10 +1984,10 @@ void MainFrame::SetWindowIcons()
 	if (!m_icon.IsNull()) m_icon.DestroyIcon();
 	if (!m_smallIcon.IsNull()) m_smallIcon.DestroyIcon();
 
-	if (windowSettings.bUseTabIcon && m_activeView)
+	if (windowSettings.bUseTabIcon && m_activeTabView)
 	{
-		m_icon.Attach(m_activeView->GetIcon(true).DuplicateIcon());
-		m_smallIcon.Attach(m_activeView->GetIcon(false).DuplicateIcon());
+		m_icon.Attach(m_activeTabView->GetIcon(true).DuplicateIcon());
+		m_smallIcon.Attach(m_activeTabView->GetIcon(false).DuplicateIcon());
 	}
 	else
 	{
@@ -1966,7 +2023,7 @@ void MainFrame::ShowMenu(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible ? true : false;
 
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -1987,7 +2044,7 @@ void MainFrame::ShowToolbar(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible? true : false;
 
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2006,7 +2063,7 @@ void MainFrame::ShowStatusbar(BOOL bShow)
 	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible? true : false;
 	
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2038,7 +2095,7 @@ void MainFrame::ShowTabs(BOOL bShow)
 	}
 
 	UpdateLayout();
-	AdjustWindowSize(false);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
 }
 
@@ -2065,13 +2122,13 @@ void MainFrame::ResizeWindow()
 	if ((dwWindowWidth != m_dwWindowWidth) ||
 		(dwWindowHeight != m_dwWindowHeight))
 	{
-		AdjustWindowSize(true);
+		AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	}
 
 	SendMessage(WM_NULL, 0, 0);
 	m_dwResizeWindowEdge = WMSZ_BOTTOM;
 
-	if (m_activeView) m_activeView->SetResizing(false);
+	if (m_activeTabView) m_activeTabView->SetResizing(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2079,81 +2136,65 @@ void MainFrame::ResizeWindow()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::AdjustWindowSize(bool bResizeConsole)
+void MainFrame::AdjustWindowSize(ADJUSTSIZE as)
 {
+  TRACE(L"AdjustWindowSize\n");
 	CRect clientRect(0, 0, 0, 0);
 
-	bool bMaximized = false;
-	if( this->IsZoomed() )
-	{
-		bMaximized     = true;
-		bResizeConsole = true;
-	}
-
-	if (bResizeConsole)
+	if (as != ADJUSTSIZE_NONE)
 	{
 		// adjust the active view
-		if (!m_activeView) return;
+		if (!m_activeTabView) return;
 
-		// if we're being maximized, AdjustRectAndResize will use client rect supplied
-		m_activeView->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, bMaximized);
+		m_activeTabView->AdjustRectAndResize(as, clientRect, m_dwResizeWindowEdge);
 
 		// for other views, first set view size and then resize their Windows consoles
-		MutexLock	viewMapLock(m_viewsMutex);
+		MutexLock	viewMapLock(m_tabsMutex);
 
-		for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+    for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
 		{
-			if (m_activeView == it->second) continue;
+			if (m_activeTabView == it->second) continue;
 
 			it->second->SetWindowPos(
-							0, 
-							0, 
-							0, 
-							clientRect.Width(), 
-							clientRect.Height(), 
+							0,
+							0,
+							0,
+							clientRect.Width(),
+							clientRect.Height(),
 							SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
 
-			// if we're being maximized, AdjustRectAndResize will use client rect supplied
-			it->second->AdjustRectAndResize(clientRect, m_dwResizeWindowEdge, bMaximized);
+			it->second->AdjustRectAndResize(as, clientRect, m_dwResizeWindowEdge);
 		}
 	}
 	else
 	{
-		if (!m_activeView) return;
+		if (!m_activeTabView) return;
 
-		m_activeView->GetRect(clientRect);
+		m_activeTabView->GetRect(clientRect);
 	}
+
+  TRACE(L"AdjustWindowSize 0: %ix%i\n", clientRect.Width(), clientRect.Height());
 
 	AdjustWindowRect(clientRect);
 
-//	TRACE(L"AdjustWindowSize: %ix%i\n", clientRect.Width(), clientRect.Height());
+	TRACE(L"AdjustWindowSize 1: %ix%i\n", clientRect.Width(), clientRect.Height());
 	SetWindowPos(
-		0, 
-		0, 
-		0, 
-		clientRect.Width(), 
-		clientRect.Height() + 4, 
+		0,
+		0,
+		0,
+		clientRect.Width(),
+		clientRect.Height() + 4,
 		SWP_NOMOVE|SWP_NOZORDER|SWP_NOSENDCHANGING);
 
 	// update window width and height
 	CRect rectWindow;
 
 	GetWindowRect(&rectWindow);
-//	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
+	TRACE(L"AdjustWindowSize 2: %ix%i\n", rectWindow.Width(), rectWindow.Height());
 	m_dwWindowWidth	= rectWindow.Width();
 	m_dwWindowHeight= rectWindow.Height();
 
 	SetMargins();
-}
-
-void MainFrame::RecreateOffscreenBuffers()
-{
-  MutexLock	viewMapLock(m_viewsMutex);
-
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-  {
-    it->second->RecreateOffscreenBuffers();
-  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2189,7 +2230,7 @@ void MainFrame::SetMargins(void)
     m_Margins.cyBottomHeight = 0;
   }
   SetTransparency();
-	}
+}
 
 void MainFrame::SetTransparency()
 {
@@ -2417,3 +2458,36 @@ BOOL MainFrame::SetTrayIcon(DWORD dwMessage) {
 
 /////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->PostMessageToConsoles(Msg, wParam, lParam);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::PasteToConsoles()
+{
+  if (!m_activeTabView) return;
+  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  if( activeConsoleView )
+  {
+    if( activeConsoleView->IsGrouped() )
+    {
+      MutexLock lock(m_tabsMutex);
+      for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+      {
+        it->second->PasteToConsoles();
+      }
+    }
+    else
+      activeConsoleView->Paste();
+  }
+}

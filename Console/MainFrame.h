@@ -16,10 +16,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-class ConsoleView;
-
-
-typedef map<HWND, shared_ptr<ConsoleView> >	ConsoleViewMap;
+class TabView;
+typedef map<HWND, shared_ptr<TabView> >	TabViewMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +42,7 @@ class MainFrame
 			const vector<wstring>& startupTabs, 
 			const vector<wstring>& startupDirs, 
 			const vector<wstring>& startupCmds, 
-			int nMultiStartSleep, 
-			const wstring& strDbgCmdLine
+			int nMultiStartSleep
 		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -104,6 +101,15 @@ class MainFrame
 			COMMAND_RANGE_HANDLER(ID_SWITCH_TAB_1, ID_SWITCH_TAB_1 + 9, OnSwitchTab)
 			COMMAND_ID_HANDLER(ID_NEXT_TAB, OnNextTab)
 			COMMAND_ID_HANDLER(ID_PREV_TAB, OnPrevTab)
+			COMMAND_ID_HANDLER(ID_NEXT_VIEW   , OnNextView)
+			COMMAND_ID_HANDLER(ID_PREV_VIEW   , OnPrevView)
+			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
+			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplitHorizontally)
+			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplitVertically)
+			COMMAND_ID_HANDLER(ID_GROUP_ALL   , OngroupAll)
+			COMMAND_ID_HANDLER(ID_UNGROUP_ALL , OnUngroupAll)
+			COMMAND_ID_HANDLER(ID_GROUP_TAB   , OnGroupTab)
+			COMMAND_ID_HANDLER(ID_UNGROUP_TAB , OnUngroupTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_TAB, OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 			COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
@@ -170,6 +176,16 @@ class MainFrame
 		LRESULT OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
+		LRESULT OnNextView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnPrevView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnUngroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 		LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -194,16 +210,17 @@ class MainFrame
 
 		void AdjustWindowRect(CRect& rect);
 		void SetSelectionSize(int iSelectionSize);
-		void AdjustWindowSize(bool bResizeConsole);
-		void RecreateOffscreenBuffers();
+		void AdjustWindowSize(ADJUSTSIZE as);
+		void CloseTab(HWND hwndTabView);
+    void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
+    void PasteToConsoles();
 
 	private:
 
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""), const wstring& strDbgCmdLine = wstring(L""));
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
-		void CloseTab(HWND hwndConsoleView);
 
-		void UpdateTabTitle(const shared_ptr<ConsoleView>& consoleView, CString& strTabTitle);
+		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateStatusBar();
 		void SetWindowStyles();
@@ -227,17 +244,16 @@ class MainFrame
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
 
-	private:
+	public:
 
 		bool					m_bOnCreateDone;
-
+	private:
 		const vector<wstring>&	m_startupTabs;
 		const vector<wstring>&	m_startupDirs;
 		const vector<wstring>&	m_startupCmds;
 		int						m_nMultiStartSleep;
-		wstring					m_strDbgCmdLine;
 
-		shared_ptr<ConsoleView>	m_activeView;
+		shared_ptr<TabView>	m_activeTabView;
 
 		BOOL			m_bMenuVisible;
 		BOOL			m_bToolbarVisible;
@@ -248,8 +264,8 @@ class MainFrame
 		ZOrder			m_zOrder;
 		CPoint			m_mousedragOffset;
 
-		ConsoleViewMap	m_views;
-		Mutex			m_viewsMutex;
+		TabViewMap	m_tabs;
+		Mutex			m_tabsMutex;
 
 		CMenu			m_tabsMenu;
 
@@ -259,23 +275,19 @@ class MainFrame
 		CString			m_strCmdLineWindowTitle;
 		CString			m_strWindowTitle;
 
-		DWORD			m_dwRows;
-		DWORD			m_dwColumns;
 		int				m_iSelectionSize;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;
 		DWORD			m_dwResizeWindowEdge;
 
+		bool			m_bAppActive;
 		bool			m_bRestoringWindow;
 		CRect			m_rectRestoredWnd;
 
 		CToolBarCtrl	m_toolbar;
 		CAccelerator	m_acceleratorTable;
 		CMultiPaneStatusBarCtrl m_statusBar;
-
-		CDC				m_dcOffscreen;
-		CDC				m_dcText;
 
 		MARGINS m_Margins;
 

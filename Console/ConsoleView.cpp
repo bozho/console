@@ -4,9 +4,9 @@
 #include <fstream>
 
 #include "Console.h"
-#include "MainFrame.h"
 #include "ConsoleException.h"
 #include "ConsoleView.h"
+#include "MainFrame.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -15,27 +15,27 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-CDC		ConsoleView::m_dcOffscreen(::CreateCompatibleDC(NULL));
-CDC		ConsoleView::m_dcText(::CreateCompatibleDC(NULL));
+//CDC		ConsoleView::m_dcOffscreen(::CreateCompatibleDC(NULL));
+//CDC		ConsoleView::m_dcText(::CreateCompatibleDC(NULL));
 
-CBitmap	ConsoleView::m_bmpOffscreen;
-CBitmap	ConsoleView::m_bmpText;
+//CBitmap	ConsoleView::m_bmpOffscreen;
+//CBitmap	ConsoleView::m_bmpText;
 
-CFont	ConsoleView::m_fontText;
+CFont ConsoleView::m_fontText;
 
-int		ConsoleView::m_nCharHeight(0);
-int		ConsoleView::m_nCharWidth(0);
-int		ConsoleView::m_nVInsideBorder(0);
-int		ConsoleView::m_nHInsideBorder(0);
+int ConsoleView::m_nCharHeight(0);
+int ConsoleView::m_nCharWidth(0);
+int ConsoleView::m_nVScrollWidth(0);
+int ConsoleView::m_nHScrollWidth(0);
+int ConsoleView::m_nVInsideBorder(0);
+int ConsoleView::m_nHInsideBorder(0);
 
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& strCmdLineInitialDir, const wstring& strInitialCmd, const wstring& strDbgCmdLine, DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns)
 : m_mainFrame(mainFrame)
-, m_strCmdLineInitialDir(strCmdLineInitialDir)
-, m_strInitialCmd(strInitialCmd)
-, m_strDbgCmdLine(strDbgCmdLine)
+, m_hwndTabView(hwndTabView)
 , m_bInitializing(true)
 , m_bResizing(false)
 , m_bAppActive(true)
@@ -47,12 +47,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_dwStartupColumns(dwColumns)
 , m_bShowVScroll(false)
 , m_bShowHScroll(false)
-, m_nVScrollWidth(::GetSystemMetrics(SM_CXVSCROLL))
-, m_nHScrollWidth(::GetSystemMetrics(SM_CXHSCROLL))
-, m_strTitle(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex]->strTitle.c_str())
+, m_strTitle(strTitle)
 , m_strUser()
-, bigIcon()
-, smallIcon()
 , m_consoleHandler()
 , m_screenBuffer()
 , m_dwScreenRows(0)
@@ -60,7 +56,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_consoleSettings(g_settingsHandler->GetConsoleSettings())
 , m_appearanceSettings(g_settingsHandler->GetAppearanceSettings())
 , m_hotkeys(g_settingsHandler->GetHotKeys())
-, m_tabData(g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex])
+, m_tabData(tabData)
 , m_background()
 , m_backgroundBrush(NULL)
 , m_cursor()
@@ -68,6 +64,9 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, DWORD dwTabIndex, const wstring& 
 , m_mouseCommand(MouseSettings::cmdNone)
 , m_bFlashTimerRunning(false)
 , m_dwFlashes(0)
+, m_dcOffscreen(::CreateCompatibleDC(NULL))
+, m_dcText(::CreateCompatibleDC(NULL))
+, m_boolIsGrouped(false)
 {
 }
 
@@ -115,13 +114,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 {
 	DragAcceptFiles(TRUE);
 
-	// load icon
-	bigIcon.Attach(Helpers::LoadTabIcon(true, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
-	smallIcon.Attach(Helpers::LoadTabIcon(false, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
-
 	// set console delegates
 	m_consoleHandler.SetupDelegates(
-						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange), 
+						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleChange),
 						fastdelegate::MakeDelegate(this, &ConsoleView::OnConsoleClose));
 
 	// load background image
@@ -149,14 +144,8 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	}
 
 	wstring	strShell(m_consoleSettings.strShell);
-	bool	bDebugFlag = false;
 
-	if (m_strDbgCmdLine.length() > 0)
-	{
-		strShell	= m_strDbgCmdLine;
-		bDebugFlag	= true;
-	}
-	else if (m_tabData->strShell.length() > 0)
+	if (m_tabData->strShell.length() > 0)
 	{
 		strShell	= m_tabData->strShell;
 	}
@@ -167,15 +156,14 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		UserCredentials* userCredentials = reinterpret_cast<UserCredentials*>(createStruct->lpCreateParams);
 
 		m_consoleHandler.StartShellProcess(
-									strShell, 
+									strShell,
 									strInitialDir,
 									userCredentials->user,
 									userCredentials->password,
 									m_strInitialCmd,
 									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
-									m_dwStartupRows, 
-									m_dwStartupColumns,
-									bDebugFlag);
+									m_dwStartupRows,
+									m_dwStartupColumns);
 
 		m_strUser = userCredentials->user.c_str();
 	}
@@ -250,6 +238,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 	if (m_bNeedFullRepaint)
 	{
+    //TRACE(L"ConsoleView::OnPaint\n");
 		// we need to update offscreen buffers here for first paint and relative backgrounds
 		RepaintText(m_dcText);
 		UpdateOffscreen(dc.m_ps.rcPaint);
@@ -281,10 +270,15 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 
 //////////////////////////////////////////////////////////////////////////////
-
+long l1 = 0;
 LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	WINDOWPOS* pWinPos = reinterpret_cast<WINDOWPOS*>(lParam);
+
+  if (!(pWinPos->flags & SWP_NOSIZE))
+  {
+    TRACE(L"!!! ConsoleView::OnSize (%d) !!!\n", ::InterlockedIncrement(&l1));
+  }
 
 	// showing the view, repaint
 	if (pWinPos->flags & SWP_SHOWWINDOW) Repaint(false);
@@ -337,9 +331,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			m_appearanceSettings.fontSettings.dwSize = size;
 			// recreate font with new size
 			RecreateFont();
-			m_mainFrame.AdjustWindowSize(false);
-			m_mainFrame.RecreateOffscreenBuffers();
-			Repaint(true);
+			m_mainFrame.AdjustWindowSize(ADJUSTSIZE_FONT);
 		}
 
 		return 0;
@@ -347,8 +339,11 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-//		TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
-		::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+    //TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+    if( this->IsGrouped() )
+      m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
+    else
+      ::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
 	}
 
 	return 0;
@@ -561,7 +556,8 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 				case MouseSettings::cmdPaste :
 				{
-					Paste();
+					//Paste();
+          m_mainFrame.PasteToConsoles();
 					break;
 				}
 
@@ -702,12 +698,12 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 			return 0;
 		}
 
-		m_mainFrame.HighlightTab(m_hWnd, (m_dwFlashes % 2) == 0);
+		m_mainFrame.HighlightTab(m_hwndTabView, (m_dwFlashes % 2) == 0);
 		if (++m_dwFlashes == g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.dwFlashes * 2)
 		{
 			if (g_settingsHandler->GetBehaviorSettings().tabHighlightSettings.bStayHighlighted)
 			{
-				m_mainFrame.HighlightTab(m_hWnd, true);
+				m_mainFrame.HighlightTab(m_hwndTabView, true);
 			}
 
 			KillTimer(FLASH_TAB_TIMER);
@@ -805,8 +801,6 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		TRACE(L"Resizing console wnd: 0x%08X\n", m_hWnd);
 */
 		InitializeScrollbars();
-
-		RecreateOffscreenBuffers();
 
 		// notify parent about resize
 		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
@@ -966,62 +960,81 @@ LRESULT ConsoleView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 
 void ConsoleView::GetRect(CRect& clientRect)
 {
-	clientRect.left		= 0;
-	clientRect.top		= 0;
-	clientRect.right	= m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + 2 * m_nVInsideBorder;
-	clientRect.bottom	= m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + 2 * m_nHInsideBorder;
+  RECT rect;
+  GetWindowRect(&rect);
 
-	if (m_bShowVScroll) clientRect.right	+= m_nVScrollWidth;
-	if (m_bShowHScroll) clientRect.bottom	+= m_nHScrollWidth;
+  int width  = rect.right - rect.left;
+  int height = rect.bottom - rect.top;
+
+  clientRect.left   = 0;
+  clientRect.top    = 0;
+  clientRect.right  = m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + 2 * m_nVInsideBorder;
+  clientRect.bottom = m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + 2 * m_nHInsideBorder;
+
+  if (m_bShowVScroll) clientRect.right  += m_nVScrollWidth;
+  if (m_bShowHScroll) clientRect.bottom += m_nHScrollWidth;
+
+  if(  width > clientRect.right  ) clientRect.right  = width;
+  if( height > clientRect.bottom ) clientRect.bottom = height;
+
+  //TRACE(L"========ConsoleView::GetRect=====================================\n");
+  //TRACE(L"wind: %ix%i - %ix%i\n", rect.left, rect.top, rect.right, rect.bottom);
+  //TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+}
+
+void ConsoleView::GetRectMax(CRect& clientMaxRect)
+{
+  clientMaxRect.left   = 0;
+  clientMaxRect.top    = 0;
+  clientMaxRect.right  = (m_consoleHandler.GetConsoleParams()->dwColumns + 1) * m_nCharWidth  + 2 * m_nVInsideBorder;
+  clientMaxRect.bottom = (m_consoleHandler.GetConsoleParams()->dwRows    + 1) * m_nCharHeight + 2 * m_nHInsideBorder;
+
+  if (m_bShowVScroll) clientMaxRect.right  += m_nVScrollWidth;
+  if (m_bShowHScroll) clientMaxRect.bottom += m_nHScrollWidth;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 
 //////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdge, bool bVariableInsideBorder)
+//long l2 = 0;
+void ConsoleView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge)
 {
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+  GetWindowRect(&clientRect);
 
-	GetWindowRect(&clientRect);
-/*
-	TRACE(L"================================================================\n");
-	TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
-*/
+  //TRACE(L"========AdjustRectAndResize (%d)=================================\n", ::InterlockedIncrement(&l2));
+  //TRACE(L"rect: %ix%i - %ix%i\n", clientRect.left, clientRect.top, clientRect.right, clientRect.bottom);
+
   LONG width  = clientRect.right  - clientRect.left;
   LONG height = clientRect.bottom - clientRect.top;
 
-	// exclude scrollbars from row/col calculation
-	if (m_bShowVScroll) width  -= m_nVScrollWidth;
-	if (m_bShowHScroll) height -= m_nHScrollWidth;
+  // exclude scrollbars from row/col calculation
+  if (m_bShowVScroll) width  -= m_nVScrollWidth;
+  if (m_bShowHScroll) height -= m_nHScrollWidth;
 
   // exclude inside borders from row/col calculation
-  if (!bVariableInsideBorder)
-  {
-    m_nVInsideBorder = stylesSettings.dwInsideBorder;
-    m_nHInsideBorder = stylesSettings.dwInsideBorder;
-    width  -= (m_nVInsideBorder * 2);
-    height -= (m_nHInsideBorder * 2);
-  }
+  width  -= (m_nVInsideBorder * 2);
+  height -= (m_nHInsideBorder * 2);
+
+  //TRACE(L"exclude scrollbars and inside borders from row/col calculation\n");
+  //TRACE(L"width: %i height: %i\n", width, height);
 
   DWORD dwColumns = width  / m_nCharWidth;
   DWORD dwRows    = height / m_nCharHeight;
 
+  //TRACE(L"m_nCharWidth: %i m_nCharHeight: %i\n", m_nCharWidth, m_nCharHeight);
+
   DWORD dwMaxColumns = this->m_consoleHandler.GetConsoleParams()->dwMaxColumns;
   DWORD dwMaxRows    = this->m_consoleHandler.GetConsoleParams()->dwMaxRows;
+
+  //TRACE(L"dwMaxColumns: %i dwMaxRows: %i\n", dwMaxColumns, dwMaxRows);
 
   if( dwColumns > dwMaxColumns )
     dwColumns = dwMaxColumns;
   if( dwRows > dwMaxRows )
     dwRows = dwMaxRows;
 
-  // variable inside borders
-  if (bVariableInsideBorder)
-  {
-    m_nVInsideBorder = (width  - dwColumns * m_nCharWidth ) / 2;
-    m_nHInsideBorder = (height - dwRows    * m_nCharHeight) / 2;
-  }
+  //TRACE(L"dwColumns: %i dwRows: %i\n", dwColumns, dwRows);
 
   clientRect.right  = clientRect.left + dwColumns * m_nCharWidth  + m_nVInsideBorder * 2;
   clientRect.bottom = clientRect.top +  dwRows    * m_nCharHeight + m_nHInsideBorder * 2;
@@ -1030,19 +1043,20 @@ void ConsoleView::AdjustRectAndResize(CRect& clientRect, DWORD dwResizeWindowEdg
   if (m_bShowVScroll) clientRect.right  += m_nVScrollWidth;
   if (m_bShowHScroll) clientRect.bottom += m_nHScrollWidth;
 
-	SharedMemory<ConsoleSize>&	newConsoleSize = m_consoleHandler.GetNewConsoleSize();
-	SharedMemoryLock			memLock(newConsoleSize);
+  SharedMemory<ConsoleSize>& newConsoleSize = m_consoleHandler.GetNewConsoleSize();
+  SharedMemoryLock memLock(newConsoleSize);
 
-	newConsoleSize->dwColumns			= dwColumns;
-	newConsoleSize->dwRows				= dwRows;
-	newConsoleSize->dwResizeWindowEdge	= dwResizeWindowEdge;
+  newConsoleSize->dwColumns          = dwColumns;
+  newConsoleSize->dwRows             = dwRows;
+  newConsoleSize->dwResizeWindowEdge = dwResizeWindowEdge;
 
-/*
-	TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
-	TRACE(L"================================================================\n");
-*/
+  //TRACE(L"console view: 0x%08X, adjusted: %ix%i\n", m_hWnd, dwRows, dwColumns);
+  //TRACE(L"================================================================\n");
 
-	m_consoleHandler.GetNewConsoleSize().SetReqEvent();
+  RecreateOffscreenBuffers(as);
+  Repaint(true);
+
+  m_consoleHandler.GetNewConsoleSize().SetReqEvent();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1083,20 +1097,23 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 
 void ConsoleView::RecreateFont()
 {
-	if (!m_fontText.IsNull())		m_fontText.DeleteObject();
-	if (!CreateFont(m_appearanceSettings.fontSettings.strName))
+	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
+	if (!CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName))
 	{
 		CreateFont(wstring(L"Courier New"));
 	}
 }
 
-void ConsoleView::RecreateOffscreenBuffers()
+void ConsoleView::RecreateOffscreenBuffers(ADJUSTSIZE as)
 {
-	if (!m_backgroundBrush.IsNull())m_backgroundBrush.DeleteObject();
-	if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
-	if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
-	CreateOffscreenBuffers();
-	m_bNeedFullRepaint = true;
+  if (!m_backgroundBrush.IsNull())m_backgroundBrush.DeleteObject();
+  if( as == ADJUSTSIZE_WINDOW )
+  {
+    if (!m_bmpOffscreen.IsNull())	m_bmpOffscreen.DeleteObject();
+    if (!m_bmpText.IsNull())		m_bmpText.DeleteObject();
+  }
+  CreateOffscreenBuffers();
+  m_bNeedFullRepaint = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1106,6 +1123,7 @@ void ConsoleView::RecreateOffscreenBuffers()
 
 void ConsoleView::Repaint(bool bFullRepaint)
 {
+  //TRACE(L"ConsoleView::Repaint\n");
 	// OnPaint will do the work for a full repaint
 	if (!m_bNeedFullRepaint)
 	{
@@ -1398,6 +1416,7 @@ void ConsoleView::CreateOffscreenBuffers()
 	// create offscreen bitmaps if needed
 	if (m_bmpOffscreen.IsNull()) CreateOffscreenBitmap(m_dcOffscreen, rectWindowMax, m_bmpOffscreen);
 	if (m_bmpText.IsNull()) CreateOffscreenBitmap(m_dcText, rectWindowMax, m_bmpText);
+	m_dcText.SelectFont(m_fontText);
 
 	// create background brush
 	m_backgroundBrush.CreateSolidBrush(m_tabData->crBackgroundColor);
@@ -1458,22 +1477,24 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 {
 	if (!m_fontText.IsNull()) return true;// m_fontText.DeleteObject();
 
+  CDC dcText(::CreateCompatibleDC(NULL));
+
 	BYTE	byFontQuality = DEFAULT_QUALITY;
 
-	switch (m_appearanceSettings.fontSettings.fontSmoothing)
+	switch (g_settingsHandler->GetAppearanceSettings().fontSettings.fontSmoothing)
 	{
-		case fontSmoothDefault	: byFontQuality = DEFAULT_QUALITY;			break;
-		case fontSmoothNone		: byFontQuality = NONANTIALIASED_QUALITY;	break;
-		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;		break;
+		case fontSmoothDefault:   byFontQuality = DEFAULT_QUALITY;        break;
+		case fontSmoothNone:      byFontQuality = NONANTIALIASED_QUALITY; break;
+		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;      break;
 		default : DEFAULT_QUALITY;
 	}
 	m_fontText.CreateFont(
-		-::MulDiv(m_appearanceSettings.fontSettings.dwSize , m_dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		m_appearanceSettings.fontSettings.bBold ? FW_BOLD : 0,
-		m_appearanceSettings.fontSettings.bItalic,
+		g_settingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
+		g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic,
 		FALSE,
 		FALSE,
  		DEFAULT_CHARSET,
@@ -1485,8 +1506,8 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 
 	TEXTMETRIC	textMetric;
 
-	m_dcText.SelectFont(m_fontText);
-	m_dcText.GetTextMetrics(&textMetric);
+	dcText.SelectFont(m_fontText);
+	dcText.GetTextMetrics(&textMetric);
 
 	if (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH)
 	{
@@ -1495,8 +1516,11 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 	}
 
 	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
-	m_nCharWidth = textMetric.tmAveCharWidth;
+	m_nCharWidth  = textMetric.tmAveCharWidth;
 	m_nCharHeight = textMetric.tmHeight;
+
+	m_nVScrollWidth = ::GetSystemMetrics(SM_CXVSCROLL);
+	m_nHScrollWidth = ::GetSystemMetrics(SM_CXHSCROLL);
 
 	m_nVInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
 	m_nHInsideBorder = g_settingsHandler->GetAppearanceSettings().stylesSettings.dwInsideBorder;
@@ -1681,8 +1705,8 @@ void ConsoleView::UpdateTitle()
 	}
 
 	m_mainFrame.PostMessage(
-					UM_UPDATE_TITLES, 
-					reinterpret_cast<WPARAM>(m_hWnd), 
+					UM_UPDATE_TITLES,
+					reinterpret_cast<WPARAM>(m_hwndTabView),
 					0);
 }
 
@@ -1701,43 +1725,53 @@ void ConsoleView::RepaintText(CDC& dc)
 	bitmapRect.top		= 0;
 	bitmapRect.right	= bitmapSize.cx;
 	bitmapRect.bottom	= bitmapSize.cy;
-
+/*
+  SIZE	bitmapSize2;
+  m_dcOffscreen.GetCurrentBitmap().GetSize(bitmapSize2);
+  TRACE(L"ConsoleView::RepaintText (%ix%i on %ix%i)\n", bitmapSize.cx, bitmapSize.cy, bitmapSize2.cx, bitmapSize2.cy);
+*/
 	if (m_tabData->backgroundImageType == bktypeNone)
 	{
 		dc.FillRect(&bitmapRect, m_backgroundBrush);
 	}
 	else
 	{
-		CRect	rectWindow;
-		GetClientRect(&rectWindow);
+    CRect rectView;
+    GetClientRect(&rectView);
+    CRect rectTab;
+    ::GetClientRect(this->m_hwndTabView, &rectTab);
+    CPoint pointView(0,0);
+    ClientToScreen(&pointView);
+    CPoint pointTab(0,0);
+    ::ClientToScreen(this->m_hwndTabView, &pointTab);
 
-		g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
+    //TRACE(L"========UpdateImageBitmap=====================================\n"
+    //      L"rect: %ix%i - %ix%i\n", rectTab.left, rectTab.top, rectTab.right, rectTab.bottom);
+
+		g_imageHandler->UpdateImageBitmap(dc, rectTab, m_background);
 
 		if (m_tabData->imageData.bRelative)
 		{
-			CPoint	pointClientScreen(0, 0);
-			ClientToScreen(&pointClientScreen);
-
 			dc.BitBlt(
-				rectWindow.left, 
-				rectWindow.top, 
-				rectWindow.right, 
-				rectWindow.bottom, 
-				m_background->dcImage, 
-				rectWindow.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
-				rectWindow.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+				rectView.left,
+				rectView.top,
+				rectView.right,
+				rectView.bottom,
+				m_background->dcImage,
+				rectView.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
+				rectView.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
 				SRCCOPY);
 		}
 		else
 		{
 			dc.BitBlt(
-				bitmapRect.left, 
-				bitmapRect.top, 
-				bitmapRect.right, 
-				bitmapRect.bottom, 
-				m_background->dcImage, 
-				bitmapRect.left, 
-				bitmapRect.top, 
+				bitmapRect.left,
+				bitmapRect.top,
+				bitmapRect.right,
+				bitmapRect.bottom,
+				m_background->dcImage,
+				bitmapRect.left + pointView.x - pointTab.x,
+				bitmapRect.top  + pointView.y - pointTab.y,
 				SRCCOPY);
 		}
 	}
@@ -1875,6 +1909,7 @@ void ConsoleView::RepaintText(CDC& dc)
 
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
+  //TRACE(L"ConsoleView::RepaintTextChanges\n");
 	DWORD	dwX			= m_nVInsideBorder;
 	DWORD	dwY			= m_nHInsideBorder;
 	DWORD	dwOffset	= 0;
@@ -1883,10 +1918,22 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 
 	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 
-	CRect	rectWindow;
-	GetClientRect(&rectWindow);
+  CRect rectView;
+  GetClientRect(&rectView);
+  CRect rectTab;
+  ::GetClientRect(this->m_hwndTabView, &rectTab);
+  CPoint pointView(0,0);
+  ClientToScreen(&pointView);
+  CPoint pointTab(0,0);
+  ::ClientToScreen(this->m_hwndTabView, &pointTab);
 
-	if (m_tabData->backgroundImageType != bktypeNone) g_imageHandler->UpdateImageBitmap(dc, rectWindow, m_background);
+  if (m_tabData->backgroundImageType != bktypeNone)
+  {
+    //TRACE(L"========UpdateImageBitmap=====================================\n"
+    //      L"rect: %ix%i - %ix%i\n", rectTab.left, rectTab.top, rectTab.right, rectTab.bottom);
+
+    g_imageHandler->UpdateImageBitmap(dc, rectTab, m_background);
+  }
 
 	for (DWORD i = 0; i < m_dwScreenRows; ++i, dwY += m_nCharHeight)
 	{
@@ -1906,7 +1953,7 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 				rect.bottom	= dwY + m_nCharHeight;
 				// we have to erase two spaces for double-width characters
 				rect.right	= (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) ? dwX + 2*m_nCharWidth : dwX + m_nCharWidth;
-				
+
 				if (m_tabData->backgroundImageType == bktypeNone)
 				{
 					dc.FillRect(&rect, m_backgroundBrush);
@@ -1915,29 +1962,26 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 				{
 					if (m_tabData->imageData.bRelative)
 					{
-						CPoint	pointClientScreen(0, 0);
-						ClientToScreen(&pointClientScreen);
-
 						dc.BitBlt(
-							rect.left, 
-							rect.top, 
-							rect.Width(), 
-							rect.Height(), 
-							m_background->dcImage, 
-							rect.left + pointClientScreen.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
-							rect.top + pointClientScreen.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+							rect.left,
+							rect.top,
+							rect.Width(),
+							rect.Height(),
+							m_background->dcImage,
+							rect.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
+							rect.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
 							SRCCOPY);
 					}
 					else
 					{
 						dc.BitBlt(
-							rect.left, 
-							rect.top, 
+							rect.left,
+							rect.top,
 							rect.Width(),
 							rect.Height(),
-							m_background->dcImage, 
-							rect.left, 
-							rect.top, 
+							m_background->dcImage,
+							rect.left + pointView.x - pointTab.x,
+							rect.top  + pointView.y - pointTab.y,
 							SRCCOPY);
 					}
 				}
@@ -2039,8 +2083,8 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 			rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 
 			m_cursor->BitBlt(
-						m_dcOffscreen, 
-						rectCursor.left, 
+						m_dcOffscreen,
+						rectCursor.left,
 						rectCursor.top);
 		}
 	}
@@ -2069,18 +2113,18 @@ void ConsoleView::SendTextToConsole(const wchar_t* pszText)
 
 		void* pRemoteMemory = ::VirtualAllocEx(
 									m_consoleHandler.GetConsoleHandle().get(),
-									NULL, 
-									(textLen+1)*sizeof(wchar_t), 
-									MEM_COMMIT, 
+									NULL,
+									(textLen+1)*sizeof(wchar_t),
+									MEM_COMMIT,
 									PAGE_READWRITE);
 
 		if (pRemoteMemory == NULL) return;
 
 		if (!::WriteProcessMemory(
 					m_consoleHandler.GetConsoleHandle().get(),
-					pRemoteMemory, 
-					(PVOID)pszText, 
-					(textLen+1)*sizeof(wchar_t), 
+					pRemoteMemory,
+					(PVOID)pszText,
+					(textLen+1)*sizeof(wchar_t),
 					NULL))
 		{
 			::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
@@ -2107,28 +2151,28 @@ bool ConsoleView::TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/)
 		{
 			switch(wParam)
 			{
-				case VK_UP:   
-					DoScroll(SB_VERT, SB_LINEUP, 0); 
+				case VK_UP:
+					DoScroll(SB_VERT, SB_LINEUP, 0);
 					return true;
 
-				case VK_PRIOR:  
-					DoScroll(SB_VERT, SB_PAGEUP, 0); 
+				case VK_PRIOR:
+					DoScroll(SB_VERT, SB_PAGEUP, 0);
 					return true;
 
-				case VK_DOWN: 
-					DoScroll(SB_VERT, SB_LINEDOWN, 0); 
+				case VK_DOWN:
+					DoScroll(SB_VERT, SB_LINEDOWN, 0);
 					return true;
 
-				case VK_NEXT: 
-					DoScroll(SB_VERT, SB_PAGEDOWN, 0); 
+				case VK_NEXT:
+					DoScroll(SB_VERT, SB_PAGEDOWN, 0);
 					return true;
 
-				case VK_LEFT: 
-					DoScroll(SB_HORZ, SB_LINELEFT, 0); 
+				case VK_LEFT:
+					DoScroll(SB_HORZ, SB_LINELEFT, 0);
 					return true;
 
-				case VK_RIGHT:  
-					DoScroll(SB_HORZ, SB_LINERIGHT, 0); 
+				case VK_RIGHT:
+					DoScroll(SB_HORZ, SB_LINERIGHT, 0);
 					return true;
 			}
 		}
@@ -2314,6 +2358,3 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelecti
 
 	return consolePoint;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-

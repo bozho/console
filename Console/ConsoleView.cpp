@@ -1452,7 +1452,7 @@ void ConsoleView::CreateOffscreenBuffers()
 								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleXTerm, 
 								dcWindow, 
 								rectCursor, 
-								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->crCursorColor) : RGB(255, 255, 255));
+								m_tabData.get() ? m_tabData->crCursorColor : RGB(255, 255, 255));
 }
 
 //////////////////////////////////////////////////////////////////////////////

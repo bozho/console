@@ -42,6 +42,7 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
+	m_staticCursorAnim.Attach(GetDlgItem(IDC_CURSOR_ANIM));
 	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
 	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
 
@@ -76,6 +77,8 @@ LRESULT PageSettingsTabs1::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM
 
 		m_staticCursorColor.GetClientRect(&rect);
 		dc.FillRect(&rect, brush);
+
+		SetCursor();
 		return 0;
 	}
 
@@ -275,3 +278,65 @@ void PageSettingsTabs1::Save()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs1::OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  SetCursor();
+
+  return 0;
+}
+
+LRESULT PageSettingsTabs1::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  if ((wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
+  {
+    DrawCursor();
+  }
+
+  return 0;
+}
+
+void PageSettingsTabs1::SetCursor(void)
+{
+  CRect rectCursorAnim;
+  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
+  CClientDC dc(m_staticCursorAnim.m_hWnd);
+  CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
+  dc.FillRect(rectCursorAnim, brush);
+
+  rectCursorAnim.right  -= 8;
+  rectCursorAnim.bottom -= 8;
+
+  m_cursor.reset();
+  m_cursor = CursorFactory::CreateCursor(
+    m_hWnd,
+    true,
+    static_cast<CursorStyle>(m_comboCursor.GetCurSel()),
+    dc,
+    rectCursorAnim,
+    m_tabData->crCursorColor);
+
+  DrawCursor();
+}
+
+void PageSettingsTabs1::DrawCursor(void)
+{
+  m_staticCursorAnim.RedrawWindow();
+
+  CClientDC dc(m_staticCursorAnim.m_hWnd);
+  CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
+  CPen pen(::CreatePen(PS_SOLID, 2, RGB(255,255,255)));
+  CRect rectCursorAnim;
+  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
+
+  dc.FillRect(rectCursorAnim, brush);
+  dc.SelectPen(pen);
+  dc.MoveTo(rectCursorAnim.left  + 7, rectCursorAnim.top    + 7);
+  dc.LineTo(rectCursorAnim.right - 7, rectCursorAnim.bottom - 7);
+  dc.MoveTo(rectCursorAnim.right - 7, rectCursorAnim.top    + 7);
+  dc.LineTo(rectCursorAnim.left  + 7, rectCursorAnim.bottom - 7);
+
+  m_cursor->PrepareNext();
+  m_cursor->Draw(true);
+  m_cursor->BitBlt(dc, 4, 4);
+}

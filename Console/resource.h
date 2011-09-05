@@ -159,6 +159,7 @@
 #define IDC_COMBO_CURSOR                1121
 #define IDC_CURSOR_COLOR                1122
 #define IDC_RADIO_BK_TYPE               1123
+#define IDC_CURSOR_ANIM                 1123
 #define IDC_RADIO_BK_TYPE2              1124
 #define IDC_RADIO_BK_TYPE3              1125
 #define IDC_BK_COLOR                    1126

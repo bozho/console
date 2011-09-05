@@ -1,5 +1,6 @@
-
 #pragma once
+
+#include "Cursors.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@ class PageSettingsTabs1
 		BEGIN_MSG_MAP(PageSettingsTabs1)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
+			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 
 			COMMAND_HANDLER(IDC_TAB_TITLE, EN_CHANGE, OnTabTitleChange)
 			COMMAND_HANDLER(IDC_TAB_ICON, EN_CHANGE, OnTabIconChange)
@@ -45,7 +47,8 @@ class PageSettingsTabs1
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_DIR, OnClickedBtnBrowseDir)
 			COMMAND_ID_HANDLER(IDC_CHECK_DEFAULT_ICON, OnCheckboxClicked)
 			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_USER, OnCheckboxClicked)
-		END_MSG_MAP()
+      COMMAND_HANDLER(IDC_COMBO_CURSOR, CBN_SELCHANGE, OnCbnSelchangeComboCursor)
+    END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
 //		LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -55,6 +58,7 @@ class PageSettingsTabs1
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnTabTitleChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnTabIconChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -74,10 +78,15 @@ class PageSettingsTabs1
     const CString& GetTabShell() const { return m_strShell; }
 		const int UseDefaultIcon() const { return m_nUseDefaultIcon; }
 
-	private:
+private:
+  void SetCursor(void);
+  void DrawCursor(void);
 
+	private:
+		shared_ptr<Cursor>	m_cursor;
 		shared_ptr<TabData>	m_tabData;
 
+    CStatic			m_staticCursorAnim;
 		CComboBox		m_comboCursor;
 		CStatic			m_staticCursorColor;
 
@@ -89,6 +98,8 @@ class PageSettingsTabs1
 		CString			m_strInitialDir;
 		bool			m_bRunAsUser;
 		CString			m_strUser;
+public:
+  LRESULT OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };
 
 //////////////////////////////////////////////////////////////////////////////

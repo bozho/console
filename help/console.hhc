@@ -41,6 +41,10 @@
 			</OBJECT>
 		<UL>
 			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Settings">
+				<param name="Local" value="html\settings.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Console">
 				<param name="Local" value="html\settings_console.html">
 				</OBJECT>

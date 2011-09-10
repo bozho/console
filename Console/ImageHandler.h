@@ -6,9 +6,10 @@
 
 enum ImagePosition
 {
-	imgPosCenter	= 0,
-	imgPosFit		= 1,
-	imgPosTile		= 2
+  imgPosCenter             = 0,
+  imgPosFit                = 1,
+  imgPosTile               = 2,
+  imgPosFitWithAspectRatio = 3
 };
 
 //////////////////////////////////////////////////////////////////////////////

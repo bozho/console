@@ -273,46 +273,63 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 		dcTemplate.CreateCompatibleDC(NULL);
 
 		// set template bitmap dimensions
-		DWORD	dwTemplateWidth		= bkImage->originalImage->getWidth();
-		DWORD	dwTemplateHeight	= bkImage->originalImage->getHeight();
+		DWORD	dwTemplateWidth  = bkImage->originalImage->getWidth();
+		DWORD	dwTemplateHeight = bkImage->originalImage->getHeight();
 
-		if (bkImage->imageData.imagePosition == imgPosFit)
+		if (bkImage->imageData.imagePosition == imgPosFit || bkImage->imageData.imagePosition == imgPosFitWithAspectRatio)
 		{
 			if (bkImage->imageData.bExtend)
 			{
-				dwTemplateWidth	= bkImage->dwImageWidth;
-				dwTemplateHeight= bkImage->dwImageHeight;
+				dwTemplateWidth  = bkImage->dwImageWidth;
+				dwTemplateHeight = bkImage->dwImageHeight;
 			}
 			else
 			{
-				dwTemplateWidth	= dwPrimaryDisplayWidth;
-				dwTemplateHeight= dwPrimaryDisplayHeight;
+				dwTemplateWidth  = dwPrimaryDisplayWidth;
+				dwTemplateHeight = dwPrimaryDisplayHeight;
 			}
 		}
 
-		if ((bkImage->originalImage->getWidth() != dwTemplateWidth) || 
-			(bkImage->originalImage->getHeight() != dwTemplateHeight))
+    WORD wNewWidth  = static_cast<WORD>(dwTemplateWidth);
+    WORD wNewHeight = static_cast<WORD>(dwTemplateHeight);
+
+		if ((bkImage->originalImage->getWidth() != wNewWidth) ||
+			(bkImage->originalImage->getHeight() != wNewHeight))
 		{
 			// resize background image
 			fipImage tempImage(*(bkImage->originalImage));
-			tempImage.rescale(static_cast<WORD>(dwTemplateWidth), static_cast<WORD>(dwTemplateHeight), FILTER_BILINEAR);
+      if( bkImage->imageData.imagePosition == imgPosFitWithAspectRatio )
+      {
+        double dXRatio = (double)wNewWidth  / (double)bkImage->originalImage->getWidth ();
+        double dYRatio = (double)wNewHeight / (double)bkImage->originalImage->getHeight();
+
+        if( dXRatio < dYRatio )
+        {
+          wNewHeight = (WORD)::MulDiv(bkImage->originalImage->getHeight(), wNewWidth, bkImage->originalImage->getWidth());
+        }
+        else
+        {
+          wNewWidth  = (WORD)::MulDiv(bkImage->originalImage->getWidth(), wNewHeight, bkImage->originalImage->getHeight());
+        }
+      }
+			tempImage.rescale(wNewWidth, wNewHeight, FILTER_BILINEAR);
 
 			bmpTemplate.CreateDIBitmap(
-							dc, 
-							tempImage.getInfoHeader(), 
-							CBM_INIT, 
-							tempImage.accessPixels(), 
-							tempImage.getInfo(), 
+							dc,
+							tempImage.getInfoHeader(),
+							CBM_INIT,
+							tempImage.accessPixels(),
+							tempImage.getInfo(),
 							DIB_RGB_COLORS);
 		}
 		else
 		{
 			bmpTemplate.CreateDIBitmap(
-							dc, 
-							bkImage->originalImage->getInfoHeader(), 
-							CBM_INIT, 
-							bkImage->originalImage->accessPixels(), 
-							bkImage->originalImage->getInfo(), 
+							dc,
+							bkImage->originalImage->getInfoHeader(),
+							CBM_INIT,
+							bkImage->originalImage->accessPixels(),
+							bkImage->originalImage->getInfo(),
 							DIB_RGB_COLORS);
 		}
 
@@ -321,9 +338,9 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 		if (bkImage->imageData.imagePosition == imgPosTile)
 		{
 			TileTemplateImage(
-				dcTemplate, 
-				::GetSystemMetrics(SM_XVIRTUALSCREEN), 
-				::GetSystemMetrics(SM_YVIRTUALSCREEN), 
+				dcTemplate,
+				::GetSystemMetrics(SM_XVIRTUALSCREEN),
+				::GetSystemMetrics(SM_YVIRTUALSCREEN),
 				bkImage);
 
 		}
@@ -332,13 +349,13 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 			if (bkImage->imageData.bExtend)
 			{
 				PaintTemplateImage(
-					dcTemplate, 
-					0, 
+					dcTemplate,
 					0,
-					bkImage->dwImageWidth, 
-					bkImage->dwImageHeight, 
-					bkImage->dwImageWidth, 
-					bkImage->dwImageHeight, 
+					0,
+					wNewWidth,
+					wNewHeight,
+					bkImage->dwImageWidth,
+					bkImage->dwImageHeight,
 					bkImage);
 			}
 			else
@@ -385,29 +402,46 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 
 		dcTemplate.CreateCompatibleDC(NULL);
 
-		if ((bkImage->imageData.imagePosition == imgPosFit) &&
-			((bkImage->originalImage->getWidth() != bkImage->dwImageWidth) || (bkImage->originalImage->getHeight() != bkImage->dwImageHeight)))
+    WORD wNewWidth  = static_cast<WORD>(bkImage->dwImageWidth);
+    WORD wNewHeight = static_cast<WORD>(bkImage->dwImageHeight);
+
+		if ((bkImage->imageData.imagePosition == imgPosFit || bkImage->imageData.imagePosition == imgPosFitWithAspectRatio) &&
+			((bkImage->originalImage->getWidth() != wNewWidth) || (bkImage->originalImage->getHeight() != wNewHeight)))
 		{
 			// resize background image
 			fipImage tempImage(*(bkImage->originalImage));
-			tempImage.rescale(static_cast<WORD>(bkImage->dwImageWidth), static_cast<WORD>(bkImage->dwImageHeight), FILTER_BILINEAR);
+      if( bkImage->imageData.imagePosition == imgPosFitWithAspectRatio )
+      {
+        double dXRatio = (double)wNewWidth  / (double)bkImage->originalImage->getWidth ();
+        double dYRatio = (double)wNewHeight / (double)bkImage->originalImage->getHeight();
+
+        if( dXRatio < dYRatio )
+        {
+          wNewHeight = (WORD)::MulDiv(bkImage->originalImage->getHeight(), wNewWidth, bkImage->originalImage->getWidth());
+        }
+        else
+        {
+          wNewWidth  = (WORD)::MulDiv(bkImage->originalImage->getWidth(), wNewHeight, bkImage->originalImage->getHeight());
+        }
+      }
+			tempImage.rescale(wNewWidth, wNewHeight, FILTER_BILINEAR);
 
 			bmpTemplate.CreateDIBitmap(
-							dc, 
-							tempImage.getInfoHeader(), 
-							CBM_INIT, 
-							tempImage.accessPixels(), 
-							tempImage.getInfo(), 
+							dc,
+							tempImage.getInfoHeader(),
+							CBM_INIT,
+							tempImage.accessPixels(),
+							tempImage.getInfo(),
 							DIB_RGB_COLORS);
 		}
 		else
 		{
 			bmpTemplate.CreateDIBitmap(
-							dc, 
-							bkImage->originalImage->getInfoHeader(), 
-							CBM_INIT, 
-							bkImage->originalImage->accessPixels(), 
-							bkImage->originalImage->getInfo(), 
+							dc,
+							bkImage->originalImage->getInfoHeader(),
+							CBM_INIT,
+							bkImage->originalImage->accessPixels(),
+							bkImage->originalImage->getInfo(),
 							DIB_RGB_COLORS);
 		}
 
@@ -416,22 +450,22 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 		if (bkImage->imageData.imagePosition == imgPosTile)
 		{
 			TileTemplateImage(
-				dcTemplate, 
-				0, 
-				0, 
+				dcTemplate,
+				0,
+				0,
 				bkImage);
 
 		}
 		else
 		{
 			PaintTemplateImage(
-				dcTemplate, 
-				0, 
+				dcTemplate,
 				0,
-				bkImage->dwImageWidth, 
-				bkImage->dwImageHeight, 
-				bkImage->dwImageWidth, 
-				bkImage->dwImageHeight, 
+				0,
+				wNewWidth,
+				wNewHeight,
+				bkImage->dwImageWidth,
+				bkImage->dwImageHeight,
 				bkImage);
 		}
 	}
@@ -446,7 +480,7 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 
 void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, shared_ptr<BackgroundImage>& bkImage)
 {
-	if (bkImage->imageData.imagePosition == imgPosCenter)
+  if (bkImage->imageData.imagePosition == imgPosCenter)
 	{
 		bkImage->dcImage.BitBlt(
 					(dwDstWidth <= bkImage->dwOriginalImageWidth) ? nOffsetX : nOffsetX + (dwDstWidth - bkImage->dwOriginalImageWidth)/2,

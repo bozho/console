@@ -288,6 +288,7 @@ struct CopyPasteSettings : public SettingsBase
 
 	bool			bCopyOnSelect;
 	bool			bClearOnCopy;
+	bool			bSensitiveCopy;
 	bool			bNoWrap;
 	bool			bTrimSpaces;
 

@@ -190,6 +190,7 @@
 #define IDC_CHECK_CLEAR_ON_COPY         1146
 #define IDC_CHECK_INVERSE_SHIFT         1147
 #define IDC_CHECK_USE_CONSOLE_TITLE     1147
+#define IDC_CHECK_SENSITIVE_COPY        1147
 #define IDC_CHECK_TRIM_TAB_TITLES       1148
 #define IDC_STATIC_TRIM_CHARS           1149
 #define IDC_PAGE_SCROLL                 1150

@@ -23,6 +23,7 @@ class DlgSettingsBehavior
 		BEGIN_DDX_MAP(DlgSettingsBehavior)
 			DDX_CHECK(IDC_CHECK_COPY_ON_SELECT, m_behaviorSettings.copyPasteSettings.bCopyOnSelect)
 			DDX_CHECK(IDC_CHECK_CLEAR_ON_COPY, m_behaviorSettings.copyPasteSettings.bClearOnCopy)
+			DDX_CHECK(IDC_CHECK_SENSITIVE_COPY, m_behaviorSettings.copyPasteSettings.bSensitiveCopy)
 			DDX_CHECK(IDC_CHECK_NO_WRAP, m_behaviorSettings.copyPasteSettings.bNoWrap)
 			DDX_CHECK(IDC_CHECK_TRIM_SPACES, m_behaviorSettings.copyPasteSettings.bTrimSpaces)
 			DDX_RADIO(IDC_RADIO_COPY_NEWLINE_CHAR, m_nCopyNewlineChar)

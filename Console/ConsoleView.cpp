@@ -1251,6 +1251,11 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 
 	bool bCopied = false;
 
+	if (!g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bSensitiveCopy)
+	{
+		pPoint = 0;
+	}
+
 	if (pPoint != NULL)
 	{
 		bCopied = m_selectionHandler->CopySelection(GetConsoleCoord(*pPoint));

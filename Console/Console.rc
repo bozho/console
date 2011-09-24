@@ -113,16 +113,18 @@ END
 // Dialog
 //
 
-IDD_ABOUTBOX DIALOGEX 0, 0, 187, 131
+IDD_ABOUTBOX DIALOGEX 0, 0, 187, 151
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,130,110,50,14
-    CTEXT           "\nConsole 2.0",IDC_STATIC_VERSION,25,41,78,25,0,WS_EX_ACCEPTFILES
+    DEFPUSHBUTTON   "OK",IDOK,130,130,50,14
+#ifndef _USE_AERO
+    CTEXT           "\nConsole 2.0",IDC_STATIC_VERSION,25,41,78,25
     ICON            IDR_MAINFRAME,IDC_APPICON,55,26,20,20
-    GROUPBOX        "",IDC_STATIC,7,7,115,117
-    CTEXT           "\nCopyright (C) 2001-2010\nMarko Bozikovic\n\nModified by\nChristophe Bucher",IDC_APPTEXT,14,64,103,53
+    CTEXT           "\nCopyright (C) 2011\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",IDC_APPTEXT,14,64,103,80
+#endif
+    GROUPBOX        "",IDC_STATIC,7,7,115,137
 END
 
 IDD_RENAME_TAB DIALOGEX 0, 0, 202, 55

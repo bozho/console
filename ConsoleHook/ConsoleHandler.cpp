@@ -258,13 +258,23 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
 	TRACE(L"Old win pos: %ix%i - %ix%i\n", csbi.srWindow.Left, csbi.srWindow.Top, csbi.srWindow.Right, csbi.srWindow.Bottom);
-	
+
+  bool boolCursorVisible =
+    csbi.dwCursorPosition.X >= csbi.srWindow.Left  &&
+    csbi.dwCursorPosition.X <= csbi.srWindow.Right &&
+    csbi.dwCursorPosition.Y >= csbi.srWindow.Top   &&
+    csbi.dwCursorPosition.Y <= csbi.srWindow.Bottom;
+
 	// check against max size
 	TRACE(L"Columns: %i\n", dwColumns);
 	TRACE(L"Max columns: %i\n", m_consoleParams->dwMaxColumns);
 
 	TRACE(L"Rows: %i\n", dwRows);
 	TRACE(L"Max rows: %i\n", m_consoleParams->dwMaxRows);
+
+  TRACE(L"Cursor X: %i\n", csbi.dwCursorPosition.X);
+  TRACE(L"Cursor Y: %i\n", csbi.dwCursorPosition.Y);
+  TRACE(L"boolCursorVisible: %s\n", boolCursorVisible? L"true" : L"false");
 
 	if (dwColumns > m_consoleParams->dwMaxColumns) dwColumns = m_consoleParams->dwMaxColumns;
 	if (dwRows > m_consoleParams->dwMaxRows) dwRows = m_consoleParams->dwMaxRows;
@@ -341,6 +351,22 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		}
 	}
 
+  if( boolCursorVisible &&
+      ( csbi.dwCursorPosition.Y < srConsoleRect.Top ||
+        csbi.dwCursorPosition.Y > srConsoleRect.Bottom ) )
+  {
+    if( csbi.dwCursorPosition.Y < static_cast<SHORT>(dwRows) )
+    {
+      srConsoleRect.Top    = 0;
+      srConsoleRect.Bottom = static_cast<SHORT>(dwRows - 1);
+    }
+    else
+    {
+      srConsoleRect.Top    = csbi.dwCursorPosition.Y - static_cast<SHORT>(dwRows - 1);
+      srConsoleRect.Bottom = csbi.dwCursorPosition.Y;
+    }
+  }
+
 	// horizontal size
 	switch (dwResizeWindowEdge)
 	{
@@ -386,6 +412,22 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 			srConsoleRect.Right = csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
 		}
 	}
+
+  if( boolCursorVisible &&
+      ( csbi.dwCursorPosition.X < srConsoleRect.Left ||
+        csbi.dwCursorPosition.X > srConsoleRect.Right ) )
+  {
+    if( csbi.dwCursorPosition.X < static_cast<SHORT>(dwColumns) )
+    {
+      srConsoleRect.Left  = 0;
+      srConsoleRect.Right = static_cast<SHORT>(dwColumns - 1);
+    }
+    else
+    {
+      srConsoleRect.Left  = csbi.dwCursorPosition.X - static_cast<SHORT>(dwColumns - 1);
+      srConsoleRect.Right = csbi.dwCursorPosition.X;
+    }
+  }
 
 	TRACE(L"New win pos: %ix%i - %ix%i\n", srConsoleRect.Left, srConsoleRect.Top, srConsoleRect.Right, srConsoleRect.Bottom);
 	TRACE(L"Buffer size: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);

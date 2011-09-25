@@ -304,13 +304,13 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if ((csbi.srWindow.Top == 0) || (csbi.srWindow.Bottom - static_cast<SHORT>(dwRows - 1) <= 0))
 			{
-				srConsoleRect.Top	= 0;
-				srConsoleRect.Bottom= static_cast<SHORT>(dwRows - 1);
+				srConsoleRect.Top    = 0;
+				srConsoleRect.Bottom = static_cast<SHORT>(dwRows - 1);
 			}
 			else
 			{
-				srConsoleRect.Top	= csbi.srWindow.Bottom - static_cast<SHORT>(dwRows);
-				srConsoleRect.Bottom= csbi.srWindow.Bottom;
+				srConsoleRect.Top    = csbi.srWindow.Bottom - static_cast<SHORT>(dwRows - 1);
+				srConsoleRect.Bottom = csbi.srWindow.Bottom;
 			}
 
 			break;
@@ -322,13 +322,13 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if ((m_consoleParams->dwBufferRows > 0) && (csbi.srWindow.Top + static_cast<SHORT>(dwRows) > static_cast<SHORT>(m_consoleParams->dwBufferRows)))
 			{
-				srConsoleRect.Top	= static_cast<SHORT>(m_consoleParams->dwBufferRows - dwRows);
-				srConsoleRect.Bottom= static_cast<SHORT>(m_consoleParams->dwBufferRows - 1);
+				srConsoleRect.Top    = static_cast<SHORT>(m_consoleParams->dwBufferRows - dwRows);
+				srConsoleRect.Bottom = static_cast<SHORT>(m_consoleParams->dwBufferRows - 1);
 			}
 			else
 			{
-				srConsoleRect.Top	= csbi.srWindow.Top;
-				srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
+				srConsoleRect.Top    = csbi.srWindow.Top;
+				srConsoleRect.Bottom = csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
 			}
 
 			break;
@@ -336,8 +336,8 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 		default :
 		{
-			srConsoleRect.Top	= csbi.srWindow.Top;
-			srConsoleRect.Bottom= csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
+			srConsoleRect.Top    = csbi.srWindow.Top;
+			srConsoleRect.Bottom = csbi.srWindow.Top + static_cast<SHORT>(dwRows - 1);
 		}
 	}
 
@@ -350,13 +350,13 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if ((csbi.srWindow.Left == 0) || (csbi.srWindow.Right - static_cast<SHORT>(dwColumns - 1) <= 0))
 			{
-				srConsoleRect.Left	= 0;
-				srConsoleRect.Right	= static_cast<SHORT>(dwColumns - 1);
+				srConsoleRect.Left  = 0;
+				srConsoleRect.Right = static_cast<SHORT>(dwColumns - 1);
 			}
 			else
 			{
-				srConsoleRect.Left	= csbi.srWindow.Right - static_cast<SHORT>(dwColumns);
-				srConsoleRect.Right	= csbi.srWindow.Right;
+				srConsoleRect.Left  = csbi.srWindow.Right - static_cast<SHORT>(dwColumns - 1);
+				srConsoleRect.Right = csbi.srWindow.Right;
 			}
 
 			break;
@@ -368,13 +368,13 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 		{
 			if ((m_consoleParams->dwBufferColumns != 0) && (csbi.srWindow.Left + static_cast<SHORT>(dwColumns) > static_cast<SHORT>(m_consoleParams->dwBufferColumns)))
 			{
-				srConsoleRect.Left	= static_cast<SHORT>(m_consoleParams->dwBufferColumns - dwColumns);
-				srConsoleRect.Right	= static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1);
+				srConsoleRect.Left  = static_cast<SHORT>(m_consoleParams->dwBufferColumns - dwColumns);
+				srConsoleRect.Right = static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1);
 			}
 			else
 			{
-				srConsoleRect.Left	= csbi.srWindow.Left;
-				srConsoleRect.Right	= csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
+				srConsoleRect.Left  = csbi.srWindow.Left;
+				srConsoleRect.Right = csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
 			}
 
 			break;
@@ -382,8 +382,8 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 		default :
 		{
-			srConsoleRect.Left	= csbi.srWindow.Left;
-			srConsoleRect.Right	= csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
+			srConsoleRect.Left  = csbi.srWindow.Left;
+			srConsoleRect.Right = csbi.srWindow.Left + static_cast<SHORT>(dwColumns - 1);
 		}
 	}
 
@@ -438,8 +438,11 @@ void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD
 
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 
-	dwColumns	= csbi.srWindow.Right - csbi.srWindow.Left + 1;
-	dwRows		= csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+	dwColumns = csbi.srWindow.Right  - csbi.srWindow.Left + 1;
+	dwRows    = csbi.srWindow.Bottom - csbi.srWindow.Top  + 1;
+
+	TRACE(L"Columns: %i\n", dwColumns);
+	TRACE(L"Rows: %i\n", dwRows);
 
 //	TRACE(L"console buffer size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
 //	TRACE(L"console rect: %ix%i - %ix%i\n", csbi.srWindow.Left, csbi.srWindow.Top, csbi.srWindow.Right, csbi.srWindow.Bottom);

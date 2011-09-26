@@ -304,10 +304,20 @@ void TabView::SetAppActiveStatus(bool bAppActive)
   MutexLock	viewMapLock(m_viewsMutex);
   if( bAppActive )
   {
-    shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
-    for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+    if( this->m_boolIsGrouped )
     {
-      it->second->SetAppActiveStatus(it->second == consoleView);
+      for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+      {
+        it->second->SetAppActiveStatus(true);
+      }
+    }
+    else
+    {
+      shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
+      for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+      {
+        it->second->SetAppActiveStatus(it->second == consoleView);
+      }
     }
   }
   else
@@ -498,4 +508,5 @@ void TabView::Group(bool b)
     it->second->Group(b);
   }
   m_boolIsGrouped = b;
+  SetAppActiveStatus(true);
 }

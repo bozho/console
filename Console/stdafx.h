@@ -117,7 +117,7 @@ using namespace boost::multi_index;
 
 #define	VERSION_MAJOR	2
 #define	VERSION_MINOR	0
-#define	VERSION_BUILD	147
+#define	VERSION_BUILD	148
 
 //////////////////////////////////////////////////////////////////////////////
 

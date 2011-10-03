@@ -1,6 +1,23 @@
 v2.00
 =====
 
+Build 148
+=========
+
+Most changes in this build were done by Kirill. Thanks man!
+
+- add configuration setting to allow cmd-style copy/clear selection click
+
+- allow double-click to select a word (text between two spaces)
+
+- allow new selection without clearing the old selection
+
+- prevent pasting by mouse if pasting by menu is disabled
+
+- limited max window transparency to 250 (i.e. min alpha is 5)
+
+
+
 Build 147
 =========
 

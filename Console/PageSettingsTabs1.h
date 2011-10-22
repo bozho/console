@@ -76,7 +76,7 @@ class PageSettingsTabs1
 		const CString& GetTabTitle() const { return m_strTitle; }
 		const CString& GetTabIcon() const { return m_strIcon; }
     const CString& GetTabShell() const { return m_strShell; }
-		const int UseDefaultIcon() const { return m_nUseDefaultIcon; }
+		const bool UseDefaultIcon() const { return m_bUseDefaultIcon; }
 
 private:
   void SetCursor(void);

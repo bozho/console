@@ -34,7 +34,7 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_stylesSettings.bBorder)
 			DDX_CHECK(IDC_CHECK_STYLE_TASKBAR, m_stylesSettings.bTaskbarButton)
 			DDX_CHECK(IDC_CHECK_STYLE_TRAY, m_stylesSettings.bTrayIcon)
-      DDX_CHECK(IDC_CHECK_STYLE_QUAKE, m_nQuake)
+      DDX_CHECK(IDC_CHECK_STYLE_QUAKE, m_stylesSettings.bQuake)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType))
 		END_DDX_MAP()
@@ -83,9 +83,6 @@ class DlgSettingsStyles
 
 		CTrackBarCtrl				m_sliderActiveAlpha;
 		CTrackBarCtrl				m_sliderInactiveAlpha;
-
-		int							m_nQuake;
-		int							m_nTransparencyType;
 };
 
 //////////////////////////////////////////////////////////////////////////////

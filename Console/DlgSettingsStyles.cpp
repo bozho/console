@@ -35,7 +35,6 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_stylesSettings.Load(m_pOptionsRoot);
 	m_transparencySettings.Load(m_pOptionsRoot);
 
-	m_nQuake		= m_stylesSettings.bQuake ? 1 : 0;
 	CUpDownCtrl	spin;
 
 	spin.Attach(GetDlgItem(IDC_SPIN_INSIDE_BORDER));
@@ -123,7 +122,6 @@ LRESULT DlgSettingsStyles::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWn
 
 		if (m_stylesSettings.dwInsideBorder > 10) m_stylesSettings.dwInsideBorder = 10;
 
-		m_stylesSettings.bQuake		= (m_nQuake > 0);
 		m_transparencySettings.byActiveAlpha	= static_cast<BYTE>(255 - m_sliderActiveAlpha.GetPos());
 		m_transparencySettings.byInactiveAlpha	= static_cast<BYTE>(255 - m_sliderInactiveAlpha.GetPos());
 
@@ -272,7 +270,7 @@ void DlgSettingsStyles::EnableScrollbarControls()
 {
 	GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow(FALSE);
 
-	if (m_nShowScrollbars > 0)
+	if (m_controlsSettings.bShowScrollbars)
 	{
 		GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow();
 	}

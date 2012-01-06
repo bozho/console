@@ -1829,9 +1829,9 @@ void ConsoleView::RepaintText(CDC& dc)
 		attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 		
 		// here we decide how to paint text over the background
-		if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
+		if (/*m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
 		{
-			nBkMode		= TRANSPARENT;
+			nBkMode   = TRANSPARENT;
 		}
 		else
 		{
@@ -1862,7 +1862,7 @@ void ConsoleView::RepaintText(CDC& dc)
 			
 			attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 
-			if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
+			if (/*m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
 			{
 				if (nBkMode != TRANSPARENT)
 				{
@@ -2009,16 +2009,15 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 				attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 
 				// here we decide how to paint text over the background
-				if (m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0))
+				if (/*m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
 				{
 					dc.SetBkMode(TRANSPARENT);
 				}
 				else
 				{
 					dc.SetBkMode(OPAQUE);
-					dc.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				}
-				
+
 				dc.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
 				dc.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]);
 

@@ -629,10 +629,10 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		// do nothing for maximized windows
 		if (IsZoomed()) return 0;
 
-		m_dockPosition	= dockNone;
-		
 		if (positionSettings.nSnapDistance >= 0)
 		{
+			m_dockPosition	= dockNone;
+
 			CRect	rectMonitor;
 			CRect	rectDesktop;
 			CRect	rectWindow;

@@ -423,13 +423,38 @@ LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOO
 
       if( bQuake )
       {
+        DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
+        DWORD dwHideFlags     = AW_HIDE     | AW_SLIDE;
+
+        switch( m_dockPosition )
+        {
+        case dockNone:
+          break;
+        case dockTL:
+          dwActivateFlags |= AW_VER_POSITIVE;
+          dwHideFlags     |= AW_VER_NEGATIVE;
+          break;
+        case dockTR:
+          dwActivateFlags |= AW_VER_POSITIVE;
+          dwHideFlags     |= AW_VER_NEGATIVE;
+          break;
+        case dockBL:
+          dwActivateFlags |= AW_VER_NEGATIVE;
+          dwHideFlags     |= AW_VER_POSITIVE;
+          break;
+        case dockBR:
+          dwActivateFlags |= AW_VER_NEGATIVE;
+          dwHideFlags     |= AW_VER_POSITIVE;
+          break;
+        }
+
         if(!::IsWindowVisible(m_hWnd))
         {
-          ::AnimateWindow(m_hWnd, 300, AW_ACTIVATE | AW_SLIDE | AW_VER_POSITIVE);
+          ::AnimateWindow(m_hWnd, 300, dwActivateFlags);
         }
         else if(m_bAppActive)
         {
-          ::AnimateWindow(m_hWnd, 300, AW_HIDE | AW_SLIDE | AW_VER_NEGATIVE);
+          ::AnimateWindow(m_hWnd, 300, dwHideFlags);
           bActivate = false;
         }
       }

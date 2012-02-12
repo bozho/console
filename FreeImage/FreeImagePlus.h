@@ -121,14 +121,14 @@ public:
 	Constructor
 	@see FreeImage_AllocateT
 	*/
-	fipImage(FREE_IMAGE_TYPE image_type = FIT_BITMAP, WORD width = 0, WORD height = 0, WORD bpp = 0);
+	fipImage(FREE_IMAGE_TYPE image_type = FIT_BITMAP, unsigned width = 0, unsigned height = 0, unsigned bpp = 0);
 	/// Destructor
 	virtual ~fipImage();
 	/**
 	Image allocator
 	@see FreeImage_AllocateT
 	*/
-	BOOL setSize(FREE_IMAGE_TYPE image_type, WORD width, WORD height, WORD bpp, unsigned red_mask = 0, unsigned green_mask = 0, unsigned blue_mask = 0);
+	BOOL setSize(FREE_IMAGE_TYPE image_type, unsigned width, unsigned height, unsigned bpp, unsigned red_mask = 0, unsigned green_mask = 0, unsigned blue_mask = 0);
 	/// Destroy image data
 	virtual void clear();
 	//@}
@@ -324,19 +324,19 @@ public:
 	Returns the image width in pixels
 	@see FreeImage_GetWidth
 	*/
-	WORD getWidth() const;
+	unsigned getWidth() const;
 	
 	/**
 	Returns the image height in pixels
 	@see FreeImage_GetHeight
 	*/
-	WORD getHeight() const;
+	unsigned getHeight() const;
 	
 	/**
 	Returns the width of the bitmap in bytes rounded to the nearest DWORD.
 	@see FreeImage_GetPitch
 	*/
-	WORD getScanWidth() const;
+	unsigned getScanWidth() const;
 
 	/**
 	Returns a pointer to the FIBITMAP data. Used for direct access from FREEIMAGE functions 
@@ -381,14 +381,14 @@ public:
 	When the image type is FIT_BITMAP, valid bitdepth can be 1, 4, 8, 16, 24 or 32.
 	@see FreeImage_GetBPP, getImageType
 	*/
-	WORD getBitsPerPixel() const;
+	unsigned getBitsPerPixel() const;
 
 	/**
 	Returns the width of the bitmap in bytes.<br>
 	<b>This is not the size of the scanline</b>.
 	@see FreeImage_GetLine, getScanWidth
 	*/
-	WORD getLine() const;
+	unsigned getLine() const;
 
 	/**
 	Returns the bitmap resolution along the X axis, in pixels / cm
@@ -428,13 +428,13 @@ public:
 	Returns the palette size in <b>bytes</b>.
 	@see FreeImage_GetColorsUsed
 	*/
-	WORD getPaletteSize() const;
+	unsigned getPaletteSize() const;
 
 	/**
 	Retrieves the number of colours used in the bitmap. If the bitmap is non-palletised, 0 is returned. 
 	@see FreeImage_GetColorsUsed
 	*/
-	WORD getColorsUsed() const;
+	unsigned getColorsUsed() const;
 
 	/** 
 	Investigates the colour type of the bitmap.
@@ -447,6 +447,39 @@ public:
 	@see FreeImage_GetBPP, FreeImage_GetColorType
 	*/
 	BOOL isGrayscale() const;
+	//@}
+
+	/**@name Thumbnail access */
+	//@{
+
+	/**
+	Retrieves a copy the thumbnail possibly attached to the bitmap
+	@return Returns TRUE if the thumbnail is present in the bitmap and successfully retrieved, returns FALSE otherwise
+	@see FreeImage_GetThumbnail
+	*/
+	BOOL getThumbnail(fipImage& image) const;
+
+	/**
+	Attach a thumbnail to the bitmap
+	@return Returns TRUE if the thumbnail was successfully set, returns FALSE otherwise
+	@see FreeImage_SetThumbnail
+	*/
+	BOOL setThumbnail(const fipImage& image);
+
+	/**
+	Check if the image has an embedded thumbnail
+	@return Returns TRUE if a thumbnail is present in the bitmap, returns FALSE otherwise
+	@see FreeImage_GetThumbnail
+	*/
+	BOOL hasThumbnail() const;
+
+	/**
+	Clear the thumbnail possibly attached to the bitmap
+	@return Returns TRUE if successful, returns FALSe otherwise
+	@see FreeImage_SetThumbnail
+	*/
+	BOOL clearThumbnail();
+
 	//@}
 
 	/**@name Pixel access */
@@ -467,7 +500,7 @@ public:
 		Use this function with getScanWidth to iterates through the pixels. 
 		@see FreeImage_GetScanLine, FreeImage documentation
 	*/
-	BYTE* getScanLine(WORD scanline) const;
+	BYTE* getScanLine(unsigned scanline) const;
 
 	/** 
 	Get the pixel index of a 1-, 4- or 8-bit palettized image at position (x, y), including range check (slow access). 
@@ -600,11 +633,32 @@ public:
 	BOOL convertTo32Bits();
 
 	/** 
+	Converts the bitmap to a 32-bit float image. 
+	@return Returns TRUE if successfull, FALSE otherwise. 
+	@see FreeImage_ConvertToFloat
+	*/
+	BOOL convertToFloat();
+
+	/** 
 	Converts the bitmap to a 96-bit RGBF image. 
 	@return Returns TRUE if successfull, FALSE otherwise. 
 	@see FreeImage_ConvertToRGBF
 	*/
 	BOOL convertToRGBF();
+
+	/** 
+	Converts the bitmap to a 16-bit unsigned short image. 
+	@return Returns TRUE if successfull, FALSE otherwise. 
+	@see FreeImage_ConvertToUINT16
+	*/
+	BOOL convertToUINT16();
+
+	/** 
+	Converts the bitmap to a 48-bit RGB16 image. 
+	@return Returns TRUE if successfull, FALSE otherwise. 
+	@see FreeImage_ConvertToRGB16
+	*/
+	BOOL convertToRGB16();
 
 	/**
 	Converts a High Dynamic Range image (48-bit RGB or 96-bit RGB Float) to a 24-bit RGB image. 
@@ -838,7 +892,7 @@ public:
 	@return Returns TRUE if the operation was successful, FALSE otherwise
 	@see FreeImage_Rescale, FREE_IMAGE_FILTER
 	*/
-	BOOL rescale(WORD new_width, WORD new_height, FREE_IMAGE_FILTER filter);
+	BOOL rescale(unsigned new_width, unsigned new_height, FREE_IMAGE_FILTER filter);
 
 	/** @brief Creates a thumbnail image keeping aspect ratio
 
@@ -847,7 +901,7 @@ public:
 	@return Returns TRUE if the operation was successful, FALSE otherwise
 	@see FreeImage_MakeThumbnail
 	*/
-	BOOL makeThumbnail(WORD max_size, BOOL convert = TRUE);
+	BOOL makeThumbnail(unsigned max_size, BOOL convert = TRUE);
 	//@}
 
 	/**@name Image status */
@@ -942,7 +996,7 @@ public:
 	/**@name Creation & Destruction */
 	//@{	
 	/// Constructor
-	fipWinImage(FREE_IMAGE_TYPE image_type = FIT_BITMAP, WORD width = 0, WORD height = 0, WORD bpp = 0);
+	fipWinImage(FREE_IMAGE_TYPE image_type = FIT_BITMAP, unsigned width = 0, unsigned height = 0, unsigned bpp = 0);
 
 	/// Destructor
 	virtual ~fipWinImage();
@@ -1134,6 +1188,12 @@ public :
 	*/
 	virtual ~fipMemoryIO();
 
+	/** Destructor.
+	Free any allocated memory and invalidate the stream
+	@see FreeImage_CloseMemory
+	*/
+	void close();
+
 	/** Returns TRUE if the internal memory buffer is a valid buffer, returns FALSE otherwise
 	*/
 	BOOL isValid() const;
@@ -1162,6 +1222,14 @@ public :
 	*/
 	FIBITMAP* load(FREE_IMAGE_FORMAT fif, int flags = 0) const;
 	/**
+	Loads a multi-page bitmap from a memory stream
+	@param fif Format identifier (FreeImage format)
+	@param flags The signification of this flag depends on the multi-page to be loaded.
+	@return Returns the loaded multi-page if successful, returns NULL otherwise
+	@see FreeImage_LoadMultiBitmapFromMemory
+	*/
+	FIMULTIBITMAP* loadMultiPage(FREE_IMAGE_FORMAT fif, int flags = 0) const;
+	/**
 	Saves a dib to a memory stream
 	@param fif Format identifier (FreeImage format)
 	@param dib Image to be saved
@@ -1170,6 +1238,15 @@ public :
 	@see FreeImage_SaveToMemory
 	*/
 	BOOL save(FREE_IMAGE_FORMAT fif, FIBITMAP *dib, int flags = 0);
+	/**
+	Saves a multi-page bitmap to a memory stream
+	@param fif Format identifier (FreeImage format)
+	@param bitmap Multi-page image to be saved
+	@param flags The signification of this flag depends on the image to be saved.
+	@return Returns TRUE if successful, returns FALSE otherwise
+	@see FreeImage_SaveMultiBitmapToMemory
+	*/
+	BOOL saveMultiPage(FREE_IMAGE_FORMAT fif, FIMULTIBITMAP *bitmap, int flags = 0);
 	/**
 	Reads data from a memory stream
 	@param buffer Storage location for data
@@ -1247,7 +1324,15 @@ public:
 	BOOL isValid() const;
 
 	/**
-	Open a file stream
+	Returns a pointer to the FIMULTIBITMAP data. Used for direct access from FREEIMAGE functions 
+	or from your own low level C functions.
+	*/
+	operator FIMULTIBITMAP*() { 
+		return _mpage; 
+	}
+
+	/**
+	Open a multi-page file stream
 	@param lpszPathName Name of the multi-page bitmap file
 	@param create_new When TRUE, it means that a new bitmap will be created rather than an existing one being opened
 	@param read_only When TRUE the bitmap is opened read-only
@@ -1258,7 +1343,7 @@ public:
 	BOOL open(const char* lpszPathName, BOOL create_new, BOOL read_only, int flags = 0);
 
 	/**
-	Open a multi-page memory stream as read only. 
+	Open a multi-page memory stream as read/write. 
 	@param memIO Memory stream. The memory stream MUST BE a wrapped user buffer. 
 	@param flags Load flags. The signification of this flag depends on the image to be loaded.
 	@return Returns TRUE if successful, returns FALSE otherwise
@@ -1267,12 +1352,43 @@ public:
 	BOOL open(fipMemoryIO& memIO, int flags = 0);
 
 	/**
+	Open a multi-page image as read/write, using the specified FreeImageIO struct and fi_handle, and an optional flag.
+	@param io FreeImageIO structure
+	@param handle FreeImage fi_handle
+	@param flag The signification of this flag depends on the image to be read.
+	@return Returns TRUE if successful, FALSE otherwise.
+	@see FreeImage_OpenMultiBitmapFromHandle
+	*/
+	BOOL open(FreeImageIO *io, fi_handle handle, int flags = 0);
+
+	/**
 	Close a file stream
 	@param flags Save flags. The signification of this flag depends on the image to be saved.
 	@return Returns TRUE if successful, returns FALSE otherwise
 	@see FreeImage_CloseMultiBitmap
 	*/
 	BOOL close(int flags = 0);
+
+	/**
+	Saves a multi-page image using the specified FreeImageIO struct and fi_handle, and an optional flag.
+	@param fif Format identifier (FreeImage format)
+	@param io FreeImageIO structure
+	@param handle FreeImage fi_handle
+	@param flag The signification of this flag depends on the multi-page image to be saved.
+	@return Returns TRUE if successful, FALSE otherwise.
+	@see FreeImage_SaveMultiBitmapToHandle, FreeImage documentation
+	*/
+	BOOL saveToHandle(FREE_IMAGE_FORMAT fif, FreeImageIO *io, fi_handle handle, int flags = 0) const;
+
+	/**
+	Saves a multi-page image using the specified memory stream and an optional flag.
+	@param fif Format identifier (FreeImage format)
+	@param memIO FreeImage memory stream
+	@param flag The signification of this flag depends on the image to be saved.
+	@return Returns TRUE if successful, FALSE otherwise.
+	@see FreeImage_SaveMultiBitmapToMemory, FreeImage documentation
+	*/
+	BOOL saveToMemory(FREE_IMAGE_FORMAT fif, fipMemoryIO& memIO, int flags = 0) const;
 
 	/**
 	Returns the number of pages currently available in the multi-paged bitmap

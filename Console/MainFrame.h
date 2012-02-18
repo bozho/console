@@ -83,6 +83,7 @@ class MainFrame
 			MESSAGE_HANDLER(UM_SHOW_POPUP_MENU, OnShowPopupMenu)
 			MESSAGE_HANDLER(UM_START_MOUSE_DRAG, OnStartMouseDrag)
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
+			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 			
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
@@ -249,6 +250,7 @@ class MainFrame
 			vector<wstring> startupDirs,
 			int nMultiStartSleep
 		);
+		LRESULT OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		bool					m_bOnCreateDone;
 	private:

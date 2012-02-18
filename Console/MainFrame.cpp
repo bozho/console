@@ -2569,10 +2569,6 @@ void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
   }
 }
 
-/////////////////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////////////////
-
 void MainFrame::PasteToConsoles()
 {
   if (!m_activeTabView) return;
@@ -2590,4 +2586,26 @@ void MainFrame::PasteToConsoles()
     else
       activeConsoleView->Paste();
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	COPYDATASTRUCT *cds = (COPYDATASTRUCT *)lParam;
+	if (!cds) return 0;
+
+	vector<wstring> startupTabs;
+	vector<wstring> startupCmds;
+	vector<wstring> startupDirs;
+	int nMultiStartSleep;
+
+	wstring ignoreTitle;
+
+	ParseCommandLine((LPCTSTR)cds->lpData, ignoreTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep);
+	CreateInitialTabs(startupTabs, startupCmds, startupDirs, nMultiStartSleep);
+
+	return 0;
 }

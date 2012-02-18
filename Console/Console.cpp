@@ -63,7 +63,8 @@ class NoTaskbarParent
 void ParseCommandLine
 (
 	LPTSTR lptstrCmdLine, 
-	wstring& strConfigFile
+	wstring& strConfigFile, 
+	bool &bReuse
 )
 {
 	int						argc = 0;
@@ -80,6 +81,10 @@ void ParseCommandLine
 			if (i == argc) break;
 			strConfigFile = argv[i];
 		}
+		else if (wstring(argv[i]) == wstring(L"-reuse"))
+		{
+			bReuse = true;
+		}
 	}
 }
 
@@ -88,16 +93,39 @@ void ParseCommandLine
 
 //////////////////////////////////////////////////////////////////////////////
 
+static bool HandleReuse(LPCTSTR lpstrCmdLine)
+{
+	SharedMemory<HWND> sharedInstance;
+	sharedInstance.Open(L"Console", syncObjNone);
+	if (0 != sharedInstance.Get())
+	{
+		::SetForegroundWindow(*sharedInstance);
+
+		COPYDATASTRUCT cds = {0};
+		cds.dwData = 0;
+		cds.lpData = (LPVOID)lpstrCmdLine;
+		cds.cbData = (_tcslen(lpstrCmdLine) + 1) * sizeof(TCHAR);
+		
+		::SendMessage(*sharedInstance, WM_COPYDATA, 0, (LPARAM)&cds);
+
+		return true;
+	}
+
+	return false;
+}
+
 int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
 	wstring			strConfigFile(L"");
+	bool			bReuse = false;
 
 	ParseCommandLine(
 		lpstrCmdLine, 
-		strConfigFile);
+		strConfigFile,
+		bReuse);
 
 	if (strConfigFile.length() == 0)
 	{
@@ -111,6 +139,9 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		//TODO: error handling
 		return 1;
 	}
+
+	if (bReuse && HandleReuse(lpstrCmdLine))
+		return 0;
 
 	// create main window
 	NoTaskbarParent noTaskbarParent;
@@ -135,6 +166,13 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 #endif
 
 	wndMain.ShowWindow(nCmdShow);
+
+	SharedMemory<HWND> sharedInstance;
+	if (bReuse)
+	{
+		sharedInstance.Create(L"Console", 1, syncObjNone, _T(""));
+		sharedInstance = wndMain.m_hWnd;
+	}
 
 	int nRet = theLoop.Run();
 

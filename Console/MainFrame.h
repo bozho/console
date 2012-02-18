@@ -38,11 +38,7 @@ class MainFrame
 
 		MainFrame
 		(
-			const wstring strWindowTitle,
-			const vector<wstring>& startupTabs, 
-			const vector<wstring>& startupDirs, 
-			const vector<wstring>& startupCmds, 
-			int nMultiStartSleep
+			LPCTSTR lpstrCmdLine
 		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -246,11 +242,19 @@ class MainFrame
 
 	public:
 
+		LRESULT CreateInitialTabs
+		(
+			vector<wstring> startupTabs,
+			vector<wstring> startupCmds,
+			vector<wstring> startupDirs,
+			int nMultiStartSleep
+		);
+
 		bool					m_bOnCreateDone;
 	private:
-		const vector<wstring>&	m_startupTabs;
-		const vector<wstring>&	m_startupDirs;
-		const vector<wstring>&	m_startupCmds;
+		vector<wstring>	m_startupTabs;
+		vector<wstring>	m_startupDirs;
+		vector<wstring>	m_startupCmds;
 		int						m_nMultiStartSleep;
 
 		shared_ptr<TabView>	m_activeTabView;

@@ -637,6 +637,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\JumpList.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrame.cpp"
 				>
 			</File>
@@ -807,6 +811,10 @@
 			</File>
 			<File
 				RelativePath=".\ImageHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\JumpList.h"
 				>
 			</File>
 			<File

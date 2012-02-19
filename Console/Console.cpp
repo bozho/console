@@ -9,6 +9,7 @@
 #include "aboutdlg.h"
 #include "MainFrame.h"
 #include "Console.h"
+#include "JumpList.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -121,6 +122,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	wstring			strConfigFile(L"");
 	bool			bReuse = false;
+	bool			bCreateList = false;
 
 	ParseCommandLine(
 		lpstrCmdLine, 
@@ -130,6 +132,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 	if (strConfigFile.length() == 0)
 	{
 		strConfigFile = wstring(L"console.xml");
+		bCreateList = true;
 //		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
 //		strConfigFile = wstring(::_wgetenv(L"APPDATA")) + wstring(L"\\Console\\console.xml");
 	}
@@ -142,6 +145,9 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 	if (bReuse && HandleReuse(lpstrCmdLine))
 		return 0;
+
+	if (bCreateList)
+		JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
 
 	// create main window
 	NoTaskbarParent noTaskbarParent;

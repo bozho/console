@@ -179,7 +179,11 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
     {
       wstring strCommandLine = Helpers::ExpandEnvironmentStrings(strShell);
       int argc = 0;
-      LPWSTR* argv = ::CommandLineToArgvW(strCommandLine.c_str(), &argc);
+      shared_array<LPWSTR> argv;
+      argv.reset(
+        ::CommandLineToArgvW(strCommandLine.c_str(), &argc),
+        ::LocalFree);
+
       if ( argv && argc > 0 )
       {
         SHFILEINFO info;
@@ -194,58 +198,58 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
           return info.hIcon;
         }
       }
-      ::LocalFree(argv);
-    }
-  }
-  else if (!strIcon.empty())
-  {
-    if ( bBigIcon )
-    {
-      return static_cast<HICON>(
-        ::LoadImage(
-          NULL,
-          Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
-          IMAGE_ICON,
-          0,
-          0,
-          LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE));
-    }
-    else
-    {
-      return static_cast<HICON>(
-        ::LoadImage(
-          NULL,
-          Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
-          IMAGE_ICON,
-          16,
-          16,
-          LR_DEFAULTCOLOR | LR_LOADFROMFILE));
     }
   }
   else
   {
-    if ( bBigIcon )
+    if (!strIcon.empty())
     {
-      return static_cast<HICON>(
-        ::LoadImage(
-          ::GetModuleHandle(NULL),
-          MAKEINTRESOURCE(IDR_MAINFRAME),
-          IMAGE_ICON,
-          0,
-          0,
-          LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
+      if ( bBigIcon )
+      {
+        return static_cast<HICON>(
+          ::LoadImage(
+            NULL,
+            Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
+            IMAGE_ICON,
+            0,
+            0,
+            LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE));
+      }
+      else
+      {
+        return static_cast<HICON>(
+          ::LoadImage(
+            NULL,
+            Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
+            IMAGE_ICON,
+            16,
+            16,
+            LR_DEFAULTCOLOR | LR_LOADFROMFILE));
+      }
     }
-    else
-    {
-      return static_cast<HICON>(
-        ::LoadImage(
-          ::GetModuleHandle(NULL),
-          MAKEINTRESOURCE(IDR_MAINFRAME),
-          IMAGE_ICON,
-          16,
-          16,
-          LR_DEFAULTCOLOR));
-    }
+  }
+
+  if ( bBigIcon )
+  {
+    return static_cast<HICON>(
+      ::LoadImage(
+        ::GetModuleHandle(NULL),
+        MAKEINTRESOURCE(IDR_MAINFRAME),
+        IMAGE_ICON,
+        0,
+        0,
+        LR_DEFAULTCOLOR | LR_DEFAULTSIZE));
+  }
+  else
+  {
+    return static_cast<HICON>(
+      ::LoadImage(
+        ::GetModuleHandle(NULL),
+        MAKEINTRESOURCE(IDR_MAINFRAME),
+        IMAGE_ICON,
+        16,
+        16,
+        LR_DEFAULTCOLOR));
   }
 
   return NULL;

@@ -64,17 +64,38 @@ static HRESULT _CreateShellLink(PCWSTR pszArguments, PCWSTR pszTitle, IShellLink
 
 static void SetIcon(IShellLink *psl, shared_ptr<TabData> tab)
 {
-	if (tab->bUseDefaultIcon)
-	{
-		wchar_t szModulePath[MAX_PATH];
-		::ZeroMemory(szModulePath, sizeof(szModulePath));
-		::GetModuleFileName(NULL, szModulePath, MAX_PATH);
+  if (tab->bUseDefaultIcon)
+  {
+    if ( !tab->strShell.empty() )
+    {
+      wstring strCommandLine = Helpers::ExpandEnvironmentStrings(tab->strShell);
+      int argc = 0;
+      shared_array<LPWSTR> argv;
+      argv.reset(
+        ::CommandLineToArgvW(strCommandLine.c_str(), &argc),
+        ::LocalFree);
 
-		psl->SetIconLocation(szModulePath, 0);
-	}
-	else
-		if (tab->strIcon.length() > 0)
-			psl->SetIconLocation(Helpers::ExpandEnvironmentStrings(tab->strIcon).c_str(), 0);
+      if ( argv && argc > 0 )
+      {
+        psl->SetIconLocation(argv[0], 0);
+        return;
+      }
+    }
+  }
+  else
+  {
+    if (!tab->strIcon.empty())
+    {
+      psl->SetIconLocation(Helpers::ExpandEnvironmentStrings(tab->strIcon).c_str(), 0);
+      return;
+    }
+  }
+
+  wchar_t szModulePath[MAX_PATH];
+  ::ZeroMemory(szModulePath, sizeof(szModulePath));
+  ::GetModuleFileName(NULL, szModulePath, MAX_PATH);
+
+  psl->SetIconLocation(szModulePath, 0);
 }
 
 void JumpList::CreateList(TabDataVector& tabDataVector)

@@ -128,6 +128,7 @@
 #define IDC_RADIO_DOCK_TL               1096
 #define IDC_CHECK_STYLE_QUAKE           1096
 #define IDC_RADIO_DOCK_TR               1097
+#define IDC_CHECK_USE_JUMPLIST          1097
 #define IDC_RADIO_DOCK_BL               1098
 #define IDC_RADIO_DOCK_BR               1099
 #define IDC_RADIO_Z_REGULAR             1100

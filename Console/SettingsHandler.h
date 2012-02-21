@@ -163,6 +163,7 @@ struct StylesSettings : public SettingsBase
 	DWORD			dwInsideBorder;
 	bool			bTrayIcon;
 	bool			bQuake;
+	bool			bJumplist;
 	COLORREF		crSelectionColor;
 };
 
@@ -629,6 +630,8 @@ class SettingsHandler
 		bool SaveSettings();
 
 		wstring	GetSettingsFileName() const { return m_strSettingsPath+m_strSettingsFileName; }
+		wstring	GetSettingsPath() const { return m_strSettingsPath; }
+		wstring	GetSettingsTitle() const { return m_strSettingsFileName; }
 
 		SettingsDirType GetSettingsDirType() const { return m_settingsDirType; }
 		void SetUserDataDir(SettingsDirType settingsDirType);

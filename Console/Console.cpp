@@ -147,7 +147,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		return 0;
 
 	if (bCreateList)
-		JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
+		JumpList::Activate();
 
 	// create main window
 	NoTaskbarParent noTaskbarParent;

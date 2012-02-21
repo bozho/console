@@ -9,6 +9,7 @@
 #include "DlgRenameTab.h"
 #include "DlgSettingsMain.h"
 #include "MainFrame.h"
+#include "JumpList.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1903,6 +1904,9 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
 		mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
 	}
+
+  // create jumplist
+  JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -98,8 +98,18 @@ static void SetIcon(IShellLink *psl, shared_ptr<TabData> tab)
   psl->SetIconLocation(szModulePath, 0);
 }
 
+bool JumpList::bActive = false;
+
+void JumpList::Activate(void)
+{
+  JumpList::bActive = true;
+}
+
 void JumpList::CreateList(TabDataVector& tabDataVector)
 {
+  if( !JumpList::bActive )
+    return;
+
 	TabDataVector::iterator	it = tabDataVector.begin();
 
 	ICustomDestinationList *pcdl = 0;

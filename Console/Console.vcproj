@@ -916,10 +916,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\help\html\bugs_limitations.html"
-					>
-				</File>
-				<File
 					RelativePath="..\help\html\changelog.html"
 					>
 				</File>
@@ -941,10 +937,6 @@
 				</File>
 				<File
 					RelativePath="..\help\html\menus.html"
-					>
-				</File>
-				<File
-					RelativePath="..\help\html\reporting_problems.html"
 					>
 				</File>
 				<File

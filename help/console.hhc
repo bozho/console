@@ -83,16 +83,6 @@
 			</OBJECT>
 	</UL>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Known bugs and limitations">
-		<param name="Local" value="html\bugs_limitations.html">
-		</OBJECT>
-	<UL>
-		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Reporting problems">
-			<param name="Local" value="html\reporting_problems.html">
-			</OBJECT>
-	</UL>
-	<LI> <OBJECT type="text/sitemap">
 		<param name="Name" value="Changelog">
 		<param name="Local" value="html\changelog.html">
 		</OBJECT>

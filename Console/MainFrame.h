@@ -243,10 +243,11 @@ class MainFrame
 		void UnregisterGlobalHotkeys();
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
+    void ShowHideWindow();
 
 	public:
-
 		bool					m_bOnCreateDone;
+
 	private:
 		const vector<wstring>&	m_startupTabs;
 		const vector<wstring>&	m_startupDirs;

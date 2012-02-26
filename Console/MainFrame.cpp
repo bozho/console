@@ -412,74 +412,83 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 //////////////////////////////////////////////////////////////////////////////
 
+void MainFrame::ShowHideWindow(void)
+{
+  bool bQuake = g_settingsHandler->GetAppearanceSettings().stylesSettings.bQuake;
+  bool bActivate = true;
+
+  DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
+  DWORD dwHideFlags     = AW_HIDE     | AW_SLIDE;
+
+  if( bQuake )
+  {
+    switch( m_dockPosition )
+    {
+    case dockNone:
+      // effect disabled ...
+      bQuake = false;
+      break;
+    case dockTL:
+      dwActivateFlags |= AW_VER_POSITIVE;
+      dwHideFlags     |= AW_VER_NEGATIVE;
+      break;
+    case dockTR:
+      dwActivateFlags |= AW_VER_POSITIVE;
+      dwHideFlags     |= AW_VER_NEGATIVE;
+      break;
+    case dockBL:
+      dwActivateFlags |= AW_VER_NEGATIVE;
+      dwHideFlags     |= AW_VER_POSITIVE;
+      break;
+    case dockBR:
+      dwActivateFlags |= AW_VER_NEGATIVE;
+      dwHideFlags     |= AW_VER_POSITIVE;
+      break;
+    }
+  }
+
+  if( bQuake )
+  {
+    if(!::IsWindowVisible(m_hWnd))
+    {
+      ::AnimateWindow(m_hWnd, 300, dwActivateFlags);
+    }
+    else if(m_bAppActive)
+    {
+      ::AnimateWindow(m_hWnd, 300, dwHideFlags);
+      bActivate = false;
+    }
+  }
+  else
+  {
+    ShowWindow(this->IsIconic()?SW_RESTORE:SW_SHOW);
+  }
+
+  if( bActivate )
+  {
+    PostMessage(WM_ACTIVATEAPP, TRUE, 0);
+
+    POINT	cursorPos;
+    CRect	windowRect;
+
+    ::GetCursorPos(&cursorPos);
+    GetWindowRect(&windowRect);
+
+    if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
+    if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
+
+    ::SetCursorPos(cursorPos.x, cursorPos.y);
+    ::SetForegroundWindow(m_hWnd);
+  }
+}
+
 LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
   switch (wParam)
   {
   case IDC_GLOBAL_ACTIVATE :
     {
-      bool bQuake = g_settingsHandler->GetAppearanceSettings().stylesSettings.bQuake;
-      bool bActivate = true;
-
-      if( bQuake )
-      {
-        DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
-        DWORD dwHideFlags     = AW_HIDE     | AW_SLIDE;
-
-        switch( m_dockPosition )
-        {
-        case dockNone:
-          break;
-        case dockTL:
-          dwActivateFlags |= AW_VER_POSITIVE;
-          dwHideFlags     |= AW_VER_NEGATIVE;
-          break;
-        case dockTR:
-          dwActivateFlags |= AW_VER_POSITIVE;
-          dwHideFlags     |= AW_VER_NEGATIVE;
-          break;
-        case dockBL:
-          dwActivateFlags |= AW_VER_NEGATIVE;
-          dwHideFlags     |= AW_VER_POSITIVE;
-          break;
-        case dockBR:
-          dwActivateFlags |= AW_VER_NEGATIVE;
-          dwHideFlags     |= AW_VER_POSITIVE;
-          break;
-        }
-
-        if(!::IsWindowVisible(m_hWnd))
-        {
-          ::AnimateWindow(m_hWnd, 300, dwActivateFlags);
-        }
-        else if(m_bAppActive)
-        {
-          ::AnimateWindow(m_hWnd, 300, dwHideFlags);
-          bActivate = false;
-        }
-      }
-      else
-      {
-        ShowWindow(this->IsIconic()?SW_RESTORE:SW_SHOW);
-      }
-
-      if( bActivate )
-      {
-        PostMessage(WM_ACTIVATEAPP, TRUE, 0);
-
-        POINT	cursorPos;
-        CRect	windowRect;
-
-        ::GetCursorPos(&cursorPos);
-        GetWindowRect(&windowRect);
-
-        if ((cursorPos.x < windowRect.left) || (cursorPos.x > windowRect.right)) cursorPos.x = windowRect.left + windowRect.Width()/2;
-        if ((cursorPos.y < windowRect.top) || (cursorPos.y > windowRect.bottom)) cursorPos.y = windowRect.top + windowRect.Height()/2;
-
-        ::SetCursorPos(cursorPos.x, cursorPos.y);
-        ::SetForegroundWindow(m_hWnd);
-      }
-
+      ShowHideWindow();
       break;
     }
 
@@ -662,13 +671,13 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 				pWinPos->x = rectDesktop.left;
 				nLR = 0;
 			}
-			
+
 			if (pWinPos->x >= rectDesktop.right - rectWindow.Width() - positionSettings.nSnapDistance)
 			{
 				pWinPos->x = rectDesktop.right - rectWindow.Width();
 				nLR = 1;
 			}
-			
+
 			if (pWinPos->y <= rectDesktop.top + positionSettings.nSnapDistance)
 			{
 				pWinPos->y = rectDesktop.top;
@@ -958,8 +967,6 @@ LRESULT MainFrame::OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam,
 	{
 		case WM_RBUTTONUP :
 		{
-			//if (m_bPopupMenuDisabled) return 0;
-
 			CPoint	posCursor;
 			
 			::GetCursorPos(&posCursor);
@@ -978,28 +985,22 @@ LRESULT MainFrame::OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam,
 
 			// we need this for the menu to close when clicking outside of it
 			PostMessage(WM_NULL, 0, 0);
-			
+
 			return 0;
-	   }
-			
+		}
+
 		case WM_LBUTTONDOWN : 
 		{
-			// TODO: handle
-//			m_bHideWindow = false;
-//			ShowHideWindow();
-			::SetForegroundWindow(m_hWnd);
+			ShowHideWindow();
 			return 0;
 		}
-			
+
 		case WM_LBUTTONDBLCLK :
 		{
-			// TODO: handle
-//			m_bHideWindow = !m_bHideWindow;
-//			ShowHideWindow();
-//			::SetForegroundWindow(m_hWnd);
+			ShowHideWindow();
 			return 0;
 		}
-			
+
 		default : return 0;
 	}
 }

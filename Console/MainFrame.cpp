@@ -1887,10 +1887,12 @@ void MainFrame::SetWindowStyles()
 
 	if (!stylesSettings.bTaskbarButton)
 	{
-		// remove minimize button
-		dwStyle		&= ~WS_MINIMIZEBOX;
-//		dwExStyle	|= WS_EX_TOOLWINDOW;
-		dwExStyle	&= ~WS_EX_APPWINDOW;
+		if (!stylesSettings.bTrayIcon)
+		{
+			// remove minimize button
+			dwStyle &= ~WS_MINIMIZEBOX;
+		}
+		dwExStyle &= ~WS_EX_APPWINDOW;
 	}
 
 	if (stylesSettings.bBorder) dwStyle |= WS_BORDER;

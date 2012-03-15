@@ -1894,7 +1894,7 @@ void ConsoleView::RepaintText(CDC& dc)
 			{
 				CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*nCharWidths, dwY+m_nCharHeight);
 
-				dc.ExtTextOut(dwX, dwY, 0, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
+				dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 				dwX += static_cast<int>(nCharWidths * m_nCharWidth);
 
 				dc.SetBkMode(nBkMode);
@@ -1917,7 +1917,7 @@ void ConsoleView::RepaintText(CDC& dc)
 		if (strText.length() > 0)
 		{
 			CRect textOutRect(dwX, dwY, dwX+m_nCharWidth*nCharWidths, dwY+m_nCharHeight);
-			dc.ExtTextOut(dwX, dwY, 0, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
+			dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 		}
 	}
 }

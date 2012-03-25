@@ -15,6 +15,7 @@ class Helpers
 	public:
 
 		static wstring GetModulePath(HINSTANCE hInstance);
+		static wstring GetModuleFileName(HINSTANCE hInstance);
 
 		static wstring ExpandEnvironmentStrings(const wstring& str);
 		static wstring ExpandEnvironmentStringsForUser(const std::shared_ptr<void>& userToken, const wstring& str);

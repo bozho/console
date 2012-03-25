@@ -28,6 +28,23 @@ wstring Helpers::GetModulePath(HINSTANCE hInstance)
 
 //////////////////////////////////////////////////////////////////////////////
 
+wstring Helpers::GetModuleFileName(HINSTANCE hInstance)
+{
+	wchar_t szModulePath[MAX_PATH];
+	::ZeroMemory(szModulePath, sizeof(szModulePath));
+
+	::GetModuleFileName(hInstance, szModulePath, MAX_PATH);
+
+	wstring strPath(szModulePath);
+
+	return strPath;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 {
 	shared_array<wchar_t> szExpanded(new wchar_t[0x8000]);

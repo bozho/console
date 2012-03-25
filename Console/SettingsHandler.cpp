@@ -1757,6 +1757,17 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 								GetSettingsFileName(), 
 								m_pSettingsDocument, 
 								m_pSettingsRoot);
+		}
+
+		if (FAILED(hr))
+		{
+			m_strSettingsPath	= L"res://" + Helpers::GetModuleFileName(NULL) + L"/";
+			m_settingsDirType	= dirTypeExe;
+
+			hr = XmlHelper::OpenXmlDocument(
+								GetSettingsFileName(), 
+								m_pSettingsDocument, 
+								m_pSettingsRoot);
 
 			if (FAILED(hr)) return false;
 		}

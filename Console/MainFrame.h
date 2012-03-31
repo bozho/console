@@ -38,11 +38,7 @@ class MainFrame
 
 		MainFrame
 		(
-			const wstring strWindowTitle,
-			const vector<wstring>& startupTabs, 
-			const vector<wstring>& startupDirs, 
-			const vector<wstring>& startupCmds, 
-			int nMultiStartSleep
+			LPCTSTR lpstrCmdLine
 		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -87,6 +83,7 @@ class MainFrame
 			MESSAGE_HANDLER(UM_SHOW_POPUP_MENU, OnShowPopupMenu)
 			MESSAGE_HANDLER(UM_START_MOUSE_DRAG, OnStartMouseDrag)
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
+			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 			
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
@@ -246,12 +243,21 @@ class MainFrame
     void ShowHideWindow();
 
 	public:
+		LRESULT CreateInitialTabs
+		(
+			vector<wstring> startupTabs,
+			vector<wstring> startupCmds,
+			vector<wstring> startupDirs,
+			int nMultiStartSleep
+		);
+		LRESULT OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+
 		bool					m_bOnCreateDone;
 
 	private:
-		const vector<wstring>&	m_startupTabs;
-		const vector<wstring>&	m_startupDirs;
-		const vector<wstring>&	m_startupCmds;
+		vector<wstring>	m_startupTabs;
+		vector<wstring>	m_startupDirs;
+		vector<wstring>	m_startupCmds;
 		int						m_nMultiStartSleep;
 
 		shared_ptr<TabView>	m_activeTabView;

@@ -64,11 +64,7 @@ void ParseCommandLine
 (
 	LPTSTR lptstrCmdLine, 
 	wstring& strConfigFile, 
-	wstring& strWindowTitle, 
-	vector<wstring>& startupTabs, 
-	vector<wstring>& startupDirs, 
-	vector<wstring>& startupCmds, 
-	int& nMultiStartSleep
+	bool &bReuse
 )
 {
 	int						argc = 0;
@@ -85,47 +81,11 @@ void ParseCommandLine
 			if (i == argc) break;
 			strConfigFile = argv[i];
 		}
-		else if (wstring(argv[i]) == wstring(L"-w"))
+		else if (wstring(argv[i]) == wstring(L"-reuse"))
 		{
-			// startup tab name
-			++i;
-			if (i == argc) break;
-			strWindowTitle = argv[i];
-		}
-		else if (wstring(argv[i]) == wstring(L"-t"))
-		{
-			// startup tab name
-			++i;
-			if (i == argc) break;
-			startupTabs.push_back(argv[i]);
-		}
-		else if (wstring(argv[i]) == wstring(L"-d"))
-		{
-			// startup dir
-			++i;
-			if (i == argc) break;
-			startupDirs.push_back(argv[i]);
-		}
-		else if (wstring(argv[i]) == wstring(L"-r"))
-		{
-			// startup cmd
-			++i;
-			if (i == argc) break;
-			startupCmds.push_back(argv[i]);
-		}
-		else if (wstring(argv[i]) == wstring(L"-ts"))
-		{
-			// startup tab sleep for multiple tabs
-			++i;
-			if (i == argc) break;
-			nMultiStartSleep = _wtoi(argv[i]);
-			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
+			bReuse = true;
 		}
 	}
-
-	// make sure that startupDirs and startupCmds are at least as big as startupTabs
-	if (startupDirs.size() < startupTabs.size()) startupDirs.resize(startupTabs.size());
-	if (startupCmds.size() < startupTabs.size()) startupCmds.resize(startupTabs.size());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -133,26 +93,39 @@ void ParseCommandLine
 
 //////////////////////////////////////////////////////////////////////////////
 
+static bool HandleReuse(LPCTSTR lpstrCmdLine)
+{
+	SharedMemory<HWND> sharedInstance;
+	sharedInstance.Open(L"Console", syncObjNone);
+	if (0 != sharedInstance.Get())
+	{
+		::SetForegroundWindow(*sharedInstance);
+
+		COPYDATASTRUCT cds = {0};
+		cds.dwData = 0;
+		cds.lpData = (LPVOID)lpstrCmdLine;
+		cds.cbData = (_tcslen(lpstrCmdLine) + 1) * sizeof(TCHAR);
+		
+		::SendMessage(*sharedInstance, WM_COPYDATA, 0, (LPARAM)&cds);
+
+		return true;
+	}
+
+	return false;
+}
+
 int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
 	CMessageLoop theLoop;
 	_Module.AddMessageLoop(&theLoop);
 
 	wstring			strConfigFile(L"");
-	wstring			strWindowTitle(L"");
-	vector<wstring>	startupTabs;
-	vector<wstring>	startupDirs;
-	vector<wstring>	startupCmds;
-	int				nMultiStartSleep = 0;
+	bool			bReuse = false;
 
 	ParseCommandLine(
 		lpstrCmdLine, 
-		strConfigFile, 
-		strWindowTitle, 
-		startupTabs, 
-		startupDirs, 
-		startupCmds, 
-		nMultiStartSleep);
+		strConfigFile,
+		bReuse);
 
 	if (strConfigFile.length() == 0)
 	{
@@ -167,9 +140,12 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		return 1;
 	}
 
+	if (bReuse && HandleReuse(lpstrCmdLine))
+		return 0;
+
 	// create main window
 	NoTaskbarParent noTaskbarParent;
-	MainFrame wndMain(strWindowTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep);
+	MainFrame wndMain(lpstrCmdLine);
 
 	if (!g_settingsHandler->GetAppearanceSettings().stylesSettings.bTaskbarButton)
 	{
@@ -190,6 +166,13 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 #endif
 
 	wndMain.ShowWindow(nCmdShow);
+
+	SharedMemory<HWND> sharedInstance;
+	if (bReuse)
+	{
+		sharedInstance.Create(L"Console", 1, syncObjNone, _T(""));
+		sharedInstance = wndMain.m_hWnd;
+	}
 
 	int nRet = theLoop.Run();
 

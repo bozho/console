@@ -29,7 +29,7 @@ class ConsoleView
 		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 //		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS, COLOR_WINDOW)
 
-		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns);
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -104,7 +104,7 @@ class ConsoleView
 		CPoint GetCellSize() { return CPoint(m_nCharWidth, m_nCharHeight); };
 
 		ConsoleHandler& GetConsoleHandler() { return m_consoleHandler; }
-		shared_ptr<TabData> GetTabData() { return m_tabData; }
+		std::shared_ptr<TabData> GetTabData() { return m_tabData; }
 
 		bool GetConsoleWindowVisible() const { return m_bConsoleWindowVisible; }
 		void SetConsoleWindowVisible(bool bVisible);
@@ -205,13 +205,13 @@ class ConsoleView
 		AppearanceSettings&				m_appearanceSettings;
 		HotKeys&						m_hotkeys;
 
-		shared_ptr<TabData>				m_tabData;
-		shared_ptr<BackgroundImage>		m_background;
+		std::shared_ptr<TabData>				m_tabData;
+		std::shared_ptr<BackgroundImage>		m_background;
 
 		CBrush							m_backgroundBrush;
 
-		shared_ptr<Cursor>				m_cursor;
-		shared_ptr<SelectionHandler>	m_selectionHandler;
+		std::shared_ptr<Cursor>				m_cursor;
+		std::shared_ptr<SelectionHandler>	m_selectionHandler;
 
 		MouseSettings::Command			m_mouseCommand;
 

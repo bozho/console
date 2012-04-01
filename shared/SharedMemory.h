@@ -48,19 +48,19 @@ class SharedMemory
 
 	private:
 
-		void CreateSyncObjects(const shared_ptr<SECURITY_ATTRIBUTES>& sa, SyncObjectTypes syncObjects, const wstring& strName);
+		void CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTES>& sa, SyncObjectTypes syncObjects, const wstring& strName);
 
 	private:
 
 		wstring				m_strName;
 		DWORD				m_dwSize;
 
-		shared_ptr<void>	m_hSharedMem;
-		shared_ptr<T>		m_pSharedMem;
+		std::shared_ptr<void>	m_hSharedMem;
+		std::shared_ptr<T>		m_pSharedMem;
 
-		shared_ptr<void>	m_hSharedMutex;
-		shared_ptr<void>	m_hSharedReqEvent;
-		shared_ptr<void>	m_hSharedRespEvent;
+		std::shared_ptr<void>	m_hSharedMutex;
+		std::shared_ptr<void>	m_hSharedReqEvent;
+		std::shared_ptr<void>	m_hSharedRespEvent;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ class SharedMemoryLock
 
 	private:
 
-		shared_ptr<void>	m_lock;
+		std::shared_ptr<void>	m_lock;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -152,18 +152,18 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 	m_strName	= strName;
 	m_dwSize	= dwSize;
 
-	shared_ptr<SECURITY_ATTRIBUTES>	sa;
+	std::shared_ptr<SECURITY_ATTRIBUTES>	sa;
 	EXPLICIT_ACCESS					ea[2];
 
 	SID_IDENTIFIER_AUTHORITY	SIDAuthCreator	= SECURITY_CREATOR_SID_AUTHORITY;
 
 	PSID						tmpSID = NULL;
-	shared_ptr<void>			creatorSID;		// PSID
+	std::shared_ptr<void>			creatorSID;		// PSID
 
 	PACL						tmpACL = NULL;
-	shared_ptr<ACL>				acl;
+	std::shared_ptr<ACL>				acl;
 
-	shared_ptr<void>			sd;				// PSECURITY_DESCRIPTOR
+	std::shared_ptr<void>			sd;				// PSECURITY_DESCRIPTOR
 
 	::ZeroMemory(&ea, 2*sizeof(EXPLICIT_ACCESS));
 
@@ -241,7 +241,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 		sa->bInheritHandle		= FALSE;
 	}
 
-	m_hSharedMem = shared_ptr<void>(::CreateFileMapping(
+	m_hSharedMem = std::shared_ptr<void>(::CreateFileMapping(
 										INVALID_HANDLE_VALUE, 
 										sa.get(), 
 										PAGE_READWRITE, 
@@ -253,7 +253,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 	// TODO: error handling
 	//if (!m_hSharedMem) return false;
 
-	m_pSharedMem = shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
+	m_pSharedMem = std::shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
 													FILE_MAP_ALL_ACCESS, 
 													0, 
@@ -276,7 +276,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 {
 	m_strName	= strName;
 
-	m_hSharedMem = shared_ptr<void>(::OpenFileMapping(
+	m_hSharedMem = std::shared_ptr<void>(::OpenFileMapping(
 										FILE_MAP_ALL_ACCESS, 
 										FALSE, 
 										m_strName.c_str()),
@@ -286,7 +286,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 	//if (!m_hSharedMem) return false;
 	if (!m_hSharedMem || (m_hSharedMem.get() == INVALID_HANDLE_VALUE)) OutputDebugString(str(wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
 
-	m_pSharedMem = shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
+	m_pSharedMem = std::shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
 													FILE_MAP_ALL_ACCESS, 
 													0, 
@@ -296,7 +296,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 
 	if (!m_pSharedMem) OutputDebugString(str(wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
 
-	if (syncObjects > syncObjNone) CreateSyncObjects(shared_ptr<SECURITY_ATTRIBUTES>(), syncObjects, strName);
+	if (syncObjects > syncObjNone) CreateSyncObjects(std::shared_ptr<SECURITY_ATTRIBUTES>(), syncObjects, strName);
 
 	//if (!m_pSharedMem) return false;
 }
@@ -450,17 +450,17 @@ SharedMemory<T>& SharedMemory<T>::operator=(const T& val)
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void SharedMemory<T>::CreateSyncObjects(const shared_ptr<SECURITY_ATTRIBUTES>& sa, SyncObjectTypes syncObjects, const wstring& strName)
+void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTES>& sa, SyncObjectTypes syncObjects, const wstring& strName)
 {
 	if (syncObjects >= syncObjRequest)
 	{
-		m_hSharedMutex = shared_ptr<void>(
+		m_hSharedMutex = std::shared_ptr<void>(
 							::CreateMutex(sa.get(), FALSE, (wstring(L"") + strName + wstring(L"_mutex")).c_str()),
 							::CloseHandle);
 
 		OutputDebugString(str(wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
 
-		m_hSharedReqEvent = shared_ptr<void>(
+		m_hSharedReqEvent = std::shared_ptr<void>(
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_req_event")).c_str()),
 							::CloseHandle);
 
@@ -469,7 +469,7 @@ void SharedMemory<T>::CreateSyncObjects(const shared_ptr<SECURITY_ATTRIBUTES>& s
 
 	if (syncObjects >= syncObjBoth)
 	{
-		m_hSharedRespEvent = shared_ptr<void>(
+		m_hSharedRespEvent = std::shared_ptr<void>(
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_resp_event")).c_str()),
 							::CloseHandle);
 

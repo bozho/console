@@ -2,7 +2,7 @@
 
 #include "ConsoleView.h"
 
-typedef map<HWND, shared_ptr<ConsoleView> >	ConsoleViewMap;
+typedef map<HWND, std::shared_ptr<ConsoleView> >	ConsoleViewMap;
 
 class TabView
   : public CWindowImpl<TabView>
@@ -11,7 +11,7 @@ class TabView
 public:
   DECLARE_WND_CLASS_EX(L"Console_2_TabView", CS_DBLCLKS, COLOR_WINDOW)
 
-  TabView(MainFrame& mainFrame, shared_ptr<TabData> tabData);
+  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData);
   ~TabView();
 
   BOOL PreTranslateMessage(MSG* pMsg);
@@ -41,8 +41,8 @@ public:
 
   virtual void OnSplitBarMove(HWND hwndPane0, HWND hwndPane1, bool /*boolEnd*/);
 
-  shared_ptr<ConsoleView> GetActiveConsole(const TCHAR*);
-  shared_ptr<TabData>     GetTabData() { return m_tabData; }
+  std::shared_ptr<ConsoleView> GetActiveConsole(const TCHAR*);
+  std::shared_ptr<TabData>     GetTabData() { return m_tabData; }
 
   void SetTitle(const CString& strTitle);
   const CString& GetTitle() const { return m_strTitle; }
@@ -75,7 +75,7 @@ private:
   MainFrame&          m_mainFrame;
   ConsoleViewMap      m_views;
   Mutex               m_viewsMutex;
-  shared_ptr<TabData> m_tabData;
+  std::shared_ptr<TabData> m_tabData;
   CString             m_strTitle;
   CIcon               m_bigIcon;
   CIcon               m_smallIcon;

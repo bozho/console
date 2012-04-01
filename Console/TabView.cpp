@@ -12,7 +12,7 @@ int CMultiSplitPane::splitBarHeight = 0;
 
 //////////////////////////////////////////////////////////////////////////////
 
-TabView::TabView(MainFrame& mainFrame, shared_ptr<TabData> tabData)
+TabView::TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData)
 :m_mainFrame(mainFrame)
 ,m_viewsMutex(NULL, FALSE, NULL)
 ,m_tabData(tabData)
@@ -57,7 +57,7 @@ BOOL TabView::PreTranslateMessage(MSG* pMsg)
 
 	return FALSE;
   /*
-  shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
+  std::shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
   if( consoleView )
     return consoleView->PreTranslateMessage(pMsg);
   return FALSE;
@@ -136,7 +136,7 @@ HWND TabView::CreateNewConsole(void)
 		m_dwColumns	= dwColumns;
 	}
 #endif
-	shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns));
+	std::shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns));
   consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 
@@ -218,9 +218,9 @@ HWND TabView::CreateNewConsole(void)
 	return hwndConsoleView;
 }
 
-shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* szFrom)
+std::shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* szFrom)
 {
-  shared_ptr<ConsoleView> result;
+  std::shared_ptr<ConsoleView> result;
   if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
   {
     MutexLock viewMapLock(m_viewsMutex);
@@ -313,7 +313,7 @@ void TabView::SetAppActiveStatus(bool bAppActive)
     }
     else
     {
-      shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
+      std::shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
       for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
       {
         it->second->SetAppActiveStatus(it->second == consoleView);

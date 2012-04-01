@@ -33,7 +33,7 @@ int ConsoleView::m_nHInsideBorder(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns)
 : m_mainFrame(mainFrame)
 , m_hwndTabView(hwndTabView)
 , m_bInitializing(true)

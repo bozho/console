@@ -70,7 +70,7 @@ class PageSettingsTabs1
 
 		void EnableControls();
 
-		void Load(shared_ptr<TabData>& tabData);
+		void Load(std::shared_ptr<TabData>& tabData);
 		void Save();
 
 		const CString& GetTabTitle() const { return m_strTitle; }
@@ -83,8 +83,8 @@ private:
   void DrawCursor(void);
 
 	private:
-		shared_ptr<Cursor>	m_cursor;
-		shared_ptr<TabData>	m_tabData;
+		std::shared_ptr<Cursor>	m_cursor;
+		std::shared_ptr<TabData>	m_tabData;
 
     CStatic			m_staticCursorAnim;
 		CComboBox		m_comboCursor;

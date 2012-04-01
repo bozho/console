@@ -26,7 +26,7 @@ ConsoleHandler::ConsoleHandler()
 , m_newConsoleSize()
 , m_newScrollPos()
 , m_hMonitorThread()
-, m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
+, m_hMonitorThreadExit(std::shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_dwScreenBufferSize(0)
 {
 }
@@ -49,7 +49,7 @@ ConsoleHandler::~ConsoleHandler()
 DWORD ConsoleHandler::StartMonitorThread()
 {
 	DWORD dwThreadId = 0;
-	m_hMonitorThread = shared_ptr<void>(
+	m_hMonitorThread = std::shared_ptr<void>(
 							::CreateThread(
 								NULL,
 								0, 
@@ -128,7 +128,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
 	// no need to call CloseHandle when done, we're reusing console handles
-	shared_ptr<void> hStdOut(::CreateFile(
+	std::shared_ptr<void> hStdOut(::CreateFile(
 								L"CONOUT$",
 								GENERIC_WRITE | GENERIC_READ,
 								FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -743,7 +743,7 @@ void ConsoleHandler::CopyConsoleText()
 
 //	TRACE(L"Copy request: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
 
-	shared_ptr<void> hStdOut(
+	std::shared_ptr<void> hStdOut(
 						::CreateFile(
 							L"CONOUT$",
 							GENERIC_WRITE | GENERIC_READ,
@@ -865,7 +865,7 @@ void ConsoleHandler::CopyConsoleText()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const shared_ptr<wchar_t>& textBuffer)
+void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const std::shared_ptr<wchar_t>& textBuffer)
 {
 	wchar_t*	pszText	= textBuffer.get();
 	size_t		textLen = wcslen(pszText);
@@ -1079,7 +1079,7 @@ DWORD ConsoleHandler::MonitorThread()
 	// FIX: this seems to case problems on startup
 //	ReadConsoleBuffer();
 
-	shared_ptr<void> parentProcessWatchdog(::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str())), ::CloseHandle);
+	std::shared_ptr<void> parentProcessWatchdog(::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str())), ::CloseHandle);
 	TRACE(L"Watchdog handle: 0x%08X\n", parentProcessWatchdog.get());
 
 	HANDLE	arrWaitHandles[] =
@@ -1125,13 +1125,13 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_consoleTextInfo);
 
-				shared_ptr<wchar_t>	textBuffer;
+				std::shared_ptr<wchar_t>	textBuffer;
 				
 				if (m_consoleTextInfo->mem != NULL)
 				{
 					textBuffer.reset(
 									reinterpret_cast<wchar_t*>(m_consoleTextInfo->mem),
-									bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
+									boost::bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
 				}
 
 				SendConsoleText(hStdIn, textBuffer);

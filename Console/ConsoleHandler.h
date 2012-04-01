@@ -67,7 +67,7 @@ class ConsoleHandler
 		DWORD StartMonitorThread();
 		void StopMonitorThread();
 
-		shared_ptr<void> GetConsoleHandle() const					{ return m_hConsoleProcess; }
+		std::shared_ptr<void> GetConsoleHandle() const					{ return m_hConsoleProcess; }
 
 		SharedMemory<ConsoleParams>& GetConsoleParams()				{ return m_consoleParams; }
 		SharedMemory<ConsoleInfo>& GetConsoleInfo()	{ return m_consoleInfo; }
@@ -108,7 +108,7 @@ class ConsoleHandler
 		ConsoleChangeDelegate						m_consoleChangeDelegate;
 		ConsoleCloseDelegate						m_consoleCloseDelegate;
 
-		shared_ptr<void>							m_hConsoleProcess;
+		std::shared_ptr<void>							m_hConsoleProcess;
 
 		SharedMemory<ConsoleParams>					m_consoleParams;
 		SharedMemory<ConsoleInfo>	m_consoleInfo;
@@ -121,11 +121,11 @@ class ConsoleHandler
 		SharedMemory<ConsoleSize>					m_newConsoleSize;
 		SharedMemory<SIZE>							m_newScrollPos;
 
-		shared_ptr<void>							m_hMonitorThread;
-		shared_ptr<void>							m_hMonitorThreadExit;
+		std::shared_ptr<void>							m_hMonitorThread;
+		std::shared_ptr<void>							m_hMonitorThreadExit;
 
-		static shared_ptr<void>						s_environmentBlock;
-		static shared_ptr<Mutex>					s_parentProcessWatchdog;
+		static std::shared_ptr<void>						s_environmentBlock;
+		static std::shared_ptr<Mutex>					s_parentProcessWatchdog;
 
 };
 

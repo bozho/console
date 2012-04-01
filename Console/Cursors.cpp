@@ -44,9 +44,9 @@ wchar_t* Cursor::s_cursorNames[] =
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 {
-	shared_ptr<Cursor> newCursor;
+	std::shared_ptr<Cursor> newCursor;
 
 	switch (cursorStyle)
 	{

@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-typedef map<HTREEITEM, shared_ptr<DlgSettingsBase> >	SettingsDlgsMap;
+typedef map<HTREEITEM, std::shared_ptr<DlgSettingsBase> >	SettingsDlgsMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ class DlgSettingsMain
 	private:
 
 		void CreateSettingsTree();
-		HTREEITEM AddDialogToTree(const wstring& strName, const shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent = NULL);
+		HTREEITEM AddDialogToTree(const wstring& strName, const std::shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent = NULL);
 
 	private:
 

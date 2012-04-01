@@ -143,7 +143,7 @@ LRESULT DlgSettingsTabs::OnAdd(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 {
 	ConsoleSettings& consoleSettings = g_settingsHandler->GetConsoleSettings();
 
-	shared_ptr<TabData>	tabData(new TabData(consoleSettings.strShell, consoleSettings.strInitialDir));
+	std::shared_ptr<TabData>	tabData(new TabData(consoleSettings.strShell, consoleSettings.strInitialDir));
 
 	m_tabSettings.tabDataVector.push_back(tabData);
 
@@ -168,7 +168,7 @@ LRESULT DlgSettingsTabs::OnClone(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 	m_page1.Save();
 	m_page2.Save();
 
-	shared_ptr<TabData>	tabData(new TabData(*(m_tabSettings.tabDataVector[nItem].get())));
+	std::shared_ptr<TabData>	tabData(new TabData(*(m_tabSettings.tabDataVector[nItem].get())));
 
 	m_tabSettings.tabDataVector.insert(m_tabSettings.tabDataVector.begin() + nItem + 1, tabData);
 	int nItemClone = m_listCtrl.InsertItem(nItem + 1, tabData->strTitle.c_str(), -1);
@@ -290,7 +290,7 @@ LRESULT DlgSettingsTabs::OnTabItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL
 
 void DlgSettingsTabs::MoveListItem(int nItem, int nDirection)
 {
-	shared_ptr<TabData>	tmpData(*(m_tabSettings.tabDataVector.begin() + nItem));
+	std::shared_ptr<TabData>	tmpData(*(m_tabSettings.tabDataVector.begin() + nItem));
 
 	m_listCtrl.DeleteItem(nItem);
 	int nNewItem = m_listCtrl.InsertItem(nItem + nDirection, tmpData->strTitle.c_str());

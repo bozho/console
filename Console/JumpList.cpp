@@ -71,7 +71,7 @@ static HRESULT SetIconLocation(IShellLink *psl, LPCWSTR szIconLocation)
   return psl->SetIconLocation(szIconLocationFullName, 0);
 }
 
-static HRESULT SetIcon(IShellLink *psl, shared_ptr<TabData> tab)
+static HRESULT SetIcon(IShellLink *psl, std::shared_ptr<TabData> tab)
 {
   if (tab->bUseDefaultIcon)
   {

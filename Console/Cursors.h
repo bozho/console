@@ -110,7 +110,7 @@ class Cursor
 class CursorFactory
 {
 	public:
-		static shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
+		static std::shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
 };
 
 //////////////////////////////////////////////////////////////////////////////

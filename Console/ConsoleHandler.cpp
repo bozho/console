@@ -23,8 +23,8 @@
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<Mutex>	ConsoleHandler::s_parentProcessWatchdog;
-shared_ptr<void>	ConsoleHandler::s_environmentBlock;
+std::shared_ptr<Mutex>	ConsoleHandler::s_parentProcessWatchdog;
+std::shared_ptr<void>	ConsoleHandler::s_environmentBlock;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ ConsoleHandler::ConsoleHandler()
 , m_newConsoleSize()
 , m_newScrollPos()
 , m_hMonitorThread()
-, m_hMonitorThreadExit(shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
+, m_hMonitorThreadExit(std::shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_bufferMutex(NULL, FALSE, NULL)
 {
 }
@@ -90,9 +90,9 @@ bool ConsoleHandler::StartShellProcess
 	wstring strUsername(strUser);
 	wstring strDomain;
 
-	shared_ptr<void> userProfileKey;
-	shared_ptr<void> userEnvironment;
-	shared_ptr<void> userToken;
+	std::shared_ptr<void> userProfileKey;
+	std::shared_ptr<void> userEnvironment;
+	std::shared_ptr<void> userToken;
 
 	if (strUsername.length() > 0)
 	{
@@ -301,7 +301,7 @@ bool ConsoleHandler::StartShellProcess
 	m_consoleParams->dwBufferRows			= g_settingsHandler->GetConsoleSettings().dwBufferRows;
 	m_consoleParams->dwBufferColumns		= g_settingsHandler->GetConsoleSettings().dwBufferColumns;
 
-	m_hConsoleProcess = shared_ptr<void>(pi.hProcess, ::CloseHandle);
+	m_hConsoleProcess = std::shared_ptr<void>(pi.hProcess, ::CloseHandle);
 
 	// inject our hook DLL into console process
 	if (!InjectHookDLL(pi)) return false;
@@ -326,7 +326,7 @@ bool ConsoleHandler::StartShellProcess
 DWORD ConsoleHandler::StartMonitorThread()
 {
 	DWORD dwThreadId = 0;
-	m_hMonitorThread = shared_ptr<void>(
+	m_hMonitorThread = std::shared_ptr<void>(
 		::CreateThread(
 		NULL,
 		0, 
@@ -476,7 +476,7 @@ void ConsoleHandler::CreateWatchdog()
 {
 	if (!s_parentProcessWatchdog)
 	{
-		shared_ptr<void>	sd;	// PSECURITY_DESCRIPTOR
+		std::shared_ptr<void>	sd;	// PSECURITY_DESCRIPTOR
 
 		sd.reset(::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH), ::LocalFree);
 		if (::InitializeSecurityDescriptor(sd.get(), SECURITY_DESCRIPTOR_REVISION))
@@ -589,8 +589,8 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 			return false;
 		}
 
-		shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);
-		shared_ptr<void> wowThread(piWow.hThread, ::CloseHandle);
+		std::shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);
+		std::shared_ptr<void> wowThread(piWow.hThread, ::CloseHandle);
 
 		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
 		{

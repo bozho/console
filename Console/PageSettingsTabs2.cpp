@@ -254,7 +254,7 @@ void PageSettingsTabs2::EnableControls()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PageSettingsTabs2::Load(shared_ptr<TabData>& tabData)
+void PageSettingsTabs2::Load(std::shared_ptr<TabData>& tabData)
 {
 	m_tabData		= tabData;
 

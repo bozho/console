@@ -8,7 +8,7 @@ using namespace boost::algorithm;
 
 //////////////////////////////////////////////////////////////////////////////
 
-extern shared_ptr<ImageHandler>		g_imageHandler;
+extern std::shared_ptr<ImageHandler>		g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -1031,67 +1031,67 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 HotKeys::HotKeys()
 : bUseScrollLock(false)
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"settings",		ID_EDIT_SETTINGS,	L"Settings dialog")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"settings",		ID_EDIT_SETTINGS,	L"Settings dialog")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab1",		ID_NEW_TAB_1,		L"New Tab 1")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab2",		ID_NEW_TAB_1 + 1,	L"New Tab 2")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab3",		ID_NEW_TAB_1 + 2,	L"New Tab 3")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab4",		ID_NEW_TAB_1 + 3,	L"New Tab 4")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab5",		ID_NEW_TAB_1 + 4,	L"New Tab 5")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab6",		ID_NEW_TAB_1 + 5,	L"New Tab 6")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab7",		ID_NEW_TAB_1 + 6,	L"New Tab 7")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab8",		ID_NEW_TAB_1 + 7,	L"New Tab 8")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab9",		ID_NEW_TAB_1 + 8,	L"New Tab 9")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"newtab10",		ID_NEW_TAB_1 + 9,	L"New Tab 10")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab1",		ID_NEW_TAB_1,		L"New Tab 1")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab2",		ID_NEW_TAB_1 + 1,	L"New Tab 2")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab3",		ID_NEW_TAB_1 + 2,	L"New Tab 3")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab4",		ID_NEW_TAB_1 + 3,	L"New Tab 4")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab5",		ID_NEW_TAB_1 + 4,	L"New Tab 5")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab6",		ID_NEW_TAB_1 + 5,	L"New Tab 6")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab7",		ID_NEW_TAB_1 + 6,	L"New Tab 7")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab8",		ID_NEW_TAB_1 + 7,	L"New Tab 8")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab9",		ID_NEW_TAB_1 + 8,	L"New Tab 9")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab10",		ID_NEW_TAB_1 + 9,	L"New Tab 10")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab1",	ID_SWITCH_TAB_1,	L"Switch to tab 1")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab2",	ID_SWITCH_TAB_1 + 1,L"Switch to tab 2")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab3",	ID_SWITCH_TAB_1 + 2,L"Switch to tab 3")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab4",	ID_SWITCH_TAB_1 + 3,L"Switch to tab 4")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab5",	ID_SWITCH_TAB_1 + 4,L"Switch to tab 5")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab6",	ID_SWITCH_TAB_1 + 5,L"Switch to tab 6")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab7",	ID_SWITCH_TAB_1 + 6,L"Switch to tab 7")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab8",	ID_SWITCH_TAB_1 + 7,L"Switch to tab 8")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab9",	ID_SWITCH_TAB_1 + 8,L"Switch to tab 9")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"switchtab10",	ID_SWITCH_TAB_1 + 9,L"Switch to tab 10")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab1",	ID_SWITCH_TAB_1,	L"Switch to tab 1")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab2",	ID_SWITCH_TAB_1 + 1,L"Switch to tab 2")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab3",	ID_SWITCH_TAB_1 + 2,L"Switch to tab 3")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab4",	ID_SWITCH_TAB_1 + 3,L"Switch to tab 4")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab5",	ID_SWITCH_TAB_1 + 4,L"Switch to tab 5")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab6",	ID_SWITCH_TAB_1 + 5,L"Switch to tab 6")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab7",	ID_SWITCH_TAB_1 + 6,L"Switch to tab 7")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab8",	ID_SWITCH_TAB_1 + 7,L"Switch to tab 8")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab9",	ID_SWITCH_TAB_1 + 8,L"Switch to tab 9")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab10",	ID_SWITCH_TAB_1 + 9,L"Switch to tab 10")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"nexttab",		ID_NEXT_TAB,		L"Next tab")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"prevtab",		ID_PREV_TAB,		L"Previous tab")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nexttab",		ID_NEXT_TAB,		L"Next tab")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevtab",		ID_PREV_TAB,		L"Previous tab")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"closetab",		ID_FILE_CLOSE_TAB,	L"Close tab")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"renametab",	ID_EDIT_RENAME_TAB,	L"Rename tab")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closetab",		ID_FILE_CLOSE_TAB,	L"Close tab")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"renametab",	ID_EDIT_RENAME_TAB,	L"Rename tab")));
 
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"nextview",   ID_NEXT_VIEW,   L"Next view")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"prevview",   ID_PREV_VIEW,   L"Previous view")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"closeview",  ID_CLOSE_VIEW,  L"Close view")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ, L"Split horizontally")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,  L"Split vertically")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"groupall",   ID_GROUP_ALL,   L"Group all")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"ungroupall", ID_UNGROUP_ALL, L"Ungroup all")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"grouptab",   ID_GROUP_TAB,   L"Group tab")));
-  commands.push_back(shared_ptr<CommandData>(new CommandData(L"ungrouptab", ID_UNGROUP_TAB, L"Ungroup tab")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nextview",   ID_NEXT_VIEW,   L"Next view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevview",   ID_PREV_VIEW,   L"Previous view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closeview",  ID_CLOSE_VIEW,  L"Close view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ, L"Split horizontally")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,  L"Split vertically")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"groupall",   ID_GROUP_ALL,   L"Group all")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"ungroupall", ID_UNGROUP_ALL, L"Ungroup all")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"grouptab",   ID_GROUP_TAB,   L"Group tab")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"ungrouptab", ID_UNGROUP_TAB, L"Ungroup tab")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				L"Copy selection")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	L"Clear selection")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				L"Paste")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"stopscroll",	ID_EDIT_STOP_SCROLLING,		L"Stop scrolling")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				L"Copy selection")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	L"Clear selection")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				L"Paste")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"stopscroll",	ID_EDIT_STOP_SCROLLING,		L"Stop scrolling")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer row up")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer row down")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		L"Scroll buffer page up")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	L"Scroll buffer page down")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			L"Scroll buffer column left")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer column right")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer page left")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollrowup",		ID_SCROLL_UP,			L"Scroll buffer row up")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollrowdown",	ID_SCROLL_DOWN,			L"Scroll buffer row down")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageup",		ID_SCROLL_PAGE_UP,		L"Scroll buffer page up")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpagedown",	ID_SCROLL_PAGE_DOWN,	L"Scroll buffer page down")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollcolleft",	ID_SCROLL_LEFT,			L"Scroll buffer column left")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer column right")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer page left")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
 
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 
 	// global commands
-	commands.push_back(shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate Console (global)", true)));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate Console (global)", true)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1259,11 +1259,11 @@ HotKeys& HotKeys::operator=(const HotKeys& other)
 MouseSettings::MouseSettings()
 : commands()
 {
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"Copy/clear selection")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"Select text")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"Paste text")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"Drag window")));
-	commands.push_back(shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"Context menu")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdCopy,		L"copy",	L"Copy/clear selection")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdSelect,	L"select",	L"Select text")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdPaste,	L"paste",	L"Paste text")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdDrag,		L"drag",	L"Drag window")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu,		L"menu",	L"Context menu")));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1445,7 +1445,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		pTabNodes->get_item(i, &pTabNode);
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
-		shared_ptr<TabData>	tabData(new TabData(strDefaultShell, strDefaultInitialDir));
+		std::shared_ptr<TabData>	tabData(new TabData(strDefaultShell, strDefaultInitialDir));
 		CComPtr<IXMLDOMElement>	pConsoleElement;
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;

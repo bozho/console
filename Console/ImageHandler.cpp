@@ -22,9 +22,9 @@ ImageHandler::~ImageHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<BackgroundImage> ImageHandler::GetImage(const ImageData& imageData)
+std::shared_ptr<BackgroundImage> ImageHandler::GetImage(const ImageData& imageData)
 {
-	shared_ptr<BackgroundImage>	bkImage(new BackgroundImage(imageData));
+	std::shared_ptr<BackgroundImage>	bkImage(new BackgroundImage(imageData));
 
 	Images::iterator		itImage = m_images.begin();
 
@@ -34,7 +34,7 @@ shared_ptr<BackgroundImage> ImageHandler::GetImage(const ImageData& imageData)
 	if (itImage != m_images.end()) return *itImage;
 
 	// else, try to load image
-	if (!LoadImage(bkImage)) return shared_ptr<BackgroundImage>();
+	if (!LoadImage(bkImage)) return std::shared_ptr<BackgroundImage>();
 
 	m_images.push_back(bkImage);
 
@@ -46,9 +46,9 @@ shared_ptr<BackgroundImage> ImageHandler::GetImage(const ImageData& imageData)
 
 //////////////////////////////////////////////////////////////////////////////
 
-shared_ptr<BackgroundImage> ImageHandler::GetDesktopImage(ImageData& imageData)
+std::shared_ptr<BackgroundImage> ImageHandler::GetDesktopImage(ImageData& imageData)
 {
-	if (!GetDesktopImageData(imageData)) return shared_ptr<BackgroundImage>();
+	if (!GetDesktopImageData(imageData)) return std::shared_ptr<BackgroundImage>();
 
 	// now, find the image
 	Images::iterator itImage = m_images.begin();
@@ -59,11 +59,11 @@ shared_ptr<BackgroundImage> ImageHandler::GetDesktopImage(ImageData& imageData)
 	if (itImage != m_images.end()) return *itImage;
 
 	// else, try to load image
-	shared_ptr<BackgroundImage>	bkImage(new BackgroundImage(imageData));
+	std::shared_ptr<BackgroundImage>	bkImage(new BackgroundImage(imageData));
 
 	bkImage->bWallpaper = true;
 
-//	if (!LoadImage(bkImage)) return shared_ptr<BackgroundImage>();
+//	if (!LoadImage(bkImage)) return std::shared_ptr<BackgroundImage>();
 	// we always return background image, even if there's no wallpaper selected
 	LoadImage(bkImage);
 
@@ -96,7 +96,7 @@ void ImageHandler::ReloadDesktopImages()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::UpdateImageBitmap(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage)
+void ImageHandler::UpdateImageBitmap(const CDC& dc, const CRect& clientRect, std::shared_ptr<BackgroundImage>& bkImage)
 {
 	if (bkImage->imageData.bRelative)
 	{
@@ -139,7 +139,7 @@ bool ImageHandler::GetDesktopImageData(ImageData& imageData)
 	if (keyColors.QueryStringValue(L"Background", strBackground.GetBuffer(dwDataSize), &dwDataSize) != ERROR_SUCCESS)
 	{
 		strBackground.ReleaseBuffer();
-		return shared_ptr<BackgroundImage>();
+		return std::shared_ptr<BackgroundImage>();
 	}
 	strBackground.ReleaseBuffer();
 
@@ -201,7 +201,7 @@ bool ImageHandler::GetDesktopImageData(ImageData& imageData)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
+bool ImageHandler::LoadImage(std::shared_ptr<BackgroundImage>& bkImage)
 {
 	USES_CONVERSION;
 
@@ -241,7 +241,7 @@ bool ImageHandler::LoadImage(shared_ptr<BackgroundImage>& bkImage)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage)
+void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<BackgroundImage>& bkImage)
 {
 	CriticalSectionLock	lock(bkImage->updateCritSec);
 
@@ -374,7 +374,7 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, shared_ptr<BackgroundImage
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_ptr<BackgroundImage>& bkImage)
+void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, std::shared_ptr<BackgroundImage>& bkImage)
 {
 	CriticalSectionLock	lock(bkImage->updateCritSec);
 
@@ -478,7 +478,7 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, shared_pt
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, shared_ptr<BackgroundImage>& bkImage)
+void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, std::shared_ptr<BackgroundImage>& bkImage)
 {
   if (bkImage->imageData.imagePosition == imgPosCenter)
 	{
@@ -511,7 +511,7 @@ void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int n
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, shared_ptr<BackgroundImage>& bkImage)
+void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, std::shared_ptr<BackgroundImage>& bkImage)
 {
 	// we're tiling the image, starting at coordinates (0, 0)
 	DWORD dwX = 0;
@@ -551,7 +551,7 @@ void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nO
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ImageHandler::TintImage(const CDC& dc, shared_ptr<BackgroundImage>& bkImage)
+void ImageHandler::TintImage(const CDC& dc, std::shared_ptr<BackgroundImage>& bkImage)
 {
 	CDC				dcTint;
 	CBitmap			bmpTint;

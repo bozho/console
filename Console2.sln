@@ -1,16 +1,16 @@
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleHook", "ConsoleHook\ConsoleHook.vcproj", "{69234D74-7133-48FF-8DDB-9901FFC4D7FF}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Console\Console.vcproj", "{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
-EndProject
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DA1A8A1D-90C0-49B9-A9B2-DF2C574F19E6}"
 	ProjectSection(SolutionItems) = preProject
 		setup\console.iss = setup\console.iss
 		devel_changes.txt = devel_changes.txt
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleWow", "ConsoleWow\ConsoleWow.vcproj", "{8A25E8AF-CC4A-4145-B878-3D99271562D4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleHook", "ConsoleHook\ConsoleHook.vcxproj", "{69234D74-7133-48FF-8DDB-9901FFC4D7FF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Console", "Console\Console.vcxproj", "{6EA5C354-A242-49F3-88D1-559EACA7FB8A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleWow", "ConsoleWow\ConsoleWow.vcxproj", "{8A25E8AF-CC4A-4145-B878-3D99271562D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +49,8 @@ Global
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Debug|Win32.ActiveCfg = Debug|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Debug|Win32.Build.0 = Debug|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Debug|x64.ActiveCfg = Debug|Win32
+		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release aero|Win32.ActiveCfg = Release|Win32
+		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release aero|x64.ActiveCfg = Release|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release|Win32.ActiveCfg = Release|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release|Win32.Build.0 = Release|Win32
 		{8A25E8AF-CC4A-4145-B878-3D99271562D4}.Release|x64.ActiveCfg = Release|Win32

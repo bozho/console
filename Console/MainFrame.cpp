@@ -157,7 +157,7 @@ BOOL MainFrame::OnIdle()
 
   if (m_activeTabView)
   {
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       UIEnable(ID_EDIT_COPY,            activeConsoleView->CanCopy()           ? TRUE : FALSE);
@@ -934,8 +934,8 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 	TabViewMap::iterator	itView = m_tabs.find(reinterpret_cast<HWND>(wParam));
 
 	if (itView == m_tabs.end()) return 0;
-  shared_ptr<TabView>	tabView(itView->second);
-  shared_ptr<ConsoleView> consoleView = itView->second->GetActiveConsole(_T(__FUNCTION__));
+  std::shared_ptr<TabView>	tabView(itView->second);
+  std::shared_ptr<ConsoleView> consoleView = itView->second->GetActiveConsole(_T(__FUNCTION__));
   if (!consoleView) return 0;
 
 	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
@@ -1122,7 +1122,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 		}
 		else
 		{
-      m_activeTabView = shared_ptr<TabView>();
+      m_activeTabView = std::shared_ptr<TabView>();
 		}
 	}
 
@@ -1130,7 +1130,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 	if (appearanceSettings.windowSettings.bUseTabTitles && m_activeTabView)
 	{
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
 		  SetWindowText(activeConsoleView->GetTitle());
@@ -1442,7 +1442,7 @@ LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/,
 LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->Copy();
@@ -1459,7 +1459,7 @@ LRESULT MainFrame::OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->ClearSelection();
@@ -1487,7 +1487,7 @@ LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     activeConsoleView->GetConsoleHandler().StopScrolling();
@@ -1645,7 +1645,7 @@ LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 {
   if (m_activeTabView)
   {
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       activeConsoleView->SetConsoleWindowVisible(!activeConsoleView->GetConsoleWindowVisible());
@@ -1677,7 +1677,7 @@ LRESULT MainFrame::OnDumpBuffer(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 {
   if (m_activeTabView)
   {
-    shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+    std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       activeConsoleView->DumpBuffer();
@@ -1735,9 +1735,9 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 
 	MutexLock	tabMapLock(m_tabsMutex);
 
-	shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
+	std::shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
 
-	shared_ptr<TabView> tabView(new TabView(*this, tabData));
+	std::shared_ptr<TabView> tabView(new TabView(*this, tabData));
 
 	HWND hwndTabView = tabView->Create(
 											m_hWnd, 
@@ -1926,7 +1926,7 @@ void MainFrame::UpdateStatusBar()
 
     if (m_activeTabView)
     {
-      shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+      std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
       if( activeConsoleView )
       {
         SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
@@ -2456,7 +2456,7 @@ void MainFrame::CreateAcceleratorTable()
 
 	for (; it != hotKeys.commands.end(); ++it)
 	{
-		shared_ptr<HotKeys::CommandData> c(*it);
+		std::shared_ptr<HotKeys::CommandData> c(*it);
 
 		if ((*it)->accelHotkey.cmd == 0) continue;
 		if ((*it)->accelHotkey.key == 0) continue;
@@ -2579,7 +2579,7 @@ void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 void MainFrame::PasteToConsoles()
 {
   if (!m_activeTabView) return;
-  shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
   if( activeConsoleView )
   {
     if( activeConsoleView->IsGrouped() )

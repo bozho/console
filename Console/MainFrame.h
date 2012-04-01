@@ -17,7 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 class TabView;
-typedef map<HWND, shared_ptr<TabView> >	TabViewMap;
+typedef map<HWND, std::shared_ptr<TabView> >	TabViewMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -260,7 +260,7 @@ class MainFrame
 		vector<wstring>	m_startupCmds;
 		int						m_nMultiStartSleep;
 
-		shared_ptr<TabView>	m_activeTabView;
+		std::shared_ptr<TabView>	m_activeTabView;
 
 		BOOL			m_bMenuVisible;
 		BOOL			m_bToolbarVisible;

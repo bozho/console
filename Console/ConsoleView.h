@@ -156,6 +156,7 @@ class ConsoleView
 
 		void RepaintText(CDC& dc);
 		void RepaintTextChanges(CDC& dc);
+		void RowTextOut(CDC& dc, DWORD dwRow);
 
 		void BitBltOffscreen(bool bOnlyCursor = false);
 		void UpdateOffscreen(const CRect& rectBlit);

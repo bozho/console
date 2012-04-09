@@ -1796,8 +1796,14 @@ void ConsoleView::RepaintText(CDC& dc)
 		}
 	}
 
-	MutexLock			bufferLock(m_consoleHandler.m_bufferMutex);
+  MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 
+  for (DWORD i = 0; i < m_dwScreenRows; ++i)
+  {
+    this->RowTextOut(dc, i);
+  }
+
+#if 0
 	DWORD dwX			= m_nVInsideBorder;
 	DWORD dwY			= m_nHInsideBorder;
 	DWORD dwOffset		= 0;
@@ -1920,6 +1926,7 @@ void ConsoleView::RepaintText(CDC& dc)
 			dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &textOutRect, strText.c_str(), static_cast<int>(strText.length()), NULL);
 		}
 	}
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1930,13 +1937,10 @@ void ConsoleView::RepaintText(CDC& dc)
 void ConsoleView::RepaintTextChanges(CDC& dc)
 {
   //TRACE(L"ConsoleView::RepaintTextChanges\n");
-	DWORD	dwX			= m_nVInsideBorder;
-	DWORD	dwY			= m_nHInsideBorder;
-	DWORD	dwOffset	= 0;
-	
-	WORD	attrBG;
+  DWORD dwY      = m_nHInsideBorder;
+  DWORD dwOffset = 0;
 
-	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+  MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 
   CRect rectView;
   GetClientRect(&rectView);
@@ -1955,76 +1959,204 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
     g_imageHandler->UpdateImageBitmap(dc, rectTab, m_background);
   }
 
-	for (DWORD i = 0; i < m_dwScreenRows; ++i, dwY += m_nCharHeight)
-	{
-		dwX = m_nVInsideBorder;
+  for (DWORD i = 0; i < m_dwScreenRows; ++i, dwY += m_nCharHeight)
+  {
+    DWORD dwX = m_nVInsideBorder;
 
-		for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
-		{
-			if (m_screenBuffer[dwOffset].changed)
-			{
-				m_screenBuffer[dwOffset].changed = false;
+    bool rowHasChanged = false;
 
-				if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+    for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset, dwX += m_nCharWidth)
+    {
+      if (m_screenBuffer[dwOffset].changed)
+      {
+        rowHasChanged = true;
+      }
+    }
 
-				CRect rect;
-				rect.top	= dwY;
-				rect.left	= dwX;
-				rect.bottom	= dwY + m_nCharHeight;
-				// we have to erase two spaces for double-width characters
-				rect.right	= (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) ? dwX + 2*m_nCharWidth : dwX + m_nCharWidth;
+    if( rowHasChanged )
+    {
+      CRect rect;
+      rect.top    = dwY;
+      rect.left   = m_nVInsideBorder;
+      rect.bottom = dwY + m_nCharHeight;
+      rect.right  = dwX;
 
-				if (m_tabData->backgroundImageType == bktypeNone)
-				{
-					dc.FillRect(&rect, m_backgroundBrush);
-				}
-				else
-				{
-					if (m_tabData->imageData.bRelative)
-					{
-						dc.BitBlt(
-							rect.left,
-							rect.top,
-							rect.Width(),
-							rect.Height(),
-							m_background->dcImage,
-							rect.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
-							rect.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
-							SRCCOPY);
-					}
-					else
-					{
-						dc.BitBlt(
-							rect.left,
-							rect.top,
-							rect.Width(),
-							rect.Height(),
-							m_background->dcImage,
-							rect.left + pointView.x - pointTab.x,
-							rect.top  + pointView.y - pointTab.y,
-							SRCCOPY);
-					}
-				}
+      if (m_tabData->backgroundImageType == bktypeNone)
+      {
+        dc.FillRect(&rect, m_backgroundBrush);
+      }
+      else
+      {
+        if (m_tabData->imageData.bRelative)
+        {
+          dc.BitBlt(
+            rect.left,
+            rect.top,
+            rect.Width(),
+            rect.Height(),
+            m_background->dcImage,
+            rect.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
+            rect.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
+            SRCCOPY);
+        }
+        else
+        {
+          dc.BitBlt(
+            rect.left,
+            rect.top,
+            rect.Width(),
+            rect.Height(),
+            m_background->dcImage,
+            rect.left + pointView.x - pointTab.x,
+            rect.top  + pointView.y - pointTab.y,
+            SRCCOPY);
+        }
+      }
 
-				attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
+      this->RowTextOut(dc, i);
+    }
+  }
+}
 
-				// here we decide how to paint text over the background
-				if (/*m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
-				{
-					dc.SetBkMode(TRANSPARENT);
-				}
-				else
-				{
-					dc.SetBkMode(OPAQUE);
-				}
 
-				dc.SetBkColor(m_consoleSettings.consoleColors[attrBG]);
-				dc.SetTextColor(m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]);
+void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
+{
+  //TRACE(L"ConsoleView::RepaintRow %lu\n", dwRow);
+  DWORD dwX      = m_nVInsideBorder;
+  DWORD dwY      = m_nHInsideBorder + m_nCharHeight * dwRow;
+  DWORD dwOffset = m_dwScreenColumns * dwRow;
 
-				dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, &(m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar), 1, NULL);
-			}
-		}
-	}
+  // first pass : text background color
+  WORD    attrBG;
+  DWORD   dwBGWidth = 0;
+
+  for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset)
+  {
+    // reset change state
+    m_screenBuffer[dwOffset].changed = false;
+
+    // compare background color
+    WORD attrBG2 = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
+    if( dwBGWidth == 0 )
+    {
+      attrBG    = attrBG2;
+      dwBGWidth = m_nCharWidth;
+    }
+    else
+    {
+      if( attrBG == attrBG2 )
+      {
+        dwBGWidth += m_nCharWidth;
+      }
+      else
+      {
+        // draw backgroud and reset
+
+        if (attrBG != 0)
+        {
+          CBrush backgroundBrush;
+          backgroundBrush.CreateSolidBrush(m_consoleSettings.consoleColors[attrBG]);
+
+          CRect rect;
+          rect.top    = dwY;
+          rect.left   = dwX;
+          rect.bottom = dwY + m_nCharHeight;
+          rect.right  = dwX + dwBGWidth;
+
+          dc.FillRect(&rect, (HBRUSH)backgroundBrush);
+        }
+
+        attrBG    = attrBG2;
+        dwX       += dwBGWidth;
+        dwBGWidth = m_nCharWidth;
+      }
+    }
+  }
+
+  if( dwBGWidth > 0 )
+  {
+    if (attrBG != 0)
+    {
+      CBrush backgroundBrush;
+      backgroundBrush.CreateSolidBrush(m_consoleSettings.consoleColors[attrBG]);
+
+      CRect rect;
+      rect.top    = dwY;
+      rect.left   = dwX;
+      rect.bottom = dwY + m_nCharHeight;
+      rect.right  = dwX + dwBGWidth;
+      dc.FillRect(&rect, backgroundBrush);
+
+      dwX       += dwBGWidth;
+    }
+  }
+
+  // second pass : text
+  dwX      = m_nVInsideBorder;
+  dwOffset = m_dwScreenColumns * dwRow;
+
+  wstring  strText(L"");
+  COLORREF colorFG;
+  DWORD    dwFGWidth = 0;
+
+  for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset)
+  {
+    if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+
+
+    // compare foreground color
+    COLORREF colorFG2 = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
+    if( dwFGWidth == 0 )
+    {
+      colorFG   = colorFG2;
+      dwFGWidth = m_nCharWidth;
+    }
+    else
+    {
+      if( colorFG == colorFG2 )
+      {
+        dwFGWidth += m_nCharWidth;
+      }
+      else
+      {
+        // draw text and reset
+
+        dc.SetBkMode(TRANSPARENT);
+        dc.SetTextColor(colorFG);
+
+        CRect rect;
+        rect.top    = dwY;
+        rect.left   = dwX;
+        rect.bottom = dwY + m_nCharHeight;
+        // we add the space of the next char
+        // in italic a part of the previous char is drawn in the following char space
+        rect.right  = dwX + dwFGWidth + m_nCharWidth;
+
+        dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), strText.length(), NULL);
+
+        strText.clear();
+        colorFG   = colorFG2;
+        dwX       += dwFGWidth;
+        dwFGWidth = m_nCharWidth;
+      }
+    }
+
+    strText += m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
+  }
+
+  if( dwBGWidth > 0 )
+  {
+    dc.SetBkMode(TRANSPARENT);
+    dc.SetTextColor(colorFG);
+
+    CRect rect;
+    rect.top    = dwY;
+    rect.left   = dwX;
+    rect.bottom = dwY + m_nCharHeight;
+    rect.right  = dwX + dwFGWidth;
+
+    dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), strText.length(), NULL);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////

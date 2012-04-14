@@ -3,7 +3,10 @@
 /Console2.suo
 bin/
 obj/
+ipch/
 help/console.chm
 
 *.aps
 *.user
+*.opensdf
+*.sdf

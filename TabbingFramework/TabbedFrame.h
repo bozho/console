@@ -321,9 +321,7 @@ public:
 		}
 	}
 
-	// A derived class might not need to override this although they can.
-	// (but they will probably need to specialize SetTabAreaHeight)
-	void CalcTabAreaHeight(void)
+	int CalcTabAreaHeight2(void)
 	{
 		// Dynamically figure out a reasonable tab area height
 		// based on the tab's font metrics
@@ -353,7 +351,14 @@ public:
 			}
 		}
 
-		int nNewTabAreaHeight = nNominalHeight + ( ::MulDiv(nNominalHeight, nFontLogicalUnits, nNominalFontLogicalUnits) - nNominalHeight ) / 2;
+		return nNominalHeight + ( ::MulDiv(nNominalHeight, nFontLogicalUnits, nNominalFontLogicalUnits) - nNominalHeight ) / 2;
+	}
+
+	// A derived class might not need to override this although they can.
+	// (but they will probably need to specialize SetTabAreaHeight)
+	void CalcTabAreaHeight(void)
+	{
+		int nNewTabAreaHeight = CalcTabAreaHeight2();
 
 		T* pT = static_cast<T*>(this);
 		pT->SetTabAreaHeight(nNewTabAreaHeight);
@@ -1219,6 +1224,35 @@ public:
 
 		customTabOwnerClass::OnRemoveTab(nNewTabCount);
 	}
+
+#ifdef _USE_AERO
+  void CalcTabAreaHeight(void)
+  {
+    SIZE size;
+
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+
+    ::GetThemePartSize(
+      hTheme,
+      NULL,
+      NAV_BACKBUTTON,
+      0,
+      NULL,
+      TS_TRUE,
+      &size
+      );
+
+    ::CloseThemeData(hTheme);
+
+    int nNewTabAreaHeight2 = customTabOwnerClass::CalcTabAreaHeight2();
+    int nNewTabAreaHeight  = max(size.cy + 4, nNewTabAreaHeight2);
+
+    this->GetTabCtrl().SetTopMargin(nNewTabAreaHeight - nNewTabAreaHeight2);
+
+    T* pT = static_cast<T*>(this);
+    pT->SetTabAreaHeight(nNewTabAreaHeight);
+  }
+#endif
 
 	void SetTabAreaHeight(int nNewTabAreaHeight)
 	{

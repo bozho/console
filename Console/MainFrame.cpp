@@ -2216,15 +2216,17 @@ void MainFrame::ResizeWindow()
 	CRect rectWindow;
 	GetWindowRect(&rectWindow);
 
-	CRect rectClient;
-	GetClientRect(&rectClient);
-
 	DWORD dwWindowWidth	= rectWindow.Width();
 	DWORD dwWindowHeight= rectWindow.Height();
+
+#ifdef _DEBUG
+	CRect rectClient;
+	GetClientRect(&rectClient);
 
 	TRACE(L"old dims: %ix%i\n", m_dwWindowWidth, m_dwWindowHeight);
 	TRACE(L"new dims: %ix%i\n", dwWindowWidth, dwWindowHeight);
 	TRACE(L"client dims: %ix%i\n", rectClient.Width(), rectClient.Height());
+#endif
 
 	if ((dwWindowWidth != m_dwWindowWidth) ||
 		(dwWindowHeight != m_dwWindowHeight))

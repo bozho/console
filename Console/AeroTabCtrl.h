@@ -1,12 +1,15 @@
 #pragma once
 
+/* Aero default theme drawn an internal border (2 pixels) */
+#define AERO_FRAME_BORDER_SIZE 2;
+
 template<typename T, typename TItem = CCustomTabItem, class TBase = ATL::CWindow, class TWinTraits = CCustomTabCtrlWinTraits>
 class CAeroTabCtrlImpl :
-	public CDotNetTabCtrlImpl<T, TItem, TBase, TWinTraits>
+  public CDotNetTabCtrlImpl<T, TItem, TBase, TWinTraits>
 {
 protected:
-	typedef CAeroTabCtrlImpl<T, TItem, TBase, TWinTraits> thisClass;
-	typedef CDotNetTabCtrlImpl<T, TItem, TBase, TWinTraits> baseClass;
+  typedef CAeroTabCtrlImpl<T, TItem, TBase, TWinTraits> thisClass;
+  typedef CDotNetTabCtrlImpl<T, TItem, TBase, TWinTraits> baseClass;
 
   signed char m_iMargin;
   signed char m_iLeftSpacing;
@@ -18,104 +21,108 @@ protected:
   // Constructor
 public:
 
-	CAeroTabCtrlImpl()
-	{
-		// We can't use a member initialization list to initialize
-		// members of our base class, so do it explictly by assignment here.
-		m_clrTextInactiveTab = /*RGB(255,255,255); */::GetSysColor(COLOR_BTNTEXT);
-		m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
-	}
+  CAeroTabCtrlImpl():m_iTopMargin(0)
+  {
+    // We can't use a member initialization list to initialize
+    // members of our base class, so do it explictly by assignment here.
+    m_clrTextInactiveTab = /*RGB(255,255,255); */::GetSysColor(COLOR_BTNTEXT);
+    m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
+  }
+
+  void SetTopMargin(int nTopMargin)
+  {
+    m_iTopMargin = static_cast<signed char>(nTopMargin);
+  }
 
   // Message Handling
 public:
-	DECLARE_WND_CLASS_EX(_T("WTL_CAeroTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+  DECLARE_WND_CLASS_EX(_T("WTL_CAeroTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
 
-	BEGIN_MSG_MAP(thisClass)
-		MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
-		MESSAGE_HANDLER(WM_SYSCOLORCHANGE, OnSettingChange)
-		CHAIN_MSG_MAP(baseClass)
-	END_MSG_MAP()
+  BEGIN_MSG_MAP(thisClass)
+    MESSAGE_HANDLER(WM_SETTINGCHANGE, OnSettingChange)
+    MESSAGE_HANDLER(WM_SYSCOLORCHANGE, OnSettingChange)
+    CHAIN_MSG_MAP(baseClass)
+  END_MSG_MAP()
 
-	LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-	{
-		DWORD dwStyle = this->GetStyle();
+  LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+  {
+    DWORD dwStyle = this->GetStyle();
 
-		// Initialize/Reinitialize font
-		// Visual Studio.Net seems to use the "icon" font for the tabs
-		LOGFONT lfIcon = { 0 };
-		::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIcon), &lfIcon, 0);
+    // Initialize/Reinitialize font
+    // Visual Studio.Net seems to use the "icon" font for the tabs
+    LOGFONT lfIcon = { 0 };
+    ::SystemParametersInfo(SPI_GETICONTITLELOGFONT, sizeof(lfIcon), &lfIcon, 0);
 
-		bool bResetFont = true;
-		if(!m_font.IsNull())
-		{
-			LOGFONT lf = {0};
-			if(m_font.GetLogFont(&lf))
-			{
-				if(lstrcmpi(lf.lfFaceName, lfIcon.lfFaceName) == 0 &&
-					lf.lfHeight == lfIcon.lfHeight)
-				{
-					bResetFont = false;
-				}
-			}
-		}
+    bool bResetFont = true;
+    if(!m_font.IsNull())
+    {
+      LOGFONT lf = {0};
+      if(m_font.GetLogFont(&lf))
+      {
+        if(lstrcmpi(lf.lfFaceName, lfIcon.lfFaceName) == 0 &&
+          lf.lfHeight == lfIcon.lfHeight)
+        {
+          bResetFont = false;
+        }
+      }
+    }
 
-		if(bResetFont)
-		{
-			if(!m_font.IsNull()) m_font.DeleteObject();
-			if(!m_fontSel.IsNull()) m_fontSel.DeleteObject();
+    if(bResetFont)
+    {
+      if(!m_font.IsNull()) m_font.DeleteObject();
+      if(!m_fontSel.IsNull()) m_fontSel.DeleteObject();
 
-			HFONT font = m_font.CreateFontIndirect(&lfIcon);
-			if(font==NULL)
-			{
-				m_font.Attach(AtlGetDefaultGuiFont());
-			}
+      HFONT font = m_font.CreateFontIndirect(&lfIcon);
+      if(font==NULL)
+      {
+        m_font.Attach(AtlGetDefaultGuiFont());
+      }
 
-			if(CTCS_BOLDSELECTEDTAB == (dwStyle & CTCS_BOLDSELECTEDTAB))
-			{
-				lfIcon.lfWeight = FW_BOLD;
-			}
+      if(CTCS_BOLDSELECTEDTAB == (dwStyle & CTCS_BOLDSELECTEDTAB))
+      {
+        lfIcon.lfWeight = FW_BOLD;
+      }
 
-			font = m_fontSel.CreateFontIndirect(&lfIcon);
-			if(font==NULL)
-			{
-				m_fontSel.Attach(AtlGetDefaultGuiFont());
-			}
-		}
+      font = m_fontSel.CreateFontIndirect(&lfIcon);
+      if(font==NULL)
+      {
+        m_fontSel.Attach(AtlGetDefaultGuiFont());
+      }
+    }
 
-		// Background brush
-		if(!m_hbrBackground.IsNull() ) m_hbrBackground.DeleteObject();
+    // Background brush
+    if(!m_hbrBackground.IsNull() ) m_hbrBackground.DeleteObject();
 
-		m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
+    m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
 
     m_iMargin = 6;
     m_iLeftSpacing = 2;
-    m_iTopMargin = 4;
     m_iRadius = 3;
-		m_settings.iIndent = 5;
-		m_settings.iPadding = 4;
-		m_settings.iMargin = m_iMargin + m_iLeftSpacing / 2;
-		m_settings.iSelMargin = 6;
+    m_settings.iIndent = 5;
+    m_settings.iPadding = 4;
+    m_settings.iMargin = m_iMargin + m_iLeftSpacing / 2;
+    m_settings.iSelMargin = 6;
 
-		T* pT = static_cast<T*>(this);
-		pT->UpdateLayout();
-		pT->Invalidate();
-		return 0;
-	}
+    T* pT = static_cast<T*>(this);
+    pT->UpdateLayout();
+    pT->Invalidate();
+    return 0;
+  }
 
   // Overrides for painting from CDotNetTabCtrlImpl
 public:
 
-	void DrawBackground(RECT /*rcClient*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
-	{
+  void DrawBackground(RECT /*rcClient*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
+  {
     Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
     g.Clear(Gdiplus::Color(0,0,0,0));
-	}
+  }
 
   void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
   {
-		DWORD dwStyle = this->GetStyle();
+    DWORD dwStyle = this->GetStyle();
 
-		if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+    if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
       this->DrawTabBottom(rcTab, g, color);
     else
       this->DrawTabTop(rcTab, g, color);
@@ -169,6 +176,16 @@ public:
     g.DrawLine(&pen2, X + radius, Y, X + width - radius, Y);
     g.DrawLine(&pen2, X + width - radius, Y, X + width, Y + radius);
     g.DrawLine(&pen2, X + width, Y + radius, X + width, Y + height);
+
+#ifdef _DRAW_TAB_RECT
+    {
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Green)));
+      g.DrawRectangle(
+        &pen,
+        X, Y,
+        width, height);
+    }
+#endif //_DRAW_TAB_RECT
   }
 
   void DrawTabBottom(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
@@ -211,42 +228,55 @@ public:
     g.DrawLine(&pen2, X + radius, Y, X + width - radius, Y);
     g.DrawLine(&pen2, X + width - radius, Y, X + width, Y - radius);
     g.DrawLine(&pen2, X + width, Y - radius, X + width, Y - height);
+
+#ifdef _DRAW_TAB_RECT
+    {
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Green)));
+      g.DrawRectangle(
+        &pen,
+        X, Y - height,
+        width, height);
+    }
+#endif //_DRAW_TAB_RECT
   }
 
-	void DrawItem_InitBounds(DWORD /*dwStyle*/, RECT /*rcItem*/, RECT& rcTab, RECT& rcText, int& nIconVerticalCenter)
-	{
+  void DrawItem_InitBounds(DWORD /*dwStyle*/, RECT /*rcItem*/, RECT& rcTab, RECT& rcText, int& nIconVerticalCenter)
+  {
     DWORD dwStyle = this->GetStyle();
     if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
     {
+      rcText.top += AERO_FRAME_BORDER_SIZE;
+      rcTab.top += AERO_FRAME_BORDER_SIZE;
       rcText.bottom -= m_iTopMargin;
       rcText.left += (m_iLeftSpacing + m_iMargin);
       rcText.right -= m_iMargin;
-      nIconVerticalCenter = (rcTab.bottom + rcTab.top - m_iTopMargin) / 2;
     }
     else
     {
       rcText.top += m_iTopMargin;
+      rcText.bottom -= AERO_FRAME_BORDER_SIZE;
+      rcTab.bottom -= AERO_FRAME_BORDER_SIZE;
       rcText.left += (m_iLeftSpacing + m_iMargin);
       rcText.right -= m_iMargin;
-      nIconVerticalCenter = (rcTab.bottom + rcTab.top - m_iTopMargin) / 2 + m_iTopMargin;
     }
+    nIconVerticalCenter = (rcText.bottom + rcText.top) / 2;
 
     if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON))
     {
       rcText.right -= m_iCloseButtonWidth;
     }
-	}
+  }
 
-	void DrawItem_TabInactive(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW /*lpNMCustomDraw*/, RECT& /*rcTab*/)
-	{
-	}
+  void DrawItem_TabInactive(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW /*lpNMCustomDraw*/, RECT& /*rcTab*/)
+  {
+  }
 
-	void DrawItem_TabSelected(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW /*lpNMCustomDraw*/, RECT& /*rcTab*/)
-	{
-	}
+  void DrawItem_TabSelected(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW /*lpNMCustomDraw*/, RECT& /*rcTab*/)
+  {
+  }
 
   void DrawItem_ImageAndText(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, int nIconVerticalCenter, RECT& rcTab, RECT& rcText)
-	{
+  {
     HDC targetDC = lpNMCustomDraw->nmcd.hdc;
     HDC bufferedDC = NULL;
     BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
@@ -254,30 +284,30 @@ public:
     BufferedPaintClear(pb, &rcTab);
     Gdiplus::Graphics g(bufferedDC);
 
-		bool bHighlighted = (CDIS_MARKED == (lpNMCustomDraw->nmcd.uItemState & CDIS_MARKED));
-		bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
-		bool bHot = (CDIS_HOT == (lpNMCustomDraw->nmcd.uItemState & CDIS_HOT));
-		int nItem = (int)lpNMCustomDraw->nmcd.dwItemSpec;
+    bool bHighlighted = (CDIS_MARKED == (lpNMCustomDraw->nmcd.uItemState & CDIS_MARKED));
+    bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
+    bool bHot = (CDIS_HOT == (lpNMCustomDraw->nmcd.uItemState & CDIS_HOT));
+    int nItem = (int)lpNMCustomDraw->nmcd.dwItemSpec;
 
-		TItem* pItem = this->GetItem(nItem);
+    TItem* pItem = this->GetItem(nItem);
 
     ::SelectObject(
       bufferedDC,
       ( bSelected )?
-        lpNMCustomDraw->hFontSelected :
-        lpNMCustomDraw->hFontInactive);
+      lpNMCustomDraw->hFontSelected :
+    lpNMCustomDraw->hFontInactive);
 
     COLORREF txtcolorref = 0;
     COLORREF tabcolorref = 0;
     BYTE byteAlpha = 0;
-		if(bSelected)
-		{
-			txtcolorref = lpNMCustomDraw->clrTextSelected;
+    if(bSelected)
+    {
+      txtcolorref = lpNMCustomDraw->clrTextSelected;
       tabcolorref = lpNMCustomDraw->clrSelectedTab;
       byteAlpha   = 255;
-		}
-		else if(bHighlighted)
-		{
+    }
+    else if(bHighlighted)
+    {
       txtcolorref = lpNMCustomDraw->clrHighlightText;
       if( bHot )
       {
@@ -289,56 +319,56 @@ public:
         tabcolorref = lpNMCustomDraw->clrHighlight;
         byteAlpha   = 64;
       }
-		}
-		else if(bHot)
-		{
+    }
+    else if(bHot)
+    {
       txtcolorref = lpNMCustomDraw->clrTextInactive;
       tabcolorref = lpNMCustomDraw->clrSelectedTab;
       byteAlpha   = 96;
-		}
-		else
-		{
-			txtcolorref = lpNMCustomDraw->clrTextInactive;
+    }
+    else
+    {
+      txtcolorref = lpNMCustomDraw->clrTextInactive;
       tabcolorref = lpNMCustomDraw->clrSelectedTab;
       byteAlpha   = 64;
-		}
+    }
     Gdiplus::Color tabcolor;
     tabcolor.SetFromCOLORREF(tabcolorref);
     tabcolor.SetValue(Gdiplus::Color::MakeARGB(byteAlpha, tabcolor.GetR(), tabcolor.GetG(), tabcolor.GetB()));
 
     this->DrawTab(rcTab, g, tabcolor);
 
-		//--------------------------------------------
+    //--------------------------------------------
     // This is how CAeroTabCtrlImpl interprets padding, margin, etc.:
-		//
-		//  M - Margin
-		//  P - Padding
-		//  I - Image
+    //
+    //  M - Margin
+    //  P - Padding
+    //  I - Image
     //  C - Close button
-		//  Text - Tab Text
-		//
+    //  Text - Tab Text
+    //
     // With image & With close button:
     //    | M | I | P | Text | P | C | M |
-		//
+    //
     // Without image & With close Button :
     //    | M | P | Text | P | C | M |
-		//
+    //
     // With image & Without close button:
     //    | M | I | P | Text | P | M |
-		//
+    //
     // Without image & Without close Button :
-		//    | M | P | Text | P | M |
+    //    | M | P | Text | P | M |
 
-		if (pItem->UsingImage() && !m_imageList.IsNull())
-		{
-			// Draw the image.
-			IMAGEINFO ii = {0};
-			int nImageIndex = pItem->GetImageIndex();
-			m_imageList.GetImageInfo(nImageIndex, &ii);
+    if (pItem->UsingImage() && !m_imageList.IsNull())
+    {
+      // Draw the image.
+      IMAGEINFO ii = {0};
+      int nImageIndex = pItem->GetImageIndex();
+      m_imageList.GetImageInfo(nImageIndex, &ii);
 
-			if((ii.rcImage.right - ii.rcImage.left) < (rcTab.right - rcTab.left))
-			{
-				int nImageHalfHeight = (ii.rcImage.bottom - ii.rcImage.top) / 2;
+      if((ii.rcImage.right - ii.rcImage.left) < (rcTab.right - rcTab.left))
+      {
+        int nImageHalfHeight = (ii.rcImage.bottom - ii.rcImage.top) / 2;
 
         CIcon tabSmallIcon(m_imageList.ExtractIcon(nImageIndex));
         if( !tabSmallIcon.IsNull() )
@@ -349,15 +379,25 @@ public:
             tabSmallIcon.m_hIcon,
             16, 16);
         }
-			}
 
-			// Offset on the right of the image.
-			rcText.left += (ii.rcImage.right - ii.rcImage.left);
-		}
+#ifdef _DRAW_TAB_RECT
+        {
+          Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Cyan)));
+          g.DrawRectangle(
+            &pen,
+            rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset,
+            15, 15);
+        }
+#endif //_DRAW_TAB_RECT
+      }
 
-		if (rcText.left + m_nMinWidthToDisplayText < rcText.right)
-		{
-			::InflateRect(&rcText, -m_settings.iPadding, 0);
+      // Offset on the right of the image.
+      rcText.left += (ii.rcImage.right - ii.rcImage.left);
+    }
+
+    if (rcText.left + m_nMinWidthToDisplayText < rcText.right)
+    {
+      ::InflateRect(&rcText, -m_settings.iPadding, 0);
 
       TCHAR szTitle[256];
       int szTitleLen = _sntprintf_s(szTitle, 256, _TRUNCATE, _T("%d. %s"), nItem + 1, pItem->GetText());
@@ -365,10 +405,10 @@ public:
       bool bGlow = true;
 
       DTTOPTS dtto = { 0 };
-        dtto.dwSize = sizeof(DTTOPTS);
-        dtto.iGlowSize = 8;
-        dtto.crText = txtcolorref;
-        dtto.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE;
+      dtto.dwSize = sizeof(DTTOPTS);
+      dtto.iGlowSize = 8;
+      dtto.crText = txtcolorref;
+      dtto.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE;
 
       HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_WINDOW);
 
@@ -383,13 +423,31 @@ public:
         &dtto);
 
       CloseThemeData(hTheme);
-		}
+    }
+
+#ifdef _DRAW_TAB_RECT
+    {
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Yellow)));
+      g.DrawRectangle(
+        &pen,
+        rcTab.left, rcTab.top,
+        rcTab.right - rcTab.left - 1, rcTab.bottom - rcTab.top - 1);
+    }
+
+    {
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Red)));
+      g.DrawRectangle(
+        &pen,
+        rcText.left, rcText.top,
+        rcText.right - rcText.left - 1, rcText.bottom - rcText.top - 1);
+    }
+#endif //_DRAW_TAB_RECT
 
     EndBufferedPaint(pb, TRUE);
-	}
+  }
 
-	void DrawCloseButton(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
-	{
+  void DrawCloseButton(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
+  {
     // drawed in the current tab
 
     HDC targetDC = lpNMCustomDraw->nmcd.hdc;
@@ -414,6 +472,17 @@ public:
       NULL);
 
     CloseThemeData(hTheme);
+
+#ifdef _DRAW_TAB_RECT
+    {
+      Gdiplus::Graphics g(bufferedDC);
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Cyan)));
+      g.DrawRectangle(
+        &pen,
+        m_rcCloseButton.left, m_rcCloseButton.top,
+        m_rcCloseButton.right - m_rcCloseButton.left - 1, m_rcCloseButton.bottom - m_rcCloseButton.top -1);
+    }
+#endif //_DRAW_TAB_RECT
 
     EndBufferedPaint(pb, TRUE);
   }
@@ -472,43 +541,62 @@ public:
 
     CloseThemeData(hTheme);
 
+#ifdef _DRAW_TAB_RECT
+    {
+      Gdiplus::Graphics g(bufferedDC);
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Lime)));
+      g.DrawRectangle(
+        &pen,
+        m_rcScrollLeft.left, m_rcScrollLeft.top,
+        m_rcScrollLeft.right - m_rcScrollLeft.left - 1, m_rcScrollLeft.bottom - m_rcScrollLeft.top -1);
+    }
+    {
+      Gdiplus::Graphics g(bufferedDC);
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Magenta)));
+      g.DrawRectangle(
+        &pen,
+        m_rcScrollRight.left, m_rcScrollRight.top,
+        m_rcScrollRight.right - m_rcScrollRight.left - 1, m_rcScrollRight.bottom - m_rcScrollRight.top -1);
+    }
+#endif //_DRAW_TAB_RECT
+
     EndBufferedPaint(pb, TRUE);
-	}
+  }
 
   void CalcSize_CloseButton(LPRECT /*prcTabItemArea*/)
-	{
+  {
     DWORD dwStyle = this->GetStyle();
 
     if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON) && m_Items.GetCount() > 1)
-	{
-    SIZE size;
+    {
+      SIZE size;
 
-    HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+      HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_WINDOW);
 
-    GetThemePartSize(
-      hTheme,
-      NULL,
-      WP_SMALLCLOSEBUTTON,
-      0,
-      NULL,
-      TS_TRUE,
-      &size
-      );
+      GetThemePartSize(
+        hTheme,
+        NULL,
+        WP_SMALLCLOSEBUTTON,
+        0,
+        NULL,
+        TS_TRUE,
+        &size
+        );
 
-    CloseThemeData(hTheme);
+      CloseThemeData(hTheme);
 
       m_iCloseButtonWidth  = size.cx;
       m_iCloseButtonHeight = size.cy;
-		}
-		else
-		{
+    }
+    else
+    {
       m_iCloseButtonWidth  = 0;
       m_iCloseButtonHeight = 0;
-		}
-	}
+    }
+  }
 
-	void CalcSize_ScrollButtons(LPRECT prcTabItemArea)
-	{
+  void CalcSize_ScrollButtons(LPRECT prcTabItemArea)
+  {
     SIZE size;
 
     HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
@@ -525,46 +613,46 @@ public:
 
     CloseThemeData(hTheme);
 
-		if((prcTabItemArea->right - prcTabItemArea->left) < size.cx)
-		{
-			::SetRectEmpty(&m_rcScrollRight);
-			::SetRectEmpty(&m_rcScrollLeft);
-			return;
-		}
+    if((prcTabItemArea->right - prcTabItemArea->left) < size.cx)
+    {
+      ::SetRectEmpty(&m_rcScrollRight);
+      ::SetRectEmpty(&m_rcScrollLeft);
+      return;
+    }
 
-		RECT rcScroll = *prcTabItemArea;
+    RECT rcScroll = *prcTabItemArea;
 
-		DWORD dwStyle = this->GetStyle();
+    DWORD dwStyle = this->GetStyle();
 
-		if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
-		{
-			rcScroll.top += 3;
-		}
-		else
-		{
-			rcScroll.top += 1;
-			rcScroll.bottom -= 2;
-		}
-		rcScroll.top = (rcScroll.bottom + rcScroll.top - size.cy) / 2;
-		rcScroll.bottom = rcScroll.top + size.cy;
+    if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+    {
+      rcScroll.top += 3;
+    }
+    else
+    {
+      rcScroll.top += 1;
+      rcScroll.bottom -= 2;
+    }
+    rcScroll.top = (rcScroll.bottom + rcScroll.top - size.cy) / 2;
+    rcScroll.bottom = rcScroll.top + size.cy;
 
-		m_rcScrollRight = rcScroll;
-		m_rcScrollLeft = rcScroll;
+    m_rcScrollRight = rcScroll;
+    m_rcScrollLeft = rcScroll;
 
-		m_rcScrollRight.left = m_rcScrollRight.right - size.cx;
+    m_rcScrollRight.left = m_rcScrollRight.right - size.cx;
 
-		m_rcScrollLeft.right = m_rcScrollRight.left - 3;
-		m_rcScrollLeft.left = m_rcScrollLeft.right - size.cx;
+    m_rcScrollLeft.right = m_rcScrollRight.left - 3;
+    m_rcScrollLeft.left = m_rcScrollLeft.right - size.cx;
 
-		if(m_tooltip.IsWindow())
-		{
-			m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_ScrollRight, &m_rcScrollRight);
-			m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_ScrollLeft, &m_rcScrollLeft);
-		}
+    if(m_tooltip.IsWindow())
+    {
+      m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_ScrollRight, &m_rcScrollRight);
+      m_tooltip.SetToolRect(m_hWnd, (UINT)ectcToolTip_ScrollLeft, &m_rcScrollLeft);
+    }
 
-		// Adjust the tab area
-		prcTabItemArea->right = m_rcScrollLeft.left;
-	}
+    // Adjust the tab area
+    prcTabItemArea->right = m_rcScrollLeft.left;
+  }
 
   void UpdateLayout_CloseButton(RECT rcItem)
   {
@@ -581,17 +669,20 @@ public:
     int nIconVerticalCenter;
     if (CTCS_BOTTOM == (this->GetStyle() & CTCS_BOTTOM))
     {
-      nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top - m_iTopMargin) / 2;
+      rcItemDP.top += AERO_FRAME_BORDER_SIZE;
+      rcItemDP.bottom -= m_iTopMargin;
     }
     else
     {
-      nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top - m_iTopMargin) / 2 + m_iTopMargin;
+      rcItemDP.top += m_iTopMargin;
+      rcItemDP.bottom -= AERO_FRAME_BORDER_SIZE;
     }
+    nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top) / 2;
 
     // calculate the position of the close button
     m_rcCloseButton.left   = rcItemDP.right;
     m_rcCloseButton.right  = m_rcCloseButton.left + m_iCloseButtonWidth;
-    m_rcCloseButton.top    = rcItemDP.top + nIconVerticalCenter - m_iCloseButtonHeight / 2;
+    m_rcCloseButton.top    = nIconVerticalCenter - m_iCloseButtonHeight / 2;
     m_rcCloseButton.bottom = m_rcCloseButton.top + m_iCloseButtonHeight;
   }
 
@@ -824,24 +915,24 @@ public:
 
 template <class TItem = CCustomTabItem>
 class CAeroTabCtrl :
-	public CAeroTabCtrlImpl<CAeroTabCtrl<TItem>, TItem>
+  public CAeroTabCtrlImpl<CAeroTabCtrl<TItem>, TItem>
 {
 protected:
-	typedef CAeroTabCtrl<TItem> thisClass;
-	typedef CAeroTabCtrlImpl<CAeroTabCtrl<TItem>, TItem> baseClass;
+  typedef CAeroTabCtrl<TItem> thisClass;
+  typedef CAeroTabCtrlImpl<CAeroTabCtrl<TItem>, TItem> baseClass;
 
   // Constructors:
 public:
-	CAeroTabCtrl()
-	{
-	}
+  CAeroTabCtrl()
+  {
+  }
 
 public:
 
-	DECLARE_WND_CLASS_EX(_T("WTL_CAeroTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
+  DECLARE_WND_CLASS_EX(_T("WTL_CAeroTabCtrl"), CS_DBLCLKS, COLOR_WINDOW)
 
-	//We have nothing special to add.
-	//BEGIN_MSG_MAP(thisClass)
-	//	CHAIN_MSG_MAP(baseClass)
-	//END_MSG_MAP()
+  //We have nothing special to add.
+  //BEGIN_MSG_MAP(thisClass)
+  //	CHAIN_MSG_MAP(baseClass)
+  //END_MSG_MAP()
 };

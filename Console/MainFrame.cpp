@@ -627,7 +627,7 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL&
 	// when the Console window is resized using a mouse)
 	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
 	// message after resizing a window.
-	//SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
+	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
 
 	if (wParam == SIZE_MAXIMIZED)
 	{

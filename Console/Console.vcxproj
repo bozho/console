@@ -416,6 +416,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TabView.cpp" />
+    <ClCompile Include="Wallpaper.cpp" />
     <ClCompile Include="XmlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -425,6 +426,7 @@
     <ClInclude Include="ConsoleException.h" />
     <ClInclude Include="ConsoleHandler.h" />
     <ClInclude Include="ConsoleView.h" />
+    <ClInclude Include="Cpp11Helpers.h" />
     <ClInclude Include="Cursors.h" />
     <ClInclude Include="DlgCredentials.h" />
     <ClInclude Include="DlgRenameTab.h" />
@@ -453,6 +455,8 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="..\shared\Structures.h" />
     <ClInclude Include="TabView.h" />
+    <ClInclude Include="Wallpaper.h" />
+    <ClInclude Include="Win32Exception.h" />
     <ClInclude Include="wtlaero.h" />
     <ClInclude Include="XmlHelper.h" />
   </ItemGroup>

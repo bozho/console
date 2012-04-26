@@ -9,6 +9,7 @@
 #include "aboutdlg.h"
 #include "MainFrame.h"
 #include "Console.h"
+#include "WallPaper.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -174,7 +175,44 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		sharedInstance = wndMain.m_hWnd;
 	}
 
-	int nRet = theLoop.Run();
+  WallPaperThread wallPaperThread(wndMain);
+
+  try
+  {
+    OSVERSIONINFOEX osvi;
+    DWORDLONG dwlConditionMask = 0;
+    int op=VER_GREATER_EQUAL;
+
+    // Initialize the OSVERSIONINFOEX structure.
+
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    osvi.dwMajorVersion = 6;
+    osvi.dwMinorVersion = 1;
+
+    // Initialize the condition mask.
+
+    VER_SET_CONDITION( dwlConditionMask, VER_MAJORVERSION, op );
+    VER_SET_CONDITION( dwlConditionMask, VER_MINORVERSION, op );
+
+    // Perform the test.
+
+    if( VerifyVersionInfo(
+      &osvi, 
+      VER_MAJORVERSION | VER_MINORVERSION | 
+      VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR,
+      dwlConditionMask) )
+    {
+      // Win7 or more, we use the wallpaper slideshow monitoring
+      wallPaperThread.Start();
+    }
+  }
+  catch(std::exception& e)
+  {
+    ::MessageBoxA(0, e.what(), "exception", MB_OK);
+  }
+
+  int nRet = theLoop.Run();
 
 	if (noTaskbarParent.m_hWnd != NULL) noTaskbarParent.DestroyWindow();
 

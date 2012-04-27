@@ -14,7 +14,7 @@ LRESULT CAboutDlg::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
   this->OpenThemeData(VSCLASS_WINDOW);
 #else
   CString strMsg;
-  strMsg.Format(L"\nConsoleZ %i.%02i.%i\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+  strMsg.Format(L"\nConsoleZ %i.%i.%i\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
 
   CWindow staticMessage(GetDlgItem(IDC_STATIC_VERSION));
   staticMessage.SetWindowText(strMsg);

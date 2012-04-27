@@ -138,7 +138,7 @@ using namespace boost::multi_index;
 // Version numbers
 
 #define	VERSION_MAJOR	1
-#define	VERSION_MINOR	1
+#define	VERSION_MINOR	2
 #define	VERSION_BUILD	0
 
 //////////////////////////////////////////////////////////////////////////////

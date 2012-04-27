@@ -74,13 +74,13 @@ public:
 
     CRect rectVersion(0x25,0x41,0x25+0x78,0x41+0x25);
     CString strMsgVersion;
-    strMsgVersion.Format(L"\nConsoleZ %i.%02i.%i\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+    strMsgVersion.Format(L"\nConsoleZ %i.%i.%i\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
     this->DrawTextW(dc, strMsgVersion, rectVersion, DT_CENTER | DT_VCENTER, dtto);
 
     CRect rectAppText(0x14,0x64,0x14+0x9A,0x64+0x80);
     this->DrawTextW(
       dc,
-      L"\nCopyright (C) 2011-2012\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",
+      L"\nCopyright (C) 2011\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",
       rectAppText,
       DT_CENTER | DT_VCENTER, dtto);
   }

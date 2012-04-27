@@ -6,10 +6,20 @@
 
 enum ImagePosition
 {
+  /* new names like Win7 walppaper settings */
+  imagePositionCenter      = 0,
+  imagePositionStretch     = 1,
+  imagePositionTile        = 2,
+  imagePositionFit         = 3,
+  imagePositionFill        = 4,
+
+  /* old names */
+  /*
   imgPosCenter             = 0,
   imgPosFit                = 1,
   imgPosTile               = 2,
   imgPosFitWithAspectRatio = 3
+  */
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -23,7 +33,7 @@ struct ImageData
 	: strFilename(L"")
 	, bRelative(false)
 	, bExtend(false)
-	, imagePosition(imgPosCenter)
+	, imagePosition(imagePositionCenter)
 	, crBackground(RGB(0, 0, 0))
 	, crTint(RGB(0, 0, 0))
 	, byTintOpacity(0)

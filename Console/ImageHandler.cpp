@@ -22,6 +22,49 @@ ImageHandler::~ImageHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
+static void Rescale(DWORD& dwNewWidth, DWORD& dwNewHeight, std::shared_ptr<BackgroundImage>& bkImage)
+{
+  switch( bkImage->imageData.imagePosition )
+  {
+  case imagePositionFit:
+    {
+      double dXRatio = (double)dwNewWidth  / (double)bkImage->originalImage->getWidth ();
+      double dYRatio = (double)dwNewHeight / (double)bkImage->originalImage->getHeight();
+
+      if( dXRatio < dYRatio )
+      {
+        dwNewHeight = ::MulDiv(bkImage->originalImage->getHeight(), dwNewWidth, bkImage->originalImage->getWidth());
+      }
+      else
+      {
+        dwNewWidth  = ::MulDiv(bkImage->originalImage->getWidth(), dwNewHeight, bkImage->originalImage->getHeight());
+      }
+    }
+    break;
+
+  case imagePositionFill:
+    {
+      double dXRatio = (double)dwNewWidth  / (double)bkImage->originalImage->getWidth ();
+      double dYRatio = (double)dwNewHeight / (double)bkImage->originalImage->getHeight();
+
+      if( dXRatio > dYRatio )
+      {
+        dwNewHeight = ::MulDiv(bkImage->originalImage->getHeight(), dwNewWidth, bkImage->originalImage->getWidth());
+      }
+      else
+      {
+        dwNewWidth  = ::MulDiv(bkImage->originalImage->getWidth(), dwNewHeight, bkImage->originalImage->getHeight());
+      }
+    }
+    break;
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 std::shared_ptr<BackgroundImage> ImageHandler::GetImage(const ImageData& imageData)
 {
 	std::shared_ptr<BackgroundImage>	bkImage(new BackgroundImage(imageData));
@@ -179,21 +222,25 @@ bool ImageHandler::GetDesktopImageData(ImageData& imageData)
 
 	if (strWallpaperTile == L"1")
 	{
-		imageData.imagePosition= imgPosTile;
+		imageData.imagePosition= imagePositionTile;
 	}
 	else
 	{
 		if (strWallpaperStyle == L"0")
 		{
-			imageData.imagePosition= imgPosCenter;
+			imageData.imagePosition= imagePositionCenter;
 		}
 		else if (strWallpaperStyle == L"6")
 		{
-			imageData.imagePosition= imgPosFitWithAspectRatio;
+			imageData.imagePosition= imagePositionFit;
+		}
+		else if (strWallpaperStyle == L"10")
+		{
+			imageData.imagePosition= imagePositionFill;
 		}
 		else
 		{
-			imageData.imagePosition= imgPosFit;
+			imageData.imagePosition= imagePositionStretch;
 		}
 	}
 
@@ -280,7 +327,9 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
 		DWORD	dwTemplateWidth  = bkImage->originalImage->getWidth();
 		DWORD	dwTemplateHeight = bkImage->originalImage->getHeight();
 
-		if (bkImage->imageData.imagePosition == imgPosFit || bkImage->imageData.imagePosition == imgPosFitWithAspectRatio)
+		if (bkImage->imageData.imagePosition == imagePositionStretch ||
+        bkImage->imageData.imagePosition == imagePositionFit     ||
+        bkImage->imageData.imagePosition == imagePositionFill )
 		{
 			if (bkImage->imageData.bExtend)
 			{
@@ -294,29 +343,16 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
 			}
 		}
 
-    WORD wNewWidth  = static_cast<WORD>(dwTemplateWidth);
-    WORD wNewHeight = static_cast<WORD>(dwTemplateHeight);
+    DWORD dwNewWidth  = dwTemplateWidth;
+    DWORD dwNewHeight = dwTemplateHeight;
 
-		if ((bkImage->originalImage->getWidth() != wNewWidth) ||
-			(bkImage->originalImage->getHeight() != wNewHeight))
+		if ((bkImage->originalImage->getWidth() != dwNewWidth) ||
+        (bkImage->originalImage->getHeight() != dwNewHeight))
 		{
 			// resize background image
+			::Rescale(dwNewWidth, dwNewHeight, bkImage);
 			fipImage tempImage(*(bkImage->originalImage));
-      if( bkImage->imageData.imagePosition == imgPosFitWithAspectRatio )
-      {
-        double dXRatio = (double)wNewWidth  / (double)bkImage->originalImage->getWidth ();
-        double dYRatio = (double)wNewHeight / (double)bkImage->originalImage->getHeight();
-
-        if( dXRatio < dYRatio )
-        {
-          wNewHeight = (WORD)::MulDiv(bkImage->originalImage->getHeight(), wNewWidth, bkImage->originalImage->getWidth());
-        }
-        else
-        {
-          wNewWidth  = (WORD)::MulDiv(bkImage->originalImage->getWidth(), wNewHeight, bkImage->originalImage->getHeight());
-        }
-      }
-			tempImage.rescale(wNewWidth, wNewHeight, FILTER_BILINEAR);
+			tempImage.rescale(dwNewWidth, dwNewHeight, FILTER_BILINEAR);
 
 			bmpTemplate.CreateDIBitmap(
 							dc,
@@ -339,7 +375,7 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
 
 		dcTemplate.SelectBitmap(bmpTemplate);
 
-		if (bkImage->imageData.imagePosition == imgPosTile)
+		if (bkImage->imageData.imagePosition == imagePositionTile)
 		{
 			TileTemplateImage(
 				dcTemplate,
@@ -356,8 +392,8 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
 					dcTemplate,
 					0,
 					0,
-					wNewWidth,
-					wNewHeight,
+					dwNewWidth,
+					dwNewHeight,
 					bkImage->dwImageWidth,
 					bkImage->dwImageHeight,
 					bkImage);
@@ -406,29 +442,18 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, std::shar
 
 		dcTemplate.CreateCompatibleDC(NULL);
 
-    WORD wNewWidth  = static_cast<WORD>(bkImage->dwImageWidth);
-    WORD wNewHeight = static_cast<WORD>(bkImage->dwImageHeight);
+    DWORD dwNewWidth  = bkImage->dwImageWidth;
+    DWORD dwNewHeight = bkImage->dwImageHeight;
 
-		if ((bkImage->imageData.imagePosition == imgPosFit || bkImage->imageData.imagePosition == imgPosFitWithAspectRatio) &&
-			((bkImage->originalImage->getWidth() != wNewWidth) || (bkImage->originalImage->getHeight() != wNewHeight)))
+		if ( (bkImage->imageData.imagePosition == imagePositionStretch ||
+          bkImage->imageData.imagePosition == imagePositionFit     ||
+          bkImage->imageData.imagePosition == imagePositionFill ) &&
+         ((bkImage->originalImage->getWidth() != dwNewWidth) || (bkImage->originalImage->getHeight() != dwNewHeight)))
 		{
 			// resize background image
+			::Rescale(dwNewWidth, dwNewHeight, bkImage);
 			fipImage tempImage(*(bkImage->originalImage));
-      if( bkImage->imageData.imagePosition == imgPosFitWithAspectRatio )
-      {
-        double dXRatio = (double)wNewWidth  / (double)bkImage->originalImage->getWidth ();
-        double dYRatio = (double)wNewHeight / (double)bkImage->originalImage->getHeight();
-
-        if( dXRatio < dYRatio )
-        {
-          wNewHeight = (WORD)::MulDiv(bkImage->originalImage->getHeight(), wNewWidth, bkImage->originalImage->getWidth());
-        }
-        else
-        {
-          wNewWidth  = (WORD)::MulDiv(bkImage->originalImage->getWidth(), wNewHeight, bkImage->originalImage->getHeight());
-        }
-      }
-			tempImage.rescale(wNewWidth, wNewHeight, FILTER_BILINEAR);
+			tempImage.rescale(dwNewWidth, dwNewHeight, FILTER_BILINEAR);
 
 			bmpTemplate.CreateDIBitmap(
 							dc,
@@ -451,7 +476,7 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, std::shar
 
 		dcTemplate.SelectBitmap(bmpTemplate);
 
-		if (bkImage->imageData.imagePosition == imgPosTile)
+		if (bkImage->imageData.imagePosition == imagePositionTile)
 		{
 			TileTemplateImage(
 				dcTemplate,
@@ -466,8 +491,8 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, std::shar
 				dcTemplate,
 				0,
 				0,
-				wNewWidth,
-				wNewHeight,
+				dwNewWidth,
+				dwNewHeight,
 				bkImage->dwImageWidth,
 				bkImage->dwImageHeight,
 				bkImage);
@@ -484,7 +509,7 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, std::shar
 
 void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, std::shared_ptr<BackgroundImage>& bkImage)
 {
-  if (bkImage->imageData.imagePosition == imgPosCenter)
+  if (bkImage->imageData.imagePosition == imagePositionCenter)
 	{
 		bkImage->dcImage.BitBlt(
 					(dwDstWidth <= bkImage->dwOriginalImageWidth) ? nOffsetX : nOffsetX + (dwDstWidth - bkImage->dwOriginalImageWidth)/2,
@@ -603,23 +628,10 @@ BOOL CALLBACK ImageHandler::MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMoni
 
 	CRect	rectMonitor(lprcMonitor);
 
-  DWORD dwNewWidth  = ::GetSystemMetrics(SM_CXSCREEN);
-  DWORD dwNewHeight = ::GetSystemMetrics(SM_CYSCREEN);
+	DWORD dwNewWidth  = ::GetSystemMetrics(SM_CXSCREEN);
+	DWORD dwNewHeight = ::GetSystemMetrics(SM_CYSCREEN);
 
-  if( pEnumData->bkImage->imageData.imagePosition == imgPosFitWithAspectRatio )
-  {
-    double dXRatio = (double)dwNewWidth  / (double)pEnumData->bkImage->originalImage->getWidth ();
-    double dYRatio = (double)dwNewHeight / (double)pEnumData->bkImage->originalImage->getHeight();
-
-    if( dXRatio < dYRatio )
-    {
-      dwNewHeight = (WORD)::MulDiv(pEnumData->bkImage->originalImage->getHeight(), dwNewWidth, pEnumData->bkImage->originalImage->getWidth());
-    }
-    else
-    {
-      dwNewWidth  = (WORD)::MulDiv(pEnumData->bkImage->originalImage->getWidth(), dwNewHeight, pEnumData->bkImage->originalImage->getHeight());
-    }
-  }
+	::Rescale(dwNewWidth, dwNewHeight, pEnumData->bkImage);
 
 	ImageHandler::PaintTemplateImage(
 					pEnumData->dcTemplate, 

@@ -40,7 +40,8 @@ LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_comboBkPosition.AddString(L"Center");
 	m_comboBkPosition.AddString(L"Stretch");
 	m_comboBkPosition.AddString(L"Tile");
-	m_comboBkPosition.AddString(L"Stretch/AR");
+	m_comboBkPosition.AddString(L"Fit");
+	m_comboBkPosition.AddString(L"Fill");
 
 	m_staticTintOpacity.Attach(GetDlgItem(IDC_TINT_OPACITY_VAL));
 	m_sliderTintOpacity.Attach(GetDlgItem(IDC_TINT_OPACITY));

@@ -187,6 +187,10 @@ bool ImageHandler::GetDesktopImageData(ImageData& imageData)
 		{
 			imageData.imagePosition= imgPosCenter;
 		}
+		else if (strWallpaperStyle == L"6")
+		{
+			imageData.imagePosition= imgPosFitWithAspectRatio;
+		}
 		else
 		{
 			imageData.imagePosition= imgPosFit;
@@ -598,16 +602,31 @@ BOOL CALLBACK ImageHandler::MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMoni
 	MonitorEnumData* pEnumData = reinterpret_cast<MonitorEnumData*>(lpData);
 
 	CRect	rectMonitor(lprcMonitor);
-	DWORD	dwPrimaryDisplayWidth	= ::GetSystemMetrics(SM_CXSCREEN);
-	DWORD	dwPrimaryDisplayHeight	= ::GetSystemMetrics(SM_CYSCREEN);
 
+  DWORD dwNewWidth  = ::GetSystemMetrics(SM_CXSCREEN);
+  DWORD dwNewHeight = ::GetSystemMetrics(SM_CYSCREEN);
+
+  if( pEnumData->bkImage->imageData.imagePosition == imgPosFitWithAspectRatio )
+  {
+    double dXRatio = (double)dwNewWidth  / (double)pEnumData->bkImage->originalImage->getWidth ();
+    double dYRatio = (double)dwNewHeight / (double)pEnumData->bkImage->originalImage->getHeight();
+
+    if( dXRatio < dYRatio )
+    {
+      dwNewHeight = (WORD)::MulDiv(pEnumData->bkImage->originalImage->getHeight(), dwNewWidth, pEnumData->bkImage->originalImage->getWidth());
+    }
+    else
+    {
+      dwNewWidth  = (WORD)::MulDiv(pEnumData->bkImage->originalImage->getWidth(), dwNewHeight, pEnumData->bkImage->originalImage->getHeight());
+    }
+  }
 
 	ImageHandler::PaintTemplateImage(
 					pEnumData->dcTemplate, 
 					rectMonitor.left - ::GetSystemMetrics(SM_XVIRTUALSCREEN), 
 					rectMonitor.top - ::GetSystemMetrics(SM_YVIRTUALSCREEN), 
-					dwPrimaryDisplayWidth,
-					dwPrimaryDisplayHeight,
+					dwNewWidth,
+					dwNewHeight,
 					rectMonitor.Width(), 
 					rectMonitor.Height(), 
 					pEnumData->bkImage);

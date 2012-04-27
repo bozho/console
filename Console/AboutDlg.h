@@ -80,7 +80,7 @@ public:
     CRect rectAppText(0x14,0x64,0x14+0x9A,0x64+0x80);
     this->DrawTextW(
       dc,
-      L"\nCopyright (C) 2011\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",
+      L"\nCopyright (C) 2011-2012\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",
       rectAppText,
       DT_CENTER | DT_VCENTER, dtto);
   }

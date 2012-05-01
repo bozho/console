@@ -2054,6 +2054,21 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 
         if (attrBG != 0)
         {
+#ifdef _USE_AERO
+          Gdiplus::Graphics gr(dc);
+          Gdiplus::Color backgroundColor;
+          backgroundColor.SetFromCOLORREF(m_consoleSettings.consoleColors[attrBG]);
+          Gdiplus::SolidBrush backgroundBrush(
+            Gdiplus::Color(
+              m_consoleSettings.backgroundTextOpacity,
+              backgroundColor.GetR(),
+              backgroundColor.GetG(),
+              backgroundColor.GetB()));
+          gr.FillRectangle(
+            &backgroundBrush,
+            dwX, dwY,
+            dwBGWidth, m_nCharHeight);
+#else //_USE_AERO
           CBrush backgroundBrush;
           backgroundBrush.CreateSolidBrush(m_consoleSettings.consoleColors[attrBG]);
 
@@ -2064,6 +2079,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
           rect.right  = dwX + dwBGWidth;
 
           dc.FillRect(&rect, (HBRUSH)backgroundBrush);
+#endif //_USE_AERO
         }
 
         attrBG    = attrBG2;
@@ -2077,6 +2093,21 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   {
     if (attrBG != 0)
     {
+#ifdef _USE_AERO
+      Gdiplus::Graphics gr(dc);
+      Gdiplus::Color backgroundColor;
+      backgroundColor.SetFromCOLORREF(m_consoleSettings.consoleColors[attrBG]);
+      Gdiplus::SolidBrush backgroundBrush(
+        Gdiplus::Color(
+          m_consoleSettings.backgroundTextOpacity,
+          backgroundColor.GetR(),
+          backgroundColor.GetG(),
+          backgroundColor.GetB()));
+      gr.FillRectangle(
+        &backgroundBrush,
+        dwX, dwY,
+        dwBGWidth, m_nCharHeight);
+#else //_USE_AERO
       CBrush backgroundBrush;
       backgroundBrush.CreateSolidBrush(m_consoleSettings.consoleColors[attrBG]);
 
@@ -2086,6 +2117,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
       rect.bottom = dwY + m_nCharHeight;
       rect.right  = dwX + dwBGWidth;
       dc.FillRect(&rect, backgroundBrush);
+#endif //_USE_AERO
 
       dwX       += dwBGWidth;
     }

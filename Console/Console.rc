@@ -13,13 +13,11 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Croatian resources
+// Croatian (Croatia) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_HRV)
-#ifdef _WIN32
 LANGUAGE LANG_CROATIAN, SUBLANG_DEFAULT
 #pragma code_page(1250)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -60,7 +58,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_CREDENTIALS, DIALOG
     BEGIN
@@ -75,18 +73,16 @@ BEGIN
 END
 #endif    // APSTUDIO_INVOKED
 
-#endif    // Croatian resources
+#endif    // Croatian (Croatia) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
-#endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -119,11 +115,9 @@ CAPTION "About"
 FONT 8, "MS Sans Serif", 0, 0, 0x0
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,130,130,50,14
-#ifndef _USE_AERO
     CTEXT           "\nConsole 2.0",IDC_STATIC_VERSION,25,41,78,25
     ICON            IDR_MAINFRAME,IDC_APPICON,55,26,20,20
     CTEXT           "\nCopyright (C) 2011-2012\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",IDC_APPTEXT,14,64,103,80
-#endif
     GROUPBOX        "",IDC_STATIC,7,7,115,137
 END
 
@@ -152,7 +146,7 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,297,300,50,14
 END
 
-IDD_SETTINGS_CONSOLE DIALOGEX 0, 0, 226, 254
+IDD_SETTINGS_CONSOLE DIALOGEX 0, 0, 226, 276
 STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
@@ -188,7 +182,7 @@ BEGIN
     EDITTEXT        IDC_BUFFER_COLUMNS,155,116,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
     CONTROL         "",IDC_SPIN_BUFFER_COLUMNS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,184,116,11,14
     GROUPBOX        "Buffer size *",IDC_STATIC,110,90,100,57
-    GROUPBOX        "Console colors map",IDC_STATIC,0,150,210,103
+    GROUPBOX        "Console colors map",IDC_STATIC,0,145,210,119
     CONTROL         "",IDC_DEF_00,"Static",SS_BLACKFRAME,10,162,16,14
     CONTROL         "",IDC_DEF_01,"Static",SS_BLACKFRAME,10,177,16,14
     CONTROL         "",IDC_DEF_02,"Static",SS_BLACKFRAME,10,192,16,14
@@ -221,7 +215,10 @@ BEGIN
     CONTROL         "",IDC_CLR_13,"Static",SS_BLACKFRAME | SS_NOTIFY,182,177,16,14,WS_EX_DLGMODALFRAME
     CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY,182,192,16,14,WS_EX_DLGMODALFRAME
     CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY,182,207,16,14,WS_EX_DLGMODALFRAME
-    PUSHBUTTON      "Re&set",IDC_BTN_RESET_COLORS,153,229,50,14
+    PUSHBUTTON      "Re&set",IDC_BTN_RESET_COLORS,153,246,50,14
+    LTEXT           "Background\ntext opacity",IDC_STATIC_BGTEXT_OPACITY,9,224,43,16,NOT WS_GROUP
+    CONTROL         "",IDC_BGTEXT_OPACITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,53,224,129,22
+    LTEXT           "255",IDC_BGTEXT_OPACITY_VAL,183,226,14,8,0,WS_EX_RIGHT
 END
 
 IDD_SETTINGS_APPEARANCE DIALOGEX 0, 0, 235, 265
@@ -486,7 +483,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO 
+GUIDELINES DESIGNINFO
 BEGIN
     IDD_ABOUTBOX, DIALOG
     BEGIN
@@ -518,6 +515,7 @@ BEGIN
     IDD_SETTINGS_CONSOLE, DIALOG
     BEGIN
         RIGHTMARGIN, 225
+        BOTTOMMARGIN, 264
         HORZGUIDE, 10
         HORZGUIDE, 25
         HORZGUIDE, 40
@@ -607,7 +605,7 @@ END
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR  16, 16
+IDR_MAINFRAME TOOLBAR 16, 16
 BEGIN
     BUTTON      ID_FILE_NEW_TAB
     BUTTON      ID_PREV_TAB
@@ -632,12 +630,13 @@ IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 #endif
 
+
 /////////////////////////////////////////////////////////////////////////////
 //
 // Menu
 //
 
-IDR_MAINFRAME MENU 
+IDR_MAINFRAME MENU
 BEGIN
     POPUP "File"
     BEGIN
@@ -675,7 +674,7 @@ BEGIN
     END
 END
 
-IDR_POPUP_MENU_TAB MENU 
+IDR_POPUP_MENU_TAB MENU
 BEGIN
     POPUP "_"
     BEGIN
@@ -721,8 +720,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1, 0, 2, 12118
- PRODUCTVERSION 1, 0, 2, 12118
+ FILEVERSION 1,0,2,12118
+ PRODUCTVERSION 1,0,2,12118
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -853,20 +852,20 @@ END
 // HTML
 //
 
-console.xml             HTML                    "..\\setup\\config\\console.xml"
+CONSOLE.XML             HTML                    "..\\setup\\config\\console.xml"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
 //
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "Console"
     IDS_TAB_CREATE_FAILED   "Failed to open %s tab!\nThe process %s could still be running (use the Task Manager to find it and end it)"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_NEW             "Create a new document\nNew"
     ID_FILE_OPEN            "Open an existing document\nOpen"
@@ -879,20 +878,20 @@ BEGIN
     ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_APP_ABOUT            "Display program information, version number and copyright\nAbout"
     ID_APP_EXIT             "Quit the application; prompts to save documents\nExit"
     ID_HELP                 "Opens the help file\nHelp"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
     ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
     ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
@@ -902,7 +901,7 @@ BEGIN
     ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_EDIT_CLEAR           "Erase the selection\nErase"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
@@ -917,25 +916,25 @@ BEGIN
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_FILE_NEW_TAB         "Opens a new tab\nNew tab"
     ID_VIEW_CONSOLE         "Show or hide the console"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_MENU            "Show or hide the menu"
     ID_VIEW_TABS            "Show or hide the tabs"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ATL_IDS_SCSIZE          "Change the window size"
     ATL_IDS_SCMOVE          "Change the window position"
@@ -946,24 +945,24 @@ BEGIN
     ATL_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ATL_IDS_SCRESTORE       "Restore the window to normal size"
     ATL_IDS_SCTASKLIST      "Activate Task List"
     ATL_IDS_MDICHILD        "Activate this window"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ATL_IDS_IDLEMESSAGE     "Ready"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ATL_IDS_MRU_FILE        "Open this document"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_NEXT_TAB             "Switch to next tab\nNext tab"
     ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
@@ -974,18 +973,18 @@ BEGIN
     ID_SPLIT_VERT           "Split  the current view vertically\nSplit Vertically"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDPANE_ROWS_COLUMNS     "%ix%i"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     IDS_ERR_CANT_START_SHELL "Unable to start a %1%!"
     IDS_ERR_CANT_START_SHELL_AS_USER "Unable to start a %1% as user %2%!"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     ID_GROUP_ALL            "Group all terminals so that any input sent to one of them, goes to all of them\nGroup All"
     ID_UNGROUP_ALL          "Remove grouping from all terminals\nUngroup All"
@@ -993,7 +992,7 @@ BEGIN
     ID_UNGROUP_TAB          "Remove grouping of all terminals in the current tab\nUngroup Tab"
 END
 
-STRINGTABLE 
+STRINGTABLE
 BEGIN
     MSG_SETTINGS_INVALID_BUFFER_ROWS 
                             "Invalid number of console buffer rows! Must be between 0 and 9999."
@@ -1005,7 +1004,7 @@ BEGIN
                             "Invalid number of console columns! Must be between 0 and 200."
 END
 
-#endif    // English (U.S.) resources
+#endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

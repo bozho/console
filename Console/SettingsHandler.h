@@ -51,6 +51,7 @@ struct ConsoleSettings : public SettingsBase
 
 	COLORREF	defaultConsoleColors[16];
 	COLORREF	consoleColors[16];
+	BYTE		backgroundTextOpacity;
 };
 
 //////////////////////////////////////////////////////////////////////////////

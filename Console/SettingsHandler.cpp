@@ -47,6 +47,7 @@ ConsoleSettings::ConsoleSettings()
 , dwBufferColumns(80)
 , bStartHidden(false)
 , bSaveSize(false)
+, backgroundTextOpacity(255)
 {
 	defaultConsoleColors[0]	= 0x000000;
 	defaultConsoleColors[1]	= 0x800000;
@@ -89,6 +90,7 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns, 0);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden, false);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize, false);
+	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"background_text_opacity"), backgroundTextOpacity, 255);
 
 	for (DWORD i = 0; i < 16; ++i)
 	{
@@ -126,6 +128,7 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize);
+	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"background_text_opacity"), backgroundTextOpacity);
 
 	for (DWORD i = 0; i < 16; ++i)
 	{
@@ -160,6 +163,8 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 	bSaveSize				= other.bSaveSize;
 
 	::CopyMemory(consoleColors, other.consoleColors, sizeof(COLORREF)*16);
+
+	backgroundTextOpacity = other.backgroundTextOpacity;
 
 	return *this;
 }

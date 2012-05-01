@@ -231,6 +231,9 @@
 #define IDC_STATIC_USER                 1177
 #define IDC_APPICON                     1178
 #define IDC_STATIC_PASSWORD             1178
+#define IDC_BGTEXT_OPACITY              1179
+#define IDC_BGTEXT_OPACITY_VAL          1180
+#define IDC_STATIC_BGTEXT_OPACITY       1181
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -273,7 +276,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        217
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1179
+#define _APS_NEXT_CONTROL_VALUE         1182
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

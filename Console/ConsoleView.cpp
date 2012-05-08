@@ -483,7 +483,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
 				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-				m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
+				m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer);
 
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
@@ -497,7 +497,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					m_mouseCommand = MouseSettings::cmdSelect;
 
 					MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-					m_selectionHandler->SelectWord(GetConsoleCoord(point), m_appearanceSettings.stylesSettings.crSelectionColor, m_screenBuffer);
+					m_selectionHandler->SelectWord(GetConsoleCoord(point), m_screenBuffer);
 				}
 
 				mouseAction.clickType = MouseSettings::clickDouble;
@@ -2026,6 +2026,10 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   DWORD dwY      = m_nHInsideBorder + m_nCharHeight * dwRow;
   DWORD dwOffset = m_dwScreenColumns * dwRow;
 
+#ifdef _USE_AERO
+  Gdiplus::Graphics gr(dc);
+#endif //_USE_AERO
+
   // first pass : text background color
   WORD    attrBG;
   DWORD   dwBGWidth = 0;
@@ -2055,7 +2059,6 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         if (attrBG != 0)
         {
 #ifdef _USE_AERO
-          Gdiplus::Graphics gr(dc);
           Gdiplus::Color backgroundColor;
           backgroundColor.SetFromCOLORREF(m_consoleSettings.consoleColors[attrBG]);
           Gdiplus::SolidBrush backgroundBrush(
@@ -2094,7 +2097,6 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     if (attrBG != 0)
     {
 #ifdef _USE_AERO
-      Gdiplus::Graphics gr(dc);
       Gdiplus::Color backgroundColor;
       backgroundColor.SetFromCOLORREF(m_consoleSettings.consoleColors[attrBG]);
       Gdiplus::SolidBrush backgroundBrush(
@@ -2273,7 +2275,11 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 	}
 
 	// blit selection
+#ifdef _USE_AERO
+	m_selectionHandler->Draw(m_dcOffscreen);
+#else //_USE_AERO
 	m_selectionHandler->BitBlt(m_dcOffscreen);
+#endif //_USE_AERO
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -26,10 +26,13 @@ SelectionHandler::SelectionHandler(
 					int nVInsideBorder,
 					int nHInsideBorder)
 : m_consoleView(consoleView)
+#ifndef _USE_AERO
 , m_dcSelection(::CreateCompatibleDC(NULL))
-//, m_bmpSelection(::CreateCompatibleBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height()))
 , m_bmpSelection(NULL)
 , m_rectConsoleView(rectConsoleView)
+, m_paintBrush(::CreateSolidBrush(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor))
+, m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
+#endif //!_USE_AERO
 , m_nCharWidth(nCharWidth)
 , m_consoleHandler(consoleHandler)
 , m_consoleParams(consoleParams)
@@ -38,19 +41,15 @@ SelectionHandler::SelectionHandler(
 , m_nCharHeight(nCharHeight)
 , m_nVInsideBorder(nVInsideBorder)
 , m_nHInsideBorder(nHInsideBorder)
-, m_paintBrush()
-, m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 , m_selectionState(selstateNoSelection)
 , m_coordInitial()
 , m_coordCurrent()
-/*
-, (m_consoleParams->dwColumns - 1)(0)
-, (m_consoleParams->dwRows - 1)(0)
-*/
 {
+#ifndef _USE_AERO
 	Helpers::CreateBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height(), m_bmpSelection);
 	m_dcSelection.SelectBitmap(m_bmpSelection);
 	m_dcSelection.SetBkColor(RGB(0, 0, 0));
+#endif //!_USE_AERO
 }
 
 SelectionHandler::~SelectionHandler()
@@ -64,15 +63,12 @@ SelectionHandler::~SelectionHandler()
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::SelectWord(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CharInfo> screenBuffer)
+void SelectionHandler::SelectWord(const COORD& coordInit, shared_array<CharInfo> screenBuffer)
 {
 	if (m_selectionState > selstateNoSelection) return;
 
 	// stop console scrolling while selecting
 	m_consoleHandler.StopScrolling();
-
-	if (!m_paintBrush.IsNull()) m_paintBrush.DeleteObject();
-	m_paintBrush.CreateSolidBrush(crSelectionColor);
 
 	m_consoleView.SetCapture();
 
@@ -122,15 +118,12 @@ void SelectionHandler::SelectWord(const COORD& coordInit, COLORREF crSelectionCo
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const COORD& coordInit, COLORREF crSelectionColor, shared_array<CharInfo> screenBuffer)
+void SelectionHandler::StartSelection(const COORD& coordInit, shared_array<CharInfo> screenBuffer)
 {
 	if (m_selectionState > selstateNoSelection) return;
 
 	// stop console scrolling while selecting
 	m_consoleHandler.StopScrolling();
-
-	if (!m_paintBrush.IsNull()) m_paintBrush.DeleteObject();
-	m_paintBrush.CreateSolidBrush(crSelectionColor);
 
 	m_consoleView.SetCapture();
 
@@ -201,7 +194,9 @@ void SelectionHandler::UpdateSelection()
 {
 	if (m_selectionState < selstateStartedSelecting) return;
 
+#ifndef _USE_AERO
 	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
+#endif //!_USE_AERO
 
 	COORD	coordStart;
 	COORD	coordEnd;
@@ -218,6 +213,7 @@ void SelectionHandler::UpdateSelection()
 
 	if (m_selectionState < selstateSelecting) m_selectionState = selstateSelecting;
 
+#ifndef _USE_AERO
 /*
 	TRACE(L"Member coord: %ix%i - %ix%i\n", m_coordInitial.X, m_coordInitial.Y, m_coordCurrent.X, m_coordCurrent.Y);
 	TRACE(L"Sel coord: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
@@ -266,6 +262,7 @@ void SelectionHandler::UpdateSelection()
 //		TRACE(L"fill rect: (%ix%i) - (%ix%i)\n", fillRect.left, fillRect.top, fillRect.right, fillRect.bottom);
 		m_dcSelection.FillRect(&fillRect, m_paintBrush);
 	}
+#endif //!_USE_AREO
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -365,7 +362,9 @@ void SelectionHandler::ClearSelection()
 
 	m_selectionState = selstateNoSelection;
 
+#ifndef _USE_AERO
 	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
+#endif //!_USE_AERO
 
 	m_consoleHandler.ResumeScrolling();
 }
@@ -374,6 +373,93 @@ void SelectionHandler::ClearSelection()
 
 
 //////////////////////////////////////////////////////////////////////////////
+#ifdef _USE_AERO
+
+void SelectionHandler::Draw(CDC& offscreenDC)
+{
+  if (m_selectionState == selstateNoSelection) return;
+
+  COORD coordStart;
+  COORD coordEnd;
+  SHORT maxX = (m_consoleParams->dwBufferColumns > 0) ?
+    static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) :
+    static_cast<SHORT>(m_consoleParams->dwColumns - 1);
+
+  GetSelectionCoordinates(coordStart, coordEnd);
+
+  SMALL_RECT& srWindow = m_consoleInfo->csbi.srWindow;
+
+  if(   coordEnd.Y < srWindow.Top    ||
+      coordStart.Y > srWindow.Bottom ) return;
+
+  INT nXStart = (static_cast<INT>(coordStart.X) - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
+  INT nYStart = (static_cast<INT>(coordStart.Y) - static_cast<INT>(srWindow.Top) ) * m_nCharHeight + m_nHInsideBorder;
+  INT nXEnd   = (static_cast<INT>(  coordEnd.X) - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
+  INT nYEnd   = (static_cast<INT>(  coordEnd.Y) - static_cast<INT>(srWindow.Top) ) * m_nCharHeight + m_nHInsideBorder;
+  INT nXmin   = (static_cast<INT>(0)            - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
+  INT nXmax   = (static_cast<INT>(maxX)         - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
+
+  Gdiplus::Graphics gr(offscreenDC);
+
+  Gdiplus::Color selectionColor;
+  selectionColor.SetFromCOLORREF(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor);
+  Gdiplus::Pen        pen  (Gdiplus::Color(255, selectionColor.GetR(), selectionColor.GetG(), selectionColor.GetB()));
+  Gdiplus::SolidBrush brush(Gdiplus::Color(64,  selectionColor.GetR(), selectionColor.GetG(), selectionColor.GetB()));
+  Gdiplus::GraphicsPath gp;
+
+  if( nYStart == nYEnd )
+  {
+    Gdiplus::Rect rect(
+      nXStart,
+      nYStart,
+      (nXEnd - nXStart) + m_nCharWidth,
+      m_nCharHeight);
+    gp.AddRectangle(rect);
+  }
+  else
+  {
+    /*
+           2_________3
+    0______|         |
+    |      1     5___|
+    |____________|   4
+    7            6
+    */
+
+    Gdiplus::Point points[8];
+
+    points[0].X = nXmin;
+    points[0].Y = nYStart + m_nCharHeight;
+
+    points[1].X = nXStart;
+    points[1].Y = points[0].Y;
+
+    points[2].X = points[1].X;
+    points[2].Y = nYStart;
+
+    points[3].X = nXmax + m_nCharWidth;
+    points[3].Y = points[2].Y;
+
+    points[4].X = points[3].X;
+    points[4].Y = nYEnd;
+
+    points[5].X = nXEnd + m_nCharWidth;
+    points[5].Y = points[4].Y;
+
+    points[6].X = points[5].X;
+    points[6].Y = nYEnd + m_nCharHeight;
+
+    points[7].X = points[0].X;
+    points[7].Y = points[6].Y;
+
+    gp.AddPolygon(points, 8);
+  }
+
+  gr.FillPath(&brush, &gp);
+  gr.DrawPath(&pen, &gp);
+}
+
+#else //_USE_AERO
 
 void SelectionHandler::BitBlt(CDC& offscreenDC)
 {
@@ -400,6 +486,8 @@ void SelectionHandler::BitBlt(CDC& offscreenDC)
 					selectionRect.top, 
 					SRCINVERT);
 }
+
+#endif //_USE_AERO
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -443,6 +531,8 @@ void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEn
 
 /////////////////////////////////////////////////////////////////////////////
 
+#ifndef _USE_AERO
+
 void SelectionHandler::GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect)
 {
 	SMALL_RECT&		srWindow		= m_consoleInfo->csbi.srWindow;
@@ -468,5 +558,7 @@ void SelectionHandler::GetFillRect(const COORD& coordStart, const COORD& coordEn
 	if (fillRect.right  > (rectConsoleView.right  - m_nVInsideBorder)) fillRect.right  = rectConsoleView.right  - m_nVInsideBorder;
 	if (fillRect.bottom > (rectConsoleView.bottom - m_nHInsideBorder)) fillRect.bottom = rectConsoleView.bottom - m_nHInsideBorder;
 }
+
+#endif //!_USE_AERO
 
 /////////////////////////////////////////////////////////////////////////////

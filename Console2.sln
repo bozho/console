@@ -1,10 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DA1A8A1D-90C0-49B9-A9B2-DF2C574F19E6}"
-	ProjectSection(SolutionItems) = preProject
-		setup\console.iss = setup\console.iss
-		devel_changes.txt = devel_changes.txt
-	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ConsoleHook", "ConsoleHook\ConsoleHook.vcxproj", "{69234D74-7133-48FF-8DDB-9901FFC4D7FF}"
 EndProject

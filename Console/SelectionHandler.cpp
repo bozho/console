@@ -15,8 +15,10 @@
 
 SelectionHandler::SelectionHandler(
 					const CWindow& consoleView, 
+#ifndef _USE_AERO
 					const CDC& dcConsoleView, 
 					const CRect& rectConsoleView, 
+#endif //!_USE_AERO
 					ConsoleHandler& consoleHandler,
 					SharedMemory<ConsoleParams>& consoleParams, 
 					SharedMemory<ConsoleInfo>& consoleInfo, 

@@ -10,3 +10,8 @@ help/console.chm
 *.user
 *.opensdf
 *.sdf
+
+*~
+*.bak
+*.orig
+*.swp

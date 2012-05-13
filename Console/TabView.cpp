@@ -104,7 +104,7 @@ LRESULT TabView::OnEraseBackground (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 	return 1;
 }
 
-LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & bHandled)
 {
   if (wParam != SIZE_MINIMIZED && m_mainFrame.m_bOnCreateDone)
   {
@@ -218,7 +218,7 @@ HWND TabView::CreateNewConsole(void)
 	return hwndConsoleView;
 }
 
-std::shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* szFrom)
+std::shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* /*szFrom*/)
 {
   std::shared_ptr<ConsoleView> result;
   if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )

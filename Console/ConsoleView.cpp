@@ -1451,8 +1451,10 @@ void ConsoleView::CreateOffscreenBuffers()
 	// create selection handler
 	m_selectionHandler.reset(new SelectionHandler(
 									m_hWnd, 
+#ifndef _USE_AERO
 									dcWindow, 
 									rectWindowMax, 
+#endif //!_USE_AERO
 									m_consoleHandler,
 									m_consoleHandler.GetConsoleParams(), 
 									m_consoleHandler.GetConsoleInfo(), 

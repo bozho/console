@@ -295,8 +295,9 @@
     <None Include="..\help\styles\help.css">
       <Filter>Help Files\html\styles</Filter>
     </None>
-    <None Include="console.xml" />
-    <None Include="Todo.txt" />
+    <None Include="..\setup\config\console.xml">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc">

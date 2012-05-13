@@ -181,7 +181,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
   {
     OSVERSIONINFOEX osvi;
     DWORDLONG dwlConditionMask = 0;
-    int op=VER_GREATER_EQUAL;
+    BYTE op = VER_GREATER_EQUAL;
 
     // Initialize the OSVERSIONINFOEX structure.
 

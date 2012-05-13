@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "WallPaper.h"
 
+#pragma warning(disable:4996)
+
 MyThread::MyThread(void)
 :hStopSignalPtr(nullptr)
 ,hThreadPtr(nullptr)
@@ -69,7 +71,7 @@ unsigned int __stdcall _MyThreadFunction(void* arg)
   {
     pThread->dwResult = pThread->Process(pThread->hStopSignalPtr.get());
   }
-  catch(std::exception& e)
+  catch(std::exception&)
   {
     pThread->dwResult = ~(DWORD)0;
   }

@@ -461,6 +461,7 @@
     <ClInclude Include="XmlHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\setup\config\console.xml" />
     <None Include="res\Console.ico" />
     <None Include="res\toolbar.bmp" />
     <None Include="res\toolbar_aero.bmp" />
@@ -502,8 +503,6 @@ echo %(Filename)%(Extension) : error : failed to create CHM file
     <None Include="..\help\html\settings_tabs.html" />
     <None Include="..\help\html\tips_tricks.html" />
     <None Include="..\help\styles\help.css" />
-    <None Include="console.xml" />
-    <None Include="Todo.txt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc" />

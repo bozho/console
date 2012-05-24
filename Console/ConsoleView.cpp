@@ -1474,7 +1474,8 @@ void ConsoleView::CreateOffscreenBuffers()
 								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleXTerm, 
 								dcWindow, 
 								rectCursor, 
-								m_tabData.get() ? m_tabData->crCursorColor : RGB(255, 255, 255));
+								m_tabData.get() ? m_tabData->crCursorColor : RGB(255, 255, 255),
+								this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2548,4 +2549,58 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelecti
 	if (consolePoint.Y > srWindow.Bottom) consolePoint.Y = srWindow.Bottom;
 
 	return consolePoint;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::RedrawCharOnCursor(CDC& dc)
+{
+  CRect			rectCursor(0, 0, 0, 0);
+  SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+
+  rectCursor			= m_cursor->GetCursorRect();
+  rectCursor.left		+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+  rectCursor.top		+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+  rectCursor.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+  rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+
+  CBrush brush(::CreateSolidBrush(m_tabData->crCursorColor));
+  dc.FillRect(rectCursor, brush);
+
+  MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+  DWORD dwOffset =
+    (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_dwScreenColumns +
+    (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left);
+
+  dc.SetBkMode(TRANSPARENT);
+  dc.SelectFont(m_fontText);
+
+  COLORREF colorBG;
+
+  if( g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic && 
+      (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) > 0 )
+  {
+    colorBG = m_consoleSettings.consoleColors[(m_screenBuffer[dwOffset - 1].charInfo.Attributes & 0xF0) >> 4];
+
+    dc.SetTextColor(colorBG);
+    dc.ExtTextOut(
+      rectCursor.left - m_nCharWidth, rectCursor.top,
+      ETO_CLIPPED,
+      &rectCursor,
+      &m_screenBuffer[dwOffset - 1].charInfo.Char.UnicodeChar, 1,
+      nullptr);
+  }
+
+  colorBG = m_consoleSettings.consoleColors[(m_screenBuffer[dwOffset].charInfo.Attributes & 0xF0) >> 4];
+
+  dc.SetTextColor(colorBG);
+  dc.ExtTextOut(
+    rectCursor.left, rectCursor.top,
+    ETO_CLIPPED,
+    &rectCursor,
+    &m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar, 1,
+    nullptr);
 }

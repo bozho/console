@@ -17,6 +17,7 @@
 class PageSettingsTabs1
 	: public CDialogImpl<PageSettingsTabs1>
 	, public CWinDataExchange<PageSettingsTabs1>
+	, public CursorCharDrawer
 {
 	public:
 
@@ -75,12 +76,15 @@ class PageSettingsTabs1
 
 		const CString& GetTabTitle() const { return m_strTitle; }
 		const CString& GetTabIcon() const { return m_strIcon; }
-    const CString& GetTabShell() const { return m_strShell; }
+		const CString& GetTabShell() const { return m_strShell; }
 		const bool UseDefaultIcon() const { return m_bUseDefaultIcon; }
+
+		virtual void RedrawCharOnCursor(CDC& dc);
 
 private:
   void SetCursor(void);
   void DrawCursor(void);
+  void DrawCursor(CDC& dc, COLORREF fg, COLORREF bg);
 
 	private:
 		std::shared_ptr<Cursor>	m_cursor;

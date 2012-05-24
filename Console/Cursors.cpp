@@ -44,7 +44,7 @@ wchar_t* Cursor::s_cursorNames[] =
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
+std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer* pdrawer)
 {
 	std::shared_ptr<Cursor> newCursor;
 
@@ -55,7 +55,8 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 															hwndConsoleView, 
 															dcConsoleView, 
 															rectCursor, 
-															crCursorColor)));
+															crCursorColor,
+															pdrawer)));
 			break;
 
 		case cstyleBlock :
@@ -172,8 +173,9 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 //////////////////////////////////////////////////////////////////////////////
 // XTermCursor
 
-XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
-: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
+XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer* pdrawer)
+  : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
+  , m_pdrawer(pdrawer)
 {
 }
 
@@ -188,15 +190,9 @@ XTermCursor::~XTermCursor()
 
 void XTermCursor::Draw(bool bActive /* = true */)
 {
-	if (bActive)
-	{
-		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
-	}
-	else
-	{
-		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
-		m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
-	}
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
+	m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
+	m_bActive = bActive;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -206,15 +202,24 @@ void XTermCursor::Draw(bool bActive /* = true */)
 
 void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y)
 {
-	offscreenDC.BitBlt(
-					x, 
-					y, 
-					m_rectCursor.Width(),
-					m_rectCursor.Height(),
-					m_dcCursor, 
-					0, 
-					0, 
-					SRCINVERT);
+	if( m_bActive )
+	{
+		m_pdrawer->RedrawCharOnCursor(offscreenDC);
+	}
+	else
+	{
+		offscreenDC.TransparentBlt(
+						x, 
+						y, 
+						m_rectCursor.Width(),
+						m_rectCursor.Height(),
+						m_dcCursor, 
+						0, 
+						0, 
+						m_rectCursor.Width(),
+						m_rectCursor.Height(),
+						RGB(0, 0, 0));
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

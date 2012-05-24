@@ -23,6 +23,7 @@ class MainFrame;
 
 class ConsoleView
 	: public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> >
+	, public CursorCharDrawer
 {
 	public:
 //		DECLARE_WND_CLASS(NULL)
@@ -95,6 +96,8 @@ class ConsoleView
 		LRESULT OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled);
+
+		virtual void RedrawCharOnCursor(CDC& dc);
 
 	public:
 

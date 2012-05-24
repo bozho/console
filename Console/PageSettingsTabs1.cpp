@@ -4,6 +4,8 @@
 #include "Cursors.h"
 #include "PageSettingsTabs1.h"
 
+extern std::shared_ptr<SettingsHandler>	g_settingsHandler;
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -314,29 +316,56 @@ void PageSettingsTabs1::SetCursor(void)
     static_cast<CursorStyle>(m_comboCursor.GetCurSel()),
     dc,
     rectCursorAnim,
-    m_tabData->crCursorColor);
+    m_tabData->crCursorColor,
+    this);
 
   DrawCursor();
 }
 
-void PageSettingsTabs1::DrawCursor(void)
+void PageSettingsTabs1::RedrawCharOnCursor(CDC& dc)
+{
+  this->DrawCursor(
+    dc,
+    g_settingsHandler->GetConsoleSettings().consoleColors[0],
+    m_tabData->crCursorColor);
+}
+
+void PageSettingsTabs1::DrawCursor()
 {
   m_staticCursorAnim.RedrawWindow();
 
   CClientDC dc(m_staticCursorAnim.m_hWnd);
   CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
-  CPen pen(::CreatePen(PS_SOLID, 2, RGB(255,255,255)));
+
   CRect rectCursorAnim;
   m_staticCursorAnim.GetClientRect(&rectCursorAnim);
-
   dc.FillRect(rectCursorAnim, brush);
-  dc.SelectPen(pen);
-  dc.MoveTo(rectCursorAnim.left  + 7, rectCursorAnim.top    + 7);
-  dc.LineTo(rectCursorAnim.right - 7, rectCursorAnim.bottom - 7);
-  dc.MoveTo(rectCursorAnim.right - 7, rectCursorAnim.top    + 7);
-  dc.LineTo(rectCursorAnim.left  + 7, rectCursorAnim.bottom - 7);
+
+  DrawCursor(
+    dc,
+    g_settingsHandler->GetConsoleSettings().consoleColors[7],
+    g_settingsHandler->GetConsoleSettings().consoleColors[0]);
 
   m_cursor->PrepareNext();
   m_cursor->Draw(true);
   m_cursor->BitBlt(dc, 4, 4);
+}
+
+void PageSettingsTabs1::DrawCursor(CDC& dc, COLORREF fg, COLORREF bg)
+{
+  CBrush brush(::CreateSolidBrush(bg));
+  CPen pen(::CreatePen(PS_SOLID, 2, fg));
+
+  CRect rectCursorAnim;
+  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
+
+  rectCursorAnim.DeflateRect(4, 4);
+  dc.FillRect(rectCursorAnim, brush);
+
+  rectCursorAnim.DeflateRect(3, 3);
+  dc.SelectPen(pen);
+  dc.MoveTo(rectCursorAnim.left , rectCursorAnim.top   );
+  dc.LineTo(rectCursorAnim.right, rectCursorAnim.bottom);
+  dc.MoveTo(rectCursorAnim.right, rectCursorAnim.top   );
+  dc.LineTo(rectCursorAnim.left , rectCursorAnim.bottom);
 }

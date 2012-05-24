@@ -39,6 +39,17 @@ enum CursorStyle
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+class CursorCharDrawer
+{
+public:
+  CursorCharDrawer() {}
+  virtual ~CursorCharDrawer() {}
+
+  virtual void RedrawCharOnCursor(CDC& dc) = 0;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////////////////////
 // A base class for all the cursors
@@ -110,7 +121,7 @@ class Cursor
 class CursorFactory
 {
 	public:
-		static std::shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
+		static std::shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor ,CursorCharDrawer*);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -127,13 +138,16 @@ class CursorFactory
 class XTermCursor : public Cursor
 {
 	public:
-		XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
+		XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer*);
 		~XTermCursor();
 
 		void Draw(bool bActive = true);
 
 		void BitBlt(CDC& offscreenDC, int x, int y);
 
+private:
+    CursorCharDrawer* m_pdrawer;
+    bool              m_bActive;
 };
 
 //////////////////////////////////////////////////////////////////////////////

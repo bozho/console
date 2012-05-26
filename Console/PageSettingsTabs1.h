@@ -84,7 +84,7 @@ class PageSettingsTabs1
 private:
   void SetCursor(void);
   void DrawCursor(void);
-  void DrawCursor(CDC& dc, COLORREF fg, COLORREF bg);
+  void DrawCursor(CDC& dc, const CRect& rectCursorAnim, COLORREF fg, COLORREF bg);
 
 	private:
 		std::shared_ptr<Cursor>	m_cursor;

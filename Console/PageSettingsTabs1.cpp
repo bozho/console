@@ -306,7 +306,8 @@ void PageSettingsTabs1::SetCursor(void)
   CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
   dc.FillRect(rectCursorAnim, brush);
 
-  rectCursorAnim.right  -= 8;
+  rectCursorAnim.right  -= 12;
+  rectCursorAnim.right  /= 2;
   rectCursorAnim.bottom -= 8;
 
   m_cursor.reset();
@@ -324,8 +325,18 @@ void PageSettingsTabs1::SetCursor(void)
 
 void PageSettingsTabs1::RedrawCharOnCursor(CDC& dc)
 {
-  this->DrawCursor(
+  CRect rectCursorAnim;
+  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
+
+  rectCursorAnim.right  -= 12;
+  rectCursorAnim.right  /= 2;
+  rectCursorAnim.bottom -= 8;
+
+  rectCursorAnim.OffsetRect(4, 4);
+
+  DrawCursor(
     dc,
+    rectCursorAnim,
     g_settingsHandler->GetConsoleSettings().consoleColors[0],
     m_tabData->crCursorColor);
 }
@@ -337,35 +348,51 @@ void PageSettingsTabs1::DrawCursor()
   CClientDC dc(m_staticCursorAnim.m_hWnd);
   CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
 
+  m_cursor->PrepareNext();
+
   CRect rectCursorAnim;
   m_staticCursorAnim.GetClientRect(&rectCursorAnim);
   dc.FillRect(rectCursorAnim, brush);
 
+  rectCursorAnim.right  -= 12;
+  rectCursorAnim.right  /= 2;
+  rectCursorAnim.bottom -= 8;
+
+  rectCursorAnim.OffsetRect(4, 4);
+
   DrawCursor(
     dc,
+    rectCursorAnim,
     g_settingsHandler->GetConsoleSettings().consoleColors[7],
     g_settingsHandler->GetConsoleSettings().consoleColors[0]);
 
-  m_cursor->PrepareNext();
   m_cursor->Draw(true);
-  m_cursor->BitBlt(dc, 4, 4);
+  m_cursor->BitBlt(dc, rectCursorAnim.left, rectCursorAnim.top);
+
+  rectCursorAnim.OffsetRect(rectCursorAnim.Width() + 4, 0);
+
+  DrawCursor(
+    dc,
+    rectCursorAnim,
+    g_settingsHandler->GetConsoleSettings().consoleColors[7],
+    g_settingsHandler->GetConsoleSettings().consoleColors[0]);
+
+  m_cursor->Draw(false);
+  m_cursor->BitBlt(dc, rectCursorAnim.left, rectCursorAnim.top);
 }
 
-void PageSettingsTabs1::DrawCursor(CDC& dc, COLORREF fg, COLORREF bg)
+void PageSettingsTabs1::DrawCursor(CDC& dc, const CRect& rectCursorAnim, COLORREF fg, COLORREF bg)
 {
   CBrush brush(::CreateSolidBrush(bg));
   CPen pen(::CreatePen(PS_SOLID, 2, fg));
 
-  CRect rectCursorAnim;
-  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
-
-  rectCursorAnim.DeflateRect(4, 4);
   dc.FillRect(rectCursorAnim, brush);
 
-  rectCursorAnim.DeflateRect(3, 3);
+  CRect rectChar(rectCursorAnim);
+  rectChar.DeflateRect(3, 3);
   dc.SelectPen(pen);
-  dc.MoveTo(rectCursorAnim.left , rectCursorAnim.top   );
-  dc.LineTo(rectCursorAnim.right, rectCursorAnim.bottom);
-  dc.MoveTo(rectCursorAnim.right, rectCursorAnim.top   );
-  dc.LineTo(rectCursorAnim.left , rectCursorAnim.bottom);
+  dc.MoveTo(rectChar.left , rectChar.top   );
+  dc.LineTo(rectChar.right, rectChar.bottom);
+  dc.MoveTo(rectChar.right, rectChar.top   );
+  dc.LineTo(rectChar.left , rectChar.bottom);
 }

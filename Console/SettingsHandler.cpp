@@ -1080,6 +1080,7 @@ HotKeys::HotKeys()
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"ungrouptab", ID_UNGROUP_TAB, L"Ungroup tab")));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"copy",			ID_EDIT_COPY,				L"Copy selection")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"selectall",			ID_EDIT_SELECT_ALL,				L"Select all")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"clear_selection",ID_EDIT_CLEAR_SELECTION,	L"Clear selection")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"paste",		ID_EDIT_PASTE,				L"Paste")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"stopscroll",	ID_EDIT_STOP_SCROLLING,		L"Stop scrolling")));

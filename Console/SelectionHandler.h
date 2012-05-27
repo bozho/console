@@ -51,6 +51,7 @@ class SelectionHandler
 		void CopySelection();
 		void EndSelection();
 		void ClearSelection();
+		void SelectAll();
 
 		inline SelectionState GetState() const;
 

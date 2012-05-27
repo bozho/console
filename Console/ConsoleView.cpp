@@ -1285,6 +1285,24 @@ void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::SelectAll()
+{
+	m_selectionHandler->SelectAll();
+
+	// copy on select
+	if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
+	{
+		Copy(NULL);
+	}
+
+	BitBltOffscreen();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::ClearSelection()
 {
 	if ((m_selectionHandler->GetState() != SelectionHandler::selstateSelecting) &&

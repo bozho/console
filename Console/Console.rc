@@ -648,7 +648,8 @@ BEGIN
     POPUP "Edit"
     BEGIN
         MENUITEM "&Copy",                       ID_EDIT_COPY
-        MENUITEM "Cl&ear selection",            32791
+        MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
+        MENUITEM "Cl&ear Selection",            ID_EDIT_CLEAR_SELECTION
         MENUITEM "&Paste",                      ID_EDIT_PASTE
         MENUITEM SEPARATOR
         MENUITEM "Stop Scr&olling",             ID_EDIT_STOP_SCROLLING

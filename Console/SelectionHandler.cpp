@@ -272,6 +272,22 @@ void SelectionHandler::UpdateSelection()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void SelectionHandler::SelectAll(void)
+{
+  m_coordInitial.X = 0;
+  m_coordInitial.Y = 0;
+  m_coordCurrent.X = m_consoleInfo->csbi.dwSize.X - 1;
+  m_coordCurrent.Y = m_consoleInfo->csbi.dwSize.Y - 1;
+  m_selectionState = selstateSelected;
+
+  UpdateSelection();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool SelectionHandler::CopySelection(const COORD& coordCurrent)
 {
 	if (m_selectionState < selstateSelecting) return false;

@@ -641,12 +641,14 @@ public:
   virtual ~ClipboardDataRtf(void) {}
   virtual void StartRow(void)
   {
-    strRow = "";
+    strRowRtf.clear();
     sizeRowLen = 0;
   }
   virtual void EndRow(void)
   {
-    strRtf += strRow;
+    strRtf += strRowRtf;
+    strRtf += strTrimRowRtf;
+    strTrimRowRtf.clear();
   }
   virtual void AddChar(PCHAR_INFO p)
   {
@@ -659,6 +661,24 @@ public:
       wLastCharForegroundAttributes = ~wCharForegroundAttributes;
       wLastCharBackgroundAttributes = ~wCharBackgroundAttributes;
     }
+
+    bool trim = std::isspace<wchar_t>(p->Char.UnicodeChar, std::locale());
+
+    std::string& strRowRtfRef = (trim)?strTrimRowRtf:strRowRtf;
+    if( trim )
+    {
+      if( strTrimRowRtf.empty() )
+      {
+        wLastTrimCharForegroundAttributes = wLastCharForegroundAttributes;
+        wLastTrimCharBackgroundAttributes = wLastCharBackgroundAttributes;
+      }
+    }
+    else
+    {
+      strRowRtf += strTrimRowRtf;
+      strTrimRowRtf.clear();
+    }
+
     if( wLastCharBackgroundAttributes != wCharBackgroundAttributes )
     {
       _snprintf_s(
@@ -666,7 +686,7 @@ public:
         _TRUNCATE,
         "\\highlight%hu ",
         wCharBackgroundAttributes);
-      strRow += szDummy;
+      strRowRtfRef += szDummy;
     }
     if( wLastCharForegroundAttributes != wCharForegroundAttributes )
     {
@@ -675,29 +695,27 @@ public:
         _TRUNCATE,
         "\\cf%hu ",
         wCharForegroundAttributes);
-      strRow += szDummy;
+      strRowRtfRef += szDummy;
     }
     wLastCharForegroundAttributes = wCharForegroundAttributes;
     wLastCharBackgroundAttributes = wCharBackgroundAttributes;
 
     WCHAR wc = p->Char.UnicodeChar;
-         if( wc == L'\\' ) strRow += "\\\\";
-    else if( wc == L'{' )  strRow += "\\{";
-    else if( wc == L'}' )  strRow += "\\}";
-    else if( wc <= 0x7f )  strRow += p->Char.AsciiChar;
+         if( wc == L'\\' ) strRowRtfRef += "\\\\";
+    else if( wc == L'{' )  strRowRtfRef += "\\{";
+    else if( wc == L'}' )  strRowRtfRef += "\\}";
+    else if( wc <= 0x7f )  strRowRtfRef += p->Char.AsciiChar;
     else
     {
       _snprintf_s(szDummy, sizeof(szDummy), _TRUNCATE, "\\u%d?", wc);
-      strRow += szDummy;
+      strRowRtfRef += szDummy;
     }
     sizeRowLen ++;
     sizeRtfLen ++;
   }
   virtual bool IsLastCharBlank(void)
   {
-    if( strRow.length() < 1 ) return false;
-
-    return strRow[strRow.length() - 1] == ' ';
+    return !strTrimRowRtf.empty();
   }
   size_t GetRowLength(void)
   {
@@ -705,11 +723,16 @@ public:
   }
   virtual void TrimRight(void)
   {
-    trim_right(strRow);
+    if( !strTrimRowRtf.empty() )
+    {
+      strTrimRowRtf.clear();
+      wLastCharForegroundAttributes = wLastTrimCharForegroundAttributes;
+      wLastCharBackgroundAttributes = wLastTrimCharBackgroundAttributes;
+    }
   }
   virtual void Wrap(CopyNewlineChar /*copyNewlineChar*/)
   {
-    strRow += "\\line\n";
+    strTrimRowRtf += "\\line\n";
   }
   virtual void Publish(void)
   {
@@ -727,11 +750,14 @@ public:
 
 private:
   string strRtf;
-  string strRow;
+  string strRowRtf;
+  string strTrimRowRtf;
   size_t sizeRtfLen;
   size_t sizeRowLen;
   WORD   wLastCharForegroundAttributes;
   WORD   wLastCharBackgroundAttributes;
+  WORD   wLastTrimCharForegroundAttributes;
+  WORD   wLastTrimCharBackgroundAttributes;
 };
 
 void ConsoleHandler::CopyConsoleText()

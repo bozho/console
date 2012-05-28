@@ -785,10 +785,38 @@ void ConsoleHandler::CopyConsoleText()
   clipboardDataPtr[0].reset(new ClipboardDataUnicode());
   clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
 
-	// get total console size
-	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
+  // suppress end empty lines
+  bool emptyLine = true;
+  for (SHORT i = coordEnd.Y; i > coordStart.Y && emptyLine; --i)
+  {
+    SMALL_RECT              srBuffer;
+    COORD                   coordFrom = {0, 0};
+    COORD                   coordBufferSize = {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
+    shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
+    srBuffer.Left   = 0;
+    srBuffer.Top    = i;
+    srBuffer.Right  = (i == coordEnd.Y) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
+    srBuffer.Bottom = i;
 
-	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
+    ::ReadConsoleOutput(
+      hStdOut.get(),
+      pScreenBuffer.get(),
+      coordBufferSize,
+      coordFrom,
+      &srBuffer);
+
+    for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left && emptyLine; ++x)
+    {
+      if( pScreenBuffer[x].Char.UnicodeChar != L' ' )
+        emptyLine = false;
+    }
+
+    if( emptyLine )
+    {
+      coordEnd.Y --;
+      coordEnd.X = coordBufferSize.X - 1;
+    }
+  }
 
 	for (SHORT i = coordStart.Y; i <= coordEnd.Y; ++i)
 	{

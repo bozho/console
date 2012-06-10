@@ -1224,6 +1224,18 @@ CString ConsoleView::GetConsoleCommand()
 
 	consoleWnd.GetWindowText(strConsoleTitle);
 
+	int nPos = strConsoleTitle.Find(L"Console2 command window");
+
+	if (nPos == -1)
+	{
+		return CString(L" - ") + strConsoleTitle;
+	}
+	else
+	{
+		return CString();
+	}
+
+#if 0
 	int nPos = strConsoleTitle.Find(L'-');
 
 	if (nPos == -1)
@@ -1243,6 +1255,7 @@ CString ConsoleView::GetConsoleCommand()
 	{
 		return strConsoleTitle.Right(strConsoleTitle.GetLength() - nPos + 1);
 	}
+#endif
 }
 
 /////////////////////////////////////////////////////////////////////////////

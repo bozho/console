@@ -21,8 +21,20 @@ public:
     MESSAGE_HANDLER (WM_CREATE, OnCreate)
     MESSAGE_HANDLER (WM_ERASEBKGND, OnEraseBackground)
     MESSAGE_HANDLER (WM_SIZE, OnSize)
+
+    COMMAND_RANGE_HANDLER(ID_SCROLL_UP, ID_SCROLL_ALL_RIGHT, OnScrollCommand)
+
     CHAIN_MSG_MAP (multisplitClass)
-    FORWARD_NOTIFICATIONS ()
+/*
+    {
+      std::shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
+      if( consoleView )
+      {
+        if( consoleView->ProcessWindowMessage(hWnd, uMsg, wParam, lParam, lResult) )
+          return true;
+      }
+    }
+*/
   END_MSG_MAP()
 
   //		Handler prototypes (uncomment arguments if needed):
@@ -33,6 +45,7 @@ public:
   LRESULT OnCreate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled);
   LRESULT OnEraseBackground (UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL & /*bHandled*/);
   LRESULT OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & bHandled);
+  LRESULT OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled);
 
   virtual void OnPaneChanged(void)
   {

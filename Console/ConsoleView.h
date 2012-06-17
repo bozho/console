@@ -68,7 +68,6 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGE, OnInputLangChange)
 			MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
 			MESSAGE_HANDLER(UM_UPDATE_CONSOLE_VIEW, OnUpdateConsoleView)
-			COMMAND_RANGE_HANDLER(ID_SCROLL_UP, ID_SCROLL_ALL_RIGHT, OnScrollCommand)
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -85,7 +84,6 @@ class ConsoleView
 		LRESULT OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnVScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnScrollCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
@@ -94,8 +92,6 @@ class ConsoleView
 		LRESULT OnInputLangChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-
-		LRESULT OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled);
 
 		virtual void RedrawCharOnCursor(CDC& dc);
 
@@ -143,6 +139,8 @@ class ConsoleView
     inline bool IsGrouped() const { return m_boolIsGrouped; }
     void Group(bool b) { m_boolIsGrouped = b; }
 
+    void DoScroll(int nType, int nScrollCode, int nThumbPos);
+
 	private:
 
 		void OnConsoleChange(bool bResize);
@@ -151,8 +149,6 @@ class ConsoleView
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(CDC& cdc, const CRect& rect, CBitmap& bitmap);
 		static bool CreateFont(const wstring& strFontName);
-
-		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
 		DWORD GetBufferDifference();
 

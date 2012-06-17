@@ -56,6 +56,7 @@ BOOL TabView::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return FALSE;
+
   /*
   std::shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
   if( consoleView )
@@ -509,4 +510,83 @@ void TabView::Group(bool b)
   }
   m_boolIsGrouped = b;
   SetAppActiveStatus(true);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT TabView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled)
+{
+	int	nScrollType	= 0;
+	int nScrollCode	= 0;
+
+	switch (wID)
+	{
+		case ID_SCROLL_UP :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_LINEUP;
+			break;
+		}
+
+		case ID_SCROLL_LEFT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_LINELEFT;
+			break;
+		}
+
+		case ID_SCROLL_DOWN :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_LINEDOWN;
+			break;
+		}
+
+		case ID_SCROLL_RIGHT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_LINERIGHT;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_UP :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_PAGEUP;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_LEFT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_PAGELEFT;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_DOWN :
+		{
+			nScrollType	= SB_VERT;
+			nScrollCode = SB_PAGEDOWN;
+			break;
+		}
+
+		case ID_SCROLL_PAGE_RIGHT :
+		{
+			nScrollType	= SB_HORZ;
+			nScrollCode = SB_PAGERIGHT;
+			break;
+		}
+
+
+		default : bHandled = FALSE; return 0;
+	}
+
+  std::shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
+  if( consoleView )
+    consoleView->DoScroll(nScrollType, nScrollCode, 0);
+
+	return 0;
 }

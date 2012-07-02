@@ -304,14 +304,16 @@ bool ConsoleHandler::StartShellProcess
 	m_hConsoleProcess = std::shared_ptr<void>(pi.hProcess, ::CloseHandle);
 
 	// inject our hook DLL into console process
-	if (!InjectHookDLL(pi)) return false;
+	if (!InjectHookDLL(pi))
+    throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
 
 	// resume the console process
 	::ResumeThread(pi.hThread);
 	::CloseHandle(pi.hThread);
 
 	// wait for hook DLL to set console handle
-	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT) return false;
+	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
+    throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 
 	::ShowWindow(m_consoleParams->hwndConsoleWindow, SW_HIDE);
 
@@ -506,11 +508,8 @@ void ConsoleHandler::CreateWatchdog()
 
 bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 {
-
 	// allocate memory for parameter in the remote process
 	wstring				strHookDllPath(GetModulePath(NULL));
-
-	if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES) return false;
 
 	CONTEXT		context;
 	
@@ -543,12 +542,13 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		strHookDllPath += wstring(L"\\ConsoleHook.dll");
 	}
 
+  if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+    throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_HOOK_MISSING)) % strHookDllPath.c_str()));
+
 	::ZeroMemory(&context, sizeof(CONTEXT));
 
-	shared_array<BYTE> code(new BYTE[codeSize + (MAX_PATH*sizeof(wchar_t))]);
-
 	memLen = (strHookDllPath.length()+1)*sizeof(wchar_t);
-	if (memLen > MAX_PATH*sizeof(wchar_t)) return false;
+	shared_array<BYTE> code(new BYTE[codeSize + memLen]);
 
 	::CopyMemory(code.get() + codeSize, strHookDllPath.c_str(), memLen);
 	memLen += codeSize;
@@ -586,7 +586,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				&siWow,
 				&piWow))
 		{
-			return false;
+			throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str()));
 		}
 
 		std::shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);
@@ -594,7 +594,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 
 		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
 		{
-			return false;
+			throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 		}
 
 		::GetExitCodeProcess(wowProcess.get(), reinterpret_cast<DWORD*>(&fnWow64LoadLibrary));
@@ -635,16 +635,16 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		*ip.pB++ = 0x9c;			// pushf
 		*ip.pB++ = 0x60;			// pusha
 		*ip.pB++ = 0x68;			// push  "path\to\our.dll"
-		*ip.pI++ = (DWORD)mem + codeSize;
+		*ip.pI++ = static_cast<INT>(reinterpret_cast<UINT_PTR>(mem) + codeSize);
 		*ip.pB++ = 0xe8;			// call  LoadLibraryW
-		*ip.pI++ = (DWORD)fnWow64LoadLibrary - ((DWORD)mem + (ip.pB+4 - code.get()));
+		*ip.pI++ =  static_cast<INT>(fnWow64LoadLibrary - (reinterpret_cast<UINT_PTR>(mem) + (ip.pB+4 - code.get())));
 		*ip.pB++ = 0x61;			// popa
 		*ip.pB++ = 0x9d;			// popf
 		*ip.pB++ = 0xc3;			// ret
 
 		::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL);
 		::FlushInstructionCache(pi.hProcess, mem, memLen);
-		wow64Context.Eip = (DWORD)mem;
+		wow64Context.Eip = static_cast<DWORD>(reinterpret_cast<UINT_PTR>(mem));
 		::Wow64SetThreadContext(pi.hThread, &wow64Context);
 	}
 	else
@@ -708,7 +708,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 
 		::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL);
 		::FlushInstructionCache(pi.hProcess, mem, memLen);
-		context.Rip = (UINT_PTR)mem + 16;
+		context.Rip = reinterpret_cast<UINT_PTR>(mem) + 16;
 		::SetThreadContext(pi.hThread, &context);
 	}
 
@@ -719,16 +719,16 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	*ip.pB++ = 0x9c;			// pushf
 	*ip.pB++ = 0x60;			// pusha
 	*ip.pB++ = 0x68;			// push  "path\to\our.dll"
-	*ip.pI++ = (UINT_PTR)mem + codeSize;
+	*ip.pI++ = reinterpret_cast<UINT_PTR>(mem) + codeSize;
 	*ip.pB++ = 0xe8;			// call  LoadLibraryW
-	*ip.pI++ = (UINT_PTR)fnLoadLibrary - ((UINT_PTR)mem + (ip.pB+4 - code.get()));
+	*ip.pI++ = fnLoadLibrary - (reinterpret_cast<UINT_PTR>(mem) + (ip.pB+4 - code.get()));
 	*ip.pB++ = 0x61;			// popa
 	*ip.pB++ = 0x9d;			// popf
 	*ip.pB++ = 0xc3;			// ret
 
 	::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL);
 	::FlushInstructionCache(pi.hProcess, mem, memLen);
-	context.Eip = (UINT_PTR)mem;
+	context.Eip = reinterpret_cast<UINT_PTR>(mem);
 	::SetThreadContext(pi.hThread, &context);
 #endif
 

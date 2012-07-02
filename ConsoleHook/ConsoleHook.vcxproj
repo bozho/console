@@ -248,6 +248,12 @@
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>ConsoleHook32</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">
     <Midl>

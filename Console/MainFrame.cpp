@@ -207,6 +207,8 @@ LRESULT MainFrame::CreateInitialTabs
 				wstring str = tabSettings.tabDataVector[i]->strTitle;
 				if (tabSettings.tabDataVector[i]->strTitle == startupTabs[tabIndex])
 				{
+					// -ts Specifies sleep time between starting next tab if multiple -t's are specified.
+					if (bAtLeastOneStarted) ::Sleep(nMultiStartSleep);
 					// found it, create
 					if (CreateNewConsole(
 						static_cast<DWORD>(i), 
@@ -215,7 +217,6 @@ LRESULT MainFrame::CreateInitialTabs
 					{
 						bAtLeastOneStarted = true;
 					}
-					if (startupTabs.size() > 1) ::Sleep(nMultiStartSleep);
 					break;
 				}
 			}

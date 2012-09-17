@@ -1747,7 +1747,7 @@ void MainFrame::AdjustWindowRect(CRect& rect)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir /*= wstring(L"")*/, const wstring& strStartupCmd /*= wstring(L"")*/)
+bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
@@ -1755,7 +1755,7 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir 
 
 	std::shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
 
-	std::shared_ptr<TabView> tabView(new TabView(*this, tabData));
+	std::shared_ptr<TabView> tabView(new TabView(*this, tabData, strCmdLineInitialDir, strCmdLineInitialCmd));
 
 	HWND hwndTabView = tabView->Create(
 											m_hWnd, 

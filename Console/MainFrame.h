@@ -217,7 +217,7 @@ class MainFrame
 
 	private:
 
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strStartupDir = wstring(L""), const wstring& strStartupCmd = wstring(L""));
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);

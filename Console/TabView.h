@@ -11,7 +11,7 @@ class TabView
 public:
   DECLARE_WND_CLASS_EX(L"Console_2_TabView", CS_DBLCLKS, COLOR_WINDOW)
 
-  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData);
+  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir, const wstring& strCmdLineInitialCmd);
   ~TabView();
 
   BOOL PreTranslateMessage(MSG* pMsg);
@@ -82,7 +82,7 @@ public:
   void Group(bool b);
 
 private:
-  HWND CreateNewConsole(void);
+  HWND CreateNewConsole(const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 
 private:
   MainFrame&          m_mainFrame;
@@ -93,6 +93,8 @@ private:
   CIcon               m_bigIcon;
   CIcon               m_smallIcon;
   bool                m_boolIsGrouped;
+  wstring             m_strCmdLineInitialDir;
+  wstring             m_strCmdLineInitialCmd;
 
   // static members
 private:

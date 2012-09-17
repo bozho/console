@@ -12,7 +12,7 @@ int CMultiSplitPane::splitBarHeight = 0;
 
 //////////////////////////////////////////////////////////////////////////////
 
-TabView::TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData)
+TabView::TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir, const wstring& strCmdLineInitialCmd)
 :m_mainFrame(mainFrame)
 ,m_viewsMutex(NULL, FALSE, NULL)
 ,m_tabData(tabData)
@@ -20,6 +20,8 @@ TabView::TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData)
 ,m_bigIcon()
 ,m_smallIcon()
 ,m_boolIsGrouped(false)
+,m_strCmdLineInitialDir(strCmdLineInitialDir)
+,m_strCmdLineInitialCmd(strCmdLineInitialCmd)
 {
 }
 
@@ -80,7 +82,7 @@ LRESULT TabView::OnCreate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHand
 
   ATLTRACE(_T("TabView::OnCreate\n"));
   MutexLock viewMapLock(m_viewsMutex);
-  HWND hwndConsoleView = CreateNewConsole();
+  HWND hwndConsoleView = CreateNewConsole(m_strCmdLineInitialDir, m_strCmdLineInitialCmd);
   if( hwndConsoleView )
   {
     result = multisplitClass::OnCreate(uMsg, wParam, lParam, bHandled);
@@ -117,7 +119,7 @@ LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL &
   return 1;
 }
 
-HWND TabView::CreateNewConsole(void)
+HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
 {
 	DWORD dwRows    = g_settingsHandler->GetConsoleSettings().dwRows;
 	DWORD dwColumns = g_settingsHandler->GetConsoleSettings().dwColumns;
@@ -137,7 +139,7 @@ HWND TabView::CreateNewConsole(void)
 		m_dwColumns	= dwColumns;
 	}
 #endif
-	std::shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns));
+	std::shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns, strCmdLineInitialDir, strCmdLineInitialCmd));
   consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 

@@ -30,7 +30,7 @@ class ConsoleView
 		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 //		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS, COLOR_WINDOW)
 
-		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns);
+		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		~ConsoleView();
 
 		BOOL PreTranslateMessage(MSG* pMsg);
@@ -176,7 +176,7 @@ class ConsoleView
 		HWND       m_hwndTabView;
 
 		wstring m_strCmdLineInitialDir;
-		wstring m_strInitialCmd;
+		wstring m_strCmdLineInitialCmd;
 
 		bool	m_bInitializing;
 		bool	m_bResizing;

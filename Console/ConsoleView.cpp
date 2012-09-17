@@ -33,7 +33,7 @@ int ConsoleView::m_nHInsideBorder(0);
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
 : m_mainFrame(mainFrame)
 , m_hwndTabView(hwndTabView)
 , m_bInitializing(true)
@@ -67,6 +67,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_dcOffscreen(::CreateCompatibleDC(NULL))
 , m_dcText(::CreateCompatibleDC(NULL))
 , m_boolIsGrouped(false)
+, m_strCmdLineInitialDir(strCmdLineInitialDir)
+, m_strCmdLineInitialCmd(strCmdLineInitialCmd)
 {
 }
 
@@ -160,7 +162,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 									strInitialDir,
 									userCredentials->user,
 									userCredentials->password,
-									m_strInitialCmd,
+									m_strCmdLineInitialCmd,
 									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 									m_dwStartupRows,
 									m_dwStartupColumns);

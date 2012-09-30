@@ -119,8 +119,8 @@ using namespace boost::multi_index;
 #include "../shared/SharedMemory.h"
 #include "../shared/Structures.h"
 
-#include "Cpp11Helpers.h"
-#include "Win32Exception.h"
+#include "../shared/Cpp11Helpers.h"
+#include "../shared/Win32Exception.h"
 #include "Helpers.h"
 #include "ConsoleHandler.h"
 #include "ImageHandler.h"

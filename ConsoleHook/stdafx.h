@@ -37,6 +37,9 @@ using namespace boost;
 #include "../shared/SharedMemory.h"
 #include "../shared/Structures.h"
 
+#include "../shared/Cpp11Helpers.h"
+#include "../shared/Win32Exception.h"
+
 //////////////////////////////////////////////////////////////////////////////
 
 

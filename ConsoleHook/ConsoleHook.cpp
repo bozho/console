@@ -19,8 +19,8 @@ ConsoleHandler	g_consoleHandler;
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, LPVOID /* lpReserved */)
 {
-	TRACE(L"DLL main!\n");
-	
+	TRACE(L"DLL main! reason %lu\n", ul_reason_for_call);
+
 	switch (ul_reason_for_call)
 	{
 		case DLL_PROCESS_ATTACH:

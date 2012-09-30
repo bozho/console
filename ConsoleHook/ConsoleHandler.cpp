@@ -128,29 +128,39 @@ void ConsoleHandler::ReadConsoleBuffer()
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
 	// no need to call CloseHandle when done, we're reusing console handles
-	std::shared_ptr<void> hStdOut(::CreateFile(
+	std::unique_ptr<void, CloseHandleHelper> hStdOut(::CreateFile(
 								L"CONOUT$",
 								GENERIC_WRITE | GENERIC_READ,
 								FILE_SHARE_READ | FILE_SHARE_WRITE,
 								NULL,
 								OPEN_EXISTING,
 								0,
-								0),
-								::CloseHandle);
+								0));
+
+  if( hStdOut.get() == INVALID_HANDLE_VALUE )
+  {
+    Win32Exception err(::GetLastError());
+    TRACE(L"CreateFile returns error (%lu) : %S\n", err.GetErrorCode(), err.what());
+    return;
+  }
 
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
 	COORD						coordConsoleSize;
 
-	::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole);
+	if( !::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole) )
+  {
+    Win32Exception err(::GetLastError());
+    TRACE(L"GetConsoleScreenBufferInfo(%p) returns error (%lu) : %S\n", hStdOut.get(), err.GetErrorCode(), err.what());
+    return;
+  }
 
 	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
 	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
 
-/*
+
 	TRACE(L"ReadConsoleBuffer console buffer size: %ix%i\n", csbiConsole.dwSize.X, csbiConsole.dwSize.Y);
 	TRACE(L"ReadConsoleBuffer console rect: %ix%i - %ix%i\n", csbiConsole.srWindow.Left, csbiConsole.srWindow.Top, csbiConsole.srWindow.Right, csbiConsole.srWindow.Bottom);
 	TRACE(L"console window rect: (%i, %i) - (%i, %i)\n", csbiConsole.srWindow.Top, csbiConsole.srWindow.Left, csbiConsole.srWindow.Bottom, csbiConsole.srWindow.Right);
-*/
 
 	// do console output buffer reading
 	DWORD					dwScreenBufferSize	= coordConsoleSize.X * coordConsoleSize.Y;

@@ -473,6 +473,12 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		
 	}
 
+  if ((transparencySettings.transType == transGlass) && 
+    (transparencySettings.byActiveAlpha != transparencySettings.byInactiveAlpha))
+  {
+    m_activeTabView->Repaint(true);
+  }
+
 	// we're being called while OnCreate is running, return here
 	if (!m_bOnCreateDone)
 	{
@@ -2367,33 +2373,32 @@ void MainFrame::SetTransparency()
 
 	// RAZ
 	SetWindowLong(
-		GWL_EXSTYLE, 
+		GWL_EXSTYLE,
 		GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
 		
 #ifdef _USE_AERO
   BOOL fEnabled = FALSE;
   DwmIsCompositionEnabled(&fEnabled);
   if( fEnabled )
-		{
+  {
     if( stylesSettings.bCaption )
     {
       ::DwmExtendFrameIntoClientArea(m_hWnd, &m_Margins);
-	}
-	else
-	{
+    }
+    else
+    {
       DWM_BLURBEHIND bb = {0};
       bb.dwFlags = DWM_BB_ENABLE;
       bb.fEnable = FALSE;
       bb.hRgnBlur = NULL;
       ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
-	}
-}
+    }
+  }
 #endif
 
 	switch (transparencySettings.transType)
 	{
-		case transAlpha : 
-
+		case transAlpha :
 			// if Console is pinned to the desktop window, wee need to set it as top-level window temporarily
 			if (m_zOrder == zorderDesktop) SetParent(NULL);
 
@@ -2435,7 +2440,7 @@ void MainFrame::SetTransparency()
 		}
 
     case transGlass :
-		{
+    {
 #ifdef _USE_AERO
       if( fEnabled )
       {
@@ -2443,7 +2448,7 @@ void MainFrame::SetTransparency()
         {
           MARGINS m = {-1,-1,-1,-1};
           ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
-		}
+        }
         else
         {
           DWM_BLURBEHIND bb = {0};
@@ -2458,7 +2463,7 @@ void MainFrame::SetTransparency()
 
       break;
     }
-	}
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

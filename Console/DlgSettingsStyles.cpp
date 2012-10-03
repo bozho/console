@@ -292,7 +292,7 @@ void DlgSettingsStyles::EnableTransparencyControls()
 	GetDlgItem(IDC_STATIC_KEY_COLOR).EnableWindow(FALSE);
 	GetDlgItem(IDC_KEY_COLOR).EnableWindow(FALSE);
 
-	if (m_transparencySettings.transType == transAlpha)
+	if (m_transparencySettings.transType == transAlpha || m_transparencySettings.transType == transGlass)
 	{
 		GetDlgItem(IDC_STATIC_ACTIVE_WINDOW).EnableWindow();
 		GetDlgItem(IDC_STATIC_INACTIVE_WINDOW).EnableWindow();

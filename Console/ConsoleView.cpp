@@ -1713,7 +1713,30 @@ void ConsoleView::RepaintText(CDC& dc)
 */
 	if (m_tabData->backgroundImageType == bktypeNone)
 	{
+#ifdef _USE_AERO
+    // set transparency
+    TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+    if (transparencySettings.transType == transGlass)
+    {
+      Gdiplus::Graphics gr(dc);
+
+      Gdiplus::Color backgroundColor;
+      backgroundColor.SetFromCOLORREF(m_tabData->crBackgroundColor);
+      Gdiplus::Color backgroundColorAlpha(
+          this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
+          backgroundColor.GetR(),
+          backgroundColor.GetG(),
+          backgroundColor.GetB());
+
+      gr.Clear(backgroundColorAlpha);
+    }
+    else
+    {
+      dc.FillRect(&bitmapRect, m_backgroundBrush);
+    }
+#else
 		dc.FillRect(&bitmapRect, m_backgroundBrush);
+#endif
 	}
 	else
 	{
@@ -1945,6 +1968,29 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
       if (m_tabData->backgroundImageType == bktypeNone)
       {
         dc.FillRect(&rect, m_backgroundBrush);
+#if _USE_AERO
+        // set transparency
+        TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+        if (transparencySettings.transType == transGlass)
+        {
+          Gdiplus::Graphics gr(dc);
+
+          Gdiplus::Color backgroundColor;
+
+          backgroundColor.SetFromCOLORREF(m_tabData->crBackgroundColor);
+          Gdiplus::SolidBrush backgroundBrush(
+            Gdiplus::Color(
+              this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
+              backgroundColor.GetR(),
+              backgroundColor.GetG(),
+              backgroundColor.GetB()));
+
+          gr.FillRectangle(
+              &backgroundBrush,
+              rect.left, rect.top,
+              rect.Width(), rect.Height());
+        }
+#endif
       }
       else
       {

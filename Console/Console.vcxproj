@@ -469,6 +469,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClCompile Include="XmlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="AeroTabCtrl.h" />
     <ClInclude Include="Console.h" />

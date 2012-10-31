@@ -473,6 +473,11 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 		
 	}
 
+#ifdef _USE_AERO
+  m_TabCtrl.SetAppActiveStatus(m_bAppActive);
+  m_TabCtrl.RedrawWindow();
+#endif
+
   if ((transparencySettings.transType == transGlass) && 
     (transparencySettings.byActiveAlpha != transparencySettings.byInactiveAlpha))
   {
@@ -487,6 +492,7 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	}
 
 	bHandled = FALSE;
+
 	return 0;
 }
 

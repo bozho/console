@@ -18,20 +18,31 @@ protected:
   signed long m_iCloseButtonWidth;
   signed long m_iCloseButtonHeight;
 
+  bool           m_bAppActive;
+  Gdiplus::Color m_clrBackground;
+
   // Constructor
 public:
 
-  CAeroTabCtrlImpl():m_iTopMargin(0)
+  CAeroTabCtrlImpl():m_iTopMargin(0),m_bAppActive(true)
   {
     // We can't use a member initialization list to initialize
     // members of our base class, so do it explictly by assignment here.
     m_clrTextInactiveTab = /*RGB(255,255,255); */::GetSysColor(COLOR_BTNTEXT);
     m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
+
+    m_clrBackground.SetFromCOLORREF(::GetSysColor(m_bAppActive?COLOR_GRADIENTACTIVECAPTION:COLOR_GRADIENTINACTIVECAPTION));
   }
 
   void SetTopMargin(int nTopMargin)
   {
     m_iTopMargin = static_cast<signed char>(nTopMargin);
+  }
+
+  void SetAppActiveStatus(bool bAppActive)
+  {
+    m_bAppActive = bAppActive;
+    m_clrBackground.SetFromCOLORREF(::GetSysColor(m_bAppActive?COLOR_GRADIENTACTIVECAPTION:COLOR_GRADIENTINACTIVECAPTION));
   }
 
   // Message Handling
@@ -95,6 +106,8 @@ public:
 
     m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
 
+    m_clrBackground = ::GetSysColor(m_bAppActive?COLOR_GRADIENTACTIVECAPTION:COLOR_GRADIENTINACTIVECAPTION);
+
     m_iMargin = 6;
     m_iLeftSpacing = 2;
     m_iRadius = 3;
@@ -115,7 +128,16 @@ public:
   void DrawBackground(RECT /*rcClient*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
   {
     Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
-    g.Clear(Gdiplus::Color(0,0,0,0));
+    BOOL fEnabled = FALSE;
+    DwmIsCompositionEnabled(&fEnabled);
+    if( !fEnabled )
+    {
+      g.Clear(m_clrBackground);
+    }
+    else
+    {
+      g.Clear(Gdiplus::Color(0,0,0,0));
+    }
   }
 
   void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
@@ -281,8 +303,19 @@ public:
     HDC bufferedDC = NULL;
     BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
     HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &rcTab, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
-    BufferedPaintClear(pb, &rcTab);
+
     Gdiplus::Graphics g(bufferedDC);
+
+    BOOL fEnabled = FALSE;
+    DwmIsCompositionEnabled(&fEnabled);
+    if( !fEnabled )
+    {
+      g.Clear(m_clrBackground);
+    }
+    else
+    {
+      BufferedPaintClear(pb, &rcTab);
+    }
 
     bool bHighlighted = (CDIS_MARKED == (lpNMCustomDraw->nmcd.uItemState & CDIS_MARKED));
     bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
@@ -498,8 +531,19 @@ public:
     HDC targetDC = lpNMCustomDraw->nmcd.hdc;
     HDC bufferedDC = NULL;
     BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
+
     HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &zone, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
-    BufferedPaintClear(pb, &zone);
+    BOOL fEnabled = FALSE;
+    DwmIsCompositionEnabled(&fEnabled);
+    if( !fEnabled )
+    {
+      Gdiplus::Graphics g(bufferedDC);
+      g.Clear(m_clrBackground);
+    }
+    else
+    {
+      BufferedPaintClear(pb, &zone);
+    }
 
     int iStateScrollLeft = NAV_BB_DISABLED;
     if( m_dwState & ectcOverflowLeft )

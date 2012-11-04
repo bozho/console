@@ -1975,20 +1975,21 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
         {
           Gdiplus::Graphics gr(dc);
 
-          Gdiplus::Color backgroundColor;
+          gr.SetClip(
+            Gdiplus::Rect(
+              rect.left, rect.top,
+              rect.Width(), rect.Height()),
+            Gdiplus::CombineModeReplace);
 
+          Gdiplus::Color backgroundColor;
           backgroundColor.SetFromCOLORREF(m_tabData->crBackgroundColor);
-          Gdiplus::SolidBrush backgroundBrush(
-            Gdiplus::Color(
+          Gdiplus::Color backgroundColorAlpha(
               this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
               backgroundColor.GetR(),
               backgroundColor.GetG(),
-              backgroundColor.GetB()));
+              backgroundColor.GetB());
 
-          gr.FillRectangle(
-              &backgroundBrush,
-              rect.left, rect.top,
-              rect.Width(), rect.Height());
+          gr.Clear(backgroundColorAlpha);
         }
 #endif
       }

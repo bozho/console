@@ -105,7 +105,7 @@ static bool HandleReuse(LPCTSTR lpstrCmdLine)
 		COPYDATASTRUCT cds = {0};
 		cds.dwData = 0;
 		cds.lpData = (LPVOID)lpstrCmdLine;
-		cds.cbData = (_tcslen(lpstrCmdLine) + 1) * sizeof(TCHAR);
+		cds.cbData = static_cast<DWORD>((_tcslen(lpstrCmdLine) + 1) * sizeof(TCHAR));
 		
 		::SendMessage(*sharedInstance, WM_COPYDATA, 0, (LPARAM)&cds);
 

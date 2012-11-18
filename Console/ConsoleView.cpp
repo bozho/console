@@ -2174,7 +2174,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         // in italic a part of the previous char is drawn in the following char space
         rect.right  = dwX + dwFGWidth + m_nCharWidth;
 
-        dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), strText.length(), NULL);
+        dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), NULL);
 
         strText.clear();
         colorFG   = colorFG2;
@@ -2197,7 +2197,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     rect.bottom = dwY + m_nCharHeight;
     rect.right  = dwX + dwFGWidth;
 
-    dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), strText.length(), NULL);
+    dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), NULL);
   }
 }
 

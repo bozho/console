@@ -19,7 +19,6 @@ protected:
   signed long m_iCloseButtonHeight;
 
   bool           m_bAppActive;
-  Gdiplus::Color m_clrBackground;
 
   // Constructor
 public:
@@ -30,8 +29,6 @@ public:
     // members of our base class, so do it explictly by assignment here.
     m_clrTextInactiveTab = /*RGB(255,255,255); */::GetSysColor(COLOR_BTNTEXT);
     m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
-
-    m_clrBackground.SetFromCOLORREF(::GetSysColor(m_bAppActive?COLOR_GRADIENTACTIVECAPTION:COLOR_GRADIENTINACTIVECAPTION));
   }
 
   void SetTopMargin(int nTopMargin)
@@ -42,7 +39,6 @@ public:
   void SetAppActiveStatus(bool bAppActive)
   {
     m_bAppActive = bAppActive;
-    m_clrBackground.SetFromCOLORREF(::GetSysColor(m_bAppActive?COLOR_GRADIENTACTIVECAPTION:COLOR_GRADIENTINACTIVECAPTION));
   }
 
   // Message Handling
@@ -106,8 +102,6 @@ public:
 
     m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
 
-    m_clrBackground = ::GetSysColor(m_bAppActive?COLOR_GRADIENTACTIVECAPTION:COLOR_GRADIENTINACTIVECAPTION);
-
     m_iMargin = 6;
     m_iLeftSpacing = 2;
     m_iRadius = 3;
@@ -122,21 +116,52 @@ public:
     return 0;
   }
 
+#if 0
+  void ClearBackground(Gdiplus::Graphics& g, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
+  {
+    if( this->m_bAeroGlassActive )
+    {
+      BOOL fEnabled = FALSE;
+      DwmIsCompositionEnabled(&fEnabled);
+      if( !fEnabled )
+      {
+        g.Clear(m_clrBackground);
+      }
+      else
+      {
+        g.Clear(Gdiplus::Color(0,0,0,0));
+      }
+    }
+    else
+    {
+      g.Clear(
+        Gdiplus::Color(
+          Gdiplus::Color::MakeARGB(
+            255,
+            GetRValue(lpNMCustomDraw->clrBtnFace),
+            GetGValue(lpNMCustomDraw->clrBtnFace),
+            GetBValue(lpNMCustomDraw->clrBtnFace))));
+    }
+  }
+#endif
+
   // Overrides for painting from CDotNetTabCtrlImpl
 public:
 
   void DrawBackground(RECT /*rcClient*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
   {
-    Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
-    BOOL fEnabled = FALSE;
-    DwmIsCompositionEnabled(&fEnabled);
-    if( !fEnabled )
+    if( !aero::IsComposing() )
     {
-      g.Clear(m_clrBackground);
-    }
-    else
-    {
-      g.Clear(Gdiplus::Color(0,0,0,0));
+      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+      COLORREF clr = lpNMCustomDraw->clrBtnFace;
+
+      g.Clear(
+        Gdiplus::Color(
+          Gdiplus::Color::MakeARGB(
+            255,
+            GetRValue(clr),
+            GetGValue(clr),
+            GetBValue(clr))));
     }
   }
 
@@ -299,23 +324,7 @@ public:
 
   void DrawItem_ImageAndText(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, int nIconVerticalCenter, RECT& rcTab, RECT& rcText)
   {
-    HDC targetDC = lpNMCustomDraw->nmcd.hdc;
-    HDC bufferedDC = NULL;
-    BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
-    HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &rcTab, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
-
-    Gdiplus::Graphics g(bufferedDC);
-
-    BOOL fEnabled = FALSE;
-    DwmIsCompositionEnabled(&fEnabled);
-    if( !fEnabled )
-    {
-      g.Clear(m_clrBackground);
-    }
-    else
-    {
-      BufferedPaintClear(pb, &rcTab);
-    }
+    Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
 
     bool bHighlighted = (CDIS_MARKED == (lpNMCustomDraw->nmcd.uItemState & CDIS_MARKED));
     bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
@@ -325,7 +334,7 @@ public:
     TItem* pItem = this->GetItem(nItem);
 
     ::SelectObject(
-      bufferedDC,
+      lpNMCustomDraw->nmcd.hdc,
       ( bSelected )?
       lpNMCustomDraw->hFontSelected :
     lpNMCustomDraw->hFontInactive);
@@ -406,7 +415,7 @@ public:
         CIcon tabSmallIcon(m_imageList.ExtractIcon(nImageIndex));
         if( !tabSmallIcon.IsNull() )
         {
-          WTL::CDCHandle dc(bufferedDC);
+          WTL::CDCHandle dc(lpNMCustomDraw->nmcd.hdc);
           dc.DrawIconEx(
             rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset,
             tabSmallIcon.m_hIcon,
@@ -443,19 +452,31 @@ public:
       dtto.crText = txtcolorref;
       dtto.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE;
 
-      HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+      HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+      if( hTheme )
+      {
+        ::DrawThemeTextEx(
+          hTheme,
+          lpNMCustomDraw->nmcd.hdc,
+          WP_CAPTION, CS_ACTIVE,
+          szTitle,
+          szTitleLen,
+          DT_PATH_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX,
+          &rcText,
+          &dtto);
 
-      DrawThemeTextEx(
-        hTheme,
-        bufferedDC,
-        WP_CAPTION, CS_ACTIVE,
-        szTitle,
-        szTitleLen,
-        DT_PATH_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX,
-        &rcText,
-        &dtto);
-
-      CloseThemeData(hTheme);
+        ::CloseThemeData(hTheme);
+      }
+      else
+      {
+        WTL::CDCHandle dc(lpNMCustomDraw->nmcd.hdc);
+        dc.SetBkMode(TRANSPARENT);
+        dc.DrawText(
+          szTitle,
+          szTitleLen,
+          &rcText,
+          DT_PATH_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+      }
     }
 
 #ifdef _DRAW_TAB_RECT
@@ -476,17 +497,11 @@ public:
     }
 #endif //_DRAW_TAB_RECT
 
-    EndBufferedPaint(pb, TRUE);
   }
 
   void DrawCloseButton(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
   {
     // drawed in the current tab
-
-    HDC targetDC = lpNMCustomDraw->nmcd.hdc;
-    HDC bufferedDC = NULL;
-    BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
-    HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &m_rcCloseButton, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
 
     int iStateCloseButton = CBS_NORMAL;
     if( ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown) )
@@ -494,30 +509,48 @@ public:
     else if( ectcMouseOver_CloseButton == (m_dwState & ectcMouseOver) )
       iStateCloseButton = CBS_HOT;
 
-    HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+    if( hTheme )
+    {
+      ::DrawThemeBackgroundEx(
+        hTheme,
+        lpNMCustomDraw->nmcd.hdc,
+        WP_SMALLCLOSEBUTTON,
+        iStateCloseButton,
+        &m_rcCloseButton,
+        NULL);
 
-    DrawThemeBackgroundEx(
-      hTheme,
-      bufferedDC,
-      WP_SMALLCLOSEBUTTON,
-      iStateCloseButton,
-      &m_rcCloseButton,
-      NULL);
-
-    CloseThemeData(hTheme);
+      ::CloseThemeData(hTheme);
+    }
+    else
+    {
+      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Red)));
+      g.DrawRectangle(
+        &pen,
+        m_rcCloseButton.left, m_rcCloseButton.top,
+        m_rcCloseButton.right - m_rcCloseButton.left, m_rcCloseButton.bottom - m_rcCloseButton.top);
+      g.DrawLine(
+        &pen,
+        m_rcCloseButton.left, m_rcCloseButton.top,
+        m_rcCloseButton.right, m_rcCloseButton.bottom);
+      g.DrawLine(
+        &pen,
+        m_rcCloseButton.right, m_rcCloseButton.top,
+        m_rcCloseButton.left, m_rcCloseButton.bottom);
+    }
 
 #ifdef _DRAW_TAB_RECT
     {
-      Gdiplus::Graphics g(bufferedDC);
+      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Cyan)));
       g.DrawRectangle(
         &pen,
         m_rcCloseButton.left, m_rcCloseButton.top,
-        m_rcCloseButton.right - m_rcCloseButton.left - 1, m_rcCloseButton.bottom - m_rcCloseButton.top -1);
+        m_rcCloseButton.right - m_rcCloseButton.left, m_rcCloseButton.bottom - m_rcCloseButton.top);
     }
 #endif //_DRAW_TAB_RECT
 
-    EndBufferedPaint(pb, TRUE);
   }
 
   void DrawScrollButtons(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
@@ -527,23 +560,6 @@ public:
     zone.left   = m_rcScrollLeft.left;
     zone.bottom = m_rcScrollLeft.bottom;
     zone.right  = m_rcScrollRight.right;
-
-    HDC targetDC = lpNMCustomDraw->nmcd.hdc;
-    HDC bufferedDC = NULL;
-    BP_PAINTPARAMS m_PaintParams = { sizeof(BP_PAINTPARAMS) };
-
-    HPAINTBUFFER pb = BeginBufferedPaint(targetDC, &zone, BPBF_TOPDOWNDIB, &m_PaintParams, &bufferedDC);
-    BOOL fEnabled = FALSE;
-    DwmIsCompositionEnabled(&fEnabled);
-    if( !fEnabled )
-    {
-      Gdiplus::Graphics g(bufferedDC);
-      g.Clear(m_clrBackground);
-    }
-    else
-    {
-      BufferedPaintClear(pb, &zone);
-    }
 
     int iStateScrollLeft = NAV_BB_DISABLED;
     if( m_dwState & ectcOverflowLeft )
@@ -565,46 +581,78 @@ public:
         iStateScrollRight = NAV_FB_HOT;
     }
 
-    HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    if( hTheme )
+    {
+      ::DrawThemeBackgroundEx(
+        hTheme,
+        lpNMCustomDraw->nmcd.hdc,
+        NAV_BACKBUTTON,
+        iStateScrollLeft,
+        &m_rcScrollLeft,
+        NULL);
 
-    DrawThemeBackgroundEx(
-      hTheme,
-      bufferedDC,
-      NAV_BACKBUTTON,
-      iStateScrollLeft,
-      &m_rcScrollLeft,
-      NULL);
+      ::DrawThemeBackgroundEx(
+        hTheme,
+        lpNMCustomDraw->nmcd.hdc,
+        NAV_FORWARDBUTTON,
+        iStateScrollRight,
+        &m_rcScrollRight,
+        NULL);
 
-    DrawThemeBackgroundEx(
-      hTheme,
-      bufferedDC,
-      NAV_FORWARDBUTTON,
-      iStateScrollRight,
-      &m_rcScrollRight,
-      NULL);
+      ::CloseThemeData(hTheme);
+    }
+    else
+    {
+      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+      Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Navy)));
+      int nHalfHeight = (m_rcScrollLeft.bottom - m_rcScrollLeft.top) >> 1;
+      g.DrawLine(
+        &pen,
+        m_rcScrollLeft.right, m_rcScrollLeft.top,
+        m_rcScrollLeft.right, m_rcScrollLeft.bottom);
+      g.DrawLine(
+        &pen,
+        m_rcScrollLeft.right, m_rcScrollLeft.top,
+        m_rcScrollLeft.left, m_rcScrollLeft.top + nHalfHeight);
+      g.DrawLine(
+        &pen,
+        m_rcScrollLeft.right, m_rcScrollLeft.bottom,
+        m_rcScrollLeft.left, m_rcScrollLeft.bottom - nHalfHeight);
 
-    CloseThemeData(hTheme);
+      g.DrawLine(
+        &pen,
+        m_rcScrollRight.left, m_rcScrollRight.top,
+        m_rcScrollRight.left, m_rcScrollRight.bottom);
+      g.DrawLine(
+        &pen,
+        m_rcScrollRight.left, m_rcScrollRight.top,
+        m_rcScrollRight.right, m_rcScrollRight.top + nHalfHeight);
+      g.DrawLine(
+        &pen,
+        m_rcScrollRight.left, m_rcScrollRight.bottom,
+        m_rcScrollRight.right, m_rcScrollRight.bottom - nHalfHeight);
+    }
 
 #ifdef _DRAW_TAB_RECT
     {
-      Gdiplus::Graphics g(bufferedDC);
+      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Lime)));
       g.DrawRectangle(
         &pen,
         m_rcScrollLeft.left, m_rcScrollLeft.top,
-        m_rcScrollLeft.right - m_rcScrollLeft.left - 1, m_rcScrollLeft.bottom - m_rcScrollLeft.top -1);
+        m_rcScrollLeft.right - m_rcScrollLeft.left, m_rcScrollLeft.bottom - m_rcScrollLeft.top);
     }
     {
-      Gdiplus::Graphics g(bufferedDC);
+      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Magenta)));
       g.DrawRectangle(
         &pen,
         m_rcScrollRight.left, m_rcScrollRight.top,
-        m_rcScrollRight.right - m_rcScrollRight.left - 1, m_rcScrollRight.bottom - m_rcScrollRight.top -1);
+        m_rcScrollRight.right - m_rcScrollRight.left, m_rcScrollRight.bottom - m_rcScrollRight.top);
     }
 #endif //_DRAW_TAB_RECT
 
-    EndBufferedPaint(pb, TRUE);
   }
 
   void CalcSize_CloseButton(LPRECT /*prcTabItemArea*/)
@@ -615,22 +663,29 @@ public:
     {
       SIZE size;
 
-      HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+      HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_WINDOW);
+      if( hTheme )
+      {
+        ::GetThemePartSize(
+          hTheme,
+          NULL,
+          WP_SMALLCLOSEBUTTON,
+          0,
+          NULL,
+          TS_TRUE,
+          &size
+          );
 
-      GetThemePartSize(
-        hTheme,
-        NULL,
-        WP_SMALLCLOSEBUTTON,
-        0,
-        NULL,
-        TS_TRUE,
-        &size
-        );
+        ::CloseThemeData(hTheme);
 
-      CloseThemeData(hTheme);
-
-      m_iCloseButtonWidth  = size.cx;
-      m_iCloseButtonHeight = size.cy;
+        m_iCloseButtonWidth  = size.cx;
+        m_iCloseButtonHeight = size.cy;
+      }
+      else
+      {
+        m_iCloseButtonWidth  = 8;
+        m_iCloseButtonHeight = 8;
+      }
     }
     else
     {
@@ -643,19 +698,26 @@ public:
   {
     SIZE size;
 
-    HTHEME hTheme = OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    if( hTheme )
+    {
+      ::GetThemePartSize(
+        hTheme,
+        NULL,
+        NAV_BACKBUTTON,
+        0,
+        NULL,
+        TS_TRUE,
+        &size
+        );
 
-    GetThemePartSize(
-      hTheme,
-      NULL,
-      NAV_BACKBUTTON,
-      0,
-      NULL,
-      TS_TRUE,
-      &size
-      );
-
-    CloseThemeData(hTheme);
+      ::CloseThemeData(hTheme);
+    }
+    else
+    {
+      size.cx = 16;
+      size.cy = 16;
+    }
 
     if((prcTabItemArea->right - prcTabItemArea->left) < size.cx)
     {

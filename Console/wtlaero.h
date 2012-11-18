@@ -89,8 +89,18 @@ inline bool IsSupported()
 	return CBufferedPaintBase::IsBufferedPaintSupported();
 }
 
+extern bool _bAeroGlassActive;
+__declspec(selectany) bool _bAeroGlassActive = true;
+
+inline void SetAeroGlassActive(bool bAeroGlassActive)
+{
+	_bAeroGlassActive = bAeroGlassActive;
+}
+
 inline bool IsComposing()
 {
+	if( !_bAeroGlassActive ) return false;
+
 	BOOL bEnabled = FALSE;
 	return IsSupported() ? SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled : false;
 }
@@ -137,7 +147,7 @@ public:
 	bool DrawPartText(HDC dc, int iPartID, int iStateID, LPCTSTR pStr, LPRECT prText, UINT uFormat, DTTOPTS &dto)
 	{
 		HRESULT hr = S_FALSE;
-        if(IsTheming())
+		if(IsTheming())
 			if (IsSupported())
 				hr = DrawThemeTextEx (dc, iPartID, iStateID, pStr, -1, uFormat, prText, &dto );
 			else

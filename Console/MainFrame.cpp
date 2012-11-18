@@ -2373,88 +2373,113 @@ void MainFrame::SetMargins(void)
 
 void MainFrame::SetTransparency()
 {
-	// set transparency
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+  // set transparency
+  //StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+  TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
-	// RAZ
-	SetWindowLong(
-		GWL_EXSTYLE,
-		GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
-		
+  // RAZ
+  SetWindowLong(
+    GWL_EXSTYLE,
+    GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
+
 #ifdef _USE_AERO
   BOOL fEnabled = FALSE;
   DwmIsCompositionEnabled(&fEnabled);
   if( fEnabled )
   {
-    if( stylesSettings.bCaption )
+    //if( stylesSettings.bCaption )
     {
-      ::DwmExtendFrameIntoClientArea(m_hWnd, &m_Margins);
-    }
+      if( transparencySettings.transType == transColorKey )
+      {
+        MARGINS m = {0, 0, 0, 0};
+        ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
+      }
+      else
+      {
+        ::DwmExtendFrameIntoClientArea(m_hWnd, &m_Margins);
+      }
+    }/*
     else
     {
-      DWM_BLURBEHIND bb = {0};
-      bb.dwFlags = DWM_BB_ENABLE;
-      bb.fEnable = FALSE;
-      bb.hRgnBlur = NULL;
-      ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
-    }
+      if( transparencySettings.transType == transColorKey )
+      {
+        DWM_BLURBEHIND bb = {0};
+        bb.dwFlags = DWM_BB_ENABLE;
+        bb.fEnable = FALSE;
+        bb.hRgnBlur = NULL;
+        ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+      }
+      else
+      {
+          DWM_BLURBEHIND bb = {0};
+          bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;
+          bb.fEnable = TRUE;
+          bb.fTransitionOnMaximized = TRUE;
+          bb.hRgnBlur = NULL;
+          ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+      }
+    }*/
   }
 #endif
 
-	switch (transparencySettings.transType)
-	{
-		case transAlpha :
-			// if Console is pinned to the desktop window, wee need to set it as top-level window temporarily
-			if (m_zOrder == zorderDesktop) SetParent(NULL);
+  switch (transparencySettings.transType)
+  {
+  case transAlpha:
+    // if Console is pinned to the desktop window, wee need to set it as top-level window temporarily
+    if (m_zOrder == zorderDesktop) SetParent(NULL);
 
-			if ((transparencySettings.byActiveAlpha == 255) &&
-				(transparencySettings.byInactiveAlpha == 255))
-			{
+    if ((transparencySettings.byActiveAlpha == 255) &&
+      (transparencySettings.byInactiveAlpha == 255))
+    {
 
-				break;
-			}
+      break;
+    }
 
-			SetWindowLong(
-				GWL_EXSTYLE, 
-				GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
+    SetWindowLong(
+      GWL_EXSTYLE, 
+      GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
 
-			::SetLayeredWindowAttributes(
-				m_hWnd,
-				0, 
-				transparencySettings.byActiveAlpha, 
-				LWA_ALPHA);
+    ::SetLayeredWindowAttributes(
+      m_hWnd,
+      0, 
+      transparencySettings.byActiveAlpha, 
+      LWA_ALPHA);
 
-			// back to desktop-pinned mode, if needed
-			if (m_zOrder == zorderDesktop) SetParent(GetDesktopWindow());
+    // back to desktop-pinned mode, if needed
+    if (m_zOrder == zorderDesktop) SetParent(GetDesktopWindow());
 
-			break;
+    break;
 
-		case transColorKey :
-		{
-			SetWindowLong(
-				GWL_EXSTYLE, 
-				GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
+  case transColorKey :
+    {
+#ifdef _USE_AERO
+      // under VISTA/Windows 7 color key transparency replace aero glass by black
+      fEnabled = FALSE;
+#endif
 
-			::SetLayeredWindowAttributes(
-				m_hWnd,
-				transparencySettings.crColorKey, 
-				transparencySettings.byActiveAlpha, 
-				LWA_COLORKEY);
+      SetWindowLong(
+        GWL_EXSTYLE, 
+        GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
 
-			break;
-		}
+      ::SetLayeredWindowAttributes(
+        m_hWnd,
+        transparencySettings.crColorKey, 
+        transparencySettings.byActiveAlpha, 
+        LWA_COLORKEY);
 
-    case transGlass :
+      break;
+    }
+
+  case transGlass :
     {
 #ifdef _USE_AERO
       if( fEnabled )
       {
-        if( stylesSettings.bCaption )
+        //if( stylesSettings.bCaption )
         {
           MARGINS m = {-1,-1,-1,-1};
           ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
-        }
+        }/*
         else
         {
           DWM_BLURBEHIND bb = {0};
@@ -2463,13 +2488,19 @@ void MainFrame::SetTransparency()
           bb.fTransitionOnMaximized = TRUE;
           bb.hRgnBlur = NULL;
           ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
-        }
+        }*/
       }
 #endif
 
       break;
     }
   }
+
+#ifdef _USE_AERO
+  aero::SetAeroGlassActive(fEnabled != FALSE);
+  m_ATB.Invalidate(TRUE);
+  m_TabCtrl.Invalidate(TRUE);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

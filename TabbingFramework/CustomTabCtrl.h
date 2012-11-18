@@ -2503,6 +2503,14 @@ public:
 		pnmcd->hdc = dc;
 		pnmcd->uItemState = 0;
 
+#if _USE_AERO
+    CBufferedPaint bufferedPaint;
+    HDC hDCPaint = NULL;
+    BP_PAINTPARAMS paintParams = { sizeof(BP_PAINTPARAMS), BPPF_ERASE, NULL, NULL };
+    bufferedPaint.Begin(dc, &rcClient, BPBF_TOPDOWNDIB, &paintParams, &hDCPaint);
+    pnmcd->hdc = hDCPaint;
+#endif
+
 		pT->InitializeDrawStruct(&nmc);
 
 		pnmcd->dwDrawStage = CDDS_PREPAINT;
@@ -2616,7 +2624,12 @@ public:
 		{
 			pT->DoPostPaint(rcClient, &nmc);
 		}
-		
+
+#if _USE_AERO
+    bufferedPaint.End();
+    pnmcd->hdc = dc;
+#endif
+
 		if( CDRF_NOTIFYPOSTPAINT == (lResCustom & CDRF_NOTIFYPOSTPAINT) )
 		{
 			pnmcd->dwDrawStage = CDDS_POSTPAINT;

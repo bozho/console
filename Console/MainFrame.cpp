@@ -2374,7 +2374,7 @@ void MainFrame::SetMargins(void)
 void MainFrame::SetTransparency()
 {
   // set transparency
-  //StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
   TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
   // RAZ
@@ -2387,38 +2387,33 @@ void MainFrame::SetTransparency()
   DwmIsCompositionEnabled(&fEnabled);
   if( fEnabled )
   {
-    //if( stylesSettings.bCaption )
+    if( transparencySettings.transType != transGlass )
     {
-      if( transparencySettings.transType == transColorKey )
-      {
-        MARGINS m = {0, 0, 0, 0};
-        ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
-      }
-      else
-      {
-        ::DwmExtendFrameIntoClientArea(m_hWnd, &m_Margins);
-      }
-    }/*
-    else
-    {
-      if( transparencySettings.transType == transColorKey )
+      // there is a side effect whith glass into client area and no caption (and no resizable)
+      // blur is not applied, the window is transparent ...
+      if( !stylesSettings.bCaption && !stylesSettings.bResizable )
       {
         DWM_BLURBEHIND bb = {0};
         bb.dwFlags = DWM_BB_ENABLE;
         bb.fEnable = FALSE;
         bb.hRgnBlur = NULL;
         ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+
+        fEnabled = FALSE;
       }
       else
       {
-          DWM_BLURBEHIND bb = {0};
-          bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;
-          bb.fEnable = TRUE;
-          bb.fTransitionOnMaximized = TRUE;
-          bb.hRgnBlur = NULL;
-          ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+        if( transparencySettings.transType == transColorKey )
+        {
+          MARGINS m = {0, 0, 0, 0};
+          ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
+        }
+        else
+        {
+          ::DwmExtendFrameIntoClientArea(m_hWnd, &m_Margins);
+        }
       }
-    }*/
+    }
   }
 #endif
 
@@ -2475,12 +2470,9 @@ void MainFrame::SetTransparency()
 #ifdef _USE_AERO
       if( fEnabled )
       {
-        //if( stylesSettings.bCaption )
-        {
-          MARGINS m = {-1,-1,-1,-1};
-          ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
-        }/*
-        else
+        // there is a side effect whith glass into client area and no caption (and no resizable)
+        // blur is not applied, the window is transparent ...
+        if( !stylesSettings.bCaption && !stylesSettings.bResizable )
         {
           DWM_BLURBEHIND bb = {0};
           bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;
@@ -2488,7 +2480,12 @@ void MainFrame::SetTransparency()
           bb.fTransitionOnMaximized = TRUE;
           bb.hRgnBlur = NULL;
           ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
-        }*/
+        }
+        else
+        {
+          MARGINS m = {-1,-1,-1,-1};
+          ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
+        }
       }
 #endif
 

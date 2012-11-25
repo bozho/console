@@ -238,6 +238,11 @@ bool ImageHandler::GetDesktopImageData(ImageData& imageData)
 		{
 			imageData.imagePosition= imagePositionFill;
 		}
+		else if (strWallpaperStyle == L"22")
+		{
+			imageData.imagePosition= imagePositionFill;
+			imageData.bExtend = true;
+		}
 		else
 		{
 			imageData.imagePosition= imagePositionStretch;
@@ -329,7 +334,7 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
 
 		if (bkImage->imageData.imagePosition == imagePositionStretch ||
         bkImage->imageData.imagePosition == imagePositionFit     ||
-        bkImage->imageData.imagePosition == imagePositionFill )
+        bkImage->imageData.imagePosition == imagePositionFill)
 		{
 			if (bkImage->imageData.bExtend)
 			{
@@ -346,8 +351,8 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
     DWORD dwNewWidth  = dwTemplateWidth;
     DWORD dwNewHeight = dwTemplateHeight;
 
-		if ((bkImage->originalImage->getWidth() != dwNewWidth) ||
-        (bkImage->originalImage->getHeight() != dwNewHeight))
+		if ( bkImage->originalImage->getWidth()  != dwNewWidth ||
+         bkImage->originalImage->getHeight() != dwNewHeight )
 		{
 			// resize background image
 			::Rescale(dwNewWidth, dwNewHeight, bkImage);
@@ -447,8 +452,10 @@ void ImageHandler::CreateImage(const CDC& dc, const CRect& clientRect, std::shar
 
 		if ( (bkImage->imageData.imagePosition == imagePositionStretch ||
           bkImage->imageData.imagePosition == imagePositionFit     ||
-          bkImage->imageData.imagePosition == imagePositionFill ) &&
-         ((bkImage->originalImage->getWidth() != dwNewWidth) || (bkImage->originalImage->getHeight() != dwNewHeight)))
+          bkImage->imageData.imagePosition == imagePositionFill)
+         &&
+         (bkImage->originalImage->getWidth()  != dwNewWidth        ||
+          bkImage->originalImage->getHeight() != dwNewHeight) )
 		{
 			// resize background image
 			::Rescale(dwNewWidth, dwNewHeight, bkImage);

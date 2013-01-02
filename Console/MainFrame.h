@@ -32,6 +32,11 @@ class MainFrame
 
 #ifdef _USE_AERO
 		aero::CCommandBarCtrl m_CmdBar;
+
+		void OnComposition()
+    {
+      this->SetTransparency();
+    }
 #else
 		CCommandBarCtrl m_CmdBar;
 #endif

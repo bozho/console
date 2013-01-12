@@ -49,7 +49,7 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_SYSCHAR, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_DEADCHAR, OnConsoleFwdMsg)
 			MESSAGE_HANDLER(WM_SYSDEADCHAR, OnConsoleFwdMsg)
-			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnConsoleFwdMsg)
+			MESSAGE_HANDLER(WM_MOUSEWHEEL, OnMouseWheel)
 			MESSAGE_HANDLER(WM_VSCROLL, OnVScroll)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			MESSAGE_HANDLER(WM_LBUTTONDOWN, OnMouseButton)
@@ -86,6 +86,7 @@ class ConsoleView
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnMouseWheel(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
@@ -189,6 +190,8 @@ class ConsoleView
 
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
+    DWORD m_dwVScrollMax;
+    int   m_nVWheelDelta;
 
 		bool	m_bShowVScroll;
 		bool	m_bShowHScroll;

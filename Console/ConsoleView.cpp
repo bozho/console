@@ -45,6 +45,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
+, m_dwVScrollMax(0)
+, m_nVWheelDelta(0)
 , m_bShowVScroll(false)
 , m_bShowHScroll(false)
 , m_strTitle(strTitle)
@@ -321,24 +323,6 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 		return 0;
 	}
 
-	if (uMsg == WM_MOUSEWHEEL && wParam & MK_CONTROL) {
-		short direction = HIWORD(wParam);
-
-		// calculate new font size in the [5, 36] interval
-		DWORD size = max(5, min(36, m_appearanceSettings.fontSettings.dwSize + direction / 120));
-
-		// only if the new size is different (to avoid flickering at extremes)
-		if (m_appearanceSettings.fontSettings.dwSize != size) {
-			// adjust the font size
-			m_appearanceSettings.fontSettings.dwSize = size;
-			// recreate font with new size
-			RecreateFont();
-			m_mainFrame.AdjustWindowSize(ADJUSTSIZE_FONT);
-		}
-
-		return 0;
-	}
-
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
     //TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
@@ -349,6 +333,64 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	}
 
 	return 0;
+}
+
+
+LRESULT ConsoleView::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+  UINT uKeys        = GET_KEYSTATE_WPARAM(wParam);
+  int  nWheelDelta  = GET_WHEEL_DELTA_WPARAM(wParam);
+  int  nScrollDelta = m_nVWheelDelta + nWheelDelta;
+
+  m_nVWheelDelta    = nScrollDelta % WHEEL_DELTA;
+  nScrollDelta      = nScrollDelta / WHEEL_DELTA;
+
+  if (nScrollDelta != 0)
+  {
+    if (uKeys & MK_CONTROL)
+    {
+      // calculate new font size in the [5, 36] interval
+      DWORD size = max(5, min(36, m_appearanceSettings.fontSettings.dwSize + nScrollDelta));
+
+      // only if the new size is different (to avoid flickering at extremes)
+      if (m_appearanceSettings.fontSettings.dwSize != size)
+      {
+        // adjust the font size
+        m_appearanceSettings.fontSettings.dwSize = size;
+        // recreate font with new size
+        RecreateFont();
+        m_mainFrame.AdjustWindowSize(ADJUSTSIZE_FONT);
+      }
+    }
+    else
+    {
+      if (uKeys & MK_SHIFT)
+      {
+        // scroll pages
+        ScrollSettings& scrollSettings = g_settingsHandler->GetBehaviorSettings().scrollSettings;
+        if (scrollSettings.dwPageScrollRows > 0)
+        {
+          // modified behavior: pagescroll = x lines
+          nScrollDelta *= static_cast<int>(scrollSettings.dwPageScrollRows);
+        }
+        else
+        {
+          nScrollDelta *= static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows);
+        }
+      }
+      else
+      {
+        // scroll lines
+        UINT uScrollAmount;
+        if (!SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uScrollAmount, 0))
+          uScrollAmount = 3;
+        nScrollDelta *= static_cast<int>(uScrollAmount);
+      }
+      DoScroll(SB_VERT, SB_THUMBPOSITION, ::FlatSB_GetScrollPos(m_hWnd, SB_VERT) - nScrollDelta);
+    }
+  }
+
+  return 0;
 }
 
 
@@ -846,12 +888,16 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 
 	SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
+	m_dwVScrollMax = max(m_dwVScrollMax, static_cast<DWORD>(consoleInfo->csbi.srWindow.Bottom));
+
 	if (m_bShowVScroll)
 	{
 		SCROLLINFO si;
-		si.cbSize = sizeof(si); 
-		si.fMask  = SIF_POS; 
-		si.nPos   = consoleInfo->csbi.srWindow.Top; 
+		si.cbSize = sizeof(si);
+		si.fMask  = SIF_POS | SIF_RANGE;
+		si.nPos   = consoleInfo->csbi.srWindow.Top;
+		si.nMax   = m_dwVScrollMax;
+		si.nMin   = 0;
 		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 
 /*
@@ -1544,13 +1590,15 @@ void ConsoleView::InitializeScrollbars()
 
 	if (m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows))
 	{
+		m_dwVScrollMax = max(m_dwVScrollMax, consoleParams->dwRows - 1);
+
 		// set vertical scrollbar stuff
 		SCROLLINFO	si ;
 
-		si.cbSize	= sizeof(SCROLLINFO) ;
+		si.cbSize	= sizeof(SCROLLINFO);
 		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS;
 		si.nPage	= consoleParams->dwRows;
-		si.nMax		= consoleParams->dwBufferRows - 1;
+		si.nMax		= m_dwVScrollMax; /*consoleParams->dwBufferRows - 1*/
 		si.nMin		= 0 ;
 		si.nPos		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Top;
 
@@ -1584,9 +1632,9 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 	int nDelta = 0;
 
 	ScrollSettings& scrollSettings = g_settingsHandler->GetBehaviorSettings().scrollSettings;
-	
+
 	switch(nScrollCode)
-	{ 
+	{
 		case SB_PAGEUP: /* SB_PAGELEFT */
 
 			if (scrollSettings.dwPageScrollRows > 0)
@@ -1597,7 +1645,7 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 			{
 				nDelta = (nType == SB_VERT) ? -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : -static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
 			}
-			break; 
+			break;
 
 		case SB_PAGEDOWN: /* SB_PAGERIGHT */
 			if (scrollSettings.dwPageScrollRows > 0)
@@ -1608,28 +1656,35 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 			{
 				nDelta = (nType == SB_VERT) ? static_cast<int>(m_consoleHandler.GetConsoleParams()->dwRows) : static_cast<int>(m_consoleHandler.GetConsoleParams()->dwColumns);
 			}
-			break; 
-			
+			break;
+
 		case SB_LINEUP: /* SB_LINELEFT */
-			nDelta = -1; 
-			break; 
-			
+			nDelta = -1;
+			break;
+
 		case SB_LINEDOWN: /* SB_LINERIGHT */
-			nDelta = 1; 
-			break; 
-			
+			nDelta = 1;
+			break;
+
 		case SB_THUMBTRACK:
 		case SB_THUMBPOSITION:
-			nDelta = nThumbPos - nCurrentPos; 
+			nDelta = nThumbPos - nCurrentPos;
 			break;
-			
+
 		case SB_ENDSCROLL:
 			return;
-			
-		default: 
+
+		default:
 			return;
 	}
-	
+
+  if( nType == SB_VERT )
+  {
+    int nVScrollMaxTop = static_cast<int>(m_dwVScrollMax - m_consoleHandler.GetConsoleParams()->dwRows + 1);
+    if( nCurrentPos + nDelta > nVScrollMaxTop )
+      nDelta = nVScrollMaxTop - nCurrentPos;
+  }
+
 	if (nDelta != 0)
 	{
 		SharedMemory<SIZE>& newScrollPos = m_consoleHandler.GetNewScrollPos();
@@ -2062,7 +2117,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
       }
       else
       {
-        // draw backgroud and reset
+        // draw background and reset
 
         if (attrBG != 0)
         {

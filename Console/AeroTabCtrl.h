@@ -157,11 +157,10 @@ public:
 
       g.Clear(
         Gdiplus::Color(
-          Gdiplus::Color::MakeARGB(
             255,
             GetRValue(clr),
             GetGValue(clr),
-            GetBValue(clr))));
+            GetBValue(clr)));
     }
   }
 

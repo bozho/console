@@ -421,7 +421,7 @@ void SelectionHandler::Draw(CDC& offscreenDC)
 
   Gdiplus::Color selectionColor;
   selectionColor.SetFromCOLORREF(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor);
-  Gdiplus::Pen        pen  (Gdiplus::Color(255, selectionColor.GetR(), selectionColor.GetG(), selectionColor.GetB()));
+  Gdiplus::Pen        pen  (selectionColor);
   Gdiplus::SolidBrush brush(Gdiplus::Color(64,  selectionColor.GetR(), selectionColor.GetG(), selectionColor.GetB()));
   Gdiplus::GraphicsPath gp;
 

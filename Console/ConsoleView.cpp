@@ -256,7 +256,7 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 	{
 		dc.FillRect(&dc.m_ps.rcPaint, m_backgroundBrush);
 	}
-	
+
 	dc.BitBlt(
 		dc.m_ps.rcPaint.left, 
 		dc.m_ps.rcPaint.top, 
@@ -1775,15 +1775,14 @@ void ConsoleView::RepaintText(CDC& dc)
     {
       Gdiplus::Graphics gr(dc);
 
-      Gdiplus::Color backgroundColor;
-      backgroundColor.SetFromCOLORREF(m_tabData->crBackgroundColor);
-      Gdiplus::Color backgroundColorAlpha(
-          this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
-          backgroundColor.GetR(),
-          backgroundColor.GetG(),
-          backgroundColor.GetB());
+      COLORREF backgroundColor = m_tabData->crBackgroundColor;
 
-      gr.Clear(backgroundColorAlpha);
+      gr.Clear(
+        Gdiplus::Color(
+          this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
+          GetRValue(backgroundColor),
+          GetGValue(backgroundColor),
+          GetBValue(backgroundColor)));
     }
     else
     {
@@ -2036,15 +2035,14 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
               rect.Width(), rect.Height()),
             Gdiplus::CombineModeReplace);
 
-          Gdiplus::Color backgroundColor;
-          backgroundColor.SetFromCOLORREF(m_tabData->crBackgroundColor);
-          Gdiplus::Color backgroundColorAlpha(
-              this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
-              backgroundColor.GetR(),
-              backgroundColor.GetG(),
-              backgroundColor.GetB());
+          COLORREF backgroundColor = m_tabData->crBackgroundColor;
 
-          gr.Clear(backgroundColorAlpha);
+          gr.Clear(
+            Gdiplus::Color(
+              this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
+              GetRValue(backgroundColor),
+              GetGValue(backgroundColor),
+              GetBValue(backgroundColor)));
         }
 #endif
       }
@@ -2093,6 +2091,9 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   Gdiplus::Graphics gr(dc);
 #endif //_USE_AERO
 
+  std::unique_ptr<INT[]> dxWidths(new INT[m_dwScreenColumns]);
+  std::fill_n(dxWidths.get(), m_dwScreenColumns, m_nCharWidth);
+
   // first pass : text background color
   WORD    attrBG;
   DWORD   dwBGWidth = 0;
@@ -2122,14 +2123,14 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         if (attrBG != 0)
         {
 #ifdef _USE_AERO
-          Gdiplus::Color backgroundColor;
-          backgroundColor.SetFromCOLORREF(m_consoleSettings.consoleColors[attrBG]);
+          COLORREF backgroundColor = m_consoleSettings.consoleColors[attrBG];
           Gdiplus::SolidBrush backgroundBrush(
             Gdiplus::Color(
               m_consoleSettings.backgroundTextOpacity,
-              backgroundColor.GetR(),
-              backgroundColor.GetG(),
-              backgroundColor.GetB()));
+              GetRValue(backgroundColor),
+              GetGValue(backgroundColor),
+              GetBValue(backgroundColor)));
+
           gr.FillRectangle(
             &backgroundBrush,
             dwX, dwY,
@@ -2160,14 +2161,14 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     if (attrBG != 0)
     {
 #ifdef _USE_AERO
-      Gdiplus::Color backgroundColor;
-      backgroundColor.SetFromCOLORREF(m_consoleSettings.consoleColors[attrBG]);
+      COLORREF backgroundColor = m_consoleSettings.consoleColors[attrBG];
       Gdiplus::SolidBrush backgroundBrush(
         Gdiplus::Color(
           m_consoleSettings.backgroundTextOpacity,
-          backgroundColor.GetR(),
-          backgroundColor.GetG(),
-          backgroundColor.GetB()));
+          GetRValue(backgroundColor),
+          GetGValue(backgroundColor),
+          GetBValue(backgroundColor)));
+
       gr.FillRectangle(
         &backgroundBrush,
         dwX, dwY,
@@ -2229,7 +2230,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         // in italic a part of the previous char is drawn in the following char space
         rect.right  = dwX + dwFGWidth + m_nCharWidth;
 
-        dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), NULL);
+        dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), dxWidths.get());
 
         strText.clear();
         colorFG   = colorFG2;
@@ -2252,7 +2253,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     rect.bottom = dwY + m_nCharHeight;
     rect.right  = dwX + dwFGWidth;
 
-    dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), NULL);
+    dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), dxWidths.get());
   }
 }
 

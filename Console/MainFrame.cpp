@@ -383,8 +383,21 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if( m_tabs.size() > 1 && (::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL) )
-		return 0;
+
+  {
+    MutexLock lock(m_tabsMutex);
+
+    if( m_tabs.size() > 1 )
+    {
+      if( ::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL )
+        return 0;
+    }
+    else if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() > 1 )
+    {
+        if( ::MessageBox(m_hWnd, L"Are you sure you want close all views ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL )
+          return 0;
+    }
+  }
 
 	// save settings on exit
 	bool				bSaveSettings		= false;

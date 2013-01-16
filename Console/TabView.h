@@ -81,6 +81,8 @@ public:
   inline bool IsGrouped() const { return m_boolIsGrouped; }
   void Group(bool b);
 
+  inline size_t GetViewsCount(void) const { return m_views.size(); }
+
 private:
   HWND CreateNewConsole(const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 

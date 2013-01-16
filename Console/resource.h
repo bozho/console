@@ -6,6 +6,15 @@
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDS_TAB_CREATE_FAILED           129
+
+#define IDPANE_CAPS_INDICATOR           130
+#define IDPANE_NUM_INDICATOR            131
+#define IDPANE_SCRL_INDICATOR           132
+#define IDPANE_PID_INDICATOR            133
+#define IDPANE_SELECTION                134
+#define IDPANE_ROWS_COLUMNS             135
+#define IDPANE_BUF_ROWS_COLUMNS         136
+
 #define IDI_ICON1                       203
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205
@@ -205,7 +214,6 @@
 #define IDC_SPIN_TAB_FLASHES            1156
 #define IDC_CHECK_SAVE_SIZE             1157
 #define IDC_CHECK_USE_SCROLL_LOCK       1158
-#define IDPANE_ROWS_COLUMNS             1159
 #define IDC_LIST_MOUSE_COMMANDS         1160
 #define IDC_COMBO_BUTTONS               1161
 #define IDC_CHECK_CTRL                  1162

@@ -979,7 +979,13 @@ END
 
 STRINGTABLE
 BEGIN
-    IDPANE_ROWS_COLUMNS     "%ix%i"
+    IDPANE_ROWS_COLUMNS     "000x000"
+    IDPANE_CAPS_INDICATOR   "CAPS"
+    IDPANE_NUM_INDICATOR    "NUM"
+    IDPANE_SCRL_INDICATOR   "SCRL"
+    IDPANE_PID_INDICATOR    "000000"
+    IDPANE_SELECTION        "00000000"
+    IDPANE_BUF_ROWS_COLUMNS "0000x0000"
 END
 
 STRINGTABLE
@@ -1020,7 +1026,8 @@ END
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
+
+
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
 

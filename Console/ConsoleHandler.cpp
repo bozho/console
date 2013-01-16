@@ -41,6 +41,7 @@ ConsoleHandler::ConsoleHandler()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(std::shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_bufferMutex(NULL, FALSE, NULL)
+, m_dwConsolePid(0)
 {
 }
 
@@ -302,6 +303,7 @@ bool ConsoleHandler::StartShellProcess
 	m_consoleParams->dwBufferColumns		= g_settingsHandler->GetConsoleSettings().dwBufferColumns;
 
 	m_hConsoleProcess = std::shared_ptr<void>(pi.hProcess, ::CloseHandle);
+  m_dwConsolePid    = pi.dwProcessId;
 
 	// inject our hook DLL into console process
 	if (!InjectHookDLL(pi))

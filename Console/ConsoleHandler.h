@@ -85,6 +85,8 @@ class ConsoleHandler
 
 		static void UpdateEnvironmentBlock();
 
+    inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
+
 	private:
 
 		bool CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser);
@@ -93,39 +95,41 @@ class ConsoleHandler
 		bool InjectHookDLL(PROCESS_INFORMATION& pi);
 
 	private:
-		
+
 		static DWORD WINAPI MonitorThreadStatic(LPVOID lpParameter);
 		DWORD MonitorThread();
 
 
 	private:
-		
+
 		wstring GetModulePath(HMODULE hModule);
 
 
 	private:
 
-		ConsoleChangeDelegate						m_consoleChangeDelegate;
-		ConsoleCloseDelegate						m_consoleCloseDelegate;
+    ConsoleChangeDelegate             m_consoleChangeDelegate;
+    ConsoleCloseDelegate              m_consoleCloseDelegate;
 
-		std::shared_ptr<void>							m_hConsoleProcess;
+    std::shared_ptr<void>             m_hConsoleProcess;
 
-		SharedMemory<ConsoleParams>					m_consoleParams;
-		SharedMemory<ConsoleInfo>	m_consoleInfo;
-		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
-		SharedMemory<CHAR_INFO>						m_consoleBuffer;
-		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
-		SharedMemory<TextInfo>						m_consoleTextInfo;
-		SharedMemory<MOUSE_EVENT_RECORD>			m_consoleMouseEvent;
+    SharedMemory<ConsoleParams>       m_consoleParams;
+    SharedMemory<ConsoleInfo>         m_consoleInfo;
+    SharedMemory<CONSOLE_CURSOR_INFO> m_cursorInfo;
+    SharedMemory<CHAR_INFO>           m_consoleBuffer;
+    SharedMemory<ConsoleCopy>         m_consoleCopyInfo;
+    SharedMemory<TextInfo>            m_consoleTextInfo;
+    SharedMemory<MOUSE_EVENT_RECORD>  m_consoleMouseEvent;
 
-		SharedMemory<ConsoleSize>					m_newConsoleSize;
-		SharedMemory<SIZE>							m_newScrollPos;
+    SharedMemory<ConsoleSize>         m_newConsoleSize;
+    SharedMemory<SIZE>                m_newScrollPos;
 
-		std::shared_ptr<void>							m_hMonitorThread;
-		std::shared_ptr<void>							m_hMonitorThreadExit;
+    std::shared_ptr<void>             m_hMonitorThread;
+    std::shared_ptr<void>             m_hMonitorThreadExit;
 
-		static std::shared_ptr<void>						s_environmentBlock;
-		static std::shared_ptr<Mutex>					s_parentProcessWatchdog;
+    static std::shared_ptr<void>      s_environmentBlock;
+    static std::shared_ptr<Mutex>     s_parentProcessWatchdog;
+
+    DWORD                             m_dwConsolePid;
 
 };
 

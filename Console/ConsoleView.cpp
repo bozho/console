@@ -2092,10 +2092,11 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 #endif //_USE_AERO
 
   std::unique_ptr<INT[]> dxWidths(new INT[m_dwScreenColumns]);
-  std::fill_n(dxWidths.get(), m_dwScreenColumns, m_nCharWidth);
+  for(size_t i = 0; i < m_dwScreenColumns; ++i)
+	dxWidths[i] = m_nCharWidth;
 
   // first pass : text background color
-  WORD    attrBG;
+  WORD    attrBG    = 0;
   DWORD   dwBGWidth = 0;
 
   for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset)
@@ -2194,7 +2195,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   dwOffset = m_dwScreenColumns * dwRow;
 
   wstring  strText(L"");
-  COLORREF colorFG;
+  COLORREF colorFG   = 0;
   DWORD    dwFGWidth = 0;
 
   for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset)

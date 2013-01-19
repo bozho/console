@@ -127,6 +127,8 @@ class ConsoleView
 		void SelectAll();
 		void ClearSelection();
 		void Paste();
+		// sends text to the windows console
+		void SendTextToConsole(const wchar_t* pszText);
 
 		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }
 		bool CanClearSelection() const { return m_selectionHandler->GetState() > SelectionHandler::selstateNoSelection; }
@@ -161,9 +163,6 @@ class ConsoleView
 
 		void BitBltOffscreen(bool bOnlyCursor = false);
 		void UpdateOffscreen(const CRect& rectBlit);
-
-		// sends text to the windows console
-		void SendTextToConsole(const wchar_t* pszText);
 
 		bool TranslateKeyDown(UINT uMsg, WPARAM wParam, LPARAM /*lParam*/);
 		void ForwardMouseClick(UINT uMsg, WPARAM wParam, const CPoint& point);

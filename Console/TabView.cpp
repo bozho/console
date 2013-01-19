@@ -503,6 +503,19 @@ void TabView::PasteToConsoles()
 
 /////////////////////////////////////////////////////////////////////////////
 
+void TabView::SendTextToConsole(const wchar_t* pszText)
+{
+  MutexLock	viewMapLock(m_viewsMutex);
+  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  {
+    it->second->SendTextToConsole(pszText);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void TabView::Group(bool b)
 {
   MutexLock	viewMapLock(m_viewsMutex);

@@ -836,7 +836,11 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	}
 	::DragFinish(hDrop);
 
-	SendTextToConsole(strFilenames);
+  if( this->IsGrouped() )
+    m_mainFrame.SendTextToConsole(strFilenames);
+  else
+    SendTextToConsole(strFilenames);
+
 	return 0;
 }
 

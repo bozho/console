@@ -227,6 +227,7 @@ class MainFrame
 		void CloseTab(HWND hwndTabView);
     void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
     void PasteToConsoles();
+    void SendTextToConsole(const wchar_t* pszText);
     bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
 
 	private:

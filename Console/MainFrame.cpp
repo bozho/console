@@ -2674,6 +2674,15 @@ void MainFrame::PasteToConsoles()
   }
 }
 
+void MainFrame::SendTextToConsole(const wchar_t* pszText)
+{
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->SendTextToConsole(pszText);
+  }
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////

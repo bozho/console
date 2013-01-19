@@ -12,8 +12,8 @@
 #define IDPANE_SCRL_INDICATOR           132
 #define IDPANE_PID_INDICATOR            133
 #define IDPANE_SELECTION                134
-#define IDPANE_ROWS_COLUMNS             135
-#define IDPANE_BUF_ROWS_COLUMNS         136
+#define IDPANE_COLUMNS_ROWS             135
+#define IDPANE_BUF_COLUMNS_ROWS         136
 
 #define IDI_ICON1                       203
 #define IDD_RENAME_TAB                  204

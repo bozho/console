@@ -1957,8 +1957,8 @@ void MainFrame::UpdateStatusBar()
   UISetText(3, (GetKeyState(VK_SCROLL)  & 1) ? strSCRL : L"");
 
   wchar_t strSelection   [16] = L"";
-  wchar_t strRowsCols    [16] = L"";
-  wchar_t strBufRowsCols [16] = L"";
+  wchar_t strColsRows    [16] = L"";
+  wchar_t strBufColsRows [16] = L"";
   wchar_t strPid         [16] = L"";
 
   if( m_iSelectionSize )
@@ -1971,14 +1971,14 @@ void MainFrame::UpdateStatusBar()
     {
       SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
 
-      _snwprintf_s(strRowsCols,    ARRAYSIZE(strRowsCols),    _TRUNCATE, L"%lux%lu",
-        consoleParams->dwRows,
-        consoleParams->dwColumns);
+      _snwprintf_s(strColsRows,    ARRAYSIZE(strColsRows),    _TRUNCATE, L"%lux%lu",
+        consoleParams->dwColumns,
+        consoleParams->dwRows);
       _snwprintf_s(strPid,         ARRAYSIZE(strPid),         _TRUNCATE, L"%lu",
         activeConsoleView->GetConsoleHandler().GetConsolePid());
-      _snwprintf_s(strBufRowsCols, ARRAYSIZE(strBufRowsCols), _TRUNCATE, L"%lux%lu",
-        consoleParams->dwBufferRows ? consoleParams->dwBufferRows : consoleParams->dwRows,
-        consoleParams->dwBufferColumns ? consoleParams->dwBufferColumns : consoleParams->dwColumns);
+      _snwprintf_s(strBufColsRows, ARRAYSIZE(strBufColsRows), _TRUNCATE, L"%lux%lu",
+        consoleParams->dwBufferColumns ? consoleParams->dwBufferColumns : consoleParams->dwColumns,
+        consoleParams->dwBufferRows ? consoleParams->dwBufferRows : consoleParams->dwRows);
 
       UIEnable(ID_EDIT_COPY,            activeConsoleView->CanCopy()           ? TRUE : FALSE);
       UIEnable(ID_EDIT_CLEAR_SELECTION, activeConsoleView->CanClearSelection() ? TRUE : FALSE);
@@ -1989,8 +1989,8 @@ void MainFrame::UpdateStatusBar()
 
   UISetText(4, strPid);
   UISetText(5, strSelection);
-  UISetText(6, strRowsCols);
-  UISetText(7, strBufRowsCols);
+  UISetText(6, strColsRows);
+  UISetText(7, strBufColsRows);
 
   UIUpdateStatusBar();
 }
@@ -2609,7 +2609,7 @@ void MainFrame::CreateStatusBar()
 #endif
 	UIAddStatusBar(m_hWndStatusBar);
 
-	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_CAPS_INDICATOR, IDPANE_NUM_INDICATOR, IDPANE_SCRL_INDICATOR, IDPANE_PID_INDICATOR, IDPANE_SELECTION, IDPANE_ROWS_COLUMNS, IDPANE_BUF_ROWS_COLUMNS};
+	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_CAPS_INDICATOR, IDPANE_NUM_INDICATOR, IDPANE_SCRL_INDICATOR, IDPANE_PID_INDICATOR, IDPANE_SELECTION, IDPANE_COLUMNS_ROWS, IDPANE_BUF_COLUMNS_ROWS};
 
 	m_statusBar.SetPanes(arrPanes, sizeof(arrPanes)/sizeof(int), true);
 }

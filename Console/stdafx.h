@@ -99,12 +99,10 @@ using namespace std;
 
 #pragma warning(push)
 #pragma warning(disable: 4244 4267 4511 4512 701 4702)
-#include <boost/smart_ptr.hpp>
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
-using namespace boost;
 #pragma warning(pop)
 
 #pragma warning(push)

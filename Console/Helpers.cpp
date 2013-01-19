@@ -13,8 +13,7 @@
 
 wstring Helpers::GetModulePath(HINSTANCE hInstance)
 {
-	wchar_t szModulePath[MAX_PATH];
-	::ZeroMemory(szModulePath, sizeof(szModulePath));
+	wchar_t szModulePath[MAX_PATH] = L"";
 
 	::GetModuleFileName(hInstance, szModulePath, MAX_PATH);
 
@@ -30,8 +29,7 @@ wstring Helpers::GetModulePath(HINSTANCE hInstance)
 
 wstring Helpers::GetModuleFileName(HINSTANCE hInstance)
 {
-	wchar_t szModulePath[MAX_PATH];
-	::ZeroMemory(szModulePath, sizeof(szModulePath));
+	wchar_t szModulePath[MAX_PATH] = L"";
 
 	::GetModuleFileName(hInstance, szModulePath, MAX_PATH);
 
@@ -47,12 +45,11 @@ wstring Helpers::GetModuleFileName(HINSTANCE hInstance)
 
 wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 {
-	shared_array<wchar_t> szExpanded(new wchar_t[0x8000]);
+	wchar_t szExpanded[0x8000] = L"";
 
-	::ZeroMemory(szExpanded.get(), 0x8000*sizeof(wchar_t));
-	::ExpandEnvironmentStrings(str.c_str(), szExpanded.get(), 0x8000);
+	::ExpandEnvironmentStrings(str.c_str(), szExpanded, ARRAYSIZE(szExpanded));
 
-	return wstring(szExpanded.get());
+	return wstring(szExpanded);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,12 +59,11 @@ wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 
 wstring Helpers::ExpandEnvironmentStringsForUser(const std::shared_ptr<void>& userToken, const wstring& str)
 {
-	shared_array<wchar_t> szExpanded(new wchar_t[MAX_PATH]);
+	wchar_t szExpanded[0x8000] = L"";
 
-	::ZeroMemory(szExpanded.get(), MAX_PATH*sizeof(wchar_t));
-	::ExpandEnvironmentStringsForUser(userToken.get(), str.c_str(), szExpanded.get(), MAX_PATH);
+	::ExpandEnvironmentStringsForUser(userToken.get(), str.c_str(), szExpanded, ARRAYSIZE(szExpanded));
 
-	return wstring(szExpanded.get());
+	return wstring(szExpanded);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,13 +170,12 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 wstring Helpers::LoadString(UINT uID)
 {
-	int bufferSize = 0x800;
-	scoped_array<wchar_t>	str(new wchar_t[bufferSize]);
-	::ZeroMemory(str.get(), bufferSize * sizeof(wchar_t));
-	
-	bufferSize = ::LoadString(::GetModuleHandle(NULL), uID, str.get(), bufferSize);
-	
-	return wstring(str.get());
+  wchar_t str[0x800];
+
+  if( ::LoadString(::GetModuleHandle(NULL), uID, str, ARRAYSIZE(str)) )
+    return wstring(str);
+  else
+    return wstring(L"LoadString failed");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -196,10 +191,7 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
     {
       wstring strCommandLine = Helpers::ExpandEnvironmentStrings(strShell);
       int argc = 0;
-      shared_array<LPWSTR> argv;
-      argv.reset(
-        ::CommandLineToArgvW(strCommandLine.c_str(), &argc),
-        ::LocalFree);
+      std::unique_ptr<LPWSTR[], LocalFreeHelper> argv(::CommandLineToArgvW(strCommandLine.c_str(), &argc));
 
       if ( argv && argc > 0 )
       {

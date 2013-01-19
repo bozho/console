@@ -68,8 +68,8 @@ void ParseCommandLine
 	bool &bReuse
 )
 {
-	int						argc = 0;
-	shared_array<LPWSTR>	argv(::CommandLineToArgvW(lptstrCmdLine, &argc), ::GlobalFree);
+	int argc = 0;
+	std::unique_ptr<LPWSTR[], LocalFreeHelper> argv(::CommandLineToArgvW(lptstrCmdLine, &argc));
 
 	if (argc < 1) return;
 

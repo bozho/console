@@ -199,11 +199,11 @@ class ConsoleView
 		CString	m_strTitle;
 		CString	m_strUser;
 
-		ConsoleHandler					m_consoleHandler;
+		ConsoleHandler	m_consoleHandler;
 
-		shared_array<CharInfo>			m_screenBuffer;
-		DWORD	m_dwScreenRows;
-		DWORD	m_dwScreenColumns;
+		std::unique_ptr<CharInfo[]> m_screenBuffer;
+		DWORD	                      m_dwScreenRows;
+		DWORD	                      m_dwScreenColumns;
 
 		ConsoleSettings&				m_consoleSettings;
 		AppearanceSettings&				m_appearanceSettings;

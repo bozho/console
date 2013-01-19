@@ -114,7 +114,7 @@ bool ConsoleHandler::StartShellProcess
 			LOGON32_PROVIDER_DEFAULT, 
 			&hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
 		{
-			throw ConsoleException(str(wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
 		}
 		userToken.reset(hUserToken, ::CloseHandle);
 
@@ -135,7 +135,7 @@ bool ConsoleHandler::StartShellProcess
 		if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
 		{
 			::RevertToSelf();
-			throw ConsoleException(str(wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
 		}
 		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
 	}
@@ -184,7 +184,7 @@ bool ConsoleHandler::StartShellProcess
 	if (strStartupTitle.length() == 0)
 	{
 		strStartupTitle = L"Console2 command window";
-//		strStartupTitle = str(wformat(L"Console2 command window 0x%08X") % this);
+//		strStartupTitle = boost::str(boost::wformat(L"Console2 command window 0x%08X") % this);
 	}
 
 	wstring strStartupDir((strUsername.length() > 0) ? Helpers::ExpandEnvironmentStringsForUser(userToken, strInitialDir) : Helpers::ExpandEnvironmentStrings(strInitialDir));
@@ -267,7 +267,7 @@ bool ConsoleHandler::StartShellProcess
 			&si,
 			&pi))
 		{
-			throw ConsoleException(str(wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % strUser));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % strUser));
 		}
 	}
 	else
@@ -284,7 +284,7 @@ bool ConsoleHandler::StartShellProcess
 				&si,
 				&pi))
 		{
-			throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine));
 		}
 	}
 
@@ -307,7 +307,7 @@ bool ConsoleHandler::StartShellProcess
 
 	// inject our hook DLL into console process
 	if (!InjectHookDLL(pi))
-    throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
+    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
 
 	// resume the console process
 	::ResumeThread(pi.hThread);
@@ -315,7 +315,7 @@ bool ConsoleHandler::StartShellProcess
 
 	// wait for hook DLL to set console handle
 	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
-    throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 
 	::ShowWindow(m_consoleParams->hwndConsoleWindow, SW_HIDE);
 
@@ -545,12 +545,12 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	}
 
   if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES)
-    throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_HOOK_MISSING)) % strHookDllPath.c_str()));
+    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_HOOK_MISSING)) % strHookDllPath.c_str()));
 
 	::ZeroMemory(&context, sizeof(CONTEXT));
 
 	memLen = (strHookDllPath.length()+1)*sizeof(wchar_t);
-	shared_array<BYTE> code(new BYTE[codeSize + memLen]);
+	std::unique_ptr<BYTE[]> code(new BYTE[codeSize + memLen]);
 
 	::CopyMemory(code.get() + codeSize, strHookDllPath.c_str(), memLen);
 	memLen += codeSize;
@@ -588,7 +588,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				&siWow,
 				&piWow))
 		{
-			throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str()));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str()));
 		}
 
 		std::shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);
@@ -596,7 +596,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 
 		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
 		{
-			throw ConsoleException(str(wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 		}
 
 		::GetExitCodeProcess(wowProcess.get(), reinterpret_cast<DWORD*>(&fnWow64LoadLibrary));

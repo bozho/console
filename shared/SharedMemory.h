@@ -284,7 +284,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 
 	// TODO: error handling
 	//if (!m_hSharedMem) return false;
-	if (!m_hSharedMem || (m_hSharedMem.get() == INVALID_HANDLE_VALUE)) OutputDebugString(str(wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
+	if (!m_hSharedMem || (m_hSharedMem.get() == INVALID_HANDLE_VALUE)) OutputDebugString(str(boost::wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
 
 	m_pSharedMem = std::shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
@@ -294,7 +294,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 													0)),
 												::UnmapViewOfFile);
 
-	if (!m_pSharedMem) OutputDebugString(str(wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
+	if (!m_pSharedMem) OutputDebugString(str(boost::wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
 
 	if (syncObjects > syncObjNone) CreateSyncObjects(std::shared_ptr<SECURITY_ATTRIBUTES>(), syncObjects, strName);
 
@@ -335,13 +335,13 @@ void SharedMemory<T>::SetReqEvent()
 {
 	if (!m_hSharedReqEvent) 
 	{
-		OutputDebugString(str(wformat(L"Req Event %1% is null!") % m_strName).c_str());
+		OutputDebugString(str(boost::wformat(L"Req Event %1% is null!") % m_strName).c_str());
 		return;
 	}
 	
 	if (!::SetEvent(m_hSharedReqEvent.get()))
 	{
-		OutputDebugString(str(wformat(L"SetEvent %1% failed: %2%!\n") % m_strName % ::GetLastError()).c_str());
+		OutputDebugString(str(boost::wformat(L"SetEvent %1% failed: %2%!\n") % m_strName % ::GetLastError()).c_str());
 	}
 }
 
@@ -355,7 +355,7 @@ void SharedMemory<T>::SetRespEvent()
 {
 	if (!m_hSharedRespEvent)
 	{
-		OutputDebugString(str(wformat(L"Resp Event %1% is null!") % m_strName).c_str());
+		OutputDebugString(str(boost::wformat(L"Resp Event %1% is null!") % m_strName).c_str());
 		return;
 	}
 	::SetEvent(m_hSharedRespEvent.get());
@@ -458,13 +458,13 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 							::CreateMutex(sa.get(), FALSE, (wstring(L"") + strName + wstring(L"_mutex")).c_str()),
 							::CloseHandle);
 
-		OutputDebugString(str(wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
+		OutputDebugString(str(boost::wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
 
 		m_hSharedReqEvent = std::shared_ptr<void>(
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_req_event")).c_str()),
 							::CloseHandle);
 
-		OutputDebugString(str(wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedReqEvent.get())).c_str());
+		OutputDebugString(str(boost::wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedReqEvent.get())).c_str());
 	}
 
 	if (syncObjects >= syncObjBoth)
@@ -473,7 +473,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_resp_event")).c_str()),
 							::CloseHandle);
 
-		OutputDebugString(str(wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedRespEvent.get())).c_str());
+		OutputDebugString(str(boost::wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedRespEvent.get())).c_str());
 	}
 }
 

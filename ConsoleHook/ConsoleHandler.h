@@ -33,8 +33,6 @@ class ConsoleHandler
 
 		void SendConsoleText(HANDLE hStdIn, const std::shared_ptr<wchar_t>& textBuffer);
 
-		void SetResetKeyInput(scoped_array<INPUT>& kbdInputs, WORD wVk, short& sCount);
-
 		void SendMouseEvent(HANDLE hStdIn);
 
 		void ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta);

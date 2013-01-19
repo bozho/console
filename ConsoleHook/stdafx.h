@@ -29,9 +29,7 @@ using namespace std;
 #include <boost/format.hpp>
 #include <boost/mem_fn.hpp>
 #include <boost/bind.hpp>
-#include <boost/smart_ptr.hpp>
 #include <boost/algorithm/string/trim.hpp>
-using namespace boost;
 #pragma warning(pop)
 
 #include "../shared/SharedMemory.h"

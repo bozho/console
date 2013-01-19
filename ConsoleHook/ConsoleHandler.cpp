@@ -1,6 +1,5 @@
 #include "stdafx.h"
 using namespace std;
-using namespace boost;
 
 #include "../shared/SharedMemNames.h"
 #include "ConsoleHandler.h"
@@ -166,7 +165,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 	DWORD					dwScreenBufferSize	= coordConsoleSize.X * coordConsoleSize.Y;
 	DWORD					dwScreenBufferOffset= 0;
 
-	shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
 
 	COORD		coordBufferSize;
 	// start coordinates for the buffer are always (0, 0) - we use offset
@@ -583,7 +582,7 @@ public:
   }
   virtual void TrimRight(void)
   {
-    trim_right(strRow);
+    boost::trim_right(strRow);
   }
   virtual void Wrap(CopyNewlineChar copyNewlineChar)
   {
@@ -795,14 +794,16 @@ void ConsoleHandler::CopyConsoleText()
   clipboardDataPtr[0].reset(new ClipboardDataUnicode());
   clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
 
+  COORD                        coordFrom       = {0, 0};
+  COORD                        coordBufferSize = {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
+  std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
+
   // suppress end empty lines
   bool emptyLine = true;
   for (SHORT i = coordEnd.Y; i > coordStart.Y && emptyLine; --i)
   {
-    SMALL_RECT              srBuffer;
-    COORD                   coordFrom = {0, 0};
-    COORD                   coordBufferSize = {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
-    shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
+    SMALL_RECT srBuffer;
+
     srBuffer.Left   = 0;
     srBuffer.Top    = i;
     srBuffer.Right  = (i == coordEnd.Y) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
@@ -831,9 +832,6 @@ void ConsoleHandler::CopyConsoleText()
 	for (SHORT i = coordStart.Y; i <= coordEnd.Y; ++i)
 	{
 		SMALL_RECT				srBuffer;
-		COORD					coordFrom		= {0, 0};
-		COORD					coordBufferSize	= {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
-		shared_array<CHAR_INFO> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
 
 //		TRACE(L"i: %i, coordStart.Y: %i, coordStart.X: %i\n", i, coordStart.Y, coordStart.X);
 		srBuffer.Left	= (i == coordStart.Y) ? coordStart.X : 0;
@@ -947,7 +945,7 @@ void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const std::shared_ptr<wchar_
 			partLen = textLen - parts*partLen;
 		}
 
-		scoped_array<INPUT_RECORD> pKeyEvents(new INPUT_RECORD[partLen]);
+		std::unique_ptr<INPUT_RECORD[]> pKeyEvents(new INPUT_RECORD[partLen]);
 		::ZeroMemory(pKeyEvents.get(), sizeof(INPUT_RECORD)*partLen);
 
 		for (size_t i = 0; (i < partLen) && (offset < textLen); ++i, ++offset, ++keyEventCount)
@@ -986,22 +984,6 @@ void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const std::shared_ptr<wchar_
 			DWORD dwTextWritten = 0;
 			::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
 		}
-	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void ConsoleHandler::SetResetKeyInput(scoped_array<INPUT>& kbdInputs, WORD wVk, short& sCount)
-{
-	if ((::GetAsyncKeyState(wVk) & 0x8000) != 0)
-	{
-		kbdInputs[sCount].type			= INPUT_KEYBOARD;
-		kbdInputs[sCount].ki.wVk		= wVk;
-		kbdInputs[sCount].ki.dwFlags	= KEYEVENTF_KEYUP;
-		++sCount;
 	}
 }
 

@@ -198,7 +198,7 @@ void XmlHelper::GetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORRE
 
 void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD dwValue)
 {
-	CComVariant	varValue(str(wformat(L"%1%") % dwValue).c_str());
+	CComVariant	varValue(boost::str(boost::wformat(L"%1%") % dwValue).c_str());
 
 	pElement->setAttribute(bstrName, varValue);
 }
@@ -210,7 +210,7 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, int nValue)
 {
-	CComVariant	varValue(str(wformat(L"%1%") % nValue).c_str());
+	CComVariant	varValue(boost::str(boost::wformat(L"%1%") % nValue).c_str());
 
 	pElement->setAttribute(bstrName, varValue);
 }
@@ -222,7 +222,7 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, BYTE byValue)
 {
-	CComVariant	varValue(str(wformat(L"%1%") % byValue).c_str());
+	CComVariant	varValue(boost::str(boost::wformat(L"%1%") % byValue).c_str());
 
 	pElement->setAttribute(bstrName, varValue);
 }

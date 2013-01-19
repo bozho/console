@@ -31,7 +31,7 @@ static void ParseCommandLine
 )
 {
 	int argc = 0;
-	shared_array<LPWSTR> argv(::CommandLineToArgvW(lptstrCmdLine, &argc), ::GlobalFree);
+  std::unique_ptr<LPWSTR[], LocalFreeHelper> argv(::CommandLineToArgvW(lptstrCmdLine, &argc));
 
 	if (argc < 1) return;
 
@@ -2530,13 +2530,11 @@ void MainFrame::SetTransparency()
 
 void MainFrame::CreateAcceleratorTable()
 {
-	HotKeys&							hotKeys	= g_settingsHandler->GetHotKeys();
-	HotKeys::CommandsSequence::iterator it		= hotKeys.commands.begin();
+	HotKeys&                 hotKeys = g_settingsHandler->GetHotKeys();
+	std::unique_ptr<ACCEL[]> accelTable(new ACCEL[hotKeys.commands.size()]);
+	int                      nAccelCount = 0;
 
-	shared_array<ACCEL>					accelTable(new ACCEL[hotKeys.commands.size()]);
-	int									nAccelCount = 0;
-
-	for (; it != hotKeys.commands.end(); ++it)
+	for (auto it = hotKeys.commands.begin(); it != hotKeys.commands.end(); ++it)
 	{
 		std::shared_ptr<HotKeys::CommandData> c(*it);
 

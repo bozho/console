@@ -65,7 +65,7 @@ SelectionHandler::~SelectionHandler()
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::SelectWord(const COORD& coordInit, shared_array<CharInfo> screenBuffer)
+void SelectionHandler::SelectWord(const COORD& coordInit, CharInfo screenBuffer [])
 {
 	if (m_selectionState > selstateNoSelection) return;
 
@@ -120,7 +120,7 @@ void SelectionHandler::SelectWord(const COORD& coordInit, shared_array<CharInfo>
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const COORD& coordInit, shared_array<CharInfo> screenBuffer)
+void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuffer [])
 {
 	if (m_selectionState > selstateNoSelection) return;
 
@@ -157,7 +157,7 @@ void SelectionHandler::StartSelection(const COORD& coordInit, shared_array<CharI
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::UpdateSelection(const COORD& coordCurrent, shared_array<CharInfo> screenBuffer)
+void SelectionHandler::UpdateSelection(const COORD& coordCurrent, CharInfo screenBuffer [])
 {
 	if ((m_selectionState != selstateStartedSelecting) &&
 		(m_selectionState != selstateSelecting))

@@ -527,7 +527,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
 				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-				m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer);
+				m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get());
 
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
@@ -541,7 +541,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					m_mouseCommand = MouseSettings::cmdSelect;
 
 					MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-					m_selectionHandler->SelectWord(GetConsoleCoord(point), m_screenBuffer);
+					m_selectionHandler->SelectWord(GetConsoleCoord(point), m_screenBuffer.get());
 				}
 
 				mouseAction.clickType = MouseSettings::clickDouble;
@@ -680,7 +680,7 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 		{
 			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer.get());
 			COORD	coordStart;
 			COORD	coordEnd;
 			m_selectionHandler->GetSelectionCoordinates(coordStart, coordEnd);
@@ -923,7 +923,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		ScreenToClient(&point);
 
 		MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer);
+		m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer.get());
 	}
 	else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
 	{

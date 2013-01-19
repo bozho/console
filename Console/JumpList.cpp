@@ -79,10 +79,7 @@ static HRESULT SetIcon(IShellLink *psl, std::shared_ptr<TabData> tab)
     {
       wstring strCommandLine = Helpers::ExpandEnvironmentStrings(tab->strShell);
       int argc = 0;
-      shared_array<LPWSTR> argv;
-      argv.reset(
-        ::CommandLineToArgvW(strCommandLine.c_str(), &argc),
-        ::LocalFree);
+      std::unique_ptr<LPWSTR[], LocalFreeHelper> argv(::CommandLineToArgvW(strCommandLine.c_str(), &argc));
 
       if ( argv && argc > 0 )
       {

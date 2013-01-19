@@ -43,9 +43,9 @@ class SelectionHandler
 
 	public:
 
-		void StartSelection(const COORD& coordInit, shared_array<CharInfo> screenBuffer);
-		void SelectWord(const COORD& coordInit, shared_array<CharInfo> screenBuffer);
-		void UpdateSelection(const COORD& coordCurrent, shared_array<CharInfo> screenBuffer);
+		void StartSelection(const COORD& coordInit, CharInfo screenBuffer []);
+		void SelectWord(const COORD& coordInit, CharInfo screenBuffer []);
+		void UpdateSelection(const COORD& coordCurrent, CharInfo screenBuffer []);
 		void UpdateSelection();
 		bool CopySelection(const COORD& coordCurrent);
 		void CopySelection();

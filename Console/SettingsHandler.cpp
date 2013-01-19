@@ -96,7 +96,7 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	{
 		CComPtr<IXMLDOMElement>	pFontColorElement;
 
-		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(str(wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
+		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(boost::str(boost::wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
 
 		DWORD id;
 
@@ -134,7 +134,7 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	{
 		CComPtr<IXMLDOMElement>	pFontColorElement;
 
-		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(str(wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
+		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(boost::str(boost::wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
 
 		XmlHelper::SetAttribute(pFontColorElement, CComBSTR(L"id"), i);
 		XmlHelper::SetRGBAttribute(pFontColorElement, consoleColors[i]);

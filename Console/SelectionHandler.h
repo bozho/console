@@ -56,18 +56,18 @@ class SelectionHandler
 		inline SelectionState GetState() const;
 		DWORD GetSelectionSize(void);
 
-	private:
-
-		void GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd);
 #ifdef _USE_AERO
-	public:
 		void Draw(CDC& offscreenDC);
-	private:
 #else //_USE_AERO
 		void BitBlt(CDC& offscreenDC);
 
+	private:
 		void GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect);
 #endif //_USE_AERO
+
+	private:
+
+		void GetSelectionCoordinates(COORD& coordStart, COORD& coordEnd);
 
 	private:
 

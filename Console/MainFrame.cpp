@@ -2391,7 +2391,6 @@ void MainFrame::SetMargins(void)
 void MainFrame::SetTransparency()
 {
   // set transparency
-  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
   TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
 
   // RAZ
@@ -2400,6 +2399,8 @@ void MainFrame::SetTransparency()
     GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
 
 #ifdef _USE_AERO
+  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+
   BOOL fEnabled = FALSE;
   DwmIsCompositionEnabled(&fEnabled);
   if( fEnabled )

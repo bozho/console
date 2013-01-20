@@ -594,14 +594,12 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 					if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
 					{
 						m_selectionHandler->EndSelection();
-						m_mainFrame.SetSelectionSize(0);
 						m_selectionHandler->ClearSelection();
 					}
 					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting ||
 						 m_selectionHandler->GetState() == SelectionHandler::selstateSelectWord)
 					{
 						m_selectionHandler->EndSelection();
-						m_mainFrame.SetSelectionSize(0);
 
 						// copy on select
 						if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
@@ -681,12 +679,6 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		{
 			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 			m_selectionHandler->UpdateSelection(GetConsoleCoord(point), m_screenBuffer.get());
-			COORD	coordStart;
-			COORD	coordEnd;
-			m_selectionHandler->GetSelectionCoordinates(coordStart, coordEnd);
-			int iSelectionSize = (coordEnd.Y - coordStart.Y) * m_dwScreenColumns +
-			                     (coordEnd.X - coordStart.X) + 1;
-			m_mainFrame.SetSelectionSize(iSelectionSize);
 		}
 
 		BitBltOffscreen();

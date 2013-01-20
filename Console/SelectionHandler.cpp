@@ -544,6 +544,19 @@ void SelectionHandler::GetSelectionCoordinates(COORD& coordStart, COORD& coordEn
 	}
 }
 
+DWORD SelectionHandler::GetSelectionSize(void)
+{
+  if (m_selectionState < selstateSelecting) return 0;
+
+  COORD	coordStart;
+  COORD	coordEnd;
+
+  GetSelectionCoordinates(coordStart, coordEnd);
+
+  DWORD dwColumns = m_consoleParams->dwBufferColumns > 0 ? m_consoleParams->dwBufferColumns : m_consoleParams->dwColumns;
+  return dwColumns * (coordEnd.Y - coordStart.Y) + (coordEnd.X - coordStart.X) + 1;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 

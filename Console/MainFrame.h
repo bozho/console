@@ -222,7 +222,6 @@ class MainFrame
 	public:
 
 		void AdjustWindowRect(CRect& rect);
-		void SetSelectionSize(int iSelectionSize);
 		void AdjustWindowSize(ADJUSTSIZE as);
 		void CloseTab(HWND hwndTabView);
     void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
@@ -299,8 +298,6 @@ class MainFrame
 
 		CString			m_strCmdLineWindowTitle;
 		CString			m_strWindowTitle;
-
-		int				m_iSelectionSize;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;

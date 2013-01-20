@@ -103,7 +103,6 @@ MainFrame::MainFrame
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
-, m_iSelectionSize(0)
 , m_bAppActive(true)
 {
 	m_Margins.cxLeftWidth    = 0;
@@ -1961,15 +1960,16 @@ void MainFrame::UpdateStatusBar()
   wchar_t strBufColsRows [16] = L"";
   wchar_t strPid         [16] = L"";
 
-  if( m_iSelectionSize )
-    _snwprintf_s(strSelection, ARRAYSIZE(strSelection), _TRUNCATE, L"%ld", m_iSelectionSize);
-
   if (m_activeTabView)
   {
     std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
       SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
+
+      DWORD dwSelectionSize = activeConsoleView->GetSelectionSize();
+      if( dwSelectionSize )
+        _snwprintf_s(strSelection, ARRAYSIZE(strSelection), _TRUNCATE, L"%lu", dwSelectionSize);
 
       _snwprintf_s(strColsRows,    ARRAYSIZE(strColsRows),    _TRUNCATE, L"%lux%lu",
         consoleParams->dwColumns,
@@ -1993,12 +1993,6 @@ void MainFrame::UpdateStatusBar()
   UISetText(7, strBufColsRows);
 
   UIUpdateStatusBar();
-}
-
-void MainFrame::SetSelectionSize(int iSelectionSize)
-{
-	m_iSelectionSize = iSelectionSize;
-	UpdateStatusBar();
 }
 
 //////////////////////////////////////////////////////////////////////////////

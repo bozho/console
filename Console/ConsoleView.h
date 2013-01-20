@@ -129,6 +129,7 @@ class ConsoleView
 		void Paste();
 		// sends text to the windows console
 		void SendTextToConsole(const wchar_t* pszText);
+		DWORD GetSelectionSize(void) const { return m_selectionHandler->GetSelectionSize(); }
 
 		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }
 		bool CanClearSelection() const { return m_selectionHandler->GetState() > SelectionHandler::selstateNoSelection; }
@@ -189,8 +190,8 @@ class ConsoleView
 
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
-    DWORD m_dwVScrollMax;
-    int   m_nVWheelDelta;
+		DWORD m_dwVScrollMax;
+		int   m_nVWheelDelta;
 
 		bool	m_bShowVScroll;
 		bool	m_bShowHScroll;

@@ -141,14 +141,14 @@ struct BackgroundImage
 
 struct MonitorEnumData
 {
-	MonitorEnumData(CDC& dcTempl, std::shared_ptr<BackgroundImage>& img)
+	MonitorEnumData(const CDC& dcTempl, std::shared_ptr<BackgroundImage>& img)
 	: bkImage(img)
 	, dcTemplate(dcTempl)
 	{
 	}
 
 	std::shared_ptr<BackgroundImage>&	bkImage;
-	CDC&							dcTemplate;
+	const CDC&                        dcTemplate;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -176,27 +176,32 @@ class ImageHandler
 		void ReloadDesktopImages();
 
 		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, std::shared_ptr<BackgroundImage>& bkImage);
+    static inline bool IsWin8(void) { return m_win8; }
 
 	private:
 
-		bool GetDesktopImageData(ImageData& imageData);
-		bool LoadImage(std::shared_ptr<BackgroundImage>& bkImage);
+		static bool GetDesktopImageData(ImageData& imageData);
+		static bool LoadImage(std::shared_ptr<BackgroundImage>& bkImage);
 
-		void CreateRelativeImage(const CDC& dc, std::shared_ptr<BackgroundImage>& bkImage);
-		void CreateImage(const CDC& dc, const CRect& clientRect, std::shared_ptr<BackgroundImage>& bkImage);
+		static void CalcRescale(DWORD& dwNewWidth, DWORD& dwNewHeight, std::shared_ptr<BackgroundImage>& bkImage);
+		static void PaintRelativeImage(const CDC& dc, CBitmap&	bmpTemplate, std::shared_ptr<BackgroundImage>& bkImage, DWORD& dwDisplayWidth, DWORD& dwDisplayHeight);
+		static void CreateRelativeImage(const CDC& dc, std::shared_ptr<BackgroundImage>& bkImage);
+		static void CreateImage(const CDC& dc, const CRect& clientRect, std::shared_ptr<BackgroundImage>& bkImage);
 
 		static void PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, DWORD dwSrcWidth, DWORD dwSrcHeight, DWORD dwDstWidth, DWORD dwDstHeight, std::shared_ptr<BackgroundImage>& bkImage);
 		static void TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, std::shared_ptr<BackgroundImage>& bkImage);
 
-		void TintImage(const CDC& dc, std::shared_ptr<BackgroundImage>& bkImage);
+		static void TintImage(const CDC& dc, std::shared_ptr<BackgroundImage>& bkImage);
 
 		// called by the ::EnumDisplayMonitors to create background for each display
 		static BOOL CALLBACK MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData);
-
+		static BOOL CALLBACK MonitorEnumProcWin8(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData);
+		static bool CheckWin8(void);
 
 	private:
 
 		Images	m_images;
+		static bool	m_win8;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -901,6 +901,7 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 		// hopefully they don't happen often, so reload everything
 		g_imageHandler->ReloadDesktopImages();
 
+
 		// can't use Invalidate because full repaint is in order
 		m_activeTabView->Repaint(true);
 	}

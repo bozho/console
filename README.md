@@ -35,6 +35,6 @@ Changes in 1.05.0 (2 Feb 2013)
         + improve the status bar with:
           console buffer size, console screen size,
           selection size and console PID
-        * dropping a file affects all view in a group
+        * dropping a file affects all views in a group
         * aero glass margins are resetted when composition change
           (hibernation disables DWM, at wakeup ConsoleZ was fully transparent)

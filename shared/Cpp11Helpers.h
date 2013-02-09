@@ -17,6 +17,17 @@ struct CloseHandleHelper
   };
 };
 
+#ifdef _INC_USERENV
+struct DestroyEnvironmentBlockHelper
+{
+  void operator()(void * toFree)
+  {
+    if( toFree )
+      ::DestroyEnvironmentBlock(toFree);
+  };
+};
+#endif
+
 struct FindCloseChangeNotificationHelper
 {
   void operator()(void * toFree)

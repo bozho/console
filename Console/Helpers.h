@@ -18,7 +18,7 @@ class Helpers
 		static wstring GetModuleFileName(HINSTANCE hInstance);
 
 		static wstring ExpandEnvironmentStrings(const wstring& str);
-		static wstring ExpandEnvironmentStringsForUser(const std::shared_ptr<void>& userToken, const wstring& str);
+		static wstring ExpandEnvironmentStringsForUser(HANDLE userToken, const wstring& str);
 
 		static void GetMonitorRect(HWND hWnd, CRect& rectMonitor);
 		static void GetDesktopRect(HWND hWnd, CRect& rectDesktop);

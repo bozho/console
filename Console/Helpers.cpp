@@ -57,11 +57,11 @@ wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 
 //////////////////////////////////////////////////////////////////////////////
 
-wstring Helpers::ExpandEnvironmentStringsForUser(const std::shared_ptr<void>& userToken, const wstring& str)
+wstring Helpers::ExpandEnvironmentStringsForUser(HANDLE userToken, const wstring& str)
 {
 	wchar_t szExpanded[0x8000] = L"";
 
-	::ExpandEnvironmentStringsForUser(userToken.get(), str.c_str(), szExpanded, ARRAYSIZE(szExpanded));
+	::ExpandEnvironmentStringsForUser(userToken, str.c_str(), szExpanded, ARRAYSIZE(szExpanded));
 
 	return wstring(szExpanded);
 }

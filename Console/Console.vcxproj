@@ -627,6 +627,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClCompile Include="XmlHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\Cpp11Helpers.h" />
     <ClInclude Include="..\shared\version.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="AeroTabCtrl.h" />
@@ -634,7 +635,6 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="ConsoleException.h" />
     <ClInclude Include="ConsoleHandler.h" />
     <ClInclude Include="ConsoleView.h" />
-    <ClInclude Include="Cpp11Helpers.h" />
     <ClInclude Include="Cursors.h" />
     <ClInclude Include="DlgCredentials.h" />
     <ClInclude Include="DlgRenameTab.h" />

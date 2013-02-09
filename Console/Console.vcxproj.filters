@@ -218,13 +218,13 @@
     <ClInclude Include="Wallpaper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cpp11Helpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Win32Exception.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Cpp11Helpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

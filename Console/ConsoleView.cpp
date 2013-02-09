@@ -162,8 +162,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		m_consoleHandler.StartShellProcess(
 									strShell,
 									strInitialDir,
-									userCredentials->user,
-									userCredentials->password,
+									*userCredentials,
 									m_strCmdLineInitialCmd,
 									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
 									m_dwStartupRows,

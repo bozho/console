@@ -546,6 +546,7 @@ struct TabData
 	, strInitialDir(initialDir)
 	, bRunAsUser(false)
 	, strUser()
+	, bNetOnly(false)
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
@@ -564,6 +565,7 @@ struct TabData
 	wstring							strInitialDir;
 	bool							bRunAsUser;
 	wstring							strUser;
+	bool							bNetOnly;
 
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;

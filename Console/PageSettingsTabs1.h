@@ -33,6 +33,7 @@ class PageSettingsTabs1
 			DDX_TEXT(IDC_TAB_INIT_DIR, m_strInitialDir)
 			DDX_CHECK(IDC_CHECK_RUN_AS_USER, m_bRunAsUser)
 			DDX_TEXT(IDC_TAB_USER, m_strUser)
+			DDX_CHECK(IDC_CHECK_NET_ONLY, m_bNetOnly)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(PageSettingsTabs1)
@@ -102,6 +103,7 @@ private:
 		CString			m_strInitialDir;
 		bool			m_bRunAsUser;
 		CString			m_strUser;
+		bool			m_bNetOnly;
 public:
   LRESULT OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };

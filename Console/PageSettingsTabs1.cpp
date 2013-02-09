@@ -25,6 +25,7 @@ PageSettingsTabs1::PageSettingsTabs1()
 , m_strInitialDir(L"")
 , m_bRunAsUser(false)
 , m_strUser(L"")
+, m_bNetOnly(false)
 {
 }
 
@@ -229,6 +230,7 @@ void PageSettingsTabs1::EnableControls()
 	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(bEnableEditIconCtrls);
 
 	GetDlgItem(IDC_TAB_USER).EnableWindow(m_bRunAsUser ? TRUE : FALSE);
+  GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_bRunAsUser ? TRUE : FALSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -248,6 +250,7 @@ void PageSettingsTabs1::Load(std::shared_ptr<TabData>& tabData)
 	m_strInitialDir		= m_tabData->strInitialDir.c_str();
 	m_bRunAsUser		= m_tabData->bRunAsUser;
 	m_strUser			= m_tabData->strUser.c_str();
+	m_bNetOnly		= m_tabData->bNetOnly;
 
 	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
 
@@ -275,6 +278,7 @@ void PageSettingsTabs1::Save()
 	m_tabData->strInitialDir	= m_strInitialDir;
 	m_tabData->bRunAsUser		= m_bRunAsUser;
 	m_tabData->strUser			= m_strUser;
+	m_tabData->bNetOnly		= m_bNetOnly;
 
 	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();
 }

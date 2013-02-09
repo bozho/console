@@ -80,20 +80,19 @@ bool ConsoleHandler::StartShellProcess
 (
 	const wstring& strCustomShell,
 	const wstring& strInitialDir,
-	const wstring& strUser,
-	const wstring& strPassword,
+	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
 	const wstring& strConsoleTitle,
 	DWORD dwStartupRows,
 	DWORD dwStartupColumns
 )
 {
-	wstring strUsername(strUser);
+  wstring strUsername(userCredentials.user);
 	wstring strDomain;
 
-	std::shared_ptr<void> userProfileKey;
-	std::shared_ptr<void> userEnvironment;
-	std::shared_ptr<void> userToken;
+	//std::shared_ptr<void> userProfileKey;
+	std::unique_ptr<void, DestroyEnvironmentBlockHelper> userEnvironment;
+	std::unique_ptr<void, CloseHandleHelper>             userToken;
 
 	if (strUsername.length() > 0)
 	{
@@ -103,52 +102,65 @@ bool ConsoleHandler::StartShellProcess
 			strDomain	= strUsername.substr(0, pos);
 			strUsername	= strUsername.substr(pos+1);
 		}
+    else
+    {
+      // CreateProcessWithLogonW & LOGON_NETCREDENTIALS_ONLY fails if domain is NULL
+      wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1];
+      DWORD   dwComputerNameLen = ARRAYSIZE(szComputerName);
+      if( ::GetComputerName(szComputerName, &dwComputerNameLen) )
+        strDomain = szComputerName;
+    }
 
-		// logon user
-		HANDLE hUserToken = NULL;
-		if( !::LogonUser(
-			strUsername.c_str(), 
-			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
-			strPassword.c_str(), 
-			LOGON32_LOGON_INTERACTIVE, 
-			LOGON32_PROVIDER_DEFAULT, 
-			&hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
-		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
-		}
-		userToken.reset(hUserToken, ::CloseHandle);
+    if (!userCredentials.netOnly)
+    {
+      // logon user
+      HANDLE hUserToken = NULL;
+      if( !::LogonUser(
+        strUsername.c_str(), 
+        strDomain.length() > 0 ? strDomain.c_str() : NULL, 
+        userCredentials.password.c_str(), 
+        LOGON32_LOGON_INTERACTIVE, 
+        LOGON32_PROVIDER_DEFAULT, 
+        &hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
+      {
+        Win32Exception err(::GetLastError());
+        throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+      }
+      userToken.reset(hUserToken);
 
-/*
-		// load user's profile
-		// seems to be necessary on WinXP for environment strings' expainsion to work properly
-		PROFILEINFO userProfile;
-		::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
-		userProfile.dwSize = sizeof(PROFILEINFO);
-		userProfile.lpUserName = const_cast<wchar_t*>(strUser.c_str());
+      /*
+      // load user's profile
+      // seems to be necessary on WinXP for environment strings' expainsion to work properly
+      PROFILEINFO userProfile;
+      ::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
+      userProfile.dwSize = sizeof(PROFILEINFO);
+      userProfile.lpUserName = const_cast<wchar_t*>(strUser.c_str());
 
-		::LoadUserProfile(userToken.get(), &userProfile);
-		userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
-*/
+      ::LoadUserProfile(userToken.get(), &userProfile);
+      userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
+      */
 
-		// load user's environment
-		void*	pEnvironment	= NULL;
-		if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
-		{
-			::RevertToSelf();
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % strUser));
-		}
-		userEnvironment.reset(pEnvironment, ::DestroyEnvironmentBlock);
-	}
+      // load user's environment
+      void*	pEnvironment = nullptr;
+      if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
+      {
+        Win32Exception err(::GetLastError());
+        ::RevertToSelf();
+        throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+      }
+      userEnvironment.reset(pEnvironment);
+    }
+  }
 
 	wstring	strShellCmdLine(strCustomShell);
-	
+
 	if (strShellCmdLine.length() == 0)
 	{
 		wchar_t	szComspec[MAX_PATH];
 
 		::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
 
-		if (strUsername.length() > 0)
+		if (userEnvironment.get())
 		{
 			// resolve comspec when running as another user
 			wchar_t* pszComspec = reinterpret_cast<wchar_t*>(userEnvironment.get());
@@ -187,7 +199,10 @@ bool ConsoleHandler::StartShellProcess
 //		strStartupTitle = boost::str(boost::wformat(L"Console2 command window 0x%08X") % this);
 	}
 
-	wstring strStartupDir((strUsername.length() > 0) ? Helpers::ExpandEnvironmentStringsForUser(userToken, strInitialDir) : Helpers::ExpandEnvironmentStrings(strInitialDir));
+  wstring strStartupDir(
+    userToken.get() ?
+      Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strInitialDir) :
+      Helpers::ExpandEnvironmentStrings(strInitialDir));
 
 	if (strStartupDir.length() > 0)
 	{
@@ -213,6 +228,14 @@ bool ConsoleHandler::StartShellProcess
 			strStartupDir = Helpers::GetModulePath(NULL);
 		}
 	}
+
+  wstring strCmdLine(
+    userToken.get() ?
+      Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strShellCmdLine) :
+      Helpers::ExpandEnvironmentStrings(strShellCmdLine));
+
+  if( userToken.get() )
+    ::RevertToSelf();
 
 	// setup the startup info struct
 	STARTUPINFO si;
@@ -252,29 +275,33 @@ bool ConsoleHandler::StartShellProcess
 
 	if (strUsername.length() > 0)
 	{
-    wstring strCmdLine = Helpers::ExpandEnvironmentStringsForUser(userToken, strShellCmdLine);
-    ::RevertToSelf();
+	STARTUPINFO si;
+	::ZeroMemory(&si, sizeof(STARTUPINFO));
+
+	si.cb			= sizeof(STARTUPINFO);
+
 		if( !::CreateProcessWithLogonW(
 			strUsername.c_str(), 
-			strDomain.length() > 0 ? strDomain.c_str() : NULL, 
-			strPassword.c_str(), 
-			LOGON_WITH_PROFILE,
+			strDomain.length() > 0 ? strDomain.c_str() : NULL,
+			userCredentials.password.c_str(), 
+			userCredentials.netOnly? LOGON_NETCREDENTIALS_ONLY : LOGON_WITH_PROFILE,
 			NULL,
 			const_cast<wchar_t*>(strCmdLine.c_str()),
 			dwStartupFlags,
-			NULL,
+			s_environmentBlock.get(),
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
 		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % strUser));
+      Win32Exception err(::GetLastError());
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % userCredentials.user % err.what()));
 		}
 	}
 	else
 	{
 		if (!::CreateProcess(
 				NULL,
-				const_cast<wchar_t*>(Helpers::ExpandEnvironmentStrings(strShellCmdLine).c_str()),
+				const_cast<wchar_t*>(strCmdLine.c_str()),
 				NULL,
 				NULL,
 				FALSE,
@@ -284,13 +311,21 @@ bool ConsoleHandler::StartShellProcess
 				&si,
 				&pi))
 		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine));
+      Win32Exception err(::GetLastError());
+      throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine % err.what()));
 		}
 	}
 
 	// create shared memory objects
-	CreateSharedObjects(pi.dwProcessId, strUser);
-	CreateWatchdog();
+  try
+  {
+    CreateSharedObjects(pi.dwProcessId, userCredentials.user);
+    CreateWatchdog();
+  }
+  catch(Win32Exception& err)
+  {
+    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CREATE_SHARED_OBJECTS_FAILED)) % err.what()));
+  }
 
 	// write startup params
 	m_consoleParams->dwConsoleMainThreadId	= pi.dwThreadId;
@@ -588,7 +623,8 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				&siWow,
 				&piWow))
 		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str()));
+      Win32Exception err(::GetLastError());
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str() % err.what()));
 		}
 
 		std::shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);

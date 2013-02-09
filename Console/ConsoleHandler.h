@@ -21,6 +21,7 @@ struct UserCredentials
 	UserCredentials()
 	: user()
 	, password()
+	, netOnly(false)
 	{
 	}
 
@@ -34,6 +35,7 @@ struct UserCredentials
 
 	wstring	user;
 	wstring password;
+	bool netOnly;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -56,8 +58,7 @@ class ConsoleHandler
 		(
 			const wstring& strCustomShell,
 			const wstring& strInitialDir,
-			const wstring& strUser,
-			const wstring& strPassword,
+			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
 			const wstring& strConsoleTitle,
 			DWORD dwStartupRows,

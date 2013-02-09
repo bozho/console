@@ -140,11 +140,12 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 	}
 #endif
 	std::shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns, strCmdLineInitialDir, strCmdLineInitialCmd));
-  consoleView->Group(this->IsGrouped());
+	consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 
 	if (m_tabData->bRunAsUser)
 	{
+    userCredentials.netOnly = m_tabData->bNetOnly;
 #ifdef _USE_AERO
     // Display a dialog box to request credentials.
     CREDUI_INFOW ui;
@@ -188,8 +189,8 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 
 		if (dlg.DoModal() != IDOK) return 0;
 
-		userCredentials.user	= dlg.GetUser();
-		userCredentials.password= dlg.GetPassword();
+		userCredentials.user     = dlg.GetUser();
+		userCredentials.password = dlg.GetPassword();
 #endif
 	}
 

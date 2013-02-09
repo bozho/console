@@ -175,6 +175,7 @@ LRESULT DlgSettingsTabs::OnClone(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 	m_listCtrl.SetItemData(nItemClone, reinterpret_cast<DWORD_PTR>(tabData.get()));
 
 	m_listCtrl.SelectItem(nItemClone);
+	GetDlgItem(IDC_BTN_DELETE).EnableWindow(TRUE);
 
 	return 0;
 }

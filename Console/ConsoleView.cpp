@@ -1529,10 +1529,9 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 	TEXTMETRIC	textMetric;
 
 	dcText.SelectFont(m_fontText);
-	dcText.GetTextMetrics(&textMetric);
-
-	if (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH)
+	if( !dcText.GetTextMetrics(&textMetric) || (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) )
 	{
+		TRACE(L"/!\\ can't use %s font\n", strFontName.c_str());
 		if (!m_fontText.IsNull()) m_fontText.DeleteObject();
 		return false;
 	}

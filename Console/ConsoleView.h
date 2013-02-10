@@ -198,6 +198,8 @@ class ConsoleView
 
 		CString	m_strTitle;
 		CString	m_strUser;
+		bool	m_boolNetOnly;
+
 
 		ConsoleHandler	m_consoleHandler;
 

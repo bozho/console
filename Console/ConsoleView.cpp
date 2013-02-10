@@ -51,6 +51,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_bShowHScroll(false)
 , m_strTitle(strTitle)
 , m_strUser()
+, m_boolNetOnly(false)
 , m_consoleHandler()
 , m_screenBuffer()
 , m_dwScreenRows(0)
@@ -169,6 +170,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 									m_dwStartupColumns);
 
 		m_strUser = userCredentials->user.c_str();
+		m_boolNetOnly = userCredentials->netOnly;
 	}
 	catch (const ConsoleException& ex)
 	{
@@ -1172,9 +1174,14 @@ void ConsoleView::SetTitle(const CString& strTitle)
 	CString	title(strTitle);
 
 	if (m_strUser.GetLength() > 0)
-	{
-		title.Format(L"[%s] %s", m_strUser, strTitle);
-	}
+		if (m_boolNetOnly)
+		{
+			title.Format(L"{%s} %s", m_strUser, strTitle);
+		}
+		else
+		{
+			title.Format(L"[%s] %s", m_strUser, strTitle);
+		}
 
 	m_strTitle = title;
 	SetWindowText(m_strTitle);

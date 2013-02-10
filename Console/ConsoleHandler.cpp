@@ -96,12 +96,18 @@ bool ConsoleHandler::StartShellProcess
 
 	if (strUsername.length() > 0)
 	{
-		size_t pos = strUsername.find(L'\\');
-		if (pos != wstring::npos)
+		size_t pos;
+		if ((pos= strUsername.find(L'\\')) != wstring::npos)
 		{
 			strDomain	= strUsername.substr(0, pos);
 			strUsername	= strUsername.substr(pos+1);
 		}
+    else if ((pos= strUsername.find(L'@')) != wstring::npos)
+    {
+      // UNC format
+      strDomain	= strUsername.substr(pos + 1);
+      strUsername	= strUsername.substr(0, pos);
+    }
     else
     {
       // CreateProcessWithLogonW & LOGON_NETCREDENTIALS_ONLY fails if domain is NULL
@@ -319,7 +325,14 @@ bool ConsoleHandler::StartShellProcess
 	// create shared memory objects
   try
   {
-    CreateSharedObjects(pi.dwProcessId, userCredentials.netOnly? std::wstring() : userCredentials.user);
+    std::wstring strAccountName;
+    if( !userCredentials.netOnly && !userCredentials.user.empty() )
+    {
+      if( !strDomain.empty() )
+        strAccountName = strDomain + L"\\";
+      strAccountName += strUsername;
+    }
+    CreateSharedObjects(pi.dwProcessId, strAccountName);
     CreateWatchdog();
   }
   catch(Win32Exception& err)

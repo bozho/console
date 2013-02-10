@@ -216,8 +216,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 	 
 		if (!::InitializeSecurityDescriptor(sd.get(), SECURITY_DESCRIPTOR_REVISION)) 
 		{  
-			// TODO: error handling
-			return;
+			Win32Exception::ThrowFromLastError();
 		} 
 	 
 		// add the ACL to the security descriptor
@@ -279,9 +278,12 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 										m_strName.c_str()),
 									::CloseHandle);
 
-	// TODO: error handling
-	//if (!m_hSharedMem) return false;
-	if (!m_hSharedMem || (m_hSharedMem.get() == INVALID_HANDLE_VALUE)) OutputDebugString(str(boost::wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
+	if (!m_hSharedMem || (m_hSharedMem.get() == INVALID_HANDLE_VALUE))
+	{
+		DWORD dwLastError = ::GetLastError();
+		OutputDebugString(str(boost::wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
+		Win32Exception::Throw(dwLastError);
+	}
 
 	m_pSharedMem = std::shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
@@ -291,11 +293,14 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 													0)),
 												::UnmapViewOfFile);
 
-	if (!m_pSharedMem) OutputDebugString(str(boost::wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % ::GetLastError()).c_str());
+	if (!m_pSharedMem)
+  {
+		DWORD dwLastError = ::GetLastError();
+    OutputDebugString(str(boost::wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
+    Win32Exception::Throw(dwLastError);
+  }
 
 	if (syncObjects > syncObjNone) CreateSyncObjects(std::shared_ptr<SECURITY_ATTRIBUTES>(), syncObjects, strName);
-
-	//if (!m_pSharedMem) return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////

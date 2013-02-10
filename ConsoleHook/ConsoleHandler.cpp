@@ -84,37 +84,45 @@ void ConsoleHandler::StopMonitorThread()
 
 bool ConsoleHandler::OpenSharedObjects()
 {
-	// open startup params  memory object
-	DWORD dwProcessId = ::GetCurrentProcessId();
+  try
+  {
+    // open startup params  memory object
+    DWORD dwProcessId = ::GetCurrentProcessId();
 
-	// TODO: error handling
-	m_consoleParams.Open((SharedMemNames::formatConsoleParams % dwProcessId).str(), syncObjRequest);
+    // TODO: error handling
+    m_consoleParams.Open((SharedMemNames::formatConsoleParams % dwProcessId).str(), syncObjRequest);
 
-	// open console info shared memory object
-	m_consoleInfo.Open((SharedMemNames::formatInfo % dwProcessId).str(), syncObjRequest);
+    // open console info shared memory object
+    m_consoleInfo.Open((SharedMemNames::formatInfo % dwProcessId).str(), syncObjRequest);
 
-	// open console info shared memory object
-	m_cursorInfo.Open((SharedMemNames::formatCursorInfo % dwProcessId).str(), syncObjRequest);
+    // open console info shared memory object
+    m_cursorInfo.Open((SharedMemNames::formatCursorInfo % dwProcessId).str(), syncObjRequest);
 
-	// open console buffer shared memory object
-	m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str(), syncObjRequest);
+    // open console buffer shared memory object
+    m_consoleBuffer.Open((SharedMemNames::formatBuffer % dwProcessId).str(), syncObjRequest);
 
-	// copy info
-	m_consoleCopyInfo.Open((SharedMemNames::formatCopyInfo % dwProcessId).str(), syncObjBoth);
+    // copy info
+    m_consoleCopyInfo.Open((SharedMemNames::formatCopyInfo % dwProcessId).str(), syncObjBoth);
 
-	// text info (used for sending text to console)
-	m_consoleTextInfo.Open((SharedMemNames::formatTextInfo % dwProcessId).str(), syncObjBoth);
+    // text info (used for sending text to console)
+    m_consoleTextInfo.Open((SharedMemNames::formatTextInfo % dwProcessId).str(), syncObjBoth);
 
-	// mouse event
-	m_consoleMouseEvent.Open((SharedMemNames::formatMouseEvent % dwProcessId).str(), syncObjBoth);
+    // mouse event
+    m_consoleMouseEvent.Open((SharedMemNames::formatMouseEvent % dwProcessId).str(), syncObjBoth);
 
-	// open new console size shared memory object
-	m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str(), syncObjRequest);
+    // open new console size shared memory object
+    m_newConsoleSize.Open((SharedMemNames::formatNewConsoleSize % dwProcessId).str(), syncObjRequest);
 
-	// new scroll position
-	m_newScrollPos.Open((SharedMemNames::formatNewScrollPos % dwProcessId).str(), syncObjRequest);
+    // new scroll position
+    m_newScrollPos.Open((SharedMemNames::formatNewScrollPos % dwProcessId).str(), syncObjRequest);
+  }
+  catch(Win32Exception& ex)
+  {
+    fprintf(stderr, "/!\\ ConsoleZ: can't open shared objects (reason: %s)\n", ex.what());
+    return false;
+  }
 
-	return true;
+  return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

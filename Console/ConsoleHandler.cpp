@@ -319,7 +319,7 @@ bool ConsoleHandler::StartShellProcess
 	// create shared memory objects
   try
   {
-    CreateSharedObjects(pi.dwProcessId, userCredentials.user);
+    CreateSharedObjects(pi.dwProcessId, userCredentials.netOnly? std::wstring() : userCredentials.user);
     CreateWatchdog();
   }
   catch(Win32Exception& err)

@@ -97,7 +97,16 @@ void ParseCommandLine
 static bool HandleReuse(LPCTSTR lpstrCmdLine)
 {
 	SharedMemory<HWND> sharedInstance;
-	sharedInstance.Open(L"Console", syncObjNone);
+  try
+  {
+    sharedInstance.Open(L"Console", syncObjNone);
+  }
+  catch(Win32Exception& ex)
+  {
+    if(ex.GetErrorCode() == ERROR_FILE_NOT_FOUND)
+      return false;
+    throw;
+  }
 	if (0 != sharedInstance.Get())
 	{
 		::SetForegroundWindow(*sharedInstance);
@@ -117,68 +126,67 @@ static bool HandleReuse(LPCTSTR lpstrCmdLine)
 
 int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 {
-	CMessageLoop theLoop;
-	_Module.AddMessageLoop(&theLoop);
-
-	wstring			strConfigFile(L"");
-	bool			bReuse = false;
-
-	ParseCommandLine(
-		lpstrCmdLine, 
-		strConfigFile,
-		bReuse);
-
-	if (strConfigFile.length() == 0)
-	{
-		strConfigFile = wstring(L"console.xml");
-//		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
-//		strConfigFile = wstring(::_wgetenv(L"APPDATA")) + wstring(L"\\Console\\console.xml");
-	}
-
-	if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
-	{
-		//TODO: error handling
-		return 1;
-	}
-
-	if (bReuse && HandleReuse(lpstrCmdLine))
-		return 0;
-
-	// create main window
-	NoTaskbarParent noTaskbarParent;
-	MainFrame wndMain(lpstrCmdLine);
-
-	if (!g_settingsHandler->GetAppearanceSettings().stylesSettings.bTaskbarButton)
-	{
-		noTaskbarParent.Create(NULL);
-	}
-
-	if(wndMain.CreateEx(noTaskbarParent.m_hWnd) == NULL)
-	{
-		ATLTRACE(_T("Main window creation failed!\n"));
-		return 1;
-	}
-
-#ifdef _USE_AERO
-	// restore the drop files message in elevated console
-	::ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
-	::ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
-	::ChangeWindowMessageFilter(0x0049, MSGFLT_ADD);
-#endif
-
-	wndMain.ShowWindow(nCmdShow);
-
-	SharedMemory<HWND> sharedInstance;
-	if (bReuse)
-	{
-		sharedInstance.Create(L"Console", 1, syncObjNone, _T(""));
-		sharedInstance = wndMain.m_hWnd;
-	}
-
-  WallPaperThread wallPaperThread(wndMain);
-
   try
   {
+    CMessageLoop theLoop;
+    _Module.AddMessageLoop(&theLoop);
+
+    wstring strConfigFile(L"");
+    bool    bReuse = false;
+
+    ParseCommandLine(
+      lpstrCmdLine, 
+      strConfigFile,
+      bReuse);
+
+    if (strConfigFile.length() == 0)
+    {
+      strConfigFile = wstring(L"console.xml");
+      //		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
+      //		strConfigFile = wstring(::_wgetenv(L"APPDATA")) + wstring(L"\\Console\\console.xml");
+    }
+
+    if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
+    {
+      throw std::exception("enable to load settings!");
+    }
+
+    if (bReuse && HandleReuse(lpstrCmdLine))
+      return 0;
+
+    // create main window
+    NoTaskbarParent noTaskbarParent;
+    MainFrame wndMain(lpstrCmdLine);
+
+    if (!g_settingsHandler->GetAppearanceSettings().stylesSettings.bTaskbarButton)
+    {
+      noTaskbarParent.Create(NULL);
+    }
+
+    if(wndMain.CreateEx(noTaskbarParent.m_hWnd) == NULL)
+    {
+      ATLTRACE(_T("Main window creation failed!\n"));
+      return 1;
+    }
+
+#ifdef _USE_AERO
+    // restore the drop files message in elevated console
+    ::ChangeWindowMessageFilter(WM_DROPFILES, MSGFLT_ADD);
+    ::ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
+    ::ChangeWindowMessageFilter(0x0049, MSGFLT_ADD);
+#endif
+
+    wndMain.ShowWindow(nCmdShow);
+
+    SharedMemory<HWND> sharedInstance;
+    if (bReuse)
+    {
+      sharedInstance.Create(L"Console", 1, syncObjNone, _T(""));
+      sharedInstance = wndMain.m_hWnd;
+    }
+
+    WallPaperThread wallPaperThread(wndMain);
+
     OSVERSIONINFOEX osvi;
     DWORDLONG dwlConditionMask = 0;
     BYTE op = VER_GREATER_EQUAL;
@@ -206,19 +214,20 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
       // Win7 or more, we use the wallpaper slideshow monitoring
       wallPaperThread.Start();
     }
+
+    int nRet = theLoop.Run();
+
+    if (noTaskbarParent.m_hWnd != NULL) noTaskbarParent.DestroyWindow();
+
+    _Module.RemoveMessageLoop();
+
+    return nRet;
   }
   catch(std::exception& e)
   {
     ::MessageBoxA(0, e.what(), "exception", MB_OK);
+    return 1;
   }
-
-  int nRet = theLoop.Run();
-
-	if (noTaskbarParent.m_hWnd != NULL) noTaskbarParent.DestroyWindow();
-
-	_Module.RemoveMessageLoop();
-
-	return nRet;
 }
 
 //////////////////////////////////////////////////////////////////////////////

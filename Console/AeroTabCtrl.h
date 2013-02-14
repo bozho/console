@@ -323,7 +323,13 @@ public:
 
   void DrawItem_ImageAndText(DWORD /*dwStyle*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw, int nIconVerticalCenter, RECT& rcTab, RECT& rcText)
   {
-    Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+    CBufferedPaint bufferedPaint;
+    HDC hDCPaint = NULL;
+    BP_PAINTPARAMS paintParams = { sizeof(BP_PAINTPARAMS), BPPF_ERASE, NULL, NULL };
+    bufferedPaint.Begin(lpNMCustomDraw->nmcd.hdc, &rcTab, BPBF_TOPDOWNDIB, &paintParams, &hDCPaint);
+    CDCHandle dcPaint(hDCPaint);
+
+    Gdiplus::Graphics g(dcPaint);
 
     bool bHighlighted = (CDIS_MARKED == (lpNMCustomDraw->nmcd.uItemState & CDIS_MARKED));
     bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
@@ -333,7 +339,7 @@ public:
     TItem* pItem = this->GetItem(nItem);
 
     ::SelectObject(
-      lpNMCustomDraw->nmcd.hdc,
+      dcPaint,
       ( bSelected )?
       lpNMCustomDraw->hFontSelected :
     lpNMCustomDraw->hFontInactive);
@@ -414,8 +420,7 @@ public:
         CIcon tabSmallIcon(m_imageList.ExtractIcon(nImageIndex));
         if( !tabSmallIcon.IsNull() )
         {
-          WTL::CDCHandle dc(lpNMCustomDraw->nmcd.hdc);
-          dc.DrawIconEx(
+          dcPaint.DrawIconEx(
             rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset,
             tabSmallIcon.m_hIcon,
             16, 16);
@@ -456,7 +461,7 @@ public:
       {
         ::DrawThemeTextEx(
           hTheme,
-          lpNMCustomDraw->nmcd.hdc,
+          dcPaint,
           WP_CAPTION, CS_ACTIVE,
           szTitle,
           szTitleLen,
@@ -468,9 +473,8 @@ public:
       }
       else
       {
-        WTL::CDCHandle dc(lpNMCustomDraw->nmcd.hdc);
-        dc.SetBkMode(TRANSPARENT);
-        dc.DrawText(
+        dcPaint.SetBkMode(TRANSPARENT);
+        dcPaint.DrawText(
           szTitle,
           szTitleLen,
           &rcText,
@@ -496,11 +500,22 @@ public:
     }
 #endif //_DRAW_TAB_RECT
 
+    bufferedPaint.End();
   }
 
   void DrawCloseButton(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
   {
     // drawed in the current tab
+
+    // we want to clip the close button without distorting/shrinking
+    CBufferedPaint bufferedPaint;
+    HDC hDCPaint = NULL;
+    BP_PAINTPARAMS paintParams = { sizeof(BP_PAINTPARAMS), BPPF_ERASE, NULL, NULL };
+    bufferedPaint.Begin(lpNMCustomDraw->nmcd.hdc, &m_rcCloseButton, BPBF_TOPDOWNDIB, &paintParams, &hDCPaint);
+    CDCHandle dcPaint(hDCPaint);
+
+    RECT rcCloseButton = m_rcCloseButton;
+    rcCloseButton.right = rcCloseButton.left + m_iCloseButtonWidth;
 
     int iStateCloseButton = CBS_NORMAL;
     if( ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown) )
@@ -513,42 +528,44 @@ public:
     {
       ::DrawThemeBackgroundEx(
         hTheme,
-        lpNMCustomDraw->nmcd.hdc,
+        dcPaint,
         WP_SMALLCLOSEBUTTON,
         iStateCloseButton,
-        &m_rcCloseButton,
+        &rcCloseButton,
         NULL);
 
       ::CloseThemeData(hTheme);
     }
     else
     {
-      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+      Gdiplus::Graphics g(dcPaint);
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Red)));
       g.DrawRectangle(
         &pen,
-        m_rcCloseButton.left, m_rcCloseButton.top,
-        m_rcCloseButton.right - m_rcCloseButton.left, m_rcCloseButton.bottom - m_rcCloseButton.top);
+        rcCloseButton.left, rcCloseButton.top,
+        rcCloseButton.right - rcCloseButton.left, rcCloseButton.bottom - rcCloseButton.top);
       g.DrawLine(
         &pen,
-        m_rcCloseButton.left, m_rcCloseButton.top,
-        m_rcCloseButton.right, m_rcCloseButton.bottom);
+        rcCloseButton.left, rcCloseButton.top,
+        rcCloseButton.right, rcCloseButton.bottom);
       g.DrawLine(
         &pen,
-        m_rcCloseButton.right, m_rcCloseButton.top,
-        m_rcCloseButton.left, m_rcCloseButton.bottom);
+        rcCloseButton.right, rcCloseButton.top,
+        rcCloseButton.left, rcCloseButton.bottom);
     }
 
 #ifdef _DRAW_TAB_RECT
     {
-      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+      Gdiplus::Graphics g(dcPaint);
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Cyan)));
       g.DrawRectangle(
         &pen,
-        m_rcCloseButton.left, m_rcCloseButton.top,
-        m_rcCloseButton.right - m_rcCloseButton.left, m_rcCloseButton.bottom - m_rcCloseButton.top);
+        rcCloseButton.left, rcCloseButton.top,
+        rcCloseButton.right - rcCloseButton.left, rcCloseButton.bottom - rcCloseButton.top);
     }
 #endif //_DRAW_TAB_RECT
+
+    bufferedPaint.End();
 
   }
 
@@ -1014,6 +1031,8 @@ public:
     dc.SelectFont(hOldFont);
 
     ::OffsetRect(&m_rcCloseButton, m_iScrollOffset, 0);
+    if( m_rcCloseButton.right > rcTabItemArea.right )
+      m_rcCloseButton.right = rcTabItemArea.right;
   }
 
 };

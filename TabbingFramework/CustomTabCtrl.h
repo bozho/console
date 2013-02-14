@@ -2503,7 +2503,7 @@ public:
 		pnmcd->hdc = dc;
 		pnmcd->uItemState = 0;
 
-#if _USE_AERO
+#if 0
     CBufferedPaint bufferedPaint;
     HDC hDCPaint = NULL;
     BP_PAINTPARAMS paintParams = { sizeof(BP_PAINTPARAMS), BPPF_ERASE, NULL, NULL };
@@ -2625,7 +2625,7 @@ public:
 			pT->DoPostPaint(rcClient, &nmc);
 		}
 
-#if _USE_AERO
+#if 0
     bufferedPaint.End();
     pnmcd->hdc = dc;
 #endif

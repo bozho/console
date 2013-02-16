@@ -51,6 +51,8 @@
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="119" command="newtab8"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="120" command="newtab9"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="121" command="newtab10"/>
+		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="122" command="newtab11"/>
+		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="123" command="newtab12"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="49" command="switchtab1"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="50" command="switchtab2"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="51" command="switchtab3"/>
@@ -101,7 +103,7 @@
 	</mouse>
 	<tabs>
 		<tab title="Console2" use_default_icon="0">
-			<console shell="" init_dir="" run_as_user="0" user=""/>
+			<console shell="" init_dir="" run_as_user="0" user="" net_only="0"/>
 			<cursor style="0" r="255" g="255" b="255"/>
 			<background type="0" r="0" g="0" b="0">
 				<image file="" relative="0" extend="0" position="0">

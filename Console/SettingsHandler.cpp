@@ -1051,6 +1051,8 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab8",		ID_NEW_TAB_1 + 7,	L"New Tab 8")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab9",		ID_NEW_TAB_1 + 8,	L"New Tab 9")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab10",		ID_NEW_TAB_1 + 9,	L"New Tab 10")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab11",		ID_NEW_TAB_1 + 10,	L"New Tab 11")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab12",		ID_NEW_TAB_1 + 11,	L"New Tab 12")));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab1",	ID_SWITCH_TAB_1,	L"Switch to tab 1")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab2",	ID_SWITCH_TAB_1 + 1,L"Switch to tab 2")));

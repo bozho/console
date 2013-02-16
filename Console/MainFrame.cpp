@@ -1887,20 +1887,28 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	tabsMenu.CreateMenu();
 
 	// build tabs menu
-	TabDataVector&			tabDataVector	= g_settingsHandler->GetTabSettings().tabDataVector;
-	TabDataVector::iterator	it				= tabDataVector.begin();
-	DWORD					dwId			= ID_NEW_TAB_1;
+	TabDataVector&  tabDataVector = g_settingsHandler->GetTabSettings().tabDataVector;
+	WORD            wId           = ID_NEW_TAB_1;
 
-	for (it; it != tabDataVector.end(); ++it, ++dwId)
+	for (auto it = tabDataVector.begin(); it != tabDataVector.end(); ++it, ++wId)
 	{
 		CMenuItemInfo	subMenuItem;
 
-		subMenuItem.fMask		= MIIM_STRING | MIIM_ID;
-		subMenuItem.wID			= dwId;
-		subMenuItem.dwTypeData	= const_cast<wchar_t*>((*it)->strTitle.c_str());
-		subMenuItem.cch			= static_cast<UINT>((*it)->strTitle.length());
+		auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
 
-		tabsMenu.InsertMenuItem(dwId-ID_NEW_TAB_1, TRUE, &subMenuItem);
+		std::wstring strTitle = (*it)->strTitle;
+		if( hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end() )
+		{
+			strTitle += L"\t";
+			strTitle += hotK->get()->GetHotKeyName();
+		}
+
+		subMenuItem.fMask       = MIIM_STRING | MIIM_ID;
+		subMenuItem.wID         = wId;
+		subMenuItem.dwTypeData  = const_cast<wchar_t*>(strTitle.c_str());
+		subMenuItem.cch         = static_cast<UINT>(strTitle.length());
+
+		tabsMenu.InsertMenuItem(wId-ID_NEW_TAB_1, TRUE, &subMenuItem);
 
 		// create menu icons with proper transparency (thanks to chrisz for the patch)
 		CIcon tabSmallIcon(Helpers::LoadTabIcon(false, (*it)->bUseDefaultIcon, (*it)->strIcon, (*it)->strShell));
@@ -1922,7 +1930,7 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
 		if (!(*it)->menuBitmap.IsNull()) 
 		{
-			tabsMenu.SetMenuItemBitmaps(dwId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
+			tabsMenu.SetMenuItemBitmaps(wId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
 		}
 	}
 

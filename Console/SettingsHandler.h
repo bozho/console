@@ -377,6 +377,49 @@ struct HotKeys : public SettingsBase
 			::ZeroMemory(&accelHotkey, sizeof(ACCEL));
 		}
 
+    std::wstring GetHotKeyName(void)
+    {
+      std::wstring strHotKeyName;
+
+      if( this->accelHotkey.fVirt || this->accelHotkey.key )
+      {
+        LONG    lScanCode;
+        wchar_t szKeyName[32];
+
+        if (this->accelHotkey.fVirt & FCONTROL)
+        {
+          lScanCode = ::MapVirtualKey(VK_CONTROL, 0) << 16;
+          if( ::GetKeyNameText(lScanCode, szKeyName, ARRAYSIZE(szKeyName)) )
+            strHotKeyName += szKeyName;
+          strHotKeyName += L"+";
+        }
+
+        if (this->accelHotkey.fVirt & FSHIFT)
+        {
+          lScanCode = ::MapVirtualKey(VK_SHIFT, 0) << 16;
+          if( ::GetKeyNameText(lScanCode, szKeyName, ARRAYSIZE(szKeyName)) )
+            strHotKeyName += szKeyName;
+          strHotKeyName += L"+";
+        }
+
+        if (this->accelHotkey.fVirt & FALT)
+        {
+          lScanCode = ::MapVirtualKey(VK_MENU, 0) << 16;
+          if( ::GetKeyNameText(lScanCode, szKeyName, ARRAYSIZE(szKeyName)) )
+            strHotKeyName += szKeyName;
+          strHotKeyName += L"+";
+        }
+
+        lScanCode = ::MapVirtualKey(this->accelHotkey.key, 0) << 16;
+        if (this->bExtended) lScanCode |= 0x01000000L;
+
+        if( ::GetKeyNameText(lScanCode, szKeyName, ARRAYSIZE(szKeyName)) )
+          strHotKeyName += szKeyName;
+      }
+
+      return strHotKeyName;
+    }
+
 		wstring	strCommand;
 		WORD	wCommandID;
 		wstring	strDescription;

@@ -510,7 +510,7 @@ public:
     // we want to clip the close button without distorting/shrinking
     CBufferedPaint bufferedPaint;
     HDC hDCPaint = NULL;
-    BP_PAINTPARAMS paintParams = { sizeof(BP_PAINTPARAMS), BPPF_ERASE, NULL, NULL };
+    BP_PAINTPARAMS paintParams = { sizeof(BP_PAINTPARAMS), 0, NULL, NULL };
     bufferedPaint.Begin(lpNMCustomDraw->nmcd.hdc, &m_rcCloseButton, BPBF_TOPDOWNDIB, &paintParams, &hDCPaint);
     CDCHandle dcPaint(hDCPaint);
 

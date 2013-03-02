@@ -74,6 +74,7 @@ public:
   bool CloseView(HWND hwnd = 0);
   void NextView();
   void PrevView();
+  void SetActiveConsole(HWND hwnd);
 
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
   void PasteToConsoles();

@@ -68,6 +68,7 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGE, OnInputLangChange)
 			MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
 			MESSAGE_HANDLER(UM_UPDATE_CONSOLE_VIEW, OnUpdateConsoleView)
+
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -96,7 +97,8 @@ class ConsoleView
 
 		virtual void RedrawCharOnCursor(CDC& dc);
 
-	public:
+		HBITMAP GetThumbnail(int nMaxWidth, int nMaxHeight);
+		HBITMAP GetLivePreview(POINT& ptClient);
 
 		void GetRect(CRect& clientRect);
 		void GetRectMax(CRect& clientMaxRect);
@@ -145,10 +147,13 @@ class ConsoleView
 
     void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
+    void Activate(void);
+
+		void OnConsoleClose();
+
 	private:
 
 		void OnConsoleChange(bool bResize);
-		void OnConsoleClose();
 
 		void CreateOffscreenBuffers();
 		void CreateOffscreenBitmap(CDC& cdc, const CRect& rect, CBitmap& bitmap);

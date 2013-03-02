@@ -219,6 +219,10 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 
 	m_views.insert(ConsoleViewMap::value_type(hwndConsoleView, consoleView));
 
+#ifdef _USE_AERO
+  m_mainFrame.m_taskBarList.AddTab(consoleView.get(), m_mainFrame.m_hWnd);
+#endif
+
 	return hwndConsoleView;
 }
 
@@ -462,6 +466,14 @@ void TabView::PrevView()
       multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
     }
   }
+}
+
+void TabView::SetActiveConsole(HWND hwnd)
+{
+  MutexLock viewMapLock(m_viewsMutex);
+  auto it = m_views.find(hwnd);
+  if( it != m_views.end() )
+    multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(hwnd));
 }
 
 /////////////////////////////////////////////////////////////////////////////

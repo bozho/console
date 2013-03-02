@@ -453,25 +453,68 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 {
   m_bAppActive = static_cast<BOOL>(wParam)? true : false;
 
-	if (!m_activeTabView) return 0;
+  if (!m_activeTabView) return 0;
 
-	m_activeTabView->SetAppActiveStatus(m_bAppActive);
+  this->ActivateApp();
 
-	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+  // we're being called while OnCreate is running, return here
+  if (!m_bOnCreateDone)
+  {
+    bHandled = FALSE;
+    return 0;
+  }
 
-	if ((transparencySettings.transType == transAlpha) && 
-		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
-	{
-		if (m_bAppActive)
-		{
-			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
-		}
-		else
-		{
-			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
-		}
-		
-	}
+  bHandled = FALSE;
+
+  return 0;
+}
+
+void MainFrame::ActivateApp(HWND hwndTabView, HWND hwndConsoleView)
+{
+  m_bAppActive = TRUE;
+
+  // find the tab
+  MutexLock viewMapLock(m_tabsMutex);
+  auto it = m_tabs.find(hwndTabView);
+  if( it != m_tabs.end() )
+  {
+    it->second->SetActiveConsole(hwndConsoleView);
+    if( m_activeTabView != it->second )
+    {
+      int nCount = m_TabCtrl.GetItemCount();
+      for(int i = 0; i < nCount; ++i)
+      {
+        if( m_TabCtrl.GetItem(i)->GetTabView() == hwndTabView )
+        {
+          m_TabCtrl.SetCurSel(i);
+          break;
+        }
+      }
+    }
+
+    this->ActivateApp();
+  }
+}
+
+void MainFrame::ActivateApp(void)
+{
+  m_activeTabView->SetAppActiveStatus(m_bAppActive);
+
+  TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+
+  if ((transparencySettings.transType == transAlpha) && 
+    ((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
+  {
+    if (m_bAppActive)
+    {
+      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
+    }
+    else
+    {
+      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
+    }
+
+  }
 
 #ifdef _USE_AERO
   m_TabCtrl.SetAppActiveStatus(m_bAppActive);
@@ -483,17 +526,6 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
   {
     m_activeTabView->Repaint(true);
   }
-
-	// we're being called while OnCreate is running, return here
-	if (!m_bOnCreateDone)
-	{
-		bHandled = FALSE;
-		return 0;
-	}
-
-	bHandled = FALSE;
-
-	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1133,6 +1165,10 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 
 			// clear the highlight in case it's on
 			HighlightTab(m_activeTabView->m_hWnd, false);
+
+#ifdef _USE_AERO
+      m_taskBarList.SelectTab(m_activeTabView->GetActiveConsole(_T(__FUNCTION__)).get(), m_hWnd);
+#endif
 		}
 		else
 		{

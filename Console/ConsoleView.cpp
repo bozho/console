@@ -77,6 +77,10 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 
 ConsoleView::~ConsoleView()
 {
+#ifdef _USE_AERO
+  // remove the console view from taskbar list
+  m_mainFrame.m_taskBarList.RemoveTab(this);
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1741,6 +1745,10 @@ void ConsoleView::UpdateTitle()
 		SetTitle(strConsoleTitle);
 	}
 
+#ifdef _USE_AERO
+  m_mainFrame.m_taskBarList.UpdateTabTitle(this);
+#endif
+
 	m_mainFrame.PostMessage(
 					UM_UPDATE_TITLES,
 					reinterpret_cast<WPARAM>(m_hwndTabView),
@@ -2343,6 +2351,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 	// blit selection
 #ifdef _USE_AERO
 	m_selectionHandler->Draw(m_dcOffscreen);
+	m_mainFrame.m_taskBarList.RefreshTab(this);
 #else //_USE_AERO
 	m_selectionHandler->BitBlt(m_dcOffscreen);
 #endif //_USE_AERO
@@ -2666,4 +2675,89 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
     &rectCursor,
     &m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar, 1,
     nullptr);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+HBITMAP ConsoleView::GetThumbnail(int nMaxWidth, int nMaxHeight)
+{
+  TRACE(L"******** ConsoleView::GetThumbnail called\n");
+
+  CRect clientRect;
+  clientRect.left   = m_nVInsideBorder;
+  clientRect.top    = m_nHInsideBorder;
+  clientRect.right  = m_consoleHandler.GetConsoleParams()->dwColumns * m_nCharWidth  + m_nVInsideBorder;
+  clientRect.bottom = m_consoleHandler.GetConsoleParams()->dwRows    * m_nCharHeight + m_nHInsideBorder;
+
+  if( clientRect.Width() == 0 || clientRect.Height() == 0 )
+    return nullptr;
+
+  int nWidth =  nMaxWidth;
+  int nHeight = nMaxHeight;
+
+  /* If the window fits in the thumbnail */
+  if( clientRect.Width() <= nMaxWidth && clientRect.Height() <= nMaxHeight )
+  {
+    nWidth  = clientRect.Width();
+    nHeight = clientRect.Height();
+  }
+  else
+  {
+    /* If the current height of the window
+    is less than the width, we'll create a thumbnail
+    of maximum width; else maximum height. */
+
+    double dXRatio = static_cast<double>(clientRect.Width ()) / static_cast<double>(nWidth );
+    double dYRatio = static_cast<double>(clientRect.Height()) / static_cast<double>(nHeight);
+
+    if( dXRatio > dYRatio )
+    {
+      nHeight = ::MulDiv(nWidth , clientRect.Height(), clientRect.Width ());
+    }
+    else
+    {
+      nWidth  = ::MulDiv(nHeight, clientRect.Width (), clientRect.Height());
+    }
+  }
+
+  /* Thumbnail bitmap. */
+  CBitmap bmpThumbnail;
+  Helpers::CreateBitmap(m_dcOffscreen, nWidth, nHeight, bmpThumbnail);
+
+  CDC dcThumbnail;
+  dcThumbnail.CreateCompatibleDC(m_dcOffscreen);
+
+  /* Finally, shrink the full-scale bitmap down into a thumbnail. */
+  dcThumbnail.SelectBitmap(bmpThumbnail);
+  dcThumbnail.SetStretchBltMode(HALFTONE);
+  dcThumbnail.SetBrushOrg(0, 0);
+  dcThumbnail.StretchBlt(0, 0, nWidth, nHeight, m_dcOffscreen, clientRect.left, clientRect.top, clientRect.Width(), clientRect.Height(), SRCCOPY);
+
+  return bmpThumbnail.Detach();
+}
+
+HBITMAP ConsoleView::GetLivePreview(POINT& ptClient)
+{
+  POINT ptMainFrameClient;
+  m_mainFrame.ClientToScreen(&ptMainFrameClient);
+  this->ClientToScreen(&ptClient);
+  ptClient.x -= ptMainFrameClient.x;
+  ptClient.y -= ptMainFrameClient.y;
+
+  return m_bmpOffscreen.m_hBitmap;
+}
+
+void ConsoleView::Activate(void)
+{
+  /* Restore the main window if necessary, and switch
+  to the actual tab. */
+  if( this->m_mainFrame.IsIconic() )
+  {
+    this->m_mainFrame.ShowWindow(SW_RESTORE);
+  }
+  this->m_mainFrame.ActivateApp(this->m_hwndTabView, this->m_hWnd);
 }

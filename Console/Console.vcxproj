@@ -623,6 +623,12 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TabView.cpp" />
+    <ClCompile Include="TaskBarList.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Wallpaper.cpp" />
     <ClCompile Include="XmlHelper.cpp" />
   </ItemGroup>
@@ -663,6 +669,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="..\shared\Structures.h" />
     <ClInclude Include="TabView.h" />
+    <ClInclude Include="TaskBarList.h" />
     <ClInclude Include="Wallpaper.h" />
     <ClInclude Include="Win32Exception.h" />
     <ClInclude Include="wtlaero.h" />

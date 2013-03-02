@@ -1,5 +1,7 @@
 #pragma once
 
+#include "TaskBarList.h"
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +33,9 @@ class MainFrame
 		DECLARE_FRAME_WND_CLASS(L"Console_2_Main", IDR_MAINFRAME)
 
 #ifdef _USE_AERO
-		aero::CCommandBarCtrl m_CmdBar;
-
-		void OnComposition()
+    aero::CCommandBarCtrl m_CmdBar;
+    TaskBarList           m_taskBarList;
+    void OnComposition()
     {
       this->SetTransparency();
     }
@@ -228,9 +230,11 @@ class MainFrame
     void PasteToConsoles();
     void SendTextToConsole(const wchar_t* pszText);
     bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
+    void ActivateApp(HWND hwndTabView, HWND hwndConsoleView);
 
 	private:
 
+    void ActivateApp();
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 

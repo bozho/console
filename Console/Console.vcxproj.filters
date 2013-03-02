@@ -105,6 +105,9 @@
     <ClCompile Include="Wallpaper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TaskBarList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h">
@@ -225,6 +228,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\shared\Cpp11Helpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskBarList.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

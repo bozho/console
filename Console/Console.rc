@@ -219,9 +219,11 @@ BEGIN
     CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY,182,192,16,14,WS_EX_DLGMODALFRAME
     CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY,182,207,16,14,WS_EX_DLGMODALFRAME
     PUSHBUTTON      "Re&set",IDC_BTN_RESET_COLORS,153,246,50,14
+#ifdef _USE_AERO
     LTEXT           "Background\ntext opacity",IDC_STATIC_BGTEXT_OPACITY,9,224,43,16,NOT WS_GROUP
     CONTROL         "",IDC_BGTEXT_OPACITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,53,224,129,22
     LTEXT           "255",IDC_BGTEXT_OPACITY_VAL,183,226,14,8,0,WS_EX_RIGHT
+#endif
 END
 
 IDD_SETTINGS_APPEARANCE DIALOGEX 0, 0, 235, 265
@@ -325,7 +327,9 @@ BEGIN
     CONTROL         "&None",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,8,124,33,10
     CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON,8,139,34,10
     CONTROL         "Color &key",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON,8,228,46,10
+#ifdef _USE_AERO    
     CONTROL         "Glass",IDC_TRANSPARENCY_TYPE4,"Button",BS_AUTORADIOBUTTON,50,139,34,10
+#endif
     LTEXT           "A&ctive window",IDC_STATIC_ACTIVE_WINDOW,19,152,47,8
     CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,163,185,22
     LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,204,165,14,8,0,WS_EX_RIGHT
@@ -614,9 +618,13 @@ BEGIN
     BUTTON      ID_FILE_NEW_TAB
     BUTTON      ID_PREV_TAB
     BUTTON      ID_NEXT_TAB
+    BUTTON      ID_EDIT_RENAME_TAB
     SEPARATOR
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_SPLIT_HORIZ 
+    BUTTON      ID_SPLIT_VERT  
     SEPARATOR
     BUTTON      ID_APP_ABOUT
     BUTTON      ID_HELP
@@ -628,12 +636,14 @@ END
 // Bitmap
 //
 
+IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
+/*
 #ifdef _USE_AERO
 IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
 #else
 IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
 #endif
-
+*/
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -659,6 +669,9 @@ BEGIN
         MENUITEM "Stop Scr&olling",             ID_EDIT_STOP_SCROLLING
         MENUITEM SEPARATOR
         MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
+        MENUITEM SEPARATOR
+        MENUITEM "Split &Horizontally",         ID_SPLIT_HORIZ 
+        MENUITEM "Split &Vertically",           ID_SPLIT_VERT 
         MENUITEM SEPARATOR
         MENUITEM "&Settings...",                ID_EDIT_SETTINGS
     END
@@ -919,11 +932,12 @@ BEGIN
     ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
     ID_EDIT_UNDO            "Undo the last action\nUndo"
     ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+    ID_EDIT_RENAME_TAB      "Rename the active tab\nRename tab"
 END
 
 STRINGTABLE
 BEGIN
-    ID_FILE_NEW_TAB         "Opens a new tab\nNew tab"
+    ID_FILE_NEW_TAB         "Open a new tab\nNew tab"
     ID_VIEW_CONSOLE         "Show or hide the console"
 END
 
@@ -974,8 +988,8 @@ BEGIN
     ID_NEXT_VIEW            "Switch to the next view\nNext View"
     ID_PREV_VIEW            "Switch to the previous view\nPrevious View"
     ID_CLOSE_VIEW           "Close the current view\nClose View"
-    ID_SPLIT_HORIZ          "Split  the current view horizontally\nSplit Horizontally"
-    ID_SPLIT_VERT           "Split  the current view vertically\nSplit Vertically"
+    ID_SPLIT_HORIZ          "Split the current view horizontally\nSplit Horizontally"
+    ID_SPLIT_VERT           "Split the current view vertically\nSplit Vertically"
 END
 
 STRINGTABLE

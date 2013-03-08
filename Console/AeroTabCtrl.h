@@ -18,17 +18,24 @@ protected:
   signed long m_iCloseButtonWidth;
   signed long m_iCloseButtonHeight;
 
-  bool           m_bAppActive;
+  bool        m_bAppActive;
 
   // Constructor
 public:
 
-  CAeroTabCtrlImpl():m_iTopMargin(0),m_bAppActive(true)
+  CAeroTabCtrlImpl()
+    :m_iTopMargin(0)
+    ,m_bAppActive(true)
+    ,m_iCloseButtonWidth(0)
+    ,m_iCloseButtonHeight(0)
+    ,m_iMargin(6)
+    ,m_iLeftSpacing(2)
+    ,m_iRadius(3)
   {
     // We can't use a member initialization list to initialize
     // members of our base class, so do it explictly by assignment here.
-    m_clrTextInactiveTab = /*RGB(255,255,255); */::GetSysColor(COLOR_BTNTEXT);
-    m_clrSelectedTab = ::GetSysColor(COLOR_WINDOW);
+    m_clrTextInactiveTab = ::GetSysColor(COLOR_BTNTEXT);
+    m_clrSelectedTab     = ::GetSysColor(COLOR_WINDOW);
   }
 
   void SetTopMargin(int nTopMargin)
@@ -102,9 +109,6 @@ public:
 
     m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
 
-    m_iMargin = 6;
-    m_iLeftSpacing = 2;
-    m_iRadius = 3;
     m_settings.iIndent = 5;
     m_settings.iPadding = 4;
     m_settings.iMargin = m_iMargin + m_iLeftSpacing / 2;
@@ -115,35 +119,6 @@ public:
     pT->Invalidate();
     return 0;
   }
-
-#if 0
-  void ClearBackground(Gdiplus::Graphics& g, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
-  {
-    if( this->m_bAeroGlassActive )
-    {
-      BOOL fEnabled = FALSE;
-      DwmIsCompositionEnabled(&fEnabled);
-      if( !fEnabled )
-      {
-        g.Clear(m_clrBackground);
-      }
-      else
-      {
-        g.Clear(Gdiplus::Color(0,0,0,0));
-      }
-    }
-    else
-    {
-      g.Clear(
-        Gdiplus::Color(
-          Gdiplus::Color::MakeARGB(
-            255,
-            GetRValue(lpNMCustomDraw->clrBtnFace),
-            GetGValue(lpNMCustomDraw->clrBtnFace),
-            GetBValue(lpNMCustomDraw->clrBtnFace))));
-    }
-  }
-#endif
 
   // Overrides for painting from CDotNetTabCtrlImpl
 public:
@@ -331,6 +306,18 @@ public:
 
     Gdiplus::Graphics g(dcPaint);
 
+    if( !aero::IsComposing() )
+    {
+      COLORREF clr = lpNMCustomDraw->clrBtnFace;
+
+      g.Clear(
+        Gdiplus::Color(
+            255,
+            GetRValue(clr),
+            GetGValue(clr),
+            GetBValue(clr)));
+    }
+
     bool bHighlighted = (CDIS_MARKED == (lpNMCustomDraw->nmcd.uItemState & CDIS_MARKED));
     bool bSelected = (CDIS_SELECTED == (lpNMCustomDraw->nmcd.uItemState & CDIS_SELECTED));
     bool bHot = (CDIS_HOT == (lpNMCustomDraw->nmcd.uItemState & CDIS_HOT));
@@ -506,6 +493,8 @@ public:
   void DrawCloseButton(LPNMCTCCUSTOMDRAW lpNMCustomDraw)
   {
     // drawed in the current tab
+    if( m_iCloseButtonWidth == 0 )
+      return;
 
     // we want to clip the close button without distorting/shrinking
     CBufferedPaint bufferedPaint;
@@ -515,7 +504,8 @@ public:
     CDCHandle dcPaint(hDCPaint);
 
     RECT rcCloseButton = m_rcCloseButton;
-    rcCloseButton.right = rcCloseButton.left + m_iCloseButtonWidth;
+    rcCloseButton.right  = rcCloseButton.left + m_iCloseButtonWidth  - 1;
+    rcCloseButton.bottom = rcCloseButton.top  + m_iCloseButtonHeight - 1;
 
     int iStateCloseButton = CBS_NORMAL;
     if( ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown) )
@@ -539,11 +529,23 @@ public:
     else
     {
       Gdiplus::Graphics g(dcPaint);
+
+      COLORREF clr = lpNMCustomDraw->clrSelectedTab;
+
+      g.Clear(
+        Gdiplus::Color(
+            255,
+            GetRValue(clr),
+            GetGValue(clr),
+            GetBValue(clr)));
+
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Red)));
+      /*
       g.DrawRectangle(
         &pen,
         rcCloseButton.left, rcCloseButton.top,
         rcCloseButton.right - rcCloseButton.left, rcCloseButton.bottom - rcCloseButton.top);
+        */
       g.DrawLine(
         &pen,
         rcCloseButton.left, rcCloseButton.top,
@@ -699,8 +701,8 @@ public:
       }
       else
       {
-        m_iCloseButtonWidth  = 8;
-        m_iCloseButtonHeight = 8;
+        m_iCloseButtonWidth  = 9;
+        m_iCloseButtonHeight = 9;
       }
     }
     else
@@ -802,10 +804,17 @@ public:
     nIconVerticalCenter = (rcItemDP.bottom + rcItemDP.top) / 2;
 
     // calculate the position of the close button
-    m_rcCloseButton.left   = rcItemDP.right;
-    m_rcCloseButton.right  = m_rcCloseButton.left + m_iCloseButtonWidth;
-    m_rcCloseButton.top    = nIconVerticalCenter - m_iCloseButtonHeight / 2;
-    m_rcCloseButton.bottom = m_rcCloseButton.top + m_iCloseButtonHeight;
+    if( m_iCloseButtonWidth && m_iCloseButtonHeight )
+    {
+      m_rcCloseButton.left   = rcItemDP.right;
+      m_rcCloseButton.right  = m_rcCloseButton.left + m_iCloseButtonWidth;
+      m_rcCloseButton.top    = nIconVerticalCenter - m_iCloseButtonHeight / 2;
+      m_rcCloseButton.bottom = m_rcCloseButton.top + m_iCloseButtonHeight;
+    }
+    else
+    {
+      ::SetRectEmpty(&m_rcCloseButton);
+    }
   }
 
   void UpdateLayout_Default(RECT rcTabItemArea)

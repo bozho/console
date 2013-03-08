@@ -227,6 +227,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// remove old menu
 	SetMenu(NULL);
 
+	UpdateMenuHotKeys();
+
 #ifdef _USE_AERO
   HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #else
@@ -1568,8 +1570,9 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	if (dlg.DoModal() == IDOK)
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
-	
+
 		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
+		UpdateMenuHotKeys();
 
 		CreateAcceleratorTable();
 
@@ -1947,6 +1950,27 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
   // create jumplist
   JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
+}
+
+void MainFrame::UpdateMenuHotKeys(void)
+{
+  CMenuHandle menu = m_CmdBar.GetMenu();
+
+  auto ids =  g_settingsHandler->GetHotKeys().commands;
+  for(auto id = ids.begin(); id != ids.end(); ++id)
+  {
+    CString strMenuItemText;
+    if( menu.GetMenuString(id->get()->wCommandID, strMenuItemText, MF_BYCOMMAND) )
+    {
+      int tab = strMenuItemText.Find(L'\t');
+      if (tab != -1)
+        strMenuItemText.Truncate(tab);
+      strMenuItemText.AppendChar(L'\t');
+      strMenuItemText.Append(id->get()->GetHotKeyName().c_str());
+
+      menu.ModifyMenu(id->get()->wCommandID, MF_BYCOMMAND | MF_STRING, static_cast<UINT_PTR>(id->get()->wCommandID), strMenuItemText.GetString());
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

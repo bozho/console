@@ -236,6 +236,7 @@ class MainFrame
 
 		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
+		void UpdateMenuHotKeys(void);
 		void UpdateStatusBar();
 		void SetWindowStyles();
 		void DockWindow(DockPosition dockPosition);

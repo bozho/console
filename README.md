@@ -21,6 +21,32 @@ Changelog
         ! : changed
         + : added
 
+Changes in 1.06.0 beta (9 Mar 2013)
+
+        ! the cloned tab title is suffixed with (2)
+        ! about dialog box improvement
+        + new option "Net Only" to "Run as user"
+          the user credentials are used only to access network resources
+          the user is displayed in tab title surrounded with braces
+        + "Run as user" supports UNC user names
+        + hotkeys are displayed in the menu
+        + new buttons in the toolbar:
+          rename tab
+          split horizontally
+          split vertically
+        + new hotkeys:
+          switch to left view (default ALT+LEFT)
+          switch to right view (default ALT+RIGHT)
+          switch to top view (default ALT+UP)
+          switch to bottom view (default ALT+DOWN)
+        * If the only one tab was cloned, the "delete" button remained disabled.
+        * Under Windows 8, the call to GetTextMetrics function failed with some fonts
+          The return code wasn't checked and char metrics wasn't correctly initialized.
+        * wrong tabs scrolling
+        * close button drawing
+        * background of tab was black with basic Windows theme
+        * error handling and return code checking
+
 Changes in 1.05.0 (2 Feb 2013)
 
         ! FreeImage 3.15.4

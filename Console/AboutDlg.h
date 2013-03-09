@@ -1,4 +1,4 @@
-// aboutdlg.h : interface of the CAboutDlg class
+﻿// aboutdlg.h : interface of the CAboutDlg class
 //
 /////////////////////////////////////////////////////////////////////////////
 
@@ -67,22 +67,25 @@ public:
 
     gr.DrawImage(&bmpAlpha, 0, 0);
 
-    DTTOPTS dtto = { 0 };
-    dtto.dwSize = sizeof(DTTOPTS);
-    dtto.iGlowSize = 8;
-    dtto.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE;
+    DTTOPTS dtto   = { 0 };
+    dtto.dwSize    = sizeof(DTTOPTS);
+    dtto.iGlowSize = 16;
+    dtto.crText    = RGB(191,191,255);
+    dtto.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR | DTT_GLOWSIZE;
 
-    CRect rectVersion(0x25,0x41,0x25+0x78,0x41+0x25);
+    CRect rectVersion(0x14,0x10,0x14+0x9A,0x10+0xA0);
     CString strMsgVersion;
-    strMsgVersion.Format(L"\nConsoleZ %i.%i.%i\n", VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+    strMsgVersion.Format(
+      L"\nConsoleZ %i.%i.%i\n"
+      L"Copyleft (ↄ)\n"
+      L"2011-2013\n"
+      L"Christophe Bucher\n"
+      L"\n"
+      L"a modified version of\n"
+      L"Console 2 from\n"
+      L"Marko Bozikovic"
+      , VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
     this->DrawTextW(dc, strMsgVersion, rectVersion, DT_CENTER | DT_VCENTER, dtto);
-
-    CRect rectAppText(0x14,0x64,0x14+0x9A,0x64+0x80);
-    this->DrawTextW(
-      dc,
-      L"\nCopyright (C) 2011-2012\nChristophe Bucher\n\na modified version of\nConsole 2\nfrom\nMarko Bozikovic",
-      rectAppText,
-      DT_CENTER | DT_VCENTER, dtto);
   }
 #endif
 };

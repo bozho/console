@@ -112,8 +112,12 @@ class MainFrame
 			COMMAND_RANGE_HANDLER(ID_SWITCH_TAB_1, ID_SWITCH_TAB_1 + 9, OnSwitchTab)
 			COMMAND_ID_HANDLER(ID_NEXT_TAB, OnNextTab)
 			COMMAND_ID_HANDLER(ID_PREV_TAB, OnPrevTab)
-			COMMAND_ID_HANDLER(ID_NEXT_VIEW   , OnNextView)
-			COMMAND_ID_HANDLER(ID_PREV_VIEW   , OnPrevView)
+			COMMAND_ID_HANDLER(ID_NEXT_VIEW   , OnSwitchView)
+			COMMAND_ID_HANDLER(ID_PREV_VIEW   , OnSwitchView)
+			COMMAND_ID_HANDLER(ID_LEFT_VIEW   , OnSwitchView)
+			COMMAND_ID_HANDLER(ID_RIGHT_VIEW  , OnSwitchView)
+			COMMAND_ID_HANDLER(ID_TOP_VIEW    , OnSwitchView)
+			COMMAND_ID_HANDLER(ID_BOTTOM_VIEW , OnSwitchView)
 			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
 			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplitHorizontally)
 			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplitVertically)
@@ -188,8 +192,7 @@ class MainFrame
 		LRESULT OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-		LRESULT OnNextView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnPrevView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

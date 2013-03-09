@@ -257,6 +257,10 @@
 #define ID_UNGROUP_ALL                  2209
 #define ID_GROUP_TAB                    2210
 #define ID_UNGROUP_TAB                  2211
+#define ID_LEFT_VIEW                    2212
+#define ID_RIGHT_VIEW                   2213
+#define ID_TOP_VIEW                     2214
+#define ID_BOTTOM_VIEW                  2215
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000
 #define IDS_ERR_CANT_START_SHELL_AS_USER 5001

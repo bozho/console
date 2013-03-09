@@ -432,34 +432,63 @@ bool TabView::CloseView(HWND hwnd /*= 0*/)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void TabView::NextView()
+void TabView::SwitchView(WORD wID)
 {
   if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
   {
     MutexLock viewMapLock(m_viewsMutex);
-    if( m_views.size() > 1 )
-    {
-      ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
-      ++iter;
-      if( iter == m_views.end() )
-        iter = m_views.begin();
-      multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
-    }
-  }
-}
 
-void TabView::PrevView()
-{
-  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
-  {
-    MutexLock viewMapLock(m_viewsMutex);
     if( m_views.size() > 1 )
     {
-      ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
-      if( iter == m_views.begin() )
-        iter = m_views.end();
-      --iter;
-      multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
+      switch( wID )
+      {
+      case ID_NEXT_VIEW:
+        {
+          ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
+          ++iter;
+          if( iter == m_views.end() )
+            iter = m_views.begin();
+          multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
+        }
+        break;
+      case ID_PREV_VIEW:
+        {
+          ConsoleViewMap::iterator iter = m_views.find(multisplitClass::defaultFocusPane->window);
+          if( iter == m_views.begin() )
+            iter = m_views.end();
+          --iter;
+          multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(iter->first));
+        }
+        break;
+      case ID_LEFT_VIEW:
+        {
+          CMultiSplitPane* pane = multisplitClass::defaultFocusPane->get(CMultiSplitPane::LEFT);
+          if( pane && !pane->isSplitBar() )
+            multisplitClass::SetDefaultFocusPane(pane);
+        }
+        break;
+      case ID_RIGHT_VIEW:
+        {
+          CMultiSplitPane* pane = multisplitClass::defaultFocusPane->get(CMultiSplitPane::RIGHT);
+          if( pane && !pane->isSplitBar() )
+            multisplitClass::SetDefaultFocusPane(pane);
+        }
+        break;
+      case ID_TOP_VIEW:
+        {
+          CMultiSplitPane* pane = multisplitClass::defaultFocusPane->get(CMultiSplitPane::TOP);
+          if( pane && !pane->isSplitBar() )
+            multisplitClass::SetDefaultFocusPane(pane);
+        }
+        break;
+      case ID_BOTTOM_VIEW:
+        {
+          CMultiSplitPane* pane = multisplitClass::defaultFocusPane->get(CMultiSplitPane::BOTTOM);
+          if( pane && !pane->isSplitBar() )
+            multisplitClass::SetDefaultFocusPane(pane);
+        }
+        break;
+      }
     }
   }
 }

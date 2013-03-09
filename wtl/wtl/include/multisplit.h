@@ -473,6 +473,9 @@ namespace WTL
         point.x = this->x + this->width + CMultiSplitPane::splitBarWidth;
         point.y = this->y;
         break;
+
+      default:
+        return nullptr;
       }
 
       return this->get(ROOT)->getPane(point);

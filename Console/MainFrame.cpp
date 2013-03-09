@@ -1316,22 +1316,11 @@ LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnNextView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if( m_activeTabView )
-    m_activeTabView->NextView();
-  return 0;
-}
+    m_activeTabView->SwitchView(wID);
 
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT MainFrame::OnPrevView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-  if( m_activeTabView )
-    m_activeTabView->PrevView();
   return 0;
 }
 

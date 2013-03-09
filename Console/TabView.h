@@ -72,8 +72,7 @@ public:
   void SplitHorizontally();
   void SplitVertically();
   bool CloseView(HWND hwnd = 0);
-  void NextView();
-  void PrevView();
+  void SwitchView(WORD wID);
 
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
   void PasteToConsoles();

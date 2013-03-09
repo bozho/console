@@ -1065,14 +1065,18 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab9",	ID_SWITCH_TAB_1 + 8,L"Switch to tab 9")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtab10",	ID_SWITCH_TAB_1 + 9,L"Switch to tab 10")));
 
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nexttab",		ID_NEXT_TAB,		L"Next tab")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevtab",		ID_PREV_TAB,		L"Previous tab")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nexttab",		ID_NEXT_TAB,		L"Switch to next tab")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevtab",		ID_PREV_TAB,		L"Switch to previous tab")));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closetab",		ID_FILE_CLOSE_TAB,	L"Close tab")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"renametab",	ID_EDIT_RENAME_TAB,	L"Rename tab")));
 
-  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nextview",   ID_NEXT_VIEW,   L"Next view")));
-  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevview",   ID_PREV_VIEW,   L"Previous view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nextview",   ID_NEXT_VIEW,   L"Switch to next view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevview",   ID_PREV_VIEW,   L"Switch to previous view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"leftview",   ID_LEFT_VIEW,   L"Switch to left view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"rightview",  ID_RIGHT_VIEW,  L"Switch to right view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"topview",    ID_TOP_VIEW,    L"Switch to top view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"bottomview", ID_BOTTOM_VIEW, L"Switch to bottom view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closeview",  ID_CLOSE_VIEW,  L"Close view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ, L"Split horizontally")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,  L"Split vertically")));

@@ -31,14 +31,16 @@ Changes in 1.06.0 beta (9 Mar 2013)
         + "Run as user" supports UNC user names
         + hotkeys are displayed in the menu
         + new buttons in the toolbar:
-          rename tab
-          split horizontally
-          split vertically
+          "Rename tab"
+          "Split Horizontally"
+          "Split Vertically"
         + new hotkeys:
-          switch to left view (default ALT+LEFT)
-          switch to right view (default ALT+RIGHT)
-          switch to top view (default ALT+UP)
-          switch to bottom view (default ALT+DOWN)
+          "New Tab 11" (default: CTRL+F11)
+          "New Tab 12" (default: CTRL+F12)
+          "Switch to left view" (default: ALT+LEFT)
+          "Switch to right view" (default: ALT+RIGHT)
+          "Switch to top view" (default: ALT+UP)
+          "Switch to bottom view" (default: ALT+DOWN)
         * If the only one tab was cloned, the "delete" button remained disabled.
         * Under Windows 8, the call to GetTextMetrics function failed with some fonts
           The return code wasn't checked and char metrics wasn't correctly initialized.

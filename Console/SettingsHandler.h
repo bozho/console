@@ -373,6 +373,7 @@ struct HotKeys : public SettingsBase
 		, strDescription(description)
 		, bExtended(false)
 		, bGlobal(global)
+		, bWin(false)
 		{
 			::ZeroMemory(&accelHotkey, sizeof(ACCEL));
 		}
@@ -426,6 +427,7 @@ struct HotKeys : public SettingsBase
 		ACCEL	accelHotkey;
 		bool	bExtended;
 		bool	bGlobal;
+		bool	bWin;
 	};
 
 	struct command{};

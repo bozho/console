@@ -2585,9 +2585,10 @@ void MainFrame::RegisterGlobalHotkeys()
 
 		UINT uiModifiers = 0;
 
-		if ((*it)->accelHotkey.fVirt & FSHIFT)	uiModifiers |= MOD_SHIFT;
-		if ((*it)->accelHotkey.fVirt & FCONTROL)uiModifiers |= MOD_CONTROL;
-		if ((*it)->accelHotkey.fVirt & FALT)	uiModifiers |= MOD_ALT;
+		if ((*it)->accelHotkey.fVirt & FSHIFT)   uiModifiers |= MOD_SHIFT;
+		if ((*it)->accelHotkey.fVirt & FCONTROL) uiModifiers |= MOD_CONTROL;
+		if ((*it)->accelHotkey.fVirt & FALT)     uiModifiers |= MOD_ALT;
+		if ((*it)->bWin)                         uiModifiers |= MOD_WIN;
 
 		::RegisterHotKey(m_hWnd, (*it)->wCommandID, uiModifiers, (*it)->accelHotkey.key);
 	}

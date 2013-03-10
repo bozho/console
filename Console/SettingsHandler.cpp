@@ -1154,14 +1154,17 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"extended"), bExtended, false);
 		XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"code"), dwKeyCode, 0);
 
-		if (bShift)	(*it)->accelHotkey.fVirt |= FSHIFT;
-		if (bCtrl)	(*it)->accelHotkey.fVirt |= FCONTROL;
-		if (bAlt)	(*it)->accelHotkey.fVirt |= FALT;
+		(*it)->accelHotkey.fVirt = FVIRTKEY;
+		(*it)->accelHotkey.key   = static_cast<WORD>(dwKeyCode);
+		(*it)->accelHotkey.cmd   = (*it)->wCommandID;
+		(*it)->bExtended         = bExtended;
 
-		(*it)->accelHotkey.fVirt|= FVIRTKEY;
-		(*it)->accelHotkey.key	= static_cast<WORD>(dwKeyCode);
-		(*it)->accelHotkey.cmd	= (*it)->wCommandID;
-		(*it)->bExtended		= bExtended;
+		if (bShift) (*it)->accelHotkey.fVirt |= FSHIFT;
+		if (bCtrl)  (*it)->accelHotkey.fVirt |= FCONTROL;
+		if (bAlt)   (*it)->accelHotkey.fVirt |= FALT;
+
+		if( (*it)->bGlobal )
+			XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"win"), (*it)->bWin, false);
 	}
 
 	return true;
@@ -1226,6 +1229,12 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"code"), (*itCommand)->accelHotkey.key);
 		XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"command"), (*itCommand)->strCommand);
+
+		if( (*itCommand)->bGlobal )
+		{
+			bAttrVal = ((*itCommand)->bWin) ? true : false;
+			XmlHelper::SetAttribute(pNewHotkeyElement, CComBSTR(L"win"), bAttrVal);
+		}
 
 		pHotkeysElement->appendChild(pNewHotkeyElement, &pNewHotkeyOut);
 

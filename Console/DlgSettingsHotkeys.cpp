@@ -51,10 +51,11 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 		WORD	wModifiers = 0;
 		CString	strKeyName;
 
-		if ((*it)->accelHotkey.fVirt & FCONTROL)	wModifiers |= HOTKEYF_CONTROL;
-		if ((*it)->accelHotkey.fVirt & FSHIFT)		wModifiers |= HOTKEYF_SHIFT;
-		if ((*it)->accelHotkey.fVirt & FALT)		wModifiers |= HOTKEYF_ALT;
-		if ((*it)->bExtended)						wModifiers |= HOTKEYF_EXT;
+		if ((*it)->accelHotkey.fVirt & FCONTROL) wModifiers |= HOTKEYF_CONTROL;
+		if ((*it)->accelHotkey.fVirt & FSHIFT)   wModifiers |= HOTKEYF_SHIFT;
+		if ((*it)->accelHotkey.fVirt & FALT)     wModifiers |= HOTKEYF_ALT;
+		if ((*it)->bExtended)                    wModifiers |= HOTKEYF_EXT;
+		if ((*it)->bWin)                         wModifiers |= FAKE_HOTKEYF_WIN;
 
 		strKeyName = m_hotKeyEdit.GetHotKeyName((*it)->accelHotkey.key, wModifiers);
 
@@ -81,16 +82,18 @@ LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL
 
 	WORD wModifiers = 0;
 
-	if (pCommandData->accelHotkey.fVirt & FCONTROL)	wModifiers |= HOTKEYF_CONTROL;
-	if (pCommandData->accelHotkey.fVirt & FSHIFT)	wModifiers |= HOTKEYF_SHIFT;
-	if (pCommandData->accelHotkey.fVirt & FALT)		wModifiers |= HOTKEYF_ALT;
-	if (pCommandData->bExtended)					wModifiers |= HOTKEYF_EXT;
+	if (pCommandData->accelHotkey.fVirt & FCONTROL) wModifiers |= HOTKEYF_CONTROL;
+	if (pCommandData->accelHotkey.fVirt & FSHIFT)   wModifiers |= HOTKEYF_SHIFT;
+	if (pCommandData->accelHotkey.fVirt & FALT)     wModifiers |= HOTKEYF_ALT;
+	if (pCommandData->bExtended)                    wModifiers |= HOTKEYF_EXT;
+	if (pCommandData->bWin)                         wModifiers |= FAKE_HOTKEYF_WIN;
 
 	CString strItemText;
 
 	m_listCtrl.GetItemText(pnmv->iItem, 0, strItemText);
 	m_editCommand.SetWindowText(strItemText);
 	m_hotKeyEdit.SetHotKey(pCommandData->accelHotkey.key, wModifiers);
+	m_hotKeyEdit.UseGlobalKeys(pCommandData->bGlobal);
 
 	return 0;
 }
@@ -114,15 +117,17 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 	HotKeys::CommandData* pCommandData = reinterpret_cast<HotKeys::CommandData*>(selectedItem.lParam);
 
-	pCommandData->accelHotkey.cmd	= pCommandData->wCommandID;
-	pCommandData->accelHotkey.key	= static_cast<WORD>(uiVirtualKeyCode);
-	pCommandData->accelHotkey.fVirt	= FVIRTKEY;
-	pCommandData->bExtended			= false;
+	pCommandData->accelHotkey.cmd   = pCommandData->wCommandID;
+	pCommandData->accelHotkey.key   = static_cast<WORD>(uiVirtualKeyCode);
+	pCommandData->accelHotkey.fVirt = FVIRTKEY;
+	pCommandData->bExtended         = false;
+	pCommandData->bWin              = false;
 
-	if (wModifiers & HOTKEYF_CONTROL)	pCommandData->accelHotkey.fVirt |= FCONTROL;
-	if (wModifiers & HOTKEYF_SHIFT)		pCommandData->accelHotkey.fVirt |= FSHIFT;
-	if (wModifiers & HOTKEYF_ALT)		pCommandData->accelHotkey.fVirt |= FALT;
-	if (wModifiers & HOTKEYF_EXT)		pCommandData->bExtended = true;
+	if (wModifiers & HOTKEYF_CONTROL)  pCommandData->accelHotkey.fVirt |= FCONTROL;
+	if (wModifiers & HOTKEYF_SHIFT)    pCommandData->accelHotkey.fVirt |= FSHIFT;
+	if (wModifiers & HOTKEYF_ALT)      pCommandData->accelHotkey.fVirt |= FALT;
+	if (wModifiers & HOTKEYF_EXT)      pCommandData->bExtended = true;
+	if (wModifiers & FAKE_HOTKEYF_WIN) pCommandData->bWin      = true;
 
 	m_listCtrl.SetItemText(m_listCtrl.GetSelectedIndex(), 1, m_hotKeyEdit.GetHotKeyName());
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#define FAKE_HOTKEYF_WIN 0x100
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -37,9 +39,11 @@ class CHotkeyEditT
 
 		void GetHotKey(UINT& uiVk, WORD& wModifiers);
 		void SetHotKey(UINT uiVk, WORD wModifiers);
-		
+
 		CString GetHotKeyName();
 		CString GetHotKeyName(UINT uiVk, WORD wModifiers);
+
+		inline void UseGlobalKeys(bool bUseGlobalKeys) { m_bUseGlobalKeys = bUseGlobalKeys; }
 
 	private:
 
@@ -52,7 +56,8 @@ class CHotkeyEditT
 		bool	m_bShiftDown;
 		bool	m_bAltDown;
 		bool	m_bWinDown;
-		bool	m_bAppDown;
+
+		bool	m_bUseGlobalKeys;
 
 		UINT	m_uiVirtualKey;
 		bool	m_bExtended;
@@ -78,6 +83,8 @@ CHotkeyEditT<T>::CHotkeyEditT(HWND hWnd /*= NULL*/)
 : m_bCtrlDown(false)
 , m_bShiftDown(false)
 , m_bAltDown(false)
+, m_bWinDown(false)
+, m_bUseGlobalKeys(false)
 , m_uiVirtualKey(0)
 , m_bExtended(false)
 , m_uiHotkeyVk(0)
@@ -99,15 +106,20 @@ CHotkeyEditT<T>::CHotkeyEditT(HWND hWnd /*= NULL*/)
 template<class T>
 LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	// WIN keys are used only with global accelerators
+	if( !m_bUseGlobalKeys && (wParam == VK_LWIN || wParam == VK_RWIN) )
+		return 0;
+
 	// key down, clear hotkey variables
 	m_uiHotkeyVk		= 0;
 	m_wHotkeyModifiers	= 0;
 
-	if (wParam == VK_CONTROL)	m_bCtrlDown	= true;
-	if (wParam == VK_SHIFT)		m_bShiftDown= true;
-	if (wParam == VK_MENU)		m_bAltDown	= true;
+	if (wParam == VK_CONTROL)                   m_bCtrlDown  = true;
+	if (wParam == VK_SHIFT)                     m_bShiftDown = true;
+	if (wParam == VK_MENU)                      m_bAltDown   = true;
+	if (wParam == VK_LWIN || wParam == VK_RWIN) m_bWinDown   = true;
 
-	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU))
+	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU) && (wParam != VK_LWIN) && (wParam != VK_RWIN))
 	{
 		// non-modifier key pressed
 		m_uiVirtualKey	= static_cast<UINT>(wParam);
@@ -126,20 +138,22 @@ LRESULT CHotkeyEditT<T>::OnKeyDown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 template<class T>
 LRESULT CHotkeyEditT<T>::OnKeyUp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if (wParam == VK_CONTROL)	m_bCtrlDown	= false;
-	if (wParam == VK_SHIFT)		m_bShiftDown= false;
-	if (wParam == VK_MENU)		m_bAltDown	= false;
+	if (wParam == VK_CONTROL)                   m_bCtrlDown  = false;
+	if (wParam == VK_SHIFT)                     m_bShiftDown = false;
+	if (wParam == VK_MENU)                      m_bAltDown   = false;
+	if (wParam == VK_LWIN || wParam == VK_RWIN) m_bWinDown   = false;
 
-	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU))
+	if ((wParam != VK_CONTROL) && (wParam != VK_SHIFT) && (wParam != VK_MENU) && (wParam != VK_LWIN) && (wParam != VK_RWIN))
 	{
 		// non-modifier key up, set hotkey variables
 		m_uiHotkeyVk		= m_uiVirtualKey;
 		m_wHotkeyModifiers	= 0;
 
-		if (m_bCtrlDown)	m_wHotkeyModifiers |= HOTKEYF_CONTROL;
-		if (m_bShiftDown)	m_wHotkeyModifiers |= HOTKEYF_SHIFT;
-		if (m_bAltDown)		m_wHotkeyModifiers |= HOTKEYF_ALT;
-		if (m_bExtended)	m_wHotkeyModifiers |= HOTKEYF_EXT;
+		if (m_bCtrlDown)  m_wHotkeyModifiers |= HOTKEYF_CONTROL;
+		if (m_bShiftDown) m_wHotkeyModifiers |= HOTKEYF_SHIFT;
+		if (m_bAltDown)   m_wHotkeyModifiers |= HOTKEYF_ALT;
+		if (m_bExtended)  m_wHotkeyModifiers |= HOTKEYF_EXT;
+		if (m_bWinDown)   m_wHotkeyModifiers |= FAKE_HOTKEYF_WIN;
 
 		m_uiVirtualKey	= 0;
 		m_bExtended		= false;
@@ -230,6 +244,11 @@ CString CHotkeyEditT<T>::GetHotKeyName(UINT uiVk, WORD wModifiers)
 
 	if ((uiVk == 0) && (wModifiers == 0)) return CString(L"None");
 
+  if (wModifiers & FAKE_HOTKEYF_WIN)
+	{
+		strKeyName += L"WIN+";
+	}
+
 	if (wModifiers & HOTKEYF_CONTROL)
 	{
 		strKeyName += GetKeyName(VK_CONTROL, FALSE);
@@ -292,16 +311,14 @@ void CHotkeyEditT<T>::SetHotkeyText()
 
 	if (m_uiHotkeyVk == 0)
 	{
-
 		// keys are down, get name from temp variables
-		if (m_bCtrlDown)	wModifiers |= HOTKEYF_CONTROL;
-		if (m_bShiftDown)	wModifiers |= HOTKEYF_SHIFT;
-		if (m_bAltDown)		wModifiers |= HOTKEYF_ALT;
+		if (m_bCtrlDown)  wModifiers |= HOTKEYF_CONTROL;
+		if (m_bShiftDown) wModifiers |= HOTKEYF_SHIFT;
+		if (m_bAltDown)   wModifiers |= HOTKEYF_ALT;
+		if (m_bExtended)  wModifiers |= HOTKEYF_EXT;
+		if (m_bWinDown)   wModifiers |= FAKE_HOTKEYF_WIN;
 
-		if (m_bExtended)	wModifiers |= HOTKEYF_EXT;
-	
 		strKeyName = GetHotKeyName(m_uiVirtualKey, wModifiers);
-
 	}
 	else
 	{

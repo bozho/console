@@ -174,35 +174,35 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\i386;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\i386;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\i386;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\i386;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <LibraryPath>C:\WinDDK\7600.16385.1\lib\ATL\amd64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

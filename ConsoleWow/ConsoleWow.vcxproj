@@ -90,19 +90,19 @@
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'" />
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_52_0;$(IncludePath)</IncludePath>
+    <IncludePath>C:\WinDDK\7600.16385.1\inc\atl71;C:\WinDDK\7600.16385.1\inc\mfc42;G:\gitstuff\boost_1_53_0;$(IncludePath)</IncludePath>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

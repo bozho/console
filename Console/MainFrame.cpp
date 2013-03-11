@@ -287,7 +287,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 	UISetBlockAccelerators(true);
 
-	SetWindowStyles();
+	SetWindowStyles(true);
 
 	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
 	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
@@ -1560,6 +1560,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 
+		SetWindowStyles(false);
+
 		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 		UpdateMenuHotKeys();
 
@@ -2022,16 +2024,23 @@ void MainFrame::UpdateStatusBar()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::SetWindowStyles()
+void MainFrame::SetWindowStyles(bool boolCreation)
 {
 	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	DWORD	dwStyle		= GetWindowLong(GWL_STYLE);
-	DWORD	dwExStyle	= GetWindowLong(GWL_EXSTYLE);
+	DWORD	dwStyle   = GetWindowLong(GWL_STYLE);
+	DWORD	dwExStyle = GetWindowLong(GWL_EXSTYLE);
 
-	if (!stylesSettings.bResizable)	dwStyle &= ~WS_MAXIMIZEBOX;
-	if (!stylesSettings.bCaption)	dwStyle &= ~WS_CAPTION;
-	if (!stylesSettings.bResizable)	dwStyle &= ~WS_THICKFRAME;
+	DWORD	dwOldStyle   = dwStyle;
+	DWORD	dwOldExStyle = dwExStyle;
+
+	if (stylesSettings.bResizable) dwStyle |= WS_MAXIMIZEBOX; else dwStyle &= ~WS_MAXIMIZEBOX;
+	if (stylesSettings.bCaption)   dwStyle |= WS_CAPTION;     else dwStyle &= ~WS_CAPTION;
+	if (stylesSettings.bResizable) dwStyle |= WS_THICKFRAME;  else dwStyle &= ~WS_THICKFRAME;
+	if (stylesSettings.bBorder)    dwStyle |= WS_BORDER;      else dwStyle &= ~WS_BORDER;
+
+	dwStyle |= WS_MINIMIZEBOX;
+	dwExStyle |= WS_EX_APPWINDOW;
 
 	if (!stylesSettings.bTaskbarButton)
 	{
@@ -2043,10 +2052,34 @@ void MainFrame::SetWindowStyles()
 		dwExStyle &= ~WS_EX_APPWINDOW;
 	}
 
-	if (stylesSettings.bBorder) dwStyle |= WS_BORDER;
+  TRACE(
+    L"MainFrame::SetWindowStyles Style %08lx -> %08lx ExStyle %08lx -> %08lx\n",
+    dwOldStyle, dwStyle,
+    dwOldExStyle, dwExStyle);
 
 	SetWindowLong(GWL_STYLE, dwStyle);
 	SetWindowLong(GWL_EXSTYLE, dwExStyle);
+
+  if( !boolCreation )
+  {
+    if( dwExStyle != dwOldExStyle )
+    {
+      this->ShowWindow(SW_HIDE);
+      if (stylesSettings.bTaskbarButton)
+        this->ModifyStyleEx(WS_EX_TOOLWINDOW, WS_EX_APPWINDOW);
+      else
+        this->ModifyStyleEx(WS_EX_APPWINDOW, WS_EX_TOOLWINDOW);
+      this->ShowWindow(SW_SHOW);
+    }
+
+    if( dwStyle != dwOldStyle )
+    {
+      this->SetWindowPos(
+        nullptr,
+        0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+    }
+  }
 }
 
 

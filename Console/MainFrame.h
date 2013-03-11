@@ -241,7 +241,7 @@ class MainFrame
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateMenuHotKeys(void);
 		void UpdateStatusBar();
-		void SetWindowStyles();
+		void SetWindowStyles(bool boolCreation);
 		void DockWindow(DockPosition dockPosition);
 		void SetZOrder(ZOrder zOrder);
 		HWND GetDesktopWindow();

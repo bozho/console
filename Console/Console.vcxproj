@@ -435,6 +435,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -482,6 +483,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -525,7 +527,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Credui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(TargetDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -700,6 +702,14 @@ echo %(Filename)%(Extension) : error : failed to create CHM file
 </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">Build CHM file</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">hhc "%(FullPath)"
+if errorlevel 1 (
+copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
+exit 0 )
+echo %(Filename)%(Extension) : error : failed to create CHM file
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Build CHM file</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
     </CustomBuild>
     <None Include="..\help\html\acknowledgements.html" />
     <None Include="..\help\html\changelog.html" />

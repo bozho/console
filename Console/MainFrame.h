@@ -99,15 +99,21 @@ class MainFrame
 			MESSAGE_HANDLER(m_uTaskbarRestart, OnTaskbarCreated)
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
 			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
-			
+
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
 			NOTIFY_CODE_HANDLER(CTCN_MCLICK, OnTabMiddleClick);
+#ifdef _USE_AERO
+			NOTIFY_CODE_HANDLER(NM_CLICK, OnStartMouseDragExtendedFrameToClientArea)
+			NOTIFY_CODE_HANDLER(NM_LDOWN, OnStartMouseDragExtendedFrameToClientArea)
+			NOTIFY_CODE_HANDLER(NM_DBLCLK, OnDBLClickExtendedFrameToClientArea)
+#endif //_USE_AERO
+
 			NOTIFY_CODE_HANDLER(RBN_HEIGHTCHANGE, OnRebarHeightChanged)
 			NOTIFY_HANDLER(ATL_IDW_TOOLBAR, TBN_DROPDOWN, OnToolbarDropDown)
-			
+
 			CHAIN_MSG_MAP(CUpdateUI<MainFrame>)
-			
+
 			COMMAND_RANGE_HANDLER(ID_NEW_TAB_1, ID_NEW_TAB_1 + 99, OnFileNewTab)
 			COMMAND_ID_HANDLER(ID_FILE_NEW_TAB, OnFileNewTab)
 			COMMAND_RANGE_HANDLER(ID_SWITCH_TAB_1, ID_SWITCH_TAB_1 + 9, OnSwitchTab)
@@ -143,7 +149,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_HELP, OnHelp)
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 			COMMAND_ID_HANDLER(IDC_DUMP_BUFFER, OnDumpBuffer)
-			
+
 			CHAIN_MSG_MAP(CTabbedFrameImpl<MainFrame>)
 			REFLECT_NOTIFICATIONS()
 		END_MSG_MAP()
@@ -183,7 +189,10 @@ class MainFrame
 		LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
 		LRESULT OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 		LRESULT OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
-
+#ifdef _USE_AERO
+		LRESULT OnStartMouseDragExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
+		LRESULT OnDBLClickExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
+#endif //_USE_AERO
 		LRESULT OnRebarHeightChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 		LRESULT OnToolbarDropDown(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);

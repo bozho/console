@@ -1049,6 +1049,80 @@ LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPa
 	return 0;
 }
 
+
+#ifdef _USE_AERO
+
+LRESULT MainFrame::OnStartMouseDragExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+  if( aero::IsAeroGlassActive() )
+  {
+    if( pnmh->code == NM_CLICK && pnmh->hwndFrom == m_TabCtrl.m_hWnd )
+    {
+      NMCTCITEM* pTabItem	= reinterpret_cast<NMCTCITEM*>(pnmh);
+      if( pTabItem->iItem == -1 )
+      {
+        CRect	tabWindowRect;
+        m_TabCtrl.GetWindowRect(tabWindowRect);
+
+        CRect	windowRect;
+        GetWindowRect(windowRect);
+
+        m_mousedragOffset = pTabItem->pt;
+        m_mousedragOffset.x += tabWindowRect.left;
+        m_mousedragOffset.y += tabWindowRect.top;
+        m_mousedragOffset.x -= windowRect.left;
+        m_mousedragOffset.y -= windowRect.top;
+
+        SetCapture();
+      }
+    }
+    else if( pnmh->code == NM_LDOWN && pnmh->hwndFrom == m_toolbar.m_hWnd )
+    {
+      LPNMMOUSE pMouse = reinterpret_cast<LPNMMOUSE>(pnmh);
+
+      if( pMouse->dwItemSpec == SIZE_MAX )
+      {
+        CRect	toolbarWindowRect;
+        m_toolbar.GetWindowRect(toolbarWindowRect);
+
+        CRect	windowRect;
+        GetWindowRect(windowRect);
+
+        m_mousedragOffset = pMouse->pt;
+        m_mousedragOffset.x += toolbarWindowRect.left;
+        m_mousedragOffset.y += toolbarWindowRect.top;
+        m_mousedragOffset.x -= windowRect.left;
+        m_mousedragOffset.y -= windowRect.top;
+
+        SetCapture();
+      }
+    }
+  }
+
+  return 0;
+}
+
+LRESULT MainFrame::OnDBLClickExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+  if( aero::IsAeroGlassActive() )
+  {
+    if( pnmh->hwndFrom == m_TabCtrl.m_hWnd )
+    {
+      NMCTCITEM* pTabItem	= reinterpret_cast<NMCTCITEM*>(pnmh);
+      if( pTabItem->iItem == -1 )
+      {
+        this->ShowWindow(this->IsZoomed()? SW_RESTORE : SW_MAXIMIZE);
+      }
+    }
+
+    // there is no left db click from toolbar
+  }
+
+  return 0;
+}
+
+#endif //_USE_AERO
+
 //////////////////////////////////////////////////////////////////////////////
 
 

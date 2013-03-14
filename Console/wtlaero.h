@@ -97,6 +97,11 @@ inline void SetAeroGlassActive(bool bAeroGlassActive)
 	_bAeroGlassActive = bAeroGlassActive;
 }
 
+inline bool IsAeroGlassActive(void)
+{
+	return _bAeroGlassActive;
+}
+
 inline bool IsComposing()
 {
 	if( !_bAeroGlassActive ) return false;

@@ -503,9 +503,20 @@ public:
     bufferedPaint.Begin(lpNMCustomDraw->nmcd.hdc, &m_rcCloseButton, BPBF_TOPDOWNDIB, &paintParams, &hDCPaint);
     CDCHandle dcPaint(hDCPaint);
 
-    RECT rcCloseButton = m_rcCloseButton;
-    rcCloseButton.right  = rcCloseButton.left + m_iCloseButtonWidth  - 1;
-    rcCloseButton.bottom = rcCloseButton.top  + m_iCloseButtonHeight - 1;
+    Gdiplus::Graphics g(dcPaint);
+
+    COLORREF clr = lpNMCustomDraw->clrSelectedTab;
+
+    g.Clear(
+      Gdiplus::Color(
+          255,
+          GetRValue(clr),
+          GetGValue(clr),
+          GetBValue(clr)));
+
+    RECT rcCloseButton   = m_rcCloseButton;
+    rcCloseButton.right  = rcCloseButton.left + m_iCloseButtonWidth;
+    rcCloseButton.bottom = rcCloseButton.top  + m_iCloseButtonHeight;
 
     int iStateCloseButton = CBS_NORMAL;
     if( ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown) )
@@ -528,17 +539,6 @@ public:
     }
     else
     {
-      Gdiplus::Graphics g(dcPaint);
-
-      COLORREF clr = lpNMCustomDraw->clrSelectedTab;
-
-      g.Clear(
-        Gdiplus::Color(
-            255,
-            GetRValue(clr),
-            GetGValue(clr),
-            GetBValue(clr)));
-
       Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(Gdiplus::Color::Red)));
       /*
       g.DrawRectangle(
@@ -549,11 +549,11 @@ public:
       g.DrawLine(
         &pen,
         rcCloseButton.left, rcCloseButton.top,
-        rcCloseButton.right, rcCloseButton.bottom);
+        rcCloseButton.right - 1, rcCloseButton.bottom - 1);
       g.DrawLine(
         &pen,
-        rcCloseButton.right, rcCloseButton.top,
-        rcCloseButton.left, rcCloseButton.bottom);
+        rcCloseButton.right - 1, rcCloseButton.top,
+        rcCloseButton.left, rcCloseButton.bottom - 1);
     }
 
 #ifdef _DRAW_TAB_RECT

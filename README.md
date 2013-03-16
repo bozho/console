@@ -5,13 +5,16 @@ This is a modified version of Console 2 for a better experience under Windows Vi
 
 This fork supports:
 
-        + splittable tabs (horizontally and vertically)
+        + Splitting Tabs into views (horizontally and vertically)
+        + Grouping views (so input sent to one goes to all of them)
         + Windows Vista aero glass theme
         + Windows 7 jumplist
-        + Windows 8 wallpaper positions and slideshow
+        + Windows 7 wallpaper positions and slideshow
+        + Windows 8 wallpapers on dual screen
         + Zooming with Ctrl-Mouse
         + Quake style console animation
-        + strict monospace font rendering
+        + Strict monospace font rendering
+        + and more...
 
 Changelog
 =========

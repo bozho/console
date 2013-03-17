@@ -615,21 +615,20 @@ LRESULT MainFrame::OnSysKeydown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
+  // OnSize needs to know this
+  switch( GET_SC_WPARAM(wParam) )
+  {
+  case SC_RESTORE:
+    m_bRestoringWindow = true;
+    break;
 
-//	TRACE(L"OnSysCommand: 0x%08X\n", wParam);
+  case SC_MAXIMIZE:
+    GetWindowRect(&m_rectRestoredWnd);
+    break;
+  }
 
-	// OnSize needs to know this
-	if ((wParam & 0xFFF0) == SC_RESTORE)
-	{
-		m_bRestoringWindow = true;
-	}
-	else if ((wParam & 0xFFF0) == SC_MAXIMIZE)
-	{
-		GetWindowRect(&m_rectRestoredWnd);
-	}
-
-	bHandled = FALSE;
-	return 0;
+  bHandled = FALSE;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1111,7 +1110,10 @@ LRESULT MainFrame::OnDBLClickExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR p
       NMCTCITEM* pTabItem	= reinterpret_cast<NMCTCITEM*>(pnmh);
       if( pTabItem->iItem == -1 )
       {
-        this->ShowWindow(this->IsZoomed()? SW_RESTORE : SW_MAXIMIZE);
+        // Telling the window to maximize itself might bypass some internal adjustments that the program makes
+        // when it maximizes via a system menu command.
+        // To emulate clicking on the maximize button, send it a SC_MAXIMIZE command.
+        this->SendMessage(WM_SYSCOMMAND, this->IsZoomed()? SC_RESTORE : SC_MAXIMIZE, 0);
       }
     }
 

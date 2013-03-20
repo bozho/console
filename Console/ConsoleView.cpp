@@ -822,7 +822,7 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 		// put quotes around the filename
 		strFilename = CString(L"\"") + strFilename + CString("\"");
-		
+
 		if (i > 0) strFilenames += L" ";
 		strFilenames += strFilename;
 
@@ -830,9 +830,11 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	::DragFinish(hDrop);
 
   if( this->IsGrouped() )
-    m_mainFrame.SendTextToConsole(strFilenames);
+    m_mainFrame.SendTextToConsoles(strFilenames);
   else
     SendTextToConsole(strFilenames);
+
+  m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
 
 	return 0;
 }

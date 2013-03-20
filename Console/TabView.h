@@ -47,10 +47,7 @@ public:
   LRESULT OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL & bHandled);
   LRESULT OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& bHandled);
 
-  virtual void OnPaneChanged(void)
-  {
-    SetAppActiveStatus(true);
-  }
+  virtual void OnPaneChanged(void);
 
   virtual void OnSplitBarMove(HWND hwndPane0, HWND hwndPane1, bool /*boolEnd*/);
 
@@ -73,10 +70,11 @@ public:
   void SplitVertically();
   bool CloseView(HWND hwnd = 0);
   void SwitchView(WORD wID);
+  void SetActiveConsole(HWND hwnd);
 
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
   void PasteToConsoles();
-  void SendTextToConsole(const wchar_t* pszText);
+  void SendTextToConsoles(const wchar_t* pszText);
 
   inline bool IsGrouped() const { return m_boolIsGrouped; }
   void Group(bool b);

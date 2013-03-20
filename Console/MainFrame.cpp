@@ -458,23 +458,39 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 	if (!m_activeTabView) return 0;
 
-	m_activeTabView->SetAppActiveStatus(m_bAppActive);
+  this->ActivateApp();
 
-	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
-
-	if ((transparencySettings.transType == transAlpha) && 
-		((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
+	// we're being called while OnCreate is running, return here
+	if (!m_bOnCreateDone)
 	{
-		if (m_bAppActive)
-		{
-			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
-		}
-		else
-		{
-			::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
-		}
-		
+		bHandled = FALSE;
+		return 0;
 	}
+
+	bHandled = FALSE;
+
+	return 0;
+}
+
+void MainFrame::ActivateApp(void)
+{
+  m_activeTabView->SetAppActiveStatus(m_bAppActive);
+
+  TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+
+  if ((transparencySettings.transType == transAlpha) && 
+    ((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
+  {
+    if (m_bAppActive)
+    {
+      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
+    }
+    else
+    {
+      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
+    }
+
+  }
 
 #ifdef _USE_AERO
   m_TabCtrl.SetAppActiveStatus(m_bAppActive);
@@ -487,16 +503,6 @@ LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
     m_activeTabView->Repaint(true);
   }
 
-	// we're being called while OnCreate is running, return here
-	if (!m_bOnCreateDone)
-	{
-		bHandled = FALSE;
-		return 0;
-	}
-
-	bHandled = FALSE;
-
-	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1515,17 +1521,6 @@ LRESULT MainFrame::OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 {
 	PostMessage(WM_CLOSE);
 	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT MainFrame::OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-  PasteToConsoles();
-  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2786,6 +2781,36 @@ BOOL MainFrame::SetTrayIcon(DWORD dwMessage) {
 
 /////////////////////////////////////////////////////////////////////////////
 
+
+void MainFrame::SetActiveConsole(HWND hwndTabView, HWND hwndConsoleView)
+{
+  // find the tab
+  MutexLock viewMapLock(m_tabsMutex);
+  auto it = m_tabs.find(hwndTabView);
+  if( it != m_tabs.end() )
+  {
+    it->second->SetActiveConsole(hwndConsoleView);
+    if( m_activeTabView != it->second )
+    {
+      int nCount = m_TabCtrl.GetItemCount();
+      for(int i = 0; i < nCount; ++i)
+      {
+        if( m_TabCtrl.GetItem(i)->GetTabView() == hwndTabView )
+        {
+          m_TabCtrl.SetCurSel(i);
+          break;
+        }
+      }
+    }
+
+    this->ActivateApp();
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 {
   MutexLock lock(m_tabsMutex);
@@ -2814,12 +2839,12 @@ void MainFrame::PasteToConsoles()
   }
 }
 
-void MainFrame::SendTextToConsole(const wchar_t* pszText)
+void MainFrame::SendTextToConsoles(const wchar_t* pszText)
 {
   MutexLock lock(m_tabsMutex);
   for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
   {
-    it->second->SendTextToConsole(pszText);
+    it->second->SendTextToConsoles(pszText);
   }
 }
 

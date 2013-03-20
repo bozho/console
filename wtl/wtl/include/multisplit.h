@@ -939,11 +939,11 @@ public :
     return Result;
   }
 
-  void SetDefaultFocusPane(CMultiSplitPane* newDefaultPane)
+  void SetDefaultFocusPane(CMultiSplitPane* newDefaultPane, bool bAppActive = true)
   {
     bool boolNotify = newDefaultPane != this->defaultFocusPane;
     this->defaultFocusPane = newDefaultPane;
-    if( newDefaultPane && ::IsWindow(newDefaultPane->window) )
+    if( bAppActive && newDefaultPane && ::IsWindow(newDefaultPane->window) )
       ::SetFocus(newDefaultPane->window);
     if( boolNotify )
       this->OnPaneChanged();

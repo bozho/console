@@ -214,7 +214,6 @@ class MainFrame
 
 		LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-		LRESULT OnPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -238,13 +237,15 @@ class MainFrame
 		void AdjustWindowRect(CRect& rect);
 		void AdjustWindowSize(ADJUSTSIZE as);
 		void CloseTab(HWND hwndTabView);
+    void SetActiveConsole(HWND hwndTabView, HWND hwndConsoleView);
     void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
     void PasteToConsoles();
-    void SendTextToConsole(const wchar_t* pszText);
+    void SendTextToConsoles(const wchar_t* pszText);
     bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
 
 	private:
 
+    void ActivateApp(void);
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 

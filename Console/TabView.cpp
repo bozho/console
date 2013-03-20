@@ -242,6 +242,7 @@ std::shared_ptr<ConsoleView> TabView::GetActiveConsole(const TCHAR* /*szFrom*/)
   return result;
 }
 
+
 void TabView::GetRect(CRect& clientRect)
 {
   clientRect = this->visibleRect;
@@ -497,6 +498,18 @@ void TabView::SwitchView(WORD wID)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void TabView::SetActiveConsole(HWND hwnd)
+{
+  MutexLock viewMapLock(m_viewsMutex);
+  auto it = m_views.find(hwnd);
+  if( it != m_views.end() )
+    multisplitClass::SetDefaultFocusPane(multisplitClass::tree.get(hwnd), m_mainFrame.GetAppActiveStatus());
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void TabView::OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*boolEnd*/)
 {
   CRect clientRect(0, 0, 0, 0);
@@ -533,7 +546,7 @@ void TabView::PasteToConsoles()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void TabView::SendTextToConsole(const wchar_t* pszText)
+void TabView::SendTextToConsoles(const wchar_t* pszText)
 {
   MutexLock	viewMapLock(m_viewsMutex);
   for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
@@ -634,4 +647,14 @@ LRESULT TabView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*
     consoleView->DoScroll(nScrollType, nScrollCode, 0);
 
 	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void TabView::OnPaneChanged(void)
+{
+  SetAppActiveStatus(m_mainFrame.GetAppActiveStatus());
 }

@@ -18,7 +18,7 @@ SelectionHandler::SelectionHandler(
 #ifndef _USE_AERO
 					const CDC& dcConsoleView, 
 					const CRect& rectConsoleView, 
-#endif //!_USE_AERO
+#endif //_USE_AERO
 					ConsoleHandler& consoleHandler,
 					SharedMemory<ConsoleParams>& consoleParams, 
 					SharedMemory<ConsoleInfo>& consoleInfo, 
@@ -34,7 +34,7 @@ SelectionHandler::SelectionHandler(
 , m_rectConsoleView(rectConsoleView)
 , m_paintBrush(::CreateSolidBrush(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor))
 , m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
-#endif //!_USE_AERO
+#endif //_USE_AERO
 , m_nCharWidth(nCharWidth)
 , m_consoleHandler(consoleHandler)
 , m_consoleParams(consoleParams)
@@ -51,7 +51,7 @@ SelectionHandler::SelectionHandler(
 	Helpers::CreateBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height(), m_bmpSelection);
 	m_dcSelection.SelectBitmap(m_bmpSelection);
 	m_dcSelection.SetBkColor(RGB(0, 0, 0));
-#endif //!_USE_AERO
+#endif //_USE_AERO
 }
 
 SelectionHandler::~SelectionHandler()
@@ -198,7 +198,7 @@ void SelectionHandler::UpdateSelection()
 
 #ifndef _USE_AERO
 	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
-#endif //!_USE_AERO
+#endif //_USE_AERO
 
 	COORD	coordStart;
 	COORD	coordEnd;
@@ -264,7 +264,7 @@ void SelectionHandler::UpdateSelection()
 //		TRACE(L"fill rect: (%ix%i) - (%ix%i)\n", fillRect.left, fillRect.top, fillRect.right, fillRect.bottom);
 		m_dcSelection.FillRect(&fillRect, m_paintBrush);
 	}
-#endif //!_USE_AREO
+#endif //_USE_AERO
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -382,7 +382,7 @@ void SelectionHandler::ClearSelection()
 
 #ifndef _USE_AERO
 	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
-#endif //!_USE_AERO
+#endif //_USE_AERO
 
 	m_consoleHandler.ResumeScrolling();
 }
@@ -590,6 +590,6 @@ void SelectionHandler::GetFillRect(const COORD& coordStart, const COORD& coordEn
 	if (fillRect.bottom > (rectConsoleView.bottom - m_nHInsideBorder)) fillRect.bottom = rectConsoleView.bottom - m_nHInsideBorder;
 }
 
-#endif //!_USE_AERO
+#endif //_USE_AERO
 
 /////////////////////////////////////////////////////////////////////////////

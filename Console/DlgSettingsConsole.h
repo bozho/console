@@ -42,7 +42,9 @@ class DlgSettingsConsole
 			COMMAND_HANDLER(IDC_BTN_BROWSE_DIR, BN_CLICKED, OnClickedBtnBrowseDir)
 			COMMAND_HANDLER(IDC_BTN_RESET_COLORS, BN_CLICKED, OnClickedBtnResetColors)
 			COMMAND_RANGE_CODE_HANDLER(IDC_CLR_00, IDC_CLR_15, BN_CLICKED, OnClickedClrBtn)
+#ifdef _USE_AERO
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
+#endif //_USE_AERO
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -60,19 +62,24 @@ class DlgSettingsConsole
 		LRESULT OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/);
 
+#ifdef _USE_AERO
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+#endif //_USE_AERO
 
 		virtual void OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data);
 
 	private:
-		ConsoleSettings				m_consoleSettings;
+		ConsoleSettings m_consoleSettings;
 
-		CString						m_strShell;
-		CString						m_strInitialDir;
+		CString         m_strShell;
+		CString         m_strInitialDir;
 
-		CTrackBarCtrl	m_sliderBGTextOpacity;
-		CStatic			m_staticBGTextOpacity;
+#ifdef _USE_AERO
+		CTrackBarCtrl   m_sliderBGTextOpacity;
+		CStatic         m_staticBGTextOpacity;
+
 		void UpdateSliderText();
+#endif //_USE_AERO
 };
 
 //////////////////////////////////////////////////////////////////////////////

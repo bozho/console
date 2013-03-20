@@ -1460,7 +1460,7 @@ void ConsoleView::CreateOffscreenBuffers()
 #ifndef _USE_AERO
 									dcWindow, 
 									rectWindowMax, 
-#endif //!_USE_AERO
+#endif //_USE_AERO
 									m_consoleHandler,
 									m_consoleHandler.GetConsoleParams(), 
 									m_consoleHandler.GetConsoleInfo(), 

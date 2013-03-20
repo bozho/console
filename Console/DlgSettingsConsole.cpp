@@ -77,6 +77,7 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	spin.SetAccel(1, &udAccel);
 	spin.Detach();
 
+#ifdef _USE_AERO
 	m_staticBGTextOpacity.Attach(GetDlgItem(IDC_BGTEXT_OPACITY_VAL));
 	m_sliderBGTextOpacity.Attach(GetDlgItem(IDC_BGTEXT_OPACITY));
 	m_sliderBGTextOpacity.SetRange(0, 255);
@@ -84,10 +85,6 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_sliderBGTextOpacity.SetPageSize(5);
 	m_sliderBGTextOpacity.SetPos(m_consoleSettings.backgroundTextOpacity);
 	UpdateSliderText();
-
-#ifndef _USE_AERO
-	m_sliderBGTextOpacity.EnableWindow(FALSE);
-	m_staticBGTextOpacity.EnableWindow(FALSE);
 #endif //_USE_AERO
 
 	DoDataExchange(DDX_LOAD);
@@ -146,7 +143,9 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 	{
 		if (!DoDataExchange(DDX_SAVE)) return -1;
 
+#ifdef _USE_AERO
 		m_consoleSettings.backgroundTextOpacity = static_cast<BYTE>(m_sliderBGTextOpacity.GetPos());
+#endif //_USE_AERO
 
 		m_consoleSettings.strShell		= m_strShell;
 		m_consoleSettings.strInitialDir	= m_strInitialDir;
@@ -210,8 +209,10 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*w
 LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	::CopyMemory(m_consoleSettings.consoleColors, m_consoleSettings.defaultConsoleColors, sizeof(m_consoleSettings.defaultConsoleColors));
+#ifdef _USE_AERO
 	m_sliderBGTextOpacity.SetPos(255);
 	UpdateSliderText();
+#endif //_USE_AERO
 
 	DoDataExchange(DDX_LOAD);
 	Invalidate();
@@ -285,6 +286,8 @@ void DlgSettingsConsole::OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& d
 
 //////////////////////////////////////////////////////////////////////////////
 
+#ifdef _USE_AERO
+
 LRESULT DlgSettingsConsole::OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	UpdateSliderText();
@@ -298,3 +301,5 @@ void DlgSettingsConsole::UpdateSliderText()
 
 	m_staticBGTextOpacity.SetWindowText(strStaticText);
 }
+
+#endif //_USE_AERO

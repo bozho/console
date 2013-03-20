@@ -29,7 +29,7 @@ class SelectionHandler
 #ifndef _USE_AERO
 			const CDC& dcConsoleView, 
 			const CRect& rectConsoleView, 
-#endif //!_USE_AERO
+#endif //_USE_AERO
 			ConsoleHandler& consoleHandler,
 			SharedMemory<ConsoleParams>& consoleParams, 
 			SharedMemory<ConsoleInfo>& consoleInfo, 
@@ -81,7 +81,7 @@ class SelectionHandler
 
 		CBrush			m_paintBrush;
 		CBrush			m_backgroundBrush;
-#endif //!_USE_AERO
+#endif //_USE_AERO
 
 		ConsoleHandler&               m_consoleHandler;
 		SharedMemory<ConsoleParams>&  m_consoleParams;

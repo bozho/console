@@ -657,4 +657,5 @@ LRESULT TabView::OnScrollCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*
 void TabView::OnPaneChanged(void)
 {
   SetAppActiveStatus(m_mainFrame.GetAppActiveStatus());
+  SetActive(true);
 }

@@ -1,6 +1,8 @@
 ConsoleZ
 ========
 
+![screenshot005](https://github.com/cbucher/console/wiki/screenshot001.png)
+
 This is a modified version of Console 2 for a better experience under Windows Vista/7/8 and a better visual rendering.
 
 This fork supports:
@@ -14,6 +16,7 @@ This fork supports:
         + Zooming with Ctrl-Mouse
         + Quake style console animation
         + Strict monospace font rendering
+        + Settable opacity of text background color
         + and more...
 
 Changelog
@@ -24,7 +27,7 @@ Changelog
         ! : changed
         + : added
 
-Changes in 1.06.0 beta (14 Mar 2013)
+Changes in 1.06.0 (24 Mar 2013)
 
         ! the cloned tab title is suffixed with (2)
         ! about dialog box improvement
@@ -62,6 +65,8 @@ Changes in 1.06.0 beta (14 Mar 2013)
         * background of tab was black with basic Windows theme
         * error handling and return code checking
         * Re-add tray icon if Windows Explorer restarts.
+        * When files are dropped on a view, this view gets the focus.
+        * Title was not updated when view changed.
 
 Changes in 1.05.0 (2 Feb 2013)
 

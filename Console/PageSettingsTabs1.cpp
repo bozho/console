@@ -115,6 +115,16 @@ LRESULT PageSettingsTabs1::OnTabIconChange(WORD /*wNotifyCode*/, WORD /*wID*/, H
 	return 0;
 }
 
+LRESULT PageSettingsTabs1::OnTabShellChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if( m_bUseDefaultIcon )
+	{
+		CWindow(GetDlgItem(IDC_TAB_SHELL)).GetWindowText(m_strShell);
+		GetParent().PostMessage(UM_TAB_ICON_CHANGED, 0, 0);
+	}
+	return 0;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -176,6 +186,11 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*
 	if (fileDialog.DoModal() == IDOK)
 	{
 		m_strShell = fileDialog.m_szFileName;
+		if( m_strShell.Find(L' ') != -1 )
+		{
+			m_strShell.Insert(0, L'"');
+			m_strShell.Insert(m_strShell.GetLength(), L'"');
+		}
 		DoDataExchange(DDX_LOAD);
 	}
 

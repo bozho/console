@@ -213,28 +213,54 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
   {
     if (!strIcon.empty())
     {
+      int index = 0;
+
+      // check strIcon ends with ,<integer>
+      bool ok = false;
+
+      size_t pos = strIcon.find_last_of(L',');
+      if( pos != wstring::npos )
+      {
+        for(size_t i = pos + 1; i < strIcon.length(); ++i)
+        {
+          if( strIcon.at(i) >= L'0' && strIcon.at(i) <= L'9' )
+          {
+            ok = true;
+            index = index * 10 + (strIcon.at(i) - L'0');
+          }
+          else
+          {
+            ok = false;
+            break;
+          }
+        }
+      }
+
+      wstring strIconPath = ok ? strIcon.substr(0, pos) : strIcon;
+
+      HICON hIcon = nullptr;
+
       if ( bBigIcon )
       {
-        return static_cast<HICON>(
-          ::LoadImage(
-            NULL,
-            Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
-            IMAGE_ICON,
-            0,
-            0,
-            LR_DEFAULTCOLOR | LR_LOADFROMFILE | LR_DEFAULTSIZE));
+        ::ExtractIconEx(
+          Helpers::ExpandEnvironmentStrings(strIconPath).c_str(),
+          index,
+          &hIcon,
+          nullptr,
+          1);
       }
       else
       {
-        return static_cast<HICON>(
-          ::LoadImage(
-            NULL,
-            Helpers::ExpandEnvironmentStrings(strIcon).c_str(),
-            IMAGE_ICON,
-            16,
-            16,
-            LR_DEFAULTCOLOR | LR_LOADFROMFILE));
+        ::ExtractIconEx(
+          Helpers::ExpandEnvironmentStrings(strIconPath).c_str(),
+          index,
+          nullptr,
+          &hIcon,
+          1);
       }
+
+      if( hIcon )
+        return hIcon;
     }
   }
 

@@ -153,16 +153,16 @@ LRESULT PageSettingsTabs1::OnBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, H
 {
 	DoDataExchange(DDX_SAVE);
 
-	CFileDialog fileDialog(
-					TRUE, 
-					NULL, 
-					NULL, 
-					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
-					L"Icon Files (*.ico)\0*.ico\0\0");
+	int index = 0;
+	WCHAR path[MAX_PATH];
+	::GetModuleFileName(NULL, path, ARRAYSIZE(path));
 
-	if (fileDialog.DoModal() == IDOK)
+	if( PickIconDlg(NULL, path, ARRAYSIZE(path), &index) == 1 )
 	{
-		m_strIcon = fileDialog.m_szFileName;
+		if( index != 0 )
+			m_strIcon.Format(L"%s,%d", path, index);
+		else
+			m_strIcon = path;
 		DoDataExchange(DDX_LOAD);
 	}
 

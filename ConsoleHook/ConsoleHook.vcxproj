@@ -214,6 +214,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
@@ -242,6 +243,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
@@ -273,6 +275,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">
@@ -301,6 +304,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -324,6 +328,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
@@ -353,6 +358,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">
@@ -376,6 +382,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
@@ -408,6 +415,7 @@
       </DataExecutionPrevention>
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
+      <SetChecksum>true</SetChecksum>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

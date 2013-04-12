@@ -246,6 +246,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -294,6 +295,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -342,6 +344,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -390,6 +393,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       </DataExecutionPrevention>
       <TargetMachine>MachineX64</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -436,6 +440,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -484,6 +489,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -534,6 +540,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>res\Console.exe.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -583,6 +590,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <TargetMachine>MachineX64</TargetMachine>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>

@@ -327,6 +327,7 @@ class MainFrame
 		bool			m_bAppActive;
 		bool			m_bRestoringWindow;
 		CRect			m_rectRestoredWnd;
+		CRect			m_rectWndNotFS;
 
 		CToolBarCtrl	m_toolbar;
 		CAccelerator	m_acceleratorTable;
@@ -334,7 +335,6 @@ class MainFrame
 		CMultiPaneStatusBarCtrl m_statusBar;
 
 		MARGINS m_Margins;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -2429,6 +2429,10 @@ void MainFrame::ShowFullScreen(bool bShow)
 
   if( m_bFullScreen )
   {
+    // save the non fullscreen position
+    // normal or maximized
+    GetWindowRect(&m_rectWndNotFS);
+
     ShowMenu     (false);
     ShowToolbar  (false);
     ShowStatusbar(false);
@@ -2461,7 +2465,21 @@ void MainFrame::ShowFullScreen(bool bShow)
   SetTransparency();
 
   // and go to fullscreen or restore
-  this->SendMessage(WM_SYSCOMMAND, m_bFullScreen? SC_MAXIMIZE : SC_RESTORE, 0);
+  if( m_bFullScreen )
+  {
+    HMONITOR hMon = ::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO mi = {sizeof(mi)};
+    if( ::GetMonitorInfo(hMon, &mi) )
+    {
+      SetWindowPos(NULL, &mi.rcMonitor, SWP_NOZORDER | SWP_NOACTIVATE);
+    }
+  }
+  else
+  {
+    // restore the non fullscreen position
+    // normal or maximized
+    SetWindowPos(NULL, m_rectWndNotFS, SWP_NOZORDER | SWP_NOACTIVATE);
+  }
 
   AdjustWindowSize(ADJUSTSIZE_WINDOW);
 }

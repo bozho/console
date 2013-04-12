@@ -51,15 +51,16 @@ class MainFrame
 
 		BEGIN_UPDATE_UI_MAP(MainFrame)
 			UPDATE_ELEMENT(ID_FILE_CLOSE_TAB, UPDUI_MENUPOPUP)
-			UPDATE_ELEMENT(ID_EDIT_COPY, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(ID_EDIT_COPY, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 			UPDATE_ELEMENT(ID_EDIT_SELECT_ALL, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_EDIT_CLEAR_SELECTION, UPDUI_MENUPOPUP)
-			UPDATE_ELEMENT(ID_EDIT_PASTE, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(ID_EDIT_PASTE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 			UPDATE_ELEMENT(ID_VIEW_MENU, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_TABS, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_CONSOLE, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(ID_VIEW_FULLSCREEN, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 
 			UPDATE_ELEMENT(1, UPDUI_STATUSBAR)
 			UPDATE_ELEMENT(2, UPDUI_STATUSBAR)
@@ -128,7 +129,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
 			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplitHorizontally)
 			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplitVertically)
-			COMMAND_ID_HANDLER(ID_GROUP_ALL   , OngroupAll)
+			COMMAND_ID_HANDLER(ID_GROUP_ALL   , OnGroupAll)
 			COMMAND_ID_HANDLER(ID_UNGROUP_ALL , OnUngroupAll)
 			COMMAND_ID_HANDLER(ID_GROUP_TAB   , OnGroupTab)
 			COMMAND_ID_HANDLER(ID_UNGROUP_TAB , OnUngroupTab)
@@ -149,6 +150,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_HELP, OnHelp)
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 			COMMAND_ID_HANDLER(IDC_DUMP_BUFFER, OnDumpBuffer)
+			COMMAND_ID_HANDLER(ID_VIEW_FULLSCREEN, OnFullScreen)
 
 			CHAIN_MSG_MAP(CTabbedFrameImpl<MainFrame>)
 			REFLECT_NOTIFICATIONS()
@@ -207,7 +209,7 @@ class MainFrame
 		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnUngroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -227,6 +229,7 @@ class MainFrame
 		LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -260,10 +263,11 @@ class MainFrame
 
 		void SetWindowIcons();
 
-		void ShowMenu(BOOL bShow);
-		void ShowToolbar(BOOL bShow);
-		void ShowTabs(BOOL bShow);
-		void ShowStatusbar(BOOL bShow);
+		void ShowMenu      (bool bShow);
+		void ShowToolbar   (bool bShow);
+		void ShowTabs      (bool bShow);
+		void ShowStatusbar (bool bShow);
+		void ShowFullScreen(bool bShow);
 
 		void ResizeWindow();
 		void SetMargins();
@@ -295,10 +299,11 @@ class MainFrame
 
 		std::shared_ptr<TabView>	m_activeTabView;
 
-		BOOL			m_bMenuVisible;
-		BOOL			m_bToolbarVisible;
-		BOOL			m_bStatusBarVisible;
-		BOOL			m_bTabsVisible;
+		bool m_bMenuVisible;
+		bool m_bToolbarVisible;
+		bool m_bStatusBarVisible;
+		bool m_bTabsVisible;
+		bool m_bFullScreen;
 
 		DockPosition	m_dockPosition;
 		ZOrder			m_zOrder;

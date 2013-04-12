@@ -76,6 +76,7 @@
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="87" command="closeview"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="79" command="splithoriz"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="69" command="splitvert"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="122" command="fullscreen"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="71" command="groupall"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="71" command="ungroupall"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="84" command="grouptab"/>

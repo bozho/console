@@ -623,8 +623,10 @@ BEGIN
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
-    BUTTON      ID_SPLIT_HORIZ 
-    BUTTON      ID_SPLIT_VERT  
+    BUTTON      ID_SPLIT_HORIZ
+    BUTTON      ID_SPLIT_VERT
+    SEPARATOR
+    BUTTON      ID_VIEW_FULLSCREEN
     SEPARATOR
     BUTTON      ID_APP_ABOUT
     BUTTON      ID_HELP
@@ -683,6 +685,8 @@ BEGIN
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
         MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
         MENUITEM "Ta&bs",                       ID_VIEW_TABS
+        MENUITEM SEPARATOR
+        MENUITEM "&Full Screen",                ID_VIEW_FULLSCREEN
     END
     POPUP "Help"
     BEGIN
@@ -698,35 +702,38 @@ BEGIN
     BEGIN
         POPUP "&File"
         BEGIN
-            MENUITEM "&New Tab",                    32775
-            MENUITEM "&Close Tab",                  32779
+            MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
+            MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
             MENUITEM SEPARATOR
-            MENUITEM "E&xit",                       57665
+            MENUITEM "E&xit",                       ID_APP_EXIT
         END
         POPUP "&Edit"
         BEGIN
-            MENUITEM "&Copy",                       57634
-            MENUITEM "Cl&ear selection",            32791
-            MENUITEM "&Paste",                      57637
+            MENUITEM "&Copy",                       ID_EDIT_COPY
+            MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
+            MENUITEM "Cl&ear Selection",            ID_EDIT_CLEAR_SELECTION
+            MENUITEM "&Paste",                      ID_EDIT_PASTE
             MENUITEM SEPARATOR
-            MENUITEM "&Rename Tab",                 32781
+            MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
             MENUITEM SEPARATOR
             MENUITEM "&Settings...",                ID_EDIT_SETTINGS
         END
         POPUP "&View"
         BEGIN
-            MENUITEM "&Console Window",             32777
+            MENUITEM "&Console Window",             ID_VIEW_CONSOLE
             MENUITEM SEPARATOR
-            MENUITEM "&Menu",                       32784
-            MENUITEM "&Toolbar",                    59392
-            MENUITEM "&Status Bar",                 59393
-            MENUITEM "Ta&bs",                       32789
+            MENUITEM "&Menu",                       ID_VIEW_MENU
+            MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+            MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+            MENUITEM "Ta&bs",                       ID_VIEW_TABS
+            MENUITEM SEPARATOR
+            MENUITEM "&Full Screen",                ID_VIEW_FULLSCREEN
         END
         POPUP "&Help"
         BEGIN
-            MENUITEM "&Help",                       57670
+            MENUITEM "&Help",                       ID_HELP
             MENUITEM SEPARATOR
-            MENUITEM "&About Console...",           57664
+            MENUITEM "&About Console...",           ID_APP_ABOUT
         END
     END
 END
@@ -939,18 +946,26 @@ STRINGTABLE
 BEGIN
     ID_FILE_NEW_TAB         "Open a new tab\nNew tab"
     ID_VIEW_CONSOLE         "Show or hide the console"
-END
-
-STRINGTABLE
-BEGIN
     ID_VIEW_MENU            "Show or hide the menu"
     ID_VIEW_TABS            "Show or hide the tabs"
+    ID_VIEW_TOOLBAR         "Show or hide the toolbar"
+    ID_VIEW_STATUS_BAR      "Show or hide the status bar"
 END
 
 STRINGTABLE
 BEGIN
-    ID_VIEW_TOOLBAR         "Show or hide the toolbar"
-    ID_VIEW_STATUS_BAR      "Show or hide the status bar"
+    ID_NEXT_TAB             "Switch to next tab\nNext tab"
+    ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
+    ID_NEXT_VIEW            "Switch to the next view\nNext View"
+    ID_PREV_VIEW            "Switch to the previous view\nPrevious View"
+    ID_CLOSE_VIEW           "Close the current view\nClose View"
+    ID_SPLIT_HORIZ          "Split the current view horizontally\nSplit Horizontally"
+    ID_SPLIT_VERT           "Split the current view vertically\nSplit Vertically"
+    ID_VIEW_FULLSCREEN      "Toggle full screen\nFull Screen"
+    ID_GROUP_ALL            "Group all terminals so that any input sent to one of them, goes to all of them\nGroup All"
+    ID_UNGROUP_ALL          "Remove grouping from all terminals\nUngroup All"
+    ID_GROUP_TAB            "Group all terminals in the current tab so that any input sent to one of them, goes to all of them\nGroup Tab"
+    ID_UNGROUP_TAB          "Remove grouping of all terminals in the current tab\nUngroup Tab"    
 END
 
 STRINGTABLE
@@ -983,17 +998,6 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_NEXT_TAB             "Switch to next tab\nNext tab"
-    ID_PREV_TAB             "Switch to previous tab\nPrevious tab"
-    ID_NEXT_VIEW            "Switch to the next view\nNext View"
-    ID_PREV_VIEW            "Switch to the previous view\nPrevious View"
-    ID_CLOSE_VIEW           "Close the current view\nClose View"
-    ID_SPLIT_HORIZ          "Split the current view horizontally\nSplit Horizontally"
-    ID_SPLIT_VERT           "Split the current view vertically\nSplit Vertically"
-END
-
-STRINGTABLE
-BEGIN
     IDPANE_COLUMNS_ROWS     "000x000"
     IDPANE_CAPS_INDICATOR   "CAPS"
     IDPANE_NUM_INDICATOR    "NUM"
@@ -1010,14 +1014,6 @@ BEGIN
 	IDS_ERR_DLL_INJECTION_FAILED "DLL injection has failed (reason:%1%)!"
 	IDS_ERR_DLL_HOOK_MISSING "DLL hook %1% is missing!"
 	IDS_ERR_CREATE_SHARED_OBJECTS_FAILED "Unable to create shared objects (reason:%1%)!"
-END
-
-STRINGTABLE
-BEGIN
-    ID_GROUP_ALL            "Group all terminals so that any input sent to one of them, goes to all of them\nGroup All"
-    ID_UNGROUP_ALL          "Remove grouping from all terminals\nUngroup All"
-    ID_GROUP_TAB            "Group all terminals in the current tab so that any input sent to one of them, goes to all of them\nGroup Tab"
-    ID_UNGROUP_TAB          "Remove grouping of all terminals in the current tab\nUngroup Tab"
 END
 
 STRINGTABLE

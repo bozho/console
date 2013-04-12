@@ -89,10 +89,11 @@ MainFrame::MainFrame
 , m_startupDirs(vector<wstring>(0))
 , m_startupCmds(vector<wstring>(0))
 , m_activeTabView()
-, m_bMenuVisible(TRUE)
-, m_bToolbarVisible(TRUE)
-, m_bStatusBarVisible(TRUE)
-, m_bTabsVisible(TRUE)
+, m_bMenuVisible     (true)
+, m_bToolbarVisible  (true)
+, m_bStatusBarVisible(true)
+, m_bTabsVisible     (true)
+, m_bFullScreen      (false)
 , m_dockPosition(dockNone)
 , m_zOrder(zorderNormal)
 , m_mousedragOffset(0, 0)
@@ -281,30 +282,28 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		return created;
 
 	UIAddToolBar(hWndToolBar);
-	UISetCheck(ID_VIEW_MENU, 1);
-	UISetCheck(ID_VIEW_TOOLBAR, 1);
-	UISetCheck(ID_VIEW_TABS, 1);
-	UISetCheck(ID_VIEW_STATUS_BAR, 1);
 	UISetBlockAccelerators(true);
 
 	SetWindowStyles(true);
 
-	ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
-	ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
-	ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
-	ShowTabs(controlsSettings.bShowTabs ? TRUE : FALSE);
+	ShowMenu(controlsSettings.bShowMenu);
+	ShowToolbar(controlsSettings.bShowToolbar);
+	ShowStatusbar(controlsSettings.bShowStatusbar);
+
+	bool bShowTabs = controlsSettings.bShowTabs;
 
 	{
 		MutexLock lock(m_tabsMutex);
 		if (m_tabs.size() == 1)
 		{
 			UIEnable(ID_FILE_CLOSE_TAB, FALSE);
-		}
-		if ((m_tabs.size() == 1) && m_bTabsVisible && (controlsSettings.bHideSingleTab))
-		{
-			ShowTabs(FALSE);
+
+			if (controlsSettings.bHideSingleTab)
+				bShowTabs = false;
 		}
 	}
+
+	ShowTabs(bShowTabs);
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
@@ -1463,7 +1462,7 @@ LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   MutexLock lock(m_tabsMutex);
   for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
@@ -1663,23 +1662,26 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 			SetTrayIcon(NIM_DELETE);
 		}
 
-		ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
-		ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
+    if( !m_bFullScreen )
+    {
+      ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
+      ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
 
-		BOOL bShowTabs = FALSE;
+      bool bShowTabs = false;
 
-		MutexLock	viewMapLock(m_tabsMutex);
-		
-		if ( controlsSettings.bShowTabs && 
-			(!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
-		   )
-		{
-			bShowTabs = TRUE;
-		}
+      MutexLock	viewMapLock(m_tabsMutex);
 
-		ShowTabs(bShowTabs);
+      if ( controlsSettings.bShowTabs && 
+        (!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
+        )
+      {
+        bShowTabs = true;
+      }
 
-		ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
+      ShowTabs(bShowTabs);
+
+      ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
+    }
 
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
@@ -1704,9 +1706,13 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	ShowMenu(!m_bMenuVisible);
-	g_settingsHandler->SaveSettings();
-	return 0;
+  ShowMenu(!m_bMenuVisible);
+  if( !m_bFullScreen )
+  {
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible;
+    g_settingsHandler->SaveSettings();
+  }
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1716,9 +1722,13 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	ShowToolbar(!m_bToolbarVisible);
-	g_settingsHandler->SaveSettings();
-	return 0;
+  ShowToolbar(!m_bToolbarVisible);
+  if( !m_bFullScreen )
+  {
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible;
+    g_settingsHandler->SaveSettings();
+  }
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1728,9 +1738,13 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	ShowStatusbar(!m_bStatusBarVisible);
-	g_settingsHandler->SaveSettings();
-	return 0;
+  ShowStatusbar(!m_bStatusBarVisible);
+  if( !m_bFullScreen )
+  {
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible;
+    g_settingsHandler->SaveSettings();
+  }
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1740,9 +1754,13 @@ LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 
 LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	ShowTabs(!m_bTabsVisible);
-	g_settingsHandler->SaveSettings();
-	return 0;
+  ShowTabs(!m_bTabsVisible);
+  if( !m_bFullScreen )
+  {
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs = m_bTabsVisible;
+    g_settingsHandler->SaveSettings();
+  }
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1763,6 +1781,17 @@ LRESULT MainFrame::OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
   }
 
   return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	ShowFullScreen(!m_bFullScreen);
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2110,39 +2139,49 @@ void MainFrame::UpdateStatusBar()
 
 void MainFrame::SetWindowStyles(bool boolCreation)
 {
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
-	DWORD	dwStyle   = GetWindowLong(GWL_STYLE);
-	DWORD	dwExStyle = GetWindowLong(GWL_EXSTYLE);
+  DWORD	dwStyle   = GetWindowLong(GWL_STYLE);
+  DWORD	dwExStyle = GetWindowLong(GWL_EXSTYLE);
 
-	DWORD	dwOldStyle   = dwStyle;
-	DWORD	dwOldExStyle = dwExStyle;
+  DWORD	dwOldStyle   = dwStyle;
+  DWORD	dwOldExStyle = dwExStyle;
 
-	if (stylesSettings.bResizable) dwStyle |= WS_MAXIMIZEBOX; else dwStyle &= ~WS_MAXIMIZEBOX;
-	if (stylesSettings.bCaption)   dwStyle |= WS_CAPTION;     else dwStyle &= ~WS_CAPTION;
-	if (stylesSettings.bResizable) dwStyle |= WS_THICKFRAME;  else dwStyle &= ~WS_THICKFRAME;
-	if (stylesSettings.bBorder)    dwStyle |= WS_BORDER;      else dwStyle &= ~WS_BORDER;
+  if( m_bFullScreen )
+  {
+    dwStyle &= ~WS_MAXIMIZEBOX;
+    dwStyle &= ~WS_CAPTION;
+    dwStyle &= ~WS_THICKFRAME;
+    dwStyle &= ~WS_BORDER;
+  }
+  else
+  {
+    if (stylesSettings.bResizable) dwStyle |= WS_MAXIMIZEBOX; else dwStyle &= ~WS_MAXIMIZEBOX;
+    if (stylesSettings.bCaption)   dwStyle |= WS_CAPTION;     else dwStyle &= ~WS_CAPTION;
+    if (stylesSettings.bResizable) dwStyle |= WS_THICKFRAME;  else dwStyle &= ~WS_THICKFRAME;
+    if (stylesSettings.bBorder)    dwStyle |= WS_BORDER;      else dwStyle &= ~WS_BORDER;
+  }
 
-	dwStyle |= WS_MINIMIZEBOX;
-	dwExStyle |= WS_EX_APPWINDOW;
+  dwStyle |= WS_MINIMIZEBOX;
+  dwExStyle |= WS_EX_APPWINDOW;
 
-	if (!stylesSettings.bTaskbarButton)
-	{
-		if (!stylesSettings.bTrayIcon)
-		{
-			// remove minimize button
-			dwStyle &= ~WS_MINIMIZEBOX;
-		}
-		dwExStyle &= ~WS_EX_APPWINDOW;
-	}
+  if (!stylesSettings.bTaskbarButton)
+  {
+    if (!stylesSettings.bTrayIcon)
+    {
+      // remove minimize button
+      dwStyle &= ~WS_MINIMIZEBOX;
+    }
+    dwExStyle &= ~WS_EX_APPWINDOW;
+  }
 
   TRACE(
     L"MainFrame::SetWindowStyles Style %08lx -> %08lx ExStyle %08lx -> %08lx\n",
     dwOldStyle, dwStyle,
     dwOldExStyle, dwExStyle);
 
-	SetWindowLong(GWL_STYLE, dwStyle);
-	SetWindowLong(GWL_EXSTYLE, dwExStyle);
+  SetWindowLong(GWL_STYLE, dwStyle);
+  SetWindowLong(GWL_EXSTYLE, dwExStyle);
 
   if( !boolCreation )
   {
@@ -2304,7 +2343,7 @@ void MainFrame::SetWindowIcons()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowMenu(BOOL bShow)
+void MainFrame::ShowMenu(bool bShow)
 {
 	m_bMenuVisible = bShow;
 
@@ -2313,8 +2352,6 @@ void MainFrame::ShowMenu(BOOL bShow)
 	rebar.ShowBand(nBandIndex, m_bMenuVisible);
 	UISetCheck(ID_VIEW_MENU, m_bMenuVisible);
 
-	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible ? true : false;
-
 	UpdateLayout();
 	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
@@ -2325,7 +2362,7 @@ void MainFrame::ShowMenu(BOOL bShow)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowToolbar(BOOL bShow)
+void MainFrame::ShowToolbar(bool bShow)
 {
 	m_bToolbarVisible = bShow;
 
@@ -2334,8 +2371,6 @@ void MainFrame::ShowToolbar(BOOL bShow)
 	rebar.ShowBand(nBandIndex, m_bToolbarVisible);
 	UISetCheck(ID_VIEW_TOOLBAR, m_bToolbarVisible);
 
-	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible? true : false;
-
 	UpdateLayout();
 	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
@@ -2346,15 +2381,13 @@ void MainFrame::ShowToolbar(BOOL bShow)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowStatusbar(BOOL bShow)
+void MainFrame::ShowStatusbar(bool bShow)
 {
 	m_bStatusBarVisible = bShow;
 
 	::ShowWindow(m_hWndStatusBar, m_bStatusBarVisible ? SW_SHOWNOACTIVATE : SW_HIDE);
 	UISetCheck(ID_VIEW_STATUS_BAR, m_bStatusBarVisible);
 
-	g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible? true : false;
-	
 	UpdateLayout();
 	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
@@ -2365,7 +2398,7 @@ void MainFrame::ShowStatusbar(BOOL bShow)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowTabs(BOOL bShow)
+void MainFrame::ShowTabs(bool bShow)
 {
 	m_bTabsVisible = bShow;
 
@@ -2380,16 +2413,57 @@ void MainFrame::ShowTabs(BOOL bShow)
 
 	UISetCheck(ID_VIEW_TABS, m_bTabsVisible);
 
-	ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
-
-	if (!controlsSettings.bHideSingleTab)
-	{
-		controlsSettings.bShowTabs = m_bTabsVisible ? true : false;
-	}
-
 	UpdateLayout();
 	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 	DockWindow(m_dockPosition);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::ShowFullScreen(bool bShow)
+{
+  m_bFullScreen = bShow;
+
+  if( m_bFullScreen )
+  {
+    ShowMenu     (false);
+    ShowToolbar  (false);
+    ShowStatusbar(false);
+    ShowTabs     (false);
+  }
+  else
+  {
+    ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
+
+    bool bShowTabs = controlsSettings.bShowTabs;
+
+    if( bShowTabs )
+    {
+      MutexLock lock(m_tabsMutex);
+      if ((m_tabs.size() == 1) && (controlsSettings.bHideSingleTab))
+      {
+        bShowTabs = false;
+      }
+    }
+
+    ShowMenu     (controlsSettings.bShowMenu);
+    ShowToolbar  (controlsSettings.bShowToolbar);
+    ShowStatusbar(controlsSettings.bShowStatusbar);
+    ShowTabs     (bShowTabs);
+  }
+
+  UISetCheck(ID_VIEW_FULLSCREEN, m_bFullScreen);
+
+  SetWindowStyles(false);
+  SetTransparency();
+
+  // and go to fullscreen or restore
+  this->SendMessage(WM_SYSCOMMAND, m_bFullScreen? SC_MAXIMIZE : SC_RESTORE, 0);
+
+  AdjustWindowSize(ADJUSTSIZE_WINDOW);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2538,8 +2612,6 @@ void MainFrame::SetTransparency()
     GetWindowLong(GWL_EXSTYLE) & ~WS_EX_LAYERED);
 
 #ifdef _USE_AERO
-  StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-
   BOOL fEnabled = FALSE;
   DwmIsCompositionEnabled(&fEnabled);
   if( fEnabled )
@@ -2548,7 +2620,9 @@ void MainFrame::SetTransparency()
     {
       // there is a side effect whith glass into client area and no caption (and no resizable)
       // blur is not applied, the window is transparent ...
-      if( !stylesSettings.bCaption && !stylesSettings.bResizable )
+      DWORD	dwStyle = GetWindowLong(GWL_STYLE);
+
+      if( (dwStyle & WS_CAPTION) != WS_CAPTION && (dwStyle & WS_THICKFRAME) != WS_THICKFRAME )
       {
         DWM_BLURBEHIND bb = {0};
         bb.dwFlags = DWM_BB_ENABLE;
@@ -2629,7 +2703,9 @@ void MainFrame::SetTransparency()
       {
         // there is a side effect whith glass into client area and no caption (and no resizable)
         // blur is not applied, the window is transparent ...
-        if( !stylesSettings.bCaption && !stylesSettings.bResizable )
+        DWORD	dwStyle = GetWindowLong(GWL_STYLE);
+
+        if( (dwStyle & WS_CAPTION) != WS_CAPTION && (dwStyle & WS_THICKFRAME) != WS_THICKFRAME )
         {
           DWM_BLURBEHIND bb = {0};
           bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;

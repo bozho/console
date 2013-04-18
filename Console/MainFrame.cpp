@@ -271,7 +271,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
-//	SetTabStyles(CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_BOLDSELECTEDTAB);
 
 	DWORD dwTabStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
 	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM;
@@ -284,7 +283,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	UIAddToolBar(hWndToolBar);
 	UISetBlockAccelerators(true);
 
-	SetWindowStyles(true);
+	SetWindowStyles();
 
 	ShowMenu(controlsSettings.bShowMenu);
 	ShowToolbar(controlsSettings.bShowToolbar);
@@ -354,7 +353,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	TRACE(L"initial dims: %ix%i\n", m_dwWindowWidth, m_dwWindowHeight);
 
-
 	// register object for message filtering and idle updates
 	CMessageLoop* pLoop = _Module.GetMessageLoop();
 	ATLASSERT(pLoop != NULL);
@@ -364,6 +362,10 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// this is the only way I know that other message handlers can be aware 
 	// if they're being called after OnCreate has finished
 	m_bOnCreateDone = true;
+
+	if( g_settingsHandler->GetAppearanceSettings().fullScreenSettings.bStartInFullScreen )
+		ShowFullScreen(true);
+
 	return 0;
 }
 
@@ -731,8 +733,8 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	if (!(pWinPos->flags & SWP_NOMOVE))
 	{
-		// do nothing for minimized or maximized windows
-		if (IsIconic() || IsZoomed()) return 0;
+		// do nothing for minimized or maximized or fullscreen windows
+		if (IsIconic() || IsZoomed() || m_bFullScreen) return 0;
 
 		if (positionSettings.nSnapDistance >= 0)
 		{
@@ -1643,7 +1645,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 
-		SetWindowStyles(false);
+		SetWindowStyles();
 
 		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 		UpdateMenuHotKeys();
@@ -2137,7 +2139,7 @@ void MainFrame::UpdateStatusBar()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::SetWindowStyles(bool boolCreation)
+void MainFrame::SetWindowStyles(void)
 {
   StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 
@@ -2175,16 +2177,16 @@ void MainFrame::SetWindowStyles(bool boolCreation)
     dwExStyle &= ~WS_EX_APPWINDOW;
   }
 
-  TRACE(
-    L"MainFrame::SetWindowStyles Style %08lx -> %08lx ExStyle %08lx -> %08lx\n",
-    dwOldStyle, dwStyle,
-    dwOldExStyle, dwExStyle);
-
   SetWindowLong(GWL_STYLE, dwStyle);
   SetWindowLong(GWL_EXSTYLE, dwExStyle);
 
-  if( !boolCreation )
+  if( m_bOnCreateDone )
   {
+    TRACE(
+      L"MainFrame::SetWindowStyles Style %08lx -> %08lx ExStyle %08lx -> %08lx\n",
+      dwOldStyle, dwStyle,
+      dwOldExStyle, dwExStyle);
+
     if( dwExStyle != dwOldExStyle )
     {
       this->ShowWindow(SW_HIDE);
@@ -2429,7 +2431,7 @@ void MainFrame::ShowFullScreen(bool bShow)
 
   if( m_bFullScreen )
   {
-    // save the non fullscreen position
+    // save the non fullscreen position and size
     // normal or maximized
     GetWindowRect(&m_rectWndNotFS);
 
@@ -2461,27 +2463,54 @@ void MainFrame::ShowFullScreen(bool bShow)
 
   UISetCheck(ID_VIEW_FULLSCREEN, m_bFullScreen);
 
-  SetWindowStyles(false);
+  if( !m_bFullScreen ) this->ShowWindow(SW_HIDE);
+  SetWindowStyles();
+  if( !m_bFullScreen ) this->ShowWindow(SW_SHOW);
   SetTransparency();
 
   // and go to fullscreen or restore
   if( m_bFullScreen )
   {
-    HMONITOR hMon = ::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFO mi = {sizeof(mi)};
-    if( ::GetMonitorInfo(hMon, &mi) )
+    FullScreenSettings&	fullScreenSettings = g_settingsHandler->GetAppearanceSettings().fullScreenSettings;
+    DWORD dwFullScreenMonitor = fullScreenSettings.dwFullScreenMonitor;
+
+    if( dwFullScreenMonitor > 0 )
     {
-      SetWindowPos(NULL, &mi.rcMonitor, SWP_NOZORDER | SWP_NOACTIVATE);
+      std::vector<CRect> vMonitors;
+      ::EnumDisplayMonitors(NULL, NULL, MainFrame::MonitorEnumProc, reinterpret_cast<LPARAM>(&vMonitors));
+      if( dwFullScreenMonitor > vMonitors.size() )
+        dwFullScreenMonitor = 0;
+      else
+        SetWindowPos(NULL, vMonitors[dwFullScreenMonitor - 1], SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+    }
+
+    if( dwFullScreenMonitor == 0 )
+    {
+      HMONITOR hMon = ::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY);
+      MONITORINFO mi = {sizeof(mi)};
+      if( ::GetMonitorInfo(hMon, &mi) )
+      {
+        SetWindowPos(NULL, &mi.rcMonitor, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+      }
     }
   }
   else
   {
     // restore the non fullscreen position
     // normal or maximized
-    SetWindowPos(NULL, m_rectWndNotFS, SWP_NOZORDER | SWP_NOACTIVATE);
+    SetWindowPos(NULL, m_rectWndNotFS, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
   }
 
   AdjustWindowSize(ADJUSTSIZE_WINDOW);
+}
+
+BOOL CALLBACK MainFrame::MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData)
+{
+  std::vector<CRect> * pvMonitors = reinterpret_cast<std::vector<CRect> *>(lpData);
+
+  pvMonitors->push_back(lprcMonitor);
+
+  return TRUE;
 }
 
 //////////////////////////////////////////////////////////////////////////////

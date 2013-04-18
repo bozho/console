@@ -29,8 +29,9 @@
 		<styles caption="1" resizable="1" taskbar_button="1" border="1" inside_border="2" tray_icon="1" quake_like="0" jumplist="0">
 			<selection_color r="255" g="255" b="255"/>
 		</styles>
-		<position x="-1" y="-1" dock="-1" snap="0" z_order="0" save_position="0"/>
+		<position x="-1" y="-1" dock="-1" snap="-1" z_order="0" save_position="0"/>
 		<transparency type="0" active_alpha="255" inactive_alpha="255" r="0" g="0" b="0"/>
+		<fullscreen start_in_fullscreen="0" fullscreen_monitor="0"/>
 	</appearance>
 	<behavior>
 		<copy_paste copy_on_select="0" clear_on_copy="1" no_wrap="1" trim_spaces="1" copy_newline_char="0" sensitive_copy="1"/>
@@ -95,7 +96,7 @@
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageleft"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="scrollpageright"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="112" command="dumpbuffer"/>
-		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="activate"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="activate" win="0"/>
 	</hotkeys>
 	<mouse>
 		<actions>

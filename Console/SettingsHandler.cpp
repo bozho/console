@@ -369,6 +369,71 @@ WindowSettings& WindowSettings::operator=(const WindowSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+FullScreenSettings::FullScreenSettings()
+: bStartInFullScreen(false)
+, dwFullScreenMonitor(0)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool FullScreenSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pAppearanceElement;
+	CComPtr<IXMLDOMElement>	pFullScreenElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance"), pAppearanceElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pAppearanceElement, CComBSTR(L"fullscreen"), pFullScreenElement))) return false;
+
+	XmlHelper::GetAttribute(pFullScreenElement, CComBSTR(L"start_in_fullscreen"), bStartInFullScreen,  false);
+	XmlHelper::GetAttribute(pFullScreenElement, CComBSTR(L"fullscreen_monitor"),  dwFullScreenMonitor, 0);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool FullScreenSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pWindowElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/fullscreen"), pWindowElement))) return false;
+
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"start_in_fullscreen"), bStartInFullScreen);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"fullscreen_monitor"),  dwFullScreenMonitor);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+FullScreenSettings& FullScreenSettings::operator=(const FullScreenSettings& other)
+{
+	bStartInFullScreen  = other.bStartInFullScreen;
+	dwFullScreenMonitor = other.dwFullScreenMonitor;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 ControlsSettings::ControlsSettings()
 : bShowMenu(true)
 , bShowToolbar(true)
@@ -729,6 +794,7 @@ bool AppearanceSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	stylesSettings.Load(pSettingsRoot);
 	positionSettings.Load(pSettingsRoot);
 	transparencySettings.Load(pSettingsRoot);
+	fullScreenSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -745,6 +811,7 @@ bool AppearanceSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	stylesSettings.Save(pSettingsRoot);
 	positionSettings.Save(pSettingsRoot);
 	transparencySettings.Save(pSettingsRoot);
+	fullScreenSettings.Save(pSettingsRoot);
 	return true;
 }
 

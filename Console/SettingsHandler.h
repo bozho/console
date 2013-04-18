@@ -124,6 +124,24 @@ struct WindowSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct FullScreenSettings : public SettingsBase
+{
+	FullScreenSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	FullScreenSettings& operator=(const FullScreenSettings& other);
+
+	bool      bStartInFullScreen;
+	DWORD     dwFullScreenMonitor;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct ControlsSettings
 {
 	ControlsSettings();
@@ -266,12 +284,13 @@ struct AppearanceSettings : public SettingsBase
 
 	AppearanceSettings& operator=(const AppearanceSettings& other);
 
-	FontSettings			fontSettings;
-	WindowSettings			windowSettings;
-	ControlsSettings		controlsSettings;
-	StylesSettings			stylesSettings;
-	PositionSettings		positionSettings;
-	TransparencySettings	transparencySettings;
+	FontSettings         fontSettings;
+	WindowSettings       windowSettings;
+	ControlsSettings     controlsSettings;
+	StylesSettings       stylesSettings;
+	PositionSettings     positionSettings;
+	TransparencySettings transparencySettings;
+	FullScreenSettings   fullScreenSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

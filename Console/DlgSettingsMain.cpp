@@ -6,6 +6,7 @@
 #include "DlgSettingsConsole.h"
 #include "DlgSettingsAppearance.h"
 #include "DlgSettingsStyles.h"
+#include "DlgSettingsFullScreen.h"
 #include "DlgSettingsBehavior.h"
 #include "DlgSettingsHotkeys.h"
 #include "DlgSettingsMouse.h"
@@ -159,6 +160,10 @@ void DlgSettingsMain::CreateSettingsTree()
 	// create styles settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pSettingsRoot)));
 	AddDialogToTree(L"More...", dlgStyles, rect, htiAppearance);
+
+	// create full screen settings dialog
+	std::shared_ptr<DlgSettingsBase>	dlgFullScreen(dynamic_cast<DlgSettingsBase*>(new DlgSettingsFullScreen(m_pSettingsRoot)));
+	AddDialogToTree(L"Full screen", dlgFullScreen, rect, htiAppearance);
 
 	// create behavior settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgBehavior(dynamic_cast<DlgSettingsBase*>(new DlgSettingsBehavior(m_pSettingsRoot)));

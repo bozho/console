@@ -256,7 +256,7 @@ class MainFrame
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateMenuHotKeys(void);
 		void UpdateStatusBar();
-		void SetWindowStyles(bool boolCreation);
+		void SetWindowStyles(void);
 		void DockWindow(DockPosition dockPosition);
 		void SetZOrder(ZOrder zOrder);
 		HWND GetDesktopWindow();
@@ -277,7 +277,9 @@ class MainFrame
 		void UnregisterGlobalHotkeys();
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
-    void ShowHideWindow();
+		void ShowHideWindow();
+
+		static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT /*lprcMonitor*/, LPARAM lpData);
 
 	public:
 		LRESULT CreateInitialTabs

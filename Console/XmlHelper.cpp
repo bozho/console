@@ -77,6 +77,37 @@ HRESULT XmlHelper::GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, co
 
 //////////////////////////////////////////////////////////////////////////////
 
+HRESULT XmlHelper::AddDomElementIfNotExist(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, CComPtr<IXMLDOMElement>& pNewElement)
+{
+  CComPtr<IXMLDOMNode> pNode;
+  HRESULT hr = pElement->selectSingleNode(bstrName, &pNode);
+
+  if( hr == S_FALSE )
+  {
+    CComPtr<IXMLDOMElement> pNewElement2;
+    CComPtr<IXMLDOMDocument> pXmlDocument;
+    hr = pElement->get_ownerDocument(&pXmlDocument);
+    if( hr != S_OK )
+      return hr;
+    hr = pXmlDocument->createElement(bstrName, &pNewElement2);
+    if( hr != S_OK )
+      return hr;
+    hr = pElement->appendChild(pNewElement2, &pNode);
+    if( hr != S_OK )
+      return hr;
+  }
+
+  if( hr == S_OK )
+    return pNode.QueryInterface(&pNewElement);
+
+  return hr;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void XmlHelper::GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue)
 {
 	CComVariant	varValue;

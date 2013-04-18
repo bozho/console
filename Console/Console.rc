@@ -484,6 +484,15 @@ BEGIN
     PUSHBUTTON      "&Clear",IDC_BTN_CLEAR,168,208,42,14
 END
 
+IDD_SETTINGS_FULLSCREEN DIALOGEX 0, 0, 226, 254
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Start in full screen",IDC_CHECK_START_IN_FULLSCREEN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,206,10
+    LTEXT           "Full screen monitor:",IDC_STATIC,10,30,206,10
+    COMBOBOX        IDC_COMBO_FULLSCREEN_MONITOR,10,40,206,10,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP    
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

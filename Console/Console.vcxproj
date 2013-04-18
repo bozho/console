@@ -609,6 +609,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClCompile Include="DlgSettingsAppearance.cpp" />
     <ClCompile Include="DlgSettingsBehavior.cpp" />
     <ClCompile Include="DlgSettingsConsole.cpp" />
+    <ClCompile Include="DlgSettingsFullScreen.cpp" />
     <ClCompile Include="DlgSettingsHotkeys.cpp" />
     <ClCompile Include="DlgSettingsMain.cpp" />
     <ClCompile Include="DlgSettingsMouse.cpp" />
@@ -652,6 +653,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="DlgSettingsBase.h" />
     <ClInclude Include="DlgSettingsBehavior.h" />
     <ClInclude Include="DlgSettingsConsole.h" />
+    <ClInclude Include="DlgSettingsFullScreen.h" />
     <ClInclude Include="DlgSettingsHotkeys.h" />
     <ClInclude Include="DlgSettingsMain.h" />
     <ClInclude Include="DlgSettingsMouse.h" />

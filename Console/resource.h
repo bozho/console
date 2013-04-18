@@ -30,6 +30,7 @@
 #define IDD_SETTINGS_TABS_2             214
 #define IDD_SETTINGS_MOUSE              215
 #define IDD_CREDENTIALS                 216
+#define IDD_SETTINGS_FULLSCREEN         217
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
 #define IDC_TREE_SECTIONS               1002
@@ -243,6 +244,8 @@
 #define IDC_BGTEXT_OPACITY_VAL          1180
 #define IDC_STATIC_BGTEXT_OPACITY       1181
 #define IDC_CHECK_NET_ONLY              1182
+#define IDC_CHECK_START_IN_FULLSCREEN   1183
+#define IDC_COMBO_FULLSCREEN_MONITOR    1184
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -289,9 +292,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        217
+#define _APS_NEXT_RESOURCE_VALUE        218
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1183
+#define _APS_NEXT_CONTROL_VALUE         1185
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

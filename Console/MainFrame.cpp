@@ -2154,14 +2154,13 @@ void MainFrame::SetWindowStyles(void)
     dwStyle &= ~WS_MAXIMIZEBOX;
     dwStyle &= ~WS_CAPTION;
     dwStyle &= ~WS_THICKFRAME;
-    dwStyle &= ~WS_BORDER;
   }
   else
   {
     if (stylesSettings.bResizable) dwStyle |= WS_MAXIMIZEBOX; else dwStyle &= ~WS_MAXIMIZEBOX;
     if (stylesSettings.bCaption)   dwStyle |= WS_CAPTION;     else dwStyle &= ~WS_CAPTION;
     if (stylesSettings.bResizable) dwStyle |= WS_THICKFRAME;  else dwStyle &= ~WS_THICKFRAME;
-    if (stylesSettings.bBorder)    dwStyle |= WS_BORDER;      else dwStyle &= ~WS_BORDER;
+    if (stylesSettings.bBorder)    dwStyle |= WS_BORDER; /* WS_BORDER | WS_DLGFRAME  */
   }
 
   dwStyle |= WS_MINIMIZEBOX;

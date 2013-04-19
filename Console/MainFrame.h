@@ -80,7 +80,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_HOTKEY, OnHotKey)
 			MESSAGE_HANDLER(WM_SYSKEYDOWN, OnSysKeydown)
 			MESSAGE_HANDLER(WM_SYSCOMMAND, OnSysCommand)
-//			MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
+			MESSAGE_HANDLER(WM_GETMINMAXINFO, OnGetMinMaxInfo)
 			MESSAGE_HANDLER(WM_SIZE, OnSize)
 			MESSAGE_HANDLER(WM_SIZING, OnSizing)
 			MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, OnWindowPosChanging)
@@ -169,6 +169,7 @@ class MainFrame
 		LRESULT OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnSysKeydown(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled);
+		LRESULT OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);

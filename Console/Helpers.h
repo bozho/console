@@ -20,9 +20,9 @@ class Helpers
 		static wstring ExpandEnvironmentStrings(const wstring& str);
 		static wstring ExpandEnvironmentStringsForUser(HANDLE userToken, const wstring& str);
 
-		static void GetMonitorRect(HWND hWnd, CRect& rectMonitor);
-		static void GetDesktopRect(HWND hWnd, CRect& rectDesktop);
-		static void GetDesktopRect(const CPoint& point, CRect& rectDesktop);
+		static bool GetMonitorRect(HWND hWnd, CRect& rectMonitor);
+		static bool GetDesktopRect(HWND hWnd, CRect& rectDesktop);
+		static bool GetDesktopRect(const CPoint& point, CRect& rectDesktop);
 
 		static HBITMAP CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bitmap);
 
@@ -31,7 +31,7 @@ class Helpers
 
 	private:
 
-		static void GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);
+		static bool GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);
 
 };
 

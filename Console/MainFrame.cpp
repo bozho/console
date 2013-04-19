@@ -2485,12 +2485,9 @@ void MainFrame::ShowFullScreen(bool bShow)
 
     if( dwFullScreenMonitor == 0 )
     {
-      HMONITOR hMon = ::MonitorFromWindow(m_hWnd, MONITOR_DEFAULTTOPRIMARY);
-      MONITORINFO mi = {sizeof(mi)};
-      if( ::GetMonitorInfo(hMon, &mi) )
-      {
-        SetWindowPos(NULL, &mi.rcMonitor, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
-      }
+      CRect rectCurrent;
+      if( Helpers::GetMonitorRect(m_hWnd, rectCurrent) )
+        SetWindowPos(NULL, rectCurrent, SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
     }
   }
   else
@@ -2990,4 +2987,46 @@ LRESULT MainFrame::OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	CreateInitialTabs(startupTabs, startupCmds, startupDirs, nMultiStartSleep);
 
 	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+{
+  LPMINMAXINFO lpMMI = reinterpret_cast<LPMINMAXINFO>(lParam);
+  /*
+  For systems with multiple monitors, the ptMaxSize and ptMaxPosition members describe the maximized size
+  and position of the window on the primary monitor, even if the window ultimately maximizes onto a
+  secondary monitor. In that case, the window manager adjusts these values to compensate for differences
+  between the primary monitor and the monitor that displays the window. Thus, if the user leaves ptMaxSize
+  untouched, a window on a monitor larger than the primary monitor maximizes to the size of the larger monitor.
+  */
+
+  CRect rectCurrentWorkArea;
+  CRect rectCurrentMonitor;
+  if( Helpers::GetDesktopRect(m_hWnd, rectCurrentWorkArea) &&
+      Helpers::GetMonitorRect(m_hWnd, rectCurrentMonitor)  &&
+      rectCurrentWorkArea != rectCurrentMonitor ) // there is a taskbar ...
+  {
+    TRACE(
+      L"1ptMaxPosition %ix%i\n"
+      L"1ptMaxSize     %ix%i\n",
+      lpMMI->ptMaxPosition.x, lpMMI->ptMaxPosition.y,
+      lpMMI->ptMaxSize.x, lpMMI->ptMaxSize.y);
+
+    lpMMI->ptMaxPosition.x = rectCurrentWorkArea.left - rectCurrentMonitor.left;
+    lpMMI->ptMaxPosition.y = rectCurrentWorkArea.top  - rectCurrentMonitor.top ;
+    lpMMI->ptMaxSize.x = rectCurrentWorkArea.right  - rectCurrentWorkArea.left;
+    lpMMI->ptMaxSize.y = rectCurrentWorkArea.bottom - rectCurrentWorkArea.top;
+
+    TRACE(
+      L"2ptMaxPosition %ix%i\n"
+      L"2ptMaxSize     %ix%i\n",
+      lpMMI->ptMaxPosition.x, lpMMI->ptMaxPosition.y,
+      lpMMI->ptMaxSize.x, lpMMI->ptMaxSize.y);
+  }
+
+  return 0;
 }

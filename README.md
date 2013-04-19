@@ -28,11 +28,15 @@ Changelog
         ! : changed
         + : added
         
-Changes in 1.07.0 beta 1 (12 Apr 2013)
+Changes in 1.07.0 beta 2 (19 Apr 2013)
 
+        ! Limits the maximized windows size on monitors with taskbar
+          so ConsoleZ, with no border, no longer overlaps the taskbar when WIN+UP is pressed
         + Full screen support
         + Full screen button in taskbar
         + Full screen hot key (default: F11)
+        + Full screen settings: can start in full screen and select the full screen monitor
+        * caption was removed when border was unchecked
 
 Changes in 1.06.0 (24 Mar 2013)
 

@@ -297,6 +297,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		{
 			UIEnable(ID_FILE_CLOSE_TAB, FALSE);
 
+      if( m_tabs.begin()->second->GetViewsCount() == 1 )
+        UIEnable(ID_CLOSE_VIEW, FALSE);
+
 			if (controlsSettings.bHideSingleTab)
 				bShowTabs = false;
 		}
@@ -1427,8 +1430,17 @@ LRESULT MainFrame::OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 
 LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  MutexLock viewMapLock(m_tabsMutex);
+
+  if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
+    return 0;
+
   if( m_activeTabView )
     m_activeTabView->CloseView();
+
+  if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
+    UIEnable(ID_CLOSE_VIEW, FALSE);
+
   ::SetForegroundWindow(m_hWnd);
   return 0;
 }
@@ -1440,8 +1452,14 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  MutexLock viewMapLock(m_tabsMutex);
+
   if( m_activeTabView )
     m_activeTabView->SplitHorizontally();
+
+  if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
+    UIEnable(ID_CLOSE_VIEW, TRUE);
+
   ::SetForegroundWindow(m_hWnd);
   return 0;
 }
@@ -1453,8 +1471,14 @@ LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+  MutexLock viewMapLock(m_tabsMutex);
+
   if( m_activeTabView )
     m_activeTabView->SplitVertically();
+
+  if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
+    UIEnable(ID_CLOSE_VIEW, TRUE);
+
   ::SetForegroundWindow(m_hWnd);
   return 0;
 }
@@ -1899,12 +1923,14 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
 	DisplayTab(hwndTabView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 
-	if (m_tabs.size() > 1)
-	{
+  if (m_tabs.size() > 1)
+  {
     CRect clientRect(0, 0, 0, 0);
     tabView->AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
-		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
-	}
+    UIEnable(ID_FILE_CLOSE_TAB, TRUE);
+    UIEnable(ID_CLOSE_VIEW, TRUE);
+  }
+
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
 		((m_tabs.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
 	   )
@@ -1947,6 +1973,9 @@ void MainFrame::CloseTab(HWND hwndTabView)
   if (m_tabs.size() == 1)
   {
     UIEnable(ID_FILE_CLOSE_TAB, FALSE);
+
+    if( m_tabs.begin()->second->GetViewsCount() == 1 )
+      UIEnable(ID_CLOSE_VIEW, FALSE);
   }
   if ((m_tabs.size() == 1) &&
     m_bTabsVisible && 

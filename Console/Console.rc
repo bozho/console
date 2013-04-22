@@ -668,6 +668,8 @@ BEGIN
         MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
         MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
         MENUITEM SEPARATOR
+        MENUITEM "&Close View",                 ID_CLOSE_VIEW
+        MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
     POPUP "Edit"
@@ -714,6 +716,8 @@ BEGIN
             MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
             MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
             MENUITEM SEPARATOR
+            MENUITEM "&Close View",                 ID_CLOSE_VIEW
+            MENUITEM SEPARATOR            
             MENUITEM "E&xit",                       ID_APP_EXIT
         END
         POPUP "&Edit"

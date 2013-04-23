@@ -3024,6 +3024,8 @@ LRESULT MainFrame::OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
+  if( g_settingsHandler->GetAppearanceSettings().stylesSettings.bCaption ) return 0;
+
   LPMINMAXINFO lpMMI = reinterpret_cast<LPMINMAXINFO>(lParam);
   /*
   For systems with multiple monitors, the ptMaxSize and ptMaxPosition members describe the maximized size

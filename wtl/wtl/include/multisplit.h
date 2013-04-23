@@ -702,9 +702,11 @@ public :
     dc.LineTo(visibleRect.left + marge, visibleRect.bottom - 1 - marge);
 #endif
 
+#if 0
     ATLTRACE(_T("CMultiSplitImpl::Draw: %d %d %d %d (%d %d)\n"),
       visibleRect.left, visibleRect.top, visibleRect.right, visibleRect.bottom,
       visibleRect.Width (), visibleRect.Height ());
+#endif
 
     this->tree.draw(dc);
   }

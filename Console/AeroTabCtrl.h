@@ -677,7 +677,7 @@ public:
   {
     DWORD dwStyle = this->GetStyle();
 
-    if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON) && m_Items.GetCount() > 1)
+    if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON) && ( m_Items.GetCount() > 1 || CTCS_CLOSELASTTAB == (dwStyle & CTCS_CLOSELASTTAB)))
     {
       SIZE size;
 

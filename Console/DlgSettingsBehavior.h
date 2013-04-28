@@ -37,6 +37,9 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_INC_RIGHT_DELIMITER, m_behaviorSettings.copyPasteSettings.bIncludeRightDelimiter)
 			DDX_TEXT(IDC_LEFT_DELIMITERS, m_strLeftDelimiters)
 			DDX_TEXT(IDC_RIGHT_DELIMITERS, m_strRightDelimiters)
+			DDX_CHECK(IDC_CHECK_CLOSING_LAST_TAB, m_behaviorSettings.closeSettings.bAllowClosingLastView)
+			DDX_CHECK(IDC_CHECK_CONFIRM_CLOSE_MULTI, m_behaviorSettings.closeSettings.bConfirmClosingMultipleViews)
+
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior)

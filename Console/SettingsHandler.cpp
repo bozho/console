@@ -1063,6 +1063,71 @@ TabHighlightSettings& TabHighlightSettings::operator=(const TabHighlightSettings
 
 //////////////////////////////////////////////////////////////////////////////
 
+CloseSettings::CloseSettings()
+  : bAllowClosingLastView(true)
+  , bConfirmClosingMultipleViews(true)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CloseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pAppearanceElement;
+	CComPtr<IXMLDOMElement>	pCloseElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pAppearanceElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pAppearanceElement, CComBSTR(L"close"), pCloseElement))) return false;
+
+	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"allow_closing_last_view"),        bAllowClosingLastView,        true);
+	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"confirm_closing_multiple_views"), bConfirmClosingMultipleViews, true);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CloseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pCloseElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/close"), pCloseElement))) return false;
+
+	XmlHelper::SetAttribute(pCloseElement, CComBSTR(L"allow_closing_last_view"),        bAllowClosingLastView       );
+	XmlHelper::SetAttribute(pCloseElement, CComBSTR(L"confirm_closing_multiple_views"), bConfirmClosingMultipleViews);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+CloseSettings& CloseSettings::operator=(const CloseSettings& other)
+{
+	bAllowClosingLastView        = other.bAllowClosingLastView;
+	bConfirmClosingMultipleViews = other.bConfirmClosingMultipleViews;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -1077,6 +1142,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	copyPasteSettings.Load(pSettingsRoot);
 	scrollSettings.Load(pSettingsRoot);
 	tabHighlightSettings.Load(pSettingsRoot);
+	closeSettings.Load(pSettingsRoot);
 	return true;
 }
 
@@ -1090,6 +1156,7 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	copyPasteSettings.Save(pSettingsRoot);
 	scrollSettings.Save(pSettingsRoot);
 	tabHighlightSettings.Save(pSettingsRoot);
+	closeSettings.Save(pSettingsRoot);
 	return true;
 }
 
@@ -1100,9 +1167,10 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 {
-	copyPasteSettings	= other.copyPasteSettings;
-	scrollSettings		= other.scrollSettings;
-	tabHighlightSettings= other.tabHighlightSettings;
+	copyPasteSettings    = other.copyPasteSettings;
+	scrollSettings       = other.scrollSettings;
+	tabHighlightSettings = other.tabHighlightSettings;
+	closeSettings        = other.closeSettings;
 
 	return *this;
 }

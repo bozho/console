@@ -274,6 +274,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	DWORD dwTabStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
 	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM;
+	if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB;
 
 	CreateTabWindow(m_hWnd, rcDefault, dwTabStyles);
 
@@ -291,19 +292,23 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	bool bShowTabs = controlsSettings.bShowTabs;
 
-	{
-		MutexLock lock(m_tabsMutex);
-		if (m_tabs.size() == 1)
-		{
-			UIEnable(ID_FILE_CLOSE_TAB, FALSE);
+  {
+    MutexLock lock(m_tabsMutex);
 
-      if( m_tabs.begin()->second->GetViewsCount() == 1 )
-        UIEnable(ID_CLOSE_VIEW, FALSE);
+    if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+    {
+      UIEnable(ID_FILE_CLOSE_TAB, TRUE);
+      UIEnable(ID_CLOSE_VIEW, TRUE);
+    }
+    else
+    {
+      UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
+      UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
+    }
 
-			if (controlsSettings.bHideSingleTab)
-				bShowTabs = false;
-		}
-	}
+    if (m_tabs.size() <= 1 && controlsSettings.bHideSingleTab)
+      bShowTabs = false;
+  }
 
 	ShowTabs(bShowTabs);
 
@@ -389,7 +394,7 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-
+  if( g_settingsHandler->GetBehaviorSettings().closeSettings.bConfirmClosingMultipleViews )
   {
     MutexLock lock(m_tabsMutex);
 
@@ -1432,14 +1437,20 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 {
   MutexLock viewMapLock(m_tabsMutex);
 
-  if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
-    return 0;
+  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+  {
+    if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
+      return 0;
+  }
 
   if( m_activeTabView )
     m_activeTabView->CloseView();
 
-  if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
-    UIEnable(ID_CLOSE_VIEW, FALSE);
+  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+  {
+    if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
+      UIEnable(ID_CLOSE_VIEW, FALSE);
+  }
 
   ::SetForegroundWindow(m_hWnd);
   return 0;
@@ -1457,8 +1468,11 @@ LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
   if( m_activeTabView )
     m_activeTabView->SplitHorizontally();
 
-  if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
-    UIEnable(ID_CLOSE_VIEW, TRUE);
+  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+  {
+    if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
+      UIEnable(ID_CLOSE_VIEW, TRUE);
+  }
 
   ::SetForegroundWindow(m_hWnd);
   return 0;
@@ -1476,8 +1490,11 @@ LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
   if( m_activeTabView )
     m_activeTabView->SplitVertically();
 
-  if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
-    UIEnable(ID_CLOSE_VIEW, TRUE);
+  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+  {
+    if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
+      UIEnable(ID_CLOSE_VIEW, TRUE);
+  }
 
   ::SetForegroundWindow(m_hWnd);
   return 0;
@@ -1669,6 +1686,11 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 
+		DWORD dwTabStyles = ::GetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE);
+		if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM; else dwTabStyles &= ~CTCS_BOTTOM;
+		if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB; else dwTabStyles &= ~CTCS_CLOSELASTTAB;
+		::SetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE, dwTabStyles);
+
 		SetWindowStyles();
 
 		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
@@ -1718,6 +1740,19 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
     ConsoleView::RecreateFont();
 		AdjustWindowSize(ADJUSTSIZE_WINDOW);
+
+    if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+    {
+      UIEnable(ID_FILE_CLOSE_TAB, TRUE);
+      UIEnable(ID_CLOSE_VIEW, TRUE);
+    }
+    else
+    {
+      MutexLock	tabMapLock(m_tabsMutex);
+
+      UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
+      UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
+    }
 	}
 
 	RegisterGlobalHotkeys();
@@ -1927,8 +1962,12 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
   {
     CRect clientRect(0, 0, 0, 0);
     tabView->AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
-    UIEnable(ID_FILE_CLOSE_TAB, TRUE);
-    UIEnable(ID_CLOSE_VIEW, TRUE);
+
+    if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+    {
+      UIEnable(ID_FILE_CLOSE_TAB, TRUE);
+      UIEnable(ID_CLOSE_VIEW, TRUE);
+    }
   }
 
 	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
@@ -1950,7 +1989,8 @@ void MainFrame::CloseTab(CTabViewTabItem* pTabItem)
 {
   MutexLock viewMapLock(m_tabsMutex);
   if (!pTabItem) return;
-  if (m_tabs.size() <= 1) return;
+  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+    if (m_tabs.size() <= 1) return;
   CloseTab(pTabItem->GetTabView());
 }
 
@@ -1970,13 +2010,17 @@ void MainFrame::CloseTab(HWND hwndTabView)
   it->second->DestroyWindow();
   m_tabs.erase(it);
 
-  if (m_tabs.size() == 1)
+  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
   {
-    UIEnable(ID_FILE_CLOSE_TAB, FALSE);
+    if (m_tabs.size() == 1)
+    {
+      UIEnable(ID_FILE_CLOSE_TAB, FALSE);
 
-    if( m_tabs.begin()->second->GetViewsCount() == 1 )
-      UIEnable(ID_CLOSE_VIEW, FALSE);
+      if( m_tabs.begin()->second->GetViewsCount() == 1 )
+        UIEnable(ID_CLOSE_VIEW, FALSE);
+    }
   }
+
   if ((m_tabs.size() == 1) &&
     m_bTabsVisible && 
     (g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))

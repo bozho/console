@@ -235,6 +235,7 @@
 #define CTCS_BOLDSELECTEDTAB     0x2000   // TCS_OWNERDRAWFIXED
 #define CTCS_TOOLTIPS            0x4000   // TCS_TOOLTIPS
 //#define CTCS_FOCUSNEVER          0x8000   // TCS_FOCUSNEVER
+#define CTCS_CLOSELASTTAB        0x10000
 
 // Notifications:
 

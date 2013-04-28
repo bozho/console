@@ -361,6 +361,25 @@ struct TabHighlightSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct CloseSettings : public SettingsBase
+{
+	CloseSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	CloseSettings& operator=(const CloseSettings& other);
+
+	bool bAllowClosingLastView;
+	bool bConfirmClosingMultipleViews;
+};
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -370,9 +389,10 @@ struct BehaviorSettings : public SettingsBase
 
 	BehaviorSettings& operator=(const BehaviorSettings& other);
 
-	CopyPasteSettings		copyPasteSettings;
-	ScrollSettings			scrollSettings;
-	TabHighlightSettings	tabHighlightSettings;
+	CopyPasteSettings    copyPasteSettings;
+	ScrollSettings       scrollSettings;
+	TabHighlightSettings tabHighlightSettings;
+	CloseSettings        closeSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

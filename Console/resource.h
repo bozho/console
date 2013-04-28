@@ -246,6 +246,8 @@
 #define IDC_CHECK_INC_LEFT_DELIMITER    1186
 #define IDC_RIGHT_DELIMITERS            1187
 #define IDC_CHECK_INC_RIGHT_DELIMITER   1188
+#define IDC_CHECK_CLOSING_LAST_TAB      1189
+#define IDC_CHECK_CONFIRM_CLOSE_MULTI   1190
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200

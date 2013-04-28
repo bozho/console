@@ -36,6 +36,8 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	m_nCopyNewlineChar	= static_cast<int>(m_behaviorSettings.copyPasteSettings.copyNewlineChar);
 	m_nScrollPageType	= m_behaviorSettings.scrollSettings.dwPageScrollRows ? 1 : 0;
 	m_bFlashInactiveTab	= (m_behaviorSettings.tabHighlightSettings.dwFlashes > 0);
+	m_strLeftDelimiters	= m_behaviorSettings.copyPasteSettings.strLeftDelimiters.c_str();
+	m_strRightDelimiters	= m_behaviorSettings.copyPasteSettings.strRightDelimiters.c_str();
 
 	CUpDownCtrl	spin;
 	UDACCEL		udAccel;
@@ -78,6 +80,9 @@ LRESULT DlgSettingsBehavior::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*h
 		if (m_nScrollPageType == 0) m_behaviorSettings.scrollSettings.dwPageScrollRows = 0;
 
 		if (!m_bFlashInactiveTab) m_behaviorSettings.tabHighlightSettings.dwFlashes = 0;
+
+		m_behaviorSettings.copyPasteSettings.strLeftDelimiters = m_strLeftDelimiters;
+		m_behaviorSettings.copyPasteSettings.strRightDelimiters = m_strRightDelimiters;
 
 		BehaviorSettings& behaviorSettings = g_settingsHandler->GetBehaviorSettings();
 

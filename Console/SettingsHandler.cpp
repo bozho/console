@@ -848,6 +848,10 @@ CopyPasteSettings::CopyPasteSettings()
 , bNoWrap(false)
 , bTrimSpaces(false)
 , copyNewlineChar(newlineCRLF)
+, bIncludeLeftDelimiter(false)
+, bIncludeRightDelimiter(false)
+, strLeftDelimiters(L" ")
+, strRightDelimiters(L" ")
 {
 }
 
@@ -870,6 +874,10 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), nNewlineChar, 0);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_left_delimiter"), bIncludeLeftDelimiter, false);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_right_delimiter"), bIncludeRightDelimiter, false);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"left_delimiters"), strLeftDelimiters, L" ");
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"right_delimiters"), strRightDelimiters, L" ");
 
 	copyNewlineChar = static_cast<CopyNewlineChar>(nNewlineChar);
 
@@ -894,6 +902,11 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), static_cast<int>(copyNewlineChar));
 
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"include_left_delimiter"), bIncludeLeftDelimiter);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"include_right_delimiter"), bIncludeRightDelimiter);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"left_delimiters"), strLeftDelimiters);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"right_delimiters"), strRightDelimiters);
+
 	return true;
 }
 
@@ -910,6 +923,10 @@ CopyPasteSettings& CopyPasteSettings::operator=(const CopyPasteSettings& other)
 	bNoWrap			= other.bNoWrap;
 	bTrimSpaces		= other.bTrimSpaces;
 	copyNewlineChar	= other.copyNewlineChar;
+	bIncludeLeftDelimiter	= other.bIncludeLeftDelimiter;
+	bIncludeRightDelimiter	= other.bIncludeRightDelimiter;
+	strLeftDelimiters	= other.strLeftDelimiters;
+	strRightDelimiters	= other.strRightDelimiters;
 
 	return *this;
 }

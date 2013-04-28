@@ -13,7 +13,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-class DlgSettingsBehavior 
+class DlgSettingsBehavior
 	: public DlgSettingsBase
 {
 	public:
@@ -32,6 +32,11 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_FLASH_TAB, m_bFlashInactiveTab)
 			DDX_UINT(IDC_TAB_FLASHES, m_behaviorSettings.tabHighlightSettings.dwFlashes)
 			DDX_CHECK(IDC_CHECK_LEAVE_HIGHLIGHTED, m_behaviorSettings.tabHighlightSettings.bStayHighlighted)
+
+			DDX_CHECK(IDC_CHECK_INC_LEFT_DELIMITER, m_behaviorSettings.copyPasteSettings.bIncludeLeftDelimiter)
+			DDX_CHECK(IDC_CHECK_INC_RIGHT_DELIMITER, m_behaviorSettings.copyPasteSettings.bIncludeRightDelimiter)
+			DDX_TEXT(IDC_LEFT_DELIMITERS, m_strLeftDelimiters)
+			DDX_TEXT(IDC_RIGHT_DELIMITERS, m_strRightDelimiters)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior)
@@ -68,6 +73,9 @@ class DlgSettingsBehavior
 		int					m_nScrollPageType;
 
 		bool				m_bFlashInactiveTab;
+
+		CString m_strLeftDelimiters;
+		CString m_strRightDelimiters;
 };
 
 //////////////////////////////////////////////////////////////////////////////

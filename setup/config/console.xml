@@ -34,7 +34,7 @@
 		<fullscreen start_in_fullscreen="0" fullscreen_monitor="0"/>
 	</appearance>
 	<behavior>
-		<copy_paste copy_on_select="0" clear_on_copy="1" no_wrap="1" trim_spaces="1" copy_newline_char="0" sensitive_copy="1"/>
+		<copy_paste copy_on_select="0" clear_on_copy="1" no_wrap="1" trim_spaces="1" copy_newline_char="0" sensitive_copy="1" include_left_delimiter="0" include_right_delimiter="0" left_delimiters=" ([" right_delimiters=" )]"/>
 		<scroll page_scroll_rows="0"/>
 		<tab_highlight flashes="3" stay_highligted="1"/>
 	</behavior>

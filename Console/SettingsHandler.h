@@ -313,6 +313,11 @@ struct CopyPasteSettings : public SettingsBase
 	bool			bNoWrap;
 	bool			bTrimSpaces;
 
+	bool			bIncludeLeftDelimiter;
+	bool			bIncludeRightDelimiter;
+	std::wstring strLeftDelimiters;
+	std::wstring strRightDelimiters;
+
 	CopyNewlineChar	copyNewlineChar;
 };
 

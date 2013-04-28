@@ -15,7 +15,6 @@
 #define IDPANE_COLUMNS_ROWS             135
 #define IDPANE_BUF_COLUMNS_ROWS         136
 
-#define IDI_ICON1                       203
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205
 #define IDD_SETTINGS_CONSOLE            206
@@ -23,7 +22,6 @@
 #define IDD_SETTINGS_HOTKEYS            208
 #define IDD_SETTINGS_TRANSPARENCY       209
 #define IDD_SETTINGS_STYLES             209
-#define IDD_SETTINGS_TEMP               210
 #define IDD_SETTINGS_TABS               211
 #define IDD_SETTINGS_BEHAVIOR           212
 #define IDD_SETTINGS_TABS_1             213
@@ -47,8 +45,8 @@
 #define IDC_BUFFER_COLUMNS2             1013
 #define IDC_BTN_BROWSE_SHELL            1015
 #define IDC_BTN_BROWSE_DIR              1016
-#define IDC_CLR_00                      1017
 #define IDC_BTN_BROWSE_BK               1017
+#define IDC_CLR_00                      1017
 #define IDC_CLR_01                      1018
 #define IDC_CLR_02                      1019
 #define IDC_CLR_03                      1020
@@ -193,9 +191,7 @@
 #define IDC_TINT_OPACITY_VAL            1142
 #define IDC_CHECK_COPY_ON_SELECT        1143
 #define IDC_CHECK_NO_WRAP               1144
-#define IDC_TAB1                        1144
 #define IDC_CHECK_TRIM_SPACES           1145
-#define IDC_CHECK1                      1145
 #define IDC_CHECK_DRAG_ON               1146
 #define IDC_TABS                        1146
 #define IDC_CHECK_CLEAR_ON_COPY         1146
@@ -246,6 +242,10 @@
 #define IDC_CHECK_NET_ONLY              1182
 #define IDC_CHECK_START_IN_FULLSCREEN   1183
 #define IDC_COMBO_FULLSCREEN_MONITOR    1184
+#define IDC_LEFT_DELIMITERS             1185
+#define IDC_CHECK_INC_LEFT_DELIMITER    1186
+#define IDC_RIGHT_DELIMITERS            1187
+#define IDC_CHECK_INC_RIGHT_DELIMITER   1188
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -294,7 +294,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        218
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1185
+#define _APS_NEXT_CONTROL_VALUE         1191
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

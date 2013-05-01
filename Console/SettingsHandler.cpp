@@ -850,8 +850,8 @@ CopyPasteSettings::CopyPasteSettings()
 , copyNewlineChar(newlineCRLF)
 , bIncludeLeftDelimiter(false)
 , bIncludeRightDelimiter(false)
-, strLeftDelimiters(L" ")
-, strRightDelimiters(L" ")
+, strLeftDelimiters(L" ([")
+, strRightDelimiters(L" )]")
 {
 }
 
@@ -876,8 +876,8 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), nNewlineChar, 0);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_left_delimiter"), bIncludeLeftDelimiter, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_right_delimiter"), bIncludeRightDelimiter, false);
-	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"left_delimiters"), strLeftDelimiters, L" ");
-	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"right_delimiters"), strRightDelimiters, L" ");
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"left_delimiters"), strLeftDelimiters, L" ([");
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"right_delimiters"), strRightDelimiters, L" )]");
 
 	copyNewlineChar = static_cast<CopyNewlineChar>(nNewlineChar);
 
@@ -1064,7 +1064,7 @@ TabHighlightSettings& TabHighlightSettings::operator=(const TabHighlightSettings
 //////////////////////////////////////////////////////////////////////////////
 
 CloseSettings::CloseSettings()
-  : bAllowClosingLastView(true)
+  : bAllowClosingLastView(false)
   , bConfirmClosingMultipleViews(true)
 {
 }
@@ -1082,7 +1082,7 @@ bool CloseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pAppearanceElement))) return false;
 	if (FAILED(XmlHelper::AddDomElementIfNotExist(pAppearanceElement, CComBSTR(L"close"), pCloseElement))) return false;
 
-	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"allow_closing_last_view"),        bAllowClosingLastView,        true);
+	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"allow_closing_last_view"),        bAllowClosingLastView,        false);
 	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"confirm_closing_multiple_views"), bConfirmClosingMultipleViews, true);
 
 	return true;

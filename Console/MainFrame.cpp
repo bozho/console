@@ -1712,8 +1712,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
     if( !m_bFullScreen )
     {
-      ShowMenu(controlsSettings.bShowMenu ? TRUE : FALSE);
-      ShowToolbar(controlsSettings.bShowToolbar ? TRUE : FALSE);
+      ShowMenu(controlsSettings.bShowMenu);
+      ShowToolbar(controlsSettings.bShowToolbar);
 
       bool bShowTabs = false;
 
@@ -1728,7 +1728,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
       ShowTabs(bShowTabs);
 
-      ShowStatusbar(controlsSettings.bShowStatusbar ? TRUE : FALSE);
+      ShowStatusbar(controlsSettings.bShowStatusbar);
     }
 
 		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
@@ -1970,12 +1970,16 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
     }
   }
 
-	if ( g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
-		((m_tabs.size() > 1) || (!g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
-	   )
-	{
-		ShowTabs(TRUE);
-	}
+  if( !m_bFullScreen &&
+      g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
+      (
+        m_tabs.size() > 1 ||
+        !g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab
+      )
+    )
+  {
+    ShowTabs(true);
+  }
 
 	return true;
 }
@@ -2025,7 +2029,7 @@ void MainFrame::CloseTab(HWND hwndTabView)
     m_bTabsVisible && 
     (g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
   {
-    ShowTabs(FALSE);
+    ShowTabs(false);
   }
 
   if (m_tabs.size() == 0) PostMessage(WM_CLOSE);
@@ -2691,28 +2695,30 @@ void MainFrame::SetMargins(void)
 {
   CReBarCtrl rebar(m_hWndToolBar);
   DWORD dwStyle = this->m_TabCtrl.GetStyle();
+
+  m_Margins.cyTopHeight = rebar.GetBarHeight();
+  m_Margins.cyBottomHeight = 0;
+
   if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
   {
-    m_Margins.cyTopHeight = rebar.GetBarHeight();
     if( m_bTabsVisible )
     {
-      m_Margins.cyBottomHeight = m_nTabAreaHeight;
-      if (m_bStatusBarVisible)
-      {
-        CRect rectStatusBar(0, 0, 0, 0);
-        ::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
-        m_Margins.cyBottomHeight += rectStatusBar.Height();
-      }
+      m_Margins.cyBottomHeight += m_nTabAreaHeight;
     }
-    else
+
+    if (m_bStatusBarVisible)
     {
-      m_Margins.cyBottomHeight = 0;
+      CRect rectStatusBar(0, 0, 0, 0);
+      ::GetWindowRect(m_hWndStatusBar, &rectStatusBar);
+      m_Margins.cyBottomHeight += rectStatusBar.Height();
     }
   }
   else
   {
-    m_Margins.cyTopHeight = rebar.GetBarHeight() + m_nTabAreaHeight;
-    m_Margins.cyBottomHeight = 0;
+    if( m_bTabsVisible )
+    {
+      m_Margins.cyTopHeight += m_nTabAreaHeight;
+    }
   }
   SetTransparency();
 }

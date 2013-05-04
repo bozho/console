@@ -20,6 +20,9 @@ DlgSettingsTabs::DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot)
 , m_page2()
 {
 	IDD = IDD_SETTINGS_TABS;
+
+	m_pages[0] = &m_page1;
+	m_pages[1] = &m_page2;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -115,8 +118,10 @@ LRESULT DlgSettingsTabs::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 {
 	if (wID == IDOK)
 	{
-		m_page1.Save();
-		m_page2.Save();
+		for each (PageSettingsTab *page in m_pages)
+		{
+			page->Save();
+		}
 
 		DoDataExchange(DDX_SAVE);
 
@@ -243,14 +248,19 @@ LRESULT DlgSettingsTabs::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /
 	if (pnmv->uNewState & LVIS_SELECTED)
 	{
 		// selecting new item
-		m_page1.Load(m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()]);
-		m_page2.Load(m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()]);
+		for each (PageSettingsTab *page in m_pages)
+		{
+			page->Load(m_tabSettings.tabDataVector[m_listCtrl.GetSelectedIndex()]);
+		}
 	}
 	else if (pnmv->uOldState & LVIS_SELECTED)
 	{
 		// deselecting item
-		m_page1.Save();
-		m_page2.Save();
+		for each (PageSettingsTab *page in m_pages)
+		{
+			page->Save();
+		}
+
 		m_listCtrl.SetItemText(pnmv->iItem, 0, m_page1.GetTabTitle());
 	}
 
@@ -266,15 +276,9 @@ LRESULT DlgSettingsTabs::OnTabItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL
 {
 	int	nItem = m_tabCtrl.GetCurSel();
 
-	if (nItem == 0)
+	for(int i = 0; i < _countof(m_pages); i++)
 	{
-		m_page1.ShowWindow(SW_SHOW);
-		m_page2.ShowWindow(SW_HIDE);
-	}
-	else if (nItem == 1)
-	{
-		m_page1.ShowWindow(SW_HIDE);
-		m_page2.ShowWindow(SW_SHOW);
+		m_pages[i]->Show(nItem == i ? SW_SHOW : SW_HIDE);
 	}
 
 	return 0;

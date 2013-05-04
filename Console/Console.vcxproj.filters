@@ -233,6 +233,9 @@
     <ClInclude Include="DlgSettingsFullScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PageSettingsTab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Console.ico">

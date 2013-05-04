@@ -1,5 +1,6 @@
 #pragma once
 
+#include "PageSettingsTab.h"
 #include "Cursors.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,6 +19,7 @@ class PageSettingsTabs1
 	: public CDialogImpl<PageSettingsTabs1>
 	, public CWinDataExchange<PageSettingsTabs1>
 	, public CursorCharDrawer
+	, public PageSettingsTab
 {
 	public:
 
@@ -59,7 +61,6 @@ class PageSettingsTabs1
 //		LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 

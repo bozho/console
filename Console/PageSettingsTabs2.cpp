@@ -62,16 +62,6 @@ LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT PageSettingsTabs2::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 LRESULT PageSettingsTabs2::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	HWND		hWnd = reinterpret_cast<HWND>(lParam); 

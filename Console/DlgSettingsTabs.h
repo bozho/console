@@ -75,6 +75,8 @@ class DlgSettingsTabs
 		CTabCtrl			m_tabCtrl;
 		PageSettingsTabs1	m_page1;
 		PageSettingsTabs2	m_page2;
+
+		PageSettingsTab	*m_pages[2];
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "PageSettingsTab.h"
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -14,6 +16,7 @@
 class PageSettingsTabs2
 	: public CDialogImpl<PageSettingsTabs2>
 	, public CWinDataExchange<PageSettingsTabs2>
+	, public PageSettingsTab
 {
 	public:
 
@@ -30,7 +33,6 @@ class PageSettingsTabs2
 
 		BEGIN_MSG_MAP(PageSettingsTabs2)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-//			MESSAGE_HANDLER(WM_ERASEBKGND, OnEraseBkgnd)
 			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			COMMAND_RANGE_CODE_HANDLER(IDC_RADIO_BK_TYPE, IDC_RADIO_BK_TYPE3, BN_CLICKED, OnClickedBkType)
@@ -45,7 +47,6 @@ class PageSettingsTabs2
 //		LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 

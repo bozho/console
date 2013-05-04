@@ -150,35 +150,35 @@ void DlgSettingsMain::CreateSettingsTree()
 
 
 	// create console settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgConsole(dynamic_cast<DlgSettingsBase*>(new DlgSettingsConsole(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgConsole(new DlgSettingsConsole(m_pSettingsRoot));
 	AddDialogToTree(L"Console", dlgConsole, rect);
 
 	// create appearance settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgAppearance(dynamic_cast<DlgSettingsBase*>(new DlgSettingsAppearance(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgAppearance(new DlgSettingsAppearance(m_pSettingsRoot));
 	HTREEITEM htiAppearance = AddDialogToTree(L"Appearance", dlgAppearance, rect);
 
 	// create styles settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgStyles(dynamic_cast<DlgSettingsBase*>(new DlgSettingsStyles(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgStyles(new DlgSettingsStyles(m_pSettingsRoot));
 	AddDialogToTree(L"More...", dlgStyles, rect, htiAppearance);
 
 	// create full screen settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgFullScreen(dynamic_cast<DlgSettingsBase*>(new DlgSettingsFullScreen(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgFullScreen(new DlgSettingsFullScreen(m_pSettingsRoot));
 	AddDialogToTree(L"Full screen", dlgFullScreen, rect, htiAppearance);
 
 	// create behavior settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgBehavior(dynamic_cast<DlgSettingsBase*>(new DlgSettingsBehavior(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgBehavior(new DlgSettingsBehavior(m_pSettingsRoot));
 	AddDialogToTree(L"Behavior", dlgBehavior, rect);
 
 	// create hotkeys settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgHotKeys(dynamic_cast<DlgSettingsBase*>(new DlgSettingsHotkeys(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgHotKeys(new DlgSettingsHotkeys(m_pSettingsRoot));
 	HTREEITEM htiHotkeys = AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
 
 	// create mouse commands settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgMouseCmds(dynamic_cast<DlgSettingsBase*>(new DlgSettingsMouse(m_pSettingsRoot)));
+	std::shared_ptr<DlgSettingsBase>	dlgMouseCmds(new DlgSettingsMouse(m_pSettingsRoot));
 	AddDialogToTree(L"Mouse", dlgMouseCmds, rect, htiHotkeys);
 
 	// create tabs settings dialog
-	std::shared_ptr<DlgSettingsBase>	dlgTabs(dynamic_cast<DlgSettingsBase*>(new DlgSettingsTabs(m_pSettingsRoot)));
+	shared_ptr<DlgSettingsBase>	dlgTabs(new DlgSettingsTabs(m_pSettingsRoot, dynamic_cast<DlgSettingsConsole*>(dlgConsole.get())->m_consoleSettings));
 	AddDialogToTree(L"Tabs", dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);

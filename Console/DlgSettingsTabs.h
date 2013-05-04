@@ -4,6 +4,7 @@
 #include "DlgSettingsBase.h"
 #include "PageSettingsTabs1.h"
 #include "PageSettingsTabs2.h"
+#include "PageSettingsTabsColors.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +21,7 @@ class DlgSettingsTabs
 {
 	public:
 
-		DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot);
+		DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot, ConsoleSettings &consoleSettings);
 
 		BEGIN_DDX_MAP(DlgSettingsTabs)
 		END_DDX_MAP()
@@ -75,8 +76,9 @@ class DlgSettingsTabs
 		CTabCtrl			m_tabCtrl;
 		PageSettingsTabs1	m_page1;
 		PageSettingsTabs2	m_page2;
+		PageSettingsTabsColors	m_page3;
 
-		PageSettingsTab	*m_pages[2];
+		PageSettingsTab	*m_pages[3];
 };
 
 //////////////////////////////////////////////////////////////////////////////

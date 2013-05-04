@@ -21,7 +21,7 @@
 #define IDD_SETTINGS_APPEARANCE         207
 #define IDD_SETTINGS_HOTKEYS            208
 #define IDD_SETTINGS_TRANSPARENCY       209
-#define IDD_SETTINGS_STYLES             209
+#define IDD_SETTINGS_STYLES             210
 #define IDD_SETTINGS_TABS               211
 #define IDD_SETTINGS_BEHAVIOR           212
 #define IDD_SETTINGS_TABS_1             213
@@ -29,6 +29,7 @@
 #define IDD_SETTINGS_MOUSE              215
 #define IDD_CREDENTIALS                 216
 #define IDD_SETTINGS_FULLSCREEN         217
+#define IDD_SETTINGS_TABS_COLORS        218
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
 #define IDC_TREE_SECTIONS               1002
@@ -248,6 +249,7 @@
 #define IDC_CHECK_INC_RIGHT_DELIMITER   1188
 #define IDC_CHECK_CLOSING_LAST_TAB      1189
 #define IDC_CHECK_CONFIRM_CLOSE_MULTI   1190
+#define IDC_BTN_INHERIT_COLORS          1191
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -294,9 +296,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        218
+#define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1191
+#define _APS_NEXT_CONTROL_VALUE         1192
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

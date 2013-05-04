@@ -68,8 +68,9 @@ class DlgSettingsConsole
 
 		virtual void OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data);
 
-	private:
 		ConsoleSettings m_consoleSettings;
+
+	private:
 
 		CString         m_strShell;
 		CString         m_strInitialDir;

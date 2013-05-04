@@ -1710,14 +1710,14 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 			SetTrayIcon(NIM_DELETE);
 		}
 
+    MutexLock	tabMapLock(m_tabsMutex);
+
     if( !m_bFullScreen )
     {
       ShowMenu(controlsSettings.bShowMenu);
       ShowToolbar(controlsSettings.bShowToolbar);
 
       bool bShowTabs = false;
-
-      MutexLock	viewMapLock(m_tabsMutex);
 
       if ( controlsSettings.bShowTabs && 
         (!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
@@ -1731,15 +1731,16 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
       ShowStatusbar(controlsSettings.bShowStatusbar);
     }
 
-		SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
+    SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
-		for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
-		{
-			it->second->InitializeScrollbars();
-		}
+    for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+    {
+      it->second->InitializeScrollbars();
+      it->second->GetTabData()->SetColors(g_settingsHandler->GetConsoleSettings().consoleColors, false);
+    }
 
     ConsoleView::RecreateFont();
-		AdjustWindowSize(ADJUSTSIZE_WINDOW);
+    AdjustWindowSize(ADJUSTSIZE_WINDOW);
 
     if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
     {
@@ -1748,16 +1749,14 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     }
     else
     {
-      MutexLock	tabMapLock(m_tabsMutex);
-
       UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
       UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
     }
-	}
+  }
 
-	RegisterGlobalHotkeys();
+  RegisterGlobalHotkeys();
 
-	return 0;
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

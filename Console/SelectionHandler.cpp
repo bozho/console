@@ -26,7 +26,8 @@ SelectionHandler::SelectionHandler(
 					int nCharWidth, 
 					int nCharHeight,
 					int nVInsideBorder,
-					int nHInsideBorder)
+					int nHInsideBorder,
+					std::shared_ptr<TabData> tabData)
 : m_consoleView(consoleView)
 #ifndef _USE_AERO
 , m_dcSelection(::CreateCompatibleDC(NULL))
@@ -46,6 +47,7 @@ SelectionHandler::SelectionHandler(
 , m_selectionState(selstateNoSelection)
 , m_coordInitial()
 , m_coordCurrent()
+, m_tabData(tabData)
 {
 #ifndef _USE_AERO
 	Helpers::CreateBitmap(dcConsoleView, rectConsoleView.Width(), rectConsoleView.Height(), m_bmpSelection);
@@ -356,7 +358,7 @@ void SelectionHandler::CopySelection()
     m_consoleCopyInfo->bBold = g_settingsHandler->GetAppearanceSettings().fontSettings.bBold;
     m_consoleCopyInfo->bItalic = g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic;
     m_consoleCopyInfo->dwSize  = g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize * 2;
-    ::CopyMemory(m_consoleCopyInfo->consoleColors, g_settingsHandler->GetConsoleSettings().consoleColors, sizeof(m_consoleCopyInfo->consoleColors));
+    ::CopyMemory(m_consoleCopyInfo->consoleColors, m_tabData->consoleColors, sizeof(m_consoleCopyInfo->consoleColors));
 
 		m_consoleCopyInfo.SetReqEvent();
 	}

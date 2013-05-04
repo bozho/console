@@ -37,7 +37,8 @@ class SelectionHandler
 			int nCharWidth, 
 			int nCharHeight,
 			int nVInsideBorder,
-			int nHInsideBorder);
+			int nHInsideBorder,
+			std::shared_ptr<TabData> tabData);
 
 		~SelectionHandler();
 
@@ -96,6 +97,8 @@ class SelectionHandler
 
 		COORD			m_coordInitial;
 		COORD			m_coordCurrent;
+
+		std::shared_ptr<TabData>      m_tabData;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -1470,7 +1470,8 @@ void ConsoleView::CreateOffscreenBuffers()
 									m_nCharWidth,
 									m_nCharHeight,
 									m_nVInsideBorder,
-									m_nHInsideBorder));
+									m_nHInsideBorder,
+									m_tabData));
 
 	// create and initialize cursor
 	CRect		rectCursor(0, 0, m_nCharWidth, m_nCharHeight);
@@ -1876,20 +1877,20 @@ void ConsoleView::RepaintText(CDC& dc)
 		attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 		
 		// here we decide how to paint text over the background
-		if (/*m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
+		if (/*consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
 		{
 			nBkMode   = TRANSPARENT;
 		}
 		else
 		{
 			nBkMode		= OPAQUE;
-			crBkColor	= m_consoleSettings.consoleColors[attrBG];
+			crBkColor	= m_tabData->consoleColors[attrBG];
 		}
 
 		dc.SetBkMode(nBkMode);
 		dc.SetBkColor(crBkColor);
 
-		crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
+		crTxtColor		= m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_tabData->consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
 		dc.SetTextColor(crTxtColor);
 
 		strText		= m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
@@ -1909,7 +1910,7 @@ void ConsoleView::RepaintText(CDC& dc)
 			
 			attrBG = (m_screenBuffer[dwOffset].charInfo.Attributes & 0xFF) >> 4;
 
-			if (/*m_consoleSettings.consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
+			if (/*consoleColors[attrBG] == RGB(0, 0, 0)*/attrBG == 0)
 			{
 				if (nBkMode != TRANSPARENT)
 				{
@@ -1924,16 +1925,16 @@ void ConsoleView::RepaintText(CDC& dc)
 					nBkMode = OPAQUE;
 					bTextOut = true;
 				}
-				if (crBkColor != m_consoleSettings.consoleColors[attrBG])
+				if (crBkColor != m_tabData->consoleColors[attrBG])
 				{
-					crBkColor = m_consoleSettings.consoleColors[attrBG];
+					crBkColor = m_tabData->consoleColors[attrBG];
 					bTextOut = true;
 				}
 			}
 
-			if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]))
+			if (crTxtColor != (m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_tabData->consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF]))
 			{
-				crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
+				crTxtColor = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_tabData->consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
 				bTextOut = true;
 			}
 
@@ -2090,13 +2091,15 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   DWORD dwY      = m_nHInsideBorder + m_nCharHeight * dwRow;
   DWORD dwOffset = m_dwScreenColumns * dwRow;
 
+  COLORREF * consoleColors = m_tabData->consoleColors;
+
 #ifdef _USE_AERO
   Gdiplus::Graphics gr(dc);
 #endif //_USE_AERO
 
   std::unique_ptr<INT[]> dxWidths(new INT[m_dwScreenColumns]);
   for(size_t i = 0; i < m_dwScreenColumns; ++i)
-	dxWidths[i] = m_nCharWidth;
+    dxWidths[i] = m_nCharWidth;
 
   // first pass : text background color
   WORD    attrBG    = 0;
@@ -2127,7 +2130,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         if (attrBG != 0)
         {
 #ifdef _USE_AERO
-          COLORREF backgroundColor = m_consoleSettings.consoleColors[attrBG];
+          COLORREF backgroundColor = consoleColors[attrBG];
           Gdiplus::SolidBrush backgroundBrush(
             Gdiplus::Color(
               m_consoleSettings.backgroundTextOpacity,
@@ -2141,7 +2144,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
             dwBGWidth, m_nCharHeight);
 #else //_USE_AERO
           CBrush backgroundBrush;
-          backgroundBrush.CreateSolidBrush(m_consoleSettings.consoleColors[attrBG]);
+          backgroundBrush.CreateSolidBrush(consoleColors[attrBG]);
 
           CRect rect;
           rect.top    = dwY;
@@ -2165,7 +2168,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     if (attrBG != 0)
     {
 #ifdef _USE_AERO
-      COLORREF backgroundColor = m_consoleSettings.consoleColors[attrBG];
+      COLORREF backgroundColor = consoleColors[attrBG];
       Gdiplus::SolidBrush backgroundBrush(
         Gdiplus::Color(
           m_consoleSettings.backgroundTextOpacity,
@@ -2179,7 +2182,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         dwBGWidth, m_nCharHeight);
 #else //_USE_AERO
       CBrush backgroundBrush;
-      backgroundBrush.CreateSolidBrush(m_consoleSettings.consoleColors[attrBG]);
+      backgroundBrush.CreateSolidBrush(consoleColors[attrBG]);
 
       CRect rect;
       rect.top    = dwY;
@@ -2207,7 +2210,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 
 
     // compare foreground color
-    COLORREF colorFG2 = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : m_consoleSettings.consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
+    COLORREF colorFG2 = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
     if( dwFGWidth == 0 )
     {
       colorFG   = colorFG2;
@@ -2623,14 +2626,15 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelecti
 
 void ConsoleView::RedrawCharOnCursor(CDC& dc)
 {
-  CRect			rectCursor(0, 0, 0, 0);
+  CRect                      rectCursor(0, 0, 0, 0);
   SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+  COLORREF *                 consoleColors = m_tabData->consoleColors;
 
-  rectCursor			= m_cursor->GetCursorRect();
-  rectCursor.left		+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-  rectCursor.top		+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
-  rectCursor.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-  rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+  rectCursor         = m_cursor->GetCursorRect();
+  rectCursor.left   += (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+  rectCursor.top    += (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+  rectCursor.right  += (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+  rectCursor.bottom += (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 
   CBrush brush(::CreateSolidBrush(m_tabData->crCursorColor));
   dc.FillRect(rectCursor, brush);
@@ -2648,7 +2652,7 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
   if( g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic && 
       (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) > 0 )
   {
-    colorBG = m_consoleSettings.consoleColors[(m_screenBuffer[dwOffset - 1].charInfo.Attributes & 0xF0) >> 4];
+    colorBG = consoleColors[(m_screenBuffer[dwOffset - 1].charInfo.Attributes & 0xF0) >> 4];
 
     dc.SetTextColor(colorBG);
     dc.ExtTextOut(
@@ -2659,7 +2663,7 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
       nullptr);
   }
 
-  colorBG = m_consoleSettings.consoleColors[(m_screenBuffer[dwOffset].charInfo.Attributes & 0xF0) >> 4];
+  colorBG = consoleColors[(m_screenBuffer[dwOffset].charInfo.Attributes & 0xF0) >> 4];
 
   dc.SetTextColor(colorBG);
   dc.ExtTextOut(

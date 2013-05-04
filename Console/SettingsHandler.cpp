@@ -1964,6 +1964,11 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	m_tabSettings.SetDefaults(m_consoleSettings.strShell, m_consoleSettings.strInitialDir);
 	m_tabSettings.Load(m_pSettingsRoot);
 
+	for(auto iterTabData = m_tabSettings.tabDataVector.begin(); iterTabData != m_tabSettings.tabDataVector.end(); ++iterTabData)
+	{
+		iterTabData->get()->SetColors(m_consoleSettings.consoleColors, false);
+	}
+
 	return true;
 }
 

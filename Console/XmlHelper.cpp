@@ -77,30 +77,63 @@ HRESULT XmlHelper::GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, co
 
 //////////////////////////////////////////////////////////////////////////////
 
+HRESULT XmlHelper::CreateDomElement(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, CComPtr<IXMLDOMElement>& pNewElement)
+{
+  HRESULT hr;
+  CComPtr<IXMLDOMNode>     pNode;
+  CComPtr<IXMLDOMElement>  pNewElement2;
+  CComPtr<IXMLDOMDocument> pXmlDocument;
+  
+  hr = pElement->get_ownerDocument(&pXmlDocument);
+  if( hr != S_OK )
+    return hr;
+  hr = pXmlDocument->createElement(bstrName, &pNewElement2);
+  if( hr != S_OK )
+    return hr;
+  hr = pElement->appendChild(pNewElement2, &pNode);
+  if( hr != S_OK )
+    return hr;
+
+  return pNode.QueryInterface(&pNewElement);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+HRESULT XmlHelper::AddTextNode(CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText)
+{
+  HRESULT hr;
+  CComPtr<IXMLDOMNode>     pNode;
+  CComPtr<IXMLDOMText>     pXmlDomText;
+  CComPtr<IXMLDOMDocument> pXmlDocument;
+
+  hr = pElement->get_ownerDocument(&pXmlDocument);
+  if( hr != S_OK )
+    return hr;
+  hr = pXmlDocument->createTextNode(bstrText, &pXmlDomText);
+  if( hr != S_OK )
+    return hr;
+  hr = pElement->appendChild(pXmlDomText, &pNode);
+
+  return hr;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 HRESULT XmlHelper::AddDomElementIfNotExist(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, CComPtr<IXMLDOMElement>& pNewElement)
 {
   CComPtr<IXMLDOMNode> pNode;
   HRESULT hr = pElement->selectSingleNode(bstrName, &pNode);
 
-  if( hr == S_FALSE )
-  {
-    CComPtr<IXMLDOMElement> pNewElement2;
-    CComPtr<IXMLDOMDocument> pXmlDocument;
-    hr = pElement->get_ownerDocument(&pXmlDocument);
-    if( hr != S_OK )
-      return hr;
-    hr = pXmlDocument->createElement(bstrName, &pNewElement2);
-    if( hr != S_OK )
-      return hr;
-    hr = pElement->appendChild(pNewElement2, &pNode);
-    if( hr != S_OK )
-      return hr;
-  }
-
   if( hr == S_OK )
     return pNode.QueryInterface(&pNewElement);
-
-  return hr;
+  else
+    return XmlHelper::CreateDomElement(pElement, bstrName, pNewElement);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -287,7 +320,7 @@ void XmlHelper::SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CCom
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XmlHelper::SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue)
+void XmlHelper::SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, const COLORREF& crValue)
 {
 	SetAttribute(pElement, CComBSTR(L"r"), GetRValue(crValue));
 	SetAttribute(pElement, CComBSTR(L"g"), GetGValue(crValue));
@@ -295,3 +328,43 @@ void XmlHelper::SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORRE
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+bool XmlHelper::LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF colors[16])
+{
+	for (DWORD i = 0; i < 16; ++i)
+	{
+		CComPtr<IXMLDOMElement>	pFontColorElement;
+
+		if (FAILED(GetDomElement(pElement, CComBSTR(str(boost::wformat(L"colors/color[@id='%1%']") % i).c_str()), pFontColorElement))) return false;
+
+		DWORD id;
+
+		GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
+		if( id > 15 ) return false;
+		GetRGBAttribute(pFontColorElement, colors[id], colors[i]);
+	}
+	return true;
+}
+
+void XmlHelper::SaveColors(CComPtr<IXMLDOMElement>& pElement, const COLORREF colors[16])
+{
+	CComPtr<IXMLDOMElement>	pFontColorsElement;
+
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pElement, CComBSTR(L"colors"), pFontColorsElement))) return;
+
+	for (DWORD i = 0; i < 16; ++i)
+	{
+		CComPtr<IXMLDOMElement>	pFontColorElement;
+
+		if (FAILED(XmlHelper::GetDomElement(pFontColorsElement, CComBSTR(str(boost::wformat(L"color[@id='%1%']") % i).c_str()), pFontColorElement)))
+		{
+			XmlHelper::AddTextNode(pFontColorsElement, CComBSTR(L"\n\t\t\t\t"));
+			if (FAILED(XmlHelper::CreateDomElement(pFontColorsElement, CComBSTR(L"color"), pFontColorElement))) continue;
+			if( i == 15 )
+				XmlHelper::AddTextNode(pFontColorsElement, CComBSTR(L"\n\t\t\t"));
+			SetAttribute(pFontColorElement, CComBSTR(L"id"), i);
+		}
+
+		SetRGBAttribute(pFontColorElement, colors[i]);
+	}
+}

@@ -20,6 +20,8 @@ class XmlHelper
 
 		static HRESULT GetDomElement(const CComPtr<IXMLDOMElement>& pRootElement, const CComBSTR& bstrPath, CComPtr<IXMLDOMElement>& pElement);
 		static HRESULT AddDomElementIfNotExist(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, CComPtr<IXMLDOMElement>& pNewElement);
+		static HRESULT CreateDomElement(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, CComPtr<IXMLDOMElement>& pNewElement);
+		static HRESULT AddTextNode(CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText);
 
 		static void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, DWORD& dwValue, DWORD dwDefaultValue);
 		static void GetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, int& nValue, int nDefaultValue);
@@ -35,7 +37,9 @@ class XmlHelper
 		static void SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, bool bValue);
 		static void SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, const wstring& strValue);
 
-		static void SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, COLORREF& crValue);
+		static void SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, const COLORREF& crValue);
+		static void SaveColors(CComPtr<IXMLDOMElement>& pElement, const COLORREF colors[16]);
+		static bool LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF colors[16]);
 };
 
 //////////////////////////////////////////////////////////////////////////////

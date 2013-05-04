@@ -18,8 +18,6 @@ struct SettingsBase
 {
 	virtual bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot) = 0;
 	virtual bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot) = 0;
-
-	static void AddTextNode(CComPtr<IXMLDOMDocument>& pDoc, CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -642,6 +640,7 @@ struct TabData
 	, crBackgroundColor(RGB(0, 0, 0))
 	, menuBitmap()
 	, imageData()
+	, bInheritedColors(true)
 	{
 	}
 
@@ -665,6 +664,15 @@ struct TabData
 	CBitmap							menuBitmap;
 
 	ImageData						imageData;
+
+	bool							bInheritedColors;
+	COLORREF						consoleColors[16];
+
+	void SetColors(const COLORREF colors[16], const bool bForced)
+	{
+		if (bInheritedColors || bForced)
+			::CopyMemory(consoleColors, colors, sizeof(consoleColors));
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////

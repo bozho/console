@@ -17,25 +17,6 @@ extern std::shared_ptr<ImageHandler>		g_imageHandler;
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SettingsBase::AddTextNode(CComPtr<IXMLDOMDocument>& pDoc, CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrText)
-{
-	CComPtr<IXMLDOMText>	pDomText;
-	CComPtr<IXMLDOMNode>	pDomTextOut;
-
-	pDoc->createTextNode(bstrText, &pDomText);
-	pElement->appendChild(pDomText, &pDomTextOut);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 ConsoleSettings::ConsoleSettings()
 : strShell(L"")
 , strInitialDir(L"")
@@ -92,17 +73,8 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize, false);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"background_text_opacity"), backgroundTextOpacity, 255);
 
-	for (DWORD i = 0; i < 16; ++i)
-	{
-		CComPtr<IXMLDOMElement>	pFontColorElement;
-
-		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(boost::str(boost::wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
-
-		DWORD id;
-
-		XmlHelper::GetAttribute(pFontColorElement, CComBSTR(L"id"), id, i);
-		XmlHelper::GetRGBAttribute(pFontColorElement, consoleColors[id], consoleColors[i]);
-	}
+	if( !XmlHelper::LoadColors(pConsoleElement, consoleColors) )
+		::CopyMemory(consoleColors, defaultConsoleColors, sizeof(COLORREF)*16);
 
 	return true;
 }
@@ -130,16 +102,7 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"background_text_opacity"), backgroundTextOpacity);
 
-	for (DWORD i = 0; i < 16; ++i)
-	{
-		CComPtr<IXMLDOMElement>	pFontColorElement;
-
-		if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(boost::str(boost::wformat(L"colors/color[%1%]") % i).c_str()), pFontColorElement))) continue;
-
-		XmlHelper::SetAttribute(pFontColorElement, CComBSTR(L"id"), i);
-		XmlHelper::SetRGBAttribute(pFontColorElement, consoleColors[i]);
-	}
-
+	XmlHelper::SaveColors(pConsoleElement, consoleColors);
 	return true;
 }
 
@@ -1394,11 +1357,11 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		// this is just for pretty printing
 		if (itCommand == itLastCommand)
 		{
-			SettingsBase::AddTextNode(pSettingsDoc, pHotkeysElement, CComBSTR(L"\n\t"));
+			XmlHelper::AddTextNode(pHotkeysElement, CComBSTR(L"\n\t"));
 		}
 		else
 		{
-			SettingsBase::AddTextNode(pSettingsDoc, pHotkeysElement, CComBSTR(L"\n\t\t"));
+			XmlHelper::AddTextNode(pHotkeysElement, CComBSTR(L"\n\t\t"));
 		}
 	}
 
@@ -1555,11 +1518,11 @@ bool MouseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		// this is just for pretty printing
 		if (itCommand == itLastCommand)
 		{
-			SettingsBase::AddTextNode(pSettingsDoc, pMouseActionsElement, CComBSTR(L"\n\t\t"));
+			XmlHelper::AddTextNode(pMouseActionsElement, CComBSTR(L"\n\t\t"));
 		}
 		else
 		{
-			SettingsBase::AddTextNode(pSettingsDoc, pMouseActionsElement, CComBSTR(L"\n\t\t\t"));
+			XmlHelper::AddTextNode(pMouseActionsElement, CComBSTR(L"\n\t\t\t"));
 		}
 	}
 
@@ -1685,6 +1648,12 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 				}
 			}
 		}
+
+		CComPtr<IXMLDOMElement> pColors;
+		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"colors"), pColors)))
+		{
+			tabData->bInheritedColors = !XmlHelper::LoadColors(pTabElement, tabData->consoleColors);
+		}
 	}
 
 	return true;
@@ -1755,7 +1724,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"user"), (*itTab)->strUser);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"net_only"), (*itTab)->bNetOnly);
 
-		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
+		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewConsoleElement, &pNewConsoleOut);
 
 		// add <cursor> tag
@@ -1770,7 +1739,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"b"), GetBValue((*itTab)->crCursorColor));
 
 
-		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
+		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewCursorElement, &pNewCursorOut);
 
 		// add <background> tag
@@ -1818,26 +1787,32 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"b"), GetBValue((*itTab)->imageData.crTint));
 
 
-		SettingsBase::AddTextNode(pSettingsDoc, pNewImageElement, CComBSTR(L"\n\t\t\t\t\t"));
+		XmlHelper::AddTextNode(pNewImageElement, CComBSTR(L"\n\t\t\t\t\t"));
 		pNewImageElement->appendChild(pNewTintElement, &pNewTintOut);
-		SettingsBase::AddTextNode(pSettingsDoc, pNewImageElement, CComBSTR(L"\n\t\t\t\t"));
-		SettingsBase::AddTextNode(pSettingsDoc, pNewBkElement, CComBSTR(L"\n\t\t\t\t"));
+		XmlHelper::AddTextNode(pNewImageElement, CComBSTR(L"\n\t\t\t\t"));
+		XmlHelper::AddTextNode(pNewBkElement, CComBSTR(L"\n\t\t\t\t"));
 		pNewBkElement->appendChild(pNewImageElement, &pNewImageOut);
-		SettingsBase::AddTextNode(pSettingsDoc, pNewBkElement, CComBSTR(L"\n\t\t\t"));
-		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t\t"));
+		XmlHelper::AddTextNode(pNewBkElement, CComBSTR(L"\n\t\t\t"));
+		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewBkElement, &pNewBkOut);
-		SettingsBase::AddTextNode(pSettingsDoc, pNewTabElement, CComBSTR(L"\n\t\t"));
+
+		if (!(*itTab)->bInheritedColors)
+		{
+			XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
+			XmlHelper::SaveColors(pNewTabElement, (*itTab)->consoleColors);
+		}
+		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t"));
 
 		pTabsElement->appendChild(pNewTabElement, &pNewTabOut);
 
 		// this is just for pretty printing
 		if (itTab == itLastTab)
 		{
-			SettingsBase::AddTextNode(pSettingsDoc, pTabsElement, CComBSTR(L"\n\t"));
+			XmlHelper::AddTextNode(pTabsElement, CComBSTR(L"\n\t"));
 		}
 		else
 		{
-			SettingsBase::AddTextNode(pSettingsDoc, pTabsElement, CComBSTR(L"\n\t\t"));
+			XmlHelper::AddTextNode(pTabsElement, CComBSTR(L"\n\t\t"));
 		}
 	}
 

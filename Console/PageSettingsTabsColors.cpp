@@ -2,6 +2,7 @@
 #include "resource.h"
 
 #include "PageSettingsTabsColors.h"
+#include "XmlHelper.h"
 
 PageSettingsTabsColors::PageSettingsTabsColors(ConsoleSettings &consoleSettings)
 : m_tabData()
@@ -87,6 +88,40 @@ LRESULT PageSettingsTabsColors::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WO
 	DoDataExchange(DDX_LOAD);
 	Invalidate();
 	return 0;
+}
+
+LRESULT PageSettingsTabsColors::OnClickedBtnImportColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CFileDialog fileDialog(
+    TRUE,
+    NULL,
+    NULL,
+    OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST,
+    L"Config Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0\0");
+
+  if (fileDialog.DoModal() == IDOK)
+  {
+    CComPtr<IXMLDOMDocument> pSettingsDocument;
+    CComPtr<IXMLDOMElement>  pSettingsRoot;
+    if(FAILED(XmlHelper::OpenXmlDocument(
+      fileDialog.m_szFileName,
+      pSettingsDocument,
+      pSettingsRoot))) return 0;
+
+    CComPtr<IXMLDOMElement>	pConsoleElement;
+    if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
+
+    COLORREF colors[16];
+    if(!XmlHelper::LoadColors(pConsoleElement, colors)) return 0;
+
+    m_tabData->SetColors(colors, true);
+    m_tabData->bInheritedColors = false;
+
+    DoDataExchange(DDX_LOAD);
+    Invalidate();
+  }
+
+  return 0;
 }
 
 LRESULT PageSettingsTabsColors::OnClickedBtnInheritColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)

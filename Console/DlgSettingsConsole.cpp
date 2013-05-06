@@ -3,6 +3,7 @@
 
 #include "Console.h"
 #include "DlgSettingsConsole.h"
+#include "XmlHelper.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -217,6 +218,44 @@ LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /
 	DoDataExchange(DDX_LOAD);
 	Invalidate();
 	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsConsole::OnClickedBtnImportColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  CFileDialog fileDialog(
+    TRUE,
+    NULL,
+    NULL,
+    OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST,
+    L"Config Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0\0");
+
+  if (fileDialog.DoModal() == IDOK)
+  {
+    CComPtr<IXMLDOMDocument> pSettingsDocument;
+    CComPtr<IXMLDOMElement>  pSettingsRoot;
+    if(FAILED(XmlHelper::OpenXmlDocument(
+      fileDialog.m_szFileName,
+      pSettingsDocument,
+      pSettingsRoot))) return 0;
+
+    CComPtr<IXMLDOMElement>	pConsoleElement;
+    if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
+
+    COLORREF colors[16];
+    if(!XmlHelper::LoadColors(pConsoleElement, colors)) return 0;
+
+    ::CopyMemory(m_consoleSettings.consoleColors, colors, sizeof(m_consoleSettings.defaultConsoleColors));
+
+    DoDataExchange(DDX_LOAD);
+    Invalidate();
+  }
+
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

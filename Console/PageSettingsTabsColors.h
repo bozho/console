@@ -24,6 +24,7 @@ class PageSettingsTabsColors
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 
 			COMMAND_HANDLER(IDC_BTN_RESET_COLORS, BN_CLICKED, OnClickedBtnResetColors)
+			COMMAND_HANDLER(IDC_BTN_IMPORT_COLORS, BN_CLICKED, OnClickedBtnImportColors)
 			COMMAND_HANDLER(IDC_BTN_INHERIT_COLORS, BN_CLICKED, OnClickedBtnInheritColors)
 			COMMAND_RANGE_CODE_HANDLER(IDC_CLR_00, IDC_CLR_15, BN_CLICKED, OnClickedClrBtn)
 		END_MSG_MAP()
@@ -32,6 +33,7 @@ class PageSettingsTabsColors
 		LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 		LRESULT OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedBtnImportColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnInheritColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/);
 

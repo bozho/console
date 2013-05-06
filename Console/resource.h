@@ -250,6 +250,7 @@
 #define IDC_CHECK_CLOSING_LAST_TAB      1189
 #define IDC_CHECK_CONFIRM_CLOSE_MULTI   1190
 #define IDC_BTN_INHERIT_COLORS          1191
+#define IDC_BTN_IMPORT_COLORS           1192
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -298,7 +299,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32794
-#define _APS_NEXT_CONTROL_VALUE         1192
+#define _APS_NEXT_CONTROL_VALUE         1193
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

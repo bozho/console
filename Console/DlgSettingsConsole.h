@@ -41,6 +41,7 @@ class DlgSettingsConsole
 			COMMAND_HANDLER(IDC_BTN_BROWSE_SHELL, BN_CLICKED, OnClickedBtnBrowseShell)
 			COMMAND_HANDLER(IDC_BTN_BROWSE_DIR, BN_CLICKED, OnClickedBtnBrowseDir)
 			COMMAND_HANDLER(IDC_BTN_RESET_COLORS, BN_CLICKED, OnClickedBtnResetColors)
+			COMMAND_HANDLER(IDC_BTN_IMPORT_COLORS, BN_CLICKED, OnClickedBtnImportColors)
 			COMMAND_RANGE_CODE_HANDLER(IDC_CLR_00, IDC_CLR_15, BN_CLICKED, OnClickedClrBtn)
 #ifdef _USE_AERO
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
@@ -60,6 +61,7 @@ class DlgSettingsConsole
 		LRESULT OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedBtnImportColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/);
 
 #ifdef _USE_AERO

@@ -27,12 +27,12 @@ Changelog
         - : removed
         ! : changed
         + : added
-        
-Changes in 1.07.0 beta 3 (28 Apr 2013)
+
+Changes in 1.07.0 beta 4 (06 May 2013)
 
         ! Limits the maximized windows size on monitors with taskbar
           so ConsoleZ, with no border, no longer overlaps the taskbar when WIN+UP is pressed
-        ! restart is no longer needed for this appearance setting: "Tabs on bottom"
+        ! Restart is no longer needed for this appearance setting: "Tabs on bottom"
         + Full screen support
         + Full screen button in taskbar
         + Full screen hot key (default: F11)
@@ -42,7 +42,9 @@ Changes in 1.07.0 beta 3 (28 Apr 2013)
         + New behavior settings:
           "Allow closing the last tab/view"
           "Confirm before closing multiple tabs/views"
-        * caption was removed when border was unchecked
+        + Color map per tab
+        + Color map can be imported from another configuration file
+        * Caption was removed when border was unchecked
 
 Changes in 1.06.0 (24 Mar 2013)
 

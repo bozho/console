@@ -337,6 +337,7 @@ class MainFrame
 		CAccelerator	m_acceleratorTable;
 		UINT			m_uTaskbarRestart;
 		CMultiPaneStatusBarCtrl m_statusBar;
+		CMenuHandle m_contextMenu;
 
 		MARGINS m_Margins;
 };

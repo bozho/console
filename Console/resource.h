@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by Console.rc
 //
-#define IDR_POPUP_MENU_TAB              4
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
 #define IDS_TAB_CREATE_FAILED           129

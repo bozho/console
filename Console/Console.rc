@@ -734,51 +734,6 @@ BEGIN
     END
 END
 
-IDR_POPUP_MENU_TAB MENU
-BEGIN
-    POPUP "_"
-    BEGIN
-        POPUP "&File"
-        BEGIN
-            MENUITEM "&New Tab",                    ID_FILE_NEW_TAB
-            MENUITEM "&Close Tab",                  ID_FILE_CLOSE_TAB
-            MENUITEM SEPARATOR
-            MENUITEM "&Close View",                 ID_CLOSE_VIEW
-            MENUITEM SEPARATOR            
-            MENUITEM "E&xit",                       ID_APP_EXIT
-        END
-        POPUP "&Edit"
-        BEGIN
-            MENUITEM "&Copy",                       ID_EDIT_COPY
-            MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
-            MENUITEM "Cl&ear Selection",            ID_EDIT_CLEAR_SELECTION
-            MENUITEM "&Paste",                      ID_EDIT_PASTE
-            MENUITEM SEPARATOR
-            MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
-            MENUITEM SEPARATOR
-            MENUITEM "&Settings...",                ID_EDIT_SETTINGS
-        END
-        POPUP "&View"
-        BEGIN
-            MENUITEM "&Console Window",             ID_VIEW_CONSOLE
-            MENUITEM SEPARATOR
-            MENUITEM "&Menu",                       ID_VIEW_MENU
-            MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
-            MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
-            MENUITEM "Ta&bs",                       ID_VIEW_TABS
-            MENUITEM SEPARATOR
-            MENUITEM "&Full Screen",                ID_VIEW_FULLSCREEN
-        END
-        POPUP "&Help"
-        BEGIN
-            MENUITEM "&Help",                       ID_HELP
-            MENUITEM SEPARATOR
-            MENUITEM "&About Console...",           ID_APP_ABOUT
-        END
-    END
-END
-
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // Version

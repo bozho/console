@@ -230,6 +230,16 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	UpdateMenuHotKeys();
 
+  m_contextMenu.CreatePopupMenu();
+  CMenuHandle mainMenu = m_CmdBar.GetMenu();
+  int count = mainMenu.GetMenuItemCount();
+  for(int i = 0; i < count; ++i)
+  {
+    CString title;
+    mainMenu.GetMenuString(i, title, MF_BYPOSITION);
+    m_contextMenu.InsertMenu(i, MF_BYPOSITION, mainMenu.GetSubMenu(i), title);
+  }
+
 #ifdef _USE_AERO
   HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #else
@@ -1029,16 +1039,8 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	
-	CMenu		contextMenu;
-	CMenu		tabsMenu;
-	CMenuHandle	popupMenu;
 
-	contextMenu.LoadMenu(IDR_POPUP_MENU_TAB);
-	popupMenu = contextMenu.GetSubMenu(0);
-	
-	UpdateTabsMenu(popupMenu, tabsMenu);
-	popupMenu.TrackPopupMenu(0, point.x, point.y, m_hWnd);
+	m_CmdBar.TrackPopupMenu(m_contextMenu, 0, point.x, point.y);
 
 	return 0;
 }
@@ -1157,15 +1159,7 @@ LRESULT MainFrame::OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam,
 			// show popup menu
 			::SetForegroundWindow(m_hWnd);
 
-			CMenu		contextMenu;
-			CMenu		tabsMenu;
-			CMenuHandle	popupMenu;
-
-			contextMenu.LoadMenu(IDR_POPUP_MENU_TAB);
-			popupMenu = contextMenu.GetSubMenu(0);
-			
-			UpdateTabsMenu(popupMenu, tabsMenu);
-			popupMenu.TrackPopupMenu(0, posCursor.x, posCursor.y, m_hWnd);
+			m_CmdBar.TrackPopupMenu(m_contextMenu, 0, posCursor.x, posCursor.y);
 
 			// we need this for the menu to close when clicking outside of it
 			PostMessage(WM_NULL, 0, 0);
@@ -2236,7 +2230,7 @@ void MainFrame::SetWindowStyles(void)
     if (stylesSettings.bResizable) dwStyle |= WS_MAXIMIZEBOX; else dwStyle &= ~WS_MAXIMIZEBOX;
     if (stylesSettings.bCaption)   dwStyle |= WS_CAPTION;     else dwStyle &= ~WS_CAPTION;
     if (stylesSettings.bResizable) dwStyle |= WS_THICKFRAME;  else dwStyle &= ~WS_THICKFRAME;
-    if (stylesSettings.bBorder)    dwStyle |= WS_BORDER; /* WS_BORDER | WS_DLGFRAME  */
+    if (stylesSettings.bBorder)    dwStyle |= WS_BORDER; /* WS_CAPTION = WS_BORDER | WS_DLGFRAME  */
   }
 
   dwStyle |= WS_MINIMIZEBOX;

@@ -1727,10 +1727,17 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
     SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
-    for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+    const COLORREF * consoleColors = g_settingsHandler->GetConsoleSettings().consoleColors;
+    for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
     {
       it->second->InitializeScrollbars();
-      it->second->GetTabData()->SetColors(g_settingsHandler->GetConsoleSettings().consoleColors, false);
+      it->second->GetTabData()->SetColors(consoleColors, false);
+    }
+
+    TabDataVector& tabDataVector = g_settingsHandler->GetTabSettings().tabDataVector;
+    for (auto it = tabDataVector.begin(); it != tabDataVector.end(); ++it)
+    {
+      it->get()->SetColors(consoleColors, false);
     }
 
     ConsoleView::RecreateFont();

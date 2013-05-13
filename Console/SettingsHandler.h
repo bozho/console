@@ -638,7 +638,7 @@ struct TabData
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
-	, menuBitmap()
+	, iconMenu()
 	, imageData()
 	, bInheritedColors(true)
 	{
@@ -661,7 +661,7 @@ struct TabData
 	BackgroundImageType				backgroundImageType;
 	COLORREF						crBackgroundColor;
 
-	CBitmap							menuBitmap;
+	CIcon							iconMenu;
 
 	ImageData						imageData;
 
@@ -672,6 +672,16 @@ struct TabData
 	{
 		if (bInheritedColors || bForced)
 			::CopyMemory(consoleColors, colors, sizeof(consoleColors));
+	}
+
+	HICON GetMenuIcon(void)
+	{
+		if (iconMenu.IsNull())
+		{
+			// load small icon
+			iconMenu.Attach(Helpers::LoadTabIcon(false, bUseDefaultIcon, strIcon, strShell));
+		}
+		return iconMenu;
 	}
 };
 

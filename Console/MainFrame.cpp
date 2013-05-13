@@ -2096,28 +2096,10 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 
 		tabsMenu.InsertMenuItem(wId-ID_NEW_TAB_1, TRUE, &subMenuItem);
 
-		// create menu icons with proper transparency (thanks to chrisz for the patch)
-		CIcon tabSmallIcon(Helpers::LoadTabIcon(false, (*it)->bUseDefaultIcon, (*it)->strIcon, (*it)->strShell));
-
-		// destroy icon bitmap
-		if (!(*it)->menuBitmap.IsNull()) (*it)->menuBitmap.DeleteObject();
-
-		if (!tabSmallIcon.IsNull())
-		{
-			CDC	dc;
-
-			(*it)->menuBitmap.CreateCompatibleBitmap(::GetDC(NULL), 16, 16);
-
-			dc.CreateCompatibleDC(::GetDC(NULL));
-			dc.SelectBitmap((*it)->menuBitmap);
-			dc.FillSolidRect(0, 0, 16, 16, ::GetSysColor(COLOR_MENU));
-			dc.DrawIconEx(0, 0, tabSmallIcon.m_hIcon, 16, 16);
-		}
-
-		if (!(*it)->menuBitmap.IsNull()) 
-		{
-			tabsMenu.SetMenuItemBitmaps(wId, MF_BYCOMMAND, (*it)->menuBitmap, NULL);
-		}
+		m_CmdBar.RemoveImage(wId);
+		HICON hiconMenu = (*it)->GetMenuIcon();
+		if( hiconMenu )
+			m_CmdBar.AddIcon(hiconMenu, wId);
 	}
 
 	// set tabs menu as popup submenu
@@ -2125,7 +2107,7 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	{
 		CMenuItemInfo	menuItem;
 
-		menuItem.fMask		= MIIM_SUBMENU;
+		menuItem.fMask    = MIIM_SUBMENU;
 		menuItem.hSubMenu	= HMENU(tabsMenu);
 
 		mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);

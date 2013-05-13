@@ -457,7 +457,13 @@ struct HotKeys : public SettingsBase
         if (this->bExtended) lScanCode |= 0x01000000L;
 
         if( ::GetKeyNameText(lScanCode, szKeyName, ARRAYSIZE(szKeyName)) )
-          strHotKeyName += szKeyName;
+        {
+          // it's used in menu, so we double &
+          if (szKeyName[0] == L'&')
+            strHotKeyName += L"&&";
+          else
+            strHotKeyName += szKeyName;
+        }
       }
 
       return strHotKeyName;

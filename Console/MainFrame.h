@@ -340,6 +340,9 @@ class MainFrame
 		CMenuHandle m_contextMenu;
 
 		MARGINS m_Margins;
+
+		int     m_nFullSreen1Bitmap;
+		int     m_nFullSreen2Bitmap;
 };
 
 //////////////////////////////////////////////////////////////////////////////

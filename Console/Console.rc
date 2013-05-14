@@ -675,13 +675,8 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
-/*
-#ifdef _USE_AERO
-IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
-#else
-IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-#endif
-*/
+IDR_FULLSCREEN1         BITMAP                  "res\\fullscreen1.bmp"
+IDR_FULLSCREEN2         BITMAP                  "res\\fullscreen2.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

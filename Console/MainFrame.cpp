@@ -262,6 +262,11 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 #endif
 	m_toolbar.SetButtonInfo(ID_FILE_NEW_TAB, &tbi);
 
+	m_toolbar.AddBitmap(1, IDR_FULLSCREEN1);
+	m_nFullSreen1Bitmap = m_toolbar.GetImageList().GetImageCount() - 1;
+	m_nFullSreen2Bitmap = m_toolbar.GetBitmap(ID_VIEW_FULLSCREEN);
+
+
 #ifdef _USE_AERO
   CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE & ~RBS_BANDBORDERS);
 #else
@@ -2487,8 +2492,13 @@ void MainFrame::ShowFullScreen(bool bShow)
 {
   m_bFullScreen = bShow;
 
+  m_CmdBar.RemoveImage(ID_VIEW_FULLSCREEN);
+
   if( m_bFullScreen )
   {
+    m_CmdBar.AddBitmap(IDR_FULLSCREEN1, ID_VIEW_FULLSCREEN);
+    m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen1Bitmap);
+
     // save the non fullscreen position and size
     // normal or maximized
     GetWindowRect(&m_rectWndNotFS);
@@ -2500,6 +2510,9 @@ void MainFrame::ShowFullScreen(bool bShow)
   }
   else
   {
+    m_CmdBar.AddBitmap(IDR_FULLSCREEN2, ID_VIEW_FULLSCREEN);
+    m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen2Bitmap);
+
     ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
 
     bool bShowTabs = controlsSettings.bShowTabs;

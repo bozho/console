@@ -14,6 +14,9 @@
 #define IDPANE_COLUMNS_ROWS             135
 #define IDPANE_BUF_COLUMNS_ROWS         136
 
+#define IDR_FULLSCREEN1                 137
+#define IDR_FULLSCREEN2                 138
+
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205
 #define IDD_SETTINGS_CONSOLE            206

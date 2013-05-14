@@ -242,20 +242,21 @@ class MainFrame
 		void AdjustWindowRect(CRect& rect);
 		void AdjustWindowSize(ADJUSTSIZE as);
 		void CloseTab(HWND hwndTabView);
-    void SetActiveConsole(HWND hwndTabView, HWND hwndConsoleView);
-    void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
-    void PasteToConsoles();
-    void SendTextToConsoles(const wchar_t* pszText);
-    bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
+		void SetActiveConsole(HWND hwndTabView, HWND hwndConsoleView);
+		void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
+		void PasteToConsoles();
+		void SendTextToConsoles(const wchar_t* pszText);
+		bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
 
 	private:
 
-    void ActivateApp(void);
+		void ActivateApp(void);
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
+		void UpdateOpenedTabsMenu(CMenu& tabsMenu);
 		void UpdateMenuHotKeys(void);
 		void UpdateStatusBar();
 		void SetWindowStyles(void);

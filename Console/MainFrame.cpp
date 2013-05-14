@@ -1041,11 +1041,30 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
-	m_CmdBar.TrackPopupMenu(m_contextMenu, 0, point.x, point.y);
+	MouseSettings::Command command = static_cast<MouseSettings::Command>(wParam);
+
+	switch (command)
+	{
+	case MouseSettings::cmdMenu1:
+		m_CmdBar.TrackPopupMenu(m_contextMenu, 0, point.x, point.y);
+		break;
+
+	case MouseSettings::cmdMenu2:
+		m_CmdBar.TrackPopupMenu(m_tabsMenu, 0, point.x, point.y);
+		break;
+
+	case MouseSettings::cmdMenu3:
+		{
+			CMenu menu;
+			UpdateOpenedTabsMenu(menu);
+			m_CmdBar.TrackPopupMenu(menu, 0, point.x, point.y);
+		}
+		break;
+	}
 
 	return 0;
 }
@@ -2118,8 +2137,70 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 		mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
 	}
 
-  // create jumplist
-  JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
+	// create jumplist
+	JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
+}
+
+void MainFrame::UpdateOpenedTabsMenu(CMenu& tabsMenu)
+{
+	if (!tabsMenu.IsNull()) tabsMenu.DestroyMenu();
+	tabsMenu.CreatePopupMenu();
+
+	// in full screen, adds the entry "exit fullscreen"
+	if( m_bFullScreen )
+	{
+		CMenuItemInfo	subMenuItem;
+		WORD wId = ID_VIEW_FULLSCREEN;
+		auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
+
+		std::wstring strTitle = L"Exit Full Screen";
+		if( hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end() )
+		{
+			strTitle += L"\t";
+			strTitle += hotK->get()->GetHotKeyName();
+		}
+
+		subMenuItem.fMask       = MIIM_STRING | MIIM_ID;
+		subMenuItem.wID         = wId;
+		subMenuItem.dwTypeData  = const_cast<wchar_t*>(strTitle.c_str());
+		subMenuItem.cch         = static_cast<UINT>(strTitle.length() + 1);
+
+		tabsMenu.InsertMenuItem(wId, TRUE, &subMenuItem);
+	}
+
+	// build tabs menu
+	WORD wId = ID_SWITCH_TAB_1;
+	MutexLock	tabMapLock(m_tabsMutex);
+	for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it, ++wId)
+	{
+		CMenuItemInfo	subMenuItem;
+
+		auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
+
+		std::wstring strTitle = it->second->GetTitle();
+		if( hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end() )
+		{
+			strTitle += L"\t";
+			strTitle += hotK->get()->GetHotKeyName();
+		}
+
+		subMenuItem.fMask       = MIIM_STRING | MIIM_ID;
+		subMenuItem.wID         = wId;
+		subMenuItem.dwTypeData  = const_cast<wchar_t*>(strTitle.c_str());
+		subMenuItem.cch         = static_cast<UINT>(strTitle.length() + 1);
+
+		tabsMenu.InsertMenuItem(wId-ID_SWITCH_TAB_1, TRUE, &subMenuItem);
+
+		auto tabData = it->second->GetTabData();
+
+		if (m_activeTabView == it->second)
+			tabsMenu.EnableMenuItem(wId, MF_GRAYED | MF_BYCOMMAND);
+
+		m_CmdBar.RemoveImage(wId);
+		HICON hiconMenu = tabData->GetMenuIcon();
+		if( hiconMenu )
+			m_CmdBar.AddIcon(hiconMenu, wId);
+	}
 }
 
 void MainFrame::UpdateMenuHotKeys(void)

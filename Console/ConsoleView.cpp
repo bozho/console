@@ -570,11 +570,15 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 
 			// menu command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdMenu);
-			if ((*it)->action == mouseAction)
+			for(int i = 0; i < 3; ++i)
 			{
-				m_mouseCommand = MouseSettings::cmdMenu;
-				return 0;
+				MouseSettings::Command command = static_cast<MouseSettings::Command>(MouseSettings::cmdMenu1 + i);
+				it = mouseSettings.commands.get<MouseSettings::commandID>().find(command);
+				if ((*it)->action == mouseAction)
+				{
+					m_mouseCommand = command;
+					return 0;
+				}
 			}
 		}
 		else
@@ -615,15 +619,17 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				case MouseSettings::cmdPaste :
 				{
 					//Paste();
-          m_mainFrame.PasteToConsoles();
+					m_mainFrame.PasteToConsoles();
 					break;
 				}
 
-				case MouseSettings::cmdMenu :
+				case MouseSettings::cmdMenu1 :
+				case MouseSettings::cmdMenu2 :
+				case MouseSettings::cmdMenu3 :
 				{
 					CPoint	screenPoint(point);
 					ClientToScreen(&screenPoint);
-					m_mainFrame.SendMessage(UM_SHOW_POPUP_MENU, 0, MAKELPARAM(screenPoint.x, screenPoint.y));
+					m_mainFrame.SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(m_mouseCommand), MAKELPARAM(screenPoint.x, screenPoint.y));
 					break;
 				}
 

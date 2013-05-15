@@ -28,7 +28,7 @@ Changelog
         ! : changed
         + : added
 
-Changes in 1.07.0 beta 4 (06 May 2013)
+Changes in 1.07.0 beta 5 (14 May 2013)
 
         ! Limits the maximized windows size on monitors with taskbar
           so ConsoleZ, with no border, no longer overlaps the taskbar when WIN+UP is pressed
@@ -44,7 +44,12 @@ Changes in 1.07.0 beta 4 (06 May 2013)
           "Confirm before closing multiple tabs/views"
         + Color map per tab
         + Color map can be imported from another configuration file
+        + 3 context menus can be configured in mouse settings:
+          Context menu #1 = full menu
+          Context menu #2 = configured tabs
+          Context menu #3 = opened tabs
         * Caption was removed when border was unchecked
+        * Display of hotkey '&' in menu was truncated
 
 Changes in 1.06.0 (24 Mar 2013)
 

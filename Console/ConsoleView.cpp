@@ -30,6 +30,7 @@ int ConsoleView::m_nHScrollWidth(0);
 int ConsoleView::m_nVInsideBorder(0);
 int ConsoleView::m_nHInsideBorder(0);
 
+bool _boolMenuSysKeyCancelled = false;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -301,6 +302,13 @@ LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
+	/*
+	lParam
+	Bits Meaning
+	29   The context code. The value is 1 if the ALT key is down while the key is pressed;
+	     it is 0 if the WM_SYSKEYDOWN message is posted to the active window
+	     because no window has the keyboard focus.
+	*/
 	if ((wParam == VK_SPACE) && (lParam & (0x1 << 29)))
 	{
 		return m_mainFrame.SendMessage(WM_SYSCOMMAND, SC_KEYMENU, VK_SPACE);
@@ -318,8 +326,23 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 {
 	if (((uMsg == WM_KEYDOWN) || (uMsg == WM_KEYUP)) && (wParam == VK_PACKET)) return 0;
 
-	if (uMsg == WM_SYSKEYUP && wParam == VK_MENU) {
-		m_mainFrame.PostMessage(WM_COMMAND, ID_VIEW_MENU);
+	if (uMsg == WM_SYSKEYDOWN && wParam == VK_MENU)
+	{
+		/*
+		lParam
+		Bits Meaning
+		30   The previous key state.
+		     The value is 1 if the key is down before the message is sent,
+		     or it is 0 if the key is up.
+		*/
+		if ((lParam & (0x1 << 30)) == 0)
+			_boolMenuSysKeyCancelled = false;
+	}
+
+	if (uMsg == WM_SYSKEYUP && wParam == VK_MENU)
+	{
+		if( !_boolMenuSysKeyCancelled )
+			m_mainFrame.PostMessage(WM_COMMAND, ID_VIEW_MENU);
 
 		return 0;
 	}
@@ -424,6 +447,8 @@ LRESULT ConsoleView::OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, 
 
 LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	_boolMenuSysKeyCancelled = true;
+
 	UINT						uKeys			= GET_KEYSTATE_WPARAM(wParam); 
 	UINT						uXButton		= GET_XBUTTON_WPARAM(wParam);
 
@@ -500,150 +525,142 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			break;
 	}
 
-	do
+	if (m_mouseCommand == MouseSettings::cmdNone)
 	{
-		if (m_mouseCommand == MouseSettings::cmdNone)
+		// mouse button down
+
+		// no current mouse action
+		auto it = mouseSettings.commands.get<MouseSettings::commandID>().end();
+
+		// copy command
+		if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
 		{
-			// no current mouse action
-			typedef MouseSettings::Commands::index<MouseSettings::commandID>::type	CommandIDIndex;
+			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdCopy);
 
-			CommandIDIndex::iterator it;
-
-			// copy command
-			if (m_selectionHandler->GetState() == SelectionHandler::selstateSelected)
-			{
-				it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdCopy);
-
-				if ((*it)->action == mouseAction)
-				{
-					m_mouseCommand = MouseSettings::cmdCopy;
-					return 0;
-				}
-			}
-
-			// select command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdSelect);
 			if ((*it)->action == mouseAction)
 			{
-				::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
+				m_mouseCommand = MouseSettings::cmdCopy;
+				return 0;
+			}
+		}
 
+		// select command
+		it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdSelect);
+		if ((*it)->action == mouseAction)
+		{
+			::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
+
+			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get());
+
+			m_mouseCommand = MouseSettings::cmdSelect;
+			return 0;
+		}
+
+		if (MouseSettings::clickDouble == mouseAction.clickType)
+		{
+			MouseSettings::Action mouseActionCopy = mouseAction;
+			mouseActionCopy.clickType = MouseSettings::clickSingle;
+			if ((*it)->action == mouseActionCopy)
+			{
 				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-				m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get());
+				m_selectionHandler->SelectWord(GetConsoleCoord(point), m_screenBuffer.get());
 
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
 			}
-
-			if (MouseSettings::clickDouble == mouseAction.clickType)
-			{
-				mouseAction.clickType = MouseSettings::clickSingle;
-				if ((*it)->action == mouseAction)
-				{
-					m_mouseCommand = MouseSettings::cmdSelect;
-
-					MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-					m_selectionHandler->SelectWord(GetConsoleCoord(point), m_screenBuffer.get());
-				}
-
-				mouseAction.clickType = MouseSettings::clickDouble;
-			}
-
-			// paste command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdPaste);
-			if ((*it)->action == mouseAction)
-			{
-				m_mouseCommand = MouseSettings::cmdPaste;
-				return 0;
-			}
-
-			// drag command
-			it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdDrag);
-			if ((*it)->action == mouseAction)
-			{
-				CPoint clientPoint(point);
-
-				ClientToScreen(&clientPoint);
-				m_mainFrame.PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uKeys, uXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
-
-				// we don't set active command here, main frame handles mouse drag
-				return 0;
-			}
-
-			// menu command
-			for(int i = 0; i < 3; ++i)
-			{
-				MouseSettings::Command command = static_cast<MouseSettings::Command>(MouseSettings::cmdMenu1 + i);
-				it = mouseSettings.commands.get<MouseSettings::commandID>().find(command);
-				if ((*it)->action == mouseAction)
-				{
-					m_mouseCommand = command;
-					return 0;
-				}
-			}
 		}
-		else
+
+		// paste command
+		it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdPaste);
+		if ((*it)->action == mouseAction)
 		{
-			// we have an active command, handle it...
-			switch (m_mouseCommand)
-			{
-				case MouseSettings::cmdCopy :
-				{
-					Copy(&point);
-					break;
-				}
-
-				case MouseSettings::cmdSelect :
-				{
-					::SetCursor(::LoadCursor(NULL, IDC_ARROW));
-
-					if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
-					{
-						m_selectionHandler->EndSelection();
-						m_selectionHandler->ClearSelection();
-					}
-					else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting ||
-						 m_selectionHandler->GetState() == SelectionHandler::selstateSelectWord)
-					{
-						m_selectionHandler->EndSelection();
-
-						// copy on select
-						if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
-						{
-							Copy(NULL);
-						}
-					}
-
-					break;
-				}
-
-				case MouseSettings::cmdPaste :
-				{
-					//Paste();
-					m_mainFrame.PasteToConsoles();
-					break;
-				}
-
-				case MouseSettings::cmdMenu1 :
-				case MouseSettings::cmdMenu2 :
-				case MouseSettings::cmdMenu3 :
-				{
-					CPoint	screenPoint(point);
-					ClientToScreen(&screenPoint);
-					m_mainFrame.SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(m_mouseCommand), MAKELPARAM(screenPoint.x, screenPoint.y));
-					break;
-				}
-
-				default :
-				{
-					if (bMouseButtonUp) return 0;
-				}
-			}
-
-			m_mouseCommand = MouseSettings::cmdNone;
+			m_mouseCommand = MouseSettings::cmdPaste;
 			return 0;
 		}
 
-	} while(false);
+		// drag command
+		it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdDrag);
+		if ((*it)->action == mouseAction)
+		{
+			CPoint clientPoint(point);
+
+			ClientToScreen(&clientPoint);
+			m_mainFrame.PostMessage(UM_START_MOUSE_DRAG, MAKEWPARAM(uKeys, uXButton), MAKELPARAM(clientPoint.x, clientPoint.y));
+
+			// we don't set active command here, main frame handles mouse drag
+			return 0;
+		}
+
+		// menu command
+		for(int i = 0; i < 3; ++i)
+		{
+			MouseSettings::Command command = static_cast<MouseSettings::Command>(MouseSettings::cmdMenu1 + i);
+			it = mouseSettings.commands.get<MouseSettings::commandID>().find(command);
+			if ((*it)->action == mouseAction)
+			{
+				m_mouseCommand = command;
+				return 0;
+			}
+		}
+	}
+	else
+	{
+		// mouse button up
+
+		// we have an active command, handle it...
+		switch (m_mouseCommand)
+		{
+			case MouseSettings::cmdCopy :
+			{
+				Copy(&point);
+				break;
+			}
+
+			case MouseSettings::cmdSelect :
+			{
+				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
+
+				if (m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting)
+				{
+					m_selectionHandler->EndSelection();
+					m_selectionHandler->ClearSelection();
+				}
+				else if (m_selectionHandler->GetState() == SelectionHandler::selstateSelecting ||
+						m_selectionHandler->GetState() == SelectionHandler::selstateSelectWord)
+				{
+					m_selectionHandler->EndSelection();
+
+					// copy on select
+					if (g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bCopyOnSelect)
+					{
+						Copy(NULL);
+					}
+				}
+
+				break;
+			}
+
+			case MouseSettings::cmdPaste :
+			{
+				m_mainFrame.PasteToConsoles();
+				break;
+			}
+
+			case MouseSettings::cmdMenu1 :
+			case MouseSettings::cmdMenu2 :
+			case MouseSettings::cmdMenu3 :
+			{
+				CPoint	screenPoint(point);
+				ClientToScreen(&screenPoint);
+				m_mainFrame.SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(m_mouseCommand), MAKELPARAM(screenPoint.x, screenPoint.y));
+				break;
+			}
+		}
+
+		m_mouseCommand = MouseSettings::cmdNone;
+		return 0;
+	}
 
 	ForwardMouseClick(uMsg, wParam, point);
 

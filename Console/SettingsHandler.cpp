@@ -1196,6 +1196,9 @@ HotKeys::HotKeys()
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ,      L"Split horizontally")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,       L"Split vertically")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"fullscreen", ID_VIEW_FULLSCREEN,  L"Full Screen")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"zoom100",    ID_VIEW_ZOOM_100,    L"Zoom 100%")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"zoominc",    ID_VIEW_ZOOM_INC,    L"Zoom increment")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"zoomdec",    ID_VIEW_ZOOM_DEC,    L"Zoom decrement")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"groupall",   ID_GROUP_ALL,        L"Group all")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"ungroupall", ID_UNGROUP_ALL,      L"Ungroup all")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"grouptab",   ID_GROUP_TAB,        L"Group tab")));

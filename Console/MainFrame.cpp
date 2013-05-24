@@ -1887,6 +1887,39 @@ LRESULT MainFrame::OnFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnZoom(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if (m_activeTabView)
+	{
+		std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+		if( activeConsoleView )
+		{
+			DWORD dwNewSize = g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize;
+
+			if( wID != ID_VIEW_ZOOM_100 )
+			{
+				dwNewSize = ::MulDiv(dwNewSize, activeConsoleView->GetFontZoom(), 100);
+				if( wID == ID_VIEW_ZOOM_INC ) dwNewSize ++;
+				if( wID == ID_VIEW_ZOOM_DEC ) dwNewSize --;
+			}
+
+			// recreate font with new size
+			if (ConsoleView::RecreateFont(dwNewSize, true))
+			{
+				// only if the new size is different (to avoid flickering at extremes)
+				AdjustWindowSize(ADJUSTSIZE_FONT);
+			}
+		}
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	CAboutDlg dlg;

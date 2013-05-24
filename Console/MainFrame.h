@@ -153,6 +153,9 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_APP_ABOUT, OnAppAbout)
 			COMMAND_ID_HANDLER(IDC_DUMP_BUFFER, OnDumpBuffer)
 			COMMAND_ID_HANDLER(ID_VIEW_FULLSCREEN, OnFullScreen)
+			COMMAND_ID_HANDLER(ID_VIEW_ZOOM_100, OnZoom)
+			COMMAND_ID_HANDLER(ID_VIEW_ZOOM_INC, OnZoom)
+			COMMAND_ID_HANDLER(ID_VIEW_ZOOM_DEC, OnZoom)
 
 			CHAIN_MSG_MAP(CTabbedFrameImpl<MainFrame>)
 			REFLECT_NOTIFICATIONS()
@@ -233,6 +236,7 @@ class MainFrame
 		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnZoom(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

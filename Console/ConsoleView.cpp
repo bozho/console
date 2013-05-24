@@ -22,6 +22,8 @@
 //CBitmap	ConsoleView::m_bmpText;
 
 CFont ConsoleView::m_fontText;
+DWORD ConsoleView::m_dwFontSize(0);
+DWORD ConsoleView::m_dwFontZoom(100); // 100 %
 
 int ConsoleView::m_nCharHeight(0);
 int ConsoleView::m_nCharWidth(0);
@@ -194,8 +196,10 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	// scrollbar stuff
 	InitializeScrollbars();
 
+/*
 	// create font
-	RecreateFont();
+	RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
+*/
 
 	// create offscreen buffers
 	CreateOffscreenBuffers();
@@ -373,16 +377,10 @@ LRESULT ConsoleView::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
   {
     if (uKeys & MK_CONTROL)
     {
-      // calculate new font size in the [5, 36] interval
-      DWORD size = max(5, min(36, m_appearanceSettings.fontSettings.dwSize + nScrollDelta));
-
-      // only if the new size is different (to avoid flickering at extremes)
-      if (m_appearanceSettings.fontSettings.dwSize != size)
+      // recreate font with new size
+      if (RecreateFont(m_dwFontSize + nScrollDelta, true))
       {
-        // adjust the font size
-        m_appearanceSettings.fontSettings.dwSize = size;
-        // recreate font with new size
-        RecreateFont();
+        // only if the new size is different (to avoid flickering at extremes)
         m_mainFrame.AdjustWindowSize(ADJUSTSIZE_FONT);
       }
     }
@@ -1105,13 +1103,31 @@ void ConsoleView::SetAppActiveStatus(bool bAppActive)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::RecreateFont()
+bool ConsoleView::RecreateFont(DWORD dwNewFontSize, bool boolZooming)
 {
+	// calculate new font size in the [5, 36] interval
+	DWORD size = dwNewFontSize;
+	if( !boolZooming )
+		size = ::MulDiv(dwNewFontSize, m_dwFontZoom, 100);
+	size = min(36, size);
+	size = max(5, size);
+	DWORD zoom = ( m_dwFontSize == 0 )? 100 : ::MulDiv(size, 100, g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize);
+
+	TRACE(L"size %lu->%lu / zoom %lu->%lu\n", m_dwFontSize, size, m_dwFontZoom, zoom);
+
+	if (boolZooming && m_dwFontSize == size) return false;
+
+	// adjust the font size
+	m_dwFontSize = size;
+	m_dwFontZoom = zoom;
+
 	if (!m_fontText.IsNull()) m_fontText.DeleteObject();
 	if (!CreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.strName))
 	{
 		CreateFont(wstring(L"Courier New"));
 	}
+
+	return true;
 }
 
 void ConsoleView::RecreateOffscreenBuffers(ADJUSTSIZE as)
@@ -1544,7 +1560,7 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		default : DEFAULT_QUALITY;
 	}
 	m_fontText.CreateFont(
-		-::MulDiv(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize , dcText.GetDeviceCaps(LOGPIXELSY), 72),
+		-::MulDiv(m_dwFontSize, dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,

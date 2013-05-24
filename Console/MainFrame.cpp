@@ -283,6 +283,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	CreateStatusBar();
 
+	// create font
+	ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
+
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
 	SetReflectNotifications(true);
@@ -1764,7 +1767,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
       it->get()->SetColors(consoleColors, false);
     }
 
-    ConsoleView::RecreateFont();
+    ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
     AdjustWindowSize(ADJUSTSIZE_WINDOW);
 
     if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
@@ -2243,6 +2246,7 @@ void MainFrame::UpdateStatusBar()
   wchar_t strColsRows    [16] = L"";
   wchar_t strBufColsRows [16] = L"";
   wchar_t strPid         [16] = L"";
+  wchar_t strZoom        [16] = L"";
 
   if (m_activeTabView)
   {
@@ -2253,7 +2257,7 @@ void MainFrame::UpdateStatusBar()
 
       DWORD dwSelectionSize = activeConsoleView->GetSelectionSize();
       if( dwSelectionSize )
-        _snwprintf_s(strSelection, ARRAYSIZE(strSelection), _TRUNCATE, L"%lu", dwSelectionSize);
+        _snwprintf_s(strSelection, ARRAYSIZE(strSelection),   _TRUNCATE, L"%lu", dwSelectionSize);
 
       _snwprintf_s(strColsRows,    ARRAYSIZE(strColsRows),    _TRUNCATE, L"%lux%lu",
         consoleParams->dwColumns,
@@ -2263,6 +2267,8 @@ void MainFrame::UpdateStatusBar()
       _snwprintf_s(strBufColsRows, ARRAYSIZE(strBufColsRows), _TRUNCATE, L"%lux%lu",
         consoleParams->dwBufferColumns ? consoleParams->dwBufferColumns : consoleParams->dwColumns,
         consoleParams->dwBufferRows ? consoleParams->dwBufferRows : consoleParams->dwRows);
+      _snwprintf_s(strZoom, ARRAYSIZE(strZoom),               _TRUNCATE, L"%lu%%",
+        activeConsoleView->GetFontZoom());
 
       UIEnable(ID_EDIT_COPY,            activeConsoleView->CanCopy()           ? TRUE : FALSE);
       UIEnable(ID_EDIT_CLEAR_SELECTION, activeConsoleView->CanClearSelection() ? TRUE : FALSE);
@@ -2275,6 +2281,7 @@ void MainFrame::UpdateStatusBar()
   UISetText(5, strSelection);
   UISetText(6, strColsRows);
   UISetText(7, strBufColsRows);
+  UISetText(8, strZoom);
 
   UIUpdateStatusBar();
 }
@@ -3018,7 +3025,7 @@ void MainFrame::CreateStatusBar()
 #endif
 	UIAddStatusBar(m_hWndStatusBar);
 
-	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_CAPS_INDICATOR, IDPANE_NUM_INDICATOR, IDPANE_SCRL_INDICATOR, IDPANE_PID_INDICATOR, IDPANE_SELECTION, IDPANE_COLUMNS_ROWS, IDPANE_BUF_COLUMNS_ROWS};
+	int arrPanes[]	= { ID_DEFAULT_PANE, IDPANE_CAPS_INDICATOR, IDPANE_NUM_INDICATOR, IDPANE_SCRL_INDICATOR, IDPANE_PID_INDICATOR, IDPANE_SELECTION, IDPANE_COLUMNS_ROWS, IDPANE_BUF_COLUMNS_ROWS, IDPANE_ZOOM};
 
 	m_statusBar.SetPanes(arrPanes, sizeof(arrPanes)/sizeof(int), true);
 }

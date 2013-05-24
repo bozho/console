@@ -13,9 +13,10 @@
 #define IDPANE_SELECTION                134
 #define IDPANE_COLUMNS_ROWS             135
 #define IDPANE_BUF_COLUMNS_ROWS         136
+#define IDPANE_ZOOM                     137
 
-#define IDR_FULLSCREEN1                 137
-#define IDR_FULLSCREEN2                 138
+#define IDR_FULLSCREEN1                 150
+#define IDR_FULLSCREEN2                 151
 
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205

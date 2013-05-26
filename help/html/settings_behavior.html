@@ -14,7 +14,7 @@
 	<img src="../images/settings_behavior.png" />
 	</p>
 
-	<h2>Copy & paste</h2>
+	<h2>Copy &amp; paste</h2>
 
 	<p class="block-row-name">Copy on select</p>
 	<p class="block-row-description">
@@ -35,6 +35,12 @@
 	</p>
 	<br />
 
+	<p class="block-row-name">Position-sensitive copy</p>
+	<p class="block-row-description">
+		If checked, the copy mouse action is valid only if mouse is over selection.
+	</p>
+	<br />
+
 	<p class="block-row-name">Don't wrap long lines</p>
 	<p class="block-row-description">
 		If checked, long lines will not be wrapped. When a selected row 
@@ -46,6 +52,37 @@
 	<p class="block-row-name">Trim trailing spaces</p>
 	<p class="block-row-description">
 		If checked, trailing spaces in each copied line will be deleted.
+	</p>
+	<br />
+
+	<h2>Copy new line character</h2>
+
+	<p class="block-row-name">Windows (CR+LF)</p>
+	<p class="block-row-description">
+		If selected the copy operation will convert the carriage return using the Windows convention.
+	</p>
+
+	<p class="block-row-name">Unix (LF)</p>
+	<p class="block-row-description">
+		If selected the copy operation will convert the carriage return using the Unix convention.
+	</p>
+	<br />
+
+	<h2>Word selection delimiters</h2>
+
+	<p class="block-row-name">Left</p>
+	<p class="block-row-description">
+		List of left delimiter characters.
+	</p>
+
+	<p class="block-row-name">Right</p>
+	<p class="block-row-description">
+		List of right delimiter characters.
+	</p>
+
+	<p class="block-row-name">include</p>
+	<p class="block-row-description">
+		If checked, the delimiter is included in selection.
 	</p>
 	<br />
 
@@ -61,19 +98,6 @@
 		<br />
 		<i>Scroll X rows</i> will scroll Console window for the specified 
 		number of rows.
-	</p>
-	<br />
-
-	<h2>Copy new line character</h2>
-
-	<p class="block-row-name">Windows (CR+LF)</p>
-	<p class="block-row-description">
-		If selected the copy operation will convert the carriage return using the Windows convention.
-	</p>
-
-	<p class="block-row-name">Unix (LF)</p>
-	<p class="block-row-description">
-		If selected the copy operation will convert the carriage return using the Unix convention.
 	</p>
 	<br />
 
@@ -94,6 +118,22 @@
 		If checked, the inactive tab where some activities have been detected in the corresponding console will stay highlighted
 		even if the activities have stopped.
 	</p>
+	<br />
+
+	<h2>Close</h2>
+
+	<p class="block-row-name">Allow closing the last tab/view</p>
+	<p class="block-row-description">
+		If checked, the application can be exited by closing the last tab/view.<br />
+		If that event, the tab close button is available for the last tab.
+	</p>
+
+	<p class="block-row-name">Confirm before closing multiple tabs/views</p>
+	<p class="block-row-description">
+		If checked, a confirmation message is displayed before closing multiple tabs/views.
+	</p>
+
+	<br />
 </body>
 
 </html>

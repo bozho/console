@@ -21,15 +21,11 @@
 		<param name="Local" value="html\gpl.html">
 		</OBJECT>
 	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Acknowledgements">
-		<param name="Local" value="html\acknowledgements.html">
-		</OBJECT>
-	<LI> <OBJECT type="text/sitemap">
-		<param name="Name" value="Using Console">
+		<param name="Name" value="Using ConsoleZ">
 		</OBJECT>
 	<UL>
 		<LI> <OBJECT type="text/sitemap">
-			<param name="Name" value="Running Console">
+			<param name="Name" value="Running ConsoleZ">
 			<param name="Local" value="html\running.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
@@ -57,6 +53,10 @@
 				<param name="Local" value="html\settings_appearance_more.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Appearance (Full screen)">
+				<param name="Local" value="html\settings_appearance_fullscreen.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Behavior">
 				<param name="Local" value="html\settings_behavior.html">
 				</OBJECT>
@@ -71,6 +71,18 @@
 			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Tabs">
 				<param name="Local" value="html\settings_tabs.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Tabs (Main)">
+				<param name="Local" value="html\settings_tabs_main.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Tabs (Background)">
+				<param name="Local" value="html\settings_tabs_background.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Tabs (Colors)">
+				<param name="Local" value="html\settings_tabs_colors.html">
 				</OBJECT>
 		</UL>
 		<LI> <OBJECT type="text/sitemap">

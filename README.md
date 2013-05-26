@@ -23,16 +23,17 @@ This fork supports:
 Changelog
 =========
 
-        * : fixed
-        - : removed
-        ! : changed
-        + : added
+        ! changed
+        - removed
+        + added
+        * fixed
 
-Changes in 1.07.0 beta 5 (14 May 2013)
+Changes in 1.07.0 beta 6 (26 May 2013)
 
         ! Limits the maximized windows size on monitors with taskbar
           so ConsoleZ, with no border, no longer overlaps the taskbar when WIN+UP is pressed
         ! Restart is no longer needed for this appearance setting: "Tabs on bottom"
+        ! Settings edition no longer modifies the zoom factor
         + Full screen support
         + Full screen button in taskbar
         + Full screen hot key (default: F11)
@@ -48,15 +49,20 @@ Changes in 1.07.0 beta 5 (14 May 2013)
           Context menu #1 = full menu
           Context menu #2 = configured tabs
           Context menu #3 = opened tabs
+        + Zoom factor in status bar
+        + New hotkeys:
+          "Zoom 100%"      (default: CTRL+0 NUM KEYPAD)
+          "Zoom increment" (default: CTRL++ NUM KEYPAD)
+          "Zoom decrement" (default: CTRL+- NUM KEYPAD)
         * Caption was removed when border was unchecked
         * Display of hotkey '&' in menu was truncated
 
 Changes in 1.06.0 (24 Mar 2013)
 
-        ! the cloned tab title is suffixed with (2)
+        ! The cloned tab title is suffixed with (2).
         ! about dialog box improvement
-        ! hotkeys are displayed in the menu
-        ! restart is no longer needed for these appearance settings:
+        ! Hotkeys are displayed in the menu
+        ! Restart is no longer needed for these appearance settings:
           "Caption"
           "Resizable"
           "Border"
@@ -64,25 +70,25 @@ Changes in 1.06.0 (24 Mar 2013)
         + new option "Net Only" to "Run as user"
           the user credentials are used only to access network resources
           the user is displayed in tab title surrounded with braces
-        + "Run as user" supports UNC user names
+        + "Run as user" supports UPN format (user@domain).
         + new buttons in the toolbar:
           "Rename tab"
           "Split Horizontally"
           "Split Vertically"
         + new hotkeys:
-          "New Tab 11" (default: CTRL+F11)
-          "New Tab 12" (default: CTRL+F12)
-          "Switch to left view" (default: ALT+LEFT)
-          "Switch to right view" (default: ALT+RIGHT)
-          "Switch to top view" (default: ALT+UP)
+          "New Tab 11"            (default: CTRL+F11)
+          "New Tab 12"            (default: CTRL+F12)
+          "Switch to left view"   (default: ALT+LEFT)
+          "Switch to right view"  (default: ALT+RIGHT)
+          "Switch to top view"    (default: ALT+UP)
           "Switch to bottom view" (default: ALT+DOWN)
-        + Windows key can be used in global hotkeys
+        + Windows key can be used in global hotkeys.
         + The glass frame extended in client area (toolbar and tabs) can be used to
           move the window.
         + The glass frame extended in client area (tabs only) can be used to
           maximize or restore the window by double clicking.
         * If the only one tab was cloned, the "delete" button remained disabled.
-        * Under Windows 8, the call to GetTextMetrics function failed with some fonts
+        * Under Windows 8, the call to GetTextMetrics function failed with some fonts.
           The return code wasn't checked and char metrics wasn't correctly initialized.
         * wrong tabs scrolling
         * close button drawing
@@ -97,15 +103,15 @@ Changes in 1.05.0 (2 Feb 2013)
         ! FreeImage 3.15.4
         ! Visual Studio 2012
         ! WTL 8.1.12085
-        ! force monospace displaying
-          by adjusting the size of chars larger than average width font          
-        ! limit vertical scrolling to the furthest buffer location viewed        
-        + Windows 8 can use a wallpaper per monitor
-        + display a closing confirmation when there is only one tab
-          but multiple views
-        + improve the status bar with:
+        ! Forces monospace displaying
+          by adjusting the size of chars larger than average width font.
+        ! Limits vertical scrolling to the furthest buffer location viewed.
+        + Windows 8 can use a wallpaper per monitor.
+        + Displays a closing confirmation when there is only one tab
+          but multiple views.
+        + Improves the status bar with:
           console buffer size, console screen size,
           selection size and console PID
-        * dropping a file affects all views in a group
-        * aero glass margins are resetted when composition change
-          (hibernation disables DWM, at wakeup ConsoleZ was fully transparent)
+        * Dropping a file affects all views in a group.
+        * Aero glass margins are resetted when composition change
+          (hibernation disables DWM, at wakeup ConsoleZ was fully transparent).

@@ -28,7 +28,7 @@ Changelog
         + added
         * fixed
 
-Changes in 1.07.0 beta 6 (26 May 2013)
+Changes in 1.07.0 (26 May 2013)
 
         ! Limits the maximized windows size on monitors with taskbar
           so ConsoleZ, with no border, no longer overlaps the taskbar when WIN+UP is pressed

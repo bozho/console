@@ -56,6 +56,7 @@ Changes in 1.07.0 (26 May 2013)
           "Zoom decrement" (default: CTRL+- NUM KEYPAD)
         * Caption was removed when border was unchecked
         * Display of hotkey '&' in menu was truncated
+        * Press ALT key, with mouse action, no longer shows/hides the menu
 
 Changes in 1.06.0 (24 Mar 2013)
 

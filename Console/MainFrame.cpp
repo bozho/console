@@ -88,6 +88,7 @@ MainFrame::MainFrame
 , m_startupTabs(vector<wstring>(0))
 , m_startupDirs(vector<wstring>(0))
 , m_startupCmds(vector<wstring>(0))
+, m_nMultiStartSleep(0)
 , m_activeTabView()
 , m_bMenuVisible     (true)
 , m_bToolbarVisible  (true)
@@ -3174,7 +3175,7 @@ LRESULT MainFrame::OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	vector<wstring> startupTabs;
 	vector<wstring> startupCmds;
 	vector<wstring> startupDirs;
-	int nMultiStartSleep;
+	int nMultiStartSleep = 0;
 
 	wstring ignoreTitle;
 

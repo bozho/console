@@ -2,6 +2,7 @@ bin/
 obj/
 ipch/
 help/console.chm
+help/html/changelog.html
 
 *.aps
 *.user

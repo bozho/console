@@ -316,6 +316,18 @@
     <None Include="..\setup\config\console.xml">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\help\html\settings_appearance_fullscreen.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\settings_tabs_background.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\settings_tabs_colors.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\settings_tabs_main.html">
+      <Filter>Help Files\html</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc">
@@ -326,5 +338,6 @@
     <CustomBuild Include="..\help\console.hhp">
       <Filter>Help Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\README.md" />
   </ItemGroup>
 </Project>

@@ -684,6 +684,173 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="XmlHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\help\html\settings_appearance_fullscreen.html" />
+    <None Include="..\help\html\settings_tabs_background.html" />
+    <None Include="..\help\html\settings_tabs_colors.html" />
+    <None Include="..\help\html\settings_tabs_main.html" />
+    <CustomBuild Include="..\README.md">
+      <FileType>Document</FileType>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">changelog.html</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">changelog.html</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">changelog.html</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">changelog.html</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">false</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">false</LinkObjects>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">@echo off
+cd /d $(IntDir)
+
+echo ^&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"^&gt; &gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;title^&gt;Changelog^&lt;/title^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;meta http-equiv="content-type" content='text/html; charset=utf-8' /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;link rel="stylesheet" type="text/css" href="../styles/help.css" /^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/head^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+csplit --quiet %(FullPath) /^^Changelog$/
+pandoc --from=markdown --to=html xx01 &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+
+echo ^&lt;/body^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html
+echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Command>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">changelog.html</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">changelog.html</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">changelog.html</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">changelog.html</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
+    </CustomBuild>
     <None Include="..\setup\config\console.xml" />
     <None Include="res\Console.ico" />
     <None Include="res\toolbar.bmp" />
@@ -698,7 +865,7 @@ copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
 exit 0 )
 echo %(Filename)%(Extension) : error : failed to create CHM file
 </Command>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">hhc "%(FullPath)"
 if errorlevel 1 (
 copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
@@ -706,7 +873,7 @@ exit 0 )
 echo %(Filename)%(Extension) : error : failed to create CHM file
 </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">Build CHM file</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">hhc "%(FullPath)"
 if errorlevel 1 (
 copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
@@ -714,7 +881,7 @@ exit 0 )
 echo %(Filename)%(Extension) : error : failed to create CHM file
 </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">Build CHM file</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">hhc "%(FullPath)"
 if errorlevel 1 (
 copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
@@ -722,7 +889,55 @@ exit 0 )
 echo %(Filename)%(Extension) : error : failed to create CHM file
 </Command>
       <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Build CHM file</Message>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).chm;%(Outputs)</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">hhc "%(FullPath)"
+if errorlevel 1 (
+copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
+exit 0 )
+echo %(Filename)%(Extension) : error : failed to create CHM file
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">hhc "%(FullPath)"
+if errorlevel 1 (
+copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
+exit 0 )
+echo %(Filename)%(Extension) : error : failed to create CHM file
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">hhc "%(FullPath)"
+if errorlevel 1 (
+copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
+exit 0 )
+echo %(Filename)%(Extension) : error : failed to create CHM file
+</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">hhc "%(FullPath)"
+if errorlevel 1 (
+copy "%(RootDir)%(Directory)%(Filename).chm" "$(TargetDir)"
+exit 0 )
+echo %(Filename)%(Extension) : error : failed to create CHM file
+</Command>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">Build CHM file</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Build CHM file</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">Build CHM file</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Build CHM file</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release aero|Win32'">false</LinkObjects>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug aero|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release aero|x64'">false</LinkObjects>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
     </CustomBuild>
     <None Include="..\help\html\acknowledgements.html" />
     <None Include="..\help\html\changelog.html" />

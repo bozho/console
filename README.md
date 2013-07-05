@@ -28,6 +28,12 @@ Changelog
         + added
         * fixed
 
+Changes in 1.07.1 (05 Jul 2013)
+
+        * Sometimes the application could not start with multiple tabs.
+          The delay between initial tabs was uninitialized.
+        * Icons missing in tabs menu popup.
+
 Changes in 1.07.0 (26 May 2013)
 
         ! Limits the maximized windows size on monitors with taskbar

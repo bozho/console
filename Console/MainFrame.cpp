@@ -1319,7 +1319,7 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 			CPoint point(pTabItems->pt.x, pTabItems->pt.y);
 			CPoint screenPoint(point);
 			this->m_TabCtrl.ClientToScreen(&screenPoint);
-			m_tabsMenu.TrackPopupMenu(0, screenPoint.x, screenPoint.y, m_hWnd);
+			m_CmdBar.TrackPopupMenu(m_tabsMenu, 0, screenPoint.x, screenPoint.y);
 		}
 	}
 	else
@@ -1356,7 +1356,7 @@ LRESULT MainFrame::OnToolbarDropDown(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*b
 	m_toolbar.GetItemRect(0, &buttonRect);
 	m_toolbar.ClientToScreen(&buttonRect);
 
-	m_tabsMenu.TrackPopupMenu(0, buttonRect.left, buttonRect.bottom, m_hWnd);
+	m_CmdBar.TrackPopupMenu(m_tabsMenu, 0, buttonRect.left, buttonRect.bottom);
 	return 0;
 }
 

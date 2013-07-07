@@ -31,6 +31,7 @@ class DlgSettingsConsole
 			DDX_CHECK(IDC_CHECK_SAVE_SIZE, m_consoleSettings.bSaveSize)
 			DDX_UINT_RANGE(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows, static_cast<DWORD>(0), static_cast<DWORD>(9999))
 			DDX_UINT_RANGE(IDC_BUFFER_COLUMNS, m_consoleSettings.dwBufferColumns, static_cast<DWORD>(0), static_cast<DWORD>(200))
+			DDX_CHECK(IDC_CHECK_BOLD_INTENSIFIED, m_consoleSettings.bBoldIntensified)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsConsole)

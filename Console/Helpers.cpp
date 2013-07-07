@@ -281,8 +281,6 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
         16,
         LR_DEFAULTCOLOR));
   }
-
-  return NULL;
 }
 
 //////////////////////////////////////////////////////////////////////////////

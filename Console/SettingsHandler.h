@@ -46,6 +46,7 @@ struct ConsoleSettings : public SettingsBase
 
 	bool		bStartHidden;
 	bool		bSaveSize;
+	bool		bBoldIntensified;
 
 	COLORREF	defaultConsoleColors[16];
 	COLORREF	consoleColors[16];

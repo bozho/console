@@ -215,6 +215,7 @@
 #define IDC_SPIN_TAB_FLASHES            1156
 #define IDC_CHECK_SAVE_SIZE             1157
 #define IDC_CHECK_USE_SCROLL_LOCK       1158
+#define IDC_CHECK_BOLD_INTENSIFIED      1158
 #define IDC_LIST_MOUSE_COMMANDS         1160
 #define IDC_COMBO_BUTTONS               1161
 #define IDC_CHECK_CTRL                  1162

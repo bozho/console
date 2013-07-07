@@ -33,6 +33,7 @@
 #define IDD_CREDENTIALS                 216
 #define IDD_SETTINGS_FULLSCREEN         217
 #define IDD_SETTINGS_TABS_COLORS        218
+#define IDD_SETTINGS_FONT               219
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
 #define IDC_TREE_SECTIONS               1002
@@ -216,6 +217,7 @@
 #define IDC_CHECK_SAVE_SIZE             1157
 #define IDC_CHECK_USE_SCROLL_LOCK       1158
 #define IDC_CHECK_BOLD_INTENSIFIED      1158
+#define IDC_CHECK_ITALIC_INTENSIFIED    1159
 #define IDC_LIST_MOUSE_COMMANDS         1160
 #define IDC_COMBO_BUTTONS               1161
 #define IDC_CHECK_CTRL                  1162

@@ -46,7 +46,6 @@ struct ConsoleSettings : public SettingsBase
 
 	bool		bStartHidden;
 	bool		bSaveSize;
-	bool		bBoldIntensified;
 
 	COLORREF	defaultConsoleColors[16];
 	COLORREF	consoleColors[16];
@@ -88,6 +87,8 @@ struct FontSettings : public SettingsBase
 	bool			bBold;
 	bool			bItalic;
 	FontSmoothing	fontSmoothing;
+	bool			bBoldIntensified;
+	bool			bItalicIntensified;
 
 	bool			bUseColor;
 	COLORREF		crFontColor;

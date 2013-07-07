@@ -6,6 +6,7 @@
 #include "DlgSettingsConsole.h"
 #include "DlgSettingsAppearance.h"
 #include "DlgSettingsStyles.h"
+#include "DlgSettingsFont.h"
 #include "DlgSettingsFullScreen.h"
 #include "DlgSettingsBehavior.h"
 #include "DlgSettingsHotkeys.h"
@@ -159,7 +160,11 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create styles settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgStyles(new DlgSettingsStyles(m_pSettingsRoot));
-	AddDialogToTree(L"More...", dlgStyles, rect, htiAppearance);
+	AddDialogToTree(L"Styles", dlgStyles, rect, htiAppearance);
+
+	// create styles settings dialog
+	std::shared_ptr<DlgSettingsBase>	dlgFont(new DlgSettingsFont(m_pSettingsRoot));
+	AddDialogToTree(L"Font", dlgFont, rect, htiAppearance);
 
 	// create full screen settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgFullScreen(new DlgSettingsFullScreen(m_pSettingsRoot));

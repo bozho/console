@@ -1562,13 +1562,17 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;      break;
 		default : DEFAULT_QUALITY;
 	}
+
+	bool bBold   = g_settingsHandler->GetAppearanceSettings().fontSettings.bBold;
+	bool bItalic = g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic;
+
 	m_fontText.CreateFont(
 		-::MulDiv(m_dwFontSize, dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		g_settingsHandler->GetAppearanceSettings().fontSettings.bBold ? FW_BOLD : 0,
-		g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic,
+		bBold ? FW_BOLD : 0,
+		bItalic,
 		FALSE,
 		FALSE,
  		DEFAULT_CHARSET,
@@ -1577,13 +1581,19 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		byFontQuality,
 		DEFAULT_PITCH,
 		strFontName.c_str());
+
+	if( g_settingsHandler->GetAppearanceSettings().fontSettings.bBoldIntensified )
+		bBold = !bBold;
+	if( g_settingsHandler->GetAppearanceSettings().fontSettings.bItalicIntensified )
+		bItalic = !bItalic;
+
 	m_fontTextHigh.CreateFont(
 		-::MulDiv(m_dwFontSize, dcText.GetDeviceCaps(LOGPIXELSY), 72),
 		0,
 		0,
 		0,
-		g_settingsHandler->GetAppearanceSettings().fontSettings.bBold ? 0 : FW_BOLD,
-		g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic,
+		bBold ? FW_BOLD : 0,
+		bItalic,
 		FALSE,
 		FALSE,
 		DEFAULT_CHARSET,
@@ -2302,6 +2312,9 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   DWORD    dwFGWidth = 0;
   bool     fontHigh  = false;
 
+  bool     boolIntensified = m_appearanceSettings.fontSettings.bBoldIntensified ||
+                             m_appearanceSettings.fontSettings.bItalicIntensified;
+
   for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset)
   {
     if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;
@@ -2309,7 +2322,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 
     // compare foreground color
     COLORREF colorFG2  = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
-    bool     fontHigh2 = (m_screenBuffer[dwOffset].charInfo.Attributes & 0x8) && m_consoleSettings.bBoldIntensified;
+    bool     fontHigh2 = boolIntensified && (m_screenBuffer[dwOffset].charInfo.Attributes & 0x8);
 
     if( dwFGWidth == 0 )
     {

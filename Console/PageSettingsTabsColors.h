@@ -18,7 +18,7 @@ class PageSettingsTabsColors
 			DDX_CHECK(IDC_BTN_INHERIT_COLORS, m_tabData->bInheritedColors)
 		END_DDX_MAP()
 
-		BEGIN_MSG_MAP(PageSettingsTabs1)
+		BEGIN_MSG_MAP(PageSettingsTabsColors)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
 			MESSAGE_HANDLER(WM_PAINT, OnPaint)

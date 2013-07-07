@@ -111,6 +111,9 @@
     <ClCompile Include="PageSettingsTabsColors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DlgSettingsFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h">
@@ -240,6 +243,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PageSettingsTabsColors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DlgSettingsFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

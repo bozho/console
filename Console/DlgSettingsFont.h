@@ -23,6 +23,7 @@ class DlgSettingsFont
 		BEGIN_DDX_MAP(DlgSettingsFont)
 			DDX_TEXT(IDC_FONT, m_strFontName)
 			DDX_UINT(IDC_FONT_SIZE, m_fontSettings.dwSize)
+			DDX_UINT(IDC_FONT_EXTRAWIDTH, m_fontSettings.dwExtraWidth)
 			DDX_CHECK(IDC_CHECK_BOLD, m_fontSettings.bBold)
 			DDX_CHECK(IDC_CHECK_ITALIC, m_fontSettings.bItalic)
 			DDX_CHECK(IDC_CHECK_USE_COLOR, m_fontSettings.bUseColor)

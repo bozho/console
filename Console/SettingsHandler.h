@@ -84,6 +84,7 @@ struct FontSettings : public SettingsBase
 
 	wstring			strName;
 	DWORD			dwSize;
+	DWORD			dwExtraWidth;
 	bool			bBold;
 	bool			bItalic;
 	FontSmoothing	fontSmoothing;

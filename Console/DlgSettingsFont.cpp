@@ -42,8 +42,13 @@ LRESULT DlgSettingsFont::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_comboFontSmoothing.SetCurSel(static_cast<int>(m_fontSettings.fontSmoothing));
 
 	CUpDownCtrl	spin;
+
 	spin.Attach(GetDlgItem(IDC_SPIN_FONT_SIZE));
 	spin.SetRange(5, 36);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_FONT_EXTRAWIDTH));
+	spin.SetRange(0, 30);
 	spin.Detach();
 
 	EnableControls();
@@ -88,6 +93,7 @@ LRESULT DlgSettingsFont::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 		DoDataExchange(DDX_SAVE);
 
 		if (m_fontSettings.dwSize > 36) m_fontSettings.dwSize = 36;
+		if (m_fontSettings.dwExtraWidth > 30) m_fontSettings.dwExtraWidth = 30;
 
 		m_fontSettings.strName			= m_strFontName;
 

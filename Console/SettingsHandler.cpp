@@ -145,6 +145,7 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 FontSettings::FontSettings()
 : strName(L"Courier New")
 , dwSize(10)
+, dwExtraWidth(0)
 , bBold(false)
 , bItalic(false)
 , fontSmoothing(fontSmoothDefault)
@@ -171,6 +172,7 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"name"), strName, wstring(L"Courier New"));
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"size"), dwSize, 10);
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"extra_width"), dwExtraWidth, 0);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold"), bBold, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic"), bItalic, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"smoothing"), nFontSmoothing, 0);
@@ -202,6 +204,7 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"name"), strName);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"size"), dwSize);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"extra_width"), dwExtraWidth);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold"), bBold);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic"), bItalic);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"smoothing"), static_cast<int>(fontSmoothing));
@@ -227,6 +230,7 @@ FontSettings& FontSettings::operator=(const FontSettings& other)
 {
 	strName			= other.strName;
 	dwSize			= other.dwSize;
+	dwExtraWidth		= other.dwExtraWidth;
 	bBold			= other.bBold;
 	bItalic			= other.bItalic;
 	fontSmoothing	= other.fontSmoothing;

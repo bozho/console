@@ -1555,7 +1555,9 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 
 	BYTE	byFontQuality = DEFAULT_QUALITY;
 
-	switch (g_settingsHandler->GetAppearanceSettings().fontSettings.fontSmoothing)
+	FontSettings& fontSettings = g_settingsHandler->GetAppearanceSettings().fontSettings;
+
+	switch (fontSettings.fontSmoothing)
 	{
 		case fontSmoothDefault:   byFontQuality = DEFAULT_QUALITY;        break;
 		case fontSmoothNone:      byFontQuality = NONANTIALIASED_QUALITY; break;
@@ -1563,8 +1565,8 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		default : DEFAULT_QUALITY;
 	}
 
-	bool bBold   = g_settingsHandler->GetAppearanceSettings().fontSettings.bBold;
-	bool bItalic = g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic;
+	bool bBold   = fontSettings.bBold;
+	bool bItalic = fontSettings.bItalic;
 
 	m_fontText.CreateFont(
 		-::MulDiv(m_dwFontSize, dcText.GetDeviceCaps(LOGPIXELSY), 72),
@@ -1582,9 +1584,9 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		DEFAULT_PITCH,
 		strFontName.c_str());
 
-	if( g_settingsHandler->GetAppearanceSettings().fontSettings.bBoldIntensified )
+	if( fontSettings.bBoldIntensified )
 		bBold = !bBold;
-	if( g_settingsHandler->GetAppearanceSettings().fontSettings.bItalicIntensified )
+	if( fontSettings.bItalicIntensified )
 		bItalic = !bItalic;
 
 	m_fontTextHigh.CreateFont(
@@ -1606,7 +1608,8 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 	TEXTMETRIC	textMetric;
 
 	dcText.SelectFont(m_fontText);
-	if( !dcText.GetTextMetrics(&textMetric) || (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) )
+	if( !dcText.GetTextMetrics(&textMetric) ||
+		  (textMetric.tmPitchAndFamily & TMPF_FIXED_PITCH) ) // fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
 	{
 		TRACE(L"/!\\ can't use %s font\n", strFontName.c_str());
 		if (!m_fontText.IsNull()) m_fontText.DeleteObject();
@@ -1614,8 +1617,9 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 		return false;
 	}
 
-	// fixed pitch font (TMPF_FIXED_PITCH is cleared!!!)
-	m_nCharWidth  = textMetric.tmAveCharWidth;
+	DWORD dwExtraWidth = ::MulDiv(fontSettings.dwExtraWidth, m_dwFontZoom, 100);
+
+	m_nCharWidth  = textMetric.tmAveCharWidth + dwExtraWidth;
 	m_nCharHeight = textMetric.tmHeight;
 
 	m_nVScrollWidth = ::GetSystemMetrics(SM_CXVSCROLL);

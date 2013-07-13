@@ -218,7 +218,7 @@ void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y)
 						0, 
 						m_rectCursor.Width(),
 						m_rectCursor.Height(),
-						RGB(0, 0, 0));
+						m_crBackgroundColor);
 	}
 }
 
@@ -284,7 +284,7 @@ void BlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -422,7 +422,7 @@ void PulseBlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -508,7 +508,7 @@ void BarCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -608,6 +608,7 @@ NBHLineCursor::~NBHLineCursor()
 
 void NBHLineCursor::Draw(bool /*bActive = true */)
 {
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.bottom - 1, NULL);
 	m_dcCursor.LineTo(m_rectCursor.right, m_rectCursor.bottom - 1);
 }
@@ -629,7 +630,7 @@ void NBHLineCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -701,7 +702,7 @@ void HLineCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -792,7 +793,7 @@ void VLineCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -872,7 +873,7 @@ void RectCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -922,7 +923,7 @@ void NBRectCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1011,7 +1012,7 @@ void PulseRectCursor::BitBlt(CDC& offscreenDC, int x, int y)
 					0, 
 					m_rectCursor.Width(),
 					m_rectCursor.Height(),
-					RGB(0, 0, 0));
+					m_crBackgroundColor);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1071,14 +1072,9 @@ FadeBlockCursor::~FadeBlockCursor()
 
 void FadeBlockCursor::Draw(bool bActive /* = true */)
 {
-	if (bActive)
-	{
-		m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
-	}
-	else
-	{
-		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
-	}
+	m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
+
+	m_bActive = bActive;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1088,6 +1084,8 @@ void FadeBlockCursor::Draw(bool bActive /* = true */)
 
 void FadeBlockCursor::BitBlt(CDC& offscreenDC, int x, int y)
 {
+	if( !m_bActive ) return;
+
 	offscreenDC.AlphaBlend(
 					x,
 					y,
@@ -1117,10 +1115,7 @@ void FadeBlockCursor::PrepareNext()
 		m_nStep = -ALPHA_STEP;
 	}
 
-#pragma warning(push)
-#pragma warning(disable: 4244)
-	m_blendFunction.SourceConstantAlpha += m_nStep;
-#pragma warning(pop)
+	m_blendFunction.SourceConstantAlpha = static_cast<BYTE>(m_blendFunction.SourceConstantAlpha + m_nStep);
 }
 
 //////////////////////////////////////////////////////////////////////////////

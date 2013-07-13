@@ -60,16 +60,16 @@ class Cursor
 		Cursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
 		: m_hwndConsoleView(hwndConsoleView)
 		, m_dcCursor(::CreateCompatibleDC(NULL))
-//		, m_bmpCursor(::CreateCompatibleBitmap(dcConsoleView, rectCursor.Width(), rectCursor.Height()))
 		, m_bmpCursor(NULL)
 		, m_rectCursor(rectCursor)
 		, m_crCursorColor(crCursorColor)
+		, m_crBackgroundColor(crCursorColor ^ 0x00ffffff)
 		, m_paintBrush(::CreateSolidBrush(crCursorColor))
-		, m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
+		, m_backgroundBrush(::CreateSolidBrush(crCursorColor ^ 0x00ffffff))
 		{
 			Helpers::CreateBitmap(dcConsoleView, rectCursor.Width(), rectCursor.Height(), m_bmpCursor);
 			m_dcCursor.SelectBitmap(m_bmpCursor);
-			m_dcCursor.SetBkColor(RGB(0, 0, 0));
+			m_dcCursor.SetBkColor(m_crBackgroundColor);
 		}
 		
 		virtual ~Cursor(){};
@@ -94,6 +94,7 @@ class Cursor
 
 		CRect		m_rectCursor;
 		COLORREF	m_crCursorColor;
+		COLORREF	m_crBackgroundColor;
 
 		CBrush		m_paintBrush;
 		CBrush		m_backgroundBrush;
@@ -419,6 +420,7 @@ class FadeBlockCursor : public Cursor
 
 		int				m_nStep;
 		BLENDFUNCTION	m_blendFunction;
+		bool			m_bActive;
 
 };
 

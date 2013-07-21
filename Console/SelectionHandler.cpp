@@ -156,9 +156,17 @@ void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuf
 	if (nDeltaX < 0) nDeltaX = 0;
 	if (nDeltaY < 0) nDeltaY = 0;
 
- 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes & COMMON_LVB_LEADING_BYTE)
- 	{
-		++m_coordCurrent.X;
+	m_coordInitialXLeading = m_coordInitialXTrailing = m_coordInitial.X;
+	WORD wAttributes = screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes;
+	if (wAttributes & COMMON_LVB_LEADING_BYTE)
+	{
+		++m_coordInitial.X;
+		m_coordInitialXTrailing = m_coordInitial.X;
+	}
+	else if (wAttributes & COMMON_LVB_TRAILING_BYTE)
+	{
+		--m_coordInitial.X;
+		m_coordInitialXLeading = m_coordInitial.X;
 	}
 
 	m_selectionState	= selstateStartedSelecting;
@@ -191,9 +199,20 @@ void SelectionHandler::UpdateSelection(const COORD& coordCurrent, CharInfo scree
 	if (nDeltaX < 0) nDeltaX = 0;
 	if (nDeltaY < 0) nDeltaY = 0;
 
- 	if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes & COMMON_LVB_LEADING_BYTE)
+	if( (m_coordCurrent.Y * m_consoleParams->dwBufferColumns + m_coordCurrent.X) >
+		  (m_coordInitial.Y * m_consoleParams->dwBufferColumns + m_coordInitial.X) )
 	{
-		++m_coordCurrent.X;
+		// selecting from top left to bottom right
+		if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes & COMMON_LVB_LEADING_BYTE)
+			++m_coordCurrent.X;
+		m_coordInitial.X = m_coordInitialXLeading;
+	}
+	else
+	{
+		// selecting from bottom right to top left
+		if (screenBuffer[nDeltaY * m_consoleParams->dwColumns + nDeltaX].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE)
+			--m_coordCurrent.X;
+		m_coordInitial.X = m_coordInitialXTrailing;
 	}
 
 	UpdateSelection();

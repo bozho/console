@@ -98,6 +98,9 @@ class SelectionHandler
 		COORD			m_coordInitial;
 		COORD			m_coordCurrent;
 
+		SHORT			m_coordInitialXLeading;
+		SHORT			m_coordInitialXTrailing;
+
 		std::shared_ptr<TabData>      m_tabData;
 };
 

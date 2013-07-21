@@ -2209,8 +2209,6 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 #endif //_USE_AERO
 
   std::unique_ptr<INT[]> dxWidths(new INT[m_dwScreenColumns]);
-  for(size_t i = 0; i < m_dwScreenColumns; ++i)
-    dxWidths[i] = m_nCharWidth;
 
   // first pass : text background color
   WORD    attrBG    = 0;
@@ -2303,7 +2301,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
       dc.FillRect(&rect, backgroundBrush);
 #endif //_USE_AERO
 
-      dwX       += dwBGWidth;
+      dwX        += dwBGWidth;
     }
   }
 
@@ -2314,6 +2312,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   wstring  strText(L"");
   COLORREF colorFG   = 0;
   DWORD    dwFGWidth = 0;
+	DWORD    dwCharIdx = 0;
   bool     fontHigh  = false;
 
   bool     boolIntensified = m_appearanceSettings.fontSettings.bBoldIntensified ||
@@ -2321,17 +2320,19 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 
   for (DWORD j = 0; j < m_dwScreenColumns; ++j, ++dwOffset)
   {
-    if (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+    CHAR_INFO & charInfo = m_screenBuffer[dwOffset].charInfo;
+    if (charInfo.Attributes & COMMON_LVB_TRAILING_BYTE) continue;
 
+    int nCharWidth = (charInfo.Attributes & COMMON_LVB_LEADING_BYTE)? m_nCharWidth * 2 : m_nCharWidth;
 
     // compare foreground color
-    COLORREF colorFG2  = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : consoleColors[m_screenBuffer[dwOffset].charInfo.Attributes & 0xF];
-    bool     fontHigh2 = boolIntensified && (m_screenBuffer[dwOffset].charInfo.Attributes & 0x8);
+    COLORREF colorFG2  = m_appearanceSettings.fontSettings.bUseColor ? m_appearanceSettings.fontSettings.crFontColor : consoleColors[charInfo.Attributes & 0xF];
+    bool     fontHigh2 = boolIntensified && (charInfo.Attributes & 0x8);
 
     if( dwFGWidth == 0 )
     {
       colorFG   = colorFG2;
-      dwFGWidth = m_nCharWidth;
+      dwFGWidth = nCharWidth;
       fontHigh  = fontHigh2;
 
       dc.SelectFont(fontHigh? m_fontTextHigh : m_fontText);
@@ -2340,7 +2341,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     {
       if( colorFG == colorFG2 && fontHigh == fontHigh2 )
       {
-        dwFGWidth += m_nCharWidth;
+        dwFGWidth += nCharWidth;
       }
       else
       {
@@ -2355,14 +2356,15 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         rect.bottom = dwY + m_nCharHeight;
         // we add the space of the next char
         // in italic a part of the previous char is drawn in the following char space
-        rect.right  = dwX + dwFGWidth + m_nCharWidth;
+        rect.right  = dwX + dwFGWidth + nCharWidth;
 
         dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), dxWidths.get());
 
         strText.clear();
         colorFG   = colorFG2;
         dwX       += dwFGWidth;
-        dwFGWidth = m_nCharWidth;
+        dwFGWidth = nCharWidth;
+        dwCharIdx = 0;
 
         // change font
         if( fontHigh != fontHigh2 )
@@ -2373,10 +2375,11 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
       }
     }
 
-    strText += m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar;
+    strText += charInfo.Char.UnicodeChar;
+    dxWidths[dwCharIdx ++] = nCharWidth;
   }
 
-  if( dwBGWidth > 0 )
+  if( dwFGWidth > 0 )
   {
     dc.SetBkMode(TRANSPARENT);
     dc.SetTextColor(colorFG);

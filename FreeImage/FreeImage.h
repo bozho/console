@@ -1,9 +1,9 @@
-// ==========================================================
+﻿// ==========================================================
 // FreeImage 3
 //
 // Design and implementation by
 // - Floris van den Berg (flvdberg@wxs.nl)
-// - Herv� Drolon (drolon@infonie.fr)
+// - Hervé Drolon (drolon@infonie.fr)
 //
 // Contributors:
 // - see changes log named 'Whatsnew.txt', see header of each .h and .cpp file

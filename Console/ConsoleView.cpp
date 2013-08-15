@@ -67,6 +67,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_background()
 , m_backgroundBrush(NULL)
 , m_cursor()
+, m_cursorDBCS()
 , m_selectionHandler()
 , m_mouseCommand(MouseSettings::cmdNone)
 , m_bFlashTimerRunning(false)
@@ -789,10 +790,20 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 
 	if (!m_bActive) return 0;
 
-	if ((wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
+	if (wParam == CURSOR_TIMER)
 	{
-		m_cursor->PrepareNext();
-		m_cursor->Draw(m_bAppActive);
+		if (m_cursor.get())
+		{
+			m_cursor->PrepareNext();
+			m_cursor->Draw(m_bAppActive);
+		}
+
+		if (m_cursorDBCS.get())
+		{
+			m_cursorDBCS->PrepareNext();
+			m_cursorDBCS->Draw(m_bAppActive);
+		}
+
 		BitBltOffscreen(true);
 	}
 
@@ -1095,7 +1106,8 @@ void ConsoleView::SetConsoleWindowVisible(bool bVisible)
 void ConsoleView::SetAppActiveStatus(bool bAppActive)
 {
 	m_bAppActive = bAppActive;
-	if (m_cursor.get() != NULL) m_cursor->Draw(m_bAppActive);
+	if (m_cursor.get()) m_cursor->Draw(m_bAppActive);
+	if (m_cursorDBCS.get()) m_cursorDBCS->Draw(m_bAppActive);
 	BitBltOffscreen();
 }
 
@@ -1518,14 +1530,28 @@ void ConsoleView::CreateOffscreenBuffers()
 	CRect		rectCursor(0, 0, m_nCharWidth, m_nCharHeight);
 
 	m_cursor.reset();
+	m_cursorDBCS.reset();
+
 	m_cursor = CursorFactory::CreateCursor(
-								m_hWnd, 
-								m_bAppActive, 
-								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleXTerm, 
-								dcWindow, 
-								rectCursor, 
+								m_hWnd,
+								m_bAppActive,
+								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleXTerm,
+								dcWindow,
+								rectCursor,
 								m_tabData.get() ? m_tabData->crCursorColor : RGB(255, 255, 255),
-								this);
+								this,
+								true);
+
+	rectCursor.right += m_nCharWidth;
+	m_cursorDBCS = CursorFactory::CreateCursor(
+								m_hWnd,
+								m_bAppActive,
+								m_tabData.get() ? static_cast<CursorStyle>(m_tabData->dwCursorStyle) : cstyleXTerm,
+								dcWindow,
+								rectCursor,
+								m_tabData.get() ? m_tabData->crCursorColor : RGB(255, 255, 255),
+								this,
+								false);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2406,11 +2432,11 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 	if (bOnlyCursor)
 	{
 		// blit only cursor
-		if (!(m_cursor) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
+		if (!(m_cursorDBCS) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
 
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
-		rectBlit		= m_cursor->GetCursorRect();
+		rectBlit		= m_cursorDBCS->GetCursorRect();
 		rectBlit.left	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
 		rectBlit.top	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
 		rectBlit.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
@@ -2451,9 +2477,8 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 					SRCCOPY);
 
 	// blit cursor
-	if (m_consoleHandler.GetCursorInfo()->bVisible && (m_cursor.get() != NULL))
+	if (m_consoleHandler.GetCursorInfo()->bVisible)
 	{
-		CRect			rectCursor(0, 0, 0, 0);
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
 		// don't blit if cursor is outside visible window
@@ -2462,16 +2487,31 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 			(consoleInfo->csbi.dwCursorPosition.Y >= consoleInfo->csbi.srWindow.Top) &&
 			(consoleInfo->csbi.dwCursorPosition.Y <= consoleInfo->csbi.srWindow.Bottom))
 		{
-			rectCursor			= m_cursor->GetCursorRect();
-			rectCursor.left		+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-			rectCursor.top		+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
-			rectCursor.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-			rectCursor.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+			bool DBCS;
+			{
+				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+				DWORD dwOffset =
+					(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_dwScreenColumns +
+					(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left);
+				DBCS = (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) == COMMON_LVB_LEADING_BYTE;
+			}
 
-			m_cursor->BitBlt(
-						m_dcOffscreen,
-						rectCursor.left,
-						rectCursor.top);
+			if( DBCS )
+			{
+				if( m_cursorDBCS.get() )
+					m_cursorDBCS->BitBlt(
+								m_dcOffscreen,
+								(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder,
+								(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder);
+			}
+			else
+			{
+				if( m_cursor.get() )
+					m_cursor->BitBlt(
+								m_dcOffscreen,
+								(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder,
+								(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder);
+			}
 		}
 	}
 
@@ -2756,23 +2796,25 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelecti
 
 void ConsoleView::RedrawCharOnCursor(CDC& dc)
 {
-  CRect                      rectCursor(0, 0, 0, 0);
   SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
   COLORREF *                 consoleColors = m_tabData->consoleColors;
-
-  rectCursor         = m_cursor->GetCursorRect();
-  rectCursor.left   += (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-  rectCursor.top    += (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
-  rectCursor.right  += (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-  rectCursor.bottom += (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
-
-  CBrush brush(::CreateSolidBrush(m_tabData->crCursorColor));
-  dc.FillRect(rectCursor, brush);
 
   MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
   DWORD dwOffset =
     (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_dwScreenColumns +
     (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left);
+
+  CRect                      rectCursor;
+  CHAR_INFO &                charInfo = m_screenBuffer[dwOffset].charInfo;
+  int                      nCharWidth = (charInfo.Attributes & COMMON_LVB_LEADING_BYTE)? m_nCharWidth * 2 : m_nCharWidth;
+
+  rectCursor.left   = (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
+  rectCursor.top    = (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+  rectCursor.right  = rectCursor.left + nCharWidth;
+  rectCursor.bottom = rectCursor.top + m_nCharHeight;
+
+  CBrush brush(::CreateSolidBrush(m_tabData->crCursorColor));
+  dc.FillRect(rectCursor, brush);
 
   dc.SetBkMode(TRANSPARENT);
   dc.SelectFont(m_fontText);
@@ -2782,24 +2824,27 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
   if( g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic && 
       (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) > 0 )
   {
-    colorBG = consoleColors[(m_screenBuffer[dwOffset - 1].charInfo.Attributes & 0xF0) >> 4];
+    CHAR_INFO & charInfo = m_screenBuffer[dwOffset - 1].charInfo;
+    int       nCharWidth = (charInfo.Attributes & COMMON_LVB_TRAILING_BYTE)? m_nCharWidth * 2 : m_nCharWidth;
+
+    colorBG = consoleColors[(charInfo.Attributes & 0xF0) >> 4];
 
     dc.SetTextColor(colorBG);
     dc.ExtTextOut(
-      rectCursor.left - m_nCharWidth, rectCursor.top,
+      rectCursor.left - nCharWidth, rectCursor.top,
       ETO_CLIPPED,
       &rectCursor,
-      &m_screenBuffer[dwOffset - 1].charInfo.Char.UnicodeChar, 1,
+      &charInfo.Char.UnicodeChar, 1,
       nullptr);
   }
 
-  colorBG = consoleColors[(m_screenBuffer[dwOffset].charInfo.Attributes & 0xF0) >> 4];
+  colorBG = consoleColors[(charInfo.Attributes & 0xF0) >> 4];
 
   dc.SetTextColor(colorBG);
   dc.ExtTextOut(
     rectCursor.left, rectCursor.top,
     ETO_CLIPPED,
     &rectCursor,
-    &m_screenBuffer[dwOffset].charInfo.Char.UnicodeChar, 1,
+    &charInfo.Char.UnicodeChar, 1,
     nullptr);
 }

@@ -66,19 +66,36 @@ class Cursor
 		, m_crBackgroundColor(crCursorColor ^ 0x00ffffff)
 		, m_paintBrush(::CreateSolidBrush(crCursorColor))
 		, m_backgroundBrush(::CreateSolidBrush(crCursorColor ^ 0x00ffffff))
+		, m_uiTimer(0)
 		{
 			Helpers::CreateBitmap(dcConsoleView, rectCursor.Width(), rectCursor.Height(), m_bmpCursor);
 			m_dcCursor.SelectBitmap(m_bmpCursor);
 			m_dcCursor.SetBkColor(m_crBackgroundColor);
 		}
 		
-		virtual ~Cursor(){};
+		virtual ~Cursor()
+		{
+			if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);
+		}
 
 		// used to draw current frame of the cursor
 		virtual void Draw(bool bActive = true) = 0;
 
 		// used to bit-blit the cursor DC
-		virtual void BitBlt(CDC& offscreenDC, int x, int y) = 0;
+		virtual void BitBlt(CDC& offscreenDC, int x, int y)
+		{
+			offscreenDC.TransparentBlt(
+							x,
+							y,
+							m_rectCursor.Width(),
+							m_rectCursor.Height(),
+							m_dcCursor,
+							0,
+							0,
+							m_rectCursor.Width(),
+							m_rectCursor.Height(),
+							m_crBackgroundColor);
+		}
 
 		// used to prepare the next frame of cursor animation
 		virtual void PrepareNext() {}
@@ -100,6 +117,7 @@ class Cursor
 		CBrush		m_backgroundBrush;
 
 		UINT_PTR	m_uiTimer;
+		bool		m_bTimer;
 
 /*
 	public:
@@ -122,7 +140,7 @@ class Cursor
 class CursorFactory
 {
 	public:
-		static std::shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor ,CursorCharDrawer*);
+		static std::shared_ptr<Cursor> CreateCursor(HWND hwndConsoleView, bool bAppActive, CursorStyle cursorStyle, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor ,CursorCharDrawer*, bool bTimer);
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -140,7 +158,7 @@ class XTermCursor : public Cursor
 {
 	public:
 		XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer*);
-		~XTermCursor();
+		~XTermCursor() {}
 
 		void Draw(bool bActive = true);
 
@@ -160,13 +178,13 @@ private:
 class BlockCursor : public Cursor
 {
 	public:
-		BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~BlockCursor();
-		
+		BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~BlockCursor() {}
+
 		void Draw(bool bActive = true);
 
 		void BitBlt(CDC& offscreenDC, int x, int y);
-		
+
 		void PrepareNext();
 
 	private:
@@ -184,12 +202,12 @@ class NBBlockCursor : public Cursor
 {
 	public:
 		NBBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~NBBlockCursor();
-		
+		~NBBlockCursor() {}
+
 		void Draw(bool bActive = true);
 
 		void BitBlt(CDC& offscreenDC, int x, int y);
-		
+
 	private:
 };
 
@@ -202,15 +220,13 @@ class NBBlockCursor : public Cursor
 class PulseBlockCursor : public Cursor
 {
 	public:
-		PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~PulseBlockCursor();
-		
+		PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~PulseBlockCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-
 		void PrepareNext();
-		
+
 	private:
 		int		m_nSize;
 		int		m_nMaxSize;
@@ -226,15 +242,13 @@ class PulseBlockCursor : public Cursor
 class BarCursor : public Cursor
 {
 	public:
-		BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~BarCursor();
-		
+		BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~BarCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-
 		void PrepareNext();
-		
+
 	private:
 		CPen	m_pen;
 		bool	m_bVisible;
@@ -242,27 +256,6 @@ class BarCursor : public Cursor
 
 //////////////////////////////////////////////////////////////////////////////
 
-/*
-//////////////////////////////////////////////////////////////////////////////
-// ConsoleCursor
-
-class ConsoleCursor : public Cursor
-{
-	public:
-		ConsoleCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~ConsoleCursor();
-		
-		void Draw(LPCRect pRect);
-		void PrepareNext();
-		
-	private:
-		HANDLE	m_hStdOut;
-		HBRUSH	m_hActiveBrush;
-		BOOL	m_bVisible;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-*/
 
 //////////////////////////////////////////////////////////////////////////////
 // NBHLineCursor
@@ -271,12 +264,10 @@ class NBHLineCursor : public Cursor
 {
 	public:
 		NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~NBHLineCursor();
-		
+		~NBHLineCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-		
 	private:
 		CPen	m_pen;
 };
@@ -290,15 +281,13 @@ class NBHLineCursor : public Cursor
 class HLineCursor : public Cursor
 {
 	public:
-		HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~HLineCursor();
-			
+		HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~HLineCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-
 		void PrepareNext();
-			
+
 	private:
 		CPen	m_pen;
 		int		m_nSize;
@@ -315,15 +304,13 @@ class HLineCursor : public Cursor
 class VLineCursor : public Cursor
 {
 	public:
-		VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~VLineCursor();
-		
+		VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~VLineCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-
 		void PrepareNext();
-		
+
 	private:
 		CPen	m_pen;
 		int		m_nSize;
@@ -340,15 +327,13 @@ class VLineCursor : public Cursor
 class RectCursor : public Cursor
 {
 	public:
-		RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~RectCursor();
-		
+		RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~RectCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-
 		void PrepareNext();
-		
+
 	private:
 		bool	m_bVisible;
 };
@@ -363,12 +348,10 @@ class NBRectCursor : public Cursor
 {
 	public:
 		NBRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~NBRectCursor();
-		
+		~NBRectCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-		
 	private:
 };
 
@@ -381,15 +364,13 @@ class NBRectCursor : public Cursor
 class PulseRectCursor : public Cursor
 {
 	public:
-		PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~PulseRectCursor();
-		
+		PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~PulseRectCursor() {}
+
 		void Draw(bool bActive = true);
 
-		void BitBlt(CDC& offscreenDC, int x, int y);
-
 		void PrepareNext();
-		
+
 	private:
 		int		m_nSize;
 		int		m_nMaxSize;
@@ -407,8 +388,8 @@ class PulseRectCursor : public Cursor
 class FadeBlockCursor : public Cursor
 {
 	public:
-		FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor);
-		~FadeBlockCursor();
+		FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~FadeBlockCursor() {}
 
 		void Draw(bool bActive = true);
 

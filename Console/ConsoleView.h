@@ -218,6 +218,7 @@ class ConsoleView
 		CBrush							m_backgroundBrush;
 
 		std::shared_ptr<Cursor>				m_cursor;
+		std::shared_ptr<Cursor>				m_cursorDBCS;
 		std::unique_ptr<SelectionHandler>	m_selectionHandler;
 
 		MouseSettings::Command			m_mouseCommand;

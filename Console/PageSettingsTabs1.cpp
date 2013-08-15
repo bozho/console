@@ -327,7 +327,8 @@ void PageSettingsTabs1::SetCursor(void)
     dc,
     rectCursorAnim,
     m_tabData->crCursorColor,
-    this);
+    this,
+    true);
 
   DrawCursor();
 }

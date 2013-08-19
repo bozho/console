@@ -28,6 +28,17 @@ Changelog
         + added
         * fixed
 
+Changes in 1.08.0 beta 5 (19 Aug 2013)
+
+        + Displays intensified colors in bold.
+        + Displays intensified colors in italic.
+        + User can configure an extra width added to the fixed width of the font.
+        * Some cursors was hidden with black color.
+        * Fade cursor was blinking when console was inactive.
+        * Fix DBCS rendering.
+        * Fix DBCS selection.
+        * Fix DBCS cursor.
+
 Changes in 1.07.1 (05 Jul 2013)
 
         * Sometimes the application could not start with multiple tabs.

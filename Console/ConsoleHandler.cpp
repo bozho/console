@@ -341,7 +341,6 @@ bool ConsoleHandler::StartShellProcess
   }
 
 	// write startup params
-	m_consoleParams->dwConsoleMainThreadId	= pi.dwThreadId;
 	m_consoleParams->dwParentProcessId		= ::GetCurrentProcessId();
 	m_consoleParams->dwNotificationTimeout	= g_settingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
 	m_consoleParams->dwRefreshInterval		= g_settingsHandler->GetConsoleSettings().dwRefreshInterval;

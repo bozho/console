@@ -187,29 +187,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     WallPaperThread wallPaperThread(wndMain);
 
-    OSVERSIONINFOEX osvi;
-    DWORDLONG dwlConditionMask = 0;
-    BYTE op = VER_GREATER_EQUAL;
-
-    // Initialize the OSVERSIONINFOEX structure.
-
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    osvi.dwMajorVersion = 6;
-    osvi.dwMinorVersion = 1;
-
-    // Initialize the condition mask.
-
-    VER_SET_CONDITION( dwlConditionMask, VER_MAJORVERSION, op );
-    VER_SET_CONDITION( dwlConditionMask, VER_MINORVERSION, op );
-
-    // Perform the test.
-
-    if( VerifyVersionInfo(
-      &osvi, 
-      VER_MAJORVERSION | VER_MINORVERSION | 
-      VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR,
-      dwlConditionMask) )
+    if (Helpers::CheckOSVersion(6, 1))
     {
       // Win7 or more, we use the wallpaper slideshow monitoring
       wallPaperThread.Start();

@@ -29,6 +29,9 @@ class Helpers
 		static wstring LoadString(UINT uID);
 		static HICON LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& strIcon, const wstring& strShell);
 
+		static bool IsElevated(void);
+		static bool CheckOSVersion(DWORD dwMinMajorVersion, DWORD dwMinMinorVersion);
+
 	private:
 
 		static bool GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

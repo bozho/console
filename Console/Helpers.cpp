@@ -285,3 +285,79 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool Helpers::IsElevated(void)
+{
+	std::unique_ptr<void, CloseHandleHelper> hToken(nullptr);
+
+	{
+		HANDLE _hToken = nullptr;
+
+		if ( !::OpenProcessToken(
+			::GetCurrentProcess(),
+			TOKEN_QUERY,
+			&_hToken) )
+		{
+			Win32Exception::ThrowFromLastError();
+		}
+
+		hToken.reset(_hToken);
+	}
+
+	TOKEN_ELEVATION_TYPE tet;
+	DWORD dwReturnLength = 0;
+
+	if ( !::GetTokenInformation(
+		hToken.get(),
+		TokenElevationType,
+		&tet,
+		sizeof(TOKEN_ELEVATION_TYPE),
+		&dwReturnLength ) )
+	{
+		Win32Exception::ThrowFromLastError();
+	}
+
+	return tet != TokenElevationTypeLimited;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool Helpers::CheckOSVersion(DWORD dwMinMajorVersion, DWORD dwMinMinorVersion)
+{
+	OSVERSIONINFOEX osvi;
+	DWORDLONG dwlConditionMask = 0;
+	BYTE op = VER_GREATER_EQUAL;
+
+	// Initialize the OSVERSIONINFOEX structure.
+
+	::ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
+	osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	osvi.dwMajorVersion = dwMinMajorVersion;
+	osvi.dwMinorVersion = dwMinMinorVersion;
+
+	// Initialize the condition mask.
+
+	VER_SET_CONDITION( dwlConditionMask, VER_MAJORVERSION, op );
+	VER_SET_CONDITION( dwlConditionMask, VER_MINORVERSION, op );
+
+	// Perform the test.
+
+	if( ::VerifyVersionInfo(
+		&osvi,
+		VER_MAJORVERSION | VER_MINORVERSION |
+		VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR,
+		dwlConditionMask) )
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+

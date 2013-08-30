@@ -1029,6 +1029,8 @@ BEGIN
     IDS_ERR_DLL_INJECTION_FAILED "DLL injection has failed (reason:%1%)!"
     IDS_ERR_DLL_HOOK_MISSING "DLL hook %1% is missing!"
     IDS_ERR_CREATE_SHARED_OBJECTS_FAILED "Unable to create shared objects (reason:%1%)!"
+    IDS_ERR_CANT_START_SHELL_AS_ADMIN "Unable to start %1% %2% as administrator (reason:%3%)!"
+    IDS_ERR_CANT_GET_ELEVATION_TYPE "Unable to get the elevation level (reason:%1%)!"
 END
 
 STRINGTABLE

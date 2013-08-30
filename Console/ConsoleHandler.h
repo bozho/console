@@ -22,6 +22,10 @@ struct UserCredentials
 	: user()
 	, password()
 	, netOnly(false)
+	, runAsAdministrator(false)
+	, strUsername()
+	, strDomain()
+	, strAccountName()
 	{
 	}
 
@@ -33,9 +37,47 @@ struct UserCredentials
 		}
 	}
 
+	void SetUser(const wchar_t * szUser)
+	{
+		user = szUser;
+		strUsername = user;
+
+		if (!strUsername.empty())
+		{
+			size_t pos;
+			if ((pos= strUsername.find(L'\\')) != wstring::npos)
+			{
+				strDomain	= strUsername.substr(0, pos);
+				strUsername	= strUsername.substr(pos+1);
+			}
+			else if ((pos= strUsername.find(L'@')) != wstring::npos)
+			{
+				// UNC format
+				strDomain	= strUsername.substr(pos + 1);
+				strUsername	= strUsername.substr(0, pos);
+			}
+			else
+			{
+				// CreateProcessWithLogonW & LOGON_NETCREDENTIALS_ONLY fails if domain is NULL
+				wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1];
+				DWORD   dwComputerNameLen = ARRAYSIZE(szComputerName);
+				if( ::GetComputerName(szComputerName, &dwComputerNameLen) )
+					strDomain = szComputerName;
+			}
+
+			if (!strDomain.empty())
+				strAccountName = strDomain + L"\\";
+			strAccountName += strUsername;
+		}
+	}
+
 	wstring	user;
 	wstring password;
 	bool netOnly;
+	bool runAsAdministrator;
+	wstring strUsername;
+	wstring strDomain;
+	wstring strAccountName;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -54,15 +96,24 @@ class ConsoleHandler
 	public:
 
 		void SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate);
-		bool StartShellProcess
+		void StartShellProcess
 		(
-			const wstring& strCustomShell,
+			const wstring& strTitle,
+			const wstring& strShell,
 			const wstring& strInitialDir,
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
 			const wstring& strConsoleTitle,
 			DWORD dwStartupRows,
 			DWORD dwStartupColumns
+		);
+
+		void StartShellProcessAsAdministrator
+		(
+			const wstring& strSyncName,
+			const wstring& strShell,
+			const wstring& strInitialDir,
+			const wstring& strInitialCmd
 		);
 
 		DWORD StartMonitorThread();
@@ -86,7 +137,7 @@ class ConsoleHandler
 
 		static void UpdateEnvironmentBlock();
 
-    inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
+		inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
 
 	private:
 
@@ -94,6 +145,25 @@ class ConsoleHandler
 		void CreateWatchdog();
 
 		bool InjectHookDLL(PROCESS_INFORMATION& pi);
+
+		void CreateShellProcess
+		(
+			const wstring& strShell,
+			const wstring& strInitialDir,
+			const UserCredentials& userCredentials,
+			const wstring& strInitialCmd,
+			const wstring& strConsoleTitle,
+			PROCESS_INFORMATION& pi
+		);
+
+		void RunAsAdministrator
+		(
+			const wstring& strSyncName,
+			const wstring& strTitle,
+			const wstring& strInitialDir,
+			const wstring& strInitialCmd,
+			PROCESS_INFORMATION& pi
+		);
 
 	private:
 

@@ -76,89 +76,128 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::StartShellProcess
+void ConsoleHandler::RunAsAdministrator
 (
-	const wstring& strCustomShell,
+	const wstring& strSyncName,
+	const wstring& strTitle,
+	const wstring& strInitialDir,
+	const wstring& strInitialCmd,
+	PROCESS_INFORMATION& pi
+)
+{
+	std::wstring strFile = Helpers::GetModuleFileName(nullptr);
+
+	std::wstring strParams;
+	// admin sync name
+	strParams += L"-a \"";
+	strParams += strSyncName;
+	strParams += L"\"";
+	// config file
+	strParams += L" -c \"";
+	strParams += g_settingsHandler->GetSettingsFileName();
+	strParams += L"\"";
+	// tab name
+	strParams += L" -t \"";
+	strParams += strTitle;
+	strParams += L"\"";
+	// directory
+	if (!strInitialDir.empty())
+	{
+		strParams += L" -d \"";
+		strParams += strInitialDir.empty();
+		strParams += L"\"";
+	}
+	// startup shell command
+	if (!strInitialCmd.empty())
+	{
+		strParams += L" -r \"";
+		strParams += strInitialCmd.empty();
+		strParams += L"\"";
+	}
+
+	SHELLEXECUTEINFO sei = {sizeof(sei)};
+
+	sei.hwnd = nullptr;
+	sei.fMask = /*SEE_MASK_NOCLOSEPROCESS|*/SEE_MASK_NOASYNC;
+	sei.lpVerb = L"runas";
+	sei.lpFile = strFile.c_str();
+	sei.lpParameters = strParams.length() > 0 ? strParams.c_str() : nullptr;
+	sei.lpDirectory = nullptr,
+	sei.nShow = SW_SHOWMINIMIZED;
+
+	if(!::ShellExecuteEx(&sei))
+	{
+		Win32Exception err(::GetLastError());
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL_AS_ADMIN)) % strFile % strParams % err.what()));
+	}
+
+	pi.hProcess = sei.hProcess;
+	pi.dwProcessId = ::GetProcessId(sei.hProcess);
+	pi.hThread = NULL;
+	pi.dwThreadId = 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::CreateShellProcess
+(
+	const wstring& strShell,
 	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
 	const wstring& strConsoleTitle,
-	DWORD dwStartupRows,
-	DWORD dwStartupColumns
+	PROCESS_INFORMATION& pi
 )
 {
-  wstring strUsername(userCredentials.user);
-	wstring strDomain;
-
-	//std::shared_ptr<void> userProfileKey;
 	std::unique_ptr<void, DestroyEnvironmentBlockHelper> userEnvironment;
 	std::unique_ptr<void, CloseHandleHelper>             userToken;
 
-	if (strUsername.length() > 0)
+	if (userCredentials.strUsername.length() > 0)
 	{
-		size_t pos;
-		if ((pos= strUsername.find(L'\\')) != wstring::npos)
+		if (!userCredentials.netOnly)
 		{
-			strDomain	= strUsername.substr(0, pos);
-			strUsername	= strUsername.substr(pos+1);
+			// logon user
+			HANDLE hUserToken = NULL;
+			if( !::LogonUser(
+				userCredentials.strUsername.c_str(),
+				userCredentials.strDomain.length() > 0 ? userCredentials.strDomain.c_str() : NULL,
+				userCredentials.password.c_str(),
+				LOGON32_LOGON_INTERACTIVE,
+				LOGON32_PROVIDER_DEFAULT,
+				&hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
+			{
+				Win32Exception err(::GetLastError());
+				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+			}
+			userToken.reset(hUserToken);
+
+			/*
+			// load user's profile
+			// seems to be necessary on WinXP for environment strings' expainsion to work properly
+			PROFILEINFO userProfile;
+			::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
+			userProfile.dwSize = sizeof(PROFILEINFO);
+			userProfile.lpUserName = const_cast<wchar_t*>(userCredentials.strUsername.c_str());
+
+			::LoadUserProfile(userToken.get(), &userProfile);
+			userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
+			*/
+
+			// load user's environment
+			void*	pEnvironment = nullptr;
+			if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
+			{
+				Win32Exception err(::GetLastError());
+				::RevertToSelf();
+				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+			}
+			userEnvironment.reset(pEnvironment);
 		}
-    else if ((pos= strUsername.find(L'@')) != wstring::npos)
-    {
-      // UNC format
-      strDomain	= strUsername.substr(pos + 1);
-      strUsername	= strUsername.substr(0, pos);
-    }
-    else
-    {
-      // CreateProcessWithLogonW & LOGON_NETCREDENTIALS_ONLY fails if domain is NULL
-      wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1];
-      DWORD   dwComputerNameLen = ARRAYSIZE(szComputerName);
-      if( ::GetComputerName(szComputerName, &dwComputerNameLen) )
-        strDomain = szComputerName;
-    }
+	}
 
-    if (!userCredentials.netOnly)
-    {
-      // logon user
-      HANDLE hUserToken = NULL;
-      if( !::LogonUser(
-        strUsername.c_str(), 
-        strDomain.length() > 0 ? strDomain.c_str() : NULL, 
-        userCredentials.password.c_str(), 
-        LOGON32_LOGON_INTERACTIVE, 
-        LOGON32_PROVIDER_DEFAULT, 
-        &hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
-      {
-        Win32Exception err(::GetLastError());
-        throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
-      }
-      userToken.reset(hUserToken);
-
-      /*
-      // load user's profile
-      // seems to be necessary on WinXP for environment strings' expainsion to work properly
-      PROFILEINFO userProfile;
-      ::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
-      userProfile.dwSize = sizeof(PROFILEINFO);
-      userProfile.lpUserName = const_cast<wchar_t*>(strUser.c_str());
-
-      ::LoadUserProfile(userToken.get(), &userProfile);
-      userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
-      */
-
-      // load user's environment
-      void*	pEnvironment = nullptr;
-      if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
-      {
-        Win32Exception err(::GetLastError());
-        ::RevertToSelf();
-        throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
-      }
-      userEnvironment.reset(pEnvironment);
-    }
-  }
-
-	wstring	strShellCmdLine(strCustomShell);
+	wstring	strShellCmdLine(strShell);
 
 	if (strShellCmdLine.length() == 0)
 	{
@@ -202,13 +241,13 @@ bool ConsoleHandler::StartShellProcess
 	if (strStartupTitle.length() == 0)
 	{
 		strStartupTitle = L"Console2 command window";
-//		strStartupTitle = boost::str(boost::wformat(L"Console2 command window 0x%08X") % this);
+		//		strStartupTitle = boost::str(boost::wformat(L"Console2 command window 0x%08X") % this);
 	}
 
-  wstring strStartupDir(
-    userToken.get() ?
-      Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strInitialDir) :
-      Helpers::ExpandEnvironmentStrings(strInitialDir));
+	wstring strStartupDir(
+		userToken.get() ?
+		Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strInitialDir) :
+		Helpers::ExpandEnvironmentStrings(strInitialDir));
 
 	if (strStartupDir.length() > 0)
 	{
@@ -235,13 +274,13 @@ bool ConsoleHandler::StartShellProcess
 		}
 	}
 
-  wstring strCmdLine(
-    userToken.get() ?
-      Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strShellCmdLine) :
-      Helpers::ExpandEnvironmentStrings(strShellCmdLine));
+	wstring strCmdLine(
+		userToken.get() ?
+		Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strShellCmdLine) :
+		Helpers::ExpandEnvironmentStrings(strShellCmdLine));
 
-  if( userToken.get() )
-    ::RevertToSelf();
+	if( userToken.get() )
+		::RevertToSelf();
 
 	// setup the startup info struct
 	STARTUPINFO si;
@@ -272,23 +311,22 @@ bool ConsoleHandler::StartShellProcess
 		si.dwY			= 0x7FFF;
 	}
 
-	PROCESS_INFORMATION pi;
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
 	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
 
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
-	if (strUsername.length() > 0)
+	if (userCredentials.strUsername.length() > 0)
 	{
-	STARTUPINFO si;
-	::ZeroMemory(&si, sizeof(STARTUPINFO));
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
 
-	si.cb			= sizeof(STARTUPINFO);
+		si.cb			= sizeof(STARTUPINFO);
 
 		if( !::CreateProcessWithLogonW(
-			strUsername.c_str(), 
-			strDomain.length() > 0 ? strDomain.c_str() : NULL,
+			userCredentials.strUsername.c_str(),
+			userCredentials.strDomain.length() > 0 ? userCredentials.strDomain.c_str() : NULL,
 			userCredentials.password.c_str(), 
 			userCredentials.netOnly? LOGON_NETCREDENTIALS_ONLY : LOGON_WITH_PROFILE,
 			NULL,
@@ -299,74 +337,201 @@ bool ConsoleHandler::StartShellProcess
 			&si,
 			&pi))
 		{
-      Win32Exception err(::GetLastError());
+			Win32Exception err(::GetLastError());
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % userCredentials.user % err.what()));
 		}
 	}
 	else
 	{
 		if (!::CreateProcess(
-				NULL,
-				const_cast<wchar_t*>(strCmdLine.c_str()),
-				NULL,
-				NULL,
-				FALSE,
-				dwStartupFlags,
-				s_environmentBlock.get(),
-				(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
-				&si,
-				&pi))
+			NULL,
+			const_cast<wchar_t*>(strCmdLine.c_str()),
+			NULL,
+			NULL,
+			FALSE,
+			dwStartupFlags,
+			s_environmentBlock.get(),
+			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
+			&si,
+			&pi))
 		{
-      Win32Exception err(::GetLastError());
-      throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine % err.what()));
+			Win32Exception err(::GetLastError());
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine % err.what()));
+		}
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::StartShellProcess
+(
+	const wstring& strTitle,
+	const wstring& strShell,
+	const wstring& strInitialDir,
+	const UserCredentials& userCredentials,
+	const wstring& strInitialCmd,
+	const wstring& strConsoleTitle,
+	DWORD dwStartupRows,
+	DWORD dwStartupColumns
+)
+{
+	PROCESS_INFORMATION pi = {0, 0, 0, 0};
+
+	bool runAsAdministrator = userCredentials.runAsAdministrator;
+
+	if (runAsAdministrator)
+	{
+		try
+		{
+			if (Helpers::CheckOSVersion(6, 0))
+			{
+				if( Helpers::IsElevated() )
+				{
+					// process already running in elevated mode or UAC disabled
+					runAsAdministrator = false;
+				}
+			}
+			else
+			{
+				// UAC doesn't exist in current OS
+				runAsAdministrator = false;
+			}
+		}
+		catch(std::exception& err)
+		{
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_GET_ELEVATION_TYPE)) % err.what()));
 		}
 	}
 
+	SharedMemory<DWORD> pid;
+
+	if (runAsAdministrator)
+	{
+		std::wstring strSyncName = (SharedMemNames::formatAdmin % ::GetCurrentProcessId()).str();
+
+		pid.Create(strSyncName, 1, syncObjBoth, L"");
+
+		RunAsAdministrator(
+			strSyncName,
+			strTitle,
+			strInitialDir,
+			strInitialCmd,
+			pi
+		);
+
+		// wait for PID of shell launched in admin ConsoleZ
+		if (::WaitForSingleObject(pid.GetReqEvent(), 10000) == WAIT_TIMEOUT)
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+
+		pi.dwProcessId = *pid.Get();
+		pi.hProcess = ::OpenProcess(SYNCHRONIZE, FALSE, pi.dwProcessId);
+		if( pi.hProcess == NULL )
+		{
+			Win32Exception err(::GetLastError());
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
+		}
+	}
+	else
+	{
+		CreateShellProcess(
+			strShell,
+			strInitialDir,
+			userCredentials,
+			strInitialCmd,
+			strConsoleTitle,
+			pi
+		);
+	}
+
 	// create shared memory objects
-  try
-  {
-    std::wstring strAccountName;
-    if( !userCredentials.netOnly && !userCredentials.user.empty() )
-    {
-      if( !strDomain.empty() )
-        strAccountName = strDomain + L"\\";
-      strAccountName += strUsername;
-    }
-    CreateSharedObjects(pi.dwProcessId, strAccountName);
-    CreateWatchdog();
-  }
-  catch(Win32Exception& err)
-  {
-    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CREATE_SHARED_OBJECTS_FAILED)) % err.what()));
-  }
+	try
+	{
+		CreateSharedObjects(pi.dwProcessId, userCredentials.netOnly? L"" : userCredentials.strAccountName);
+		CreateWatchdog();
+	}
+	catch(Win32Exception& err)
+	{
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CREATE_SHARED_OBJECTS_FAILED)) % err.what()));
+	}
 
 	// write startup params
-	m_consoleParams->dwParentProcessId		= ::GetCurrentProcessId();
-	m_consoleParams->dwNotificationTimeout	= g_settingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
-	m_consoleParams->dwRefreshInterval		= g_settingsHandler->GetConsoleSettings().dwRefreshInterval;
-	m_consoleParams->dwRows					= dwStartupRows;
-	m_consoleParams->dwColumns				= dwStartupColumns;
-	m_consoleParams->dwBufferRows			= g_settingsHandler->GetConsoleSettings().dwBufferRows;
-	m_consoleParams->dwBufferColumns		= g_settingsHandler->GetConsoleSettings().dwBufferColumns;
+	m_consoleParams->dwParentProcessId     = ::GetCurrentProcessId();
+	m_consoleParams->dwNotificationTimeout = g_settingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
+	m_consoleParams->dwRefreshInterval     = g_settingsHandler->GetConsoleSettings().dwRefreshInterval;
+	m_consoleParams->dwRows                = dwStartupRows;
+	m_consoleParams->dwColumns             = dwStartupColumns;
+	m_consoleParams->dwBufferRows          = g_settingsHandler->GetConsoleSettings().dwBufferRows;
+	m_consoleParams->dwBufferColumns       = g_settingsHandler->GetConsoleSettings().dwBufferColumns;
 
 	m_hConsoleProcess = std::shared_ptr<void>(pi.hProcess, ::CloseHandle);
-  m_dwConsolePid    = pi.dwProcessId;
+	m_dwConsolePid    = pi.dwProcessId;
+
+	if (runAsAdministrator)
+	{
+		::SetEvent(pid.GetRespEvent());
+	}
+	else
+	{
+		// inject our hook DLL into console process
+		if (!InjectHookDLL(pi))
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
+
+		// resume the console process
+		::ResumeThread(pi.hThread);
+		::CloseHandle(pi.hThread);
+	}
+
+	// wait for hook DLL to set console handle
+	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+
+	::ShowWindow(m_consoleParams->hwndConsoleWindow, SW_HIDE);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::StartShellProcessAsAdministrator
+(
+	const wstring& strSyncName,
+	const wstring& strShell,
+	const wstring& strInitialDir,
+	const wstring& strInitialCmd
+)
+{
+	SharedMemory<DWORD> pid;
+	pid.Open(strSyncName, syncObjBoth);
+
+	UserCredentials userCredentials;
+	PROCESS_INFORMATION pi = {0, 0, 0, 0};
+
+	CreateShellProcess(
+		strShell,
+		strInitialDir,
+		userCredentials,
+		strInitialCmd,
+		L"",
+		pi
+	);
+
+	*pid.Get() = pi.dwProcessId;
+	::SetEvent(pid.GetReqEvent());
+
+	// wait for shared objects creation
+	if (::WaitForSingleObject(pid.GetRespEvent(), 10000) == WAIT_TIMEOUT)
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 
 	// inject our hook DLL into console process
 	if (!InjectHookDLL(pi))
-    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
 
 	// resume the console process
 	::ResumeThread(pi.hThread);
 	::CloseHandle(pi.hThread);
-
-	// wait for hook DLL to set console handle
-	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
-    throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
-
-	::ShowWindow(m_consoleParams->hwndConsoleWindow, SW_HIDE);
-
-	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -635,7 +800,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				&siWow,
 				&piWow))
 		{
-      Win32Exception err(::GetLastError());
+			Win32Exception err(::GetLastError());
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str() % err.what()));
 		}
 

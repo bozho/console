@@ -141,7 +141,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 	if (!m_background) m_tabData->backgroundImageType = bktypeNone;
 
-	// TODO: error handling
 	wstring strInitialDir(m_consoleSettings.strInitialDir);
 
 	if (m_strCmdLineInitialDir.length() > 0)
@@ -166,13 +165,14 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		UserCredentials* userCredentials = reinterpret_cast<UserCredentials*>(createStruct->lpCreateParams);
 
 		m_consoleHandler.StartShellProcess(
-									strShell,
-									strInitialDir,
-									*userCredentials,
-									m_strCmdLineInitialCmd,
-									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
-									m_dwStartupRows,
-									m_dwStartupColumns);
+			m_tabData->strTitle,
+			strShell,
+			strInitialDir,
+			*userCredentials,
+			m_strCmdLineInitialCmd,
+			g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
+			m_dwStartupRows,
+			m_dwStartupColumns);
 
 		m_strUser = userCredentials->user.c_str();
 		m_boolNetOnly = userCredentials->netOnly;

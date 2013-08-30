@@ -20,7 +20,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
-static void ParseCommandLine
+void MainFrame::ParseCommandLine
 (
 	LPCTSTR lptstrCmdLine,
 	wstring& strWindowTitle,
@@ -31,7 +31,7 @@ static void ParseCommandLine
 )
 {
 	int argc = 0;
-  std::unique_ptr<LPWSTR[], LocalFreeHelper> argv(::CommandLineToArgvW(lptstrCmdLine, &argc));
+	std::unique_ptr<LPWSTR[], LocalFreeHelper> argv(::CommandLineToArgvW(lptstrCmdLine, &argc));
 
 	if (argc < 1) return;
 
@@ -193,14 +193,13 @@ LRESULT MainFrame::CreateInitialTabs
 			// find tab with corresponding name...
 			for (size_t i = 0; i < tabSettings.tabDataVector.size(); ++i)
 			{
-				wstring str = tabSettings.tabDataVector[i]->strTitle;
 				if (tabSettings.tabDataVector[i]->strTitle == startupTabs[tabIndex])
 				{
 					// -ts Specifies sleep time between starting next tab if multiple -t's are specified.
 					if (bAtLeastOneStarted) ::Sleep(nMultiStartSleep);
 					// found it, create
 					if (CreateNewConsole(
-						static_cast<DWORD>(i), 
+						static_cast<DWORD>(i),
 						startupDirs[tabIndex],
 						startupCmds[tabIndex]))
 					{

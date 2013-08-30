@@ -46,6 +46,16 @@ class MainFrame
 			LPCTSTR lpstrCmdLine
 		);
 
+		static void MainFrame::ParseCommandLine
+		(
+			LPCTSTR lptstrCmdLine,
+			wstring& strWindowTitle,
+			vector<wstring>& startupTabs,
+			vector<wstring>& startupDirs,
+			vector<wstring>& startupCmds,
+			int& nMultiStartSleep
+		);
+
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
 		virtual BOOL OnIdle();
 

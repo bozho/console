@@ -405,7 +405,7 @@ LRESULT ConsoleView::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
       else
       {
         // scroll lines
-        UINT uScrollAmount;
+        UINT uScrollAmount = 3;
         if (!SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uScrollAmount, 0))
           uScrollAmount = 3;
         nScrollDelta *= static_cast<int>(uScrollAmount);
@@ -1231,11 +1231,11 @@ void ConsoleView::SetTitle(const CString& strTitle)
 	if (m_strUser.GetLength() > 0)
 		if (m_boolNetOnly)
 		{
-			title.Format(L"{%s} %s", m_strUser, strTitle);
+			title.Format(L"{%s} %s", static_cast<LPCTSTR>(m_strUser), static_cast<LPCTSTR>(strTitle));
 		}
 		else
 		{
-			title.Format(L"[%s] %s", m_strUser, strTitle);
+			title.Format(L"[%s] %s", static_cast<LPCTSTR>(m_strUser), static_cast<LPCTSTR>(strTitle));
 		}
 
 	m_strTitle = title;

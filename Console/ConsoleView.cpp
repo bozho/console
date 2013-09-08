@@ -348,7 +348,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	if (uMsg == WM_SYSKEYUP && wParam == VK_MENU)
 	{
 		if( !_boolMenuSysKeyCancelled )
-			m_mainFrame.PostMessage(WM_COMMAND, ID_VIEW_MENU);
+			m_mainFrame.PostMessage(WM_COMMAND, ID_VIEW_MENU2);
 
 		return 0;
 	}

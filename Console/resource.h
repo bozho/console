@@ -293,6 +293,7 @@
 #define ID_EDIT_RENAME_TAB              32781
 #define ID_EDIT_SETTINGS                32783
 #define ID_VIEW_MENU                    32784
+#define ID_VIEW_MENU2                   32785
 #define ID__EDIT                        32786
 #define ID__VIEW                        32787
 #define ID__HELP                        32788

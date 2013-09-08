@@ -145,6 +145,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_EDIT_RENAME_TAB, OnEditRenameTab)
 			COMMAND_ID_HANDLER(ID_EDIT_SETTINGS, OnEditSettings)
 			COMMAND_ID_HANDLER(ID_VIEW_MENU, OnViewMenu)
+			COMMAND_ID_HANDLER(ID_VIEW_MENU2, OnViewMenu)
 			COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
 			COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 			COMMAND_ID_HANDLER(ID_VIEW_TABS, OnViewTabs)
@@ -230,7 +231,7 @@ class MainFrame
 		LRESULT OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-		LRESULT OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnViewMenu(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -310,6 +311,7 @@ class MainFrame
 		std::shared_ptr<TabView>	m_activeTabView;
 
 		bool m_bMenuVisible;
+		bool m_bMenuChecked;
 		bool m_bToolbarVisible;
 		bool m_bStatusBarVisible;
 		bool m_bTabsVisible;

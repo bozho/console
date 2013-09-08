@@ -91,6 +91,7 @@ MainFrame::MainFrame
 , m_nMultiStartSleep(0)
 , m_activeTabView()
 , m_bMenuVisible     (true)
+, m_bMenuChecked     (true)
 , m_bToolbarVisible  (true)
 , m_bStatusBarVisible(true)
 , m_bTabsVisible     (true)
@@ -305,7 +306,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	SetWindowStyles();
 
-	ShowMenu(controlsSettings.bShowMenu);
+	m_bMenuChecked = controlsSettings.bShowMenu;
+	ShowMenu(m_bMenuChecked);
 	ShowToolbar(controlsSettings.bShowToolbar);
 	ShowStatusbar(controlsSettings.bShowStatusbar);
 
@@ -1736,7 +1738,8 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
     if( !m_bFullScreen )
     {
-      ShowMenu(controlsSettings.bShowMenu);
+      m_bMenuChecked = controlsSettings.bShowMenu;
+      ShowMenu(m_bMenuChecked);
       ShowToolbar(controlsSettings.bShowToolbar);
 
       bool bShowTabs = false;
@@ -1793,14 +1796,25 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  ShowMenu(!m_bMenuVisible);
-  if( !m_bFullScreen )
-  {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuVisible;
-    g_settingsHandler->SaveSettings();
-  }
+	if( wID == ID_VIEW_MENU2 )
+	{
+		if( !m_bMenuChecked )
+		{
+			ShowMenu(!m_bMenuVisible);
+		}
+	}
+	else
+	{
+		m_bMenuChecked = !m_bMenuChecked;
+		ShowMenu(m_bMenuChecked);
+		if( !m_bFullScreen )
+		{
+			g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuChecked;
+			g_settingsHandler->SaveSettings();
+		}
+	}
   return 0;
 }
 
@@ -2537,7 +2551,7 @@ void MainFrame::ShowMenu(bool bShow)
 	CReBarCtrl rebar(m_hWndToolBar);
 	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST);	// menu is 1st added band
 	rebar.ShowBand(nBandIndex, m_bMenuVisible);
-	UISetCheck(ID_VIEW_MENU, m_bMenuVisible);
+	UISetCheck(ID_VIEW_MENU, m_bMenuChecked);
 
 	UpdateLayout();
 	AdjustWindowSize(ADJUSTSIZE_WINDOW);
@@ -2625,6 +2639,7 @@ void MainFrame::ShowFullScreen(bool bShow)
     // normal or maximized
     GetWindowRect(&m_rectWndNotFS);
 
+    m_bMenuChecked = false;
     ShowMenu     (false);
     ShowToolbar  (false);
     ShowStatusbar(false);
@@ -2648,7 +2663,8 @@ void MainFrame::ShowFullScreen(bool bShow)
       }
     }
 
-    ShowMenu     (controlsSettings.bShowMenu);
+    m_bMenuChecked = controlsSettings.bShowMenu;
+    ShowMenu     (m_bMenuChecked);
     ShowToolbar  (controlsSettings.bShowToolbar);
     ShowStatusbar(controlsSettings.bShowStatusbar);
     ShowTabs     (bShowTabs);

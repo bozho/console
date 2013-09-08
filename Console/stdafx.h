@@ -119,6 +119,7 @@ using namespace boost::multi_index;
 
 #include "../shared/Cpp11Helpers.h"
 #include "../shared/Win32Exception.h"
+#include "../shared/NamedPipe.h"
 #include "Helpers.h"
 #include "ConsoleHandler.h"
 #include "ImageHandler.h"

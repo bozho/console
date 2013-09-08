@@ -433,6 +433,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\shared\NamedPipe.h" />
     <ClInclude Include="ConsoleHandler.h" />
     <ClInclude Include="ConsoleHook.h" />
     <ClInclude Include="resource.h" />

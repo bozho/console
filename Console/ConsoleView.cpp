@@ -189,10 +189,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	m_bInitializing = false;
 
 	// set current language in the console window
-	::PostMessage(
-		m_consoleHandler.GetConsoleParams()->hwndConsoleWindow,
-		WM_INPUTLANGCHANGEREQUEST, 
-		0, 
+	m_consoleHandler.PostMessage(
+		WM_INPUTLANGCHANGEREQUEST,
+		0,
 		reinterpret_cast<LPARAM>(::GetKeyboardLayout(0)));
 
 	// scrollbar stuff
@@ -355,11 +354,11 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-    //TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
-    if( this->IsGrouped() )
-      m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
-    else
-      ::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+		//TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+		if( this->IsGrouped() )
+			m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
+		else
+			m_consoleHandler.PostMessage(uMsg, wParam, lParam);
 	}
 
 	return 0;
@@ -817,7 +816,7 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 
 LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	m_consoleHandler.PostMessage(uMsg, wParam, lParam);
 	bHandled = FALSE;
 	return 0;
 }
@@ -829,8 +828,8 @@ LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM l
 
 LRESULT ConsoleView::OnInputLangChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, lParam);
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	m_consoleHandler.PostMessage(WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, lParam);
+	m_consoleHandler.PostMessage(uMsg, wParam, lParam);
 	bHandled = FALSE;
 	return 0;
 }
@@ -1366,7 +1365,7 @@ void ConsoleView::ClearSelection()
 void ConsoleView::Paste()
 {
 	if (!CanPaste()) return;
-	::SendMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
+	m_consoleHandler.SendMessage(WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////

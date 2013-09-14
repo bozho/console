@@ -115,6 +115,9 @@ bool ConsoleHandler::OpenSharedObjects()
 
     // new scroll position
     m_newScrollPos.Open((SharedMemNames::formatNewScrollPos % dwProcessId).str(), syncObjRequest);
+
+    // message pipe (workaround for User Interface Privilege Isolation messages filtering)
+    m_consoleMsgPipe.Open((SharedMemNames::formatPipeName % dwProcessId).str());
   }
   catch(Win32Exception& ex)
   {
@@ -1136,6 +1139,10 @@ DWORD ConsoleHandler::MonitorThread()
 	std::shared_ptr<void> parentProcessWatchdog(::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str())), ::CloseHandle);
 	TRACE(L"Watchdog handle: 0x%08X\n", parentProcessWatchdog.get());
 
+	NamedPipeMessage npmsg;
+	size_t           npmsglen = 0;
+	m_consoleMsgPipe.BeginReadAsync(&npmsg, sizeof(NamedPipeMessage));
+
 	HANDLE	arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(), 
@@ -1145,6 +1152,7 @@ DWORD ConsoleHandler::MonitorThread()
 		m_consoleMouseEvent.GetReqEvent(), 
 		m_newConsoleSize.GetReqEvent(),
 		hStdOut,
+		m_consoleMsgPipe.Get()
 	};
 
 	DWORD	dwWaitRes		= 0;
@@ -1233,6 +1241,41 @@ DWORD ConsoleHandler::MonitorThread()
 				// refresh timer
 				ReadConsoleBuffer();
 				break;
+			}
+
+			case WAIT_OBJECT_0 + 7 :
+			{
+				try
+				{
+					npmsglen += m_consoleMsgPipe.EndAsync();
+					if( npmsglen == sizeof(NamedPipeMessage) )
+					{
+						switch( npmsg.type )
+						{
+						case NamedPipeMessage::POSTMESSAGE:
+							::PostMessage(
+								m_consoleParams->hwndConsoleWindow,
+								npmsg.data.winmsg.msg,
+								npmsg.data.winmsg.wparam,
+								npmsg.data.winmsg.lparam);
+							break;
+
+						case NamedPipeMessage::SENDMESSAGE:
+							::SendMessage(
+								m_consoleParams->hwndConsoleWindow,
+								npmsg.data.winmsg.msg,
+								npmsg.data.winmsg.wparam,
+								npmsg.data.winmsg.lparam);
+							break;
+						}
+						npmsglen = 0;
+					}
+					m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(&npmsg) + npmsglen, sizeof(NamedPipeMessage) - npmsglen);
+				}
+				catch(std::exception&)
+				{
+					// receives ERROR_BROKEN_PIPE when the tab is closed
+				}
 			}
 		}
 	}

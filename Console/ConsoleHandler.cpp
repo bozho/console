@@ -52,7 +52,7 @@ ConsoleHandler::~ConsoleHandler()
 	if ((m_consoleParams.Get() != NULL) && 
 		(m_consoleParams->hwndConsoleWindow))
 	{
-		::SendMessage(m_consoleParams->hwndConsoleWindow, WM_CLOSE, 0, 0);
+		SendMessage(WM_CLOSE, 0, 0);
 	}
 }
 
@@ -483,6 +483,15 @@ void ConsoleHandler::StartShellProcess
 		::CloseHandle(pi.hThread);
 	}
 
+	try
+	{
+		m_consoleMsgPipe.WaitConnect();
+	}
+	catch(Win32Exception& err)
+	{
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
+	}
+
 	// wait for hook DLL to set console handle
 	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
@@ -597,7 +606,7 @@ void ConsoleHandler::StopScrolling()
 {
 	// emulate 'Mark' sysmenu item click in Windows console window (will stop scrolling until the user presses ESC)
 	// or a selection is cleared (copied or not)
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
+	SendMessage(WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -610,9 +619,9 @@ void ConsoleHandler::ResumeScrolling()
 	// emulate ESC keypress to end 'mark' command (we send a mark command just in case 
 	// a user has already pressed ESC as I don't know an easy way to detect if the mark
 	// command is active or not)
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_KEYDOWN, VK_ESCAPE, 0x00010001);
-	::SendMessage(m_consoleParams->hwndConsoleWindow, WM_KEYUP, VK_ESCAPE, 0xC0010001);
+	SendMessage(WM_SYSCOMMAND, SC_CONSOLE_MARK, 0);
+	SendMessage(WM_KEYDOWN,    VK_ESCAPE,       0x00010001);
+	SendMessage(WM_KEYUP,      VK_ESCAPE,       0xC0010001);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -675,6 +684,9 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring
 
 	// new scroll position
 	m_newScrollPos.Create((SharedMemNames::formatNewScrollPos % dwConsoleProcessId).str(), 1, syncObjRequest, strUser);
+
+	// message pipe (workaround for User Interface Privilege Isolation messages filtering)
+	m_consoleMsgPipe.Create((SharedMemNames::formatPipeName % dwConsoleProcessId).str(), strUser);
 
 	// TODO: separate function for default settings
 	m_consoleParams->dwRows		= 25;
@@ -1018,6 +1030,135 @@ DWORD ConsoleHandler::MonitorThread()
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+#ifdef _DEBUG
+	const wchar_t * strMsg = L"???";
+	switch( Msg )
+	{
+	case WM_INPUTLANGCHANGEREQUEST: strMsg = L"WM_INPUTLANGCHANGEREQUEST"; break;
+	case WM_INPUTLANGCHANGE:        strMsg = L"WM_INPUTLANGCHANGE";        break;
+
+	case WM_KEYDOWN:                strMsg = L"WM_KEYDOWN";                break;
+	case WM_KEYUP:                  strMsg = L"WM_KEYUP";                  break;
+	case WM_CHAR:                   strMsg = L"WM_CHAR";                   break;
+	case WM_DEADCHAR:               strMsg = L"WM_DEADCHAR";               break;
+	case WM_SYSKEYDOWN:             strMsg = L"WM_SYSKEYDOWN";             break;
+	case WM_SYSKEYUP:               strMsg = L"WM_SYSKEYUP";               break;
+	case WM_SYSCHAR:                strMsg = L"WM_SYSCHAR";                break;
+	case WM_SYSDEADCHAR:            strMsg = L"WM_SYSDEADCHAR";            break;
+	case WM_UNICHAR:                strMsg = L"WM_UNICHAR";                break;
+	};
+
+	TRACE(
+		L"PostMessage Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p\n",
+		Msg, strMsg,
+		wParam, lParam);
+#endif
+
+	if( Msg >= WM_KEYFIRST && Msg <= WM_KEYLAST )
+	{
+		NamedPipeMessage npmsg;
+		npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
+		npmsg.type = NamedPipeMessage::POSTMESSAGE;
+		npmsg.data.winmsg.msg = Msg;
+		npmsg.data.winmsg.wparam = static_cast<DWORD>(wParam);
+		npmsg.data.winmsg.lparam = static_cast<DWORD>(lParam);
+
+		try
+		{
+			m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+		}
+#ifdef _DEBUG
+		catch(std::exception& e)
+		{
+			TRACE(
+				L"PostMessage(pipe) Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p fails (reason: %S)\n",
+				Msg, strMsg,
+				wParam, lParam,
+				e.what());
+		}
+#else
+		catch(std::exception&) { }
+#endif
+	}
+	else
+	{
+		if( !::PostMessage(m_consoleParams->hwndConsoleWindow, Msg, wParam, lParam) )
+		{
+#ifdef _DEBUG
+			Win32Exception err(::GetLastError());
+			TRACE(
+				L"PostMessage Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p fails (reason: %S)\n",
+				Msg, strMsg,
+				wParam, lParam,
+				err.what());
+#endif
+		}
+	}
+}
+
+void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+#ifdef _DEBUG
+	const wchar_t * strMsg = L"???";
+	switch( Msg )
+	{
+	case WM_CLOSE:      strMsg = L"WM_CLOSE";      break;
+	case WM_KEYDOWN:    strMsg = L"WM_KEYDOWN";    break;
+	case WM_KEYUP:      strMsg = L"WM_KEYUP";      break;
+	case WM_SYSCOMMAND: strMsg = L"WM_SYSCOMMAND"; break;
+	}
+
+	TRACE(
+		L"SendMessage Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p\n",
+		Msg, strMsg,
+		wParam, lParam);
+#endif
+
+	if( (Msg >= WM_KEYFIRST && Msg <= WM_KEYLAST) || Msg == WM_CLOSE || Msg == WM_SYSCOMMAND )
+	{
+		NamedPipeMessage npmsg;
+		npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
+		npmsg.type = NamedPipeMessage::SENDMESSAGE;
+		npmsg.data.winmsg.msg = Msg;
+		npmsg.data.winmsg.wparam = static_cast<DWORD>(wParam);
+		npmsg.data.winmsg.lparam = static_cast<DWORD>(lParam);
+
+		try
+		{
+			m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+		}
+#ifdef _DEBUG
+		catch(std::exception& e)
+		{
+			TRACE(
+				L"SendMessage(pipe) Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p fails (reason: %S)\n",
+				Msg, strMsg,
+				wParam, lParam,
+				e.what());
+		}
+#else
+		catch(std::exception&) { }
+#endif
+	}
+	else
+	{
+#ifdef _DEBUG
+		LRESULT res = ::SendMessage(m_consoleParams->hwndConsoleWindow, Msg, wParam, lParam);
+		TRACE(
+			L"SendMessage Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p returns %p (last error 0x%08lx)\n",
+			Msg, strMsg,
+			wParam, lParam,
+			res,
+			GetLastError());
+#else
+		::SendMessage(m_consoleParams->hwndConsoleWindow, Msg, wParam, lParam);
+#endif
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 

@@ -22,6 +22,9 @@
     <Filter Include="Help Files\html\styles">
       <UniqueIdentifier>{5fe3ba1d-76b1-443d-a80c-c5a24a502a52}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\shared">
+      <UniqueIdentifier>{8c14276e-e91a-4f46-8dd5-975b3b0c355f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AboutDlg.cpp">
@@ -203,16 +206,7 @@
     <ClInclude Include="SettingsHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\shared\SharedMemNames.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\SharedMemory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Structures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TabView.h">
@@ -227,15 +221,6 @@
     <ClInclude Include="Wallpaper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Win32Exception.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\version.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\shared\Cpp11Helpers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DlgSettingsFullScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -248,8 +233,26 @@
     <ClInclude Include="DlgSettingsFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\shared\Cpp11Helpers.h">
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SharedMemory.h">
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\SharedMemNames.h">
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
     <ClInclude Include="..\shared\NamedPipe.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Structures.h">
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\version.h">
+      <Filter>Header Files\shared</Filter>
+    </ClInclude>
+    <ClInclude Include="..\shared\Win32Exception.h">
+      <Filter>Header Files\shared</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -643,6 +643,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="..\shared\Cpp11Helpers.h" />
     <ClInclude Include="..\shared\NamedPipe.h" />
     <ClInclude Include="..\shared\version.h" />
+    <ClInclude Include="..\shared\Win32Exception.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="AeroTabCtrl.h" />
     <ClInclude Include="Console.h" />
@@ -682,7 +683,6 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="..\shared\Structures.h" />
     <ClInclude Include="TabView.h" />
     <ClInclude Include="Wallpaper.h" />
-    <ClInclude Include="Win32Exception.h" />
     <ClInclude Include="wtlaero.h" />
     <ClInclude Include="XmlHelper.h" />
   </ItemGroup>

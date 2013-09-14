@@ -139,6 +139,9 @@ class ConsoleHandler
 
 		inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
 
+		void PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
+		void SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
+
 	private:
 
 		bool CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser);
@@ -193,6 +196,8 @@ class ConsoleHandler
 
     SharedMemory<ConsoleSize>         m_newConsoleSize;
     SharedMemory<SIZE>                m_newScrollPos;
+
+    NamedPipe                         m_consoleMsgPipe;
 
     std::shared_ptr<void>             m_hMonitorThread;
     std::shared_ptr<void>             m_hMonitorThreadExit;

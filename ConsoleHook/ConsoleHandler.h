@@ -46,21 +46,23 @@ class ConsoleHandler
 
 	private:
 
-		SharedMemory<ConsoleParams>					m_consoleParams;
-		SharedMemory<ConsoleInfo>	m_consoleInfo;
-		SharedMemory<CONSOLE_CURSOR_INFO>			m_cursorInfo;
-		SharedMemory<CHAR_INFO>						m_consoleBuffer;
-		SharedMemory<ConsoleCopy>					m_consoleCopyInfo;
-		SharedMemory<TextInfo>						m_consoleTextInfo;
-		SharedMemory<MOUSE_EVENT_RECORD>			m_consoleMouseEvent;
+		SharedMemory<ConsoleParams>       m_consoleParams;
+		SharedMemory<ConsoleInfo>         m_consoleInfo;
+		SharedMemory<CONSOLE_CURSOR_INFO> m_cursorInfo;
+		SharedMemory<CHAR_INFO>           m_consoleBuffer;
+		SharedMemory<ConsoleCopy>         m_consoleCopyInfo;
+		SharedMemory<TextInfo>            m_consoleTextInfo;
+		SharedMemory<MOUSE_EVENT_RECORD>  m_consoleMouseEvent;
 
-		SharedMemory<ConsoleSize>					m_newConsoleSize;
-		SharedMemory<SIZE>							m_newScrollPos;
+		SharedMemory<ConsoleSize>         m_newConsoleSize;
+		SharedMemory<SIZE>                m_newScrollPos;
 
-		std::shared_ptr<void>							m_hMonitorThread;
-		std::shared_ptr<void>							m_hMonitorThreadExit;
+		NamedPipe                         m_consoleMsgPipe;
 
-		DWORD										m_dwScreenBufferSize;
+		std::shared_ptr<void>             m_hMonitorThread;
+		std::shared_ptr<void>             m_hMonitorThreadExit;
+
+		DWORD                             m_dwScreenBufferSize;
 };
 
 //////////////////////////////////////////////////////////////////////////////

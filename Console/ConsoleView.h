@@ -141,10 +141,10 @@ class ConsoleView
 
 		const CString& GetExceptionMessage() const { return m_exceptionMessage; }
 
-    inline bool IsGrouped() const { return m_boolIsGrouped; }
-    void Group(bool b) { m_boolIsGrouped = b; }
+		inline bool IsGrouped() const { return m_boolIsGrouped; }
+		void Group(bool b) { m_boolIsGrouped = b; }
 
-    void DoScroll(int nType, int nScrollCode, int nThumbPos);
+		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
 	private:
 

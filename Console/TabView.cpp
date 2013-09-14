@@ -524,11 +524,11 @@ void TabView::OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*bool
 
 void TabView::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-  MutexLock	viewMapLock(m_viewsMutex);
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-  {
-    ::PostMessage(it->second->GetConsoleHandler().GetConsoleParams()->hwndConsoleWindow, Msg, wParam, lParam);
-  }
+	MutexLock	viewMapLock(m_viewsMutex);
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+	{
+		it->second->GetConsoleHandler().PostMessage(Msg, wParam, lParam);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

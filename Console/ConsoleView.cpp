@@ -861,12 +861,12 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	}
 	::DragFinish(hDrop);
 
-  if( this->IsGrouped() )
-    m_mainFrame.SendTextToConsoles(strFilenames);
-  else
-    SendTextToConsole(strFilenames);
+	if( this->IsGrouped() )
+		m_mainFrame.SendTextToConsoles(strFilenames);
+	else
+		m_consoleHandler.SendTextToConsole(strFilenames);
 
-  m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
+	m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
 
 	return 0;
 }
@@ -2520,51 +2520,6 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 #else //_USE_AERO
 	m_selectionHandler->BitBlt(m_dcOffscreen);
 #endif //_USE_AERO
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::SendTextToConsole(const wchar_t* pszText)
-{
-	if (pszText == NULL) return;
-
-	size_t textLen = wcslen(pszText);
-
-	if (textLen == 0) return;
-
-	SharedMemory<TextInfo>&	textInfo = m_consoleHandler.GetTextInfo();
-
-	{
-		SharedMemoryLock		memLock(textInfo);
-
-		void* pRemoteMemory = ::VirtualAllocEx(
-									m_consoleHandler.GetConsoleHandle().get(),
-									NULL,
-									(textLen+1)*sizeof(wchar_t),
-									MEM_COMMIT,
-									PAGE_READWRITE);
-
-		if (pRemoteMemory == NULL) return;
-
-		if (!::WriteProcessMemory(
-					m_consoleHandler.GetConsoleHandle().get(),
-					pRemoteMemory,
-					(PVOID)pszText,
-					(textLen+1)*sizeof(wchar_t),
-					NULL))
-		{
-			::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
-			return;
-		}
-
-		textInfo->mem = reinterpret_cast<UINT_PTR>(pRemoteMemory);
-		textInfo.SetReqEvent();
-	}
-
-	::WaitForSingleObject(textInfo.GetRespEvent(), INFINITE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

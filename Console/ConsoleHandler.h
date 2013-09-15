@@ -126,7 +126,6 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
 		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
 		SharedMemory<ConsoleCopy>& GetCopyInfo()					{ return m_consoleCopyInfo; }
-		SharedMemory<TextInfo>& GetTextInfo()						{ return m_consoleTextInfo; }
 		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
 		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
 
@@ -143,6 +142,7 @@ class ConsoleHandler
 		void SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 		void SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags);
 		void ShowWindow(int nCmdShow);
+		void SendTextToConsole(const wchar_t* pszText);
 
 	private:
 
@@ -193,7 +193,6 @@ class ConsoleHandler
     SharedMemory<CONSOLE_CURSOR_INFO> m_cursorInfo;
     SharedMemory<CHAR_INFO>           m_consoleBuffer;
     SharedMemory<ConsoleCopy>         m_consoleCopyInfo;
-    SharedMemory<TextInfo>            m_consoleTextInfo;
     SharedMemory<MOUSE_EVENT_RECORD>  m_consoleMouseEvent;
 
     SharedMemory<ConsoleSize>         m_newConsoleSize;

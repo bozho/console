@@ -31,7 +31,7 @@ class ConsoleHandler
 
 		void CopyConsoleText();
 
-		void SendConsoleText(HANDLE hStdIn, const std::shared_ptr<wchar_t>& textBuffer);
+		void SendConsoleText(HANDLE hStdIn, const wchar_t*	pszText, size_t	textLen);
 
 		void SendMouseEvent(HANDLE hStdIn);
 
@@ -51,7 +51,6 @@ class ConsoleHandler
 		SharedMemory<CONSOLE_CURSOR_INFO> m_cursorInfo;
 		SharedMemory<CHAR_INFO>           m_consoleBuffer;
 		SharedMemory<ConsoleCopy>         m_consoleCopyInfo;
-		SharedMemory<TextInfo>            m_consoleTextInfo;
 		SharedMemory<MOUSE_EVENT_RECORD>  m_consoleMouseEvent;
 
 		SharedMemory<ConsoleSize>         m_newConsoleSize;

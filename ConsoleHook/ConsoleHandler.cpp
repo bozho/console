@@ -20,7 +20,6 @@ ConsoleHandler::ConsoleHandler()
 , m_cursorInfo()
 , m_consoleBuffer()
 , m_consoleCopyInfo()
-, m_consoleTextInfo()
 , m_consoleMouseEvent()
 , m_newConsoleSize()
 , m_newScrollPos()
@@ -103,9 +102,6 @@ bool ConsoleHandler::OpenSharedObjects()
 
     // copy info
     m_consoleCopyInfo.Open((SharedMemNames::formatCopyInfo % dwProcessId).str(), syncObjBoth);
-
-    // text info (used for sending text to console)
-    m_consoleTextInfo.Open((SharedMemNames::formatTextInfo % dwProcessId).str(), syncObjBoth);
 
     // mouse event
     m_consoleMouseEvent.Open((SharedMemNames::formatMouseEvent % dwProcessId).str(), syncObjBoth);
@@ -938,10 +934,8 @@ void ConsoleHandler::CopyConsoleText()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const std::shared_ptr<wchar_t>& textBuffer)
+void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const wchar_t*	pszText, size_t	textLen)
 {
-	wchar_t*	pszText	= textBuffer.get();
-	size_t		textLen = wcslen(pszText);
 	size_t		partLen	= 512;
 	size_t		parts	= textLen/partLen;
 	size_t		offset	= 0;
@@ -1139,17 +1133,17 @@ DWORD ConsoleHandler::MonitorThread()
 	std::shared_ptr<void> parentProcessWatchdog(::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str())), ::CloseHandle);
 	TRACE(L"Watchdog handle: 0x%08X\n", parentProcessWatchdog.get());
 
-	NamedPipeMessage npmsg;
-	size_t           npmsglen = 0;
+	NamedPipeMessage           npmsg;
+	size_t                     npmsglen = 0;
+	std::unique_ptr<wchar_t[]> text;
 	m_consoleMsgPipe.BeginReadAsync(&npmsg, sizeof(NamedPipeMessage));
 
 	HANDLE	arrWaitHandles[] =
 	{
-		m_hMonitorThreadExit.get(), 
-		m_consoleCopyInfo.GetReqEvent(), 
-		m_consoleTextInfo.GetReqEvent(), 
+		m_hMonitorThreadExit.get(),
+		m_consoleCopyInfo.GetReqEvent(),
 		m_newScrollPos.GetReqEvent(),
-		m_consoleMouseEvent.GetReqEvent(), 
+		m_consoleMouseEvent.GetReqEvent(),
 		m_newConsoleSize.GetReqEvent(),
 		hStdOut,
 		m_consoleMsgPipe.Get()
@@ -1182,27 +1176,8 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			// send text request
-			case WAIT_OBJECT_0 + 2 :
-			{
-				SharedMemoryLock memLock(m_consoleTextInfo);
-
-				std::shared_ptr<wchar_t>	textBuffer;
-				
-				if (m_consoleTextInfo->mem != NULL)
-				{
-					textBuffer.reset(
-									reinterpret_cast<wchar_t*>(m_consoleTextInfo->mem),
-									boost::bind<BOOL>(::VirtualFreeEx, ::GetCurrentProcess(), _1, NULL, MEM_RELEASE));
-				}
-
-				SendConsoleText(hStdIn, textBuffer);
-				m_consoleTextInfo.SetRespEvent();
-				break;
-			}
-
 			// console scroll request
-			case WAIT_OBJECT_0 + 3 :
+			case WAIT_OBJECT_0 + 2 :
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 
@@ -1212,7 +1187,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// mouse event request
-			case WAIT_OBJECT_0 + 4 :
+			case WAIT_OBJECT_0 + 3 :
 			{
 				SharedMemoryLock memLock(m_consoleMouseEvent);
 
@@ -1222,7 +1197,7 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			// console resize request
-			case WAIT_OBJECT_0 + 5 :
+			case WAIT_OBJECT_0 + 4 :
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
@@ -1231,7 +1206,7 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			case WAIT_OBJECT_0 + 6 :
+			case WAIT_OBJECT_0 + 5 :
 				// something changed in the console
 				// this has to be the last event, since it's the most 
 				// frequent one
@@ -1243,51 +1218,76 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			case WAIT_OBJECT_0 + 7 :
+			case WAIT_OBJECT_0 + 6 :
 			{
 				try
 				{
 					npmsglen += m_consoleMsgPipe.EndAsync();
-					if( npmsglen == sizeof(NamedPipeMessage) )
+
+					if( text.get() )
 					{
-						switch( npmsg.type )
+						if( npmsglen == (npmsg.data.text.dwTextLen * sizeof(wchar_t)) )
 						{
-						case NamedPipeMessage::POSTMESSAGE:
-							::PostMessage(
-								m_consoleParams->hwndConsoleWindow,
-								npmsg.data.winmsg.msg,
-								npmsg.data.winmsg.wparam,
-								npmsg.data.winmsg.lparam);
-							break;
+							text.get()[npmsg.data.text.dwTextLen] = 0;
 
-						case NamedPipeMessage::SENDMESSAGE:
-							::SendMessage(
-								m_consoleParams->hwndConsoleWindow,
-								npmsg.data.winmsg.msg,
-								npmsg.data.winmsg.wparam,
-								npmsg.data.winmsg.lparam);
-							break;
+							SendConsoleText(hStdIn, text.get(), npmsg.data.text.dwTextLen);
 
-						case NamedPipeMessage::SHOWWINDOW:
-							::ShowWindow(
-								m_consoleParams->hwndConsoleWindow,
-								npmsg.data.show.nCmdShow);
-							break;
-
-						case NamedPipeMessage::SETWINDOWPOS:
-							::SetWindowPos(
-								m_consoleParams->hwndConsoleWindow,
-								NULL,
-								npmsg.data.windowpos.X,
-								npmsg.data.windowpos.Y,
-								npmsg.data.windowpos.cx,
-								npmsg.data.windowpos.cy,
-								npmsg.data.windowpos.uFlags);
-							break;
+							text.reset();
+							npmsglen = 0;
 						}
-						npmsglen = 0;
 					}
-					m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(&npmsg) + npmsglen, sizeof(NamedPipeMessage) - npmsglen);
+					else
+					{
+						if( npmsglen == sizeof(NamedPipeMessage) )
+						{
+							switch( npmsg.type )
+							{
+							case NamedPipeMessage::POSTMESSAGE:
+								::PostMessage(
+									m_consoleParams->hwndConsoleWindow,
+									npmsg.data.winmsg.msg,
+									npmsg.data.winmsg.wparam,
+									npmsg.data.winmsg.lparam);
+								break;
+
+							case NamedPipeMessage::SENDMESSAGE:
+								::SendMessage(
+									m_consoleParams->hwndConsoleWindow,
+									npmsg.data.winmsg.msg,
+									npmsg.data.winmsg.wparam,
+									npmsg.data.winmsg.lparam);
+								break;
+
+							case NamedPipeMessage::SHOWWINDOW:
+								::ShowWindow(
+									m_consoleParams->hwndConsoleWindow,
+									npmsg.data.show.nCmdShow);
+								break;
+
+							case NamedPipeMessage::SETWINDOWPOS:
+								::SetWindowPos(
+									m_consoleParams->hwndConsoleWindow,
+									NULL,
+									npmsg.data.windowpos.X,
+									npmsg.data.windowpos.Y,
+									npmsg.data.windowpos.cx,
+									npmsg.data.windowpos.cy,
+									npmsg.data.windowpos.uFlags);
+								break;
+
+							case NamedPipeMessage::SENDTEXT:
+								text.reset(new wchar_t[npmsg.data.text.dwTextLen + 1]);
+								break;
+							}
+
+							npmsglen = 0;
+						}
+					}
+
+					if( text.get() )
+						m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(text.get()) + npmsglen, npmsg.data.text.dwTextLen * sizeof(wchar_t) - npmsglen);
+					else
+						m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(&npmsg) + npmsglen, sizeof(NamedPipeMessage) - npmsglen);
 				}
 				catch(std::exception&)
 				{

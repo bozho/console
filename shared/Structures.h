@@ -201,53 +201,35 @@ struct CharInfo
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct TextInfo
-{
-	TextInfo()
-	: padding(0)
-	{
-	}
-
-	union
-	{
-		UINT_PTR	mem;
-		// padding for 32-bit processes started from 64-bit Console
-		__int64	padding;
-	};
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 struct NamedPipeMessage
 {
-	DWORD dwSize;
 	enum
 	{
 		POSTMESSAGE,
 		SENDMESSAGE,
 		SHOWWINDOW,
-		SETWINDOWPOS
+		SETWINDOWPOS,
+		SENDTEXT,
 	} type;
+
 	union
 	{
+		//POSTMESSAGE
+		//SENDMESSAGE
 		struct
 		{
 			UINT  msg;
 			DWORD wparam;
 			DWORD lparam;
 		} winmsg;
+
+		//SHOWWINDOW
 		struct
 		{
 			int nCmdShow;
 		} show;
+
+		//SETWINDOWPOS
 		struct
 		{
 			int  X;
@@ -256,5 +238,11 @@ struct NamedPipeMessage
 			int  cy;
 			UINT uFlags;
 		} windowpos;
+
+		//SENDTEXT
+		struct
+		{
+			DWORD dwTextLen;
+		} text;
 	} data;
 };

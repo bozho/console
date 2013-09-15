@@ -34,7 +34,6 @@ ConsoleHandler::ConsoleHandler()
 , m_consoleInfo()
 , m_consoleBuffer()
 , m_consoleCopyInfo()
-, m_consoleTextInfo()
 , m_consoleMouseEvent()
 , m_newConsoleSize()
 , m_newScrollPos()
@@ -673,9 +672,6 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring
 	// copy info
 	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
-	// text info (used for sending text to console)
-	m_consoleTextInfo.Create((SharedMemNames::formatTextInfo % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
-
 	// mouse event
 	m_consoleMouseEvent.Create((SharedMemNames::formatMouseEvent % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
@@ -1060,7 +1056,6 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 	if( Msg >= WM_KEYFIRST && Msg <= WM_KEYLAST )
 	{
 		NamedPipeMessage npmsg;
-		npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
 		npmsg.type = NamedPipeMessage::POSTMESSAGE;
 		npmsg.data.winmsg.msg = Msg;
 		npmsg.data.winmsg.wparam = static_cast<DWORD>(wParam);
@@ -1068,7 +1063,7 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 		try
 		{
-			m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+			m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 		}
 #ifdef _DEBUG
 		catch(std::exception& e)
@@ -1120,7 +1115,6 @@ void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 	if( (Msg >= WM_KEYFIRST && Msg <= WM_KEYLAST) || Msg == WM_CLOSE || Msg == WM_SYSCOMMAND )
 	{
 		NamedPipeMessage npmsg;
-		npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
 		npmsg.type = NamedPipeMessage::SENDMESSAGE;
 		npmsg.data.winmsg.msg = Msg;
 		npmsg.data.winmsg.wparam = static_cast<DWORD>(wParam);
@@ -1128,7 +1122,7 @@ void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 		try
 		{
-			m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+			m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 		}
 #ifdef _DEBUG
 		catch(std::exception& e)
@@ -1162,7 +1156,6 @@ void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 void ConsoleHandler::SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags)
 {
 	NamedPipeMessage npmsg;
-	npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
 	npmsg.type = NamedPipeMessage::SETWINDOWPOS;
 	npmsg.data.windowpos.X               = X;
 	npmsg.data.windowpos.Y               = Y;
@@ -1172,7 +1165,7 @@ void ConsoleHandler::SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags)
 
 	try
 	{
-		m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 #ifdef _DEBUG
 	catch(std::exception& e)
@@ -1192,13 +1185,12 @@ void ConsoleHandler::SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags)
 void ConsoleHandler::ShowWindow(int nCmdShow)
 {
 	NamedPipeMessage npmsg;
-	npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
 	npmsg.type = NamedPipeMessage::SHOWWINDOW;
 	npmsg.data.show.nCmdShow = nCmdShow;
 
 	try
 	{
-		m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 #ifdef _DEBUG
 	catch(std::exception& e)
@@ -1206,6 +1198,36 @@ void ConsoleHandler::ShowWindow(int nCmdShow)
 		TRACE(
 			L"ShowWindow(pipe) nCmdShow = 0x%08lx fails (reason: %S)\n",
 			nCmdShow,
+			e.what());
+	}
+#else
+	catch(std::exception&) { }
+#endif
+}
+
+void ConsoleHandler::SendTextToConsole(const wchar_t* pszText)
+{
+	if (pszText == NULL) return;
+
+	size_t textLen = wcslen(pszText);
+
+	if (textLen == 0) return;
+
+	NamedPipeMessage npmsg;
+	npmsg.type = NamedPipeMessage::SENDTEXT;
+	npmsg.data.text.dwTextLen = static_cast<DWORD>(textLen);
+
+	try
+	{
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
+		m_consoleMsgPipe.Write(pszText, textLen * sizeof(wchar_t));
+	}
+#ifdef _DEBUG
+	catch(std::exception& e)
+	{
+		TRACE(
+			L"SendTextToConsole(pipe) %s fails (reason: %S)\n",
+			pszText,
 			e.what());
 	}
 #else

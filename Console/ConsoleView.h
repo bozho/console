@@ -128,8 +128,6 @@ class ConsoleView
 		void SelectAll();
 		void ClearSelection();
 		void Paste();
-		// sends text to the windows console
-		void SendTextToConsole(const wchar_t* pszText);
 		DWORD GetSelectionSize(void) const { return m_selectionHandler->GetSelectionSize(); }
 
 		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }

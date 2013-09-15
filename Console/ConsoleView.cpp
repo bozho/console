@@ -1091,10 +1091,10 @@ void ConsoleView::SetConsoleWindowVisible(bool bVisible)
 	{
 		CPoint point;
 		::GetCursorPos(&point);
-		::SetWindowPos(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, NULL, point.x, point.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+		m_consoleHandler.SetWindowPos(point.x, point.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
 	}
 
-	::ShowWindow(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, bVisible ? SW_SHOW : SW_HIDE);
+	m_consoleHandler.ShowWindow(bVisible ? SW_SHOW : SW_HIDE);
 }
 
 //////////////////////////////////////////////////////////////////////////////

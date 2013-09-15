@@ -141,6 +141,8 @@ class ConsoleHandler
 
 		void PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 		void SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
+		void SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags);
+		void ShowWindow(int nCmdShow);
 
 	private:
 

@@ -232,7 +232,9 @@ struct NamedPipeMessage
 	enum
 	{
 		POSTMESSAGE,
-		SENDMESSAGE
+		SENDMESSAGE,
+		SHOWWINDOW,
+		SETWINDOWPOS
 	} type;
 	union
 	{
@@ -242,5 +244,17 @@ struct NamedPipeMessage
 			DWORD wparam;
 			DWORD lparam;
 		} winmsg;
+		struct
+		{
+			int nCmdShow;
+		} show;
+		struct
+		{
+			int  X;
+			int  Y;
+			int  cx;
+			int  cy;
+			UINT uFlags;
+		} windowpos;
 	} data;
 };

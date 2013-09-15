@@ -1267,6 +1267,23 @@ DWORD ConsoleHandler::MonitorThread()
 								npmsg.data.winmsg.wparam,
 								npmsg.data.winmsg.lparam);
 							break;
+
+						case NamedPipeMessage::SHOWWINDOW:
+							::ShowWindow(
+								m_consoleParams->hwndConsoleWindow,
+								npmsg.data.show.nCmdShow);
+							break;
+
+						case NamedPipeMessage::SETWINDOWPOS:
+							::SetWindowPos(
+								m_consoleParams->hwndConsoleWindow,
+								NULL,
+								npmsg.data.windowpos.X,
+								npmsg.data.windowpos.Y,
+								npmsg.data.windowpos.cx,
+								npmsg.data.windowpos.cy,
+								npmsg.data.windowpos.uFlags);
+							break;
 						}
 						npmsglen = 0;
 					}

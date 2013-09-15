@@ -496,7 +496,7 @@ void ConsoleHandler::StartShellProcess
 	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 
-	::ShowWindow(m_consoleParams->hwndConsoleWindow, SW_HIDE);
+	ShowWindow(SW_HIDE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1157,6 +1157,60 @@ void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 		::SendMessage(m_consoleParams->hwndConsoleWindow, Msg, wParam, lParam);
 #endif
 	}
+}
+
+void ConsoleHandler::SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags)
+{
+	NamedPipeMessage npmsg;
+	npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
+	npmsg.type = NamedPipeMessage::SETWINDOWPOS;
+	npmsg.data.windowpos.X               = X;
+	npmsg.data.windowpos.Y               = Y;
+	npmsg.data.windowpos.cx              = cx;
+	npmsg.data.windowpos.cy              = cy;
+	npmsg.data.windowpos.uFlags          = uFlags;
+
+	try
+	{
+		m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+	}
+#ifdef _DEBUG
+	catch(std::exception& e)
+	{
+		TRACE(
+			L"SetWindowPos(pipe) X = %d Y = %d cx = %d cy = %d uFlags = 0x%08lx fails (reason: %S)\n",
+			X, Y,
+			cx, cy,
+			uFlags,
+			e.what());
+	}
+#else
+	catch(std::exception&) { }
+#endif
+}
+
+void ConsoleHandler::ShowWindow(int nCmdShow)
+{
+	NamedPipeMessage npmsg;
+	npmsg.dwSize = static_cast<DWORD>(sizeof(NamedPipeMessage));
+	npmsg.type = NamedPipeMessage::SHOWWINDOW;
+	npmsg.data.show.nCmdShow = nCmdShow;
+
+	try
+	{
+		m_consoleMsgPipe.Write(&npmsg, npmsg.dwSize);
+	}
+#ifdef _DEBUG
+	catch(std::exception& e)
+	{
+		TRACE(
+			L"ShowWindow(pipe) nCmdShow = 0x%08lx fails (reason: %S)\n",
+			nCmdShow,
+			e.what());
+	}
+#else
+	catch(std::exception&) { }
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////////

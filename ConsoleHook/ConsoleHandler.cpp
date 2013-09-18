@@ -163,10 +163,11 @@ void ConsoleHandler::ReadConsoleBuffer()
 	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
 	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
 
-
+	/*
 	TRACE(L"ReadConsoleBuffer console buffer size: %ix%i\n", csbiConsole.dwSize.X, csbiConsole.dwSize.Y);
 	TRACE(L"ReadConsoleBuffer console rect: %ix%i - %ix%i\n", csbiConsole.srWindow.Left, csbiConsole.srWindow.Top, csbiConsole.srWindow.Right, csbiConsole.srWindow.Bottom);
 	TRACE(L"console window rect: (%i, %i) - (%i, %i)\n", csbiConsole.srWindow.Top, csbiConsole.srWindow.Left, csbiConsole.srWindow.Bottom, csbiConsole.srWindow.Right);
+	*/
 
 	// do console output buffer reading
 	DWORD					dwScreenBufferSize	= coordConsoleSize.X * coordConsoleSize.Y;
@@ -1138,23 +1139,23 @@ DWORD ConsoleHandler::MonitorThread()
 	std::unique_ptr<wchar_t[]> text;
 	m_consoleMsgPipe.BeginReadAsync(&npmsg, sizeof(NamedPipeMessage));
 
-	HANDLE	arrWaitHandles[] =
+	HANDLE arrWaitHandles[] =
 	{
 		m_hMonitorThreadExit.get(),
 		m_consoleCopyInfo.GetReqEvent(),
 		m_newScrollPos.GetReqEvent(),
 		m_consoleMouseEvent.GetReqEvent(),
 		m_newConsoleSize.GetReqEvent(),
+		m_consoleMsgPipe.Get(),
 		hStdOut,
-		m_consoleMsgPipe.Get()
 	};
 
-	DWORD	dwWaitRes		= 0;
+	DWORD dwWaitRes = 0;
 
 	while ((dwWaitRes = ::WaitForMultipleObjects(
-							sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]),
-							arrWaitHandles, 
-							FALSE, 
+							ARRAYSIZE(arrWaitHandles),
+							arrWaitHandles,
+							FALSE,
 							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
 	{
 		if ((parentProcessWatchdog.get() != NULL) && (::WaitForSingleObject(parentProcessWatchdog.get(), 0) == WAIT_ABANDONED))
@@ -1207,18 +1208,6 @@ DWORD ConsoleHandler::MonitorThread()
 			}
 
 			case WAIT_OBJECT_0 + 5 :
-				// something changed in the console
-				// this has to be the last event, since it's the most 
-				// frequent one
-				::Sleep(m_consoleParams->dwNotificationTimeout);
-			case WAIT_TIMEOUT :
-			{
-				// refresh timer
-				ReadConsoleBuffer();
-				break;
-			}
-
-			case WAIT_OBJECT_0 + 6 :
 			{
 				try
 				{
@@ -1243,28 +1232,80 @@ DWORD ConsoleHandler::MonitorThread()
 							switch( npmsg.type )
 							{
 							case NamedPipeMessage::POSTMESSAGE:
-								::PostMessage(
-									m_consoleParams->hwndConsoleWindow,
+								TRACE(
+									L"NamedPipeMessage::POSTMESSAGE Msg = 0x%08lx WPARAM = %p LPARAM = %p\n",
 									npmsg.data.winmsg.msg,
 									npmsg.data.winmsg.wparam,
 									npmsg.data.winmsg.lparam);
+
+								if( !::PostMessage(
+									m_consoleParams->hwndConsoleWindow,
+									npmsg.data.winmsg.msg,
+									npmsg.data.winmsg.wparam,
+									npmsg.data.winmsg.lparam) )
+								{
+#ifdef _DEBUG
+									Win32Exception err(::GetLastError());
+									TRACE(
+										L"PostMessage Msg = 0x%08lx WPARAM = %p LPARAM = %p fails (reason: %S)\n",
+										npmsg.data.winmsg.msg,
+										npmsg.data.winmsg.wparam,
+										npmsg.data.winmsg.lparam,
+										err.what());
+#endif
+								}
 								break;
 
 							case NamedPipeMessage::SENDMESSAGE:
+								TRACE(
+									L"NamedPipeMessage::SENDMESSAGE Msg = 0x%08lx WPARAM = %p LPARAM = %p\n",
+									npmsg.data.winmsg.msg,
+									npmsg.data.winmsg.wparam,
+									npmsg.data.winmsg.lparam);
+
+#ifdef _DEBUG
+								{
+									LRESULT res = ::SendMessage(
+										m_consoleParams->hwndConsoleWindow,
+										npmsg.data.winmsg.msg,
+										npmsg.data.winmsg.wparam,
+										npmsg.data.winmsg.lparam);
+									TRACE(
+										L"SendMessage Msg = 0x%08lx WPARAM = %p LPARAM = %p returns %p (last error 0x%08lx)\n",
+										npmsg.data.winmsg.msg,
+										npmsg.data.winmsg.wparam,
+										npmsg.data.winmsg.lparam,
+										res,
+										GetLastError());
+								}
+#else
 								::SendMessage(
 									m_consoleParams->hwndConsoleWindow,
 									npmsg.data.winmsg.msg,
 									npmsg.data.winmsg.wparam,
 									npmsg.data.winmsg.lparam);
+#endif
 								break;
 
 							case NamedPipeMessage::SHOWWINDOW:
+								TRACE(
+									L"NamedPipeMessage::SHOWWINDOW nCmdShow = %ld\n",
+									npmsg.data.show.nCmdShow);
+
 								::ShowWindow(
 									m_consoleParams->hwndConsoleWindow,
 									npmsg.data.show.nCmdShow);
 								break;
 
 							case NamedPipeMessage::SETWINDOWPOS:
+								TRACE(
+									L"NamedPipeMessage::SETWINDOWPOS X = %d Y = %d cx = %d cy = %d uFlags = 0x%08lx\n",
+										npmsg.data.windowpos.X,
+										npmsg.data.windowpos.Y,
+										npmsg.data.windowpos.cx,
+										npmsg.data.windowpos.cy,
+										npmsg.data.windowpos.uFlags);
+
 								::SetWindowPos(
 									m_consoleParams->hwndConsoleWindow,
 									NULL,
@@ -1276,6 +1317,10 @@ DWORD ConsoleHandler::MonitorThread()
 								break;
 
 							case NamedPipeMessage::SENDTEXT:
+								TRACE(
+									L"NamedPipeMessage::SENDTEXT dwTextLen = %lu\n",
+									npmsg.data.text.dwTextLen);
+
 								text.reset(new wchar_t[npmsg.data.text.dwTextLen + 1]);
 								break;
 							}
@@ -1285,7 +1330,7 @@ DWORD ConsoleHandler::MonitorThread()
 					}
 
 					if( text.get() )
-						m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(text.get()) + npmsglen, npmsg.data.text.dwTextLen * sizeof(wchar_t) - npmsglen);
+						m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(text.get()) + npmsglen, static_cast<size_t>(npmsg.data.text.dwTextLen) * sizeof(wchar_t) - npmsglen);
 					else
 						m_consoleMsgPipe.BeginReadAsync(reinterpret_cast<LPBYTE>(&npmsg) + npmsglen, sizeof(NamedPipeMessage) - npmsglen);
 				}
@@ -1293,6 +1338,18 @@ DWORD ConsoleHandler::MonitorThread()
 				{
 					// receives ERROR_BROKEN_PIPE when the tab is closed
 				}
+			}
+
+			case WAIT_OBJECT_0 + 6 :
+				// something changed in the console
+				// this has to be the last event, since it's the most 
+				// frequent one
+				::Sleep(m_consoleParams->dwNotificationTimeout);
+			case WAIT_TIMEOUT :
+			{
+				// refresh timer
+				ReadConsoleBuffer();
+				break;
 			}
 		}
 	}

@@ -33,9 +33,10 @@ class PageSettingsTabs1
 			DDX_CHECK(IDC_CHECK_DEFAULT_ICON, m_bUseDefaultIcon)
 			DDX_TEXT(IDC_TAB_SHELL, m_strShell)
 			DDX_TEXT(IDC_TAB_INIT_DIR, m_strInitialDir)
-			DDX_CHECK(IDC_CHECK_RUN_AS_USER, m_bRunAsUser)
+			DDX_RADIO(IDC_CHECK_RUN_AS_CURRENT_USER, m_nRunAs)
 			DDX_TEXT(IDC_TAB_USER, m_strUser)
 			DDX_CHECK(IDC_CHECK_NET_ONLY, m_bNetOnly)
+			DDX_CHECK(IDC_CHECK_RUN_AS_ADMIN, m_bRunAsAdmin)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(PageSettingsTabs1)
@@ -52,8 +53,9 @@ class PageSettingsTabs1
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_DIR, OnClickedBtnBrowseDir)
 			COMMAND_ID_HANDLER(IDC_CHECK_DEFAULT_ICON, OnCheckboxClicked)
 			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_USER, OnCheckboxClicked)
-      COMMAND_HANDLER(IDC_COMBO_CURSOR, CBN_SELCHANGE, OnCbnSelchangeComboCursor)
-    END_MSG_MAP()
+			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_CURRENT_USER, OnCheckboxClicked)
+			COMMAND_HANDLER(IDC_COMBO_CURSOR, CBN_SELCHANGE, OnCbnSelchangeComboCursor)
+		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
 //		LRESULT MessageHandler(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -94,7 +96,7 @@ private:
 		std::shared_ptr<Cursor>	m_cursor;
 		std::shared_ptr<TabData>	m_tabData;
 
-    CStatic			m_staticCursorAnim;
+		CStatic			m_staticCursorAnim;
 		CComboBox		m_comboCursor;
 		CStatic			m_staticCursorColor;
 
@@ -104,9 +106,10 @@ private:
 
 		CString			m_strShell;
 		CString			m_strInitialDir;
-		bool			m_bRunAsUser;
+		int				m_nRunAs;
 		CString			m_strUser;
 		bool			m_bNetOnly;
+		bool			m_bRunAsAdmin;
 public:
   LRESULT OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };

@@ -143,8 +143,6 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 	consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 
-	userCredentials.runAsAdministrator = m_tabData->bRunAsAdministrator;
-
 	if (m_tabData->bRunAsUser)
 	{
     userCredentials.netOnly = m_tabData->bNetOnly;
@@ -194,6 +192,10 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 		userCredentials.user     = dlg.GetUser();
 		userCredentials.password = dlg.GetPassword();
 #endif
+	}
+	else
+	{
+		userCredentials.runAsAdministrator = m_tabData->bRunAsAdministrator;
 	}
 
 	HWND hwndConsoleView = consoleView->Create(

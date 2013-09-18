@@ -259,6 +259,8 @@
 #define IDC_BTN_IMPORT_COLORS           1192
 #define IDC_FONT_EXTRAWIDTH             1193
 #define IDC_SPIN_FONT_EXTRAWIDTH        1194
+#define IDC_CHECK_RUN_AS_ADMIN          1195
+#define IDC_CHECK_RUN_AS_CURRENT_USER   1196
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
 #define ID_NEXT_TAB                     2200
@@ -312,7 +314,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32797
-#define _APS_NEXT_CONTROL_VALUE         1195
+#define _APS_NEXT_CONTROL_VALUE         1197
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

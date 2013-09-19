@@ -1617,6 +1617,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"run_as_user"), tabData->bRunAsUser, false);
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"user"), tabData->strUser, L"");
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"net_only"), tabData->bNetOnly, false);
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"run_as_admin"), tabData->bRunAsAdministrator, false);
 		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement)))
@@ -1740,6 +1741,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"run_as_user"), (*itTab)->bRunAsUser);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"user"), (*itTab)->strUser);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"net_only"), (*itTab)->bNetOnly);
+		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"run_as_admin"), (*itTab)->bRunAsAdministrator);
 
 		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewConsoleElement, &pNewConsoleOut);

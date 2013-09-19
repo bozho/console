@@ -63,9 +63,10 @@ class NoTaskbarParent
 
 void ParseCommandLine
 (
-	LPTSTR lptstrCmdLine, 
-	wstring& strConfigFile, 
-	bool &bReuse
+	LPTSTR lptstrCmdLine,
+	wstring& strConfigFile,
+	bool& bReuse,
+	wstring& strSyncName
 )
 {
 	int argc = 0;
@@ -85,6 +86,12 @@ void ParseCommandLine
 		else if (wstring(argv[i]) == wstring(L"-reuse"))
 		{
 			bReuse = true;
+		}
+		else if (wstring(argv[i]) == wstring(L"-a"))
+		{
+			++i;
+			if (i == argc) break;
+			strSyncName = argv[i];
 		}
 	}
 }
@@ -133,11 +140,13 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     wstring strConfigFile(L"");
     bool    bReuse = false;
+    wstring strSyncName;
 
     ParseCommandLine(
-      lpstrCmdLine, 
+      lpstrCmdLine,
       strConfigFile,
-      bReuse);
+      bReuse,
+      strSyncName);
 
     if (strConfigFile.length() == 0)
     {
@@ -149,6 +158,76 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
     if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
     {
       throw std::exception("enable to load settings!");
+    }
+
+		if (!strSyncName.empty())
+    {
+			wstring strWindowTitle;
+			vector<wstring> startupTabs;
+			vector<wstring> startupDirs;
+			vector<wstring> startupCmds;
+			int nMultiStartSleep = 0;
+
+			MainFrame::ParseCommandLine
+			(
+				lpstrCmdLine,
+				strWindowTitle,
+				startupTabs,
+				startupDirs,
+				startupCmds,
+				nMultiStartSleep
+			);
+
+			TabSettings& tabSettings = g_settingsHandler->GetTabSettings();
+
+			// find tab with corresponding name...
+			for (auto tabData = tabSettings.tabDataVector.begin(); tabData != tabSettings.tabDataVector.end(); ++tabData)
+			{
+				if (tabData->get()->strTitle == startupTabs[0])
+				{
+					wstring strInitialDir(g_settingsHandler->GetConsoleSettings().strInitialDir);
+
+					if (startupDirs.size() > 0 && startupDirs[0].length() > 0)
+					{
+						strInitialDir = startupDirs[0];
+					}
+					else if (tabData->get()->strInitialDir.length() > 0)
+					{
+						strInitialDir = tabData->get()->strInitialDir;
+					}
+
+					wstring	strShell(g_settingsHandler->GetConsoleSettings().strShell);
+
+					if (tabData->get()->strShell.length() > 0)
+					{
+						strShell	= tabData->get()->strShell;
+					}
+
+					wstring strInitialCmd;
+
+					if (startupCmds.size() > 0 && startupCmds[0].length() > 0)
+					{
+						strInitialCmd = startupCmds[0];
+					}
+
+					try
+					{
+						ConsoleHandler ConsoleHandler;
+						ConsoleHandler.StartShellProcessAsAdministrator
+						(
+							strSyncName,
+							strShell,
+							strInitialDir,
+							strInitialCmd
+						);
+					}
+					catch(Win32Exception&)
+					{
+					}
+				}
+			}
+
+      return 0;
     }
 
     if (bReuse && HandleReuse(lpstrCmdLine))
@@ -187,29 +266,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     WallPaperThread wallPaperThread(wndMain);
 
-    OSVERSIONINFOEX osvi;
-    DWORDLONG dwlConditionMask = 0;
-    BYTE op = VER_GREATER_EQUAL;
-
-    // Initialize the OSVERSIONINFOEX structure.
-
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    osvi.dwMajorVersion = 6;
-    osvi.dwMinorVersion = 1;
-
-    // Initialize the condition mask.
-
-    VER_SET_CONDITION( dwlConditionMask, VER_MAJORVERSION, op );
-    VER_SET_CONDITION( dwlConditionMask, VER_MINORVERSION, op );
-
-    // Perform the test.
-
-    if( VerifyVersionInfo(
-      &osvi, 
-      VER_MAJORVERSION | VER_MINORVERSION | 
-      VER_SERVICEPACKMAJOR | VER_SERVICEPACKMINOR,
-      dwlConditionMask) )
+    if (Helpers::CheckOSVersion(6, 1))
     {
       // Win7 or more, we use the wallpaper slideshow monitoring
       wallPaperThread.Start();

@@ -23,9 +23,10 @@ PageSettingsTabs1::PageSettingsTabs1()
 , m_bUseDefaultIcon(false)
 , m_strShell(L"")
 , m_strInitialDir(L"")
-, m_bRunAsUser(false)
+, m_nRunAs(0)
 , m_strUser(L"")
 , m_bNetOnly(false)
+, m_bRunAsAdmin(false)
 {
 }
 
@@ -227,15 +228,12 @@ LRESULT PageSettingsTabs1::OnCheckboxClicked(WORD /*wNotifyCode*/, WORD /*wID*/,
 
 void PageSettingsTabs1::EnableControls()
 {
-	BOOL bEnableEditIconCtrls = TRUE;
+	GetDlgItem(IDC_TAB_ICON).EnableWindow(m_bUseDefaultIcon == false);
+	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(m_bUseDefaultIcon == false);
 
-	if (m_bUseDefaultIcon) bEnableEditIconCtrls = FALSE;
-
-	GetDlgItem(IDC_TAB_ICON).EnableWindow(bEnableEditIconCtrls);
-	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(bEnableEditIconCtrls);
-
-	GetDlgItem(IDC_TAB_USER).EnableWindow(m_bRunAsUser ? TRUE : FALSE);
-  GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_bRunAsUser ? TRUE : FALSE);
+	GetDlgItem(IDC_TAB_USER).EnableWindow(m_nRunAs == 1);
+	GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_nRunAs == 1);
+	GetDlgItem(IDC_CHECK_RUN_AS_ADMIN).EnableWindow(m_nRunAs == 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,17 +243,18 @@ void PageSettingsTabs1::EnableControls()
 
 void PageSettingsTabs1::Load(std::shared_ptr<TabData>& tabData)
 {
-	m_tabData			= tabData;
+	m_tabData         = tabData;
 
-	m_strTitle			= m_tabData->strTitle.c_str();
-	m_strIcon			= m_tabData->strIcon.c_str();
-	m_bUseDefaultIcon	= m_tabData->bUseDefaultIcon;
+	m_strTitle        = m_tabData->strTitle.c_str();
+	m_strIcon         = m_tabData->strIcon.c_str();
+	m_bUseDefaultIcon = m_tabData->bUseDefaultIcon;
 
-	m_strShell			= m_tabData->strShell.c_str();
-	m_strInitialDir		= m_tabData->strInitialDir.c_str();
-	m_bRunAsUser		= m_tabData->bRunAsUser;
-	m_strUser			= m_tabData->strUser.c_str();
-	m_bNetOnly		= m_tabData->bNetOnly;
+	m_strShell        = m_tabData->strShell.c_str();
+	m_strInitialDir   = m_tabData->strInitialDir.c_str();
+	m_nRunAs          = m_tabData->bRunAsUser? 1 : 0;
+	m_strUser         = m_tabData->strUser.c_str();
+	m_bNetOnly        = m_tabData->bNetOnly;
+	m_bRunAsAdmin     = m_tabData->bRunAsAdministrator;
 
 	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
 
@@ -275,15 +274,16 @@ void PageSettingsTabs1::Save()
 {
 	DoDataExchange(DDX_SAVE);
 
-	m_tabData->strTitle			= m_strTitle;
-	m_tabData->strIcon			= m_strIcon;
-	m_tabData->bUseDefaultIcon	= m_bUseDefaultIcon;
+	m_tabData->strTitle            = m_strTitle;
+	m_tabData->strIcon             = m_strIcon;
+	m_tabData->bUseDefaultIcon     = m_bUseDefaultIcon;
 
-	m_tabData->strShell			= m_strShell;
-	m_tabData->strInitialDir	= m_strInitialDir;
-	m_tabData->bRunAsUser		= m_bRunAsUser;
-	m_tabData->strUser			= m_strUser;
-	m_tabData->bNetOnly		= m_bNetOnly;
+	m_tabData->strShell            = m_strShell;
+	m_tabData->strInitialDir       = m_strInitialDir;
+	m_tabData->bRunAsUser          = m_nRunAs == 1;
+	m_tabData->strUser             = m_strUser;
+	m_tabData->bNetOnly            = m_bNetOnly;
+	m_tabData->bRunAsAdministrator = m_bRunAsAdmin;
 
 	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();
 }

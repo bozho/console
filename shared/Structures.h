@@ -5,8 +5,7 @@
 struct ConsoleParams
 {
 	ConsoleParams()
-	: dwConsoleMainThreadId(0)
-	, dwParentProcessId(0)
+	: dwParentProcessId(0)
 	, dwNotificationTimeout(0)
 	, dwRefreshInterval(0)
 	, dwRows(0)
@@ -21,8 +20,7 @@ struct ConsoleParams
 	}
 
 	ConsoleParams(const ConsoleParams& other)
-	: dwConsoleMainThreadId(other.dwConsoleMainThreadId)
-	, dwParentProcessId(other.dwParentProcessId)
+	: dwParentProcessId(other.dwParentProcessId)
 	, dwNotificationTimeout(other.dwNotificationTimeout)
 	, dwRefreshInterval(other.dwRefreshInterval)
 	, dwRows(other.dwRows)
@@ -37,7 +35,6 @@ struct ConsoleParams
 	}
 
 	// startup stuff
-	DWORD	dwConsoleMainThreadId;
 	DWORD	dwParentProcessId;
 	DWORD	dwNotificationTimeout;
 	DWORD	dwRefreshInterval;
@@ -204,24 +201,48 @@ struct CharInfo
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct TextInfo
+struct NamedPipeMessage
 {
-	TextInfo()
-	: padding(0)
+	enum
 	{
-	}
+		POSTMESSAGE,
+		SENDMESSAGE,
+		SHOWWINDOW,
+		SETWINDOWPOS,
+		SENDTEXT,
+	} type;
 
 	union
 	{
-		UINT_PTR	mem;
-		// padding for 32-bit processes started from 64-bit Console
-		__int64	padding;
-	};
+		//POSTMESSAGE
+		//SENDMESSAGE
+		struct
+		{
+			UINT  msg;
+			DWORD wparam;
+			DWORD lparam;
+		} winmsg;
+
+		//SHOWWINDOW
+		struct
+		{
+			int nCmdShow;
+		} show;
+
+		//SETWINDOWPOS
+		struct
+		{
+			int  X;
+			int  Y;
+			int  cx;
+			int  cy;
+			UINT uFlags;
+		} windowpos;
+
+		//SENDTEXT
+		struct
+		{
+			DWORD dwTextLen;
+		} text;
+	} data;
 };
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////

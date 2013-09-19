@@ -182,7 +182,7 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
     if( rc != NO_ERROR )
       return 0;
 
-    userCredentials.user     = szUser;
+    userCredentials.SetUser(szUser);
     userCredentials.password = szPassword;
 #else
 		DlgCredentials dlg(m_tabData->strUser.c_str());
@@ -192,6 +192,10 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 		userCredentials.user     = dlg.GetUser();
 		userCredentials.password = dlg.GetPassword();
 #endif
+	}
+	else
+	{
+		userCredentials.runAsAdministrator = m_tabData->bRunAsAdministrator;
 	}
 
 	HWND hwndConsoleView = consoleView->Create(
@@ -522,11 +526,11 @@ void TabView::OnSplitBarMove(HWND /*hwndPane0*/, HWND /*hwndPane1*/, bool /*bool
 
 void TabView::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 {
-  MutexLock	viewMapLock(m_viewsMutex);
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-  {
-    ::PostMessage(it->second->GetConsoleHandler().GetConsoleParams()->hwndConsoleWindow, Msg, wParam, lParam);
-  }
+	MutexLock	viewMapLock(m_viewsMutex);
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+	{
+		it->second->GetConsoleHandler().PostMessage(Msg, wParam, lParam);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -551,7 +555,7 @@ void TabView::SendTextToConsoles(const wchar_t* pszText)
   MutexLock	viewMapLock(m_viewsMutex);
   for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
   {
-    it->second->SendTextToConsole(pszText);
+		it->second->GetConsoleHandler().SendTextToConsole(pszText);
   }
 }
 

@@ -141,7 +141,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 	if (!m_background) m_tabData->backgroundImageType = bktypeNone;
 
-	// TODO: error handling
 	wstring strInitialDir(m_consoleSettings.strInitialDir);
 
 	if (m_strCmdLineInitialDir.length() > 0)
@@ -166,13 +165,14 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		UserCredentials* userCredentials = reinterpret_cast<UserCredentials*>(createStruct->lpCreateParams);
 
 		m_consoleHandler.StartShellProcess(
-									strShell,
-									strInitialDir,
-									*userCredentials,
-									m_strCmdLineInitialCmd,
-									g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
-									m_dwStartupRows,
-									m_dwStartupColumns);
+			m_tabData->strTitle,
+			strShell,
+			strInitialDir,
+			*userCredentials,
+			m_strCmdLineInitialCmd,
+			g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
+			m_dwStartupRows,
+			m_dwStartupColumns);
 
 		m_strUser = userCredentials->user.c_str();
 		m_boolNetOnly = userCredentials->netOnly;
@@ -189,10 +189,9 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	m_bInitializing = false;
 
 	// set current language in the console window
-	::PostMessage(
-		m_consoleHandler.GetConsoleParams()->hwndConsoleWindow,
-		WM_INPUTLANGCHANGEREQUEST, 
-		0, 
+	m_consoleHandler.PostMessage(
+		WM_INPUTLANGCHANGEREQUEST,
+		0,
 		reinterpret_cast<LPARAM>(::GetKeyboardLayout(0)));
 
 	// scrollbar stuff
@@ -355,11 +354,11 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-    //TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
-    if( this->IsGrouped() )
-      m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
-    else
-      ::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+		//TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+		if( this->IsGrouped() )
+			m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
+		else
+			m_consoleHandler.PostMessage(uMsg, wParam, lParam);
 	}
 
 	return 0;
@@ -817,7 +816,7 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 
 LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	m_consoleHandler.PostMessage(uMsg, wParam, lParam);
 	bHandled = FALSE;
 	return 0;
 }
@@ -829,8 +828,8 @@ LRESULT ConsoleView::OnInputLangChangeRequest(UINT uMsg, WPARAM wParam, LPARAM l
 
 LRESULT ConsoleView::OnInputLangChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, lParam);
-	::PostMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, uMsg, wParam, lParam);
+	m_consoleHandler.PostMessage(WM_INPUTLANGCHANGEREQUEST, INPUTLANGCHANGE_SYSCHARSET, lParam);
+	m_consoleHandler.PostMessage(uMsg, wParam, lParam);
 	bHandled = FALSE;
 	return 0;
 }
@@ -862,12 +861,12 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 	}
 	::DragFinish(hDrop);
 
-  if( this->IsGrouped() )
-    m_mainFrame.SendTextToConsoles(strFilenames);
-  else
-    SendTextToConsole(strFilenames);
+	if( this->IsGrouped() )
+		m_mainFrame.SendTextToConsoles(strFilenames);
+	else
+		m_consoleHandler.SendTextToConsole(strFilenames);
 
-  m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
+	m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
 
 	return 0;
 }
@@ -1092,10 +1091,10 @@ void ConsoleView::SetConsoleWindowVisible(bool bVisible)
 	{
 		CPoint point;
 		::GetCursorPos(&point);
-		::SetWindowPos(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, NULL, point.x, point.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+		m_consoleHandler.SetWindowPos(point.x, point.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
 	}
 
-	::ShowWindow(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, bVisible ? SW_SHOW : SW_HIDE);
+	m_consoleHandler.ShowWindow(bVisible ? SW_SHOW : SW_HIDE);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1366,7 +1365,7 @@ void ConsoleView::ClearSelection()
 void ConsoleView::Paste()
 {
 	if (!CanPaste()) return;
-	::SendMessage(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow, WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
+	m_consoleHandler.SendMessage(WM_SYSCOMMAND, SC_CONSOLE_PASTE, 0);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2521,51 +2520,6 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 #else //_USE_AERO
 	m_selectionHandler->BitBlt(m_dcOffscreen);
 #endif //_USE_AERO
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::SendTextToConsole(const wchar_t* pszText)
-{
-	if (pszText == NULL) return;
-
-	size_t textLen = wcslen(pszText);
-
-	if (textLen == 0) return;
-
-	SharedMemory<TextInfo>&	textInfo = m_consoleHandler.GetTextInfo();
-
-	{
-		SharedMemoryLock		memLock(textInfo);
-
-		void* pRemoteMemory = ::VirtualAllocEx(
-									m_consoleHandler.GetConsoleHandle().get(),
-									NULL,
-									(textLen+1)*sizeof(wchar_t),
-									MEM_COMMIT,
-									PAGE_READWRITE);
-
-		if (pRemoteMemory == NULL) return;
-
-		if (!::WriteProcessMemory(
-					m_consoleHandler.GetConsoleHandle().get(),
-					pRemoteMemory,
-					(PVOID)pszText,
-					(textLen+1)*sizeof(wchar_t),
-					NULL))
-		{
-			::VirtualFreeEx(m_consoleHandler.GetConsoleHandle().get(), pRemoteMemory, NULL, MEM_RELEASE);
-			return;
-		}
-
-		textInfo->mem = reinterpret_cast<UINT_PTR>(pRemoteMemory);
-		textInfo.SetReqEvent();
-	}
-
-	::WaitForSingleObject(textInfo.GetRespEvent(), INFINITE);
 }
 
 /////////////////////////////////////////////////////////////////////////////

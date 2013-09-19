@@ -38,6 +38,8 @@ using namespace std;
 #include "../shared/Cpp11Helpers.h"
 #include "../shared/Win32Exception.h"
 
+#include "../shared/NamedPipe.h"
+
 //////////////////////////////////////////////////////////////////////////////
 
 

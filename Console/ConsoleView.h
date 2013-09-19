@@ -128,8 +128,6 @@ class ConsoleView
 		void SelectAll();
 		void ClearSelection();
 		void Paste();
-		// sends text to the windows console
-		void SendTextToConsole(const wchar_t* pszText);
 		DWORD GetSelectionSize(void) const { return m_selectionHandler->GetSelectionSize(); }
 
 		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }
@@ -141,10 +139,10 @@ class ConsoleView
 
 		const CString& GetExceptionMessage() const { return m_exceptionMessage; }
 
-    inline bool IsGrouped() const { return m_boolIsGrouped; }
-    void Group(bool b) { m_boolIsGrouped = b; }
+		inline bool IsGrouped() const { return m_boolIsGrouped; }
+		void Group(bool b) { m_boolIsGrouped = b; }
 
-    void DoScroll(int nType, int nScrollCode, int nThumbPos);
+		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
 	private:
 

@@ -127,7 +127,6 @@ class ConsoleView
 		void Copy(const CPoint* pPoint = NULL);
 		void SelectAll();
 		void ClearSelection();
-		void Paste();
 		DWORD GetSelectionSize(void) const { return m_selectionHandler->GetSelectionSize(); }
 
 		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }
@@ -239,7 +238,7 @@ private:
   /*static*/ CBitmap    m_bmpText;
 
   static CFont          m_fontText;
-  static CFont			m_fontTextHigh;
+  static CFont          m_fontTextHigh;
 
   static int            m_nCharHeight;
   static int            m_nCharWidth;

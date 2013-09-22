@@ -3152,21 +3152,47 @@ void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 void MainFrame::PasteToConsoles()
 {
-  if (!m_activeTabView) return;
-  std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
-  if( activeConsoleView )
-  {
-    if( activeConsoleView->IsGrouped() )
-    {
-      MutexLock lock(m_tabsMutex);
-      for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
-      {
-        it->second->PasteToConsoles();
-      }
-    }
-    else
-      activeConsoleView->Paste();
-  }
+	if (!m_activeTabView) return;
+	std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+	if( activeConsoleView && activeConsoleView->CanPaste() )
+	{
+		std::wstring text;
+
+		if( !::OpenClipboard(NULL) ) return;
+
+		HANDLE hData = GetClipboardData(CF_UNICODETEXT);
+		if( hData )
+		{
+			wchar_t * pszText = static_cast<wchar_t*>( GlobalLock(hData) );
+			if( pszText )
+			{
+				try
+				{
+					text = pszText;
+				}
+				catch(std::bad_alloc&)
+				{
+				}
+				::GlobalUnlock(hData);
+			}
+		}
+
+		::CloseClipboard();
+
+		if( !text.empty() )
+		{
+			if( activeConsoleView->IsGrouped() )
+			{
+				MutexLock lock(m_tabsMutex);
+				for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+				{
+					it->second->SendTextToConsoles(text.c_str());
+				}
+			}
+			else
+				activeConsoleView->GetConsoleHandler().SendTextToConsole(text.c_str());
+		}
+	}
 }
 
 void MainFrame::SendTextToConsoles(const wchar_t* pszText)

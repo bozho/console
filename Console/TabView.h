@@ -73,7 +73,6 @@ public:
   void SetActiveConsole(HWND hwnd);
 
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
-  void PasteToConsoles();
   void SendTextToConsoles(const wchar_t* pszText);
 
   inline bool IsGrouped() const { return m_boolIsGrouped; }

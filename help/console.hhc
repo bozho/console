@@ -49,8 +49,12 @@
 				<param name="Local" value="html\settings_appearance.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
-				<param name="Name" value="Appearance (more)">
-				<param name="Local" value="html\settings_appearance_more.html">
+				<param name="Name" value="Appearance (Styles)">
+				<param name="Local" value="html\settings_appearance_styles.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Appearance (Font)">
+				<param name="Local" value="html\settings_appearance_font.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Appearance (Full screen)">

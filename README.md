@@ -28,16 +28,21 @@ Changelog
         + added
         * fixed
 
-Changes in 1.08.0 beta 5 (19 Aug 2013)
+Changes in 1.08.0 beta 6 (23 Sep 2013)
 
         + Displays intensified colors in bold.
         + Displays intensified colors in italic.
         + User can configure an extra width added to the fixed width of the font.
+        + Shell can be launched with elevated priviledges (run as administrator).
         * Some cursors was hidden with black color.
         * Fade cursor was blinking when console was inactive.
         * Fix DBCS rendering.
         * Fix DBCS selection.
         * Fix DBCS cursor.
+        * Fix hang when starting with multiple startup tabs.
+        * Pressing alt key will switch the menu bar visibility only if menu bar is not permanently on.
+        * Fix pasting to multiple views when views are grouped.
+        * Inputs are no longer sent to views do not belong to the group.
 
 Changes in 1.07.1 (05 Jul 2013)
 

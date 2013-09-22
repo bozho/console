@@ -529,7 +529,8 @@ void TabView::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 	MutexLock	viewMapLock(m_viewsMutex);
 	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
 	{
-		it->second->GetConsoleHandler().PostMessage(Msg, wParam, lParam);
+		if( it->second->IsGrouped() )
+			it->second->GetConsoleHandler().PostMessage(Msg, wParam, lParam);
 	}
 }
 
@@ -539,11 +540,12 @@ void TabView::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 void TabView::SendTextToConsoles(const wchar_t* pszText)
 {
-  MutexLock	viewMapLock(m_viewsMutex);
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-  {
-		it->second->GetConsoleHandler().SendTextToConsole(pszText);
-  }
+	MutexLock	viewMapLock(m_viewsMutex);
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+	{
+		if( it->second->IsGrouped() )
+			it->second->GetConsoleHandler().SendTextToConsole(pszText);
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

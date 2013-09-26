@@ -171,17 +171,79 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*
 					TRUE, 
 					NULL, 
 					NULL, 
-					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
-					L"Executable Files (*.exe)\0*.exe\0Batch Files (*.bat;*.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0");
+					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST|OFN_NODEREFERENCELINKS, 
+					L"Executable Files (*.exe)\0*.exe\0Shell Links (*.lnk)\0*.lnk\0Batch Files (*.bat;*.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0");
 
 	if (fileDialog.DoModal() == IDOK)
 	{
 		m_strShell = fileDialog.m_szFileName;
-		if( m_strShell.Find(L' ') != -1 )
+		if( m_strShell.Right(4).CompareNoCase(L".lnk") == 0 )
 		{
-			m_strShell.Insert(0, L'"');
-			m_strShell.Insert(m_strShell.GetLength(), L'"');
+			CComPtr<IShellLink> shellLink;
+			if( SUCCEEDED(shellLink.CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER)) )
+			{
+				CComPtr<IPersistFile> persistFile;
+				if( SUCCEEDED(shellLink.QueryInterface(&persistFile)) )
+				{
+					if( SUCCEEDED(persistFile->Load(m_strShell, STGM_READ)) &&
+					    SUCCEEDED(shellLink->Resolve(m_hWnd, 0)) )
+					{
+						WCHAR szBuffer[MAX_PATH];
+						WCHAR szBuffer2[2048];
+						WIN32_FIND_DATA wfd;
+
+						if( SUCCEEDED(shellLink->GetPath(szBuffer, MAX_PATH, (WIN32_FIND_DATA*)&wfd, SLGP_SHORTPATH)) &&
+						    SUCCEEDED(shellLink->GetArguments(szBuffer2, ARRAYSIZE(szBuffer2))) )
+						{
+							m_strShell = szBuffer;
+
+							if( m_strShell.Find(L' ') != -1 )
+							{
+								m_strShell.Insert(0, L'"');
+								m_strShell.Insert(m_strShell.GetLength(), L'"');
+							}
+
+							m_strShell += L" ";
+							m_strShell += szBuffer2;
+
+						}
+
+						if( SUCCEEDED(shellLink->GetWorkingDirectory(szBuffer, MAX_PATH)) )
+						{
+							m_strInitialDir = szBuffer;
+						}
+
+						int iIcon = 0;
+						if( SUCCEEDED(shellLink->GetIconLocation(szBuffer, MAX_PATH, &iIcon)) )
+						{
+							m_strIcon = szBuffer;
+							if( iIcon )
+							{
+								swprintf_s<MAX_PATH>(szBuffer, L",%i", iIcon);
+								m_strIcon += szBuffer;
+							}
+						}
+
+						CComPtr<IShellLinkDataList> dataList;
+						DWORD dwFlags;
+						if( SUCCEEDED(shellLink.QueryInterface(&dataList)) &&
+						    SUCCEEDED(dataList->GetFlags(&dwFlags)) )
+						{
+							m_bRunAsAdmin = (dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER;
+						}
+					}
+				}
+			}
 		}
+		else
+		{
+			if( m_strShell.Find(L' ') != -1 )
+			{
+				m_strShell.Insert(0, L'"');
+				m_strShell.Insert(m_strShell.GetLength(), L'"');
+			}
+		}
+
 		DoDataExchange(DDX_LOAD);
 	}
 

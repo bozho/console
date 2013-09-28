@@ -26,9 +26,9 @@ class Win32Exception : public std::exception
 public:
   Win32Exception(DWORD errorCode) : errorCode_(errorCode) {};
 
-  static void Throw(DWORD lastError) {  throw Win32Exception(lastError); }
+  __declspec(noreturn) static void Throw(DWORD lastError) {  throw Win32Exception(lastError); }
 
-  static void ThrowFromLastError() { Throw(::GetLastError()); };
+  __declspec(noreturn) static void ThrowFromLastError() { Throw(::GetLastError()); };
 
   inline DWORD GetErrorCode() const
   {

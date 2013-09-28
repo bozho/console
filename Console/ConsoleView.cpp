@@ -243,13 +243,14 @@ LRESULT ConsoleView::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPa
 
 LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if (!m_bActive) return 0;
-
+	// /!\ The WM_PAINT message is sent to your window's WinProc() whenever the window's client area needs repainting.
+	// We must call BeginPaint and EndPaint even though the view is inactive
+	// otherwise we create a loop!
 	CPaintDC	dc(m_hWnd);
+	if (!m_bActive) return 0;
 
 	if (m_bNeedFullRepaint)
 	{
-    //TRACE(L"ConsoleView::OnPaint\n");
 		// we need to update offscreen buffers here for first paint and relative backgrounds
 		RepaintText(m_dcText);
 		UpdateOffscreen(dc.m_ps.rcPaint);

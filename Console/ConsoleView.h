@@ -62,6 +62,7 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_XBUTTONDOWN, OnMouseButton)
 			MESSAGE_HANDLER(WM_XBUTTONUP, OnMouseButton)
 			MESSAGE_HANDLER(WM_MOUSEMOVE, OnMouseMove)
+			MESSAGE_HANDLER(WM_MOUSELEAVE, OnMouseLeave)
 			MESSAGE_HANDLER(WM_MOUSEACTIVATE, OnMouseActivate)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGEREQUEST, OnInputLangChangeRequest)
@@ -86,6 +87,7 @@ class ConsoleView
 		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnMouseLeave(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnMouseWheel(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseActivate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -181,10 +183,11 @@ class ConsoleView
 		bool	m_bResizing;
 		bool	m_bAppActive;
 		bool	m_bActive;
+		bool	m_bMouseTracking;
 		bool	m_bNeedFullRepaint;
 		bool	m_bUseTextAlphaBlend;
 		bool	m_bConsoleWindowVisible;
-    bool  m_boolIsGrouped;
+		bool  m_boolIsGrouped;
 
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;

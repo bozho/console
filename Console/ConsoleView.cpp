@@ -44,6 +44,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_bResizing(false)
 , m_bAppActive(true)
 , m_bActive(true)
+, m_bMouseTracking(false)
 , m_bNeedFullRepaint(true) // first OnPaint will do a full repaint
 , m_bUseTextAlphaBlend(false)
 , m_bConsoleWindowVisible(false)
@@ -714,11 +715,41 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	}
 	else
 	{
+		if( !m_bMouseTracking )
+		{
+			TRACKMOUSEEVENT params;
+			params.cbSize = sizeof(TRACKMOUSEEVENT);
+			params.dwFlags = TME_LEAVE;
+			params.hwndTrack = m_hWnd;
+			params.dwHoverTime = HOVER_DEFAULT;
+			if( ::TrackMouseEvent(&params) )
+			{
+				TRACE(L"onhover %p\n", m_hWnd);
+				if( g_settingsHandler->GetBehaviorSettings().focusSettings.bFollowMouse )
+					m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
+				m_bMouseTracking = true;
+			}
+		}
+
 		bHandled = FALSE;
 	}
 
 	return 0;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnMouseLeave(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	TRACE(L"onleave %p\n", m_hWnd);
+	m_bMouseTracking = false;
+
+	return 0;
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 

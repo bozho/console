@@ -40,6 +40,8 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_CLOSING_LAST_TAB, m_behaviorSettings.closeSettings.bAllowClosingLastView)
 			DDX_CHECK(IDC_CHECK_CONFIRM_CLOSE_MULTI, m_behaviorSettings.closeSettings.bConfirmClosingMultipleViews)
 
+			DDX_CHECK(IDC_CHECK_FOCUS_FOLLOW_MOUSE, m_behaviorSettings.focusSettings.bFollowMouse)
+
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior)

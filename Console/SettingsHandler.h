@@ -375,6 +375,22 @@ struct CloseSettings : public SettingsBase
 	bool bConfirmClosingMultipleViews;
 };
 
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct FocusSettings : public SettingsBase
+{
+	FocusSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	FocusSettings& operator=(const FocusSettings& other);
+
+	bool bFollowMouse;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -394,6 +410,7 @@ struct BehaviorSettings : public SettingsBase
 	ScrollSettings       scrollSettings;
 	TabHighlightSettings tabHighlightSettings;
 	CloseSettings        closeSettings;
+	FocusSettings        focusSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

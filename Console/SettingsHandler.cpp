@@ -1051,11 +1051,11 @@ CloseSettings::CloseSettings()
 
 bool CloseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	CComPtr<IXMLDOMElement>	pAppearanceElement;
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
 	CComPtr<IXMLDOMElement>	pCloseElement;
 
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pAppearanceElement))) return false;
-	if (FAILED(XmlHelper::AddDomElementIfNotExist(pAppearanceElement, CComBSTR(L"close"), pCloseElement))) return false;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"close"), pCloseElement))) return false;
 
 	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"allow_closing_last_view"),        bAllowClosingLastView,        false);
 	XmlHelper::GetAttribute(pCloseElement, CComBSTR(L"confirm_closing_multiple_views"), bConfirmClosingMultipleViews, true);
@@ -1103,6 +1103,67 @@ CloseSettings& CloseSettings::operator=(const CloseSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+FocusSettings::FocusSettings()
+	: bFollowMouse(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool FocusSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
+	CComPtr<IXMLDOMElement>	pFocusElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"focus"), pFocusElement))) return false;
+
+	XmlHelper::GetAttribute(pFocusElement, CComBSTR(L"follow_mouse"), bFollowMouse, false);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool FocusSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pFocusElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/focus"), pFocusElement))) return false;
+
+	XmlHelper::SetAttribute(pFocusElement, CComBSTR(L"follow_mouse"), bFollowMouse);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+FocusSettings& FocusSettings::operator=(const FocusSettings& other)
+{
+	bFollowMouse = other.bFollowMouse;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -1118,6 +1179,8 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	scrollSettings.Load(pSettingsRoot);
 	tabHighlightSettings.Load(pSettingsRoot);
 	closeSettings.Load(pSettingsRoot);
+	focusSettings.Load(pSettingsRoot);
+
 	return true;
 }
 
@@ -1132,6 +1195,8 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	scrollSettings.Save(pSettingsRoot);
 	tabHighlightSettings.Save(pSettingsRoot);
 	closeSettings.Save(pSettingsRoot);
+	focusSettings.Save(pSettingsRoot);
+
 	return true;
 }
 
@@ -1146,6 +1211,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 	scrollSettings       = other.scrollSettings;
 	tabHighlightSettings = other.tabHighlightSettings;
 	closeSettings        = other.closeSettings;
+	focusSettings        = other.focusSettings;
 
 	return *this;
 }

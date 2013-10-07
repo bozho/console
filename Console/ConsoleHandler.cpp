@@ -1050,6 +1050,38 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	if( Msg >= WM_KEYFIRST && Msg <= WM_KEYLAST )
 	{
+		// it seems that TranslateMessage uses GetKeyState
+		if( wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU )
+			return;
+
+		// don't send msg WM_*KEY* translated into WM_*CHAR
+		if( Msg == WM_KEYDOWN || Msg == WM_KEYUP || Msg == WM_SYSKEYDOWN || Msg == WM_SYSKEYUP )
+		{
+			if( ( wParam == VK_SPACE )                         ||  // space
+			    ( wParam > VK_HELP && wParam < VK_LWIN )       ||  // 0-9 A-Z
+			    ( wParam >= VK_OEM_1 && wParam <= VK_OEM_102 ) ||  // OEM
+			    ( wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9 && ::GetKeyState(VK_MENU) < 0 ) ) // ALT+NUMPAD ASCII Key Combos
+				return;
+		}
+		else
+		{
+			/*
+			lParam
+			Bits Meaning
+			30   The previous key state. The value is 1 if the key is down before the message is sent, or it is 0 if the key is up.
+			31   The transition state. The value is 1 if the key is being released, or it is 0 if the key is being pressed.
+			*/
+			// set bit 31 to zero
+			lParam  &= ~(1 << 31);
+		}
+
+#ifdef _DEBUG
+		TRACE(
+			L"PostMessage(pipe) Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p\n",
+			Msg, strMsg,
+			wParam, lParam);
+#endif
+
 		NamedPipeMessage npmsg;
 		npmsg.type = NamedPipeMessage::POSTMESSAGE;
 		npmsg.data.winmsg.msg = Msg;

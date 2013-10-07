@@ -33,8 +33,6 @@ class ConsoleView
 		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		~ConsoleView();
 
-		BOOL PreTranslateMessage(MSG* pMsg);
-
 		BEGIN_MSG_MAP(ConsoleView)
 			MESSAGE_HANDLER(WM_CREATE, OnCreate)
 			MESSAGE_HANDLER(WM_CLOSE, OnClose)

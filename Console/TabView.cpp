@@ -41,30 +41,35 @@ TabView::~TabView()
 
 BOOL TabView::PreTranslateMessage(MSG* pMsg)
 {
-	if ((pMsg->message == WM_KEYDOWN) || 
-		(pMsg->message == WM_KEYUP) ||
-		(pMsg->message == WM_SYSKEYDOWN) || 
-		(pMsg->message == WM_SYSKEYUP))
+	if( (pMsg->message == WM_KEYDOWN)    ||
+	    (pMsg->message == WM_KEYUP)      ||
+	    (pMsg->message == WM_SYSKEYDOWN) ||
+	    (pMsg->message == WM_SYSKEYUP) )
 	{
 		// Avoid calling ::TranslateMessage for WM_KEYDOWN, WM_KEYUP,
-		// WM_SYSKEYDOWN and WM_SYSKEYUP (except for wParam == VK_PACKET, 
-		// which is sent by SendInput when pasting text).
-		///
-		// This prevents WM_CHAR and WM_SYSCHAR messages, enabling stuff like
-		// handling 'dead' characters input and passing all keys to console.
+		// WM_SYSKEYDOWN and WM_SYSKEYUP
+
+		// except for dead char + char
+		// broadcasting dead char + char to multiple consoles doesn't work...
+		if( ( pMsg->wParam == VK_SPACE )                               ||  // space
+		    ( pMsg->wParam > VK_HELP && pMsg->wParam < VK_LWIN )       ||  // 0-9 A-Z
+		    ( pMsg->wParam >= VK_OEM_1 && pMsg->wParam <= VK_OEM_102 ) )   // OEM
+			return FALSE;
+
+		// ALT+NUMPAD ASCII Key Combos
+		if( ( pMsg->wParam == VK_MENU ) ||
+		    ( pMsg->wParam >= VK_NUMPAD0 && pMsg->wParam <= VK_NUMPAD9 && ::GetKeyState(VK_MENU) < 0 ) )
+			return FALSE;
+
+		// except for wParam == VK_PACKET,
+		// which is sent by SendInput when pasting text
 		if (pMsg->wParam == VK_PACKET) return FALSE;
+
 		::DispatchMessage(pMsg);
 		return TRUE;
 	}
 
 	return FALSE;
-
-  /*
-  std::shared_ptr<ConsoleView> consoleView = this->GetActiveConsole(_T(__FUNCTION__));
-  if( consoleView )
-    return consoleView->PreTranslateMessage(pMsg);
-  return FALSE;
-  */
 }
 
 //////////////////////////////////////////////////////////////////////////////

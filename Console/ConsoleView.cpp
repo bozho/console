@@ -95,32 +95,6 @@ ConsoleView::~ConsoleView()
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOL ConsoleView::PreTranslateMessage(MSG* pMsg)
-{
-	if ((pMsg->message == WM_KEYDOWN) || 
-		(pMsg->message == WM_KEYUP) ||
-		(pMsg->message == WM_SYSKEYDOWN) || 
-		(pMsg->message == WM_SYSKEYUP))
-	{
-		// Avoid calling ::TranslateMessage for WM_KEYDOWN, WM_KEYUP,
-		// WM_SYSKEYDOWN and WM_SYSKEYUP (except for wParam == VK_PACKET, 
-		// which is sent by SendInput when pasting text).
-		///
-		// This prevents WM_CHAR and WM_SYSCHAR messages, enabling stuff like
-		// handling 'dead' characters input and passing all keys to console.
-		if (pMsg->wParam == VK_PACKET) return FALSE;
-		::DispatchMessage(pMsg);
-		return TRUE;
-	}
-
-	return FALSE;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	DragAcceptFiles(TRUE);

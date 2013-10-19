@@ -149,8 +149,9 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 // XTermCursor
 
 XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer* pdrawer)
-  : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
-  , m_pdrawer(pdrawer)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
+, m_pdrawer(pdrawer)
+, m_bActive(false)
 {
 }
 
@@ -741,6 +742,7 @@ void PulseRectCursor::PrepareNext()
 FadeBlockCursor::FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer)
 : Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
 , m_nStep(-ALPHA_STEP)
+, m_bActive(false)
 {
 	m_blendFunction.BlendOp				= AC_SRC_OVER;
 	m_blendFunction.BlendFlags			= 0;

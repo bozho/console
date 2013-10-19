@@ -151,5 +151,5 @@ void JumpList::CreateList(TabDataVector& tabDataVector)
   if (FAILED(hr))
     return;
 
-  hr = pcdl->CommitList();
+  pcdl->CommitList();
 }

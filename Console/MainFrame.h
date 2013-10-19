@@ -46,7 +46,7 @@ class MainFrame
 			LPCTSTR lpstrCmdLine
 		);
 
-		static void MainFrame::ParseCommandLine
+		static void ParseCommandLine
 		(
 			LPCTSTR lptstrCmdLine,
 			wstring& strWindowTitle,

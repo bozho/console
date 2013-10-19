@@ -47,6 +47,8 @@ SelectionHandler::SelectionHandler(
 , m_selectionState(selstateNoSelection)
 , m_coordInitial()
 , m_coordCurrent()
+, m_coordInitialXLeading(0)
+, m_coordInitialXTrailing(0)
 , m_tabData(tabData)
 {
 #ifndef _USE_AERO

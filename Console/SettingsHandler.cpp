@@ -125,6 +125,7 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 	bStartHidden			= other.bStartHidden;
 	bSaveSize				= other.bSaveSize;
 
+	::CopyMemory(defaultConsoleColors, other.defaultConsoleColors, sizeof(COLORREF)*16);
 	::CopyMemory(consoleColors, other.consoleColors, sizeof(COLORREF)*16);
 
 	backgroundTextOpacity = other.backgroundTextOpacity;
@@ -803,6 +804,7 @@ AppearanceSettings& AppearanceSettings::operator=(const AppearanceSettings& othe
 	stylesSettings		= other.stylesSettings;
 	positionSettings	= other.positionSettings;
 	transparencySettings= other.transparencySettings;
+	fullScreenSettings	= other.fullScreenSettings;
 
 	return *this;
 }
@@ -820,6 +822,7 @@ AppearanceSettings& AppearanceSettings::operator=(const AppearanceSettings& othe
 CopyPasteSettings::CopyPasteSettings()
 : bCopyOnSelect(false)
 , bClearOnCopy(true)
+, bSensitiveCopy(true)
 , bNoWrap(false)
 , bTrimSpaces(false)
 , copyNewlineChar(newlineCRLF)
@@ -1374,7 +1377,6 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMElement>		pHotkeysElement;
 	CComPtr<IXMLDOMNodeList>	pHotKeyChildNodes;
 
@@ -1393,7 +1395,7 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		CComPtr<IXMLDOMNode>	pRemovedHotKeyNode;
 		if (FAILED(pHotKeyChildNodes->get_item(i, &pHotKeyChildNode))) continue;
 
-		hr = pHotkeysElement->removeChild(pHotKeyChildNode, &pRemovedHotKeyNode);
+		pHotkeysElement->removeChild(pHotKeyChildNode, &pRemovedHotKeyNode);
 	}
 
 	CComPtr<IXMLDOMDocument>	pSettingsDoc;
@@ -1548,7 +1550,6 @@ bool MouseSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 bool MouseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMElement>		pMouseActionsElement;
 	CComPtr<IXMLDOMNodeList>	pMouseActionsChildNodes;
 
@@ -1565,7 +1566,7 @@ bool MouseSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		CComPtr<IXMLDOMNode>	pRemovedMouseActionsNode;
 		if (FAILED(pMouseActionsChildNodes->get_item(i, &pMouseActionsChildNode))) continue;
 
-		hr = pMouseActionsElement->removeChild(pMouseActionsChildNode, &pRemovedMouseActionsNode);
+		pMouseActionsElement->removeChild(pMouseActionsChildNode, &pRemovedMouseActionsNode);
 	}
 
 	CComPtr<IXMLDOMDocument>	pSettingsDoc;
@@ -1648,10 +1649,9 @@ TabSettings::TabSettings()
 
 bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMNodeList>	pTabNodes;
 
-	hr = pSettingsRoot->selectNodes(CComBSTR(L"tabs/tab"), &pTabNodes);
+	HRESULT hr = pSettingsRoot->selectNodes(CComBSTR(L"tabs/tab"), &pTabNodes);
 	if (FAILED(hr)) return false;
 
 	long	lListLength;
@@ -1750,7 +1750,6 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
-	HRESULT						hr = S_OK;
 	CComPtr<IXMLDOMElement>		pTabsElement;
 	CComPtr<IXMLDOMNodeList>	pTabChildNodes;
 
@@ -1767,7 +1766,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		CComPtr<IXMLDOMNode>	pRemovedTabNode;
 		if (FAILED(pTabChildNodes->get_item(i, &pTabChildNode))) continue;
 
-		hr = pTabsElement->removeChild(pTabChildNode, &pRemovedTabNode);
+		pTabsElement->removeChild(pTabChildNode, &pRemovedTabNode);
 	}
 
 	CComPtr<IXMLDOMDocument>	pSettingsDoc;

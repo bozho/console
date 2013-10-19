@@ -45,9 +45,7 @@ DlgSettingsMain::DlgSettingsMain()
 
 LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	HRESULT hr = S_OK;
-
-	hr = XmlHelper::OpenXmlDocument(
+	HRESULT hr = XmlHelper::OpenXmlDocument(
 						g_settingsHandler->GetSettingsFileName(), 
 						m_pSettingsDocument, 
 						m_pSettingsRoot);

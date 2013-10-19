@@ -15,6 +15,11 @@
 
 DlgSettingsAppearance::DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRoot)
 : DlgSettingsBase(pOptionsRoot)
+, m_bTrimTabTitles(false)
+, m_bUsePosition(false)
+, m_nX(0)
+, m_nY(0)
+, m_bSnapToEdges(false)
 {
 	IDD = IDD_SETTINGS_APPEARANCE;
 }

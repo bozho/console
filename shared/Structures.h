@@ -112,11 +112,28 @@ struct ConsoleCopy
 	, bNoWrap(false)
 	, bTrimSpaces(false)
 	, copyNewlineChar(newlineCRLF)
-  , bBold(false)
-  , bItalic(false)
-  , dwSize(24)
+	, bBold(false)
+	, bItalic(false)
+	, dwSize(24)
 	{
-    szFontName[0] = 0;
+		consoleColors[0]  = 0x000000;
+		consoleColors[1]  = 0x800000;
+		consoleColors[2]  = 0x008000;
+		consoleColors[3]  = 0x808000;
+		consoleColors[4]  = 0x000080;
+		consoleColors[5]  = 0x800080;
+		consoleColors[6]  = 0x008080;
+		consoleColors[7]  = 0xC0C0C0;
+		consoleColors[8]  = 0x808080;
+		consoleColors[9]  = 0xFF0000;
+		consoleColors[10] = 0x00FF00;
+		consoleColors[11] = 0xFFFF00;
+		consoleColors[12] = 0x0000FF;
+		consoleColors[13] = 0xFF00FF;
+		consoleColors[14] = 0x00FFFF;
+		consoleColors[15] = 0xFFFFFF;
+
+		szFontName[0] = 0;
 	}
 
 	COORD	coordStart;
@@ -124,11 +141,11 @@ struct ConsoleCopy
 	bool	bNoWrap;
 	bool	bTrimSpaces;
 	CopyNewlineChar	copyNewlineChar;
-  bool  bBold;
-  bool  bItalic;
-  DWORD dwSize;
-  char szFontName [256];
-  COLORREF consoleColors[16];
+	bool  bBold;
+	bool  bItalic;
+	DWORD dwSize;
+	char szFontName [256];
+	COLORREF consoleColors[16];
 };
 
 

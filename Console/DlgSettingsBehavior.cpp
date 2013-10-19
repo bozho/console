@@ -15,6 +15,9 @@
 
 DlgSettingsBehavior::DlgSettingsBehavior(CComPtr<IXMLDOMElement>& pOptionsRoot)
 : DlgSettingsBase(pOptionsRoot)
+, m_nCopyNewlineChar(0)
+, m_nScrollPageType(0)
+, m_bFlashInactiveTab(false)
 {
 	IDD = IDD_SETTINGS_BEHAVIOR;
 }

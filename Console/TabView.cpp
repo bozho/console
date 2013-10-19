@@ -423,7 +423,7 @@ bool TabView::CloseView(HWND hwnd /*= 0*/)
 
       multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
 
-      if( m_views.size() == 0 )
+      if( m_views.empty() )
         m_mainFrame.CloseTab(this->m_hWnd);
       else
       {

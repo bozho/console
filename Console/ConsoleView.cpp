@@ -429,10 +429,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 
 	CPoint						point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	MouseSettings&				mouseSettings	= g_settingsHandler->GetMouseSettings();
-	bool						bMouseButtonUp	= false;
 	MouseSettings::Action		mouseAction;
-
-	LRESULT						ret = 0;
 
 	// get modifiers
 	if (uKeys & MK_CONTROL)			mouseAction.modifiers |= MouseSettings::mkCtrl;
@@ -471,7 +468,6 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			{
 				mouseAction.button = MouseSettings::btn5th;
 			}
-			ret = 1;
 			break;
 	}
 
@@ -490,13 +486,6 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 		case WM_MBUTTONDBLCLK :
 		case WM_XBUTTONDBLCLK :
 			mouseAction.clickType = MouseSettings::clickDouble;
-			break;
-
-		case WM_LBUTTONUP :
-		case WM_RBUTTONUP :
-		case WM_MBUTTONUP :
-		case WM_XBUTTONUP :
-			bMouseButtonUp = true;
 			break;
 	}
 

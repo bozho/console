@@ -307,10 +307,11 @@ template<class T>
 void CHotkeyEditT<T>::SetHotkeyText()
 {
 	CString strKeyName;
-	WORD	wModifiers = 0;
 
 	if (m_uiHotkeyVk == 0)
 	{
+		WORD wModifiers = 0;
+
 		// keys are down, get name from temp variables
 		if (m_bCtrlDown)  wModifiers |= HOTKEYF_CONTROL;
 		if (m_bShiftDown) wModifiers |= HOTKEYF_SHIFT;

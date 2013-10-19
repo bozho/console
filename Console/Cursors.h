@@ -67,12 +67,13 @@ class Cursor
 		, m_paintBrush(::CreateSolidBrush(crCursorColor))
 		, m_backgroundBrush(::CreateSolidBrush(crCursorColor ^ 0x00ffffff))
 		, m_uiTimer(0)
+		, m_bTimer(false)
 		{
 			Helpers::CreateBitmap(dcConsoleView, rectCursor.Width(), rectCursor.Height(), m_bmpCursor);
 			m_dcCursor.SelectBitmap(m_bmpCursor);
 			m_dcCursor.SetBkColor(m_crBackgroundColor);
 		}
-		
+
 		virtual ~Cursor()
 		{
 			if (m_uiTimer) ::KillTimer(m_hwndConsoleView, m_uiTimer);

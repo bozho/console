@@ -13,13 +13,12 @@
 
 HRESULT XmlHelper::OpenXmlDocument(const wstring& strFilename, CComPtr<IXMLDOMDocument>& pXmlDocument, CComPtr<IXMLDOMElement>& pRootElement)
 {
-	HRESULT hr					= S_OK;
 	VARIANT_BOOL bLoadSuccess	= 0; // FALSE
 
 	pXmlDocument.Release();
 	pRootElement.Release();
 	
-	hr = pXmlDocument.CoCreateInstance(__uuidof(DOMDocument));
+	HRESULT hr = pXmlDocument.CoCreateInstance(__uuidof(DOMDocument));
 	if (FAILED(hr) || (pXmlDocument.p == NULL)) return E_FAIL;
 
 	hr = pXmlDocument->load(CComVariant(strFilename.c_str()), &bLoadSuccess);

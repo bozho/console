@@ -622,17 +622,14 @@ void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int n
 void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nOffsetY, std::shared_ptr<BackgroundImage>& bkImage)
 {
 	// we're tiling the image, starting at coordinates (0, 0)
-	DWORD dwX = 0;
 	DWORD dwY = 0;
-
-	DWORD dwImageOffsetX = 0;
 	DWORD dwImageOffsetY = bkImage->originalImage->getHeight() + (nOffsetY - (int)bkImage->originalImage->getHeight()*(nOffsetY/(int)bkImage->originalImage->getHeight()));
 
 	while (dwY < bkImage->dwImageHeight)
 	{
-		dwX				= 0;
-		dwImageOffsetX	= bkImage->originalImage->getWidth() + (nOffsetX - (int)bkImage->originalImage->getWidth()*(nOffsetX/(int)bkImage->originalImage->getWidth()));
-		
+		DWORD dwX				= 0;
+		DWORD dwImageOffsetX	= bkImage->originalImage->getWidth() + (nOffsetX - (int)bkImage->originalImage->getWidth()*(nOffsetX/(int)bkImage->originalImage->getWidth()));
+
 		while (dwX < bkImage->dwImageWidth)
 		{
 			bkImage->dcImage.BitBlt(
@@ -644,11 +641,11 @@ void ImageHandler::TileTemplateImage(const CDC& dcTemplate, int nOffsetX, int nO
 						dwImageOffsetX,
 						dwImageOffsetY,
 						SRCCOPY);
-			
+
 			dwX += bkImage->originalImage->getWidth() - dwImageOffsetX;
 			dwImageOffsetX = 0;
 		}
-		
+
 		dwY += bkImage->originalImage->getHeight() - dwImageOffsetY;
 		dwImageOffsetY = 0;
 	}

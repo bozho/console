@@ -2106,7 +2106,7 @@ void MainFrame::CloseTab(HWND hwndTabView)
     ShowTabs(false);
   }
 
-  if (m_tabs.size() == 0) PostMessage(WM_CLOSE);
+  if (m_tabs.empty()) PostMessage(WM_CLOSE);
 }
 
 //////////////////////////////////////////////////////////////////////////////

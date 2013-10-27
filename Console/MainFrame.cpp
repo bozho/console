@@ -1676,6 +1676,12 @@ LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 {
   if (!m_activeTabView) return 0;
 
+	if( g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle )
+	{
+		::MessageBox(m_hWnd, L"Tab's renaming is disabled. \"Use console window title\" option is checked.", L"Warning", MB_OK|MB_ICONWARNING);
+		return 0;
+	}
+
   DlgRenameTab dlg(m_activeTabView->GetTitle());
 
   if (dlg.DoModal() == IDOK)

@@ -877,26 +877,12 @@ void ConsoleHandler::CopyConsoleText()
 		}
 
 		// handle trim/wrap settings
-		if (i == coordStart.Y)
+		if (coordStart.Y == coordEnd.Y)
 		{
-			// first row
-			if
-			(
-				(coordStart.Y == coordEnd.Y)
-				||
-				(
-					m_consoleCopyInfo->bNoWrap
-					&& 
-					(coordStart.Y < coordEnd.Y)
-					&&
-					(!clipboardDataPtr[0]->IsLastCharBlank())
-				)
-			)
-			{
-				bWrap = false;
-			}
+			// only one line
+			bWrap = false;
 		}
-		else if (i == coordEnd.Y)
+		if (i == coordEnd.Y)
 		{
 			// last row
 			if (clipboardDataPtr[0]->GetRowLength() < static_cast<size_t>(coordBufferSize.X))
@@ -906,7 +892,7 @@ void ConsoleHandler::CopyConsoleText()
 		}
 		else
 		{
-			// rows in between
+			// rows between first and (last - 1)
 			if (m_consoleCopyInfo->bNoWrap && (!clipboardDataPtr[0]->IsLastCharBlank()))
 			{
 				bWrap = false;

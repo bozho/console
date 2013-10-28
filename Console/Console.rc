@@ -234,7 +234,7 @@ BEGIN
     LTEXT           "Tit&le:",IDC_STATIC,10,16,17,8
     EDITTEXT        IDC_WINDOW_TITLE,33,13,122,14,ES_AUTOHSCROLL
     CONTROL         "Use tab &titles",IDC_CHECK_USE_TAB_TITLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,160,15,58,10
-    CONTROL         "Use console window title *",IDC_CHECK_USE_CONSOLE_TITLE,
+    CONTROL         "Use console window title",IDC_CHECK_USE_CONSOLE_TITLE,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,100,10
     CONTROL         "S&how command",IDC_CHECK_SHOW_COMMAND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,40,65,10
     CONTROL         "Sho&w command in tabs",IDC_CHECK_SHOW_COMMAND_TABS,

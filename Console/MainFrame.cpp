@@ -981,64 +981,84 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 
 LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-	MutexLock					viewMapLock(m_tabsMutex);
-	TabViewMap::iterator	itView = m_tabs.find(reinterpret_cast<HWND>(wParam));
+	MutexLock viewMapLock(m_tabsMutex);
+	HWND      hwndTabView = reinterpret_cast<HWND>(wParam);
 
-	if (itView == m_tabs.end()) return 0;
-  std::shared_ptr<TabView>	tabView(itView->second);
-  std::shared_ptr<ConsoleView> consoleView = itView->second->GetActiveConsole(_T(__FUNCTION__));
-  if (!consoleView) return 0;
-
-	WindowSettings&			windowSettings	= g_settingsHandler->GetAppearanceSettings().windowSettings;
-
-	if (windowSettings.bUseConsoleTitle)
+	if( hwndTabView == NULL )
 	{
-		CString	strTabTitle(consoleView->GetTitle());
-
-		UpdateTabTitle(*tabView, strTabTitle);
-
-		if ((m_strCmdLineWindowTitle.GetLength() == 0) &&
-			(windowSettings.bUseTabTitles) && 
-			(tabView == m_activeTabView))
-		{
-			m_strWindowTitle = strTabTitle;
-			SetWindowText(m_strWindowTitle);
-			if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
-		}
+		// update all tabs
+		for(auto itView = m_tabs.begin(); itView != m_tabs.end(); ++itView)
+			UpdateTabTitle(itView->second);
 	}
 	else
 	{
-		CString	strCommandText(consoleView->GetConsoleCommand());
-		CString	strTabTitle(consoleView->GetTitle());
+		auto itView = m_tabs.find(hwndTabView);
 
-		if (m_strCmdLineWindowTitle.GetLength() != 0)
+		if (itView != m_tabs.end())
+			UpdateTabTitle(itView->second);
+	}
+
+	return 0;
+}
+
+void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
+{
+	std::shared_ptr<ConsoleView> consoleView = tabView->GetActiveConsole(_T(__FUNCTION__));
+	if (!consoleView) return;
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	if (m_strCmdLineWindowTitle.GetLength() != 0)
+	{
+		m_strWindowTitle = m_strCmdLineWindowTitle;
+	}
+	else
+	{
+		m_strWindowTitle = windowSettings.strTitle.c_str();
+	}
+
+	CString strTabTitle;
+
+	if (windowSettings.bUseConsoleTitle)
+	{
+		strTabTitle = consoleView->GetConsoleCommand();
+	}
+	else
+	{
+		strTabTitle = consoleView->GetTitle();
+
+		CString strCommandText;
+		if( windowSettings.bShowCommand || windowSettings.bShowCommandInTabs )
 		{
-			m_strWindowTitle = m_strCmdLineWindowTitle;
-		}
-		else
-		{
-			m_strWindowTitle = windowSettings.strTitle.c_str();
+			CString	strConsoleTitle(consoleView->GetConsoleCommand());
+
+			if( strConsoleTitle.Find(L"Console2 command window") == -1 )
+			{
+				strCommandText = CString(L" - ") + strConsoleTitle;
+			}
 		}
 
 		if (tabView == m_activeTabView)
 		{
-			if ((m_strCmdLineWindowTitle.GetLength() == 0) && (windowSettings.bUseTabTitles))
-			{
-				m_strWindowTitle = strTabTitle;
-			}
-
-			if (windowSettings.bShowCommand)	m_strWindowTitle += strCommandText;
-
-			SetWindowText(m_strWindowTitle);
-			if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
+			if (windowSettings.bShowCommand)
+				m_strWindowTitle += strCommandText;
 		}
-		
-		if (windowSettings.bShowCommandInTabs) strTabTitle += strCommandText;
 
-		UpdateTabTitle(*tabView, strTabTitle);
+		if (windowSettings.bShowCommandInTabs)
+			strTabTitle += strCommandText;
 	}
 
-	return 0;
+	UpdateTabTitle(*tabView, strTabTitle);
+
+	if (tabView == m_activeTabView)
+	{
+		if( windowSettings.bUseTabTitles )
+			m_strWindowTitle = strTabTitle;
+
+		SetWindowText(m_strWindowTitle);
+		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
+			SetTrayIcon(NIM_MODIFY);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1792,6 +1812,12 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
   }
 
   RegisterGlobalHotkeys();
+
+	// update tab titles
+	this->PostMessage(
+		UM_UPDATE_TITLES,
+		0,
+		0);
 
   return 0;
 }

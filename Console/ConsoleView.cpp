@@ -1248,38 +1248,7 @@ CString ConsoleView::GetConsoleCommand()
 
 	consoleWnd.GetWindowText(strConsoleTitle);
 
-	int nPos = strConsoleTitle.Find(L"Console2 command window");
-
-	if (nPos == -1)
-	{
-		return CString(L" - ") + strConsoleTitle;
-	}
-	else
-	{
-		return CString();
-	}
-
-#if 0
-	int nPos = strConsoleTitle.Find(L'-');
-
-	if (nPos == -1)
-	{
-		nPos = strConsoleTitle.Find(L"Console2 command window");
-
-		if (nPos == -1)
-		{
-			return CString(L" - ") + strConsoleTitle;
-		}
-		else
-		{
-			return CString();
-		}
-	}
-	else
-	{
-		return strConsoleTitle.Right(strConsoleTitle.GetLength() - nPos + 1);
-	}
-#endif
+	return strConsoleTitle;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1815,16 +1784,6 @@ DWORD ConsoleView::GetBufferDifference()
 
 void ConsoleView::UpdateTitle()
 {
-	if (g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle)
-	{
-		CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
-		CString strConsoleTitle(L"");
-
-		consoleWnd.GetWindowText(strConsoleTitle);
-
-		SetTitle(strConsoleTitle);
-	}
-
 	m_mainFrame.PostMessage(
 					UM_UPDATE_TITLES,
 					reinterpret_cast<WPARAM>(m_hwndTabView),

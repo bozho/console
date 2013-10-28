@@ -211,12 +211,19 @@ void DlgSettingsAppearance::EnableControls()
 	GetDlgItem(IDC_SNAP).EnableWindow(FALSE);
 	GetDlgItem(IDC_SPIN_SNAP).EnableWindow(FALSE);
 
-	if (!m_windowSettings.bUseTabTitles) GetDlgItem(IDC_WINDOW_TITLE).EnableWindow();
+	if (!m_windowSettings.bUseTabTitles)
+	{
+		GetDlgItem(IDC_WINDOW_TITLE).EnableWindow();
+	}
 
 	if (!m_windowSettings.bUseConsoleTitle)
 	{
-		GetDlgItem(IDC_CHECK_SHOW_COMMAND).EnableWindow();
 		GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS).EnableWindow();
+	}
+
+	if (!m_windowSettings.bUseTabTitles && !m_windowSettings.bUseConsoleTitle)
+	{
+		GetDlgItem(IDC_CHECK_SHOW_COMMAND).EnableWindow();
 	}
 
 	if (m_bTrimTabTitles)

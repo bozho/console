@@ -270,6 +270,7 @@ class MainFrame
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 
+		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
 		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateOpenedTabsMenu(CMenu& tabsMenu);

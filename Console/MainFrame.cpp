@@ -312,23 +312,14 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	bool bShowTabs = controlsSettings.bShowTabs;
 
-  {
-    MutexLock lock(m_tabsMutex);
+	{
+		MutexLock lock(m_tabsMutex);
 
-    if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
-    {
-      UIEnable(ID_FILE_CLOSE_TAB, TRUE);
-      UIEnable(ID_CLOSE_VIEW, TRUE);
-    }
-    else
-    {
-      UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
-      UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
-    }
+		UpdateUI();
 
-    if (m_tabs.size() <= 1 && controlsSettings.bHideSingleTab)
-      bShowTabs = false;
-  }
+		if (m_tabs.size() <= 1 && controlsSettings.bHideSingleTab)
+			bShowTabs = false;
+	}
 
 	ShowTabs(bShowTabs);
 
@@ -1300,6 +1291,8 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
     }
 	}
 
+	UpdateUI();
+
 	bHandled = FALSE;
 	return 0;
 }
@@ -1420,11 +1413,68 @@ LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnFileCloseTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnFileCloseTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CTabViewTabItem* pTabItem = m_TabCtrl.GetItem(m_TabCtrl.GetCurSel());
-	
-	CloseTab(pTabItem);
+	CTabViewTabItem* pCurSelTabItem = m_TabCtrl.GetItem(m_TabCtrl.GetCurSel());
+	if (!pCurSelTabItem) return 0;
+
+	switch(wID)
+	{
+	case ID_FILE_CLOSE_TAB:
+		CloseTab(pCurSelTabItem);
+		break;
+
+	case ID_FILE_CLOSE_ALL_TABS_BUT_THIS:
+	case ID_FILE_CLOSE_ALL_TABS_LEFT:
+	case ID_FILE_CLOSE_ALL_TABS_RIGHT:
+		{
+			MutexLock viewMapLock(m_tabsMutex);
+
+			// close all to the left
+			if( wID == ID_FILE_CLOSE_ALL_TABS_BUT_THIS ||
+			    wID == ID_FILE_CLOSE_ALL_TABS_LEFT )
+			{
+				for(;;)
+				{
+					if( m_TabCtrl.GetItemCount() == 0 )
+						break;
+
+					CTabViewTabItem* pMostLeftTabItem = m_TabCtrl.GetItem(0);
+
+					if( pMostLeftTabItem == pCurSelTabItem )
+						break;
+
+					CloseTab(pMostLeftTabItem->GetTabView());
+				}
+			}
+
+			// close all to the right
+			if( wID == ID_FILE_CLOSE_ALL_TABS_BUT_THIS ||
+			    wID == ID_FILE_CLOSE_ALL_TABS_RIGHT )
+			{
+				for(;;)
+				{
+					if( m_TabCtrl.GetItemCount() == 0 )
+						break;
+
+					CTabViewTabItem* pMostRightTabItem = m_TabCtrl.GetItem(m_TabCtrl.GetItemCount() - 1);
+
+					if( pMostRightTabItem == pCurSelTabItem )
+						break;
+
+					CloseTab(pMostRightTabItem->GetTabView());
+				}
+			}
+
+
+				/*
+				if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+				if (m_tabs.size() <= 1) return;
+				*/
+		}
+		break;
+	}
+
 	return 0;
 }
 
@@ -1799,16 +1849,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
     AdjustWindowSize(ADJUSTSIZE_WINDOW);
 
-    if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
-    {
-      UIEnable(ID_FILE_CLOSE_TAB, TRUE);
-      UIEnable(ID_CLOSE_VIEW, TRUE);
-    }
-    else
-    {
-      UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
-      UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
-    }
+    UpdateUI();
   }
 
   RegisterGlobalHotkeys();
@@ -2068,12 +2109,6 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
   {
     CRect clientRect(0, 0, 0, 0);
     tabView->AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
-
-    if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
-    {
-      UIEnable(ID_FILE_CLOSE_TAB, TRUE);
-      UIEnable(ID_CLOSE_VIEW, TRUE);
-    }
   }
 
   if( !m_bFullScreen &&
@@ -2086,6 +2121,8 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
   {
     ShowTabs(true);
   }
+
+	UpdateUI();
 
 	return true;
 }
@@ -2120,16 +2157,7 @@ void MainFrame::CloseTab(HWND hwndTabView)
   it->second->DestroyWindow();
   m_tabs.erase(it);
 
-  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
-  {
-    if (m_tabs.size() == 1)
-    {
-      UIEnable(ID_FILE_CLOSE_TAB, FALSE);
-
-      if( m_tabs.begin()->second->GetViewsCount() == 1 )
-        UIEnable(ID_CLOSE_VIEW, FALSE);
-    }
-  }
+  UpdateUI();
 
   if ((m_tabs.size() == 1) &&
     m_bTabsVisible && 
@@ -3300,4 +3328,28 @@ LRESULT MainFrame::OnGetMinMaxInfo(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
   }
 
   return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::UpdateUI()
+{
+	MutexLock lock(m_tabsMutex);
+
+	if( g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+	{
+		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
+		UIEnable(ID_CLOSE_VIEW, TRUE);
+	}
+	else
+	{
+		UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
+		UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
+	}
+
+	UIEnable(ID_FILE_CLOSE_ALL_TABS_BUT_THIS, m_tabs.size() > 1);
+	UIEnable(ID_FILE_CLOSE_ALL_TABS_LEFT, m_TabCtrl.GetCurSel() > 0);
+	UIEnable(ID_FILE_CLOSE_ALL_TABS_RIGHT, m_TabCtrl.GetCurSel() < (m_TabCtrl.GetItemCount() - 1));
 }

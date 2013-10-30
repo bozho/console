@@ -17,6 +17,7 @@
 
 #define IDR_FULLSCREEN1                 150
 #define IDR_FULLSCREEN2                 151
+#define IDR_TAB_POPUP_MENU              152
 
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205

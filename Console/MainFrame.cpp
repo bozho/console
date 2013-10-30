@@ -229,6 +229,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// remove old menu
 	SetMenu(NULL);
 
+	m_tabsRPopupMenu.LoadMenu(IDR_TAB_POPUP_MENU);
+
 	UpdateMenuHotKeys();
 
   m_contextMenu.CreatePopupMenu();
@@ -1319,8 +1321,8 @@ LRESULT MainFrame::OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */
 
 LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
 {
-	NMCTCITEM*			pTabItems	= reinterpret_cast<NMCTCITEM*>(pnmh);
-	CTabViewTabItem*	pTabItem	= (pTabItems->iItem != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem) : NULL;
+	NMCTCITEM*       pTabItems = reinterpret_cast<NMCTCITEM*>(pnmh);
+	CTabViewTabItem* pTabItem  = (pTabItems->iItem != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem) : NULL;
 
 	if (pTabItem == NULL)
 	{
@@ -1342,6 +1344,32 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 	}
 
 	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnTabRightClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+{
+	NMCTCITEM*       pTabItems = reinterpret_cast<NMCTCITEM*>(pnmh);
+	CTabViewTabItem* pTabItem  = (pTabItems->iItem != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem) : NULL;
+
+	if (pTabItem)
+	{
+		// select the tab
+		// this will update the menu UI
+		m_TabCtrl.SetCurSel(pTabItems->iItem);
+
+		CPoint point(pTabItems->pt.x, pTabItems->pt.y);
+		CPoint screenPoint(point);
+		this->m_TabCtrl.ClientToScreen(&screenPoint);
+		m_CmdBar.TrackPopupMenu(m_tabsRPopupMenu.GetSubMenu(0), 0, screenPoint.x, screenPoint.y);
+	}
+
+	// tab is already selected so return 1
+	return 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2330,6 +2358,16 @@ void MainFrame::UpdateMenuHotKeys(void)
       strMenuItemText.Append(id->get()->GetHotKeyName().c_str());
 
       menu.ModifyMenu(id->get()->wCommandID, MF_BYCOMMAND | MF_STRING, static_cast<UINT_PTR>(id->get()->wCommandID), strMenuItemText.GetString());
+    }
+    if( m_tabsRPopupMenu.GetMenuString(id->get()->wCommandID, strMenuItemText, MF_BYCOMMAND) )
+    {
+      int tab = strMenuItemText.Find(L'\t');
+      if (tab != -1)
+        strMenuItemText.Truncate(tab);
+      strMenuItemText.AppendChar(L'\t');
+      strMenuItemText.Append(id->get()->GetHotKeyName().c_str());
+
+      m_tabsRPopupMenu.ModifyMenu(id->get()->wCommandID, MF_BYCOMMAND | MF_STRING, static_cast<UINT_PTR>(id->get()->wCommandID), strMenuItemText.GetString());
     }
   }
 }

@@ -119,6 +119,7 @@ class MainFrame
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
 			NOTIFY_CODE_HANDLER(CTCN_MCLICK, OnTabMiddleClick);
+			NOTIFY_CODE_HANDLER(NM_RCLICK, OnTabRightClick);
 #ifdef _USE_AERO
 			NOTIFY_CODE_HANDLER(NM_CLICK, OnStartMouseDragExtendedFrameToClientArea)
 			NOTIFY_CODE_HANDLER(NM_LDOWN, OnStartMouseDragExtendedFrameToClientArea)
@@ -214,6 +215,7 @@ class MainFrame
 		LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
 		LRESULT OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 		LRESULT OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
+		LRESULT OnTabRightClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 #ifdef _USE_AERO
 		LRESULT OnStartMouseDragExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 		LRESULT OnDBLClickExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
@@ -343,6 +345,7 @@ class MainFrame
 		Mutex			m_tabsMutex;
 
 		CMenu			m_tabsMenu;
+		CMenu			m_tabsRPopupMenu;
 
 		CIcon			m_icon;
 		CIcon			m_smallIcon;

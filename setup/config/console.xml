@@ -38,6 +38,7 @@
 		<scroll page_scroll_rows="0"/>
 		<tab_highlight flashes="3" stay_highligted="1"/>
 		<close allow_closing_last_view="0" confirm_closing_multiple_views="1"/>
+		<focus follow_mouse="0"/>
 	</behavior>
 	<hotkeys use_scroll_lock="1">
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="83" command="settings"/>

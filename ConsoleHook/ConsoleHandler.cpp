@@ -242,6 +242,8 @@ void ConsoleHandler::ReadConsoleBuffer()
 	SharedMemoryLock consoleInfoLock(m_consoleInfo);
 	SharedMemoryLock bufferLock(m_consoleBuffer);
 
+	::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
+
 	bool textChanged = (::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0);
 
 	if ((::memcmp(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
@@ -257,8 +259,6 @@ void ConsoleHandler::ReadConsoleBuffer()
 		if (textChanged) m_consoleInfo->textChanged = true;
 
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
-
-		::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
 
 		m_consoleBuffer.SetReqEvent();
 	}

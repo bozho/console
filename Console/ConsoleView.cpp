@@ -789,13 +789,13 @@ LRESULT ConsoleView::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BO
 		if (m_cursor.get())
 		{
 			m_cursor->PrepareNext();
-			m_cursor->Draw(m_bAppActive);
+			m_cursor->Draw(m_bAppActive, m_consoleHandler.GetCursorInfo()->dwSize);
 		}
 
 		if (m_cursorDBCS.get())
 		{
 			m_cursorDBCS->PrepareNext();
-			m_cursorDBCS->Draw(m_bAppActive);
+			m_cursorDBCS->Draw(m_bAppActive, m_consoleHandler.GetCursorInfo()->dwSize);
 		}
 
 		BitBltOffscreen(true);
@@ -1100,8 +1100,8 @@ void ConsoleView::SetConsoleWindowVisible(bool bVisible)
 void ConsoleView::SetAppActiveStatus(bool bAppActive)
 {
 	m_bAppActive = bAppActive;
-	if (m_cursor.get()) m_cursor->Draw(m_bAppActive);
-	if (m_cursorDBCS.get()) m_cursorDBCS->Draw(m_bAppActive);
+	if (m_cursor.get()) m_cursor->Draw(m_bAppActive, m_consoleHandler.GetCursorInfo()->dwSize);
+	if (m_cursorDBCS.get()) m_cursorDBCS->Draw(m_bAppActive, m_consoleHandler.GetCursorInfo()->dwSize);
 	BitBltOffscreen();
 }
 

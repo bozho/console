@@ -438,7 +438,7 @@ void PageSettingsTabs1::DrawCursor()
     g_settingsHandler->GetConsoleSettings().consoleColors[7],
     g_settingsHandler->GetConsoleSettings().consoleColors[0]);
 
-  m_cursor->Draw(true);
+  m_cursor->Draw(true, 40);
   m_cursor->BitBlt(dc, rectCursorAnim.left, rectCursorAnim.top);
 
   rectCursorAnim.OffsetRect(rectCursorAnim.Width() + 4, 0);
@@ -449,7 +449,7 @@ void PageSettingsTabs1::DrawCursor()
     g_settingsHandler->GetConsoleSettings().consoleColors[7],
     g_settingsHandler->GetConsoleSettings().consoleColors[0]);
 
-  m_cursor->Draw(false);
+  m_cursor->Draw(false, 40);
   m_cursor->BitBlt(dc, rectCursorAnim.left, rectCursorAnim.top);
 }
 

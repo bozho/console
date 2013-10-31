@@ -125,6 +125,15 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 															bTimer)));
 			break;
 
+		case cstyleConsole :
+			newCursor.reset(dynamic_cast<Cursor*>(new ConsoleCursor(
+															hwndConsoleView,
+															dcConsoleView,
+															rectCursor,
+															crCursorColor,
+															bTimer)));
+			break;
+
 		default :
 			newCursor.reset(dynamic_cast<Cursor*>(new NBBlockCursor(
 															hwndConsoleView,
@@ -133,7 +142,7 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 															crCursorColor)));
 	}
 
-	if (newCursor.get() != NULL) newCursor->Draw(bAppActive);
+	if (newCursor.get() != NULL) newCursor->Draw(bAppActive, 40);
 	return newCursor;
 }
 
@@ -160,7 +169,7 @@ XTermCursor::XTermCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 
 //////////////////////////////////////////////////////////////////////////////
 
-void XTermCursor::Draw(bool bActive /* = true */)
+void XTermCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
@@ -211,7 +220,7 @@ BlockCursor::BlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BlockCursor::Draw(bool bActive /* = true */)
+void BlockCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	if (bActive && m_bVisible)
 	{
@@ -266,7 +275,7 @@ NBBlockCursor::NBBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView, con
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBBlockCursor::Draw(bool /*bActive = true */)
+void NBBlockCursor::Draw(bool /*bActive*/, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_paintBrush);
 }
@@ -328,7 +337,7 @@ PulseBlockCursor::PulseBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleVie
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseBlockCursor::Draw(bool bActive /* = true */)
+void PulseBlockCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
@@ -394,7 +403,7 @@ BarCursor::BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BarCursor::Draw(bool bActive /* = true */)
+void BarCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	if (bActive && m_bVisible)
 	{
@@ -426,6 +435,77 @@ void BarCursor::PrepareNext()
 
 
 //////////////////////////////////////////////////////////////////////////////
+// ConsoleCursor
+
+ConsoleCursor::ConsoleCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
+, m_bVisible(true)
+{
+	// we reset colors with black and white only!
+	m_paintBrush.Attach(::CreateSolidBrush(0x00ffffff));
+	m_backgroundBrush.Attach(::CreateSolidBrush(0x00000000));
+
+	UINT uiRate = ::GetCaretBlinkTime();
+	if (uiRate == 0) uiRate = 750;
+
+	if( bTimer )
+		m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleCursor::Draw(bool bActive , DWORD dwCursorSize)
+{
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
+
+	if (bActive && m_bVisible)
+	{
+		CRect rect = m_rectCursor;
+		rect.top += ::MulDiv(rect.bottom - rect.top, 100 - dwCursorSize, 100);
+		m_dcCursor.FillRect(&rect, m_paintBrush);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleCursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
+	offscreenDC.BitBlt(
+		x,
+		y,
+		m_rectCursor.Width(),
+		m_rectCursor.Height(),
+		m_dcCursor,
+		0,
+		0,
+		SRCINVERT);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleCursor::PrepareNext()
+{
+	m_bVisible = !m_bVisible;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 // NBHLineCursor
 
 NBHLineCursor::NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor)
@@ -440,7 +520,7 @@ NBHLineCursor::NBHLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, con
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBHLineCursor::Draw(bool /*bActive = true */)
+void NBHLineCursor::Draw(bool /*bActive*/, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 	m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.bottom - 1, NULL);
@@ -484,7 +564,7 @@ HLineCursor::HLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 
 //////////////////////////////////////////////////////////////////////////////
 
-void HLineCursor::Draw(bool bActive /* = true */)
+void HLineCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
@@ -551,7 +631,7 @@ VLineCursor::VLineCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const C
 
 //////////////////////////////////////////////////////////////////////////////
 
-void VLineCursor::Draw(bool bActive /* = true */)
+void VLineCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
@@ -608,7 +688,7 @@ RectCursor::RectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRe
 
 //////////////////////////////////////////////////////////////////////////////
 
-void RectCursor::Draw(bool bActive /* = true */)
+void RectCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
@@ -651,7 +731,7 @@ NBRectCursor::NBRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NBRectCursor::Draw(bool /* bActive = true */)
+void NBRectCursor::Draw(bool /*bActive*/, DWORD /*dwCursorSize*/)
 {
 }
 
@@ -694,7 +774,7 @@ PulseRectCursor::PulseRectCursor(HWND hwndConsoleView, const CDC& dcConsoleView,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void PulseRectCursor::Draw(bool bActive /* = true */)
+void PulseRectCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
 
@@ -763,7 +843,7 @@ FadeBlockCursor::FadeBlockCursor(HWND hwndConsoleView, const CDC& dcConsoleView,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void FadeBlockCursor::Draw(bool bActive /* = true */)
+void FadeBlockCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 {
 	m_bActive = bActive;
 }

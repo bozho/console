@@ -3384,7 +3384,7 @@ void MainFrame::UpdateUI()
 	else
 	{
 		UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
-		UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1);
+		UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || (!m_tabs.empty() && m_tabs.begin()->second->GetViewsCount() > 1));
 	}
 
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_BUT_THIS, m_tabs.size() > 1);

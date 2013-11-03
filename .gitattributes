@@ -1,0 +1,6 @@
+*.cpp text eol=crlf
+*.h text eol=crlf
+*.rc text eol=crlf
+*.html text eol=crlf
+*.md text eol=crlf
+*.xml text eol=crlf

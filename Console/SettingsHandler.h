@@ -228,12 +228,15 @@ struct PositionSettings : public SettingsBase
 
 	PositionSettings& operator=(const PositionSettings& other);
 
-	int				nX;
-	int				nY;
-	bool			bSavePosition;
-	ZOrder			zOrder;
-	DockPosition	dockPosition;
-	int				nSnapDistance;
+	bool         bSavePosition;
+	bool         bSaveSize;
+	int          nX;
+	int          nY;
+	int          nW;
+	int          nH;
+	ZOrder       zOrder;
+	DockPosition dockPosition;
+	int          nSnapDistance;
 };
 
 //////////////////////////////////////////////////////////////////////////////

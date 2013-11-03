@@ -19,6 +19,9 @@ DlgSettingsAppearance::DlgSettingsAppearance(CComPtr<IXMLDOMElement>& pOptionsRo
 , m_bUsePosition(false)
 , m_nX(0)
 , m_nY(0)
+, m_bUseSize(false)
+, m_nW(0)
+, m_nH(0)
 , m_bSnapToEdges(false)
 {
 	IDD = IDD_SETTINGS_APPEARANCE;
@@ -44,15 +47,19 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_windowSettings.Load(m_pOptionsRoot);
 	m_positionSettings.Load(m_pOptionsRoot);
 
-	m_strWindowTitle	= m_windowSettings.strTitle.c_str();
-	m_bTrimTabTitles	= (m_windowSettings.dwTrimTabTitles > 0);
-	m_strWindowIcon		= m_windowSettings.strIcon.c_str();
+	m_strWindowTitle = m_windowSettings.strTitle.c_str();
+	m_bTrimTabTitles = (m_windowSettings.dwTrimTabTitles > 0);
+	m_strWindowIcon  = m_windowSettings.strIcon.c_str();
 
-	m_bUsePosition	= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : 1;
-	m_nX			= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : m_positionSettings.nX;
-	m_nY			= ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? 0 : m_positionSettings.nY;
+	m_bUsePosition   = ((m_positionSettings.nX == -1) && (m_positionSettings.nY == -1)) ? false : true;
+	m_nX             = m_bUsePosition ? m_positionSettings.nX : 0;
+	m_nY             = m_bUsePosition ? m_positionSettings.nY : 0;
 
-	m_bSnapToEdges	= (m_positionSettings.nSnapDistance != -1);
+	m_bUseSize       = ((m_positionSettings.nW == -1) && (m_positionSettings.nH == -1)) ? false : true;
+	m_nW             = m_bUseSize ? m_positionSettings.nW : 0;
+	m_nH             = m_bUseSize ? m_positionSettings.nH : 0;
+
+	m_bSnapToEdges   = (m_positionSettings.nSnapDistance != -1);
 	if (!m_bSnapToEdges) m_positionSettings.nSnapDistance = 0;
 
 	m_comboDocking.SetCurSel(static_cast<int>(m_positionSettings.dockPosition) + 1);
@@ -77,6 +84,20 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	spin.Detach();
 
 	spin.Attach(GetDlgItem(IDC_SPIN_Y));
+	spin.SetRange(-2048, 2048);
+	udAccel.nSec = 0;
+	udAccel.nInc = 5;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_W));
+	spin.SetRange(-2048, 2048);
+	udAccel.nSec = 0;
+	udAccel.nInc = 5;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_H));
 	spin.SetRange(-2048, 2048);
 	udAccel.nSec = 0;
 	udAccel.nInc = 5;
@@ -121,6 +142,21 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		{
 			m_positionSettings.nX = -1;
 			m_positionSettings.nY = -1;
+		}
+
+		if (m_bUseSize)
+		{
+			m_positionSettings.nW = m_nW;
+			m_positionSettings.nH = m_nH;
+
+			if (m_positionSettings.nW == -1) m_positionSettings.nW = 0;
+			if (m_positionSettings.nH == -1) m_positionSettings.nH = 0;
+
+		}
+		else
+		{
+			m_positionSettings.nW = -1;
+			m_positionSettings.nH = -1;
 		}
 
 		if (!m_bSnapToEdges)
@@ -208,6 +244,10 @@ void DlgSettingsAppearance::EnableControls()
 	GetDlgItem(IDC_POS_Y).EnableWindow(FALSE);
 	GetDlgItem(IDC_SPIN_X).EnableWindow(FALSE);
 	GetDlgItem(IDC_SPIN_Y).EnableWindow(FALSE);
+	GetDlgItem(IDC_POS_W).EnableWindow(FALSE);
+	GetDlgItem(IDC_POS_H).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_W).EnableWindow(FALSE);
+	GetDlgItem(IDC_SPIN_H).EnableWindow(FALSE);
 	GetDlgItem(IDC_SNAP).EnableWindow(FALSE);
 	GetDlgItem(IDC_SPIN_SNAP).EnableWindow(FALSE);
 
@@ -248,6 +288,14 @@ void DlgSettingsAppearance::EnableControls()
 		GetDlgItem(IDC_POS_Y).EnableWindow();
 		GetDlgItem(IDC_SPIN_X).EnableWindow();
 		GetDlgItem(IDC_SPIN_Y).EnableWindow();
+	}
+
+	if (m_bUseSize)
+	{
+		GetDlgItem(IDC_POS_W).EnableWindow();
+		GetDlgItem(IDC_POS_H).EnableWindow();
+		GetDlgItem(IDC_SPIN_W).EnableWindow();
+		GetDlgItem(IDC_SPIN_H).EnableWindow();
 	}
 
 	if (m_bSnapToEdges)

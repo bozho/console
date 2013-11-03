@@ -602,6 +602,9 @@ PositionSettings::PositionSettings()
 : nX(-1)
 , nY(-1)
 , bSavePosition(false)
+, nW(-1)
+, nH(-1)
+, bSaveSize(false)
 , zOrder(zorderNormal)
 , dockPosition(dockNone)
 , nSnapDistance(-1)
@@ -622,6 +625,9 @@ bool PositionSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"x"), nX, -1);
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"y"), nY, -1);
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"save_position"), bSavePosition, false);
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"w"), nW, -1);
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"h"), nH, -1);
+	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"save_size"), bSaveSize, false);
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"z_order"), reinterpret_cast<int&>(zOrder), static_cast<int>(zorderNormal));
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"dock"), reinterpret_cast<int&>(dockPosition), static_cast<int>(dockNone));
 	XmlHelper::GetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance, -1);
@@ -643,6 +649,9 @@ bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"x"), nX);
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"y"), nY);
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"save_position"), bSavePosition);
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"w"), nW);
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"h"), nH);
+	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"save_size"), bSaveSize);
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"z_order"), static_cast<int>(zOrder));
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"dock"), static_cast<int>(dockPosition));
 	XmlHelper::SetAttribute(pPositionElement, CComBSTR(L"snap"), nSnapDistance);
@@ -657,12 +666,15 @@ bool PositionSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 PositionSettings& PositionSettings::operator=(const PositionSettings& other)
 {
-	nX				= other.nX;
-	nY				= other.nY;
-	bSavePosition	= other.bSavePosition;
-	zOrder			= other.zOrder;
-	dockPosition	= other.dockPosition;
-	nSnapDistance	= other.nSnapDistance;
+	nX            = other.nX;
+	nY            = other.nY;
+	bSavePosition = other.bSavePosition;
+	nW            = other.nW;
+	nH            = other.nH;
+	bSaveSize     = other.bSaveSize;
+	zOrder        = other.zOrder;
+	dockPosition  = other.dockPosition;
+	nSnapDistance = other.nSnapDistance;
 
 	return *this;
 }

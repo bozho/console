@@ -35,6 +35,10 @@ class DlgSettingsAppearance
 			DDX_INT(IDC_POS_X, m_nX)
 			DDX_INT(IDC_POS_Y, m_nY)
 			DDX_CHECK(IDC_CHECK_SAVE_POSITION, m_positionSettings.bSavePosition)
+			DDX_CHECK(IDC_CHECK_SIZE, m_bUseSize)
+			DDX_INT(IDC_POS_W, m_nW)
+			DDX_INT(IDC_POS_H, m_nH)
+			DDX_CHECK(IDC_CHECK_SAVE_SIZE, m_positionSettings.bSaveSize)
 			DDX_CHECK(IDC_CHECK_SNAP, m_bSnapToEdges)
 			DDX_INT(IDC_SNAP, m_positionSettings.nSnapDistance)
 		END_DDX_MAP()
@@ -49,6 +53,7 @@ class DlgSettingsAppearance
 			COMMAND_HANDLER(IDC_CHECK_USE_CONSOLE_TITLE, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_TRIM_TAB_TITLES, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_POSITION, BN_CLICKED, OnClickedCheckbox)
+			COMMAND_HANDLER(IDC_CHECK_SIZE, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_SNAP, BN_CLICKED, OnClickedCheckbox)
 		END_MSG_MAP()
 
@@ -78,8 +83,11 @@ class DlgSettingsAppearance
 		CString						m_strWindowIcon;
 
 		bool						m_bUsePosition;
+		bool						m_bUseSize;
 		int							m_nX;
 		int							m_nY;
+		int							m_nW;
+		int							m_nH;
 		bool						m_bSnapToEdges;
 
 		CComboBox					m_comboDocking;

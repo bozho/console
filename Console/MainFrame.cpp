@@ -327,8 +327,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
-	if ((!positionSettings.bSavePosition) && 
-		(positionSettings.nX == -1) || (positionSettings.nY == -1))
+	if( !positionSettings.bSavePosition &&
+	    (positionSettings.nX == -1 || positionSettings.nY == -1) )
 	{
 		// do not reposition the window
 		dwFlags |= SWP_NOMOVE;
@@ -384,6 +384,14 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// if they're being called after OnCreate has finished
 	m_bOnCreateDone = true;
 
+	if( positionSettings.bSaveSize ||
+	    (positionSettings.nW != -1 && positionSettings.nH != -1) )
+	{
+		// resize the window
+		SetWindowPos(NULL, 0, 0, positionSettings.nW, positionSettings.nH, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOSENDCHANGING);
+		AdjustWindowSize(ADJUSTSIZE_WINDOW);
+	}
+
 	if( g_settingsHandler->GetAppearanceSettings().fullScreenSettings.bStartInFullScreen )
 		ShowFullScreen(true);
 
@@ -437,17 +445,27 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 		bSaveSettings = true;
 	}
 
-	if (positionSettings.bSavePosition)
+	if (positionSettings.bSavePosition || positionSettings.bSaveSize)
 	{
-		CRect rectWindow;
+		// we store position and size of the non fullscreen window
+		if( !m_bFullScreen )
+			GetWindowRect(&m_rectWndNotFS);
 
-		GetWindowRect(rectWindow);
+		if (positionSettings.bSavePosition)
+		{
+			positionSettings.nX = m_rectWndNotFS.left;
+			positionSettings.nY = m_rectWndNotFS.top;
+		}
 
-		positionSettings.nX	= rectWindow.left;
-		positionSettings.nY	= rectWindow.top;
+		if (positionSettings.bSaveSize)
+		{
+			positionSettings.nW = m_rectWndNotFS.Width();
+			positionSettings.nH = m_rectWndNotFS.Height();
+		}
 
 		bSaveSettings = true;
 	}
+
 
 	if (bSaveSettings) g_settingsHandler->SaveSettings();
 

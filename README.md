@@ -28,7 +28,7 @@ Changelog
         + added
         * fixed
 
-Changes in 1.09.0 beta 2 (31 Oct 2013)
+Changes in 1.09.0 beta 3 (6 Nov 2013)
 
         ! Title options are more consistent.
         + Focus follows mouse.
@@ -38,6 +38,8 @@ Changes in 1.09.0 beta 2 (31 Oct 2013)
           "Close All Tabs to the Right"
         + Right click on tabs: selects the tab and displays a popup menu.
         + New cusrsor that mimics the Windows console's one.
+        + Can specify an initial application window size (in pixels).
+        + Can save the application window size (in pixels) on exit.
         * Fix problem with dead chars sent to multiple consoles.
 
 Changes in 1.08.0 (28 Sep 2013)

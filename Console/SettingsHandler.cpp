@@ -1179,6 +1179,72 @@ FocusSettings& FocusSettings::operator=(const FocusSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+InstanceSettings::InstanceSettings()
+	: bAllowMultipleInstances(true)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool InstanceSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
+	CComPtr<IXMLDOMElement>	pInstanceElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"instance"), pInstanceElement))) return false;
+
+	XmlHelper::GetAttribute(pInstanceElement, CComBSTR(L"allow_multi"), bAllowMultipleInstances, true);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool InstanceSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pInstanceElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/instance"), pInstanceElement))) return false;
+
+	XmlHelper::SetAttribute(pInstanceElement, CComBSTR(L"allow_multi"), bAllowMultipleInstances);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+InstanceSettings& InstanceSettings::operator=(const InstanceSettings& other)
+{
+	bAllowMultipleInstances = other.bAllowMultipleInstances;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -1195,6 +1261,7 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	tabHighlightSettings.Load(pSettingsRoot);
 	closeSettings.Load(pSettingsRoot);
 	focusSettings.Load(pSettingsRoot);
+	instanceSettings.Load(pSettingsRoot);
 
 	return true;
 }
@@ -1211,6 +1278,7 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	tabHighlightSettings.Save(pSettingsRoot);
 	closeSettings.Save(pSettingsRoot);
 	focusSettings.Save(pSettingsRoot);
+	instanceSettings.Save(pSettingsRoot);
 
 	return true;
 }
@@ -1227,6 +1295,7 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 	tabHighlightSettings = other.tabHighlightSettings;
 	closeSettings        = other.closeSettings;
 	focusSettings        = other.focusSettings;
+	instanceSettings     = other.instanceSettings;
 
 	return *this;
 }

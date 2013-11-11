@@ -41,6 +41,7 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_CONFIRM_CLOSE_MULTI, m_behaviorSettings.closeSettings.bConfirmClosingMultipleViews)
 
 			DDX_CHECK(IDC_CHECK_FOCUS_FOLLOW_MOUSE, m_behaviorSettings.focusSettings.bFollowMouse)
+			DDX_CHECK(IDC_CHECK_MULTI_INSTANCES, m_behaviorSettings.instanceSettings.bAllowMultipleInstances)
 
 		END_DDX_MAP()
 

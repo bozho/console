@@ -269,6 +269,7 @@
 #define IDC_SPIN_W                      1200
 #define IDC_POS_H                       1201
 #define IDC_SPIN_H                      1202
+#define IDC_CHECK_MULTI_INSTANCES       1203
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -327,7 +328,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        219
 #define _APS_NEXT_COMMAND_VALUE         32800
-#define _APS_NEXT_CONTROL_VALUE         1203
+#define _APS_NEXT_CONTROL_VALUE         1204
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

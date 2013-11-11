@@ -400,6 +400,23 @@ struct FocusSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct InstanceSettings : public SettingsBase
+{
+	InstanceSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	InstanceSettings& operator=(const InstanceSettings& other);
+
+	bool bAllowMultipleInstances;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -414,6 +431,7 @@ struct BehaviorSettings : public SettingsBase
 	TabHighlightSettings tabHighlightSettings;
 	CloseSettings        closeSettings;
 	FocusSettings        focusSettings;
+	InstanceSettings     instanceSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

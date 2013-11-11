@@ -151,8 +151,6 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
     if (strConfigFile.length() == 0)
     {
       strConfigFile = wstring(L"console.xml");
-      //		strConfigFile = Helpers::GetModulePath(NULL) + wstring(L"console.xml");
-      //		strConfigFile = wstring(::_wgetenv(L"APPDATA")) + wstring(L"\\Console\\console.xml");
     }
 
     if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
@@ -160,8 +158,13 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
       throw std::exception("enable to load settings!");
     }
 
+		if (!bReuse)
+		{
+			bReuse = !g_settingsHandler->GetBehaviorSettings().instanceSettings.bAllowMultipleInstances;
+		}
+
 		if (!strSyncName.empty())
-    {
+		{
 			wstring strWindowTitle;
 			vector<wstring> startupTabs;
 			vector<wstring> startupDirs;

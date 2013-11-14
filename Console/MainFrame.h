@@ -372,6 +372,7 @@ class MainFrame
 
 		int     m_nFullSreen1Bitmap;
 		int     m_nFullSreen2Bitmap;
+		HWND    m_hwndPreviousForeground;
 };
 
 //////////////////////////////////////////////////////////////////////////////

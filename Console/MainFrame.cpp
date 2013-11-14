@@ -107,6 +107,7 @@ MainFrame::MainFrame
 , m_bRestoringWindow(false)
 , m_rectRestoredWnd(0, 0, 0, 0)
 , m_bAppActive(true)
+, m_hwndPreviousForeground(NULL)
 {
 	m_Margins.cxLeftWidth    = 0;
 	m_Margins.cxRightWidth   = 0;
@@ -555,11 +556,11 @@ void MainFrame::ShowHideWindow(void)
   bool bQuake = g_settingsHandler->GetAppearanceSettings().stylesSettings.bQuake;
   bool bActivate = true;
 
-  DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
-  DWORD dwHideFlags     = AW_HIDE     | AW_SLIDE;
-
   if( bQuake )
   {
+		DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
+		DWORD dwHideFlags     = AW_HIDE     | AW_SLIDE;
+
     switch( m_dockPosition )
     {
     case dockNone:
@@ -583,24 +584,39 @@ void MainFrame::ShowHideWindow(void)
       dwHideFlags     |= AW_VER_POSITIVE;
       break;
     }
-  }
 
-  if( bQuake )
-  {
-    if(!::IsWindowVisible(m_hWnd))
-    {
-      ::AnimateWindow(m_hWnd, 300, dwActivateFlags);
-    }
-    else if(m_bAppActive)
-    {
-      ::AnimateWindow(m_hWnd, 300, dwHideFlags);
-      bActivate = false;
-    }
-  }
-  else
-  {
-    ShowWindow(this->IsIconic()?SW_RESTORE:SW_SHOW);
-  }
+		if(!m_bAppActive)
+		{
+			this->m_hwndPreviousForeground = ::GetForegroundWindow();
+		}
+
+		if(!this->IsWindowVisible())
+		{
+			::AnimateWindow(m_hWnd, 300, dwActivateFlags);
+		}
+		else if(m_bAppActive)
+		{
+			::AnimateWindow(m_hWnd, 300, dwHideFlags);
+			::SetForegroundWindow(this->m_hwndPreviousForeground);
+			bActivate = false;
+		}
+	}
+	else
+	{
+		if( this->IsIconic() )
+		{
+			this->ShowWindow(SW_RESTORE);
+		}
+		else if(m_bAppActive)
+		{
+			this->ShowWindow(SW_MINIMIZE);
+			bActivate = false;
+		}
+		else
+		{
+			this->ShowWindow(SW_SHOW);
+		}
+	}
 
   if( bActivate )
   {

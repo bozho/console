@@ -29,7 +29,7 @@ class DlgSettingsConsole
 			DDX_UINT_RANGE(IDC_ROWS, m_consoleSettings.dwRows, static_cast<DWORD>(10), static_cast<DWORD>(200))
 			DDX_UINT_RANGE(IDC_COLUMNS, m_consoleSettings.dwColumns, static_cast<DWORD>(10), static_cast<DWORD>(200))
 			DDX_CHECK(IDC_CHECK_SAVE_SIZE, m_consoleSettings.bSaveSize)
-			DDX_UINT_RANGE(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows, static_cast<DWORD>(0), static_cast<DWORD>(9999))
+			DDX_UINT_RANGE(IDC_BUFFER_ROWS, m_consoleSettings.dwBufferRows, static_cast<DWORD>(0), static_cast<DWORD>(32766))
 			DDX_UINT_RANGE(IDC_BUFFER_COLUMNS, m_consoleSettings.dwBufferColumns, static_cast<DWORD>(0), static_cast<DWORD>(200))
 		END_DDX_MAP()
 

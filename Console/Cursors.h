@@ -17,19 +17,20 @@
 
 enum CursorStyle
 {
-	cstyleXTerm		=	0,
-	cstyleBlock		=	1,
-	cstyleNBBlock	=	2,
-	cstylePulseBlock=	3,
-	cstyleBar		=	4,
-	cstyleNBHline	=	5,
-	cstyleHLine		=	6,
-	cstyleVLine		=	7,
-	cstyleRect		=	8,
-	cstyleNBRect	=	9,
-	cstylePulseRect	=	10,
-	cstyleFadeBlock	=	11,
-	cstyleConsole	=	12
+	cstyleXTerm      = 0,
+	cstyleBlock      = 1,
+	cstyleNBBlock    = 2,
+	cstylePulseBlock = 3,
+	cstyleBar        = 4,
+	cstyleNBHline    = 5,
+	cstyleHLine      = 6,
+	cstyleVLine      = 7,
+	cstyleRect       = 8,
+	cstyleNBRect     = 9,
+	cstylePulseRect  = 10,
+	cstyleFadeBlock  = 11,
+	cstyleConsole    = 12,
+	cstyleXTerm2     = 13,
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -163,6 +164,30 @@ class XTermCursor : public Cursor
 private:
     CursorCharDrawer* m_pdrawer;
     bool              m_bActive;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+// XTerm2Cursor
+
+class XTerm2Cursor : public Cursor
+{
+	public:
+		XTerm2Cursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer*, bool bTimer);
+		~XTerm2Cursor() {}
+
+		void Draw(bool bActive, DWORD dwCursorSize);
+
+		void BitBlt(CDC& offscreenDC, int x, int y);
+
+		void PrepareNext();
+
+private:
+		CursorCharDrawer* m_pdrawer;
+		bool              m_bActive;
+		bool              m_bVisible;
 };
 
 //////////////////////////////////////////////////////////////////////////////

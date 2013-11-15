@@ -30,6 +30,16 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 															pdrawer)));
 			break;
 
+		case cstyleXTerm2 :
+			newCursor.reset(dynamic_cast<Cursor*>(new XTerm2Cursor(
+															hwndConsoleView,
+															dcConsoleView,
+															rectCursor,
+															crCursorColor,
+															pdrawer,
+															bTimer)));
+			break;
+
 		case cstyleBlock :
 			newCursor.reset(dynamic_cast<Cursor*>(new BlockCursor(
 															hwndConsoleView,
@@ -191,6 +201,70 @@ void XTermCursor::BitBlt(CDC& offscreenDC, int x, int y)
 	{
 		Cursor::BitBlt(offscreenDC, x, y);
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+// XTerm2Cursor
+
+XTerm2Cursor::XTerm2Cursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, CursorCharDrawer* pdrawer, bool bTimer)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
+, m_pdrawer(pdrawer)
+, m_bActive(false)
+, m_bVisible(true)
+{
+	UINT uiRate = ::GetCaretBlinkTime();
+	if (uiRate == 0) uiRate = 500;
+
+	if( bTimer )
+		m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void XTerm2Cursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
+{
+	m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
+	m_dcCursor.FrameRect(&m_rectCursor, m_paintBrush);
+	m_bActive = bActive;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void XTerm2Cursor::BitBlt(CDC& offscreenDC, int x, int y)
+{
+	if( m_bActive )
+	{
+		if( !m_bVisible ) return;
+		m_pdrawer->RedrawCharOnCursor(offscreenDC);
+	}
+	else
+	{
+		Cursor::BitBlt(offscreenDC, x, y);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void XTerm2Cursor::PrepareNext()
+{
+	m_bVisible = !m_bVisible;
 }
 
 //////////////////////////////////////////////////////////////////////////////

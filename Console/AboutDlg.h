@@ -73,10 +73,10 @@ public:
     dtto.crText    = RGB(191,191,255);
     dtto.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR | DTT_GLOWSIZE;
 
-    CRect rectVersion(0x14,0x10,0x14+0x9A,0x10+0xA0);
+    CRect rectVersion(0x24,0x10,0x24+0x9A,0x10+0xA0);
     CString strMsgVersion;
     strMsgVersion.Format(
-      L"\nConsoleZ %i.%i.%i\n"
+      L"\nConsoleZ %i.%i.%i.%i\n"
       L"Copyleft (ↄ)\n"
       L"2011-2013\n"
       L"Christophe Bucher\n"
@@ -84,7 +84,7 @@ public:
       L"a modified version of\n"
       L"Console 2 from\n"
       L"Marko Bozikovic"
-      , VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD);
+      , VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_BUILD2);
     this->DrawTextW(dc, strMsgVersion, rectVersion, DT_CENTER | DT_VCENTER, dtto);
   }
 #endif

@@ -216,7 +216,14 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
       size_t pos = strIcon.find_last_of(L',');
       if( pos != wstring::npos )
       {
-        for(size_t i = pos + 1; i < strIcon.length(); ++i)
+        bool negative = false;
+        size_t i = pos + 1;
+        if( strIcon.at(i) == L'-' )
+        {
+          i ++;
+          negative = true;
+        }
+        for(; i < strIcon.length(); ++i)
         {
           if( strIcon.at(i) >= L'0' && strIcon.at(i) <= L'9' )
           {
@@ -229,6 +236,8 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
             break;
           }
         }
+        if( negative )
+          index = -index;
       }
 
       wstring strIconPath = ok ? strIcon.substr(0, pos) : strIcon;

@@ -2,6 +2,7 @@
 #pragma once
 
 #include "DlgSettingsBase.h"
+#include "CFileNameEdit.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -76,6 +77,9 @@ class DlgSettingsConsole
 
 		CString         m_strShell;
 		CString         m_strInitialDir;
+
+		CFileNameEdit   m_ShellEdit;
+		CFileNameEdit   m_InitialDirEdit;
 
 #ifdef _USE_AERO
 		CTrackBarCtrl   m_sliderBGTextOpacity;

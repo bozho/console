@@ -260,6 +260,9 @@
     <ClInclude Include="..\wtl\wtl\include\multisplit.h">
       <Filter>Header Files\GUI custom</Filter>
     </ClInclude>
+    <ClInclude Include="CFileNameEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Console.ico">

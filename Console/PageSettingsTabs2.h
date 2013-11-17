@@ -2,6 +2,7 @@
 #pragma once
 
 #include "PageSettingsTab.h"
+#include "CFileNameEdit.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -74,6 +75,8 @@ class PageSettingsTabs2
 		CStatic			m_staticCursorColor;
 		CStatic			m_staticBkColor;
 		CStatic			m_staticTintColor;
+
+		CFileNameEdit m_bkImageEdit;
 
 		int				m_nBkType;
 		CString			m_strBkImage;

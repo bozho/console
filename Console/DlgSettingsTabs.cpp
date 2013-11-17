@@ -73,14 +73,13 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	rect.DeflateRect(10, 25, 10, 10);
 
 	m_page1.Create(m_hWnd, rect);
-	m_page1.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER);
-	m_page1.ShowWindow(SW_SHOW);
+	m_page1.SetWindowPos(HWND_TOP, rect.left, rect.top, rect.Width(), rect.Height(), SWP_SHOWWINDOW);
 
 	m_page2.Create(m_hWnd, rect);
-	m_page2.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER);
+	m_page2.SetWindowPos(HWND_TOP, rect.left, rect.top, rect.Width(), rect.Height(), 0);
 
 	m_page3.Create(m_hWnd, rect);
-	m_page3.SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), SWP_NOZORDER);
+	m_page3.SetWindowPos(HWND_TOP, rect.left, rect.top, rect.Width(), rect.Height(), 0);
 
 	m_tabCtrl.SetCurSel(0);
 	m_listCtrl.SelectItem(0);

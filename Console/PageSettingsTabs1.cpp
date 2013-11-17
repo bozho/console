@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "resource.h"
 
-#include "Cursors.h"
 #include "PageSettingsTabs1.h"
 
 extern std::shared_ptr<SettingsHandler>	g_settingsHandler;
@@ -27,6 +26,7 @@ PageSettingsTabs1::PageSettingsTabs1()
 , m_strUser(L"")
 , m_bNetOnly(false)
 , m_bRunAsAdmin(false)
+, m_tabShellEdit(this)
 {
 }
 
@@ -49,6 +49,9 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_staticCursorAnim.Attach(GetDlgItem(IDC_CURSOR_ANIM));
 	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
 	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
+	m_tabIconEdit.SubclassWindow(GetDlgItem(IDC_TAB_ICON));
+	m_tabShellEdit.SubclassWindow(GetDlgItem(IDC_TAB_SHELL));
+	m_tabInitialDirEdit.SubclassWindow(GetDlgItem(IDC_TAB_INIT_DIR));
 
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
@@ -176,75 +179,9 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*
 
 	if (fileDialog.DoModal() == IDOK)
 	{
-		m_strShell = fileDialog.m_szFileName;
-		if( m_strShell.Right(4).CompareNoCase(L".lnk") == 0 )
-		{
-			CComPtr<IShellLink> shellLink;
-			if( SUCCEEDED(shellLink.CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER)) )
-			{
-				CComPtr<IPersistFile> persistFile;
-				if( SUCCEEDED(shellLink.QueryInterface(&persistFile)) )
-				{
-					if( SUCCEEDED(persistFile->Load(m_strShell, STGM_READ)) &&
-					    SUCCEEDED(shellLink->Resolve(m_hWnd, 0)) )
-					{
-						WCHAR szBuffer[MAX_PATH];
-						WCHAR szBuffer2[2048];
-						WIN32_FIND_DATA wfd;
+		CString strShell(fileDialog.m_szFileName);
 
-						if( SUCCEEDED(shellLink->GetPath(szBuffer, MAX_PATH, (WIN32_FIND_DATA*)&wfd, SLGP_SHORTPATH)) &&
-						    SUCCEEDED(shellLink->GetArguments(szBuffer2, ARRAYSIZE(szBuffer2))) )
-						{
-							m_strShell = szBuffer;
-
-							if( m_strShell.Find(L' ') != -1 )
-							{
-								m_strShell.Insert(0, L'"');
-								m_strShell.Insert(m_strShell.GetLength(), L'"');
-							}
-
-							m_strShell += L" ";
-							m_strShell += szBuffer2;
-
-						}
-
-						if( SUCCEEDED(shellLink->GetWorkingDirectory(szBuffer, MAX_PATH)) )
-						{
-							m_strInitialDir = szBuffer;
-						}
-
-						int iIcon = 0;
-						if( SUCCEEDED(shellLink->GetIconLocation(szBuffer, MAX_PATH, &iIcon)) )
-						{
-							m_strIcon = szBuffer;
-							if( iIcon )
-							{
-								swprintf_s<MAX_PATH>(szBuffer, L",%i", iIcon);
-								m_strIcon += szBuffer;
-							}
-						}
-
-						CComPtr<IShellLinkDataList> dataList;
-						DWORD dwFlags;
-						if( SUCCEEDED(shellLink.QueryInterface(&dataList)) &&
-						    SUCCEEDED(dataList->GetFlags(&dwFlags)) )
-						{
-							m_bRunAsAdmin = (dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER;
-						}
-					}
-				}
-			}
-		}
-		else
-		{
-			if( m_strShell.Find(L' ') != -1 )
-			{
-				m_strShell.Insert(0, L'"');
-				m_strShell.Insert(m_strShell.GetLength(), L'"');
-			}
-		}
-
-		DoDataExchange(DDX_LOAD);
+		this->ConvertShellLink(strShell);
 	}
 
 	return 0;
@@ -467,4 +404,95 @@ void PageSettingsTabs1::DrawCursor(CDC& dc, const CRect& rectCursorAnim, COLORRE
   dc.LineTo(rectChar.right, rectChar.bottom);
   dc.MoveTo(rectChar.right, rectChar.top   );
   dc.LineTo(rectChar.left , rectChar.bottom);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void PageSettingsTabs1::ConvertShellLink(CString& strShell)
+{
+	m_strShell = strShell;
+
+	if( m_strShell.Right(4).CompareNoCase(L".lnk") == 0 )
+	{
+		CComPtr<IShellLink> shellLink;
+		if( SUCCEEDED(shellLink.CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER)) )
+		{
+			CComPtr<IPersistFile> persistFile;
+			if( SUCCEEDED(shellLink.QueryInterface(&persistFile)) )
+			{
+				if( SUCCEEDED(persistFile->Load(m_strShell, STGM_READ)) &&
+					  SUCCEEDED(shellLink->Resolve(m_hWnd, 0)) )
+				{
+					WCHAR szBuffer[MAX_PATH];
+					WCHAR szBuffer2[2048];
+					WIN32_FIND_DATA wfd;
+
+					if( SUCCEEDED(shellLink->GetPath(szBuffer, MAX_PATH, (WIN32_FIND_DATA*)&wfd, SLGP_SHORTPATH)) &&
+						  SUCCEEDED(shellLink->GetArguments(szBuffer2, ARRAYSIZE(szBuffer2))) )
+					{
+						m_strShell = szBuffer;
+
+						if( m_strShell.Find(L' ') != -1 )
+						{
+							m_strShell.Insert(0, L'"');
+							m_strShell.Insert(m_strShell.GetLength(), L'"');
+						}
+
+						m_strShell += L" ";
+						m_strShell += szBuffer2;
+
+					}
+
+					if( SUCCEEDED(shellLink->GetWorkingDirectory(szBuffer, MAX_PATH)) )
+					{
+						m_strInitialDir = szBuffer;
+					}
+
+					int iIcon = 0;
+					if( SUCCEEDED(shellLink->GetIconLocation(szBuffer, MAX_PATH, &iIcon)) )
+					{
+						m_strIcon = szBuffer;
+						if( iIcon )
+						{
+							swprintf_s<MAX_PATH>(szBuffer, L",%i", iIcon);
+							m_strIcon += szBuffer;
+						}
+						m_bUseDefaultIcon = m_strIcon.IsEmpty();
+					}
+
+					CComPtr<IShellLinkDataList> dataList;
+					DWORD dwFlags;
+					if( SUCCEEDED(shellLink.QueryInterface(&dataList)) &&
+						  SUCCEEDED(dataList->GetFlags(&dwFlags)) )
+					{
+						m_bRunAsAdmin = (dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if( m_strShell.Find(L' ') != -1 )
+		{
+			m_strShell.Insert(0, L'"');
+			m_strShell.Insert(m_strShell.GetLength(), L'"');
+		}
+	}
+
+	DoDataExchange(DDX_LOAD);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CFileNameAndLinkEdit::OnDropFile(CString& strFilename)
+{
+	p->ConvertShellLink(strFilename);
+	return false;
 }

@@ -53,6 +53,8 @@ LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_staticBkColor.Attach(GetDlgItem(IDC_BK_COLOR));
 	m_staticTintColor.Attach(GetDlgItem(IDC_TINT_COLOR));
 
+	m_bkImageEdit.SubclassWindow(GetDlgItem(IDC_BK_IMAGE));
+
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
 }

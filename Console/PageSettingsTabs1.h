@@ -2,6 +2,19 @@
 
 #include "PageSettingsTab.h"
 #include "Cursors.h"
+#include "CFileNameEdit.h"
+
+class PageSettingsTabs1;
+
+class CFileNameAndLinkEdit: public CFileNameEdit
+{
+public:
+	CFileNameAndLinkEdit(PageSettingsTabs1* p):p(p) {}
+	virtual bool OnDropFile(CString& strFilename);
+
+private:
+	PageSettingsTabs1* p;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -87,6 +100,8 @@ class PageSettingsTabs1
 
 		virtual void RedrawCharOnCursor(CDC& dc);
 
+		void ConvertShellLink(CString& strShell);
+
 private:
   void SetCursor(void);
   void DrawCursor(void);
@@ -110,6 +125,10 @@ private:
 		CString			m_strUser;
 		bool			m_bNetOnly;
 		bool			m_bRunAsAdmin;
+
+		CFileNameEdit        m_tabIconEdit;
+		CFileNameAndLinkEdit m_tabShellEdit;
+		CFileNameEdit        m_tabInitialDirEdit;
 public:
   LRESULT OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };

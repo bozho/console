@@ -78,6 +78,9 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	spin.SetAccel(1, &udAccel);
 	spin.Detach();
 
+	m_ShellEdit.SubclassWindow(GetDlgItem(IDC_SHELL));
+	m_InitialDirEdit.SubclassWindow(GetDlgItem(IDC_INIT_DIR));
+
 #ifdef _USE_AERO
 	m_staticBGTextOpacity.Attach(GetDlgItem(IDC_BGTEXT_OPACITY_VAL));
 	m_sliderBGTextOpacity.Attach(GetDlgItem(IDC_BGTEXT_OPACITY));

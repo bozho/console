@@ -647,6 +647,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="..\wtl\wtl\include\multisplit.h" />
     <ClInclude Include="AboutDlg.h" />
     <ClInclude Include="AeroTabCtrl.h" />
+    <ClInclude Include="CFileNameEdit.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="ConsoleException.h" />
     <ClInclude Include="ConsoleHandler.h" />

@@ -3010,6 +3010,9 @@ void MainFrame::SetTransparency()
 
       if( (dwStyle & WS_CAPTION) != WS_CAPTION && (dwStyle & WS_THICKFRAME) != WS_THICKFRAME )
       {
+        MARGINS m = {0, 0, 0, 0};
+        ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
+
         DWM_BLURBEHIND bb = {0};
         bb.dwFlags = DWM_BB_ENABLE;
         bb.fEnable = FALSE;

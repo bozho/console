@@ -126,11 +126,10 @@ void JumpList::CreateList(TabDataVector& tabDataVector)
   for (TabDataVector::iterator it = tabDataVector.begin(); it != tabDataVector.end(); ++it)
   {
     CComPtr<IShellLink> psl;
-    wstring quotedName(L"-reuse -t \"");
-    quotedName.append((*it)->strTitle);
-    quotedName.append(L"\" -c \"");
-    quotedName.append(g_settingsHandler->GetSettingsFileName());
-    quotedName.append(L"\"");
+    wstring quotedName(L"-reuse -t ");
+    quotedName.append(Helpers::EscapeCommandLineArg((*it)->strTitle));
+    quotedName.append(L" -c ");
+    quotedName.append(Helpers::EscapeCommandLineArg(g_settingsHandler->GetSettingsFileName()));
     if (SUCCEEDED(_CreateShellLink(quotedName.c_str(), (*it)->strTitle.c_str(), &psl)))
     {
       SetIcon(psl, *it);

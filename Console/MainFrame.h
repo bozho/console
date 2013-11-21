@@ -53,7 +53,8 @@ class MainFrame
 			vector<wstring>& startupTabs,
 			vector<wstring>& startupDirs,
 			vector<wstring>& startupCmds,
-			int& nMultiStartSleep
+			int& nMultiStartSleep,
+			std::wstring& strWorkingDir
 		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -316,7 +317,8 @@ class MainFrame
 			vector<wstring> startupTabs,
 			vector<wstring> startupCmds,
 			vector<wstring> startupDirs,
-			int nMultiStartSleep
+			int nMultiStartSleep,
+			std::wstring strWorkingDir
 		);
 		LRESULT OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
@@ -327,6 +329,7 @@ class MainFrame
 		vector<wstring>	m_startupDirs;
 		vector<wstring>	m_startupCmds;
 		int						m_nMultiStartSleep;
+		wstring m_strWorkingDir;
 
 		std::shared_ptr<TabView>	m_activeTabView;
 

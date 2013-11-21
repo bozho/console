@@ -17,6 +17,9 @@ class Helpers
 		static wstring GetModulePath(HINSTANCE hInstance);
 		static wstring GetModuleFileName(HINSTANCE hInstance);
 
+		static wstring GetCurrentDirectory(void);
+		static wstring EscapeCommandLineArg(const wstring& str);
+
 		static wstring ExpandEnvironmentStrings(const wstring& str);
 		static wstring ExpandEnvironmentStringsForUser(HANDLE userToken, const wstring& str);
 

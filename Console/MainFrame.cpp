@@ -27,7 +27,8 @@ void MainFrame::ParseCommandLine
 	vector<wstring>& startupTabs,
 	vector<wstring>& startupDirs,
 	vector<wstring>& startupCmds,
-	int& nMultiStartSleep
+	int& nMultiStartSleep,
+	std::wstring& strWorkingDir
 )
 {
 	int argc = 0;
@@ -73,6 +74,12 @@ void MainFrame::ParseCommandLine
 			nMultiStartSleep = _wtoi(argv[i]);
 			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
 		}
+		else if (wstring(argv[i]) == wstring(L"-cwd"))
+		{
+			++i;
+			if (i == argc) break;
+			strWorkingDir = argv[i];
+		}
 	}
 
 	// make sure that startupDirs and startupCmds are at least as big as startupTabs
@@ -89,6 +96,7 @@ MainFrame::MainFrame
 , m_startupDirs(vector<wstring>(0))
 , m_startupCmds(vector<wstring>(0))
 , m_nMultiStartSleep(0)
+, m_strWorkingDir(L"")
 , m_activeTabView()
 , m_bMenuVisible     (true)
 , m_bMenuChecked     (true)
@@ -122,7 +130,8 @@ MainFrame::MainFrame
 		m_startupTabs,
 		m_startupDirs,
 		m_startupCmds,
-		m_nMultiStartSleep);
+		m_nMultiStartSleep,
+		m_strWorkingDir);
 	m_strCmdLineWindowTitle = strWindowTitle.c_str();
 	m_strWindowTitle = strWindowTitle.c_str();
 }
@@ -170,7 +179,8 @@ LRESULT MainFrame::CreateInitialTabs
 	vector<wstring> startupTabs,
 	vector<wstring> startupCmds,
 	vector<wstring> startupDirs,
-	int nMultiStartSleep
+	int nMultiStartSleep,
+	std::wstring strWorkingDir
 )
 {
 	bool bAtLeastOneStarted = false;
@@ -184,7 +194,7 @@ LRESULT MainFrame::CreateInitialTabs
 		if (startupDirs.size() > 0) strStartupDir = startupDirs[0];
 		if (startupCmds.size() > 0) strStartupCmd = startupCmds[0];
 
-		bAtLeastOneStarted = CreateNewConsole(0, strStartupDir, strStartupCmd);
+		bAtLeastOneStarted = CreateNewConsole(0, strStartupDir.empty()? strWorkingDir : strStartupDir, strStartupCmd);
 	}
 	else
 	{
@@ -202,7 +212,7 @@ LRESULT MainFrame::CreateInitialTabs
 					// found it, create
 					if (CreateNewConsole(
 						static_cast<DWORD>(i),
-						startupDirs[tabIndex],
+						startupDirs[tabIndex].empty()? strWorkingDir : startupDirs[tabIndex],
 						startupCmds[tabIndex]))
 					{
 						bAtLeastOneStarted = true;
@@ -300,7 +310,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	CreateTabWindow(m_hWnd, rcDefault, dwTabStyles);
 
-	if (LRESULT created = CreateInitialTabs(m_startupTabs, m_startupCmds, m_startupDirs, m_nMultiStartSleep))
+	if (LRESULT created = CreateInitialTabs(m_startupTabs, m_startupCmds, m_startupDirs, m_nMultiStartSleep, m_strWorkingDir))
 		return created;
 
 	UIAddToolBar(hWndToolBar);
@@ -3352,11 +3362,12 @@ LRESULT MainFrame::OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	vector<wstring> startupCmds;
 	vector<wstring> startupDirs;
 	int nMultiStartSleep = 0;
+	wstring strWorkingDir;
 
 	wstring ignoreTitle;
 
-	ParseCommandLine((LPCTSTR)cds->lpData, ignoreTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep);
-	CreateInitialTabs(startupTabs, startupCmds, startupDirs, nMultiStartSleep);
+	ParseCommandLine((LPCTSTR)cds->lpData, ignoreTitle, startupTabs, startupDirs, startupCmds, nMultiStartSleep, strWorkingDir);
+	CreateInitialTabs(startupTabs, startupCmds, startupDirs, nMultiStartSleep, strWorkingDir);
 
 	return 0;
 }

@@ -43,6 +43,37 @@ wstring Helpers::GetModuleFileName(HINSTANCE hInstance)
 
 //////////////////////////////////////////////////////////////////////////////
 
+wstring Helpers::GetCurrentDirectory(void)
+{
+	wchar_t szCD[MAX_PATH] = L"";
+
+	if( ::GetCurrentDirectory(MAX_PATH, szCD) == 0 )
+		return wstring();
+	else
+		return wstring(szCD);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+wstring Helpers::EscapeCommandLineArg(const wstring& str)
+{
+	wstring result(L"\"");
+	result += str;
+	if( str.back() == L'\\' )
+		result += L"\\";
+	result += L"\"";
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 wstring Helpers::ExpandEnvironmentStrings(const wstring& str)
 {
 	wchar_t szExpanded[0x8000] = L"";

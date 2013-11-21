@@ -88,30 +88,25 @@ void ConsoleHandler::RunAsAdministrator
 
 	std::wstring strParams;
 	// admin sync name
-	strParams += L"-a \"";
-	strParams += strSyncName;
-	strParams += L"\"";
+	strParams += L"-a ";
+	strParams += Helpers::EscapeCommandLineArg(strSyncName);
 	// config file
-	strParams += L" -c \"";
-	strParams += g_settingsHandler->GetSettingsFileName();
-	strParams += L"\"";
+	strParams += L" -c ";
+	strParams += Helpers::EscapeCommandLineArg(g_settingsHandler->GetSettingsFileName());
 	// tab name
-	strParams += L" -t \"";
-	strParams += strTitle;
-	strParams += L"\"";
+	strParams += L" -t ";
+	strParams += Helpers::EscapeCommandLineArg(strTitle);
 	// directory
 	if (!strInitialDir.empty())
 	{
-		strParams += L" -d \"";
-		strParams += strInitialDir.empty();
-		strParams += L"\"";
+		strParams += L" -d ";
+		strParams += Helpers::EscapeCommandLineArg(strInitialDir);
 	}
 	// startup shell command
 	if (!strInitialCmd.empty())
 	{
-		strParams += L" -r \"";
-		strParams += strInitialCmd.empty();
-		strParams += L"\"";
+		strParams += L" -r ";
+		strParams += Helpers::EscapeCommandLineArg(strInitialCmd);
 	}
 
 	SHELLEXECUTEINFO sei = {sizeof(sei)};

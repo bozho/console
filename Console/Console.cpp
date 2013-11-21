@@ -118,11 +118,15 @@ static bool HandleReuse(LPCTSTR lpstrCmdLine)
 	{
 		::SetForegroundWindow(*sharedInstance);
 
+		std::wstring commandLine = lpstrCmdLine;
+		commandLine += L" -cwd ";
+		commandLine += Helpers::EscapeCommandLineArg(Helpers::GetCurrentDirectory());
+
 		COPYDATASTRUCT cds = {0};
 		cds.dwData = 0;
-		cds.lpData = (LPVOID)lpstrCmdLine;
-		cds.cbData = static_cast<DWORD>((_tcslen(lpstrCmdLine) + 1) * sizeof(TCHAR));
-		
+		cds.lpData = (LPVOID)commandLine.c_str();
+		cds.cbData = static_cast<DWORD>((commandLine.length() + 1) * sizeof(wchar_t));
+
 		::SendMessage(*sharedInstance, WM_COPYDATA, 0, (LPARAM)&cds);
 
 		return true;
@@ -170,6 +174,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 			vector<wstring> startupDirs;
 			vector<wstring> startupCmds;
 			int nMultiStartSleep = 0;
+			wstring strWorkingDir;
 
 			MainFrame::ParseCommandLine
 			(
@@ -178,7 +183,8 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 				startupTabs,
 				startupDirs,
 				startupCmds,
-				nMultiStartSleep
+				nMultiStartSleep,
+				strWorkingDir
 			);
 
 			TabSettings& tabSettings = g_settingsHandler->GetTabSettings();
@@ -206,7 +212,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 						strShell	= tabData->get()->strShell;
 					}
 
-					wstring strInitialCmd;
+					wstring strInitialCmd = strWorkingDir;
 
 					if (startupCmds.size() > 0 && startupCmds[0].length() > 0)
 					{

@@ -28,23 +28,34 @@ Changelog
         + added
         * fixed
 
-Changes in 1.09.0 beta 3 (6 Nov 2013)
+Changes in 1.09.0 beta 6 (22 Nov 2013)
 
         ! Title options are more consistent.
+        ! Activate Console (global) hotkey minimizes the application if active.
+        ! Quake like: activates the previous application when hiding.
+        ! Buffer rows limit increased to 32766.
         + Focus follows mouse.
         + New actions in "File" menu:
           "Close All Tabs BUT This"
           "Close All Tabs to the Left"
           "Close All Tabs to the Right"
         + Right click on tabs: selects the tab and displays a popup menu.
-        + New cusrsor that mimics the Windows console's one.
+        + New cursor that mimics the Windows console's one.
         + Can specify an initial application window size (in pixels).
         + Can save the application window size (in pixels) on exit.
+        + Allow multiple instances (or single instance).
+        + Blinking XTerm Cursor.
+        + Support of drag and drop in settings.
+        + Can hide icons in tabs bar.
         * Fix problem with dead chars sent to multiple consoles.
+        * Fix icon extraction with negative index.
+        * Fix a visual bug when caption and resize are removed.
+        * Transmit the current working directory when application instance is reused.
+        * Maximized application was retored at wrong position.
 
 Changes in 1.08.0 (28 Sep 2013)
 
-        ! Prettier split bar (aero only)
+        ! Prettier split bar (aero only).
         + Displays intensified colors in bold.
         + Displays intensified colors in italic.
         + User can configure an extra width added to the fixed width of the font.
@@ -61,7 +72,7 @@ Changes in 1.08.0 (28 Sep 2013)
         * Pressing alt key will switch the menu bar visibility only if menu bar is not permanently on.
         * Fix pasting to multiple views when views are grouped.
         * Inputs are no longer sent to views do not belong to the group.
-        * Active view cannot be painted (and 100% cpu)
+        * Active view cannot be painted (and 100% cpu).
 
 Changes in 1.07.1 (05 Jul 2013)
 

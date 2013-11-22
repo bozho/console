@@ -691,7 +691,8 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
   switch( GET_SC_WPARAM(wParam) )
   {
   case SC_RESTORE:
-    m_bRestoringWindow = true;
+		if( this->IsZoomed() )
+			m_bRestoringWindow = true;
     break;
 
   case SC_MAXIMIZE:

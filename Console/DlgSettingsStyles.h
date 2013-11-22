@@ -38,6 +38,7 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_USE_JUMPLIST, m_stylesSettings.bJumplist)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType))
+			DDX_CHECK(IDC_CHECK_HIDE_TAB_ICONS, m_controlsSettings.bHideTabIcons)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsStyles)

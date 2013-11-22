@@ -2174,7 +2174,10 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
 	CString strTabTitle;
 	tabView->GetWindowText(strTabTitle);
 
-	AddTabWithIcon(hwndTabView, strTabTitle, tabView->GetIcon(false));
+	if( g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideTabIcons )
+		AddTab(hwndTabView, strTabTitle);
+	else
+		AddTabWithIcon(hwndTabView, strTabTitle, tabView->GetIcon(false));
 	DisplayTab(hwndTabView, FALSE);
 	::SetForegroundWindow(m_hWnd);
 

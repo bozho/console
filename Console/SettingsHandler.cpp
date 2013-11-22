@@ -417,6 +417,7 @@ ControlsSettings::ControlsSettings()
 , bShowTabs(true)
 , bHideSingleTab(false)
 , bTabsOnBottom(false)
+, bHideTabIcons(false)
 , bShowScrollbars(true)
 , bFlatScrollbars(false)
 {
@@ -439,6 +440,7 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, false);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"tabs_on_bottom"), bTabsOnBottom, false);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_tab_icons"), bHideTabIcons, false);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_scrollbars"), bShowScrollbars, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"flat_scrollbars"), bFlatScrollbars, false);
 
@@ -462,6 +464,7 @@ bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"tabs_on_bottom"), bTabsOnBottom);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_tab_icons"), bHideTabIcons);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_scrollbars"), bShowScrollbars);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"flat_scrollbars"), bFlatScrollbars);
 
@@ -481,6 +484,7 @@ ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
 	bShowTabs		= other.bShowTabs;
 	bHideSingleTab	= other.bHideSingleTab;
 	bTabsOnBottom	= other.bTabsOnBottom;
+	bHideTabIcons	= other.bHideTabIcons;
 	bShowScrollbars	= other.bShowScrollbars;
 	bFlatScrollbars	= other.bFlatScrollbars;
 

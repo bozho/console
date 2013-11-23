@@ -290,6 +290,11 @@
 #define ID_RIGHT_VIEW                   2213
 #define ID_TOP_VIEW                     2214
 #define ID_BOTTOM_VIEW                  2215
+#define ID_DEC_HORIZ_SIZE               2216
+#define ID_INC_HORIZ_SIZE               2217
+#define ID_DEC_VERT_SIZE                2218
+#define ID_INC_VERT_SIZE                2219
+
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000
 #define IDS_ERR_CANT_START_SHELL_AS_USER 5001

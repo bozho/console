@@ -70,6 +70,7 @@ public:
   void SplitVertically();
   bool CloseView(HWND hwnd = 0);
   void SwitchView(WORD wID);
+  void ResizeView(WORD wID);
   void SetActiveConsole(HWND hwnd);
 
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);

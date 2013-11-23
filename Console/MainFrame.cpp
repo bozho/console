@@ -1599,6 +1599,19 @@ LRESULT MainFrame::OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if( m_activeTabView )
+    m_activeTabView->ResizeView(wID);
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   MutexLock viewMapLock(m_tabsMutex);

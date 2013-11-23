@@ -1358,6 +1358,12 @@ HotKeys::HotKeys()
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"rightview",  ID_RIGHT_VIEW,       L"Switch to right view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"topview",    ID_TOP_VIEW,         L"Switch to top view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"bottomview", ID_BOTTOM_VIEW,      L"Switch to bottom view")));
+
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dechsize",   ID_DEC_HORIZ_SIZE,   L"Decrease horizontal size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"inchsize",   ID_INC_HORIZ_SIZE,   L"Increase horizontal size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"decvsize",   ID_DEC_VERT_SIZE,    L"Decrease vertical size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"incvsize",   ID_INC_VERT_SIZE,    L"Increase vertical size")));
+
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closeview",  ID_CLOSE_VIEW,       L"Close view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ,      L"Split horizontally")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,       L"Split vertically")));

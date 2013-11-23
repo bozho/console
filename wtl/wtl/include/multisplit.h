@@ -134,9 +134,9 @@ namespace WTL
 
 			bool isPane0 = this->parent->pane0 == this;
 			if( this->parent->splitType == VERTICAL )
-				return isPane0 ? TOP : BOTTOM;
-			else
 				return isPane0 ? LEFT : RIGHT;
+			else
+				return isPane0 ? TOP : BOTTOM;
 		}
 
 		CMultiSplitPane* split(HWND windowPane1, SPLITTYPE splitType)
@@ -187,6 +187,23 @@ namespace WTL
 			this->pane1->updateLayout();
 
 			return this->pane1;
+		}
+
+		void resize(SPLITTYPE splitType, int delta)
+		{
+			if( this->parent == nullptr )
+				return;
+
+			if( this->parent->splitType == splitType )
+			{
+				this->parent->moveSplitBar(this->parent->pane0 == this? delta : -delta);
+				this->parent->pane0->updateLayout();
+				this->parent->pane1->updateLayout();
+			}
+			else
+			{
+				this->parent->resize(splitType, delta);
+			}
 		}
 
 		CMultiSplitPane* remove(void)

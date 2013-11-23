@@ -143,6 +143,12 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_RIGHT_VIEW  , OnSwitchView)
 			COMMAND_ID_HANDLER(ID_TOP_VIEW    , OnSwitchView)
 			COMMAND_ID_HANDLER(ID_BOTTOM_VIEW , OnSwitchView)
+
+			COMMAND_ID_HANDLER(ID_DEC_HORIZ_SIZE , OnResizeView)
+			COMMAND_ID_HANDLER(ID_INC_HORIZ_SIZE , OnResizeView)
+			COMMAND_ID_HANDLER(ID_DEC_VERT_SIZE  , OnResizeView)
+			COMMAND_ID_HANDLER(ID_INC_VERT_SIZE  , OnResizeView)
+
 			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
 			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplitHorizontally)
 			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplitVertically)
@@ -232,6 +238,7 @@ class MainFrame
 		LRESULT OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

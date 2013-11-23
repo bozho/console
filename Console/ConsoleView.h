@@ -143,6 +143,9 @@ class ConsoleView
 
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
+		static inline int GetCharWidth(void) { return m_nCharWidth; }
+		static inline int GetCharHeight(void) { return m_nCharHeight; }
+
 	private:
 
 		void OnConsoleChange(bool bResize);

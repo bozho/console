@@ -507,6 +507,43 @@ void TabView::SwitchView(WORD wID)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void TabView::ResizeView(WORD wID)
+{
+	if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+	{
+		MutexLock viewMapLock(m_viewsMutex);
+
+		if( m_views.size() > 1 )
+		{
+			switch( wID )
+			{
+			case ID_DEC_HORIZ_SIZE:
+				multisplitClass::defaultFocusPane->resize(CMultiSplitPane::VERTICAL, -ConsoleView::GetCharWidth());
+				break;
+
+			case ID_INC_HORIZ_SIZE:
+				multisplitClass::defaultFocusPane->resize(CMultiSplitPane::VERTICAL, ConsoleView::GetCharWidth());
+				break;
+
+			case ID_DEC_VERT_SIZE:
+				multisplitClass::defaultFocusPane->resize(CMultiSplitPane::HORIZONTAL, -ConsoleView::GetCharHeight());
+				break;
+
+			case ID_INC_VERT_SIZE:
+				multisplitClass::defaultFocusPane->resize(CMultiSplitPane::HORIZONTAL, ConsoleView::GetCharHeight());
+				break;
+			}
+
+			CRect clientRect(0, 0, 0, 0);
+			AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
+		}
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void TabView::SetActiveConsole(HWND hwnd)
 {
   MutexLock viewMapLock(m_viewsMutex);

@@ -920,7 +920,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 	{
 		SCROLLINFO si;
 		si.cbSize = sizeof(si);
-		si.fMask  = SIF_POS | SIF_RANGE;
+		si.fMask  = SIF_POS | SIF_RANGE | SIF_DISABLENOSCROLL;
 		si.nPos   = consoleInfo->csbi.srWindow.Top;
 		si.nMax   = m_dwVScrollMax;
 		si.nMin   = 0;
@@ -936,7 +936,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 	{
 		SCROLLINFO si;
 		si.cbSize = sizeof(si); 
-		si.fMask  = SIF_POS; 
+		si.fMask  = SIF_POS | SIF_DISABLENOSCROLL;
 		si.nPos   = consoleInfo->csbi.srWindow.Left; 
 		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
 	}
@@ -1650,7 +1650,7 @@ void ConsoleView::InitializeScrollbars()
 		SCROLLINFO	si ;
 
 		si.cbSize	= sizeof(SCROLLINFO);
-		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS;
+		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS | SIF_DISABLENOSCROLL;
 		si.nPage	= consoleParams->dwRows;
 		si.nMax		= m_dwVScrollMax; /*consoleParams->dwBufferRows - 1*/
 		si.nMin		= 0 ;
@@ -1665,7 +1665,7 @@ void ConsoleView::InitializeScrollbars()
 		SCROLLINFO	si ;
 
 		si.cbSize	= sizeof(SCROLLINFO) ;
-		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS;
+		si.fMask	= SIF_PAGE | SIF_RANGE | SIF_POS | SIF_DISABLENOSCROLL;
 		si.nPage	= consoleParams->dwColumns;
 		si.nMax		= consoleParams->dwBufferColumns - 1;
 		si.nMin		= 0 ;

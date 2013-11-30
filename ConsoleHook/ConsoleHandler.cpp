@@ -584,9 +584,14 @@ public:
   }
   virtual bool IsLastCharBlank(void)
   {
-    if( strRow.length() < 1 ) return false;
+		size_t len = strRow.length();
+		if( len < 3 ) return false;
 
-    return strRow[strRow.length() - 1] == L' ';
+		for(size_t i = (len - 3); i < len; ++i)
+			if( strRow[i] != L' ' )
+				return false;
+
+		return true;
   }
   size_t GetRowLength(void)
   {
@@ -801,7 +806,7 @@ void ConsoleHandler::CopyConsoleText()
 							0),
 							::CloseHandle);
 
-  auto_ptr<ClipboardData> clipboardDataPtr[2];
+  std::unique_ptr<ClipboardData> clipboardDataPtr[2];
   size_t clipboardDataCount = 2;
   clipboardDataPtr[0].reset(new ClipboardDataUnicode());
   clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
@@ -867,7 +872,8 @@ void ConsoleHandler::CopyConsoleText()
     for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
       clipboardDataPtr[clipboardDataIndex]->StartRow();
 
-		bool	bWrap = true;
+		bool bWrap       = true;
+		bool bTrimSpaces = m_consoleCopyInfo->bTrimSpaces;
 
 		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left; ++x)
 		{
@@ -895,13 +901,14 @@ void ConsoleHandler::CopyConsoleText()
 			// rows between first and (last - 1)
 			if (m_consoleCopyInfo->bNoWrap && (!clipboardDataPtr[0]->IsLastCharBlank()))
 			{
-				bWrap = false;
+				bWrap       = false;
+				bTrimSpaces = false;
 			}
 		}
 
     for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
     {
-      if (m_consoleCopyInfo->bTrimSpaces)
+      if (bTrimSpaces)
         clipboardDataPtr[clipboardDataIndex]->TrimRight();
 
       if (bWrap)

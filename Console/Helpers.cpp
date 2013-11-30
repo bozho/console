@@ -249,7 +249,7 @@ HICON Helpers::LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& s
       {
         bool negative = false;
         size_t i = pos + 1;
-        if( strIcon.at(i) == L'-' )
+        if( i < strIcon.length() && strIcon.at(i) == L'-' )
         {
           i ++;
           negative = true;

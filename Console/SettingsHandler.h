@@ -324,6 +324,7 @@ struct CopyPasteSettings : public SettingsBase
 	std::wstring strRightDelimiters;
 
 	CopyNewlineChar	copyNewlineChar;
+	DWORD			dwEOLSpaces;
 };
 
 //////////////////////////////////////////////////////////////////////////////

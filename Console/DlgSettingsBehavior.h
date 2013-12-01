@@ -25,6 +25,7 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_CLEAR_ON_COPY, m_behaviorSettings.copyPasteSettings.bClearOnCopy)
 			DDX_CHECK(IDC_CHECK_SENSITIVE_COPY, m_behaviorSettings.copyPasteSettings.bSensitiveCopy)
 			DDX_CHECK(IDC_CHECK_NO_WRAP, m_behaviorSettings.copyPasteSettings.bNoWrap)
+			DDX_UINT(IDC_EOL_SPACES, m_behaviorSettings.copyPasteSettings.dwEOLSpaces)
 			DDX_CHECK(IDC_CHECK_TRIM_SPACES, m_behaviorSettings.copyPasteSettings.bTrimSpaces)
 			DDX_RADIO(IDC_RADIO_COPY_NEWLINE_CHAR, m_nCopyNewlineChar)
 			DDX_RADIO(IDC_PAGE_SCROLL, m_nScrollPageType)
@@ -51,6 +52,7 @@ class DlgSettingsBehavior
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_RANGE_CODE_HANDLER(IDC_PAGE_SCROLL, IDC_PAGE_SCROLL2, BN_CLICKED, OnClickedScrollType)
 			COMMAND_HANDLER(IDC_CHECK_FLASH_TAB, BN_CLICKED, OnClickedFlashTab)
+			COMMAND_HANDLER(IDC_CHECK_NO_WRAP, BN_CLICKED, OnClickedNoWrap)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -63,11 +65,13 @@ class DlgSettingsBehavior
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedScrollType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedFlashTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnClickedNoWrap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
 
 		void EnableScrollControls();
 		void EnableFlashTabControls();
+		void EnableNoWrapControls();
 
 
 	private:

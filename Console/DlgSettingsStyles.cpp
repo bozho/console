@@ -256,14 +256,9 @@ void DlgSettingsStyles::UpdateSliderText(HWND hwndSlider)
 
 void DlgSettingsStyles::EnableTabControls()
 {
-	GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow(FALSE);
-	GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow(FALSE);
-
-	if (m_controlsSettings.bShowTabs)
-	{
-		GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow();
-		GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow();
-	}
+	GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow(m_controlsSettings.bShowTabs);
+	GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow(m_controlsSettings.bShowTabs);
+	GetDlgItem(IDC_CHECK_HIDE_TAB_ICONS).EnableWindow(m_controlsSettings.bShowTabs);
 }
 
 void DlgSettingsStyles::EnableScrollbarControls()

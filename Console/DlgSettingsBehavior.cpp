@@ -59,6 +59,13 @@ LRESULT DlgSettingsBehavior::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	spin.SetAccel(1, &udAccel);
 	spin.Detach();
 
+	spin.Attach(GetDlgItem(IDC_SPIN_EOL_SPACES));
+	spin.SetRange(1, 15);
+	udAccel.nSec = 2;
+	udAccel.nInc = 1;
+	spin.SetAccel(1, &udAccel);
+	spin.Detach();
+
 	DoDataExchange(DDX_LOAD);
 
 	EnableScrollControls();
@@ -124,6 +131,18 @@ LRESULT DlgSettingsBehavior::OnClickedFlashTab(WORD /*wNotifyCode*/, WORD /*wID*
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsBehavior::OnClickedNoWrap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableNoWrapControls();
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
@@ -160,6 +179,7 @@ void DlgSettingsBehavior::EnableFlashTabControls()
 	GetDlgItem(IDC_TAB_FLASHES).EnableWindow(FALSE);
 	GetDlgItem(IDC_SPIN_TAB_FLASHES).EnableWindow(FALSE);
 	GetDlgItem(IDC_CHECK_LEAVE_HIGHLIGHTED).EnableWindow(FALSE);
+	GetDlgItem(IDC_STATIC_FLASHES).EnableWindow(FALSE);
 
 	if (m_bFlashInactiveTab)
 	{
@@ -172,7 +192,21 @@ void DlgSettingsBehavior::EnableFlashTabControls()
 		GetDlgItem(IDC_TAB_FLASHES).EnableWindow();
 		GetDlgItem(IDC_SPIN_TAB_FLASHES).EnableWindow();
 		GetDlgItem(IDC_CHECK_LEAVE_HIGHLIGHTED).EnableWindow();
+		GetDlgItem(IDC_STATIC_FLASHES).EnableWindow();
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void DlgSettingsBehavior::EnableNoWrapControls()
+{
+	GetDlgItem(IDC_EOL_SPACES).EnableWindow(m_behaviorSettings.copyPasteSettings.bNoWrap);
+	GetDlgItem(IDC_SPIN_EOL_SPACES).EnableWindow(m_behaviorSettings.copyPasteSettings.bNoWrap);
+	GetDlgItem(IDC_STATIC_EOL_SPACES_1).EnableWindow(m_behaviorSettings.copyPasteSettings.bNoWrap);
+	GetDlgItem(IDC_STATIC_EOL_SPACES_2).EnableWindow(m_behaviorSettings.copyPasteSettings.bNoWrap);
 }
 
 //////////////////////////////////////////////////////////////////////////////

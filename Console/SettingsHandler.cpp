@@ -846,6 +846,7 @@ CopyPasteSettings::CopyPasteSettings()
 , bIncludeRightDelimiter(false)
 , strLeftDelimiters(L" ([")
 , strRightDelimiters(L" )]")
+, dwEOLSpaces(1)
 {
 }
 
@@ -866,6 +867,7 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"clear_on_copy"), bClearOnCopy, true);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"sensitive_copy"), bSensitiveCopy, true);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap, false);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"eol_spaces"), dwEOLSpaces, 1);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), nNewlineChar, 0);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_left_delimiter"), bIncludeLeftDelimiter, false);
@@ -893,6 +895,7 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"clear_on_copy"), bClearOnCopy);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"sensitive_copy"), bSensitiveCopy);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"eol_spaces"), dwEOLSpaces);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), static_cast<int>(copyNewlineChar));
 
@@ -921,6 +924,7 @@ CopyPasteSettings& CopyPasteSettings::operator=(const CopyPasteSettings& other)
 	bIncludeRightDelimiter	= other.bIncludeRightDelimiter;
 	strLeftDelimiters	= other.strLeftDelimiters;
 	strRightDelimiters	= other.strRightDelimiters;
+	dwEOLSpaces = other.dwEOLSpaces;
 
 	return *this;
 }

@@ -520,7 +520,7 @@ public:
   virtual void StartRow(void) = 0;
   virtual void EndRow(void) = 0;
   virtual void AddChar(PCHAR_INFO) = 0;
-  virtual bool IsLastCharBlank(void) = 0;
+  virtual bool IsEOL(DWORD dwEOLSpaces) = 0;
   virtual size_t GetRowLength(void) = 0;
   virtual void TrimRight(void) = 0;
   virtual void Wrap(CopyNewlineChar) = 0;
@@ -582,12 +582,12 @@ public:
   {
     strRow += p->Char.UnicodeChar;
   }
-  virtual bool IsLastCharBlank(void)
+  virtual bool IsEOL(DWORD dwEOLSpaces)
   {
 		size_t len = strRow.length();
-		if( len < 3 ) return false;
+		if( len < dwEOLSpaces ) return false;
 
-		for(size_t i = (len - 3); i < len; ++i)
+		for(size_t i = (len - dwEOLSpaces); i < len; ++i)
 			if( strRow[i] != L' ' )
 				return false;
 
@@ -739,7 +739,7 @@ public:
     sizeRowLen ++;
     sizeRtfLen ++;
   }
-  virtual bool IsLastCharBlank(void)
+  virtual bool IsEOL(DWORD /*dwEOLSpaces*/)
   {
     return !strTrimRowRtf.empty();
   }
@@ -899,7 +899,7 @@ void ConsoleHandler::CopyConsoleText()
 		else
 		{
 			// rows between first and (last - 1)
-			if (m_consoleCopyInfo->bNoWrap && (!clipboardDataPtr[0]->IsLastCharBlank()))
+			if (m_consoleCopyInfo->bNoWrap && (!clipboardDataPtr[0]->IsEOL(m_consoleCopyInfo->dwEOLSpaces)))
 			{
 				bWrap       = false;
 				bTrimSpaces = false;

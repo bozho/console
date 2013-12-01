@@ -368,9 +368,10 @@ void SelectionHandler::CopySelection()
 		
 		GetSelectionCoordinates(m_consoleCopyInfo->coordStart, m_consoleCopyInfo->coordEnd);
 
-		m_consoleCopyInfo->bNoWrap		= g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bNoWrap;
-		m_consoleCopyInfo->bTrimSpaces	= g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bTrimSpaces;
-		m_consoleCopyInfo->copyNewlineChar= g_settingsHandler->GetBehaviorSettings().copyPasteSettings.copyNewlineChar;
+		m_consoleCopyInfo->bNoWrap         = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bNoWrap;
+		m_consoleCopyInfo->dwEOLSpaces     = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.dwEOLSpaces;
+		m_consoleCopyInfo->bTrimSpaces     = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bTrimSpaces;
+		m_consoleCopyInfo->copyNewlineChar = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.copyNewlineChar;
     _snprintf_s(
       m_consoleCopyInfo->szFontName, sizeof(m_consoleCopyInfo->szFontName),
       _TRUNCATE,

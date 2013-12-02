@@ -28,12 +28,13 @@ Changelog
     + added
     * fixed
 
-Changes in 1.09.0 beta 6 (22 Nov 2013)
+Changes in 1.09.0 (01 Dec 2013)
 
     ! Title options are more consistent.
     ! Activate Console (global) hotkey minimizes the application if active.
     ! Quake like: activates the previous application when hiding.
     ! Buffer rows limit increased to 32766.
+    ! Can configure the number of spaces used to detect an end of line.
     + Focus follows mouse.
     + New actions in "File" menu:
       "Close All Tabs BUT This"
@@ -51,7 +52,8 @@ Changes in 1.09.0 beta 6 (22 Nov 2013)
     * Fix icon extraction with negative index.
     * Fix a visual bug when caption and resize are removed.
     * Transmit the current working directory when application instance is reused.
-    * Maximized application was retored at wrong position.
+    * Maximized application was restored at wrong position.
+    * If the scroll bar is unnecessary, disable the scroll bar instead of removing it.
 
 Changes in 1.08.0 (28 Sep 2013)
 

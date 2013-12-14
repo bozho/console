@@ -420,10 +420,12 @@ bool TabView::CloseView(HWND hwnd /*= 0*/)
       multisplitClass::tree.dump(0, 0);
       ATLTRACE(L"%p-TabView::CloseView defaultFocusPane\n",
           ::GetCurrentThreadId());
-      multisplitClass::defaultFocusPane->dump(0, multisplitClass::defaultFocusPane->parent);
+			if( multisplitClass::defaultFocusPane )
+				multisplitClass::defaultFocusPane->dump(0, multisplitClass::defaultFocusPane->parent);
 #endif
 
-      multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
+			if( multisplitClass::defaultFocusPane )
+				multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
 
       if( m_views.empty() )
         m_mainFrame.CloseTab(this->m_hWnd);

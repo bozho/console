@@ -26,6 +26,7 @@ CAppModule					_Module;
 
 std::shared_ptr<SettingsHandler>	g_settingsHandler;
 std::shared_ptr<ImageHandler>	g_imageHandler;
+_t_TranslateMessageEx TranslateMessageEx;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -280,6 +281,10 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
       // Win7 or more, we use the wallpaper slideshow monitoring
       wallPaperThread.Start();
     }
+
+		TranslateMessageEx = (_t_TranslateMessageEx)::GetProcAddress(::GetModuleHandle(L"user32.dll"), "TranslateMessageEx");
+		if( !TranslateMessageEx )
+			Win32Exception::ThrowFromLastError();
 
     int nRet = theLoop.Run();
 

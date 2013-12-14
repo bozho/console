@@ -139,6 +139,7 @@ class ConsoleHandler
 		inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
 
 		void PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
+		void WriteConsoleInput(KEY_EVENT_RECORD* pkeyEvent);
 		void SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 		void SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags);
 		void ShowWindow(int nCmdShow);

@@ -1320,6 +1320,32 @@ DWORD ConsoleHandler::MonitorThread()
 
 								text.reset(new wchar_t[npmsg.data.text.dwTextLen + 1]);
 								break;
+
+							case NamedPipeMessage::WRITECONSOLEINPUT:
+								{
+									INPUT_RECORD record;
+									record.EventType = KEY_EVENT;
+									record.Event.KeyEvent = npmsg.data.keyEvent;
+
+									TRACE(
+										L"NamedPipeMessage::WRITECONSOLEINPUT\n"
+										L"  bKeyDown          = %s\n"
+										L"  dwControlKeyState = 0x%08lx\n"
+										L"  UnicodeChar       = 0x%04hx\n"
+										L"  wRepeatCount      = %hu\n"
+										L"  wVirtualKeyCode   = 0x%04hx\n"
+										L"  wVirtualScanCode  = 0x%04hx\n",
+										record.Event.KeyEvent.bKeyDown?"TRUE":"FALSE",
+										record.Event.KeyEvent.dwControlKeyState,
+										record.Event.KeyEvent.uChar.UnicodeChar,
+										record.Event.KeyEvent.wRepeatCount,
+										record.Event.KeyEvent.wVirtualKeyCode,
+										record.Event.KeyEvent.wVirtualScanCode);
+
+									DWORD dwTextWritten = 0;
+									::WriteConsoleInput(hStdIn, &record, 1, &dwTextWritten);
+								}
+								break;
 							}
 
 							npmsglen = 0;

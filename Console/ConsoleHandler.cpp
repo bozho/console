@@ -1025,16 +1025,6 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INPUTLANGCHANGEREQUEST: strMsg = L"WM_INPUTLANGCHANGEREQUEST"; break;
 	case WM_INPUTLANGCHANGE:        strMsg = L"WM_INPUTLANGCHANGE";        break;
-
-	case WM_KEYDOWN:                strMsg = L"WM_KEYDOWN";                break;
-	case WM_KEYUP:                  strMsg = L"WM_KEYUP";                  break;
-	case WM_CHAR:                   strMsg = L"WM_CHAR";                   break;
-	case WM_DEADCHAR:               strMsg = L"WM_DEADCHAR";               break;
-	case WM_SYSKEYDOWN:             strMsg = L"WM_SYSKEYDOWN";             break;
-	case WM_SYSKEYUP:               strMsg = L"WM_SYSKEYUP";               break;
-	case WM_SYSCHAR:                strMsg = L"WM_SYSCHAR";                break;
-	case WM_SYSDEADCHAR:            strMsg = L"WM_SYSDEADCHAR";            break;
-	case WM_UNICHAR:                strMsg = L"WM_UNICHAR";                break;
 	};
 
 	TRACE(
@@ -1043,77 +1033,64 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 		wParam, lParam);
 #endif
 
-	if( Msg >= WM_KEYFIRST && Msg <= WM_KEYLAST )
+	NamedPipeMessage npmsg;
+	npmsg.type = NamedPipeMessage::POSTMESSAGE;
+	npmsg.data.winmsg.msg = Msg;
+	npmsg.data.winmsg.wparam = static_cast<DWORD>(wParam);
+	npmsg.data.winmsg.lparam = static_cast<DWORD>(lParam);
+
+	try
 	{
-		// it seems that TranslateMessage uses GetKeyState
-		if( wParam == VK_SHIFT || wParam == VK_CONTROL || wParam == VK_MENU )
-			return;
-
-		// don't send msg WM_*KEY* translated into WM_*CHAR
-		if( Msg == WM_KEYDOWN || Msg == WM_KEYUP || Msg == WM_SYSKEYDOWN || Msg == WM_SYSKEYUP )
-		{
-			if( ( wParam == VK_SPACE )                         ||  // space
-			    ( wParam > VK_HELP && wParam < VK_LWIN )       ||  // 0-9 A-Z
-			    ( wParam >= VK_OEM_1 && wParam <= VK_OEM_102 ) ||  // OEM
-			    ( wParam >= VK_NUMPAD0 && wParam <= VK_NUMPAD9 && ::GetKeyState(VK_MENU) < 0 ) ) // ALT+NUMPAD ASCII Key Combos
-				return;
-		}
-		else
-		{
-			/*
-			lParam
-			Bits Meaning
-			30   The previous key state. The value is 1 if the key is down before the message is sent, or it is 0 if the key is up.
-			31   The transition state. The value is 1 if the key is being released, or it is 0 if the key is being pressed.
-			*/
-			// set bit 31 to zero
-			lParam  &= ~(1 << 31);
-		}
-
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
+	}
 #ifdef _DEBUG
+	catch(std::exception& e)
+	{
 		TRACE(
-			L"PostMessage(pipe) Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p\n",
+			L"PostMessage(pipe) Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p fails (reason: %S)\n",
 			Msg, strMsg,
-			wParam, lParam);
-#endif
-
-		NamedPipeMessage npmsg;
-		npmsg.type = NamedPipeMessage::POSTMESSAGE;
-		npmsg.data.winmsg.msg = Msg;
-		npmsg.data.winmsg.wparam = static_cast<DWORD>(wParam);
-		npmsg.data.winmsg.lparam = static_cast<DWORD>(lParam);
-
-		try
-		{
-			m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
-		}
-#ifdef _DEBUG
-		catch(std::exception& e)
-		{
-			TRACE(
-				L"PostMessage(pipe) Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p fails (reason: %S)\n",
-				Msg, strMsg,
-				wParam, lParam,
-				e.what());
-		}
+			wParam, lParam,
+			e.what());
+	}
 #else
-		catch(std::exception&) { }
+	catch(std::exception&) { }
 #endif
-	}
-	else
+}
+
+void ConsoleHandler::WriteConsoleInput(KEY_EVENT_RECORD* pkeyEvent)
+{
+	NamedPipeMessage npmsg;
+	npmsg.type = NamedPipeMessage::WRITECONSOLEINPUT;
+	npmsg.data.keyEvent = *pkeyEvent;
+
+	try
 	{
-		if( !::PostMessage(m_consoleParams->hwndConsoleWindow, Msg, wParam, lParam) )
-		{
-#ifdef _DEBUG
-			Win32Exception err(::GetLastError());
-			TRACE(
-				L"PostMessage Msg = 0x%08lx (%s) WPARAM = %p LPARAM = %p fails (reason: %S)\n",
-				Msg, strMsg,
-				wParam, lParam,
-				err.what());
-#endif
-		}
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
+#ifdef _DEBUG
+	catch(std::exception& e)
+	{
+		TRACE(
+			L"WriteConsoleInput(pipe) fails (reason: %S)\n",
+			L"  bKeyDown          = %s\n"
+			L"  dwControlKeyState = 0x%08lx\n"
+			L"  UnicodeChar       = 0x%04hx\n"
+			L"  wRepeatCount      = %hu\n"
+			L"  wVirtualKeyCode   = 0x%04hx\n"
+			L"  wVirtualScanCode  = 0x%04hx\n",
+			e.what(),
+			npmsg.data.keyEvent.bKeyDown?"TRUE":"FALSE",
+			npmsg.data.keyEvent.dwControlKeyState,
+			npmsg.data.keyEvent.uChar.UnicodeChar,
+			npmsg.data.keyEvent.wRepeatCount,
+			npmsg.data.keyEvent.wVirtualKeyCode,
+			npmsg.data.keyEvent.wVirtualScanCode);
+	}
+#else
+	catch(std::exception&) { }
+#endif
+
+
 }
 
 void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)

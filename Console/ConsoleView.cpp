@@ -303,6 +303,11 @@ LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
 
 //////////////////////////////////////////////////////////////////////////////
 
+/* MSDN mentions that you should use the last virtual key code received
+  * when putting a virtual key identity to a WM_CHAR message since multiple
+  * or translated keys may be involved. */
+WORD wLastVirtualKey = 0;
+
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	if (((uMsg == WM_KEYDOWN) || (uMsg == WM_KEYUP)) && (wParam == VK_PACKET)) return 0;
@@ -330,11 +335,84 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-		//TRACE(L"Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
-		if( this->IsGrouped() )
-			m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
+		TRACE(L"ConsoleView::OnConsoleFwdMsg Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+
+		if( uMsg >= WM_KEYFIRST && uMsg <= WM_KEYLAST )
+		{
+			KEY_EVENT_RECORD keyEvent;
+
+			keyEvent.bKeyDown          = (lParam & (1<<31)) == 0;
+			keyEvent.wRepeatCount      = static_cast<WORD>(lParam & 0xffff);
+			keyEvent.wVirtualScanCode  = static_cast<WORD>((lParam >> 16) & 0xff);
+
+			BYTE lpKeyState[256] = { 0 };
+			GetKeyboardState(lpKeyState);
+
+			if( uMsg == WM_CHAR || uMsg == WM_SYSCHAR )
+			{
+				keyEvent.wVirtualKeyCode = wLastVirtualKey;
+				keyEvent.uChar.UnicodeChar = static_cast<WCHAR>(wParam);
+			}
+			else
+			{
+			  keyEvent.wVirtualKeyCode = static_cast<WORD>(wParam);
+				keyEvent.uChar.UnicodeChar = 0x0000;
+			}
+
+			keyEvent.dwControlKeyState = 0;
+
+			if (lpKeyState[VK_CAPITAL] & 1)
+				keyEvent.dwControlKeyState |= CAPSLOCK_ON;
+
+			if (lpKeyState[VK_NUMLOCK] & 1)
+				keyEvent.dwControlKeyState |= NUMLOCK_ON;
+
+			if (lpKeyState[VK_SCROLL] & 1)
+				keyEvent.dwControlKeyState |= SCROLLLOCK_ON;
+
+			if (lpKeyState[VK_SHIFT] & 0x80)
+				keyEvent.dwControlKeyState |= SHIFT_PRESSED;
+
+			if (lpKeyState[VK_LCONTROL] & 0x80)
+				keyEvent.dwControlKeyState |= LEFT_CTRL_PRESSED;
+			if (lpKeyState[VK_RCONTROL] & 0x80)
+				keyEvent.dwControlKeyState |= RIGHT_CTRL_PRESSED;
+
+			if (lpKeyState[VK_LMENU] & 0x80)
+				keyEvent.dwControlKeyState |= LEFT_ALT_PRESSED;
+			if (lpKeyState[VK_RMENU] & 0x80)
+				keyEvent.dwControlKeyState |= RIGHT_ALT_PRESSED;
+
+			if( (lParam >> 24) & 0x1 )
+				keyEvent.dwControlKeyState |= ENHANCED_KEY;
+
+			TRACE(
+				L"-> WriteConsoleInput\n"
+				L"  bKeyDown          = %s\n"
+				L"  dwControlKeyState = 0x%08lx\n"
+				L"  UnicodeChar       = 0x%04hx\n"
+				L"  wRepeatCount      = %hu\n"
+				L"  wVirtualKeyCode   = 0x%04hx\n"
+				L"  wVirtualScanCode  = 0x%04hx\n",
+				keyEvent.bKeyDown? L"TRUE" : L"FALSE",
+				keyEvent.dwControlKeyState,
+				keyEvent.uChar.UnicodeChar,
+				keyEvent.wRepeatCount,
+				keyEvent.wVirtualKeyCode,
+				keyEvent.wVirtualScanCode);
+
+			if( this->IsGrouped() )
+				m_mainFrame.WriteConsoleInputToConsoles(&keyEvent);
+			else
+				m_consoleHandler.WriteConsoleInput(&keyEvent);
+		}
 		else
-			m_consoleHandler.PostMessage(uMsg, wParam, lParam);
+		{
+			if( this->IsGrouped() )
+				m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);
+			else
+				m_consoleHandler.PostMessage(uMsg, wParam, lParam);
+		}
 	}
 
 	return 0;

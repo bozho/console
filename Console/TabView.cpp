@@ -39,6 +39,8 @@ TabView::~TabView()
 
 //////////////////////////////////////////////////////////////////////////////
 
+extern WORD wLastVirtualKey;
+
 BOOL TabView::PreTranslateMessage(MSG* pMsg)
 {
 	if( (pMsg->message == WM_KEYDOWN)    ||
@@ -48,24 +50,24 @@ BOOL TabView::PreTranslateMessage(MSG* pMsg)
 	{
 		// Avoid calling ::TranslateMessage for WM_KEYDOWN, WM_KEYUP,
 		// WM_SYSKEYDOWN and WM_SYSKEYUP
-
-		// except for dead char + char
-		// broadcasting dead char + char to multiple consoles doesn't work...
-		if( ( pMsg->wParam == VK_SPACE )                               ||  // space
-		    ( pMsg->wParam > VK_HELP && pMsg->wParam < VK_LWIN )       ||  // 0-9 A-Z
-		    ( pMsg->wParam >= VK_OEM_1 && pMsg->wParam <= VK_OEM_102 ) )   // OEM
-			return FALSE;
-
-		// ALT+NUMPAD ASCII Key Combos
-		if( ( pMsg->wParam == VK_MENU ) ||
-		    ( pMsg->wParam >= VK_NUMPAD0 && pMsg->wParam <= VK_NUMPAD9 && ::GetKeyState(VK_MENU) < 0 ) )
-			return FALSE;
-
 		// except for wParam == VK_PACKET,
 		// which is sent by SendInput when pasting text
 		if (pMsg->wParam == VK_PACKET) return FALSE;
 
-		::DispatchMessage(pMsg);
+		// private API TranslateMessageEx
+		// called with the TM_POSTCHARBREAKS flag
+		// return FALSE if no char is posted
+		if( !TranslateMessageEx(pMsg, TM_POSTCHARBREAKS) )
+		{
+			TRACE(L"TabView::PreTranslateMessage Msg not translated: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", pMsg->message, pMsg->wParam, pMsg->lParam);
+			::DispatchMessage(pMsg);
+		}
+		else
+		{
+			wLastVirtualKey = static_cast<WORD>(pMsg->wParam);
+			TRACE(L"TabView::PreTranslateMessage Msg translated: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", pMsg->message, pMsg->wParam, pMsg->lParam);
+		}
+
 		return TRUE;
 	}
 
@@ -573,6 +575,20 @@ void TabView::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 		if( it->second->IsGrouped() )
 			it->second->GetConsoleHandler().PostMessage(Msg, wParam, lParam);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void TabView::WriteConsoleInputToConsoles(KEY_EVENT_RECORD* pkeyEvent)
+{
+	MutexLock	viewMapLock(m_viewsMutex);
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+	{
+		if( it->second->IsGrouped() )
+			it->second->GetConsoleHandler().WriteConsoleInput(pkeyEvent);
 	}
 }
 

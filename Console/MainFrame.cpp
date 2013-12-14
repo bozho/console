@@ -3312,6 +3312,15 @@ void MainFrame::PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam)
   }
 }
 
+void MainFrame::WriteConsoleInputToConsoles(KEY_EVENT_RECORD* pkeyEvent)
+{
+  MutexLock lock(m_tabsMutex);
+  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+  {
+    it->second->WriteConsoleInputToConsoles(pkeyEvent);
+  }
+}
+
 void MainFrame::PasteToConsoles()
 {
 	if (!m_activeTabView) return;

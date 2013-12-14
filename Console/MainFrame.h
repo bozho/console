@@ -276,6 +276,7 @@ class MainFrame
 		void CloseTab(HWND hwndTabView);
 		void SetActiveConsole(HWND hwndTabView, HWND hwndConsoleView);
 		void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
+		void WriteConsoleInputToConsoles(KEY_EVENT_RECORD* pkeyEvent);
 		void PasteToConsoles();
 		void SendTextToConsoles(const wchar_t* pszText);
 		bool GetAppActiveStatus(void) const { return this->m_bAppActive; }

@@ -229,6 +229,7 @@ struct NamedPipeMessage
 		SHOWWINDOW,
 		SETWINDOWPOS,
 		SENDTEXT,
+		WRITECONSOLEINPUT
 	} type;
 
 	union
@@ -263,5 +264,8 @@ struct NamedPipeMessage
 		{
 			DWORD dwTextLen;
 		} text;
+
+		//WRITECONSOLEINPUT
+		KEY_EVENT_RECORD keyEvent;
 	} data;
 };

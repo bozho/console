@@ -308,6 +308,10 @@ LRESULT ConsoleView::OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL&
   * or translated keys may be involved. */
 WORD wLastVirtualKey = 0;
 
+#define CTRL_BUT_NOT_ALT(n) \
+        (((n) & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) && \
+        !((n) & (LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)))
+
 LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
 	if (((uMsg == WM_KEYDOWN) || (uMsg == WM_KEYUP)) && (wParam == VK_PACKET)) return 0;
@@ -336,6 +340,8 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
 		TRACE(L"ConsoleView::OnConsoleFwdMsg Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+
+		bool boolPostMessage = false;
 
 		if( uMsg >= WM_KEYFIRST && uMsg <= WM_KEYLAST )
 		{
@@ -386,27 +392,58 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			if( (lParam >> 24) & 0x1 )
 				keyEvent.dwControlKeyState |= ENHANCED_KEY;
 
-			TRACE(
-				L"-> WriteConsoleInput\n"
-				L"  bKeyDown          = %s\n"
-				L"  dwControlKeyState = 0x%08lx\n"
-				L"  UnicodeChar       = 0x%04hx\n"
-				L"  wRepeatCount      = %hu\n"
-				L"  wVirtualKeyCode   = 0x%04hx\n"
-				L"  wVirtualScanCode  = 0x%04hx\n",
-				keyEvent.bKeyDown? L"TRUE" : L"FALSE",
-				keyEvent.dwControlKeyState,
-				keyEvent.uChar.UnicodeChar,
-				keyEvent.wRepeatCount,
-				keyEvent.wVirtualKeyCode,
-				keyEvent.wVirtualScanCode);
+			if( CTRL_BUT_NOT_ALT(keyEvent.dwControlKeyState) && keyEvent.bKeyDown )
+			{
+				// in line input mode
+				// console handles these keys without generating key events
 
-			if( this->IsGrouped() )
-				m_mainFrame.WriteConsoleInputToConsoles(&keyEvent);
-			else
-				m_consoleHandler.WriteConsoleInput(&keyEvent);
+				// ctrl-C
+				if( keyEvent.wVirtualKeyCode == 'C' )
+				{
+					uMsg = WM_KEYDOWN;
+					wParam = 'C';
+					lParam = 0x002E0001;
+					boolPostMessage = true;
+				}
+				// ctrl-break
+				if( keyEvent.wVirtualKeyCode == VK_CANCEL )
+				{
+					uMsg = WM_KEYDOWN;
+					wParam = VK_CANCEL;
+					lParam = 0x01460001;
+					boolPostMessage = true;
+				}
+			}
+
+			if( !boolPostMessage )
+			{
+				TRACE(
+					L"-> WriteConsoleInput\n"
+					L"  bKeyDown          = %s\n"
+					L"  dwControlKeyState = 0x%08lx\n"
+					L"  UnicodeChar       = 0x%04hx\n"
+					L"  wRepeatCount      = %hu\n"
+					L"  wVirtualKeyCode   = 0x%04hx\n"
+					L"  wVirtualScanCode  = 0x%04hx\n",
+					keyEvent.bKeyDown? L"TRUE" : L"FALSE",
+					keyEvent.dwControlKeyState,
+					keyEvent.uChar.UnicodeChar,
+					keyEvent.wRepeatCount,
+					keyEvent.wVirtualKeyCode,
+					keyEvent.wVirtualScanCode);
+
+				if( this->IsGrouped() )
+					m_mainFrame.WriteConsoleInputToConsoles(&keyEvent);
+				else
+					m_consoleHandler.WriteConsoleInput(&keyEvent);
+			}
 		}
 		else
+		{
+			boolPostMessage = true;
+		}
+
+		if( boolPostMessage )
 		{
 			if( this->IsGrouped() )
 				m_mainFrame.PostMessageToConsoles(uMsg, wParam, lParam);

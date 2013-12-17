@@ -1025,6 +1025,7 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INPUTLANGCHANGEREQUEST: strMsg = L"WM_INPUTLANGCHANGEREQUEST"; break;
 	case WM_INPUTLANGCHANGE:        strMsg = L"WM_INPUTLANGCHANGE";        break;
+	case WM_KEYDOWN :               strMsg = L"WM_KEYDOWN";                break;
 	};
 
 	TRACE(

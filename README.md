@@ -28,6 +28,11 @@ Changelog
     + added
     * fixed
 
+Changes in 1.09.1 (17 Dec 2013)
+
+    ! In settings, check if a hotkey is already assigned.
+    * Fix the new keyboard handling.
+
 Changes in 1.09.0 (01 Dec 2013)
 
     ! Title options are more consistent.
@@ -48,7 +53,7 @@ Changes in 1.09.0 (01 Dec 2013)
     + Blinking XTerm Cursor.
     + Support of drag and drop in settings.
     + Can hide icons in tabs bar.
-    * Fix problem with dead chars sent to multiple consoles.
+    * Fix problem with dead chars sent to multiple consoles (new keyboard handling).
     * Fix icon extraction with negative index.
     * Fix a visual bug when caption and resize are removed.
     * Transmit the current working directory when application instance is reused.

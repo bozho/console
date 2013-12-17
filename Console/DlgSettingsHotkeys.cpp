@@ -117,17 +117,43 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 	HotKeys::CommandData* pCommandData = reinterpret_cast<HotKeys::CommandData*>(selectedItem.lParam);
 
+	BYTE fVirt     = FVIRTKEY;
+	bool bExtended = false;
+	bool bWin      = false;
+
+	if (wModifiers & HOTKEYF_CONTROL)  fVirt |= FCONTROL;
+	if (wModifiers & HOTKEYF_SHIFT)    fVirt |= FSHIFT;
+	if (wModifiers & HOTKEYF_ALT)      fVirt |= FALT;
+	if (wModifiers & HOTKEYF_EXT)      bExtended = true;
+	if (wModifiers & FAKE_HOTKEYF_WIN) bWin      = true;
+
+	if( uiVirtualKeyCode )
+	{
+		for(auto it = m_hotKeys.commands.begin(); it != m_hotKeys.commands.end(); ++it)
+		{
+			if( (*it)->wCommandID != pCommandData->wCommandID )
+			{
+				if( (*it)->accelHotkey.key != static_cast<WORD>(uiVirtualKeyCode) ) continue;
+				if( (*it)->accelHotkey.fVirt != fVirt ) continue;
+				if( (*it)->bExtended != bExtended ) continue;
+				if( (*it)->bWin != bWin ) continue;
+
+				std::wstring error =
+					std::wstring(L"Hotkey is already assigned to '") +
+					(*it)->strDescription +
+					std::wstring(L"' command!");
+
+				::MessageBox(m_hWnd, error.c_str(), L"error", MB_OK);
+				return 0;
+			}
+		}
+	}
+
 	pCommandData->accelHotkey.cmd   = pCommandData->wCommandID;
 	pCommandData->accelHotkey.key   = static_cast<WORD>(uiVirtualKeyCode);
-	pCommandData->accelHotkey.fVirt = FVIRTKEY;
-	pCommandData->bExtended         = false;
-	pCommandData->bWin              = false;
-
-	if (wModifiers & HOTKEYF_CONTROL)  pCommandData->accelHotkey.fVirt |= FCONTROL;
-	if (wModifiers & HOTKEYF_SHIFT)    pCommandData->accelHotkey.fVirt |= FSHIFT;
-	if (wModifiers & HOTKEYF_ALT)      pCommandData->accelHotkey.fVirt |= FALT;
-	if (wModifiers & HOTKEYF_EXT)      pCommandData->bExtended = true;
-	if (wModifiers & FAKE_HOTKEYF_WIN) pCommandData->bWin      = true;
+	pCommandData->accelHotkey.fVirt = fVirt;
+	pCommandData->bExtended         = bExtended;
+	pCommandData->bWin              = bWin;
 
 	m_listCtrl.SetItemText(m_listCtrl.GetSelectedIndex(), 1, m_hotKeyEdit.GetHotKeyName());
 

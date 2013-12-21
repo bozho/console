@@ -67,6 +67,10 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_INPUTLANGCHANGE, OnInputLangChange)
 			MESSAGE_HANDLER(WM_DROPFILES, OnDropFiles)
 			MESSAGE_HANDLER(UM_UPDATE_CONSOLE_VIEW, OnUpdateConsoleView)
+
+			MESSAGE_HANDLER(WM_IME_COMPOSITION, OnIMEComposition)
+			MESSAGE_HANDLER(WM_IME_STARTCOMPOSITION, OnIMEStartComposition)
+			MESSAGE_HANDLER(WM_IME_ENDCOMPOSITION, OnIMEEndComposition)
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -93,6 +97,10 @@ class ConsoleView
 		LRESULT OnInputLangChange(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+
+		LRESULT OnIMEComposition(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnIMEStartComposition(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnIMEEndComposition(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 
 		virtual void RedrawCharOnCursor(CDC& dc);
 
@@ -171,7 +179,6 @@ class ConsoleView
 
 		COORD GetConsoleCoord(const CPoint& clientPoint, bool bStartSelection = false);
 
-
 	private:
 
 		MainFrame& m_mainFrame;
@@ -189,7 +196,8 @@ class ConsoleView
 		bool	m_bUseTextAlphaBlend;
 		bool	m_bConsoleWindowVisible;
 		bool  m_boolIsGrouped;
-
+		bool  m_boolImmComposition;
+		
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
 		DWORD m_dwVScrollMax;

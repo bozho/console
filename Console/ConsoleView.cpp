@@ -78,6 +78,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_boolIsGrouped(false)
 , m_strCmdLineInitialDir(strCmdLineInitialDir)
 , m_strCmdLineInitialCmd(strCmdLineInitialCmd)
+, m_boolImmComposition(false)
 {
 }
 
@@ -356,12 +357,16 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 			if( uMsg == WM_CHAR || uMsg == WM_SYSCHAR )
 			{
+				if( m_boolImmComposition && !keyEvent.bKeyDown )
+					return 0;
 				keyEvent.wVirtualKeyCode = wLastVirtualKey;
 				keyEvent.uChar.UnicodeChar = static_cast<WCHAR>(wParam);
 			}
 			else
 			{
-			  keyEvent.wVirtualKeyCode = static_cast<WORD>(wParam);
+				if( m_boolImmComposition || wParam == VK_PROCESSKEY )
+					return 0;
+				keyEvent.wVirtualKeyCode = static_cast<WORD>(wParam);
 				keyEvent.uChar.UnicodeChar = 0x0000;
 			}
 
@@ -2493,11 +2498,10 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
 
-		rectBlit		= m_cursorDBCS->GetCursorRect();
-		rectBlit.left	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-		rectBlit.top	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
-		rectBlit.right	+= (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder;
-		rectBlit.bottom	+= (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder;
+		rectBlit = m_cursorDBCS->GetCursorRect();
+		rectBlit.MoveToXY(
+			(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth  + m_nVInsideBorder,
+			(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top)  * m_nCharHeight + m_nHInsideBorder);
 	}
 	else
 	{
@@ -2859,4 +2863,89 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
     &rectCursor,
     &charInfo.Char.UnicodeChar, 1,
     nullptr);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnIMEComposition(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	// call ::DefWindowProc()
+	bHandled = FALSE;
+
+	if( !g_settingsHandler->GetAppearanceSettings().stylesSettings.bIntegratedIME )
+		return 0;
+
+	HIMC hImc = ::ImmGetContext(m_hWnd);
+
+#if 0
+	WCHAR buf[32] = {0};
+	LONG len = ::ImmGetCompositionString(
+		hImc,
+		GCS_COMPSTR,
+		buf, sizeof(buf));
+
+	TRACE(L"ConsoleView::OnIMEComposition (%d)\n", len);
+	for(LONG i = 0; i < (len / sizeof(WCHAR)); i++)
+		TRACE(L"  %04hx\n", buf[i]);
+#endif
+
+	TEXTMETRIC  textMetric;
+
+	m_dcText.SelectFont(m_fontText);
+	m_dcText.GetTextMetrics(&textMetric);
+
+	SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+	CRect rectCursor = m_cursorDBCS->GetCursorRect();
+	rectCursor.MoveToXY(
+		(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth  + m_nVInsideBorder,
+		(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top)  * m_nCharHeight + m_nHInsideBorder);
+
+	COMPOSITIONFORM cf;
+	cf.dwStyle = CFS_POINT | CFS_FORCE_POSITION;
+	cf.ptCurrentPos.x = rectCursor.left;
+	cf.ptCurrentPos.y = rectCursor.top;
+	cf.rcArea  = rectCursor;
+
+	::ImmSetCompositionWindow(hImc, &cf);
+
+	LOGFONT lf;
+	m_fontText.GetLogFont(lf);
+	::ImmSetCompositionFont(hImc, &lf);
+
+	::ImmReleaseContext(m_hWnd, hImc);
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnIMEStartComposition(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	// call ::DefWindowProc()
+	bHandled = FALSE;
+
+	m_boolImmComposition = true;
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnIMEEndComposition(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	// call ::DefWindowProc()
+	bHandled = FALSE;
+
+	m_boolImmComposition = false;
+
+	return 0;
 }

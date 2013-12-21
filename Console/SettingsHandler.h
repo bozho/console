@@ -185,6 +185,7 @@ struct StylesSettings : public SettingsBase
 	bool			bTrayIcon;
 	bool			bQuake;
 	bool			bJumplist;
+	bool			bIntegratedIME;
 	COLORREF		crSelectionColor;
 };
 

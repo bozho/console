@@ -54,6 +54,10 @@ BOOL TabView::PreTranslateMessage(MSG* pMsg)
 		// which is sent by SendInput when pasting text
 		if (pMsg->wParam == VK_PACKET) return FALSE;
 
+		// except for wParam == VK_PROCESSKEY,
+		// Input Method Manager
+		if (pMsg->wParam == VK_PROCESSKEY) return FALSE;
+
 		// private API TranslateMessageEx
 		// called with the TM_POSTCHARBREAKS flag
 		// return FALSE if no char is posted

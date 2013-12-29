@@ -505,18 +505,11 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
-  m_bAppActive = static_cast<BOOL>(wParam)? true : false;
+	m_bAppActive = static_cast<BOOL>(wParam)? true : false;
 
 	if (!m_activeTabView) return 0;
 
-  this->ActivateApp();
-
-	// we're being called while OnCreate is running, return here
-	if (!m_bOnCreateDone)
-	{
-		bHandled = FALSE;
-		return 0;
-	}
+	this->ActivateApp();
 
 	bHandled = FALSE;
 
@@ -2647,7 +2640,42 @@ void MainFrame::SetZOrder(ZOrder zOrder)
 	}
 
 	// if we're pinned to the desktop, desktop shell's main window is our parent
-	SetParent((m_zOrder == zorderDesktop) ? GetDesktopWindow() : NULL);
+	if( m_zOrder == zorderDesktop )
+	{
+		HWND hShellWnd = GetShellWindow();
+		DWORD dwShellPID = 0;
+
+		if( hShellWnd )
+			::GetWindowThreadProcessId(hShellWnd, &dwShellPID);
+
+		// when Windows 7's desktop picture rotation functionality is activated
+		// we search a window with class "WorkerW" in the shell's process
+		if( dwShellPID && Helpers::CheckOSVersion(6, 1) )
+		{
+			HWND hShell = NULL;
+
+			while( (hShell = ::FindWindowEx(NULL, hShell, L"WorkerW", NULL)) != NULL )
+			{
+				if( ::IsWindowVisible(hShell) && ::FindWindowEx(hShell, NULL, NULL, NULL) )
+				{
+					DWORD dwTestPID;
+					::GetWindowThreadProcessId(hShell, &dwTestPID);
+
+					if( dwTestPID == dwShellPID )
+						break;
+				}
+			}
+
+			if( hShell )
+				hShellWnd = hShell;
+		}
+
+		SetParent(hShellWnd);
+	}
+	else
+	{
+		SetParent(NULL);
+	}
 	SetWindowPos(hwndZ, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE);
 }
 

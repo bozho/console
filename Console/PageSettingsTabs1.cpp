@@ -233,6 +233,9 @@ void PageSettingsTabs1::EnableControls()
 	GetDlgItem(IDC_TAB_USER).EnableWindow(m_nRunAs == 1);
 	GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_nRunAs == 1);
 	GetDlgItem(IDC_CHECK_RUN_AS_ADMIN).EnableWindow(m_nRunAs == 0);
+
+	m_staticCursorColor.ShowWindow(static_cast<CursorStyle>(m_comboCursor.GetCurSel()) != cstyleConsole? SW_SHOW : SW_HIDE);
+	GetDlgItem(IDC_STATIC_COLOR).EnableWindow(static_cast<CursorStyle>(m_comboCursor.GetCurSel()) != cstyleConsole);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -291,9 +294,10 @@ void PageSettingsTabs1::Save()
 
 LRESULT PageSettingsTabs1::OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  SetCursor();
+	SetCursor();
+	EnableControls();
 
-  return 0;
+	return 0;
 }
 
 LRESULT PageSettingsTabs1::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)

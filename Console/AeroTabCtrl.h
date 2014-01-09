@@ -432,8 +432,7 @@ public:
     {
       ::InflateRect(&rcText, -m_settings.iPadding, 0);
 
-      TCHAR szTitle[256];
-      int szTitleLen = _sntprintf_s(szTitle, 256, _TRUNCATE, _T("%d. %s"), nItem + 1, pItem->GetText());
+      CString sText = pItem->GetText();
 
       bool bGlow = true;
 
@@ -450,8 +449,7 @@ public:
           hTheme,
           dcPaint,
           WP_CAPTION, CS_ACTIVE,
-          szTitle,
-          szTitleLen,
+          sText, sText.GetLength(),
           DT_PATH_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX,
           &rcText,
           &dtto);
@@ -462,8 +460,7 @@ public:
       {
         dcPaint.SetBkMode(TRANSPARENT);
         dcPaint.DrawText(
-          szTitle,
-          szTitleLen,
+          sText, sText.GetLength(),
           &rcText,
           DT_PATH_ELLIPSIS | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
       }

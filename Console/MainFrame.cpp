@@ -1079,8 +1079,6 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 			strTabTitle += strCommandText;
 	}
 
-	UpdateTabTitle(*tabView, strTabTitle);
-
 	if (tabView == m_activeTabView)
 	{
 		if( windowSettings.bUseTabTitles )
@@ -1090,6 +1088,29 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
 			SetTrayIcon(NIM_MODIFY);
 	}
+
+	// we always set the tool tip text to the complete, untrimmed title
+	UpdateTabToolTip(*tabView, strTabTitle);
+
+	int n = m_TabCtrl.FindItem(*tabView);
+
+	char buf[16];
+	sprintf_s<16>(buf, "%d. ", n+1);
+	strTabTitle = CString(buf) + strTabTitle;
+
+	if
+	(
+		(windowSettings.dwTrimTabTitles > 0)
+		&&
+		(windowSettings.dwTrimTabTitles > windowSettings.dwTrimTabTitlesRight)
+		&&
+		(strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles))
+	)
+	{
+		strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles - windowSettings.dwTrimTabTitlesRight) + CString(L"\u2026") + strTabTitle.Right(windowSettings.dwTrimTabTitlesRight);
+	}
+
+	UpdateTabText(*tabView, strTabTitle);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1332,6 +1353,23 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 	}
 
 	UpdateUI();
+
+	bHandled = FALSE;
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnTabOrderChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& bHandled)
+{
+	// update tab titles
+	this->PostMessage(
+		UM_UPDATE_TITLES,
+		0,
+		0);
 
 	bHandled = FALSE;
 	return 0;
@@ -2249,33 +2287,6 @@ void MainFrame::CloseTab(HWND hwndTabView)
   }
 
   if (m_tabs.empty()) PostMessage(WM_CLOSE);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-void MainFrame::UpdateTabTitle(HWND hwndTabView, CString& strTabTitle)
-{
-	// we always set the tool tip text to the complete, untrimmed title
-	UpdateTabToolTip(hwndTabView, strTabTitle);
-
-	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
-
-	if 
-	(
-		(windowSettings.dwTrimTabTitles > 0) 
-		&& 
-		(windowSettings.dwTrimTabTitles > windowSettings.dwTrimTabTitlesRight) 
-		&& 
-		(strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles))
-	)
-	{
-		strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles - windowSettings.dwTrimTabTitlesRight) + CString(L"...") + strTabTitle.Right(windowSettings.dwTrimTabTitlesRight);
-	}
-	
-	UpdateTabText(hwndTabView, strTabTitle);
 }
 
 //////////////////////////////////////////////////////////////////////////////

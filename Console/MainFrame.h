@@ -118,6 +118,8 @@ class MainFrame
 			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 
 			NOTIFY_CODE_HANDLER(CTCN_SELCHANGE, OnTabChanged)
+			NOTIFY_CODE_HANDLER(CTCN_ACCEPTITEMDRAG, OnTabOrderChanged)
+			NOTIFY_CODE_HANDLER(CTCN_DELETEITEM, OnTabOrderChanged)
 			NOTIFY_CODE_HANDLER(CTCN_CLOSE, OnTabClose)
 			NOTIFY_CODE_HANDLER(CTCN_MCLICK, OnTabMiddleClick);
 			NOTIFY_CODE_HANDLER(NM_RCLICK, OnTabRightClick);
@@ -220,6 +222,7 @@ class MainFrame
 		LRESULT OnTaskbarCreated(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
+		LRESULT OnTabOrderChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
 		LRESULT OnTabClose(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 		LRESULT OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
 		LRESULT OnTabRightClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /* bHandled */);
@@ -288,7 +291,6 @@ class MainFrame
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
-		void UpdateTabTitle(HWND hwndTabView, CString& strTabTitle);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateOpenedTabsMenu(CMenu& tabsMenu);
 		void UpdateMenuHotKeys(void);

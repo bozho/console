@@ -458,8 +458,6 @@ public:
   {
 #ifdef _USE_AERO
     RECT rcText = { 0 };
-    TCHAR szTitle[256];
-    int szTitleLen = _sntprintf_s(szTitle, 256, _TRUNCATE, _T("0. %s"), this->GetText());
     Gdiplus::Graphics g(dc.m_hDC);
     Gdiplus::Font font(dc.m_hDC);
     Gdiplus::RectF rectF(0,0,1000,1000);
@@ -469,7 +467,7 @@ public:
       stringFormat.SetLineAlignment(Gdiplus::StringAlignmentCenter);
       stringFormat.SetFormatFlags(Gdiplus::StringFormatFlagsNoWrap|Gdiplus::StringFormatFlagsMeasureTrailingSpaces);
     g.MeasureString(
-      szTitle, szTitleLen,
+      m_sText, m_sText.GetLength(),
       &font,
       rectF,
       &stringFormat,
@@ -3426,6 +3424,26 @@ public:
 		for( size_t i=(nStart+1); i < nCount; ++i )
 		{
 			if(m_Items[i]->MatchItem(pFindItem, eFlags))
+			{
+				return (int)i;
+			}
+		}
+
+		return -1;
+	}
+
+	int FindItem(HWND hwndFindItem, int nStart = -1) const
+	{
+		if(nStart < 0)
+		{
+			nStart = -1;
+		}
+
+		// Find the next item matching the criteria specified
+		size_t nCount = m_Items.GetCount();
+		for( size_t i=(nStart+1); i < nCount; ++i )
+		{
+			if(m_Items[i]->GetTabView() == hwndFindItem)
 			{
 				return (int)i;
 			}

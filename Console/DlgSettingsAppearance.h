@@ -22,10 +22,9 @@ class DlgSettingsAppearance
 
 		BEGIN_DDX_MAP(DlgSettingsAppearance)
 			DDX_TEXT(IDC_WINDOW_TITLE, m_strWindowTitle)
+			DDX_TEXT(IDC_MAIN_TITLE_FORMAT, m_strMainTitleFormat)
+			DDX_TEXT(IDC_TAB_TITLE_FORMAT, m_strTabTitleFormat)
 			DDX_CHECK(IDC_CHECK_USE_TAB_TITLE, m_windowSettings.bUseTabTitles)
-			DDX_CHECK(IDC_CHECK_USE_CONSOLE_TITLE, m_windowSettings.bUseConsoleTitle)
-			DDX_CHECK(IDC_CHECK_SHOW_COMMAND, m_windowSettings.bShowCommand)
-			DDX_CHECK(IDC_CHECK_SHOW_COMMAND_TABS, m_windowSettings.bShowCommandInTabs)
 			DDX_CHECK(IDC_CHECK_TRIM_TAB_TITLES, m_bTrimTabTitles)
 			DDX_UINT(IDC_TRIM_TAB_TITLES, m_windowSettings.dwTrimTabTitles)
 			DDX_UINT(IDC_TRIM_TAB_TITLES_RIGHT, m_windowSettings.dwTrimTabTitlesRight)
@@ -50,7 +49,6 @@ class DlgSettingsAppearance
 			COMMAND_HANDLER(IDC_CHECK_USE_TAB_TITLE, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_USE_TAB_ICON, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_BTN_BROWSE_ICON, BN_CLICKED, OnClickedBtnBrowseIcon)
-			COMMAND_HANDLER(IDC_CHECK_USE_CONSOLE_TITLE, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_TRIM_TAB_TITLES, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_POSITION, BN_CLICKED, OnClickedCheckbox)
 			COMMAND_HANDLER(IDC_CHECK_SIZE, BN_CLICKED, OnClickedCheckbox)
@@ -79,6 +77,8 @@ class DlgSettingsAppearance
 		PositionSettings			m_positionSettings;
 
 		CString						m_strWindowTitle;
+		CString						m_strMainTitleFormat;
+		CString						m_strTabTitleFormat;
 		bool						m_bTrimTabTitles;
 		CString						m_strWindowIcon;
 

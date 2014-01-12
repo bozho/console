@@ -41,6 +41,7 @@ ConsoleHandler::ConsoleHandler()
 , m_hMonitorThreadExit(std::shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_bufferMutex(NULL, FALSE, NULL)
 , m_dwConsolePid(0)
+, m_boolIsElevated(false)
 {
 }
 
@@ -234,7 +235,7 @@ void ConsoleHandler::CreateShellProcess
 
 	if (strStartupTitle.length() == 0)
 	{
-		strStartupTitle = L"Console2 command window";
+		strStartupTitle = L"ConsoleZ command window";
 		//		strStartupTitle = boost::str(boost::wformat(L"Console2 command window 0x%08X") % this);
 	}
 
@@ -369,30 +370,32 @@ void ConsoleHandler::StartShellProcess
 	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
 	bool runAsAdministrator = userCredentials.runAsAdministrator;
+	bool isElevated = false;
 
-	if (runAsAdministrator)
+	try
 	{
-		try
+		if (Helpers::CheckOSVersion(6, 0))
 		{
-			if (Helpers::CheckOSVersion(6, 0))
+			if( Helpers::IsElevated() )
 			{
-				if( Helpers::IsElevated() )
-				{
-					// process already running in elevated mode or UAC disabled
-					runAsAdministrator = false;
-				}
-			}
-			else
-			{
-				// UAC doesn't exist in current OS
+				// process already running in elevated mode or UAC disabled
 				runAsAdministrator = false;
+				isElevated = true;
 			}
 		}
-		catch(std::exception& err)
+		else
 		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_GET_ELEVATION_TYPE)) % err.what()));
+			// UAC doesn't exist in current OS
+			runAsAdministrator = false;
 		}
 	}
+	catch(std::exception& err)
+	{
+		if (runAsAdministrator)
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_GET_ELEVATION_TYPE)) % err.what()));
+	}
+
+	m_boolIsElevated = isElevated || runAsAdministrator;
 
 	SharedMemory<DWORD> pid;
 

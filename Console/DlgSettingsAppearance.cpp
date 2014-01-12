@@ -48,6 +48,8 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	m_positionSettings.Load(m_pOptionsRoot);
 
 	m_strWindowTitle = m_windowSettings.strTitle.c_str();
+	m_strMainTitleFormat = m_windowSettings.strMainTitleFormat.c_str();
+	m_strTabTitleFormat  = m_windowSettings.strTabTitleFormat.c_str();
 	m_bTrimTabTitles = (m_windowSettings.dwTrimTabTitles > 0);
 	m_strWindowIcon  = m_windowSettings.strIcon.c_str();
 
@@ -128,6 +130,8 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 		m_windowSettings.strTitle			= m_strWindowTitle;
 		if (!m_bTrimTabTitles) m_windowSettings.dwTrimTabTitles = 0;
 		m_windowSettings.strIcon			= m_strWindowIcon;
+		m_windowSettings.strMainTitleFormat = m_strMainTitleFormat;
+		m_windowSettings.strTabTitleFormat  = m_strTabTitleFormat;
 
 		if (m_bUsePosition)
 		{
@@ -229,80 +233,31 @@ LRESULT DlgSettingsAppearance::OnClickedCheckbox(WORD /*wNotifyCode*/, WORD /*wI
 
 void DlgSettingsAppearance::EnableControls()
 {
-	GetDlgItem(IDC_WINDOW_TITLE).EnableWindow(FALSE);
-	GetDlgItem(IDC_CHECK_SHOW_COMMAND).EnableWindow(FALSE);
-	GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS).EnableWindow(FALSE);
-	GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow(FALSE);
-	GetDlgItem(IDC_TRIM_TAB_TITLES_RIGHT).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES_RIGHT).EnableWindow(FALSE);
-	GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow(FALSE);
-	GetDlgItem(IDC_STATIC_TRIM_CHARS_RIGHT).EnableWindow(FALSE);
-	GetDlgItem(IDC_WINDOW_ICON).EnableWindow(FALSE);
-	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(FALSE);
-	GetDlgItem(IDC_POS_X).EnableWindow(FALSE);
-	GetDlgItem(IDC_POS_Y).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_X).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_Y).EnableWindow(FALSE);
-	GetDlgItem(IDC_POS_W).EnableWindow(FALSE);
-	GetDlgItem(IDC_POS_H).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_W).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_H).EnableWindow(FALSE);
-	GetDlgItem(IDC_SNAP).EnableWindow(FALSE);
-	GetDlgItem(IDC_SPIN_SNAP).EnableWindow(FALSE);
+	GetDlgItem(IDC_WINDOW_TITLE).EnableWindow(!m_windowSettings.bUseTabTitles);
+	GetDlgItem(IDC_MAIN_TITLE_FORMAT).EnableWindow(!m_windowSettings.bUseTabTitles);
 
-	if (!m_windowSettings.bUseTabTitles)
-	{
-		GetDlgItem(IDC_WINDOW_TITLE).EnableWindow();
-	}
+	GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow(m_bTrimTabTitles);
+	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow(m_bTrimTabTitles);
+	GetDlgItem(IDC_TRIM_TAB_TITLES_RIGHT).EnableWindow(m_bTrimTabTitles);
+	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES_RIGHT).EnableWindow(m_bTrimTabTitles);
+	GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow(m_bTrimTabTitles);
+	GetDlgItem(IDC_STATIC_TRIM_CHARS_RIGHT).EnableWindow(m_bTrimTabTitles);
 
-	if (!m_windowSettings.bUseConsoleTitle)
-	{
-		GetDlgItem(IDC_CHECK_SHOW_COMMAND_TABS).EnableWindow();
-	}
+	GetDlgItem(IDC_WINDOW_ICON).EnableWindow(!m_windowSettings.bUseTabIcon);
+	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(!m_windowSettings.bUseTabIcon);
 
-	if (!m_windowSettings.bUseTabTitles && !m_windowSettings.bUseConsoleTitle)
-	{
-		GetDlgItem(IDC_CHECK_SHOW_COMMAND).EnableWindow();
-	}
+	GetDlgItem(IDC_POS_X).EnableWindow(m_bUsePosition);
+	GetDlgItem(IDC_POS_Y).EnableWindow(m_bUsePosition);
+	GetDlgItem(IDC_SPIN_X).EnableWindow(m_bUsePosition);
+	GetDlgItem(IDC_SPIN_Y).EnableWindow(m_bUsePosition);
 
-	if (m_bTrimTabTitles)
-	{
-		GetDlgItem(IDC_TRIM_TAB_TITLES).EnableWindow();
-		GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES).EnableWindow();
-		GetDlgItem(IDC_TRIM_TAB_TITLES_RIGHT).EnableWindow();
-		GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES_RIGHT).EnableWindow();
-		GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow();
-		GetDlgItem(IDC_STATIC_TRIM_CHARS_RIGHT).EnableWindow();
-	}
-	
-	if (!m_windowSettings.bUseTabIcon)
-	{
-		GetDlgItem(IDC_WINDOW_ICON).EnableWindow();
-		GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow();
-	}
+	GetDlgItem(IDC_POS_W).EnableWindow(m_bUseSize);
+	GetDlgItem(IDC_POS_H).EnableWindow(m_bUseSize);
+	GetDlgItem(IDC_SPIN_W).EnableWindow(m_bUseSize);
+	GetDlgItem(IDC_SPIN_H).EnableWindow(m_bUseSize);
 
-	if (m_bUsePosition)
-	{
-		GetDlgItem(IDC_POS_X).EnableWindow();
-		GetDlgItem(IDC_POS_Y).EnableWindow();
-		GetDlgItem(IDC_SPIN_X).EnableWindow();
-		GetDlgItem(IDC_SPIN_Y).EnableWindow();
-	}
-
-	if (m_bUseSize)
-	{
-		GetDlgItem(IDC_POS_W).EnableWindow();
-		GetDlgItem(IDC_POS_H).EnableWindow();
-		GetDlgItem(IDC_SPIN_W).EnableWindow();
-		GetDlgItem(IDC_SPIN_H).EnableWindow();
-	}
-
-	if (m_bSnapToEdges)
-	{
-		GetDlgItem(IDC_SNAP).EnableWindow();
-		GetDlgItem(IDC_SPIN_SNAP).EnableWindow();
-	}
+	GetDlgItem(IDC_SNAP).EnableWindow(m_bSnapToEdges);
+	GetDlgItem(IDC_SPIN_SNAP).EnableWindow(m_bSnapToEdges);
 }
 
 //////////////////////////////////////////////////////////////////////////////

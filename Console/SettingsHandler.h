@@ -111,10 +111,9 @@ struct WindowSettings : public SettingsBase
 
 	wstring			strTitle;
 	wstring			strIcon;
+	wstring			strMainTitleFormat;
+	wstring			strTabTitleFormat;
 	bool			bUseTabIcon;
-	bool			bUseConsoleTitle;
-	bool			bShowCommand;
-	bool			bShowCommandInTabs;
 	bool			bUseTabTitles;
 	DWORD			dwTrimTabTitles;
 	DWORD			dwTrimTabTitlesRight;

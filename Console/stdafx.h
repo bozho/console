@@ -94,6 +94,7 @@ extern CAppModule _Module;
 #include <string>
 #include <map>
 #include <vector>
+#include <stack>
 using namespace std;
 #pragma warning(pop)
 

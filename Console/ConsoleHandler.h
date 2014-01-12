@@ -137,6 +137,7 @@ class ConsoleHandler
 		static void UpdateEnvironmentBlock();
 
 		inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
+		inline bool  IsElevated(void) const { return m_boolIsElevated; }
 
 		void PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam);
 		void WriteConsoleInput(KEY_EVENT_RECORD* pkeyEvent);
@@ -208,6 +209,7 @@ class ConsoleHandler
     static std::shared_ptr<Mutex>     s_parentProcessWatchdog;
 
     DWORD                             m_dwConsolePid;
+    bool                              m_boolIsElevated;
 
 };
 

@@ -150,7 +150,7 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 		m_dwColumns	= dwColumns;
 	}
 #endif
-	std::shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, m_strTitle, dwRows, dwColumns, strCmdLineInitialDir, strCmdLineInitialCmd));
+	std::shared_ptr<ConsoleView> consoleView(new ConsoleView(m_mainFrame, m_hWnd, m_tabData, dwRows, dwColumns, strCmdLineInitialDir, strCmdLineInitialCmd));
 	consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 
@@ -302,12 +302,6 @@ void TabView::MainframeMoving()
 void TabView::SetTitle(const CString& strTitle)
 {
   m_strTitle = strTitle;
-
-  MutexLock	viewMapLock(m_viewsMutex);
-  for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
-  {
-    it->second->SetTitle(strTitle);
-  }
 }
 
 void TabView::SetActive(bool bActive)

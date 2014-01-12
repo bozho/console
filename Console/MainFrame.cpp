@@ -122,18 +122,14 @@ MainFrame::MainFrame
 	m_Margins.cyTopHeight    = 0;
 	m_Margins.cyBottomHeight = 0;
 
-	wstring strWindowTitle(L"");
-
 	ParseCommandLine(
 		lpstrCmdLine,
-		strWindowTitle,
+		m_strCmdLineWindowTitle,
 		m_startupTabs,
 		m_startupDirs,
 		m_startupCmds,
 		m_nMultiStartSleep,
 		m_strWorkingDir);
-	m_strCmdLineWindowTitle = strWindowTitle.c_str();
-	m_strWindowTitle = strWindowTitle.c_str();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -361,12 +357,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	SetWindowPos(NULL, positionSettings.nX, positionSettings.nY, 0, 0, dwFlags);
 	DockWindow(positionSettings.dockPosition);
 	SetZOrder(positionSettings.zOrder);
-
-	if (m_strCmdLineWindowTitle.GetLength() == 0)
-	{
-		m_strWindowTitle = g_settingsHandler->GetAppearanceSettings().windowSettings.strTitle.c_str();
-	}
-	SetWindowText(m_strWindowTitle);
 
 	m_uTaskbarRestart = RegisterWindowMessage(TEXT("TaskbarCreated"));
 	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
@@ -1032,6 +1022,191 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 	return 0;
 }
 
+std::wstring MainFrame::FormatTitle(std::wstring strFormat, std::shared_ptr<TabView> tabView, std::shared_ptr<ConsoleView> consoleView)
+{
+/*
+                  +-----+
+         +--pop-->|     |
++-----+  |   )    |     |    %?(): u-U
+|  S  |  +--------|     |<--------------+
+|  T  |           |  R  |               |
+|  A  |----push-->|  E  |     %     +-------+
+|  R  |           |  A  |---------->|SPECIAL|
+|  T  |        +--|  D  |           +-------+
++-----+       *|  |     |
+   ^           +->|     |     ?     +---------+    u-U    +---------+     :     +---------+
+   |              |     |---------->|QUESTION1|---------->|QUESTION2|---------->|QUESTION3|
+   |              +-----+           +---------+           +---------+           +---------+
+   |                 |                             (           |                   |   ^
+   +-----------------)-------------!empty----------------------+                   |   |
+   |                 |                                                    (        |   |
+   +-----------------)--------------empty------------------------------------------+   |
+                     |                                                    :            |
+                     +-----------------------------------------------------------------+
+*/
+
+	enum
+	{
+		START,
+		READ,
+		SPECIAL,
+		QUESTION1,
+		QUESTION2,
+		QUESTION3
+	}
+	automaton_state = START;
+
+	struct layer
+	{
+		enum
+		{
+			NONE,
+			DEFINED,
+			UNDEFINED,
+		}            condition_value,
+		             condition_part;
+		std::wstring str;
+
+		layer():condition_value(NONE),condition_part(NONE),str(){}
+	};
+
+	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+
+	std::wstring strMainTitle  = m_strCmdLineWindowTitle.empty()? windowSettings.strTitle : m_strCmdLineWindowTitle;
+	std::wstring strShellTitle = consoleView->GetConsoleCommand();
+	int          nTabNumber    = m_TabCtrl.FindItem(*tabView) + 1;
+
+	std::stack<std::shared_ptr<layer>> layers;
+
+	std::wstring result(L"");
+	size_t position = 1;
+
+	for(auto i = strFormat.begin(); i != strFormat.end(); ++i, ++position)
+	{
+		switch( automaton_state )
+		{
+		case START:
+			layers.push(std::shared_ptr<layer>(new layer));
+			automaton_state = READ;
+
+		case READ:
+			switch( *i )
+			{
+			case L'%':
+				automaton_state = SPECIAL;
+				break;
+			case L'?':
+				automaton_state = QUESTION1;
+				break;
+			case L')':
+				if( layers.size() > 1 )
+				{
+					std::shared_ptr<layer> top = layers.top();
+					layers.pop();
+
+					if( layers.top()->condition_part == layers.top()->condition_value )
+						layers.top()->str += top->str;
+				}
+				else goto error;
+				break;
+			case L':':
+				if( layers.top()->condition_value != layer::NONE && layers.top()->condition_part != layer::UNDEFINED )
+					automaton_state = QUESTION3;
+				else goto error;
+				break;
+			default:
+				layers.top()->str += *i;
+				break;
+			}
+			break;
+		case SPECIAL:
+			switch( *i )
+			{
+			case L'%':
+			case L'?':
+			case L'(':
+			case L')':
+			case L':':
+				layers.top()->str += *i;
+				break;
+			case L'u': layers.top()->str += consoleView->GetUser(); break;
+			case L'p': layers.top()->str += std::to_wstring(consoleView->GetConsoleHandler().GetConsolePid()); break;
+			case L'n': layers.top()->str += std::to_wstring(nTabNumber); break;
+			case L'i': layers.top()->str += L"index"; break;
+			case L'm': layers.top()->str += strMainTitle; break;
+			case L't': layers.top()->str += tabView->GetTitle(); break;
+			case L's': layers.top()->str += strShellTitle; break;
+			case L'A': layers.top()->str += consoleView->GetConsoleHandler().IsElevated()? L"y" : L""; break;
+			case L'U': layers.top()->str += ( consoleView->IsRunningAsUser() )? L"y" : L""; break;
+			case L'N': layers.top()->str += ( consoleView->IsRunningAsUserNetOnly() )? L"y" : L""; break;
+			default:
+				goto error;
+			}
+			automaton_state = READ;
+			break;
+		case QUESTION1:
+			{
+				bool defined = false;
+
+				switch( *i )
+				{
+				case L'u': defined = consoleView->GetUser().GetLength() > 0; break;
+				case L'm': defined = !strMainTitle.empty(); break;
+				case L't': defined = tabView->GetTitle().GetLength() > 0; break;
+				case L's': defined = !strShellTitle.empty(); break;
+				case L'A': defined = consoleView->GetConsoleHandler().IsElevated(); break;
+				case L'U': defined = consoleView->IsRunningAsUser(); break;
+				case L'N': defined = consoleView->IsRunningAsUserNetOnly(); break;
+					break;
+				default:
+					goto error;
+				}
+
+				layers.top()->condition_value = defined? layer::DEFINED : layer::UNDEFINED;
+				automaton_state = QUESTION2;
+			}
+			break;
+		case QUESTION2:
+			switch( *i )
+			{
+			case L'(':
+				layers.top()->condition_part = layer::DEFINED;
+				automaton_state = START;
+				break;
+			case L':':
+				automaton_state = QUESTION3;
+				break;
+			default:
+				goto error;
+			}
+			break;
+		case QUESTION3:
+			switch( *i )
+			{
+			case L'(':
+				layers.top()->condition_part = layer::UNDEFINED;
+				automaton_state = START;
+				break;
+			default:
+				goto error;
+			}
+			break;
+		}
+	}
+
+	if( layers.size() > 1 ) goto error;
+	if( layers.size() == 1 )
+		result = layers.top()->str;
+
+	return result;
+
+error:
+	result = L"syntax error at position ";
+	result += std::to_wstring(position);
+
+	return result;
+}
+
 void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 {
 	std::shared_ptr<ConsoleView> consoleView = tabView->GetActiveConsole(_T(__FUNCTION__));
@@ -1039,64 +1214,19 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
-	if (m_strCmdLineWindowTitle.GetLength() != 0)
-	{
-		m_strWindowTitle = m_strCmdLineWindowTitle;
-	}
-	else
-	{
-		m_strWindowTitle = windowSettings.strTitle.c_str();
-	}
-
-	CString strTabTitle;
-
-	if (windowSettings.bUseConsoleTitle)
-	{
-		strTabTitle = consoleView->GetConsoleCommand();
-	}
-	else
-	{
-		strTabTitle = consoleView->GetTitle();
-
-		CString strCommandText;
-		if( windowSettings.bShowCommand || windowSettings.bShowCommandInTabs )
-		{
-			CString	strConsoleTitle(consoleView->GetConsoleCommand());
-
-			if( strConsoleTitle.Find(L"Console2 command window") == -1 )
-			{
-				strCommandText = CString(L" - ") + strConsoleTitle;
-			}
-		}
-
-		if (tabView == m_activeTabView)
-		{
-			if (windowSettings.bShowCommand)
-				m_strWindowTitle += strCommandText;
-		}
-
-		if (windowSettings.bShowCommandInTabs)
-			strTabTitle += strCommandText;
-	}
+	wstring strTabTitle = FormatTitle(windowSettings.strTabTitleFormat, tabView, consoleView);
 
 	if (tabView == m_activeTabView)
 	{
-		if( windowSettings.bUseTabTitles )
-			m_strWindowTitle = strTabTitle;
+		m_strWindowTitle = windowSettings.bUseTabTitles? strTabTitle : FormatTitle(windowSettings.strMainTitleFormat, tabView, consoleView);
 
-		SetWindowText(m_strWindowTitle);
+		SetWindowText(m_strWindowTitle.c_str());
 		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
 			SetTrayIcon(NIM_MODIFY);
 	}
 
 	// we always set the tool tip text to the complete, untrimmed title
-	UpdateTabToolTip(*tabView, strTabTitle);
-
-	int n = m_TabCtrl.FindItem(*tabView);
-
-	char buf[16];
-	sprintf_s<16>(buf, "%d. ", n+1);
-	strTabTitle = CString(buf) + strTabTitle;
+	UpdateTabToolTip(*tabView, strTabTitle.c_str());
 
 	if
 	(
@@ -1104,13 +1234,15 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 		&&
 		(windowSettings.dwTrimTabTitles > windowSettings.dwTrimTabTitlesRight)
 		&&
-		(strTabTitle.GetLength() > static_cast<int>(windowSettings.dwTrimTabTitles))
+		(strTabTitle.length() > static_cast<int>(windowSettings.dwTrimTabTitles))
 	)
 	{
-		strTabTitle = strTabTitle.Left(windowSettings.dwTrimTabTitles - windowSettings.dwTrimTabTitlesRight) + CString(L"\u2026") + strTabTitle.Right(windowSettings.dwTrimTabTitlesRight);
+		strTabTitle = strTabTitle.substr(0, windowSettings.dwTrimTabTitles - windowSettings.dwTrimTabTitlesRight)
+		            + L'\u2026'
+		            + strTabTitle.substr(strTabTitle.length() - windowSettings.dwTrimTabTitlesRight);
 	}
 
-	UpdateTabText(*tabView, strTabTitle);
+	UpdateTabText(*tabView, strTabTitle.c_str());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1342,15 +1474,6 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 	}
 
 	if (appearanceSettings.stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
-
-	if (appearanceSettings.windowSettings.bUseTabTitles && m_activeTabView)
-	{
-    std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
-    if( activeConsoleView )
-    {
-		  SetWindowText(activeConsoleView->GetTitle());
-    }
-	}
 
 	UpdateUI();
 
@@ -1862,12 +1985,6 @@ LRESULT MainFrame::OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 LRESULT MainFrame::OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if (!m_activeTabView) return 0;
-
-	if( g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle )
-	{
-		::MessageBox(m_hWnd, L"Tab's renaming is disabled. \"Use console window title\" option is checked.", L"Warning", MB_OK|MB_ICONWARNING);
-		return 0;
-	}
 
   DlgRenameTab dlg(m_activeTabView->GetTitle());
 

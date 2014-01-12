@@ -37,7 +37,7 @@ bool _boolMenuSysKeyCancelled = false;
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
 : m_mainFrame(mainFrame)
 , m_hwndTabView(hwndTabView)
 , m_bInitializing(true)
@@ -54,7 +54,6 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_nVWheelDelta(0)
 , m_bShowVScroll(false)
 , m_bShowHScroll(false)
-, m_strTitle(strTitle)
 , m_strUser()
 , m_boolNetOnly(false)
 , m_consoleHandler()
@@ -146,7 +145,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 			strInitialDir,
 			*userCredentials,
 			m_strCmdLineInitialCmd,
-			g_settingsHandler->GetAppearanceSettings().windowSettings.bUseConsoleTitle ? m_tabData->strTitle : wstring(L""),
+			wstring(L""),
 			m_dwStartupRows,
 			m_dwStartupColumns);
 
@@ -158,9 +157,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		m_exceptionMessage = ex.GetMessage().c_str();
 		return -1;
 	}
-
-	// set view title
-	SetTitle(m_strTitle);
 
 	m_bInitializing = false;
 
@@ -1333,29 +1329,6 @@ void ConsoleView::SetActive(bool bActive)
 	UpdateTitle();
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
-
-void ConsoleView::SetTitle(const CString& strTitle)
-{
-	CString	title(strTitle);
-
-	if (m_strUser.GetLength() > 0)
-		if (m_boolNetOnly)
-		{
-			title.Format(L"{%s} %s", static_cast<LPCTSTR>(m_strUser), static_cast<LPCTSTR>(strTitle));
-		}
-		else
-		{
-			title.Format(L"[%s] %s", static_cast<LPCTSTR>(m_strUser), static_cast<LPCTSTR>(strTitle));
-		}
-
-	m_strTitle = title;
-	SetWindowText(m_strTitle);
-}
-
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -1367,6 +1340,9 @@ CString ConsoleView::GetConsoleCommand()
 	CString strConsoleTitle(L"");
 
 	consoleWnd.GetWindowText(strConsoleTitle);
+
+	if( strConsoleTitle.Find(L"ConsoleZ command window") != -1 )
+		strConsoleTitle = L"";
 
 	return strConsoleTitle;
 }

@@ -161,8 +161,8 @@
 #define IDC_WINDOW_ICON                 1111
 #define IDC_CHECK_USE_TAB_TITLE         1112
 #define IDC_CHECK_USE_TAB_ICON          1113
-#define IDC_CHECK_SHOW_COMMAND          1114
-#define IDC_CHECK_SHOW_COMMAND_TABS     1115
+#define IDC_MAIN_TITLE_FORMAT           1114
+#define IDC_TAB_TITLE_FORMAT            1115
 #define IDC_LIST_TABS                   1116
 #define IDC_SPIN_Y2                     1116
 #define IDC_SPIN_TRIM_TAB_TITLES        1116
@@ -203,7 +203,6 @@
 #define IDC_TABS                        1146
 #define IDC_CHECK_CLEAR_ON_COPY         1146
 #define IDC_CHECK_INVERSE_SHIFT         1147
-#define IDC_CHECK_USE_CONSOLE_TITLE     1147
 #define IDC_CHECK_SENSITIVE_COPY        1147
 #define IDC_CHECK_TRIM_TAB_TITLES       1148
 #define IDC_STATIC_TRIM_CHARS           1149

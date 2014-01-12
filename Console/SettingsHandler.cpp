@@ -257,10 +257,9 @@ FontSettings& FontSettings::operator=(const FontSettings& other)
 WindowSettings::WindowSettings()
 : strTitle(L"Console")
 , strIcon(L"")
+, strMainTitleFormat(L"?U([%u] )?N({%u} )%m?s( - %s)")
+, strTabTitleFormat(L"%n. ?U([%u] )?N({%u} )%t?s( - %s)")
 , bUseTabIcon(false)
-, bUseConsoleTitle(false)
-, bShowCommand(true)
-, bShowCommandInTabs(true)
 , bUseTabTitles(false)
 , dwTrimTabTitles(0)
 , dwTrimTabTitlesRight(0)
@@ -280,13 +279,38 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"title"), strTitle, wstring(L"Console"));
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon, wstring(L""));
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"main_title_format"), strMainTitleFormat, wstring(L""));
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"tab_title_format"), strTabTitleFormat, wstring(L""));
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_tab_icon"), bUseTabIcon, false);
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_console_title"), bUseConsoleTitle, false);
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd"), bShowCommand, true);
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs, true);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles, false);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles"), dwTrimTabTitles, 0);
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles_right"), dwTrimTabTitlesRight, 0);
+
+	bool bUseConsoleTitle, bShowCommand, bShowCommandInTabs;
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"use_console_title"), bUseConsoleTitle, false);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd"), bShowCommand, true);
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs, true);
+
+	if( strMainTitleFormat.empty() )
+	{
+		strMainTitleFormat = L"?U([%u] )?N({%u} )%m";
+		if( bShowCommand )
+			strMainTitleFormat += L"?s( - %s)";
+	}
+
+	if( strTabTitleFormat.empty() )
+	{
+		if( bUseConsoleTitle )
+		{
+			strTabTitleFormat = L"%n. ?s(%s):(%t)";
+		}
+		else
+		{
+			strTabTitleFormat = L"%n. ?U([%u] )?N({%u} )%t";
+			if( bShowCommandInTabs )
+				strTabTitleFormat += L"?s( - %s)";
+		}
+	}
 
 	return true;
 }
@@ -304,10 +328,9 @@ bool WindowSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"title"), strTitle);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"main_title_format"), strMainTitleFormat);
+	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"tab_title_format"), strTabTitleFormat);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"use_tab_icon"), bUseTabIcon);
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"use_console_title"), bUseConsoleTitle);
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_cmd"), bShowCommand);
-	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"show_cmd_tabs"), bShowCommandInTabs);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"use_tab_title"), bUseTabTitles);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles"), dwTrimTabTitles);
 	XmlHelper::SetAttribute(pWindowElement, CComBSTR(L"trim_tab_titles_right"), dwTrimTabTitlesRight);
@@ -324,10 +347,9 @@ WindowSettings& WindowSettings::operator=(const WindowSettings& other)
 {
 	strTitle			= other.strTitle;
 	strIcon				= other.strIcon;
+	strMainTitleFormat = other.strMainTitleFormat;
+	strTabTitleFormat  = other.strTabTitleFormat;
 	bUseTabIcon			= other.bUseTabIcon;
-	bUseConsoleTitle	= other.bUseConsoleTitle;
-	bShowCommand		= other.bShowCommand;
-	bShowCommandInTabs	= other.bShowCommandInTabs;
 	bUseTabTitles		= other.bUseTabTitles;
 	dwTrimTabTitles		= other.dwTrimTabTitles;
 	dwTrimTabTitlesRight= other.dwTrimTabTitlesRight;

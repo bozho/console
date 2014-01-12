@@ -17,6 +17,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 class TabView;
+class ConsoleView;
 typedef map<HWND, std::shared_ptr<TabView> >	TabViewMap;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -291,6 +292,7 @@ class MainFrame
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
+		std::wstring FormatTitle(std::wstring strFormat, std::shared_ptr<TabView> tabView, std::shared_ptr<ConsoleView> consoleView);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateOpenedTabsMenu(CMenu& tabsMenu);
 		void UpdateMenuHotKeys(void);
@@ -363,8 +365,8 @@ class MainFrame
 		CIcon			m_icon;
 		CIcon			m_smallIcon;
 
-		CString			m_strCmdLineWindowTitle;
-		CString			m_strWindowTitle;
+		std::wstring m_strWindowTitle;
+		std::wstring m_strCmdLineWindowTitle;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;

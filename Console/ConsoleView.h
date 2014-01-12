@@ -30,7 +30,7 @@ class ConsoleView
 		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 //		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS, COLOR_WINDOW)
 
-		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, const CString& strTitle, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
+		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		~ConsoleView();
 
 		BEGIN_MSG_MAP(ConsoleView)
@@ -127,8 +127,9 @@ class ConsoleView
 
 		void SetResizing(bool bResizing);
 		void SetActive(bool bActive);
-		void SetTitle(const CString& strTitle);
-		const CString& GetTitle() const { return m_strTitle; }
+		const CString& GetUser() const { return m_strUser; }
+		bool  IsRunningAsUserNetOnly() const { return m_strUser.GetLength() > 0 && m_boolNetOnly; }
+		bool  IsRunningAsUser() const { return m_strUser.GetLength() > 0 && !m_boolNetOnly; }
 
 		CString GetConsoleCommand();
 
@@ -206,7 +207,6 @@ class ConsoleView
 		bool	m_bShowVScroll;
 		bool	m_bShowHScroll;
 
-		CString	m_strTitle;
 		CString	m_strUser;
 		bool	m_boolNetOnly;
 

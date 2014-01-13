@@ -934,60 +934,68 @@ void ConsoleHandler::CopyConsoleText()
 
 void ConsoleHandler::SendConsoleText(HANDLE hStdIn, const wchar_t*	pszText, size_t	textLen)
 {
-	size_t		partLen	= 512;
-	size_t		parts	= textLen/partLen;
-	size_t		offset	= 0;
+	const size_t partMaxLen    = min(512, textLen);
+	size_t       keyEventCount = 0;
+	DWORD        dwTextWritten;
 
-	for (size_t part = 0; part < parts+1; ++part)
+	std::unique_ptr<INPUT_RECORD[]> pKeyEvents(new INPUT_RECORD[partMaxLen]);
+
+	for(size_t i = 0; i < textLen; ++i)
 	{
-		size_t	keyEventCount = 0;
-		
-		if (part == parts)
+		if( keyEventCount == partMaxLen )
 		{
-			// last part, modify part size
-			partLen = textLen - parts*partLen;
-		}
-
-		std::unique_ptr<INPUT_RECORD[]> pKeyEvents(new INPUT_RECORD[partLen]);
-		::ZeroMemory(pKeyEvents.get(), sizeof(INPUT_RECORD)*partLen);
-
-		for (size_t i = 0; (i < partLen) && (offset < textLen); ++i, ++offset, ++keyEventCount)
-		{
-			if ((pszText[offset] == L'\r') || (pszText[offset] == L'\n'))
-			{
-				if ((pszText[offset] == L'\r') && (pszText[offset+1] == L'\n')) ++offset;
-
-				if (keyEventCount > 0)
-				{
-					DWORD dwTextWritten = 0;
-					::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
-				}
-
-				::PostMessage(m_consoleParams->hwndConsoleWindow, WM_KEYDOWN, VK_RETURN, 0x001C0001);
-				::PostMessage(m_consoleParams->hwndConsoleWindow, WM_KEYUP, VK_RETURN, 0xC01C0001);
-
-				keyEventCount = static_cast<size_t>(-1);
-				partLen -= i;
-				i = static_cast<size_t>(-1);
-			}
-			else
-			{
-				pKeyEvents[i].EventType							= KEY_EVENT;
-				pKeyEvents[i].Event.KeyEvent.bKeyDown			= TRUE;
-				pKeyEvents[i].Event.KeyEvent.wRepeatCount		= 1;
-				pKeyEvents[i].Event.KeyEvent.wVirtualKeyCode	= LOBYTE(::VkKeyScan(pszText[offset]));
-				pKeyEvents[i].Event.KeyEvent.wVirtualScanCode	= 0;
-				pKeyEvents[i].Event.KeyEvent.uChar.UnicodeChar	= pszText[offset];
-				pKeyEvents[i].Event.KeyEvent.dwControlKeyState	= 0;
-			}
-		}
-
-		if (keyEventCount > 0)
-		{
-			DWORD dwTextWritten = 0;
 			::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
+
+			keyEventCount = 0;
+		}
+
+		if( (pszText[i] == L'\r') || (pszText[i] == L'\n') )
+		{
+			if((pszText[i] == L'\r') && (i + 1) < textLen && (pszText[i + 1] == L'\n')) ++i;
+
+			pKeyEvents[keyEventCount].EventType                        = KEY_EVENT;
+			pKeyEvents[keyEventCount].Event.KeyEvent.bKeyDown          = TRUE;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wRepeatCount      = 1;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wVirtualKeyCode   = VK_RETURN;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wVirtualScanCode  = 0;
+			pKeyEvents[keyEventCount].Event.KeyEvent.uChar.UnicodeChar = VK_RETURN;
+			pKeyEvents[keyEventCount].Event.KeyEvent.dwControlKeyState = 0;
+
+			keyEventCount++;
+
+			if( keyEventCount == partMaxLen )
+			{
+				::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
+
+				keyEventCount = 0;
+			}
+
+			pKeyEvents[keyEventCount].EventType                        = KEY_EVENT;
+			pKeyEvents[keyEventCount].Event.KeyEvent.bKeyDown          = FALSE;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wRepeatCount      = 1;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wVirtualKeyCode   = VK_RETURN;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wVirtualScanCode  = 0;
+			pKeyEvents[keyEventCount].Event.KeyEvent.uChar.UnicodeChar = VK_RETURN;
+			pKeyEvents[keyEventCount].Event.KeyEvent.dwControlKeyState = 0;
+
+			keyEventCount++;
+		}
+		else
+		{
+			pKeyEvents[keyEventCount].EventType                        = KEY_EVENT;
+			pKeyEvents[keyEventCount].Event.KeyEvent.bKeyDown          = TRUE;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wRepeatCount      = 1;
+			pKeyEvents[keyEventCount].Event.KeyEvent.wVirtualKeyCode   = LOBYTE(::VkKeyScan(pszText[i]));
+			pKeyEvents[keyEventCount].Event.KeyEvent.wVirtualScanCode  = 0;
+			pKeyEvents[keyEventCount].Event.KeyEvent.uChar.UnicodeChar = pszText[i];
+			pKeyEvents[keyEventCount].Event.KeyEvent.dwControlKeyState = 0;
+
+			keyEventCount++;
 		}
 	}
+
+	if( keyEventCount > 0 )
+		::WriteConsoleInput(hStdIn, pKeyEvents.get(), static_cast<DWORD>(keyEventCount), &dwTextWritten);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -28,8 +28,8 @@ public:
     ,m_bAppActive(true)
     ,m_iCloseButtonWidth(0)
     ,m_iCloseButtonHeight(0)
-    ,m_iMargin(6)
-    ,m_iLeftSpacing(2)
+    ,m_iMargin(3)
+    ,m_iLeftSpacing(0)
     ,m_iRadius(3)
   {
     // We can't use a member initialization list to initialize
@@ -110,9 +110,9 @@ public:
     m_hbrBackground.CreateSysColorBrush(COLOR_BTNFACE);
 
     m_settings.iIndent = 5;
-    m_settings.iPadding = 4;
+    m_settings.iPadding = 2;
     m_settings.iMargin = m_iMargin + m_iLeftSpacing / 2;
-    m_settings.iSelMargin = 6;
+    m_settings.iSelMargin = 0;
 
     T* pT = static_cast<T*>(this);
     pT->UpdateLayout();

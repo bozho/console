@@ -454,9 +454,10 @@ public:
 		m_sText = sNewText;
 		return true;
 	}
-  virtual LONG GetTextSize(WTL::CClientDC& dc) const
-  {
-#ifdef _USE_AERO
+	virtual LONG GetTextSize(WTL::CClientDC& dc) const
+	{
+//#ifdef _USE_AERO
+#if 0
     RECT rcText = { 0 };
     Gdiplus::Graphics g(dc.m_hDC);
     Gdiplus::Font font(dc.m_hDC);
@@ -475,12 +476,11 @@ public:
 
     return (long)(boundingBox.Width);
 #else
-    RECT rcText = { 0 };
-		_CSTRING_NS::CString sText = this->GetText();
-		dc.DrawText(sText, sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
+		RECT rcText = { 0 };
+		dc.DrawText(m_sText, m_sText.GetLength(), &rcText, DT_SINGLELINE | DT_CALCRECT);
 		return rcText.right-rcText.left;
 #endif
-  }
+	}
 
 	_CSTRING_NS::CString GetToolTip() const
 	{

@@ -30,24 +30,37 @@
 	</p>
 	<br />
 
-	<p class="block-row-name">Use console window title</p>
+	<p class="block-row-name">Main format</p>
 	<p class="block-row-description">
-		Activates support for changing window/tab title from the shell ('title' 
-		command in cmd.exe).
-		<br />
-		<b>Note:</b> If on, 'Rename Tab' menu command will be disabled.
+		Specifies the text used to format the main window title.<br />
+		Main and Tab format share the same syntax.
 	</p>
 	<br />
 
-	<p class="block-row-name">Show command</p>
+	<p class="block-row-name">Tab format</p>
 	<p class="block-row-description">
-		If checked, main window title will show currently running command.
-	</p>
-	<br />
-
-	<p class="block-row-name">Show command in tabs</p>
-	<p class="block-row-description">
-		If checked, tab titles will show currently running commands.
+		Specifies the text used to format the tab title.<br />
+		Syntax:<br />
+		<table>
+			<tr><td><b>%u</b>               </td><td><u>U</u>ser name                                              </td></tr>
+			<tr><td><b>%p</b>               </td><td><u>P</u>ID                                                    </td></tr>
+			<tr><td><b>%n</b>               </td><td>Tab <u>n</u>umber (the position in the tabs bar)              </td></tr>
+			<tr><td><b>%i</b>               </td><td>Tab <u>i</u>ndex (the position in the settings)               </td></tr>
+			<tr><td><b>%m</b>               </td><td><u>M</u>ain window title (defined in settings or -w parameter)</td></tr>
+			<tr><td><b>%t</b>               </td><td><u>T</u>ab title (defined in settings)                        </td></tr>
+			<tr><td><b>%s</b>               </td><td><u>S</u>hell title                                            </td></tr>
+			<tr><td><b>%%</b>               </td><td>%                                                             </td></tr>
+			<tr><td><b>%?</b>               </td><td>?                                                             </td></tr>
+			<tr><td><b>%(</b>               </td><td>(                                                             </td></tr>
+			<tr><td><b>%)</b>               </td><td>)                                                             </td></tr>
+			<tr><td><b>%:</b>               </td><td>:                                                             </td></tr>
+			<tr><td><b>%A</b>               </td><td>y if running as <u>a</u>dministrator                          </td></tr>
+			<tr><td><b>%U</b>               </td><td>y if running as <u>u</u>ser                                   </td></tr>
+			<tr><td><b>%N</b>               </td><td>y if running as user (<u>n</u>et only)                        </td></tr>
+			<tr><td><b>?x( ... )</b>        </td><td>if x is defined then ... ; x can be u, s, A, U or N           </td></tr>
+			<tr><td><b>?x( ... ):( ... )</b></td><td>if x is defined then ... else ... ; x can be u, s, A, U or N  </td></tr>
+			<tr><td><b>?x:( ... )</b>       </td><td>if x is undefined then ... ; x can be u, s, A, U or N         </td></tr>
+		</table>
 	</p>
 	<br />
 

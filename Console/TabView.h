@@ -68,7 +68,7 @@ public:
 
   void SplitHorizontally();
   void SplitVertically();
-  bool CloseView(HWND hwnd = 0);
+  bool CloseView(HWND hwnd, bool& boolTabClosed);
   void SwitchView(WORD wID);
   void ResizeView(WORD wID);
   void SetActiveConsole(HWND hwnd);

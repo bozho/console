@@ -395,29 +395,31 @@ void TabView::SplitVertically()
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool TabView::CloseView(HWND hwnd /*= 0*/)
+bool TabView::CloseView(HWND hwnd, bool& boolTabClosed)
 {
-  if( hwnd == 0 )
-  {
-    if( multisplitClass::defaultFocusPane )
-      hwnd = multisplitClass::defaultFocusPane->window;
-  }
+	boolTabClosed = false;
 
-  if( hwnd )
-  {
-    MutexLock viewMapLock(m_viewsMutex);
-    ConsoleViewMap::iterator iter = m_views.find(hwnd);
-    if( iter != m_views.end() )
-    {
-      iter->second->DestroyWindow();
-      m_views.erase(iter);
+	if( hwnd == 0 )
+	{
+		if( multisplitClass::defaultFocusPane )
+			hwnd = multisplitClass::defaultFocusPane->window;
+	}
+
+	if( hwnd )
+	{
+		MutexLock viewMapLock(m_viewsMutex);
+		ConsoleViewMap::iterator iter = m_views.find(hwnd);
+		if( iter != m_views.end() )
+		{
+			iter->second->DestroyWindow();
+			m_views.erase(iter);
 
 #ifdef _DEBUG
-      ATLTRACE(L"%p-TabView::CloseView tree\n",
-          ::GetCurrentThreadId());
-      multisplitClass::tree.dump(0, 0);
-      ATLTRACE(L"%p-TabView::CloseView defaultFocusPane\n",
-          ::GetCurrentThreadId());
+			ATLTRACE(L"%p-TabView::CloseView tree\n",
+				::GetCurrentThreadId());
+			multisplitClass::tree.dump(0, 0);
+			ATLTRACE(L"%p-TabView::CloseView defaultFocusPane\n",
+				::GetCurrentThreadId());
 			if( multisplitClass::defaultFocusPane )
 				multisplitClass::defaultFocusPane->dump(0, multisplitClass::defaultFocusPane->parent);
 #endif
@@ -425,19 +427,19 @@ bool TabView::CloseView(HWND hwnd /*= 0*/)
 			if( multisplitClass::defaultFocusPane )
 				multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
 
-      if( m_views.empty() )
-        m_mainFrame.CloseTab(this->m_hWnd);
-      else
-      {
-        CRect clientRect(0, 0, 0, 0);
-        AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
-      }
+			if( m_views.empty() )
+				boolTabClosed = true;
+			else
+			{
+				CRect clientRect(0, 0, 0, 0);
+				AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
+			}
 
-      return true;
-    }
-  }
+			return true;
+		}
+	}
 
-  return false;
+	return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

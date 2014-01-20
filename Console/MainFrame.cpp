@@ -986,13 +986,18 @@ LRESULT MainFrame::OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 
 LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /* bHandled */)
 {
-  MutexLock lock(m_tabsMutex);
-  for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
-  {
-    if( it->second->CloseView(reinterpret_cast<HWND>(wParam)) )
-      break;
-  }
-  return 0;
+	MutexLock lock(m_tabsMutex);
+	for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
+	{
+		bool boolTabClosed;
+		if( it->second->CloseView(reinterpret_cast<HWND>(wParam), boolTabClosed) )
+		{
+			if( boolTabClosed )
+				CloseTab(it->second->m_hWnd);
+			break;
+		}
+	}
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1776,8 +1781,13 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
       return 0;
   }
 
-  if( m_activeTabView )
-    m_activeTabView->CloseView();
+	if( m_activeTabView )
+	{
+		bool boolTabClosed;
+		m_activeTabView->CloseView(0, boolTabClosed);
+		if( boolTabClosed )
+			CloseTab(m_activeTabView->m_hWnd);
+	}
 
   if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
   {

@@ -168,8 +168,7 @@ class ConsoleHandler
 			const wstring& strSyncName,
 			const wstring& strTitle,
 			const wstring& strInitialDir,
-			const wstring& strInitialCmd,
-			PROCESS_INFORMATION& pi
+			const wstring& strInitialCmd
 		);
 
 	private:

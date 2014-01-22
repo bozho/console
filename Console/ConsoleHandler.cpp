@@ -47,7 +47,8 @@ ConsoleHandler::ConsoleHandler()
 
 ConsoleHandler::~ConsoleHandler()
 {
-	StopMonitorThread();
+	if( m_hMonitorThread.get() )
+		StopMonitorThread();
 
 	if ((m_consoleParams.Get() != NULL) && 
 		(m_consoleParams->hwndConsoleWindow))
@@ -81,8 +82,7 @@ void ConsoleHandler::RunAsAdministrator
 	const wstring& strSyncName,
 	const wstring& strTitle,
 	const wstring& strInitialDir,
-	const wstring& strInitialCmd,
-	PROCESS_INFORMATION& pi
+	const wstring& strInitialCmd
 )
 {
 	std::wstring strFile = Helpers::GetModuleFileName(nullptr);
@@ -125,11 +125,6 @@ void ConsoleHandler::RunAsAdministrator
 		Win32Exception err(::GetLastError());
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL_AS_ADMIN)) % strFile % strParams % err.what()));
 	}
-
-	pi.hProcess = sei.hProcess;
-	pi.dwProcessId = ::GetProcessId(sei.hProcess);
-	pi.hThread = NULL;
-	pi.dwThreadId = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -409,8 +404,7 @@ void ConsoleHandler::StartShellProcess
 			strSyncName,
 			strTitle,
 			strInitialDir,
-			strInitialCmd,
-			pi
+			strInitialCmd
 		);
 
 		// wait for PID of shell launched in admin ConsoleZ

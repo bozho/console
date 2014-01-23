@@ -2473,6 +2473,7 @@ void ConsoleView::BitBltOffscreen(bool bOnlyCursor /*= false*/)
 		if (!(m_cursorDBCS) || !m_consoleHandler.GetCursorInfo()->bVisible) return;
 
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+		SharedMemoryLock consoleInfoLock(consoleInfo);
 
 		rectBlit = m_cursorDBCS->GetCursorRect();
 		rectBlit.MoveToXY(
@@ -2517,6 +2518,7 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 	if (m_consoleHandler.GetCursorInfo()->bVisible)
 	{
 		SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+		SharedMemoryLock consoleInfoLock(consoleInfo);
 
 		// don't blit if cursor is outside visible window
 		if ((consoleInfo->csbi.dwCursorPosition.X >= consoleInfo->csbi.srWindow.Left) &&
@@ -2789,6 +2791,7 @@ COORD ConsoleView::GetConsoleCoord(const CPoint& clientPoint, bool bStartSelecti
 void ConsoleView::RedrawCharOnCursor(CDC& dc)
 {
   SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+  SharedMemoryLock           consoleInfoLock(consoleInfo);
   COLORREF *                 consoleColors = m_tabData->consoleColors;
 
   MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
@@ -2874,6 +2877,7 @@ LRESULT ConsoleView::OnIMEComposition(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_dcText.GetTextMetrics(&textMetric);
 
 	SharedMemory<ConsoleInfo>& consoleInfo = m_consoleHandler.GetConsoleInfo();
+	SharedMemoryLock consoleInfoLock(consoleInfo);
 	CRect rectCursor = m_cursorDBCS->GetCursorRect();
 	rectCursor.MoveToXY(
 		(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth  + m_nVInsideBorder,

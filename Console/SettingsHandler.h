@@ -551,14 +551,15 @@ struct MouseSettings : public SettingsBase
 {
 	enum Command
 	{
-		cmdNone   = 0,
-		cmdCopy   = 1,
-		cmdSelect = 2,
-		cmdPaste  = 3,
-		cmdDrag   = 4,
-		cmdMenu1  = 5,
-		cmdMenu2  = 6,
-		cmdMenu3  = 7,
+		cmdNone         = 0,
+		cmdCopy         = 1,
+		cmdSelect       = 2,
+		cmdPaste        = 3,
+		cmdDrag         = 4,
+		cmdMenu1        = 5,
+		cmdMenu2        = 6,
+		cmdMenu3        = 7,
+		cmdColumnSelect = 8,
 	};
 
 	enum Button

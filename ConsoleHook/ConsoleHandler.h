@@ -9,6 +9,7 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
+class ClipboardData;
 
 class ConsoleHandler
 {
@@ -43,6 +44,9 @@ class ConsoleHandler
 
 		static DWORD WINAPI MonitorThreadStatic(LPVOID lpParameter);
 		DWORD MonitorThread();
+
+		void CopyConsoleTextLine  (HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount);
+		void CopyConsoleTextColumn(HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount);
 
 	private:
 

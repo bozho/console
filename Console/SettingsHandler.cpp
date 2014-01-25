@@ -1600,13 +1600,14 @@ HotKeys& HotKeys::operator=(const HotKeys& other)
 MouseSettings::MouseSettings()
 : commands()
 {
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdCopy,   L"copy",   L"Copy/clear selection")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdSelect, L"select", L"Select text")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdPaste,  L"paste",  L"Paste text")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdDrag,   L"drag",   L"Drag window")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu1,  L"menu",   L"Context menu #1")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu2,  L"menu2",  L"Context menu #2")));
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu3,  L"menu3",  L"Context menu #3")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdCopy,         L"copy",          L"Copy/clear selection")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdSelect,       L"select",        L"Select text")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdColumnSelect, L"select_column", L"Select column")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdPaste,        L"paste",         L"Paste text")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdDrag,         L"drag",          L"Drag window")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu1,        L"menu",          L"Context menu #1")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu2,        L"menu2",         L"Context menu #2")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu3,        L"menu3",         L"Context menu #3")));
 }
 
 //////////////////////////////////////////////////////////////////////////////

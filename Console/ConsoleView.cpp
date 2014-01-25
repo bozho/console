@@ -631,12 +631,13 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
 			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get());
+			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get(), seltypeText);
 
 			m_mouseCommand = MouseSettings::cmdSelect;
 			return 0;
 		}
 
+		// select word
 		if (MouseSettings::clickDouble == mouseAction.clickType)
 		{
 			MouseSettings::Action mouseActionCopy = mouseAction;
@@ -649,6 +650,19 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;
 			}
+		}
+
+		// select column command
+		it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdColumnSelect);
+		if ((*it)->action == mouseAction)
+		{
+			::SetCursor(::LoadCursor(NULL, IDC_CROSS));
+
+			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get(), seltypeColumn);
+
+			m_mouseCommand = MouseSettings::cmdColumnSelect;
+			return 0;
 		}
 
 		// paste command
@@ -698,6 +712,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			}
 
 			case MouseSettings::cmdSelect :
+			case MouseSettings::cmdColumnSelect :
 			{
 				::SetCursor(::LoadCursor(NULL, IDC_ARROW));
 
@@ -757,7 +772,9 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	UINT	uFlags = static_cast<UINT>(wParam);
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 
-	if (m_mouseCommand == MouseSettings::cmdSelect)
+	if (m_mouseCommand == MouseSettings::cmdSelect
+	    ||
+	    m_mouseCommand == MouseSettings::cmdColumnSelect)
 	{
 		CRect	rectClient;
 		GetClientRect(&rectClient);

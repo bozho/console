@@ -786,91 +786,64 @@ private:
   WORD   wLastTrimCharBackgroundAttributes;
 };
 
-void ConsoleHandler::CopyConsoleText()
+void ConsoleHandler::CopyConsoleTextLine(HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount)
 {
-	if (!::OpenClipboard(NULL)) return;
+	COORD& coordStart = m_consoleCopyInfo->coordStart;
+	COORD& coordEnd   = m_consoleCopyInfo->coordEnd;
 
-	COORD&	coordStart	= m_consoleCopyInfo->coordStart;
-	COORD&	coordEnd	= m_consoleCopyInfo->coordEnd;
+	COORD                        coordFrom       = {0, 0};
+	COORD                        coordBufferSize = {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
 
-//	TRACE(L"Copy request: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
+	// suppress end empty lines
+	bool emptyLine = true;
+	for (SHORT i = coordEnd.Y; i > coordStart.Y && emptyLine; --i)
+	{
+		SMALL_RECT srBuffer;
 
-	std::shared_ptr<void> hStdOut(
-						::CreateFile(
-							L"CONOUT$",
-							GENERIC_WRITE | GENERIC_READ,
-							FILE_SHARE_READ | FILE_SHARE_WRITE,
-							NULL,
-							OPEN_EXISTING,
-							0,
-							0),
-							::CloseHandle);
+		srBuffer.Left   = 0;
+		srBuffer.Top    = i;
+		srBuffer.Right  = (i == coordEnd.Y) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
+		srBuffer.Bottom = i;
 
-  std::unique_ptr<ClipboardData> clipboardDataPtr[2];
-  size_t clipboardDataCount = 2;
-  clipboardDataPtr[0].reset(new ClipboardDataUnicode());
-  clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
 
-  COORD                        coordFrom       = {0, 0};
-  COORD                        coordBufferSize = {(m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns), 1};
-  std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
+		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left && emptyLine; ++x)
+		{
+			if( pScreenBuffer[x].Char.UnicodeChar != L' ' )
+				emptyLine = false;
+		}
 
-  // suppress end empty lines
-  bool emptyLine = true;
-  for (SHORT i = coordEnd.Y; i > coordStart.Y && emptyLine; --i)
-  {
-    SMALL_RECT srBuffer;
-
-    srBuffer.Left   = 0;
-    srBuffer.Top    = i;
-    srBuffer.Right  = (i == coordEnd.Y) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
-    srBuffer.Bottom = i;
-
-    ::ReadConsoleOutput(
-      hStdOut.get(),
-      pScreenBuffer.get(),
-      coordBufferSize,
-      coordFrom,
-      &srBuffer);
-
-    for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left && emptyLine; ++x)
-    {
-      if( pScreenBuffer[x].Char.UnicodeChar != L' ' )
-        emptyLine = false;
-    }
-
-    if( emptyLine )
-    {
-      coordEnd.Y --;
-      coordEnd.X = coordBufferSize.X - 1;
-    }
-  }
+		if( emptyLine )
+		{
+			coordEnd.Y --;
+			coordEnd.X = coordBufferSize.X - 1;
+		}
+	}
 
 	for (SHORT i = coordStart.Y; i <= coordEnd.Y; ++i)
 	{
-		SMALL_RECT				srBuffer;
+		SMALL_RECT srBuffer;
 
-//		TRACE(L"i: %i, coordStart.Y: %i, coordStart.X: %i\n", i, coordStart.Y, coordStart.X);
 		srBuffer.Left	= (i == coordStart.Y) ? coordStart.X : 0;
 		srBuffer.Top	= i;
-//		srBuffer.Right	= ((coordEnd.Y > coordStart.Y) && (i == coordEnd.Y)) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? m_consoleParams->dwBufferColumns - 1 : m_consoleParams->dwColumns - 1;
 		srBuffer.Right	= (i == coordEnd.Y) ? coordEnd.X : (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
 		srBuffer.Bottom	= i;
 
-
-//		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
-
 		::ReadConsoleOutput(
-			hStdOut.get(), 
-			pScreenBuffer.get(), 
-			coordBufferSize, 
-			coordFrom, 
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
 			&srBuffer);
 
-//		TRACE(L"Read region:    (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
-
-    for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
-      clipboardDataPtr[clipboardDataIndex]->StartRow();
+		for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+			clipboardDataPtr[clipboardDataIndex]->StartRow();
 
 		bool bWrap       = true;
 		bool bTrimSpaces = m_consoleCopyInfo->bTrimSpaces;
@@ -878,8 +851,8 @@ void ConsoleHandler::CopyConsoleText()
 		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left; ++x)
 		{
 			if (pScreenBuffer[x].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
-      for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
-        clipboardDataPtr[clipboardDataIndex]->AddChar(&(pScreenBuffer[x]));
+			for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+				clipboardDataPtr[clipboardDataIndex]->AddChar(&(pScreenBuffer[x]));
 		}
 
 		// handle trim/wrap settings
@@ -906,25 +879,140 @@ void ConsoleHandler::CopyConsoleText()
 			}
 		}
 
-    for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
-    {
-      if (bTrimSpaces)
-        clipboardDataPtr[clipboardDataIndex]->TrimRight();
+		for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+		{
+			if (bTrimSpaces)
+				clipboardDataPtr[clipboardDataIndex]->TrimRight();
 
-      if (bWrap)
-        clipboardDataPtr[clipboardDataIndex]->Wrap(m_consoleCopyInfo->copyNewlineChar);
+			if (bWrap)
+				clipboardDataPtr[clipboardDataIndex]->Wrap(m_consoleCopyInfo->copyNewlineChar);
 
-      clipboardDataPtr[clipboardDataIndex]->EndRow();
-    }
-  }
+			clipboardDataPtr[clipboardDataIndex]->EndRow();
+		}
+	}
+}
 
-  ::EmptyClipboard();
+void ConsoleHandler::CopyConsoleTextColumn(HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount)
+{
+	COORD& coordStart = m_consoleCopyInfo->coordStart;
+	COORD& coordEnd   = m_consoleCopyInfo->coordEnd;
 
-  for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
-    clipboardDataPtr[clipboardDataIndex]->Publish();
+	if( m_consoleCopyInfo->selectionType == seltypeColumn )
+	{
+		SHORT nLeft  = min(coordStart.X, coordEnd.X);
+		SHORT nRight = max(coordStart.X, coordEnd.X);
 
-  ::CloseClipboard();
-  // !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
+		coordStart.X = nLeft;
+		coordEnd.X   = nRight;
+	}
+
+	COORD                        coordFrom       = {0, 0};
+	COORD                        coordBufferSize = {coordEnd.X - coordStart.X + 1, 1};
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[coordBufferSize.X]);
+
+	// suppress end empty lines
+	bool emptyLine = true;
+	for (SHORT i = coordEnd.Y; i > coordStart.Y && emptyLine; --i)
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = coordStart.X;
+		srBuffer.Top    = i;
+		srBuffer.Right  = coordEnd.X;
+		srBuffer.Bottom = i;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left && emptyLine; ++x)
+		{
+			if( pScreenBuffer[x].Char.UnicodeChar != L' ' )
+				emptyLine = false;
+		}
+
+		if( emptyLine )
+		{
+			coordEnd.Y --;
+		}
+	}
+
+	for (SHORT i = coordStart.Y; i <= coordEnd.Y; ++i)
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = coordStart.X;
+		srBuffer.Top    = i;
+		srBuffer.Right  = coordEnd.X;
+		srBuffer.Bottom = i;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+			clipboardDataPtr[clipboardDataIndex]->StartRow();
+
+		bool bWrap       = true;
+		bool bTrimSpaces = false;
+
+		for (SHORT x = 0; x <= srBuffer.Right - srBuffer.Left; ++x)
+		{
+			if (pScreenBuffer[x].Attributes & COMMON_LVB_TRAILING_BYTE) continue;
+			for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+				clipboardDataPtr[clipboardDataIndex]->AddChar(&(pScreenBuffer[x]));
+		}
+
+		for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+		{
+			if (bTrimSpaces)
+				clipboardDataPtr[clipboardDataIndex]->TrimRight();
+
+			if (bWrap)
+				clipboardDataPtr[clipboardDataIndex]->Wrap(m_consoleCopyInfo->copyNewlineChar);
+
+			clipboardDataPtr[clipboardDataIndex]->EndRow();
+		}
+	}
+}
+
+void ConsoleHandler::CopyConsoleText()
+{
+	if (!::OpenClipboard(NULL)) return;
+
+	std::unique_ptr<void, CloseHandleHelper> hStdOut(
+		::CreateFile(
+			L"CONOUT$",
+			GENERIC_WRITE | GENERIC_READ,
+			FILE_SHARE_READ | FILE_SHARE_WRITE,
+			NULL,
+			OPEN_EXISTING,
+			0,
+			0));
+
+	std::unique_ptr<ClipboardData> clipboardDataPtr[2];
+	size_t clipboardDataCount = 2;
+	clipboardDataPtr[0].reset(new ClipboardDataUnicode());
+	clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
+
+	if( m_consoleCopyInfo->selectionType == seltypeColumn )
+		CopyConsoleTextColumn(hStdOut.get(), clipboardDataPtr, clipboardDataCount);
+	else
+		CopyConsoleTextLine(hStdOut.get(), clipboardDataPtr, clipboardDataCount);
+
+	::EmptyClipboard();
+
+	for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
+		clipboardDataPtr[clipboardDataIndex]->Publish();
+
+	::CloseClipboard();
+	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
 }
 
 //////////////////////////////////////////////////////////////////////////////

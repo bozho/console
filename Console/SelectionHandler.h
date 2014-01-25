@@ -44,7 +44,7 @@ class SelectionHandler
 
 	public:
 
-		void StartSelection(const COORD& coordInit, CharInfo screenBuffer []);
+		void StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType);
 		void SelectWord(const COORD& coordInit, CharInfo screenBuffer []);
 		void UpdateSelection(const COORD& coordCurrent, CharInfo screenBuffer []);
 		void UpdateSelection();
@@ -93,7 +93,8 @@ class SelectionHandler
 		int				m_nVInsideBorder;
 		int				m_nHInsideBorder;
 
-		SelectionState	m_selectionState;
+		SelectionState m_selectionState;
+		SelectionType  m_selectionType;
 
 		COORD			m_coordInitial;
 		COORD			m_coordCurrent;

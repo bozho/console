@@ -45,6 +45,7 @@ SelectionHandler::SelectionHandler(
 , m_nVInsideBorder(nVInsideBorder)
 , m_nHInsideBorder(nHInsideBorder)
 , m_selectionState(selstateNoSelection)
+, m_selectionType(seltypeText)
 , m_coordInitial()
 , m_coordCurrent()
 , m_coordInitialXLeading(0)
@@ -134,9 +135,11 @@ void SelectionHandler::SelectWord(const COORD& coordInit, CharInfo screenBuffer 
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuffer [])
+void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType)
 {
 	if (m_selectionState > selstateNoSelection) return;
+
+	m_selectionType = selectionType;
 
 	// stop console scrolling while selecting
 	m_consoleHandler.StopScrolling();
@@ -255,46 +258,55 @@ void SelectionHandler::UpdateSelection()
 */
 
 	CRect	fillRect;
-	COORD	fillStart;
-	COORD	fillEnd;
-	SHORT	maxX = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
 
-	// paint the first row rect
-	fillStart.X = coordStart.X;
-	fillStart.Y = coordStart.Y;
-
-	//                                multi-row select  single row select
-	fillEnd.X = (coordStart.Y < coordEnd.Y) ? maxX : coordEnd.X;
-	fillEnd.Y = coordStart.Y;
-
-	GetFillRect(fillStart, fillEnd, fillRect);
-	m_dcSelection.FillRect(&fillRect, m_paintBrush);
-
-
-	// paint the rows in between
-	if (coordStart.Y < coordEnd.Y - 1)
+	if (m_selectionType == seltypeText)
 	{
-		fillStart.X = 0;
-		fillStart.Y = coordStart.Y + 1;
+		COORD	fillStart;
+		COORD	fillEnd;
+		SHORT	maxX = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
 
-		fillEnd.X = maxX;
-		fillEnd.Y = coordEnd.Y - 1;
+		// paint the first row rect
+		fillStart.X = coordStart.X;
+		fillStart.Y = coordStart.Y;
+
+		//                                multi-row select  single row select
+		fillEnd.X = (coordStart.Y < coordEnd.Y) ? maxX : coordEnd.X;
+		fillEnd.Y = coordStart.Y;
 
 		GetFillRect(fillStart, fillEnd, fillRect);
 		m_dcSelection.FillRect(&fillRect, m_paintBrush);
-	}
 
-	// paint the last row
-	if (coordStart.Y < coordEnd.Y)
-	{
-		fillStart.X = 0;
-		fillStart.Y = coordEnd.Y;
 
-		fillEnd.X = coordEnd.X;
-		fillEnd.Y = coordEnd.Y;
+		// paint the rows in between
+		if (coordStart.Y < coordEnd.Y - 1)
+		{
+			fillStart.X = 0;
+			fillStart.Y = coordStart.Y + 1;
 
-		GetFillRect(fillStart, fillEnd, fillRect);
+			fillEnd.X = maxX;
+			fillEnd.Y = coordEnd.Y - 1;
+
+			GetFillRect(fillStart, fillEnd, fillRect);
+			m_dcSelection.FillRect(&fillRect, m_paintBrush);
+		}
+
+		// paint the last row
+		if (coordStart.Y < coordEnd.Y)
+		{
+			fillStart.X = 0;
+			fillStart.Y = coordEnd.Y;
+
+			fillEnd.X = coordEnd.X;
+			fillEnd.Y = coordEnd.Y;
+
+			GetFillRect(fillStart, fillEnd, fillRect);
 //		TRACE(L"fill rect: (%ix%i) - (%ix%i)\n", fillRect.left, fillRect.top, fillRect.right, fillRect.bottom);
+			m_dcSelection.FillRect(&fillRect, m_paintBrush);
+		}
+	}
+	else
+	{
+		GetFillRect(coordStart, coordEnd, fillRect);
 		m_dcSelection.FillRect(&fillRect, m_paintBrush);
 	}
 #endif //_USE_AERO
@@ -307,13 +319,14 @@ void SelectionHandler::UpdateSelection()
 
 void SelectionHandler::SelectAll(void)
 {
-  m_coordInitial.X = 0;
-  m_coordInitial.Y = 0;
-  m_coordCurrent.X = m_consoleInfo->csbi.dwSize.X - 1;
-  m_coordCurrent.Y = m_consoleInfo->csbi.dwSize.Y - 1;
-  m_selectionState = selstateSelected;
+	m_coordInitial.X = 0;
+	m_coordInitial.Y = 0;
+	m_coordCurrent.X = m_consoleInfo->csbi.dwSize.X - 1;
+	m_coordCurrent.Y = m_consoleInfo->csbi.dwSize.Y - 1;
+	m_selectionState = selstateSelected;
+	m_selectionType  = seltypeText;
 
-  UpdateSelection();
+	UpdateSelection();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -372,6 +385,7 @@ void SelectionHandler::CopySelection()
 		m_consoleCopyInfo->dwEOLSpaces     = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.dwEOLSpaces;
 		m_consoleCopyInfo->bTrimSpaces     = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bTrimSpaces;
 		m_consoleCopyInfo->copyNewlineChar = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.copyNewlineChar;
+		m_consoleCopyInfo->selectionType   = m_selectionType;
     _snprintf_s(
       m_consoleCopyInfo->szFontName, sizeof(m_consoleCopyInfo->szFontName),
       _TRUNCATE,
@@ -433,9 +447,6 @@ void SelectionHandler::Draw(CDC& offscreenDC)
 
   COORD coordStart;
   COORD coordEnd;
-  SHORT maxX = (m_consoleParams->dwBufferColumns > 0) ?
-    static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) :
-    static_cast<SHORT>(m_consoleParams->dwColumns - 1);
 
   GetSelectionCoordinates(coordStart, coordEnd);
 
@@ -449,7 +460,6 @@ void SelectionHandler::Draw(CDC& offscreenDC)
   INT nXEnd   = (static_cast<INT>(  coordEnd.X) - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
   INT nYEnd   = (static_cast<INT>(  coordEnd.Y) - static_cast<INT>(srWindow.Top) ) * m_nCharHeight + m_nHInsideBorder;
   INT nXmin   = (static_cast<INT>(0)            - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
-  INT nXmax   = (static_cast<INT>(maxX)         - static_cast<INT>(srWindow.Left)) * m_nCharWidth  + m_nVInsideBorder;
 
   Gdiplus::Graphics gr(offscreenDC);
 
@@ -459,53 +469,76 @@ void SelectionHandler::Draw(CDC& offscreenDC)
   Gdiplus::SolidBrush brush(Gdiplus::Color(64,  selectionColor.GetR(), selectionColor.GetG(), selectionColor.GetB()));
   Gdiplus::GraphicsPath gp;
 
-  if( nYStart == nYEnd )
-  {
-    Gdiplus::Rect rect(
-      nXStart,
-      nYStart,
-      (nXEnd - nXStart) + m_nCharWidth,
-      m_nCharHeight);
-    gp.AddRectangle(rect);
-  }
-  else
-  {
-    /*
-           2_________3
-    0______|         |
-    |      1     5___|
-    |____________|   4
-    7            6
-    */
+	if( m_selectionType == seltypeText )
+	{
+		if( nYStart == nYEnd )
+		{
+			Gdiplus::Rect rect(
+				nXStart,
+				nYStart,
+				(nXEnd - nXStart) + m_nCharWidth,
+				m_nCharHeight);
+			gp.AddRectangle(rect);
+		}
+		else
+		{
+			/*
+			       2_________3
+			0______|         |
+			|      1     5___|
+			|____________|   4
+			7            6
+			*/
 
-    Gdiplus::Point points[8];
+			SHORT maxX = (m_consoleParams->dwBufferColumns > 0) ?
+				static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) :
+				static_cast<SHORT>(m_consoleParams->dwColumns - 1);
 
-    points[0].X = nXmin;
-    points[0].Y = nYStart + m_nCharHeight;
+			INT nXmax  = (static_cast<INT>(maxX) - static_cast<INT>(srWindow.Left)) * m_nCharWidth + m_nVInsideBorder;
 
-    points[1].X = nXStart;
-    points[1].Y = points[0].Y;
+			Gdiplus::Point points[8];
 
-    points[2].X = points[1].X;
-    points[2].Y = nYStart;
+			points[0].X = nXmin;
+			points[0].Y = nYStart + m_nCharHeight;
 
-    points[3].X = nXmax + m_nCharWidth;
-    points[3].Y = points[2].Y;
+			points[1].X = nXStart;
+			points[1].Y = points[0].Y;
 
-    points[4].X = points[3].X;
-    points[4].Y = nYEnd;
+			points[2].X = points[1].X;
+			points[2].Y = nYStart;
 
-    points[5].X = nXEnd + m_nCharWidth;
-    points[5].Y = points[4].Y;
+			points[3].X = nXmax + m_nCharWidth;
+			points[3].Y = points[2].Y;
 
-    points[6].X = points[5].X;
-    points[6].Y = nYEnd + m_nCharHeight;
+			points[4].X = points[3].X;
+			points[4].Y = nYEnd;
 
-    points[7].X = points[0].X;
-    points[7].Y = points[6].Y;
+			points[5].X = nXEnd + m_nCharWidth;
+			points[5].Y = points[4].Y;
 
-    gp.AddPolygon(points, 8);
-  }
+			points[6].X = points[5].X;
+			points[6].Y = nYEnd + m_nCharHeight;
+
+			points[7].X = points[0].X;
+			points[7].Y = points[6].Y;
+
+			gp.AddPolygon(points, 8);
+		}
+	}
+	else
+	{
+		INT nLeft  = min(nXStart, nXEnd);
+		INT nRight = max(nXStart, nXEnd);
+		INT nTop   = min(nYStart, nYEnd);
+		INT nBotom = max(nYStart, nYEnd);
+
+		Gdiplus::Rect rect(
+			nLeft,
+			nTop,
+			(nRight - nLeft) + m_nCharWidth,
+			(nBotom - nTop ) + m_nCharHeight);
+		gp.AddRectangle(rect);
+	}
 
   gr.FillPath(&brush, &gp);
   gr.DrawPath(&pen, &gp);
@@ -587,8 +620,20 @@ DWORD SelectionHandler::GetSelectionSize(void)
 
   GetSelectionCoordinates(coordStart, coordEnd);
 
-  DWORD dwColumns = m_consoleParams->dwBufferColumns > 0 ? m_consoleParams->dwBufferColumns : m_consoleParams->dwColumns;
-  return dwColumns * (coordEnd.Y - coordStart.Y) + (coordEnd.X - coordStart.X) + 1;
+	if( m_selectionType == seltypeText )
+	{
+		DWORD dwColumns = m_consoleParams->dwBufferColumns > 0 ? m_consoleParams->dwBufferColumns : m_consoleParams->dwColumns;
+		return dwColumns * (coordEnd.Y - coordStart.Y) + (coordEnd.X - coordStart.X) + 1;
+	}
+	else
+	{
+		DWORD dwLeft   = min(coordStart.X, coordEnd.X);
+		DWORD dwRight  = max(coordStart.X, coordEnd.X);
+		DWORD dwTop    = min(coordStart.Y, coordEnd.Y);
+		DWORD dwBottom = max(coordStart.Y, coordEnd.Y);
+
+		return ((dwRight - dwLeft) + 1) * ((dwBottom - dwTop) + 1);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

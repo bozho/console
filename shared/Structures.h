@@ -99,6 +99,12 @@ enum CopyNewlineChar
 	newlineLF	= 1
 };
 
+enum SelectionType
+{
+	seltypeText,
+	seltypeColumn,
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -113,6 +119,7 @@ struct ConsoleCopy
 	, dwEOLSpaces(1)
 	, bTrimSpaces(false)
 	, copyNewlineChar(newlineCRLF)
+	, selectionType(seltypeText)
 	, bBold(false)
 	, bItalic(false)
 	, dwSize(24)
@@ -144,6 +151,7 @@ struct ConsoleCopy
 	bool  bBold;
 	bool  bItalic;
 	CopyNewlineChar	copyNewlineChar;
+	SelectionType   selectionType;
 	DWORD dwSize;
 	DWORD dwEOLSpaces;
 	char szFontName [256];

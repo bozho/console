@@ -71,6 +71,8 @@ class ConsoleView
 			MESSAGE_HANDLER(WM_IME_COMPOSITION, OnIMEComposition)
 			MESSAGE_HANDLER(WM_IME_STARTCOMPOSITION, OnIMEStartComposition)
 			MESSAGE_HANDLER(WM_IME_ENDCOMPOSITION, OnIMEEndComposition)
+
+			MESSAGE_HANDLER(WM_PRINTCLIENT, OnPrintClient)
 		END_MSG_MAP()
 
 //		Handler prototypes (uncomment arguments if needed):
@@ -82,6 +84,7 @@ class ConsoleView
 		LRESULT OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
+		LRESULT OnPrintClient(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnSysKeyDown(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);

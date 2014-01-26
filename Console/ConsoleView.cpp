@@ -254,6 +254,30 @@ LRESULT ConsoleView::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnPrintClient(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	CDCHandle dc(reinterpret_cast<HDC>(wParam));
+	CRect rect;
+	this->GetClientRect(&rect);
+
+	dc.BitBlt(
+		rect.left,
+		rect.top,
+		rect.right,
+		rect.bottom,
+		m_dcOffscreen,
+		0,
+		0,
+		SRCCOPY);
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 long l1 = 0;
 LRESULT ConsoleView::OnWindowPosChanged(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {

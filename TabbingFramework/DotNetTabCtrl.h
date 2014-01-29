@@ -1048,7 +1048,8 @@ public:
 			}
 			if(pItem->UsingText())
 			{
-				rcItem.right += pItem->GetTextSize(dc) + (m_settings.iPadding * 2);
+				LONG lTextSize = pItem->GetTextSize(dc);
+				rcItem.right += max(lTextSize, m_nMinWidthToDisplayText) + (m_settings.iPadding * 2);
 			}
 			rcItem.right += m_settings.iMargin;
 			pItem->SetRect(rcItem);
@@ -1194,7 +1195,8 @@ public:
 			}
 			if(pItem->UsingText())
 			{
-			rcItem.right += pItem->GetTextSize(dc) + (m_settings.iPadding * 2);
+				LONG lTextSize = pItem->GetTextSize(dc);
+				rcItem.right += max(lTextSize, m_nMinWidthToDisplayText) + (m_settings.iPadding * 2);
 			}
 			rcItem.right += m_settings.iMargin;
 			pItem->SetRect(rcItem);

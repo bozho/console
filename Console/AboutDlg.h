@@ -78,7 +78,7 @@ public:
     strMsgVersion.Format(
       L"\nConsoleZ %i.%i.%i.%i\n"
       L"Copyleft (ↄ)\n"
-      L"2011-2013\n"
+      L"2011-2014\n"
       L"Christophe Bucher\n"
       L"\n"
       L"a modified version of\n"

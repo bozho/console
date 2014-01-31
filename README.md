@@ -28,6 +28,20 @@ Changelog
     + added
     * fixed
 
+Changes in 1.10.0 (beta) (30 Jan 2014)
+
+    ! Tab number is now full part of the title.
+    ! Main title format can be defined by user.
+    ! Tab title format can be defined by user.
+    + Input Method Editor (IME) support.
+    + Allow selection by column.
+    * Fix "pinned to desktop" mode on Windows 7 and more.
+    * Fix paste inconsistency on multiple lines.
+    * Fix Quake like show/hide animation.
+    * Tab text was hidden when less than 12 pixels.
+    * Fix Quake like show/hide.
+    * Fix some crashes.
+
 Changes in 1.09.1 (17 Dec 2013)
 
     ! In settings, check if a hotkey is already assigned.

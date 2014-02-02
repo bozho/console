@@ -1138,7 +1138,7 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, std::shared_ptr<TabV
 			case L'u': layers.top()->str += consoleView->GetUser(); break;
 			case L'p': layers.top()->str += std::to_wstring(consoleView->GetConsoleHandler().GetConsolePid()); break;
 			case L'n': layers.top()->str += std::to_wstring(nTabNumber); break;
-			case L'i': layers.top()->str += L"index"; break;
+			case L'i': layers.top()->str += std::to_wstring(tabView->GetTabData()->nIndex); break;
 			case L'm': layers.top()->str += strMainTitle; break;
 			case L't': layers.top()->str += tabView->GetTitle(); break;
 			case L's': layers.top()->str += strShellTitle; break;
@@ -2090,6 +2090,20 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
     {
       it->get()->SetColors(consoleColors, false);
     }
+
+		// reindex
+		for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
+		{
+			it->second->GetTabData()->nIndex = 0;
+			for (auto it2 = tabDataVector.begin(); it2 != tabDataVector.end(); ++it2)
+			{
+				if( it2->get()->strTitle == it->second->GetTabData()->strTitle )
+				{
+					it->second->GetTabData()->nIndex = it2->get()->nIndex;
+					break;
+				}
+			}
+		}
 
     ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
     AdjustWindowSize(ADJUSTSIZE_WINDOW);

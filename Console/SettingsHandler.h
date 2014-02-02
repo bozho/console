@@ -694,6 +694,7 @@ struct TabData
 	, iconMenu()
 	, imageData()
 	, bInheritedColors(true)
+	, nIndex(0)
 	{
 		consoleColors[0]  = 0x000000;
 		consoleColors[1]  = 0x800000;
@@ -737,6 +738,8 @@ struct TabData
 
 	bool							bInheritedColors;
 	COLORREF						consoleColors[16];
+
+	long                nIndex;
 
 	void SetColors(const COLORREF colors[16], const bool bForced)
 	{

@@ -1788,6 +1788,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		if (FAILED(pTabNode.QueryInterface(&pTabElement))) continue;
 
 		std::shared_ptr<TabData>	tabData(new TabData(strDefaultShell, strDefaultInitialDir));
+		tabData->nIndex = i + 1;
+
 		CComPtr<IXMLDOMElement>	pConsoleElement;
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;
@@ -1897,12 +1899,16 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	pTabsElement->get_ownerDocument(&pSettingsDoc);
 
+	long nIndex = 0;
 	for (itTab = tabDataVector.begin(); itTab != tabDataVector.end(); ++itTab)
 	{
 		CComPtr<IXMLDOMElement>	pNewTabElement;
 		CComPtr<IXMLDOMNode>	pNewTabOut;
 
 		pSettingsDoc->createElement(CComBSTR(L"tab"), &pNewTabElement);
+
+		// reindex
+		(*itTab)->nIndex = ++nIndex;
 
 		// set tab attributes
 		if ((*itTab)->strTitle.length() > 0)

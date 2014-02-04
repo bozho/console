@@ -145,7 +145,6 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 			strInitialDir,
 			*userCredentials,
 			m_strCmdLineInitialCmd,
-			wstring(L""),
 			m_dwStartupRows,
 			m_dwStartupColumns);
 
@@ -1382,10 +1381,26 @@ CString ConsoleView::GetConsoleCommand()
 
 	consoleWnd.GetWindowText(strConsoleTitle);
 
-	if( strConsoleTitle.Find(L"ConsoleZ command window") != -1 )
+	int nPos = strConsoleTitle.Find(DEFAULT_CONSOLE_COMMAND);
+	if( nPos != -1 )
+	{
+		if( nPos != 0 && m_strUACPrefix.IsEmpty() )
+		{
+			m_strUACPrefix = strConsoleTitle.Left(nPos);
+		}
 		strConsoleTitle = L"";
+	}
+	else if( !m_strUACPrefix.IsEmpty() )
+	{
+		if( strConsoleTitle.GetLength() >= m_strUACPrefix.GetLength()
+		    &&
+		    strConsoleTitle.Left(m_strUACPrefix.GetLength()).Compare(m_strUACPrefix) == 0 )
+		{
+			strConsoleTitle = strConsoleTitle.Right(strConsoleTitle.GetLength() - m_strUACPrefix.GetLength());
+		}
+	}
 
-	return strConsoleTitle;
+	return strConsoleTitle.Trim();
 }
 
 /////////////////////////////////////////////////////////////////////////////

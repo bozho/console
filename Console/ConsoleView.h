@@ -243,6 +243,8 @@ class ConsoleView
 		// handler here...
 		CString							m_exceptionMessage;
 
+		CString             m_strUACPrefix;
+
 // static members
 private:
 

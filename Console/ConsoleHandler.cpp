@@ -137,7 +137,6 @@ void ConsoleHandler::CreateShellProcess
 	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
-	const wstring& strConsoleTitle,
 	PROCESS_INFORMATION& pi
 )
 {
@@ -226,14 +225,6 @@ void ConsoleHandler::CreateShellProcess
 		strShellCmdLine += strInitialCmd;
 	}
 
-	wstring	strStartupTitle(strConsoleTitle);
-
-	if (strStartupTitle.length() == 0)
-	{
-		strStartupTitle = L"ConsoleZ command window";
-		//		strStartupTitle = boost::str(boost::wformat(L"Console2 command window 0x%08X") % this);
-	}
-
 	wstring strStartupDir(
 		userToken.get() ?
 		Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strInitialDir) :
@@ -276,8 +267,8 @@ void ConsoleHandler::CreateShellProcess
 	STARTUPINFO si;
 	::ZeroMemory(&si, sizeof(STARTUPINFO));
 
-	si.cb			= sizeof(STARTUPINFO);
-	si.lpTitle		= const_cast<wchar_t*>(strStartupTitle.c_str());
+	si.cb      = sizeof(STARTUPINFO);
+	si.lpTitle = DEFAULT_CONSOLE_COMMAND;
 
 	if (g_settingsHandler->GetConsoleSettings().bStartHidden)
 	{
@@ -357,7 +348,6 @@ void ConsoleHandler::StartShellProcess
 	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
-	const wstring& strConsoleTitle,
 	DWORD dwStartupRows,
 	DWORD dwStartupColumns
 )
@@ -426,7 +416,6 @@ void ConsoleHandler::StartShellProcess
 			strInitialDir,
 			userCredentials,
 			strInitialCmd,
-			strConsoleTitle,
 			pi
 		);
 	}
@@ -509,7 +498,6 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 		strInitialDir,
 		userCredentials,
 		strInitialCmd,
-		L"",
 		pi
 	);
 

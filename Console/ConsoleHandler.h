@@ -5,6 +5,7 @@
 #include "FastDelegate.h"
 #pragma warning(pop)
 
+#define DEFAULT_CONSOLE_COMMAND L"ConsoleZ command window"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +104,6 @@ class ConsoleHandler
 			const wstring& strInitialDir,
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
-			const wstring& strConsoleTitle,
 			DWORD dwStartupRows,
 			DWORD dwStartupColumns
 		);
@@ -159,7 +159,6 @@ class ConsoleHandler
 			const wstring& strInitialDir,
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
-			const wstring& strConsoleTitle,
 			PROCESS_INFORMATION& pi
 		);
 

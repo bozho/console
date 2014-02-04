@@ -39,7 +39,9 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_TABS));
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
-	m_listCtrl.InsertColumn(0, L"Tab name");
+	CAtlString strColumn; 
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_TABNAME);
+	m_listCtrl.InsertColumn(0, strColumn);
 	m_listCtrl.SetColumnWidth(0, 188);
 
 	TabDataVector::iterator	it = m_tabSettings.tabDataVector.begin();
@@ -53,8 +55,10 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	m_tabCtrl.Attach(GetDlgItem(IDC_TABS));
 
-	m_tabCtrl.InsertItem(0, L"Main");
-	m_tabCtrl.InsertItem(1, L"Background");
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_MAINTAB);
+	m_tabCtrl.InsertItem(0, strColumn);
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_BACKGROUNDTAB);
+	m_tabCtrl.InsertItem(1, strColumn);
 
 	CRect	rect;
 	m_tabCtrl.GetWindowRect(&rect);

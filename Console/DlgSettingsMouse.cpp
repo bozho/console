@@ -37,7 +37,9 @@ LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_MOUSE_COMMANDS));
 	m_editCommand.Attach(GetDlgItem(IDC_EDIT_COMMAND));
+
 	m_comboButtons.Attach(GetDlgItem(IDC_COMBO_BUTTONS));
+	Helpers::LocalizeComboBox(m_comboButtons, IDS_COMBO_MOUSEBUTTONS);
 
 	m_btnCtrl.Attach(GetDlgItem(IDC_CHECK_CTRL));
 	m_btnShift.Attach(GetDlgItem(IDC_CHECK_SHIFT));
@@ -45,8 +47,11 @@ LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
-	m_listCtrl.InsertColumn(0, L"Command");
-	m_listCtrl.InsertColumn(1, L"Mouse action");
+	CAtlString strColumn;
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_COMMAND);
+	m_listCtrl.InsertColumn(0, strColumn);
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_MOUSEACTION);
+	m_listCtrl.InsertColumn(1, strColumn);
 
 	m_listCtrl.SetColumnWidth(0, 170);
 	m_listCtrl.SetColumnWidth(1, 218);

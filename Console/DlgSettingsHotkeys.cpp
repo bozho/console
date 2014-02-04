@@ -39,8 +39,11 @@ LRESULT DlgSettingsHotkeys::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
-	m_listCtrl.InsertColumn(0, L"Command");
-	m_listCtrl.InsertColumn(1, L"Hotkey");
+	CAtlString strColumn;
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_COMMAND);
+	m_listCtrl.InsertColumn(0, strColumn);
+	strColumn.LoadString(IDS_SETTINGS_COLUMN_HOTKEY);
+	m_listCtrl.InsertColumn(1, strColumn);
 
 	m_listCtrl.SetColumnWidth(0, 170);
 	m_listCtrl.SetColumnWidth(1, 218);

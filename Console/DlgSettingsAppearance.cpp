@@ -34,8 +34,13 @@ LRESULT DlgSettingsAppearance::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 	ExecuteDlgInit(IDD);
 
 	m_comboFontSmoothing.Attach(GetDlgItem(IDC_COMBO_SMOOTHING));
+	Helpers::LocalizeComboBox(m_comboFontSmoothing, IDS_COMBO_SMOOTHING);
+
 	m_comboDocking.Attach(GetDlgItem(IDC_COMBO_DOCKING));
+	Helpers::LocalizeComboBox(m_comboDocking, IDS_COMBO_DOCKING);
+
 	m_comboZOrder.Attach(GetDlgItem(IDC_COMBO_ZORDER));
+	Helpers::LocalizeComboBox(m_comboZOrder, IDS_COMBO_ZORDER);
 
 	m_windowSettings.Load(m_pOptionsRoot);
 	m_fontSettings.Load(m_pOptionsRoot);

@@ -1,0 +1,1039 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "atlres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""atlres.h""\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 238, 122
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "О программе"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,182,94,50,14
+    CTEXT           "Console 2.0",IDC_STATIC_VERSION,50,49,78,8,0,WS_EX_ACCEPTFILES
+    ICON            IDR_MAINFRAME,IDC_STATIC,79,19,21,20
+    GROUPBOX        "",IDC_STATIC,6,0,167,115
+    CTEXT           "Copyright (C) 2001-2010\nMarko Bozikovic",IDC_STATIC,50,64,78,17
+    CTEXT           "Локализация:\nКирилл Александров, Виталий Гнидчин,  koros aka ya158",IDC_STATIC,23,83,138,25
+END
+
+IDD_RENAME_TAB DIALOGEX 0, 0, 186, 55
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Переименовать вкладку"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    RTEXT           "Новое имя:",IDC_STATIC,7,11,47,8
+    EDITTEXT        IDC_TAB_NAME,58,8,121,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,74,34,50,14
+    PUSHBUTTON      "Отмена",IDCANCEL,129,34,50,14
+END
+
+IDD_SETTINGS_MAIN DIALOGEX 0, 0, 370, 322
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Настройки Консоли"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TREE_SECTIONS,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_NOSCROLL | WS_BORDER | WS_HSCROLL | WS_TABSTOP,7,7,98,265
+    CONTROL         "",IDC_CHILD_PLACEHOLDER,"Static",SS_BLACKFRAME,112,7,248,265
+    CONTROL         "Сохранять настройки в каталоге пользователя",IDC_CHECK_USER_DATA_DIR,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,280,179,10
+    LTEXT           "Настройки, помеченные *, требуют перезапуска программы",IDC_STATIC,7,296,207,8
+    PUSHBUTTON      "OK",IDOK,256,300,50,14
+    PUSHBUTTON      "Отмена",IDCANCEL,310,300,50,14
+END
+
+IDD_SETTINGS_CONSOLE DIALOGEX 0, 0, 226, 254
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Программа:",IDC_STATIC,10,6,44,8
+    EDITTEXT        IDC_SHELL,55,3,145,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_SHELL,203,3,15,14
+    LTEXT           "П&апка:",IDC_STATIC,10,21,24,8
+    EDITTEXT        IDC_INIT_DIR,55,18,145,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_DIR,203,18,15,14
+    CONTROL         "&Запускать Windows программы скрытыми",IDC_CHECK_START_HIDDEN,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,55,35,157,10
+    LTEXT           "&Изменения:",IDC_STATIC,10,67,40,8
+    EDITTEXT        IDC_CHANGE_REFRESH,55,64,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_CHANGE_REFRESH,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,86,57,9,14
+    LTEXT           "ms",IDC_STATIC,100,67,10,8
+    LTEXT           "П&ериод:",IDC_STATIC,116,67,29,8
+    EDITTEXT        IDC_REFRESH,146,64,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_REFRESH,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,180,57,9,14
+    LTEXT           "ms",IDC_STATIC,190,67,10,8
+    GROUPBOX        "Интервалы обновления *",IDC_STATIC,0,51,210,37
+    LTEXT           "&Строки:",IDC_STATIC,10,105,28,8
+    EDITTEXT        IDC_ROWS,46,102,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_ROWS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,74,102,9,14
+    LTEXT           "К&олонки:",IDC_STATIC,10,120,32,8
+    EDITTEXT        IDC_COLUMNS,46,117,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_COLUMNS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,74,117,9,14
+    CONTROL         "Сохранять на в&ыходе",IDC_CHECK_SAVE_SIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,134,86,10
+    GROUPBOX        "Размер окна *",IDC_STATIC,0,91,100,58
+    LTEXT           "С&троки:",IDC_STATIC,120,104,28,8
+    EDITTEXT        IDC_BUFFER_ROWS,155,102,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_BUFFER_ROWS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,184,102,9,14
+    LTEXT           "Ко&лонки:",IDC_STATIC,120,121,32,8
+    EDITTEXT        IDC_BUFFER_COLUMNS,155,117,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_BUFFER_COLUMNS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,184,117,9,14
+    GROUPBOX        "Размер буфера *",IDC_STATIC,110,91,100,57
+    GROUPBOX        "Карта цветов",IDC_STATIC,0,151,210,103
+    CONTROL         "",IDC_DEF_00,"Static",SS_BLACKFRAME,10,163,16,14
+    CONTROL         "",IDC_DEF_01,"Static",SS_BLACKFRAME,10,178,16,14
+    CONTROL         "",IDC_DEF_02,"Static",SS_BLACKFRAME,10,193,16,14
+    CONTROL         "",IDC_DEF_03,"Static",SS_BLACKFRAME,10,208,16,14
+    CONTROL         "",IDC_DEF_04,"Static",SS_BLACKFRAME,60,163,16,14
+    CONTROL         "",IDC_DEF_05,"Static",SS_BLACKFRAME,60,178,16,14
+    CONTROL         "",IDC_DEF_06,"Static",SS_BLACKFRAME,60,193,16,14
+    CONTROL         "",IDC_DEF_07,"Static",SS_BLACKFRAME,60,208,16,14
+    CONTROL         "",IDC_DEF_08,"Static",SS_BLACKFRAME,110,163,16,14
+    CONTROL         "",IDC_DEF_09,"Static",SS_BLACKFRAME,110,178,16,14
+    CONTROL         "",IDC_DEF_10,"Static",SS_BLACKFRAME,110,193,16,14
+    CONTROL         "",IDC_DEF_11,"Static",SS_BLACKFRAME,110,208,16,14
+    CONTROL         "",IDC_DEF_12,"Static",SS_BLACKFRAME,160,163,16,14
+    CONTROL         "",IDC_DEF_13,"Static",SS_BLACKFRAME,160,178,16,14
+    CONTROL         "",IDC_DEF_14,"Static",SS_BLACKFRAME,160,193,16,14
+    CONTROL         "",IDC_DEF_15,"Static",SS_BLACKFRAME,160,208,16,14
+    CONTROL         "",IDC_CLR_00,"Static",SS_BLACKFRAME | SS_NOTIFY,32,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_01,"Static",SS_BLACKFRAME | SS_NOTIFY,32,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_02,"Static",SS_BLACKFRAME | SS_NOTIFY,32,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_03,"Static",SS_BLACKFRAME | SS_NOTIFY,32,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_04,"Static",SS_BLACKFRAME | SS_NOTIFY,82,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_05,"Static",SS_BLACKFRAME | SS_NOTIFY,82,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_06,"Static",SS_BLACKFRAME | SS_NOTIFY,82,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_07,"Static",SS_BLACKFRAME | SS_NOTIFY,82,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_08,"Static",SS_BLACKFRAME | SS_NOTIFY,132,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_09,"Static",SS_BLACKFRAME | SS_NOTIFY,132,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_10,"Static",SS_BLACKFRAME | SS_NOTIFY,132,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_11,"Static",SS_BLACKFRAME | SS_NOTIFY,132,208,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_12,"Static",SS_BLACKFRAME | SS_NOTIFY,182,163,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_13,"Static",SS_BLACKFRAME | SS_NOTIFY,182,178,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_14,"Static",SS_BLACKFRAME | SS_NOTIFY,182,193,16,14,WS_EX_DLGMODALFRAME
+    CONTROL         "",IDC_CLR_15,"Static",SS_BLACKFRAME | SS_NOTIFY,182,208,16,14,WS_EX_DLGMODALFRAME
+    PUSHBUTTON      "&Восстановить",IDC_BTN_RESET_COLORS,144,230,59,14
+END
+
+IDD_SETTINGS_APPEARANCE DIALOGEX 0, 0, 235, 265
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Заголовок:",IDC_STATIC,10,16,39,8
+    EDITTEXT        IDC_WINDOW_TITLE,48,13,107,14,ES_AUTOHSCROLL
+    CONTROL         "Имя вкладки",IDC_CHECK_USE_TAB_TITLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,160,15,59,10
+    CONTROL         "Использовать заголовок окна консоли *",IDC_CHECK_USE_CONSOLE_TITLE,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,153,10
+    CONTROL         "Команда в заголовке окна",IDC_CHECK_SHOW_COMMAND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,40,106,10
+    CONTROL         "Команда на вкладке",IDC_CHECK_SHOW_COMMAND_TABS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,119,40,86,10
+    CONTROL         "Ограничить заголовок вкладки:",IDC_CHECK_TRIM_TAB_TITLES,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,50,127,10
+    EDITTEXT        IDC_TRIM_TAB_TITLES,22,62,31,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_TRIM_TAB_TITLES,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,43,62,9,14
+    LTEXT           "символами, из них",IDC_STATIC_TRIM_CHARS,56,64,66,8
+    EDITTEXT        IDC_TRIM_TAB_TITLES_RIGHT,121,63,31,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_TRIM_TAB_TITLES_RIGHT,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,141,63,11,14
+    LTEXT           "символов в конце",IDC_STATIC_TRIM_CHARS_RIGHT,155,64,60,8
+    LTEXT           "Иконка:",IDC_STATIC,10,87,28,8
+    EDITTEXT        IDC_WINDOW_ICON,42,85,156,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON,200,85,16,14
+    CONTROL         "Использовать иконки вкладок",IDC_CHECK_USE_TAB_ICON,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,42,102,120,10
+    GROUPBOX        "Заголовок и иконка",IDC_STATIC,0,0,235,115
+    LTEXT           "Имя:",IDC_STATIC,10,133,20,8
+    EDITTEXT        IDC_FONT,33,130,93,14,ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_FONT,132,130,16,14
+    LTEXT           "Размер:",IDC_STATIC,158,133,27,8
+    EDITTEXT        IDC_FONT_SIZE,186,130,30,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_FONT_SIZE,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,218,130,11,14
+    CONTROL         "Полужирный",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,152,59,10
+    CONTROL         "Курсив",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,74,152,40,10
+    LTEXT           "Обработка:",IDC_STATIC,122,153,41,8
+    COMBOBOX        IDC_COMBO_SMOOTHING,161,151,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Цвет:",IDC_CHECK_USE_COLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,169,38,10
+    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,47,167,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Шрифт",IDC_STATIC,0,117,235,70
+    CONTROL         "Начальная позиция*",IDC_CHECK_POSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,204,82,10
+    LTEXT           "X:",IDC_STATIC,94,205,8,8
+    EDITTEXT        IDC_POS_X,101,202,24,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_X,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,107,192,11,14
+    LTEXT           "Y:",IDC_STATIC,130,204,8,8
+    EDITTEXT        IDC_POS_Y,138,202,23,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_Y,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,160,192,11,14
+    CONTROL         "Сохранять",IDC_CHECK_SAVE_POSITION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,174,204,54,10
+    CONTROL         "Клеить к краю",IDC_CHECK_SNAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,222,67,10
+    LTEXT           "Расстояние:",IDC_STATIC,92,223,42,8
+    EDITTEXT        IDC_SNAP,136,220,37,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_SNAP,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,166,227,11,14
+    LTEXT           "пиксел",IDC_STATIC,179,223,24,8
+    LTEXT           "Привязка *:",IDC_STATIC,10,242,42,8
+    COMBOBOX        IDC_COMBO_DOCKING,51,240,63,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Z порядок:",IDC_STATIC,119,242,38,8
+    COMBOBOX        IDC_COMBO_ZORDER,159,240,69,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Размещение",IDC_STATIC,0,189,235,72
+END
+
+IDD_SETTINGS_HOTKEYS DIALOGEX 0, 0, 226, 254
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_HOTKEYS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,225,179,WS_EX_CLIENTEDGE
+    LTEXT           "Команда:",IDC_STATIC,10,190,33,8
+    EDITTEXT        IDC_EDIT_COMMAND,47,187,163,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Клавиша:",IDC_STATIC,10,211,34,8
+    EDITTEXT        IDC_EDIT_HOTKEY,47,208,67,14,ES_AUTOHSCROLL | ES_WANTRETURN
+    PUSHBUTTON      "Назначить",IDC_BTN_ASSIGN,119,208,42,14
+    PUSHBUTTON      "Очистить",IDC_BTN_CLEAR,168,208,42,14
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDFRAME,0,230,225,1
+    CONTROL         "&Использовать Scroll Lock для прокрутки",IDC_CHECK_USE_SCROLL_LOCK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,240,151,10
+END
+
+IDD_SETTINGS_STYLES DIALOGEX 0, 0, 246, 265
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "&меню",IDC_CHECK_SHOW_MENU,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,12,53,10
+    CONTROL         "&инструменты",IDC_CHECK_SHOW_TOOLBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,24,58,10
+    CONTROL         "&строку состояния",IDC_CHECK_SHOW_STATUS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,36,68,10
+    CONTROL         "&вкладки",IDC_CHECK_SHOW_TABS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,48,49,10
+    CONTROL         "&если не одна",IDC_CHECK_HIDE_SINGLE_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,60,59,10
+    CONTROL         "внизу окна *",IDC_CHECK_TABS_ON_BOTTOM,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,71,70,10
+    CONTROL         "п&олосы прокрутки",IDC_CHECK_SHOW_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,6,83,78,10
+    CONTROL         "&плоские",IDC_CHECK_FLAT_SCROLLBARS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,95,59,10
+    GROUPBOX        "Показывать",IDC_STATIC,0,0,92,111
+    CONTROL         "&Заголовок *",IDC_CHECK_STYLE_CAPTION,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,12,47,10
+    CONTROL         "Меняет &размер *",IDC_CHECK_STYLE_RESIZABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,24,64,10
+    CONTROL         "Рам&ка *",IDC_CHECK_STYLE_BORDER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,102,36,43,10
+    CONTROL         "На &панели задач *",IDC_CHECK_STYLE_TASKBAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,172,12,68,10
+    CONTROL         "&Уведомления",IDC_CHECK_STYLE_TRAY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,172,24,69,10
+    LTEXT           "Внутренн&яя:",IDC_STATIC,102,53,46,8
+    EDITTEXT        IDC_INSIDE_BORDER,153,50,33,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SPIN_INSIDE_BORDER,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,191,50,11,14
+    LTEXT           "Цвет выделения:",IDC_STATIC,102,84,50,8
+    CONTROL         "",IDC_SELECTION_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,153,81,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Стиль",IDC_STATIC,96,0,149,111
+    CONTROL         "&Нет",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,8,124,33,10
+    CONTROL         "Аль&фа канал",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON,8,139,34,10
+    CONTROL         "Кл&ючевой цвет",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON,8,228,66,10
+    LTEXT           "&Активного окна",IDC_STATIC_ACTIVE_WINDOW,19,152,47,8
+    CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,163,185,22
+    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,204,165,14,8,0,WS_EX_RIGHT
+    LTEXT           "Неак&тивного окна",IDC_STATIC_INACTIVE_WINDOW,19,187,53,8
+    CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,19,200,185,22
+    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,204,202,14,8,0,WS_EX_RIGHT
+    LTEXT           "Цвет:",IDC_STATIC_KEY_COLOR,19,245,33,8
+    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,54,242,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Прозрачность окна",IDC_STATIC,0,111,245,154
+END
+
+IDD_SETTINGS_TEMP DIALOGEX 0, 0, 611, 555
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TAB1,"SysTabControl32",0x0,0,140,223,148
+    CONTROL         "Check1",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,79,151,39,10
+    LTEXT           "Ro&ws:",IDC_STATIC,27,41,21,8
+    EDITTEXT        IDC_BUFFER_ROWS,63,38,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_BUFFER_ROWS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,91,38,11,14
+    LTEXT           "Col&umns:",IDC_STATIC,27,61,30,8
+    EDITTEXT        IDC_BUFFER_COLUMNS,63,58,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_BUFFER_COLUMNS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,91,58,11,14
+    GROUPBOX        "Buffer size *",IDC_STATIC,17,26,100,57
+    LTEXT           "&Rows:",IDC_STATIC,163,43,21,8
+    EDITTEXT        IDC_ROWS,199,41,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_ROWS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,227,41,11,14
+    LTEXT           "C&olumns:",IDC_STATIC,163,63,30,8
+    EDITTEXT        IDC_COLUMNS,199,60,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_COLUMNS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,227,60,11,14
+    GROUPBOX        "Window size *",IDC_STATIC,153,28,100,68
+    CONTROL         "Save on exit",IDC_CHECK_SAVE_SIZE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,163,81,52,10
+    LTEXT           "Ro&ws:",IDC_STATIC,289,158,21,8
+    EDITTEXT        IDC_BUFFER_ROWS2,325,155,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_BUFFER_ROWS2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,353,155,11,14
+    LTEXT           "Col&umns:",IDC_STATIC,372,158,30,8
+    EDITTEXT        IDC_BUFFER_COLUMNS2,407,155,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
+    CONTROL         "",IDC_SPIN_BUFFER_COLUMNS2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,436,155,11,14
+    GROUPBOX        "Buffer size *",IDC_STATIC,279,143,184,36
+END
+
+IDD_SETTINGS_TABS DIALOGEX 0, 0, 232, 265
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_TABS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,128,75
+    PUSHBUTTON      "Добавить",IDC_BTN_ADD,130,5,81,14
+    PUSHBUTTON      "Удалить",IDC_BTN_DELETE,130,22,81,14
+    PUSHBUTTON      "Переместить выше",IDC_BTN_UP,130,39,81,14
+    PUSHBUTTON      "Переместить ниже",IDC_BTN_DOWN,130,56,81,14
+    CONTROL         "",IDC_TABS,"SysTabControl32",WS_TABSTOP,0,80,232,185
+END
+
+IDD_SETTINGS_BEHAVIOR DIALOGEX 0, 0, 248, 254
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Копировать сразу",IDC_CHECK_COPY_ON_SELECT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,86,10
+    CONTROL         "Снимать выделение",IDC_CHECK_CLEAR_ON_COPY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,85,10
+    CONTROL         "Не переносить длинные строки",IDC_CHECK_NO_WRAP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,101,15,123,10
+    CONTROL         "Убирать концевые пробелы",IDC_CHECK_TRIM_SPACES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,100,30,111,10
+    GROUPBOX        "При копировании и вставке",IDC_STATIC,0,0,225,63
+    CONTROL         "Windows (CR+LF)",IDC_RADIO_COPY_NEWLINE_CHAR,"Button",BS_AUTORADIOBUTTON | WS_GROUP,10,82,74,10
+    CONTROL         "Unix (LF)",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,10,96,45,10
+    GROUPBOX        "Новая строка",IDC_STATIC,0,68,105,50,WS_GROUP
+    CONTROL         "Один экран",IDC_PAGE_SCROLL,"Button",BS_AUTORADIOBUTTON | WS_GROUP,121,83,55,10
+    CONTROL         "Строки:",IDC_PAGE_SCROLL2,"Button",BS_AUTORADIOBUTTON,121,98,41,10
+    EDITTEXT        IDC_SCROLL_PAGE_ROWS,163,96,33,14,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    CONTROL         "",IDC_SPIN_SCROLL_PAGE_ROWS,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,187,82,11,14
+    LTEXT           "",IDC_STATIC_ROWS,201,99,11,8
+    GROUPBOX        "Одна страница прокрутки",IDC_STATIC,110,68,115,50
+    CONTROL         "Мигает",IDC_CHECK_FLASH_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,137,41,10
+    LTEXT           "раз",IDC_STATIC,62,154,12,8
+    EDITTEXT        IDC_TAB_FLASHES,19,151,33,14,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP
+    CONTROL         "",IDC_SPIN_TAB_FLASHES,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS,46,147,11,14
+    CONTROL         "и потом выделена",IDC_CHECK_LEAVE_HIGHLIGHTED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,168,78,10
+    GROUPBOX        "Неактивная вкладка...",IDC_STATIC,0,123,105,66,WS_GROUP
+    CONTROL         "Копировать по щелчку на выделенном",IDC_CHECK_SENSITIVE_COPY,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,45,149,10
+END
+
+IDD_SETTINGS_TABS_1 DIALOGEX 0, 0, 223, 171
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_CONTROLPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Заголовок:",IDC_STATIC,8,19,37,8,0,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_TAB_TITLE,50,16,163,14,ES_AUTOHSCROLL
+    LTEXT           "&Иконка:",IDC_STATIC,8,34,36,8
+    EDITTEXT        IDC_TAB_ICON,50,31,83,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON,136,31,15,14
+    CONTROL         "Стандартная",IDC_CHECK_DEFAULT_ICON,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,156,33,59,10
+    LTEXT           "&Программа:",IDC_STATIC,7,71,40,8
+    EDITTEXT        IDC_TAB_SHELL,51,68,139,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_SHELL,193,68,15,14
+    LTEXT           "П&апка:",IDC_STATIC,7,86,38,8
+    EDITTEXT        IDC_TAB_INIT_DIR,51,83,139,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_DIR,193,83,15,14
+    CONTROL         "Другой пользователь:",IDC_CHECK_RUN_AS_USER,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,16,100,89,10
+    EDITTEXT        IDC_TAB_USER,107,98,83,14,ES_AUTOHSCROLL
+    GROUPBOX        "Командная строка",IDC_STATIC,0,55,217,63,WS_GROUP,WS_EX_TRANSPARENT
+    LTEXT           "С&тиль:",IDC_STATIC,5,136,20,8
+    COMBOBOX        IDC_COMBO_CURSOR,28,134,82,83,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "&Цвет:",IDC_STATIC,118,136,20,8
+    CONTROL         "",IDC_CURSOR_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,140,133,16,14,WS_EX_DLGMODALFRAME
+    GROUPBOX        "Курсок",IDC_STATIC,0,120,194,37,0,WS_EX_TRANSPARENT
+    GROUPBOX        "Заголовок и иконка",IDC_STATIC,0,3,217,50,0,WS_EX_TRANSPARENT
+END
+
+IDD_SETTINGS_TABS_2 DIALOGEX 0, 0, 223, 172
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+EXSTYLE WS_EX_TRANSPARENT
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Однородный",IDC_RADIO_BK_TYPE,"Button",BS_AUTORADIOBUTTON | WS_GROUP,5,8,60,10
+    CONTROL         "Рисунок",IDC_RADIO_BK_TYPE2,"Button",BS_AUTORADIOBUTTON,5,33,43,10
+    CONTROL         "Обои",IDC_RADIO_BK_TYPE3,"Button",BS_AUTORADIOBUTTON,5,95,33,10
+    LTEXT           "Цвет:",IDC_STATIC_BK_COLOR,23,20,21,8
+    CONTROL         "",IDC_BK_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,48,17,16,14,WS_EX_DLGMODALFRAME
+    LTEXT           "Файл:",IDC_STATIC_BK_IMAGE,23,49,23,8,NOT WS_GROUP
+    EDITTEXT        IDC_BK_IMAGE,48,46,145,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_BK,196,46,15,14
+    CONTROL         "Относительно",IDC_CHECK_BK_RELATIVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,65,65,10
+    CONTROL         "Показывать на всех мониторах",IDC_CHECK_BK_EXTEND,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,23,80,123,10
+    LTEXT           "Положение:",IDC_STATIC_BK_POS,103,66,42,8,NOT WS_GROUP
+    COMBOBOX        IDC_COMBO_BK_POS,145,64,48,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Цвет:",IDC_STATIC_TINT_COLOR,12,116,21,8,NOT WS_GROUP
+    CONTROL         "",IDC_TINT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,47,113,16,14,WS_EX_DLGMODALFRAME
+    LTEXT           "Прозрачность",IDC_STATIC_TINT_OPACITY,13,132,48,8,NOT WS_GROUP
+    CONTROL         "",IDC_TINT_OPACITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,13,141,185,22
+    LTEXT           "255",IDC_TINT_OPACITY_VAL,199,145,14,8,0,WS_EX_RIGHT
+END
+
+IDD_SETTINGS_MOUSE DIALOGEX 0, 0, 226, 254
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_LIST_MOUSE_COMMANDS,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,0,0,225,179,WS_EX_CLIENTEDGE
+    LTEXT           "Команда:",IDC_STATIC,10,190,34,8
+    EDITTEXT        IDC_EDIT_COMMAND,47,187,163,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Кнопка:",IDC_STATIC,10,211,28,8
+    COMBOBOX        IDC_COMBO_BUTTONS,47,208,67,49,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Вместе с:",IDC_STATIC,10,232,32,8
+    CONTROL         "Co&ntrol",IDC_CHECK_CTRL,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,47,231,39,10
+    CONTROL         "&Shift",IDC_CHECK_SHIFT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,92,231,31,10
+    CONTROL         "Al&t",IDC_CHECK_ALT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,231,25,10
+    PUSHBUTTON      "&Назначить",IDC_BTN_ASSIGN,119,208,42,14
+    PUSHBUTTON      "&Очистить",IDC_BTN_CLEAR,168,208,42,14
+END
+
+IDD_CREDENTIALS DIALOGEX 0, 0, 207, 79
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Введите имя пользователя и пароль"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "&Пароль:",IDC_STATIC,7,31,34,8
+    EDITTEXT        IDC_PASSWORD,54,28,146,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,93,58,50,14
+    PUSHBUTTON      "Отмена",IDCANCEL,150,58,50,14
+    LTEXT           "&Имя пользователя:",IDC_STATIC,7,16,36,8
+    EDITTEXT        IDC_USER,54,13,146,14,ES_AUTOHSCROLL
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 231
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 115
+    END
+
+    IDD_RENAME_TAB, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        VERTGUIDE, 58
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 48
+        HORZGUIDE, 15
+    END
+
+    IDD_SETTINGS_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 363
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 315
+        HORZGUIDE, 285
+    END
+
+    IDD_SETTINGS_CONSOLE, DIALOG
+    BEGIN
+        RIGHTMARGIN, 225
+        HORZGUIDE, 10
+        HORZGUIDE, 25
+        HORZGUIDE, 60
+    END
+
+    IDD_SETTINGS_APPEARANCE, DIALOG
+    BEGIN
+        HORZGUIDE, 20
+    END
+
+    IDD_SETTINGS_TEMP, DIALOG
+    BEGIN
+        RIGHTMARGIN, 610
+        VERTGUIDE, 17
+        BOTTOMMARGIN, 550
+        HORZGUIDE, 8
+    END
+
+    IDD_SETTINGS_TABS, DIALOG
+    BEGIN
+        BOTTOMMARGIN, 254
+    END
+
+    IDD_SETTINGS_BEHAVIOR, DIALOG
+    BEGIN
+        VERTGUIDE, 10
+        HORZGUIDE, 20
+        HORZGUIDE, 35
+        HORZGUIDE, 50
+        HORZGUIDE, 55
+        HORZGUIDE, 74
+        HORZGUIDE, 88
+        HORZGUIDE, 105
+        HORZGUIDE, 110
+        HORZGUIDE, 129
+        HORZGUIDE, 145
+        HORZGUIDE, 160
+    END
+
+    IDD_SETTINGS_TABS_1, DIALOG
+    BEGIN
+        HORZGUIDE, 20
+        HORZGUIDE, 72
+        HORZGUIDE, 87
+        HORZGUIDE, 124
+        HORZGUIDE, 142
+    END
+
+    IDD_SETTINGS_TABS_2, DIALOG
+    BEGIN
+        HORZGUIDE, 70
+        HORZGUIDE, 85
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_FILE_NEW_TAB
+    BUTTON      ID_PREV_TAB
+    BUTTON      ID_NEXT_TAB
+    SEPARATOR
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+    BUTTON      ID_HELP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "toolbar.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU 
+BEGIN
+    POPUP "Файл"
+    BEGIN
+        MENUITEM "&Новая вкладка",              ID_FILE_NEW_TAB
+        MENUITEM "&Закрыть вкладку",            ID_FILE_CLOSE_TAB
+        MENUITEM SEPARATOR
+        MENUITEM "&Выход",                      ID_APP_EXIT
+    END
+    POPUP "Правка"
+    BEGIN
+        MENUITEM "&Копировать",                 ID_EDIT_COPY
+        MENUITEM "&Снять выделение",            ID_EDIT_CLEAR_SELECTION
+        MENUITEM "&Вставить",                   ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Ос&тановить прокрутку",       ID_EDIT_STOP_SCROLLING
+        MENUITEM SEPARATOR
+        MENUITEM "&Переименовать вкладку",      ID_EDIT_RENAME_TAB
+        MENUITEM SEPARATOR
+        MENUITEM "Н&астройки...",               ID_EDIT_SETTINGS
+    END
+    POPUP "Вид"
+    BEGIN
+        MENUITEM "&Окно команды",               ID_VIEW_CONSOLE
+        MENUITEM SEPARATOR
+        MENUITEM "&Меню",                       ID_VIEW_MENU
+        MENUITEM "&Панель инструментов",        ID_VIEW_TOOLBAR
+        MENUITEM "&Строка состояния",           ID_VIEW_STATUS_BAR
+        MENUITEM "&Вкладки",                    ID_VIEW_TABS
+    END
+    POPUP "Справка"
+    BEGIN
+        MENUITEM "&Справка",                    ID_HELP
+        MENUITEM SEPARATOR
+        MENUITEM "&О программе...",             ID_APP_ABOUT
+    END
+END
+
+IDR_POPUP_MENU_TAB MENU 
+BEGIN
+    POPUP "_"
+    BEGIN
+        POPUP "&Файл"
+        BEGIN
+            MENUITEM "&Новая вкладка",              32775
+            MENUITEM "&Закрыть вкладку",            ID_FILE_CLOSE_TAB
+            MENUITEM SEPARATOR
+            MENUITEM "&Выход",                      57665
+        END
+        POPUP "&Правка"
+        BEGIN
+            MENUITEM "&Копировать",                 57634
+            MENUITEM "&Снять выделение",            32791
+            MENUITEM "&Вставить",                   57637
+            MENUITEM SEPARATOR
+            MENUITEM "Ос&тановить прокрутку",       ID_EDIT_STOP_SCROLLING
+            MENUITEM SEPARATOR
+            MENUITEM "&Переименовать вкладку",      ID_EDIT_RENAME_TAB
+            MENUITEM SEPARATOR
+            MENUITEM "Н&астройки...",               ID_EDIT_SETTINGS
+        END
+        POPUP "&Вид"
+        BEGIN
+            MENUITEM "&Окно команды",               32777
+            MENUITEM SEPARATOR
+            MENUITEM "&Меню",                       32784
+            MENUITEM "&Панель инструментов",        59392
+            MENUITEM "&Строка состояния",           59393
+            MENUITEM "&Вкладки",                    32789
+        END
+        POPUP "&Справка"
+        BEGIN
+            MENUITEM "&Справка",                    57670
+            MENUITEM SEPARATOR
+            MENUITEM "&О программе...",             57664
+        END
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 2,0,0,147
+ PRODUCTVERSION 2,0,0,147
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "000004b0"
+        BEGIN
+            VALUE "Comments", "Кульная консоль с закладками (ЭТО НЕ КОМАНДНАЯ СТРОКА :-)\nЛокализация: Кирилл Александров, Виталий Гнидчин, koros aka ya158"
+            VALUE "CompanyName", "Ingenuity Unlimited Ltd."
+            VALUE "FileDescription", "Локализованные ресурсы"
+            VALUE "FileVersion", "2.00, Build 148 2011.10.03"
+            VALUE "InternalName", "Console"
+            VALUE "LegalCopyright", "Copyright © 2001-2011 Marko Bozikovic"
+            VALUE "LegalTrademarks", "Copyright © 2001-2011 Marko Bozikovic"
+            VALUE "OriginalFilename", "Console.exe"
+            VALUE "ProductName", "Console"
+            VALUE "ProductVersion", "2, 0, 0, 147"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x0, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "..\\Console\\res\\console.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_SETTINGS_TABS_1 DLGINIT
+BEGIN
+    IDC_COMBO_CURSOR, 0x403, 6, 0
+0x5458, 0x7265, 0x006d, 
+    IDC_COMBO_CURSOR, 0x403, 6, 0
+0x6c42, 0x636f, 0x006b, 
+    IDC_COMBO_CURSOR, 0x403, 18, 0
+0x6f4e, 0x626e, 0x696c, 0x6b6e, 0x6e69, 0x2067, 0x6c62, 0x636f, 0x006b, 
+
+    IDC_COMBO_CURSOR, 0x403, 6, 0
+0x7550, 0x736c, 0x0065, 
+    IDC_COMBO_CURSOR, 0x403, 4, 0
+0x6142, 0x0072, 
+    IDC_COMBO_CURSOR, 0x403, 23, 0
+0x6f4e, 0x626e, 0x696c, 0x6b6e, 0x6e69, 0x2067, 0x6f68, 0x7a72, 0x202e, 
+0x696c, 0x656e, "\000" 
+    IDC_COMBO_CURSOR, 0x403, 16, 0
+0x6f48, 0x6972, 0x6f7a, 0x746e, 0x6c61, 0x6c20, 0x6e69, 0x0065, 
+    IDC_COMBO_CURSOR, 0x403, 14, 0
+0x6556, 0x7472, 0x6369, 0x6c61, 0x6c20, 0x6e69, 0x0065, 
+    IDC_COMBO_CURSOR, 0x403, 5, 0
+0x6552, 0x7463, "\000" 
+    IDC_COMBO_CURSOR, 0x403, 17, 0
+0x6f4e, 0x626e, 0x696c, 0x6b6e, 0x6e69, 0x2067, 0x6572, 0x7463, "\000" 
+    IDC_COMBO_CURSOR, 0x403, 15, 0
+0x7550, 0x736c, 0x7461, 0x6e69, 0x2067, 0x6572, 0x7463, "\000" 
+    IDC_COMBO_CURSOR, 0x403, 13, 0
+0x6146, 0x6964, 0x676e, 0x6220, 0x6f6c, 0x6b63, "\000" 
+    0
+END
+
+IDD_SETTINGS_APPEARANCE DLGINIT
+BEGIN
+    IDC_COMBO_SMOOTHING, 0x403, 8, 0
+0x6544, 0x6166, 0x6c75, 0x0074, 
+    IDC_COMBO_SMOOTHING, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    IDC_COMBO_SMOOTHING, 0x403, 10, 0
+0x6c43, 0x6165, 0x5472, 0x7079, 0x0065, 
+    IDC_COMBO_DOCKING, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    IDC_COMBO_DOCKING, 0x403, 9, 0
+0x6f54, 0x2070, 0x654c, 0x7466, "\000" 
+    IDC_COMBO_DOCKING, 0x403, 10, 0
+0x6f54, 0x2070, 0x6952, 0x6867, 0x0074, 
+    IDC_COMBO_DOCKING, 0x403, 12, 0
+0x6f42, 0x7474, 0x6d6f, 0x4c20, 0x6665, 0x0074, 
+    IDC_COMBO_DOCKING, 0x403, 16, 0
+0x6f42, 0x7474, 0x6d6f, 0x5220, 0x6769, 0x7468, 0x2020, 0x0020, 
+    IDC_COMBO_ZORDER, 0x403, 8, 0
+0x6552, 0x7567, 0x616c, 0x0072, 
+    IDC_COMBO_ZORDER, 0x403, 14, 0
+0x6c41, 0x6177, 0x7379, 0x6f20, 0x206e, 0x6f74, 0x0070, 
+    IDC_COMBO_ZORDER, 0x403, 17, 0
+0x6c41, 0x6177, 0x7379, 0x6f20, 0x206e, 0x6f62, 0x7474, 0x6d6f, "\000" 
+    IDC_COMBO_ZORDER, 0x403, 18, 0
+0x6950, 0x6e6e, 0x6465, 0x7420, 0x206f, 0x6564, 0x6b73, 0x6f74, 0x0070, 
+
+    0
+END
+
+IDD_SETTINGS_MOUSE DLGINIT
+BEGIN
+    IDC_COMBO_BUTTONS, 0x403, 5, 0
+0x6f4e, 0x656e, "\000" 
+    IDC_COMBO_BUTTONS, 0x403, 5, 0
+0x654c, 0x7466, "\000" 
+    IDC_COMBO_BUTTONS, 0x403, 6, 0
+0x6952, 0x6867, 0x0074, 
+    IDC_COMBO_BUTTONS, 0x403, 7, 0
+0x694d, 0x6464, 0x656c, "\000" 
+    IDC_COMBO_BUTTONS, 0x403, 7, 0
+0x6f46, 0x7275, 0x6874, "\000" 
+    IDC_COMBO_BUTTONS, 0x403, 6, 0
+0x6946, 0x7466, 0x0068, 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE 
+BEGIN
+    IDR_MAINFRAME           "Консоль"
+    IDS_TAB_CREATE_FAILED   "Не могу открыть %s!\nПроцесс %s, вероятно, все еще выполняется (найдите и завершите его с помощью Диспетчера Задач)"
+    IDS_SETTINGS_CONSOLE    "Основные"
+    IDS_SETTINGS_APPEARANCE "Внешний вид"
+    IDS_SETTINGS_MORE       "Дополнительно"
+    IDS_SETTINGS_BEHAVIOR   "Поведение"
+    IDS_SETTINGS_HOTKEYS    """Горячие клавишы"""
+    IDS_SETTINGS_MOUSE      "Кнопки мыши"
+    IDS_SETTINGS_TABS       "Вкладки"
+    IDS_COMMAND_SETTINGS_DIALOG "Редактор настроек"
+    IDS_COMMAND_HELP        "Справка"
+    IDS_COMMAND_EXIT_CONSOLE "Выход"
+    IDS_COMMAND_NEWTAB1     "Новая вкладка 1"
+    IDS_COMMAND_NEWTAB2     "Новая вкладка 2"
+    IDS_COMMAND_NEWTAB3     "Новая вкладка 3"
+    IDS_COMMAND_NEWTAB4     "Новая вкладка 4"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "Create a new document\nNew"
+    ID_FILE_OPEN            "Open an existing document\nOpen"
+    ID_FILE_CLOSE           "Close the active document\nClose"
+    ID_FILE_SAVE            "Save the active document\nSave"
+    ID_FILE_SAVE_AS         "Save the active document with a new name\nSave As"
+    ID_FILE_PAGE_SETUP      "Change the printing options\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Change the printer and printing options\nPrint Setup"
+    ID_FILE_PRINT           "Print the active document\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Display full pages\nPrint Preview"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "Показывает информацию о программе, версию и авторские права\nО программе"
+    ID_APP_EXIT             "Завершает работу программы\nВыход"
+    ID_HELP                 "Открывает файл Справки\nСправка"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_PANE            "Switch to the next window pane\nNext Pane"
+    ID_PREV_PANE            "Switch back to the previous window pane\nPrevious Pane"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_WINDOW_NEW           "Open another window for the active document\nNew Window"
+    ID_WINDOW_ARRANGE       "Arrange icons at the bottom of the window\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arrange windows so they overlap\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arrange windows as non-overlapping tiles\nTile Windows"
+    ID_WINDOW_SPLIT         "Split the active window into panes\nSplit"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
+    ID_EDIT_COPY            "Скопировать выделенное и положить в Буфер Обмена\nКопировать"
+    ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
+    ID_EDIT_FIND            "Find the specified text\nFind"
+    ID_EDIT_PASTE           "Вставляет содержимое Буфера Обмена\nВставить"
+    ID_EDIT_REPEAT          "Repeat the last action\nRepeat"
+    ID_EDIT_REPLACE         "Replace specific text with different text\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action\nRedo"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Показывает или прячет Панель инструментов\nПереключить Панель инструментов"
+    ID_VIEW_STATUS_BAR      "Показывает или прячет Строку состояния\nПереключить Строку состояния"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCSIZE          "Change the window size"
+    ATL_IDS_SCMOVE          "Change the window position"
+    ATL_IDS_SCMINIMIZE      "Reduce the window to an icon"
+    ATL_IDS_SCMAXIMIZE      "Enlarge the window to full size"
+    ATL_IDS_SCNEXTWINDOW    "Switch to the next document window"
+    ATL_IDS_SCPREVWINDOW    "Switch to the previous document window"
+    ATL_IDS_SCCLOSE         "Close the active window and prompts to save the documents"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_SCRESTORE       "Restore the window to normal size"
+    ATL_IDS_SCTASKLIST      "Activate Task List"
+    ATL_IDS_MDICHILD        "Activate this window"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_IDLEMESSAGE     "Готов"
+END
+
+STRINGTABLE 
+BEGIN
+    ATL_IDS_MRU_FILE        "Open this document"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW_TAB         "Создает новую вкладку\nНовая вкладка"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_NEXT_TAB             "Перейти на следующую вкладку\nСледующая вкладка"
+    ID_PREV_TAB             "Перейти на предыдущую вкладку\nПредыдущая вкладка"
+END
+
+STRINGTABLE 
+BEGIN
+    IDPANE_ROWS_COLUMNS     "%ix%i"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_ERR_CANT_START_SHELL "Unable to start a %1%!"
+    IDS_ERR_CANT_START_SHELL_AS_USER "Unable to start a %1% as user %2%!"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMMAND_NEWTAB5     "Новая вкладка 5"
+    IDS_COMMAND_NEWTAB6     "Новая вкладка 6"
+    IDS_COMMAND_NEWTAB7     "Новая вкладка 7"
+    IDS_COMMAND_NEWTAB8     "Новая вкладка 8"
+    IDS_COMMAND_NEWTAB9     "Новая вкладка 9"
+    IDS_COMMAND_NEWTAB10    "Новая вкладка 10"
+    IDS_COMMAND_TAB1        "Перейти на вкладку 1"
+    IDS_COMMAND_TAB2        "Перейти на вкладку 2"
+    IDS_COMMAND_TAB3        "Перейти на вкладку 3"
+    IDS_COMMAND_TAB4        "Перейти на вкладку 4"
+    IDS_COMMAND_TAB5        "Перейти на вкладку 5"
+    IDS_COMMAND_TAB6        "Перейти на вкладку 6"
+    IDS_COMMAND_TAB7        "Перейти на вкладку 7"
+    IDS_COMMAND_TAB8        "Перейти на вкладку 8"
+    IDS_COMMAND_TAB9        "Перейти на вкладку 9"
+    IDS_COMMAND_TAB10       "Перейти на вкладку 10"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMMAND_NEXT_TAB    "Следующая вкладка"
+    IDS_COMMAND_PREVIOUS_TAB "Предыдущая вкладка"
+    IDS_COMMAND_CLOSE_TAB   "Закрыть вкладку"
+    IDS_COMMAND_RENAME_TAB  "Переименовать вкладку"
+    IDS_COMMAND_COPY_SELECTION "Копировать выделенное"
+    IDS_COMMAND_CLEAR_SELECTION "Снять выделение"
+    IDS_COMMAND_PASTE       "Вставить"
+    IDS_COMMAND_SCROLL_UP   "Прокрутить на строку вверх"
+    IDS_COMMAND_SCROLL_DOWN "Прокрутить на строку вниз"
+    IDS_COMMAND_SCROLL_UP_PAGE "Прокрутить на страницу вверх"
+    IDS_COMMAND_SCROLL_DOWN_PAGE "Прокрутить на страницу вниз"
+    IDS_COMMAND_SCROLL_LEFT "Прокрутить на колонку вправо"
+    IDS_COMMAND_SCROLL_RIGHT "Прокрутить на колонку влево"
+    IDS_COMMAND_SCROLL_LEFT_PAGE "Прокрутить на страницу вправо"
+    IDS_COMMAND_SCROLL_RIGHT_PAGE "Прокрутить на страницу влево"
+    IDS_COMMAND_DUMP_BUFFER "Сохранить буфер в файл"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMMAND_MOUSE_COPY  "Скопировать/Снять выделение"
+    IDS_COMMAND_MOUSE_SELECT "Выделить текст"
+    IDS_COMMAND_MOUSE_PASTER "Вставить текст"
+    IDS_COMMAND_MOUSE_DRAG  "Перетащить окно"
+    IDS_COMMAND_MOUSE_MENU  "Контекстное меню"
+    IDS_SETTINGS_COLUMN_COMMAND "Команда"
+    IDS_SETTINGS_COLUMN_HOTKEY "Клавиша"
+    IDS_SETTINGS_COLUMN_MOUSEACTION "Кнопка"
+    IDS_SETTINGS_COLUMN_MAINTAB "Вкладка"
+    IDS_SETTINGS_COLUMN_BACKGROUNDTAB "Фон"
+    IDS_SETTINGS_COLUMN_TABNAME "Имя вкладки"
+    IDS_TABBINGFRAMEWORK_TIPS_SCROLLRIGHT "Прокрутить вправо"
+    IDS_TABBINGFRAMEWORK_TIPS_SCROLLLEFT "Прокрутить влево"
+    IDS_TABBINGFRAMEWORK_TIPS_CLOSE "Закрыть"
+    IDS_COMMAND_ACTIVATE_CONSOLE "Переключиться на Console (глобальная)"
+    IDS_COMMAND_STOP_SCROLLING "Остановить прокрутку"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMBO_SMOOTHING     "Системная"
+    IDS_COMBO_SMOOTHING_NONE "Нет"
+    IDS_COMBO_SMOOTHING_CLEARTYPE "ClearType"
+    IDS_COMBO_DOCKING       "Нет"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMBO_DOCKING_TOPLEFT "Наверху слева"
+    IDS_COMBO_DOCKING_TOPRIGHT "Наверху справа"
+    IDS_COMBO_DOCKING_BOTTOMLEFT "Внизу слева"
+    IDS_COMBO_DOCKING_BOTTOMRIGHT "Внизу справа"
+    IDS_COMBO_ZORDER        "Обычный"
+    IDS_COMBO_ZORDER_TOP    "Всегда наверху"
+    IDS_COMBO_ZORDER_BOTTOM "Всегда внизу"
+    IDS_COMBO_ZORDER_PINNED "Приклеить к столу"
+    IDS_COMBO_MOUSEBUTTONS  "Нет"
+    IDS_COMBO_MOUSEBUTTONS_LEFT "Левая"
+    IDS_COMBO_MOUSEBUTTONS_RIGHT "Правая"
+    IDS_COMBO_MOUSEBUTTONS_MIDDLE "Средняя"
+    IDS_COMBO_MOUSEBUTTONS_Fourth "Четвертая"
+    IDS_COMBO_MOUSEBUTTONS_FIFTH "Пятая"
+    IDS_COMBO_CURSOR        "XTerm"
+    IDS_COMBO_CURSOR_BLOCK  "Block"
+END
+
+STRINGTABLE 
+BEGIN
+    IDS_COMBO_CURSOR_NOBLINKBLOCK "Nonblinking block"
+    IDS_COMBO_CURSOR_PULSE  "Pulse"
+    IDS_COMBO_CURSOR_BAR    "Bar"
+    IDS_COMBO_CURSOR_NOBLINKHORZ "Nonblinking horz. line"
+    IDS_COMBO_CURSOR_HORZLINE "Horizontal line"
+    IDS_COMBO_CURSOR_VERTLINE "Vertical line"
+    IDS_COMBO_CURSOR_RECT   "Rectangle"
+    IDS_COMBO_CURSOR_NOBLINKRECT "Nonblinking rect"
+    IDS_COMBO_CURSOR_PULSERECT "Pulsating rect"
+    IDS_COMBO_CURSOR_FADEBLOCK "Fading block"
+END
+
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (Canada) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENC)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_CAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (Canada) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

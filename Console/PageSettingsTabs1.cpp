@@ -43,6 +43,8 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
 	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
+	Helpers::LocalizeComboBox(m_comboCursor, IDS_COMBO_CURSOR);
+
 	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
 
 	DoDataExchange(DDX_LOAD);

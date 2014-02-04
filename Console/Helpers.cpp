@@ -166,4 +166,16 @@ wstring Helpers::LoadString(UINT uID)
 	return wstring(str.get());
 }
 
+void Helpers::LocalizeComboBox (CComboBox& combo, UINT initialStringID)
+{
+	int count = combo.GetCount();
+	CAtlString localized;
+
+	combo.ResetContent();
+	while (count--) {
+		localized.LoadString(initialStringID++);
+		combo.AddString(localized);
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////

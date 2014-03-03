@@ -181,6 +181,9 @@ LRESULT MainFrame::CreateInitialTabs
 {
 	bool bAtLeastOneStarted = false;
 
+	TabSettings&	tabSettings = g_settingsHandler->GetTabSettings();
+
+
 	// create initial console window(s)
 	if (startupTabs.size() == 0)
 	{
@@ -190,12 +193,11 @@ LRESULT MainFrame::CreateInitialTabs
 		if (startupDirs.size() > 0) strStartupDir = startupDirs[0];
 		if (startupCmds.size() > 0) strStartupCmd = startupCmds[0];
 
-		bAtLeastOneStarted = CreateNewConsole(0, strStartupDir.empty()? strWorkingDir : strStartupDir, strStartupCmd);
+		if( !tabSettings.tabDataVector.empty() )
+			bAtLeastOneStarted = CreateNewConsole(0, strStartupDir.empty() && tabSettings.tabDataVector[0]->strInitialDir.empty() ? strWorkingDir : strStartupDir, strStartupCmd);
 	}
 	else
 	{
-		TabSettings&	tabSettings = g_settingsHandler->GetTabSettings();
-
 		for (size_t tabIndex = 0; tabIndex < startupTabs.size(); ++tabIndex)
 		{
 			// find tab with corresponding name...
@@ -208,7 +210,7 @@ LRESULT MainFrame::CreateInitialTabs
 					// found it, create
 					if (CreateNewConsole(
 						static_cast<DWORD>(i),
-						startupDirs[tabIndex].empty()? strWorkingDir : startupDirs[tabIndex],
+						startupDirs[tabIndex].empty() && tabSettings.tabDataVector[i]->strInitialDir.empty() ? strWorkingDir : startupDirs[tabIndex],
 						startupCmds[tabIndex]))
 					{
 						bAtLeastOneStarted = true;

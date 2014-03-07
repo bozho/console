@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -1325,12 +1325,12 @@ public: \
 			return TRUE; \
 	}
 
-// BOOL OnDeviceChange(UINT nEventType, DWORD dwData)
+// BOOL OnDeviceChange(UINT nEventType, DEV_BROADCAST_HDR* pHdr)
 #define MSG_WM_DEVICECHANGE(func) \
 	if (uMsg == WM_DEVICECHANGE) \
 	{ \
 		SetMsgHandled(TRUE); \
-		lResult = (LRESULT)func((UINT)wParam, (DWORD)lParam); \
+		lResult = (LRESULT)func((UINT)wParam, (DEV_BROADCAST_HDR*)lParam); \
 		if(IsMsgHandled()) \
 			return TRUE; \
 	}
@@ -1614,7 +1614,7 @@ public: \
 ///////////////////////////////////////////////////////////////////////////////
 // New NT4 & NT5 messages
 
-#if(_WIN32_WINNT >= 0x0400)
+#if (_WIN32_WINNT >= 0x0400)
 
 // void OnMouseHover(WPARAM wParam, CPoint ptPos)
 #define MSG_WM_MOUSEHOVER(func) \
@@ -1638,9 +1638,9 @@ public: \
 			return TRUE; \
 	}
 
-#endif /* _WIN32_WINNT >= 0x0400 */
+#endif // _WIN32_WINNT >= 0x0400
 
-#if(WINVER >= 0x0500)
+#if (WINVER >= 0x0500)
 
 // void OnMenuRButtonUp(WPARAM wParam, CMenuHandle menu)
 #define MSG_WM_MENURBUTTONUP(func) \
@@ -1695,9 +1695,9 @@ public: \
 			return TRUE; \
 	}
 
-#endif /* WINVER >= 0x0500 */
+#endif // WINVER >= 0x0500
 
-#if(_WIN32_WINNT >= 0x0500)
+#if (_WIN32_WINNT >= 0x0500)
 
 // BOOL OnAppCommand(CWindow wndFocus, short cmd, WORD uDevice, int dwKeys)
 #define MSG_WM_APPCOMMAND(func) \
@@ -1846,7 +1846,7 @@ public: \
 			return TRUE; \
 	}
 
-// OnThemeChanged()
+// void OnThemeChanged()
 #define MSG_WM_THEMECHANGED(func) \
 	if (uMsg == WM_THEMECHANGED) \
 	{ \
@@ -1857,7 +1857,21 @@ public: \
 			return TRUE; \
 	}
 
-#endif /* _WIN32_WINNT >= 0x0501 */
+#endif // _WIN32_WINNT >= 0x0501
+
+#if (_WIN32_WINNT >= 0x0600)
+
+// BOOL OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
+#define MSG_WM_MOUSEHWHEEL(func) \
+	if (uMsg == WM_MOUSEHWHEEL) \
+	{ \
+		SetMsgHandled(TRUE); \
+		lResult = (LRESULT)func((UINT)LOWORD(wParam), (short)HIWORD(wParam), _WTYPES_NS::CPoint(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam))); \
+		if(IsMsgHandled()) \
+			return TRUE; \
+	}
+
+#endif // (_WIN32_WINNT >= 0x0600)
 
 ///////////////////////////////////////////////////////////////////////////////
 // ATL defined messages

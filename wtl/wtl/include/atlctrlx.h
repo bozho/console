@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -943,7 +943,7 @@ public:
 		RECT rcLink = rect;
 		dc.DrawText(_T("NS"), -1, &rcLink, DT_LEFT | uFormat | DT_CALCRECT);
 		dc.SelectFont(hFontOld);
-		return max(rcText.bottom - rcText.top, rcLink.bottom - rcLink.top);
+		return __max(rcText.bottom - rcText.top, rcLink.bottom - rcLink.top);
 	}
 
 	bool GetIdealSize(SIZE& size) const
@@ -1001,7 +1001,7 @@ public:
 
 			dc.SelectFont(hFontOld);
 
-			int cyMax = max(rcLeft.bottom, max(rcLink.bottom, rcRight.bottom));
+			int cyMax = __max(rcLeft.bottom, __max(rcLink.bottom, rcRight.bottom));
 			::SetRect(&rcAll, rcLeft.left, rcLeft.top, rcRight.right, cyMax);
 		}
 		else
@@ -1937,8 +1937,7 @@ public:
 	HWND Create(HWND hWndParent, UINT nTextID = ATL_IDS_IDLEMESSAGE, DWORD dwStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | SBARS_SIZEGRIP, UINT nID = ATL_IDW_STATUS_BAR)
 	{
 		const int cchMax = 128;   // max text length is 127 for status bars (+1 for null)
-		TCHAR szText[cchMax];
-		szText[0] = 0;
+		TCHAR szText[cchMax] = { 0 };
 		::LoadString(ModuleHelper::GetResourceInstance(), nTextID, szText, cchMax);
 		return Create(hWndParent, szText, dwStyle, nID);
 	}
@@ -2725,7 +2724,7 @@ public:
 		{
 			int cyFont = abs(lf.lfHeight) + m_cxyBorder + 2 * m_cxyTextOffset;
 			int cyBtn = m_cyImageTB + m_cxyBtnAddTB + m_cxyBorder + 2 * m_cxyBtnOffset;
-			m_cxyHeader = max(cyFont, cyBtn);
+			m_cxyHeader = __max(cyFont, cyBtn);
 		}
 	}
 
@@ -2771,9 +2770,9 @@ public:
 		dc.SetBkMode(TRANSPARENT);
 		T* pT = static_cast<T*>(this);
 		HFONT hFontOld = dc.SelectFont(pT->GetTitleFont());
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) && !defined(DT_END_ELLIPSIS)
 		const UINT DT_END_ELLIPSIS = 0;
-#endif // _WIN32_WCE
+#endif // defined(_WIN32_WCE) && !defined(DT_END_ELLIPSIS)
 
 		if(IsVertical())
 		{
@@ -3089,7 +3088,7 @@ public:
 		LVCompareParam* pParam = NULL;
 		ATLTRY(pParam = new LVCompareParam[nCount]);
 		PFNLVCOMPARE pFunc = NULL;
-		TCHAR pszTemp[pT->m_cchCmpTextMax];
+		TCHAR pszTemp[pT->m_cchCmpTextMax] = { 0 };
 		bool bStrValue = false;
 
 		switch(wType)
@@ -4306,7 +4305,7 @@ public:
 		{
 			// Append menu items for all pages
 			const int cchPrefix = 3;   // 2 digits + space
-			nMenuItemsCount = min(min(nPageCount, nMenuItemsCount), (int)m_nMenuItemsMax);
+			nMenuItemsCount = __min(__min(nPageCount, nMenuItemsCount), (int)m_nMenuItemsMax);
 			ATLASSERT(nMenuItemsCount < 100);   // 2 digits only
 			if(nMenuItemsCount >= 100)
 				nMenuItemsCount = 99;
@@ -4750,6 +4749,8 @@ public:
 	void ShowTabControl(bool bShow)
 	{
 		m_tab.ShowWindow(bShow ? SW_SHOWNOACTIVATE : SW_HIDE);
+		T* pT = static_cast<T*>(this);
+		pT->UpdateLayout();
 	}
 
 	void UpdateLayout()
@@ -4757,11 +4758,15 @@ public:
 		RECT rect;
 		GetClientRect(&rect);
 
+		int cyOffset = 0;
 		if(m_tab.IsWindow() && ((m_tab.GetStyle() & WS_VISIBLE) != 0))
+		{
 			m_tab.SetWindowPos(NULL, 0, 0, rect.right - rect.left, m_cyTabHeight, SWP_NOZORDER);
+			cyOffset = m_cyTabHeight;
+		}
 
 		if(m_nActivePage != -1)
-			::SetWindowPos(GetPageHWND(m_nActivePage), NULL, 0, m_cyTabHeight, rect.right - rect.left, rect.bottom - rect.top - m_cyTabHeight, SWP_NOZORDER);
+			::SetWindowPos(GetPageHWND(m_nActivePage), NULL, 0, cyOffset, rect.right - rect.left, rect.bottom - rect.top - cyOffset, SWP_NOZORDER);
 	}
 
 	void UpdateMenu()

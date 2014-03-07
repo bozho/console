@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -481,9 +481,16 @@ public:
 		m_ofn.Flags |= OFN_ALLOWMULTISELECT;   // Force multiple selection mode
 
 #ifndef _UNICODE
-		OSVERSIONINFO ovi = { sizeof(ovi) };
+#ifdef _versionhelpers_H_INCLUDED_
+		OSVERSIONINFOEX ovi = { sizeof(OSVERSIONINFOEX) };
+		ovi.dwPlatformId = VER_PLATFORM_WIN32_NT;
+		DWORDLONG const dwlConditionMask = ::VerSetConditionMask(0, VER_PLATFORMID, VER_EQUAL);
+		m_bIsNT = (::VerifyVersionInfo(&ovi, VER_PLATFORMID, dwlConditionMask) != FALSE);
+#else // !_versionhelpers_H_INCLUDED_
+		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 		::GetVersionEx(&ovi);
 		m_bIsNT = (ovi.dwPlatformId == VER_PLATFORM_WIN32_NT);
+#endif // _versionhelpers_H_INCLUDED_
 		if (m_bIsNT)
 		{
 			// On NT platforms, GetOpenFileNameA thunks to GetOpenFileNameW and there 
@@ -770,7 +777,11 @@ public:
 		
 		// Get the ID-list of the current folder.
 		int nBytes = GetFolderIDList(NULL, 0);
+#ifdef STRICT_TYPED_ITEMIDS
+		CTempBuffer<ITEMIDLIST_RELATIVE> idlist;
+#else
 		CTempBuffer<ITEMIDLIST> idlist;
+#endif
 		idlist.AllocateBytes(nBytes);
 		if ((nBytes <= 0) || (GetFolderIDList(idlist, nBytes) <= 0))
 			return;
@@ -811,9 +822,13 @@ public:
 					// Get the ID-list and attributes of the file.
 					USES_CONVERSION;
 					int nFileNameLength = (int)(DWORD_PTR)(pChar - pAnchor);
-					TCHAR szFileName[MAX_PATH];
+					TCHAR szFileName[MAX_PATH] = { 0 };
 					SecureHelper::strncpy_x(szFileName, MAX_PATH, pAnchor, nFileNameLength);
+#ifdef STRICT_TYPED_ITEMIDS
+					PIDLIST_RELATIVE pidl = NULL;
+#else
 					LPITEMIDLIST pidl = NULL;
+#endif
 					DWORD dwAttrib = SFGAO_LINK;
 					if (SUCCEEDED(pFolder->ParseDisplayName(NULL, NULL, T2W(szFileName), NULL, &pidl, &dwAttrib)))
 					{
@@ -825,7 +840,7 @@ public:
 							if (SUCCEEDED(pFolder->BindToObject(pidl, NULL, IID_IShellLink, (void**)&pLink)))
 							{
 								// Get the shortcut's target path.
-								TCHAR szPath[MAX_PATH];
+								TCHAR szPath[MAX_PATH] = { 0 };
 								if (SUCCEEDED(pLink->GetPath(szPath, MAX_PATH, NULL, 0)))
 								{
 									// If the target path is longer than the shortcut name, then add on the number 
@@ -1309,7 +1324,11 @@ public:
 	bool m_bExpandInitialSelection;
 	TCHAR m_szFolderDisplayName[MAX_PATH];
 	TCHAR m_szFolderPath[MAX_PATH];
+#ifdef STRICT_TYPED_ITEMIDS
+	PIDLIST_ABSOLUTE m_pidlSelected;
+#else
 	LPITEMIDLIST m_pidlSelected;
+#endif
 	HWND m_hWnd;   // used only in the callback function
 
 // Constructor
@@ -1377,6 +1396,15 @@ public:
 	{
 		m_pidlInitialSelection = pidl;
 		m_bExpandInitialSelection = bExpand;
+	}
+
+#ifdef STRICT_TYPED_ITEMIDS
+	void SetRootFolder(PCIDLIST_ABSOLUTE pidl)
+#else
+	void SetRootFolder(LPCITEMIDLIST pidl)
+#endif
+	{
+		m_bi.pidlRoot = pidl;
 	}
 
 	// Methods to call after DoModal
@@ -2449,11 +2477,17 @@ public:
 	// GetDefaults will not display a dialog but will get device defaults
 	HRESULT GetDefaults()
 	{
-		m_pdex.Flags |= PD_RETURNDEFAULT;
 		ATLASSERT(m_pdex.hDevMode == NULL);    // must be NULL
 		ATLASSERT(m_pdex.hDevNames == NULL);   // must be NULL
 
-		return ::PrintDlgEx(&m_pdex);
+		if(m_pdex.hwndOwner == NULL)   // set only if not specified before
+			m_pdex.hwndOwner = ::GetActiveWindow();
+
+		m_pdex.Flags |= PD_RETURNDEFAULT;
+		HRESULT hRet = ::PrintDlgEx(&m_pdex);
+		m_pdex.Flags &= ~PD_RETURNDEFAULT;
+
+		return hRet;
 	}
 
 	// Helpers for parsing information after successful return num. copies requested
@@ -3061,7 +3095,7 @@ public:
 
 	INT MapDialogUnitsY(INT y) const
 	{
-		return ::MulDiv(y, m_sizeUnits.cx, 8);  // DLU to Pixels Y
+		return ::MulDiv(y, m_sizeUnits.cy, 8);  // DLU to Pixels Y
 	}
 
 	POINT MapDialogUnits(POINT pt) const
@@ -3108,7 +3142,8 @@ public:
 #endif // (_ATL_VER >= 0x800)
 
 
-class CMemDlgTemplate
+template <class TWinTraits>
+class CMemDlgTemplateT
 {
 public:
 	enum StdCtrlType
@@ -3121,10 +3156,10 @@ public:
 		CTRL_COMBOBOX  = 0x0085
 	};
 
-	CMemDlgTemplate() : m_hData(NULL), m_pData(NULL), m_pPtr(NULL), m_cAllocated(0)
+	CMemDlgTemplateT() : m_hData(NULL), m_pData(NULL), m_pPtr(NULL), m_cAllocated(0)
 	{ }
 
-	~CMemDlgTemplate()
+	~CMemDlgTemplateT()
 	{
 		Reset();
 	}
@@ -3273,7 +3308,7 @@ public:
 			DLGTEMPLATEEX* dlg = (DLGTEMPLATEEX*)m_pData;
 			dlg->cDlgItems++;
 
-			DLGITEMTEMPLATEEX item = {dwHelpID, ATL::CControlWinTraits::GetWndExStyle(0) | dwExStyle, ATL::CControlWinTraits::GetWndStyle(0) | dwStyle, nX, nY, nWidth, nHeight, wId};
+			DLGITEMTEMPLATEEX item = {dwHelpID, TWinTraits::GetWndExStyle(0) | dwExStyle, TWinTraits::GetWndStyle(0) | dwStyle, nX, nY, nWidth, nHeight, wId};
 			AddData(&item, sizeof(item));
 		}
 		else
@@ -3281,7 +3316,7 @@ public:
 			LPDLGTEMPLATE dlg = (LPDLGTEMPLATE)m_pData;
 			dlg->cdit++;
 
-			DLGITEMTEMPLATE item = {ATL::CControlWinTraits::GetWndStyle(0) | dwStyle, ATL::CControlWinTraits::GetWndExStyle(0) | dwExStyle, nX, nY, nWidth, nHeight, wId};
+			DLGITEMTEMPLATE item = {TWinTraits::GetWndStyle(0) | dwStyle, TWinTraits::GetWndExStyle(0) | dwExStyle, nX, nY, nWidth, nHeight, wId};
 			AddData(&item, sizeof(item));
 		}
 
@@ -3388,6 +3423,8 @@ public:
 	LPBYTE m_pPtr;
 	SIZE_T m_cAllocated;
 };
+
+typedef CMemDlgTemplateT<ATL::CControlWinTraits>	CMemDlgTemplate;
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -3507,8 +3544,8 @@ public:
 ///////////////////////////////////////////////////////////////////////////////
 // CIndirectDialogImpl - dialogs with template in memory
 
-template <class T, class TDlgTemplate = CMemDlgTemplate, class TBase = ATL::CDialogImpl<T, ATL::CWindow> >
-class ATL_NO_VTABLE CIndirectDialogImpl : public TBase
+template <class T, class TDlgTemplate = CMemDlgTemplate, class TBase = ATL::CWindow>
+class ATL_NO_VTABLE CIndirectDialogImpl : public ATL::CDialogImpl< T, TBase >
 {
 public:
 	enum { IDD = 0 };   // no dialog template resource
@@ -3527,20 +3564,20 @@ public:
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_hWnd == NULL);
 
-		if (!m_Template.IsValid())
+		if(!m_Template.IsValid())
 			CreateTemplate();
 
-#if (_ATL_VER >= 0x0800)
+#if (_ATL_VER >= 0x0700)
 		// Allocate the thunk structure here, where we can fail gracefully.
-		BOOL result = m_thunk.Init(NULL, NULL);
-		if (result == FALSE)
+		BOOL bRet = m_thunk.Init(NULL, NULL);
+		if(bRet == FALSE)
 		{
-			SetLastError(ERROR_OUTOFMEMORY);
+			::SetLastError(ERROR_OUTOFMEMORY);
 			return -1;
 		}
-#endif // (_ATL_VER >= 0x0800)
+#endif // (_ATL_VER >= 0x0700)
 
-		ModuleHelper::AddCreateWndData(&m_thunk.cd, pT);
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBaseT< TBase >*)pT);
 
 #ifdef _DEBUG
 		m_bModal = true;
@@ -3554,20 +3591,20 @@ public:
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->m_hWnd == NULL);
 
-		if (!m_Template.IsValid())
+		if(!m_Template.IsValid())
 			CreateTemplate();
 
-#if (_ATL_VER >= 0x0800)
+#if (_ATL_VER >= 0x0700)
 		// Allocate the thunk structure here, where we can fail gracefully.
-		BOOL result = m_thunk.Init(NULL, NULL);
-		if (result == FALSE) 
+		BOOL bRet = m_thunk.Init(NULL, NULL);
+		if(bRet == FALSE) 
 		{
-			SetLastError(ERROR_OUTOFMEMORY);
+			::SetLastError(ERROR_OUTOFMEMORY);
 			return NULL;
 		}
-#endif // (_ATL_VER >= 0x0800)
+#endif // (_ATL_VER >= 0x0700)
 
-		ModuleHelper::AddCreateWndData(&m_thunk.cd, pT);
+		ModuleHelper::AddCreateWndData(&m_thunk.cd, (ATL::CDialogImplBaseT< TBase >*)pT);
 
 #ifdef _DEBUG
 		m_bModal = false;
@@ -3595,6 +3632,7 @@ public:
 		ATLASSERT(FALSE);   // MUST be defined in derived class
 	}
 };
+
 
 ///////////////////////////////////////////////////////////////////////////////
 // CPropertySheetWindow - client side for a property sheet

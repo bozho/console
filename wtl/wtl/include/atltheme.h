@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -221,10 +221,15 @@ public:
 		return ::GetThemeBackgroundExtent(m_hTheme, hDC, nPartID, nStateID, pContentRect, pExtentRect);
 	}
 
-	HRESULT GetThemePartSize(HDC hDC, int nPartID, int nStateID, LPRECT pRect, enum THEMESIZE eSize, LPSIZE pSize) const
+	HRESULT GetThemePartSize(HDC hDC, int nPartID, int nStateID, LPCRECT pRect, enum THEMESIZE eSize, LPSIZE pSize) const
 	{
 		ATLASSERT(m_hTheme != NULL);
+#ifdef _WTL_NEW_UXTHEME
 		return ::GetThemePartSize(m_hTheme, hDC, nPartID, nStateID, pRect, eSize, pSize);
+#else // !_WTL_NEW_UXTHEME
+		// Note: The cast to LPRECT is because uxtheme.h incorrectly uses it instead of LPCRECT
+		return ::GetThemePartSize(m_hTheme, hDC, nPartID, nStateID, (LPRECT)pRect, eSize, pSize);
+#endif // !_WTL_NEW_UXTHEME
 	}
 
 	HRESULT GetThemeTextExtent(HDC hDC, int nPartID, int nStateID, LPCWSTR pszText, int nCharCount, DWORD dwTextFlags, LPCRECT  pBoundingRect, LPRECT pExtentRect) const
@@ -1050,6 +1055,11 @@ public:
 	static bool IsRendering(HWND hWnd, HDC hDC)
 	{
 		return (::BufferedPaintRenderAnimation(hWnd, hDC) != FALSE);
+	}
+
+	static HRESULT StopAllAnimations(HWND hWnd)
+	{
+		return ::BufferedPaintStopAllAnimations(hWnd);
 	}
 };
 

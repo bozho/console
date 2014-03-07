@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -278,7 +278,7 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(pT->IsWindow());
-		TCHAR sTitle[48];
+		TCHAR sTitle[48] = { 0 };
 
 		// Preparation
 		CPaintDC dc(pT->m_hWnd);
@@ -515,12 +515,10 @@ public:
 	
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-#ifdef _DEBUG
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(t_bModal == pT->m_bModal);
-#endif
-		StdPlatformInit();
-		StdShidInit();
+		pT->StdPlatformInit();
+		pT->StdShidInit();
 		return bHandled = FALSE;
 	}
 };
@@ -677,13 +675,11 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-#ifdef _DEBUG
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(t_bModal == pT->m_bModal);
-#endif
-		StdPlatformInit();
-		DlgResize_Init(FALSE);
-		StdShidInit();
+		pT->StdPlatformInit();
+		pT->DlgResize_Init(FALSE);
+		pT->StdShidInit();
 		return bHandled = FALSE;
 	}
 };
@@ -741,9 +737,10 @@ public:
 
 	LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 	{
-		StdPlatformInit();
-		DlgResize_Init(FALSE);
-		StdShidInit();
+		T* pT = static_cast<T*>(this);
+		pT->StdPlatformInit();
+		pT->DlgResize_Init(FALSE);
+		pT->StdShidInit();
 		return bHandled = FALSE;
 	}
 };
@@ -784,7 +781,7 @@ public:
 		ATLASSERT(pT->IsWindow());
 		if (wParam == SETTINGCHANGE_RESET)
 		{
-			SetOrientation(DRA::GetDisplayMode());
+			pT->SetOrientation(DRA::GetDisplayMode());
 			pT->StdPlatformInit();
 			pT->StdShidInit();
 		}
@@ -822,7 +819,7 @@ public:
 		ATLASSERT(t_bModal == pT->m_bModal);
 #endif
 		if (DRA::GetDisplayMode() == DRA::Landscape)
-			SetOrientation(DRA::Landscape);
+			pT->SetOrientation(DRA::Landscape);
 		pT->StdPlatformInit();
 		pT->StdShidInit();
 		return bHandled = FALSE;
@@ -2951,7 +2948,7 @@ public:
 		{
 			m_SpinCtrl.Attach(hSpin);
 #ifdef DEBUG
-			TCHAR sClassName[16];
+			TCHAR sClassName[16] = { 0 };
 			::GetClassName(hSpin, sClassName, 16);
 			ATLASSERT(!_tcscmp(sClassName, UPDOWN_CLASS));
 			ATLASSERT(m_SpinCtrl.GetBuddy().m_hWnd == pT->m_hWnd);

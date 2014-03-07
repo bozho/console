@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -891,7 +891,7 @@ public:
 	}
 
 	UINT32 m_auItemCat[t_items];
-	Text m_asCatName[max(t_categories, 1)];
+	Text m_asCatName[__max(t_categories, 1)];
 	size_t m_size;
 
 // Operations
@@ -2085,10 +2085,10 @@ public:
 			if (RunTimeHelper::IsRibbonUIAvailable())
 				hr = m_pIUIFramework.CoCreateInstance(CLSID_UIRibbonFramework);
 			else
-				ATLTRACE(L"Ribbon UI not available\n");
+				ATLTRACE2(atlTraceUI, 0, _T("Ribbon UI not available\n"));
 
 		if FAILED(hr)
-			ATLTRACE(L"Ribbon construction failed\n");
+			ATLTRACE2(atlTraceUI, 0, _T("Ribbon construction failed\n"));
 
 		ATLASSERT(SUCCEEDED(hr));
 	}
@@ -2856,7 +2856,7 @@ public:
 		{
 			if(k_(*key) != k_BooleanValue)
 			{
-				ATLTRACE(L"Control ID %d is not handled\n", nCmdID);
+				ATLTRACE2(atlTraceUI, 0, _T("Control ID %d is not handled\n"), nCmdID);
 				return E_NOTIMPL;
 			}
 			BOOL bChecked = FALSE;
@@ -3029,12 +3029,12 @@ typedef struct
 
 // Control map macros
 #define BEGIN_RIBBON_CONTROL_MAP(theClass) \
-	RibbonUI::ICtrl& GetRibbonCtrl(UINT id) \
+	WTL::RibbonUI::ICtrl& GetRibbonCtrl(UINT id) \
 	{ \
-		RibbonUI::_ribbonCtrl _ctrls[] = \
+		WTL::RibbonUI::_ribbonCtrl _ctrls[] = \
 		{
 
-#define RIBBON_CONTROL(member) {member.GetID(), static_cast<RibbonUI::ICtrl&>(member)},
+#define RIBBON_CONTROL(member) {member.GetID(), static_cast<WTL::RibbonUI::ICtrl&>(member)},
 
 #define END_RIBBON_CONTROL_MAP() \
 		{0, *this} \

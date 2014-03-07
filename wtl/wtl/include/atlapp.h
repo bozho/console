@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -58,6 +58,10 @@
   #pragma comment(lib, "comctl32.lib")
 #endif
 
+#if defined(_SYSINFOAPI_H_) && defined(NOT_BUILD_WINDOWS_DEPRECATE)
+  #include <VersionHelpers.h>
+#endif
+
 #ifndef _WIN32_WCE
   #include "atlres.h"
 #else // CE specific
@@ -75,7 +79,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 // WTL version number
 
-#define _WTL_VER	0x0810
+#define _WTL_VER	0x0900
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -216,7 +220,7 @@ inline int WINAPI lstrlenA(LPCSTR lpszString)
   {
 	if(lpstrDest == NULL || lpstrSrc == NULL || nLength <= 0)
 		return NULL;
-	int nLen = min(lstrlen(lpstrSrc), nLength - 1);
+	int nLen = __min(lstrlen(lpstrSrc), nLength - 1);
 	LPTSTR lpstrRet = (LPTSTR)memcpy(lpstrDest, lpstrSrc, nLen * sizeof(TCHAR));
 	lpstrDest[nLen] = 0;
 	return lpstrRet;
@@ -235,7 +239,7 @@ inline int WINAPI lstrlenA(LPCSTR lpszString)
   {
 	if(lpstrDest == NULL || lpstrSrc == NULL || nLength <= 0)
 		return NULL;
-	int nLen = min(lstrlenA(lpstrSrc), nLength - 1);
+	int nLen = __min(lstrlenA(lpstrSrc), nLength - 1);
 	LPSTR lpstrRet = (LPSTR)memcpy(lpstrDest, lpstrSrc, nLen * sizeof(char));
 	lpstrDest[nLen] = 0;
 	return lpstrRet;
@@ -499,10 +503,13 @@ namespace WTL
 // Windows version helper
 inline bool AtlIsOldWindows()
 {
-	OSVERSIONINFO ovi = { 0 };
-	ovi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+#ifdef _versionhelpers_H_INCLUDED_
+	return !::IsWindowsVersionOrGreater(4, 90, 0);
+#else // !_versionhelpers_H_INCLUDED_
+OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 	BOOL bRet = ::GetVersionEx(&ovi);
 	return (!bRet || !((ovi.dwMajorVersion >= 5) || (ovi.dwMajorVersion == 4 && ovi.dwMinorVersion >= 90)));
+#endif // _versionhelpers_H_INCLUDED_
 }
 
 // Default GUI font helper - "MS Shell Dlg" stock font
@@ -595,6 +602,10 @@ inline BOOL AtlInitCommonControls(DWORD dwFlags)
   #define NONCLIENTMETRICS_V1_SIZE   _SIZEOF_STRUCT(NONCLIENTMETRICS, lfMessageFont)
 #endif // !defined(_WIN32_WCE) && (WINVER >= 0x0600) && !defined(NONCLIENTMETRICS_V1_SIZE)
 
+#if !defined(_WIN32_WCE) && (_WIN32_WINNT >= 0x0501) && !defined(TTTOOLINFO_V2_SIZE)
+  #define TTTOOLINFO_V2_SIZE   _SIZEOF_STRUCT(TTTOOLINFO, lParam)
+#endif // !defined(_WIN32_WCE) && (_WIN32_WINNT >= 0x0501) && !defined(TTTOOLINFO_V2_SIZE)
+
 #endif // !_WTL_NO_RUNTIME_STRUCT_SIZE
 
 namespace RunTimeHelper
@@ -609,9 +620,13 @@ namespace RunTimeHelper
 
 	inline bool IsVista()
 	{
+#ifdef _versionhelpers_H_INCLUDED_
+		return ::IsWindowsVistaOrGreater();
+#else // !_versionhelpers_H_INCLUDED_
 		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 		BOOL bRet = ::GetVersionEx(&ovi);
 		return ((bRet != FALSE) && (ovi.dwMajorVersion >= 6));
+#endif // _versionhelpers_H_INCLUDED_
 	}
 
 	inline bool IsThemeAvailable()
@@ -644,9 +659,13 @@ namespace RunTimeHelper
 
 	inline bool IsWin7()
 	{
+#ifdef _versionhelpers_H_INCLUDED_
+		return ::IsWindows7OrGreater();
+#else // !_versionhelpers_H_INCLUDED_
 		OSVERSIONINFO ovi = { sizeof(OSVERSIONINFO) };
 		BOOL bRet = ::GetVersionEx(&ovi);
 		return ((bRet != FALSE) && (ovi.dwMajorVersion == 6) && (ovi.dwMinorVersion >= 1));
+#endif // _versionhelpers_H_INCLUDED_
 	}
 
 	inline bool IsRibbonUIAvailable()
@@ -729,6 +748,16 @@ namespace RunTimeHelper
 		if(!IsVista())
 			nSize = NONCLIENTMETRICS_V1_SIZE;
 #endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (WINVER >= 0x0600)
+		return nSize;
+	}
+
+	inline int SizeOf_TOOLINFO()
+	{
+		int nSize = sizeof(TOOLINFO);
+#if !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0501)
+		if(!IsVista())
+			nSize = TTTOOLINFO_V2_SIZE;
+#endif // !defined(_WTL_NO_RUNTIME_STRUCT_SIZE) && (_WIN32_WINNT >= 0x0501)
 		return nSize;
 	}
 #endif // !_WIN32_WCE
@@ -828,7 +857,7 @@ namespace SecureHelper
 		}
 		else if(cchCount == _TRUNCATE)
 		{
-			cchCount = min(cchDest - 1, size_t(lstrlenA(lpstrSrc)));
+			cchCount = __min(cchDest - 1, size_t(lstrlenA(lpstrSrc)));
 			nRet = STRUNCATE;
 		}
 		else if(cchDest <= cchCount)
@@ -855,7 +884,7 @@ namespace SecureHelper
 		}
 		else if(cchCount == _TRUNCATE)
 		{
-			cchCount = min(cchDest - 1, size_t(lstrlenW(lpstrSrc)));
+			cchCount = __min(cchDest - 1, size_t(lstrlenW(lpstrSrc)));
 			nRet = STRUNCATE;
 		}
 		else if(cchDest <= cchCount)
@@ -1893,6 +1922,7 @@ public:
 		return ERROR_SUCCESS;
 	}
 
+#ifndef _WIN32_WCE
 	LONG QueryQWORDValue(LPCTSTR pszValueName, ULONGLONG& qwValue)
 	{
 		ATLASSERT(m_hKey != NULL);
@@ -1907,6 +1937,7 @@ public:
 
 		return ERROR_SUCCESS;
 	}
+#endif
 
 	LONG QueryStringValue(LPCTSTR pszValueName, LPTSTR pszValue, ULONG* pnChars)
 	{

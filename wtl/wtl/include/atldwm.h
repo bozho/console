@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -106,32 +106,42 @@ public:
 // Operations
 	BOOL DwmIsCompositionEnabled() const
 	{
-		if(!IsDwmSupported()) return FALSE;
+		if(!IsDwmSupported())
+			return FALSE;
+
 		BOOL bRes = FALSE;
-		return SUCCEEDED(::DwmIsCompositionEnabled(&bRes)) && bRes;
+		return (SUCCEEDED(::DwmIsCompositionEnabled(&bRes)) && bRes) ? TRUE : FALSE;
 	}
 
 	BOOL DwmEnableComposition(UINT fEnable)
 	{
-		if(!IsDwmSupported()) return FALSE;
-		return SUCCEEDED(::DwmEnableComposition(fEnable));
+		if(!IsDwmSupported())
+			return FALSE;
+
+		return SUCCEEDED(::DwmEnableComposition(fEnable)) ? TRUE : FALSE;
 	}
 
 	BOOL DwmEnableMMCSS(BOOL fEnableMMCSS)
 	{
-		if(!IsDwmSupported()) return FALSE;
-		return SUCCEEDED(::DwmEnableMMCSS(fEnableMMCSS));
+		if(!IsDwmSupported())
+			return FALSE;
+
+		return SUCCEEDED(::DwmEnableMMCSS(fEnableMMCSS)) ? TRUE : FALSE;
 	}
 
 	HRESULT DwmGetColorizationColor(DWORD* pcrColorization, BOOL* pfOpaqueBlend)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		return ::DwmGetColorizationColor(pcrColorization, pfOpaqueBlend);
 	}
 
 	HRESULT DwmFlush()
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		return ::DwmFlush();
 	}
 };
@@ -148,7 +158,9 @@ class CDwmImpl : public TBase
 public:
 	HRESULT DwmEnableBlurBehindWindow(const DWM_BLURBEHIND* pBB)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmEnableBlurBehindWindow(pT->m_hWnd, pBB);
@@ -156,7 +168,9 @@ public:
 
 	HRESULT DwmExtendFrameIntoClientArea(const MARGINS* pMargins)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmExtendFrameIntoClientArea(pT->m_hWnd, pMargins);
@@ -170,7 +184,9 @@ public:
 
 	HRESULT DwmGetCompositionTimingInfo(DWM_TIMING_INFO* pTimingInfo)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmGetCompositionTimingInfo(pT->m_hWnd, pTimingInfo);
@@ -178,7 +194,9 @@ public:
 
 	HRESULT DwmGetWindowAttribute(DWORD dwAttribute, PVOID pvAttribute, DWORD cbAttribute)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmGetWindowAttribute(pT->m_hWnd, dwAttribute, pvAttribute, cbAttribute);
@@ -186,7 +204,9 @@ public:
 
 	HRESULT DwmModifyPreviousDxFrameDuration(INT cRefreshes, BOOL fRelative)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmModifyPreviousDxFrameDuration(pT->m_hWnd, cRefreshes, fRelative);
@@ -194,7 +214,9 @@ public:
 
 	HRESULT DwmSetDxFrameDuration(INT cRefreshes)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmSetDxFrameDuration(pT->m_hWnd, cRefreshes);
@@ -202,7 +224,9 @@ public:
 
 	HRESULT DwmSetPresentParameters(DWM_PRESENT_PARAMETERS* pPresentParams)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmSetPresentParameters(pT->m_hWnd, pPresentParams);
@@ -210,7 +234,9 @@ public:
 
 	HRESULT DwmSetWindowAttribute(DWORD dwAttribute, LPCVOID pvAttribute, DWORD cbAttribute)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmSetWindowAttribute(pT->m_hWnd, dwAttribute, pvAttribute, cbAttribute);
@@ -218,7 +244,9 @@ public:
 
 	HRESULT DwmAttachMilContent()
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmAttachMilContent(pT->m_hWnd);
@@ -226,7 +254,9 @@ public:
 
 	HRESULT DwmDetachMilContent()
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		T* pT = static_cast<T*>(this);
 		ATLASSERT(::IsWindow(pT->m_hWnd));
 		return ::DwmDetachMilContent(pT->m_hWnd);
@@ -297,16 +327,24 @@ public:
 		ATLASSERT(::IsWindow(hwndDestination));
 		ATLASSERT(::IsWindow(hwndSource));
 		ATLASSERT(m_hThumbnail==NULL);
-		if(!IsDwmSupported()) return E_NOTIMPL;
+
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		return ::DwmRegisterThumbnail(hwndDestination, hwndSource, &m_hThumbnail);
 	}
 
 	HRESULT Unregister()
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
-		if(m_hThumbnail == NULL) return S_FALSE;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+		if(m_hThumbnail == NULL)
+			return S_FALSE;
+
 		HRESULT Hr = ::DwmUnregisterThumbnail(m_hThumbnail);
-		if(SUCCEEDED(Hr)) m_hThumbnail = NULL;
+		if(SUCCEEDED(Hr))
+			m_hThumbnail = NULL;
+
 		return Hr;
 	}
 
@@ -316,7 +354,9 @@ public:
 
 	HRESULT UpdateProperties(const DWM_THUMBNAIL_PROPERTIES* ptnProperties)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		ATLASSERT(m_hThumbnail != NULL);
 		return ::DwmUpdateThumbnailProperties(m_hThumbnail, ptnProperties);
 	}
@@ -324,7 +364,9 @@ public:
 // Attributes
 	HRESULT QuerySourceSize(PSIZE pSize)
 	{
-		if(!IsDwmSupported()) return E_NOTIMPL;
+		if(!IsDwmSupported())
+			return E_NOTIMPL;
+
 		ATLASSERT(m_hThumbnail != NULL);
 		return ::DwmQueryThumbnailSourceSize(m_hThumbnail, pSize);
 	}
@@ -394,20 +436,23 @@ public:
 		ATLASSERT(m_hWnd == NULL);
 		ATLASSERT(::IsWindow(hWnd));
 		BOOL bRet = _windowClass::SubclassWindow(hWnd);
-		if(bRet) {
+		if(bRet)
+		{
 			T* pT = static_cast<T*>(this);
 			pT->Init();
 		}
+
 		return bRet;
 	}
 
 // Implementation
 	LRESULT DefWindowProc()
 	{
-		const _ATL_MSG* pMsg = m_pCurrentMsg;
+		const ATL::_ATL_MSG* pMsg = m_pCurrentMsg;
 		LRESULT lRes = 0;
 		if(pMsg != NULL)
 			lRes = DefWindowProc(pMsg->message, pMsg->wParam, pMsg->lParam);
+
 		return lRes;
 	}
 
@@ -415,7 +460,9 @@ public:
 	{
 		T* pT = static_cast<T*>(this);
 		LRESULT lRes = 0;
-		if( ::DwmDefWindowProc(pT->m_hWnd, uMsg, wParam, lParam, &lRes) ) return lRes;
+		if( ::DwmDefWindowProc(pT->m_hWnd, uMsg, wParam, lParam, &lRes) )
+			return lRes;
+
 		return _windowClass::DefWindowProc(uMsg, wParam, lParam);
 	}
 
@@ -440,6 +487,7 @@ public:
 	void Init()
 	{
 		T* pT = static_cast<T*>(this);
+		pT;   // avoid level 4 warning
 		SetThemeClassList(pT->GetThemeName());
 		if(m_lpstrThemeClassList != NULL)
 			OpenThemeData();

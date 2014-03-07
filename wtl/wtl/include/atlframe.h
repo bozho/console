@@ -1,5 +1,5 @@
-// Windows Template Library - WTL version 8.1
-// Copyright (C) Microsoft Corporation. All rights reserved.
+// Windows Template Library - WTL version 9.0
+// Copyright (C) Microsoft Corporation, WTL Team. All rights reserved.
 //
 // This file is a part of the Windows Template Library.
 // The use and distribution terms for this software are covered by the
@@ -90,8 +90,7 @@ public:
 					LPCTSTR lpsz = m_wc.lpszClassName;
 					WNDPROC proc = m_wc.lpfnWndProc;
 
-					WNDCLASSEX wc = { 0 };
-					wc.cbSize = sizeof(WNDCLASSEX);
+					WNDCLASSEX wc = { sizeof(WNDCLASSEX) };
 					// try process local class first
 					if(!::GetClassInfoEx(ModuleHelper::GetModuleInstance(), m_lpszOrigName, &wc))
 					{
@@ -537,9 +536,9 @@ public:
 		}
 
 		::SendMessage(hWnd, TB_ADDBUTTONS, nItems, (LPARAM)pTBBtn);
-		::SendMessage(hWnd, TB_SETBITMAPSIZE, 0, MAKELONG(pData->wWidth, max(pData->wHeight, cyFontHeight)));
+		::SendMessage(hWnd, TB_SETBITMAPSIZE, 0, MAKELONG(pData->wWidth, __max(pData->wHeight, cyFontHeight)));
 		const int cxyButtonMargin = 7;
-		::SendMessage(hWnd, TB_SETBUTTONSIZE, 0, MAKELONG(pData->wWidth + cxyButtonMargin, max(pData->wHeight, cyFontHeight) + cxyButtonMargin));
+		::SendMessage(hWnd, TB_SETBUTTONSIZE, 0, MAKELONG(pData->wWidth + cxyButtonMargin, __max(pData->wHeight, cyFontHeight) + cxyButtonMargin));
 
 		return hWnd;
 	}
@@ -562,10 +561,8 @@ public:
 		}
 
 		// Initialize and send the REBARINFO structure
-		REBARINFO rbi = { 0 };
-		rbi.cbSize = sizeof(REBARINFO);
-		rbi.fMask  = 0;
-		if(!::SendMessage(hWndReBar, RB_SETBARINFO, 0, (LPARAM)&rbi))
+		REBARINFO rbi = { sizeof(REBARINFO), 0 };
+		if(::SendMessage(hWndReBar, RB_SETBARINFO, 0, (LPARAM)&rbi) == 0)
 		{
 			ATLTRACE2(atlTraceUI, 0, _T("Failed to initialize rebar.\n"));
 			::DestroyWindow(hWndReBar);
@@ -726,8 +723,7 @@ public:
 #endif // _WIN32_WCE
 	{
 		const int cchMax = 128;   // max text length is 127 for status bars (+1 for null)
-		TCHAR szText[cchMax];
-		szText[0] = 0;
+		TCHAR szText[cchMax] = { 0 };
 		::LoadString(ModuleHelper::GetResourceInstance(), nTextID, szText, cchMax);
 		return CreateSimpleStatusBar(szText, dwStyle, nID);
 	}
@@ -873,16 +869,14 @@ public:
 			return 1;
 
 		const int cchBuff = 256;
-		TCHAR szBuff[cchBuff];
-		szBuff[0] = 0;
+		TCHAR szBuff[cchBuff] = { 0 };
 
 		WORD wFlags = HIWORD(wParam);
 		if(wFlags == 0xFFFF && lParam == NULL)   // menu closing
-		{/*
-			::SendMessage(m_hWndStatusBar, SB_SIMPLE, FALSE, 0L);
-      */
-      ::LoadString(ModuleHelper::GetResourceInstance(), ATL_IDS_IDLEMESSAGE, szBuff, cchBuff);
-      ::SendMessage(m_hWndStatusBar, SB_SETTEXT, ID_DEFAULT_PANE, (LPARAM)szBuff);
+		{
+			//::SendMessage(m_hWndStatusBar, SB_SIMPLE, FALSE, 0L);
+			::LoadString(ModuleHelper::GetResourceInstance(), ATL_IDS_IDLEMESSAGE, szBuff, cchBuff);
+			::SendMessage(m_hWndStatusBar, SB_SETTEXT, ID_DEFAULT_PANE, (LPARAM)szBuff);
 		}
 		else
 		{
@@ -907,11 +901,9 @@ public:
 					}
 				}
 			}
-      /*
-			::SendMessage(m_hWndStatusBar, SB_SIMPLE, TRUE, 0L);
-			::SendMessage(m_hWndStatusBar, SB_SETTEXT, (255 | SBT_NOBORDERS), (LPARAM)szBuff);
-      */
-      ::SendMessage(m_hWndStatusBar, SB_SETTEXT, ID_DEFAULT_PANE, (LPARAM)szBuff);
+			//::SendMessage(m_hWndStatusBar, SB_SIMPLE, TRUE, 0L);
+			//::SendMessage(m_hWndStatusBar, SB_SETTEXT, (255 | SBT_NOBORDERS), (LPARAM)szBuff);
+			::SendMessage(m_hWndStatusBar, SB_SETTEXT, ID_DEFAULT_PANE, (LPARAM)szBuff);
 		}
 
 		return 1;
@@ -945,8 +937,7 @@ public:
 		if((idCtrl != 0) && !(pDispInfo->uFlags & TTF_IDISHWND))
 		{
 			const int cchBuff = 256;
-			char szBuff[cchBuff];
-			szBuff[0] = 0;
+			char szBuff[cchBuff] = { 0 };
 			int nRet = ::LoadStringA(ModuleHelper::GetResourceInstance(), idCtrl, szBuff, cchBuff);
 			for(int i = 0; i < nRet; i++)
 			{
@@ -973,8 +964,7 @@ public:
 		if((idCtrl != 0) && !(pDispInfo->uFlags & TTF_IDISHWND))
 		{
 			const int cchBuff = 256;
-			wchar_t szBuff[cchBuff];
-			szBuff[0] = 0;
+			wchar_t szBuff[cchBuff] = { 0 };
 			int nRet = ::LoadStringW(ModuleHelper::GetResourceInstance(), idCtrl, szBuff, cchBuff);
 			for(int i = 0; i < nRet; i++)
 			{
@@ -1173,8 +1163,7 @@ public:
 	HWND CreateEx(HWND hWndParent = NULL, ATL::_U_RECT rect = NULL, DWORD dwStyle = 0, DWORD dwExStyle = 0, LPVOID lpCreateParam = NULL)
 	{
 		const int cchName = 256;
-		TCHAR szWindowName[cchName];
-		szWindowName[0] = 0;
+		TCHAR szWindowName[cchName] = { 0 };
 #ifndef _WIN32_WCE
 		::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 		HMENU hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
@@ -1465,8 +1454,7 @@ public:
 	HWND CreateEx(HWND hWndParent = NULL, ATL::_U_RECT rect = NULL, DWORD dwStyle = 0, DWORD dwExStyle = 0, LPVOID lpCreateParam = NULL)
 	{
 		const int cchName = 256;
-		TCHAR szWindowName[cchName];
-		szWindowName[0] = 0;
+		TCHAR szWindowName[cchName] = { 0 };
 		::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
 		HMENU hMenu = ::LoadMenu(ModuleHelper::GetResourceInstance(), MAKEINTRESOURCE(T::GetWndClassInfo().m_uCommonResourceID));
 
@@ -1743,8 +1731,7 @@ public:
 	HWND CreateEx(HWND hWndParent, ATL::_U_RECT rect = NULL, LPCTSTR lpcstrWindowName = NULL, DWORD dwStyle = 0, DWORD dwExStyle = 0, LPVOID lpCreateParam = NULL)
 	{
 		const int cchName = 256;
-		TCHAR szWindowName[cchName];
-		szWindowName[0] = 0;
+		TCHAR szWindowName[cchName] = { 0 };
 		if(lpcstrWindowName == NULL)
 		{
 			::LoadString(ModuleHelper::GetResourceInstance(), T::GetWndClassInfo().m_uCommonResourceID, szWindowName, cchName);
@@ -3278,6 +3265,7 @@ public:
 		if((dwStyle & dwForceStyle) != dwForceStyle)
 			pT->ModifyStyle(0, dwForceStyle);
 
+#ifndef _WIN32_WCE
 		// Adding this style removes an empty icon that dialogs with WS_THICKFRAME have.
 		// Setting icon to NULL is required when XP themes are active.
 		// Note: This will not prevent adding an icon for the dialog using SetIcon()
@@ -3287,6 +3275,7 @@ public:
 			if(pT->GetIcon(FALSE) == NULL)
 				pT->SetIcon(NULL, FALSE);
 		}
+#endif
 
 		// Cleanup in case of multiple initialization
 		// block: first check for the gripper control, destroy it if needed
@@ -3429,10 +3418,10 @@ public:
 				int j = 1;
 				for(j = 1; j < nGroupCount; j++)
 				{
-					rectGroup.left = min(rectGroup.left, m_arrData[i + j].m_rect.left);
-					rectGroup.top = min(rectGroup.top, m_arrData[i + j].m_rect.top);
-					rectGroup.right = max(rectGroup.right, m_arrData[i + j].m_rect.right);
-					rectGroup.bottom = max(rectGroup.bottom, m_arrData[i + j].m_rect.bottom);
+					rectGroup.left = __min(rectGroup.left, m_arrData[i + j].m_rect.left);
+					rectGroup.top = __min(rectGroup.top, m_arrData[i + j].m_rect.top);
+					rectGroup.right = __max(rectGroup.right, m_arrData[i + j].m_rect.right);
+					rectGroup.bottom = __max(rectGroup.bottom, m_arrData[i + j].m_rect.bottom);
 				}
 
 				for(j = 0; j < nGroupCount; j++)

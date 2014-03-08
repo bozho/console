@@ -84,6 +84,7 @@ extern CAppModule _Module;
 #include <WinCred.h>
 #include <winuser.h>
 #endif
+#include <Muiload.h>
 
 #pragma warning(disable: 4503) // disables 'name truncated' warnings
 

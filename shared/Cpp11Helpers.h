@@ -44,3 +44,14 @@ struct RegCloseKeyHelper
     ::RegCloseKey(static_cast<HKEY>(toFree));
   };
 };
+
+#ifdef _MUILOAD_H_INCLUDED_
+struct FreeMUILibraryHelper
+{
+	void operator()(HINSTANCE toFree)
+	{
+		if( toFree != NULL )
+			::FreeMUILibrary(toFree);
+	};
+};
+#endif

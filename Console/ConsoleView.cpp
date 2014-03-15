@@ -385,7 +385,10 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 			{
 				if( m_boolImmComposition || wParam == VK_PROCESSKEY )
 					return 0;
-				keyEvent.wVirtualKeyCode = static_cast<WORD>(wParam);
+				if( uMsg == WM_DEADCHAR || uMsg == WM_SYSDEADCHAR )
+					keyEvent.wVirtualKeyCode = wLastVirtualKey;
+				else
+					keyEvent.wVirtualKeyCode = static_cast<WORD>(wParam);
 				keyEvent.uChar.UnicodeChar = 0x0000;
 			}
 

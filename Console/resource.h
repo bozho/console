@@ -300,6 +300,7 @@
 #define ID_INC_HORIZ_SIZE               2217
 #define ID_DEC_VERT_SIZE                2218
 #define ID_INC_VERT_SIZE                2219
+#define ID_CLONE_IN_NEW_TAB             2220
 
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000

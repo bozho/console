@@ -762,7 +762,8 @@ BEGIN
         MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
         MENUITEM SEPARATOR
         MENUITEM "Split &Horizontally",         ID_SPLIT_HORIZ 
-        MENUITEM "Split &Vertically",           ID_SPLIT_VERT 
+        MENUITEM "Split &Vertically",           ID_SPLIT_VERT
+        MENUITEM "Clone in new &Tab",           ID_CLONE_IN_NEW_TAB
         MENUITEM SEPARATOR
         MENUITEM "&Settings...",                ID_EDIT_SETTINGS
     END
@@ -804,6 +805,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Split &Horizontally",         ID_SPLIT_HORIZ
         MENUITEM "Split &Vertically",           ID_SPLIT_VERT
+        MENUITEM "Clone in new &Tab",           ID_CLONE_IN_NEW_TAB
         MENUITEM SEPARATOR
 
         MENUITEM "&Console Window",             ID_VIEW_CONSOLE
@@ -1044,6 +1046,7 @@ BEGIN
     ID_CLOSE_VIEW           "Close the current view\nClose View"
     ID_SPLIT_HORIZ          "Split the current view horizontally\nSplit Horizontally"
     ID_SPLIT_VERT           "Split the current view vertically\nSplit Vertically"
+    ID_CLONE_IN_NEW_TAB     "Clone the current view in a new tab\nClone in new tab"
     ID_VIEW_FULLSCREEN      "Toggle full screen\nFull Screen"
     ID_GROUP_ALL            "Group all terminals so that any input sent to one of them, goes to all of them\nGroup All"
     ID_UNGROUP_ALL          "Remove grouping from all terminals\nUngroup All"

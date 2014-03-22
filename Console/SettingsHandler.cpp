@@ -1397,6 +1397,7 @@ HotKeys::HotKeys()
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closeview",  ID_CLOSE_VIEW,       L"Close view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ,      L"Split horizontally")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,       L"Split vertically")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"clone",      ID_CLONE_IN_NEW_TAB, L"Clone view in new tab")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"fullscreen", ID_VIEW_FULLSCREEN,  L"Full Screen")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"zoom100",    ID_VIEW_ZOOM_100,    L"Zoom 100%")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"zoominc",    ID_VIEW_ZOOM_INC,    L"Zoom increment")));

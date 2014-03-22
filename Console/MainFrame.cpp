@@ -1851,6 +1851,19 @@ LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if( m_activeTabView )
+		CreateNewConsole(m_activeTabView->GetTabData());
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   MutexLock lock(m_tabsMutex);
@@ -2340,9 +2353,14 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
-	MutexLock	tabMapLock(m_tabsMutex);
-
 	std::shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
+
+	return CreateNewConsole(tabData, strCmdLineInitialDir, strCmdLineInitialCmd);
+}
+
+bool MainFrame::CreateNewConsole(std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
+{
+	MutexLock	tabMapLock(m_tabsMutex);
 
 	std::shared_ptr<TabView> tabView(new TabView(*this, tabData, strCmdLineInitialDir, strCmdLineInitialCmd));
 

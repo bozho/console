@@ -159,6 +159,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_UNGROUP_ALL , OnUngroupAll)
 			COMMAND_ID_HANDLER(ID_GROUP_TAB   , OnGroupTab)
 			COMMAND_ID_HANDLER(ID_UNGROUP_TAB , OnUngroupTab)
+			COMMAND_ID_HANDLER(ID_CLONE_IN_NEW_TAB             , OnCloneInNewTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_TAB               , OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_ALL_TABS_BUT_THIS , OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_ALL_TABS_LEFT     , OnFileCloseTab)
@@ -246,6 +247,7 @@ class MainFrame
 		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnGroupTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -289,6 +291,7 @@ class MainFrame
 
 		void ActivateApp(void);
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
+		bool CreateNewConsole(std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);

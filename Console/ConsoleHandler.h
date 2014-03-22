@@ -146,6 +146,8 @@ class ConsoleHandler
 		void ShowWindow(int nCmdShow);
 		void SendTextToConsole(const wchar_t* pszText);
 
+		std::wstring GetCurrentDirectory(void) const;
+
 	private:
 
 		bool CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser);
@@ -197,6 +199,7 @@ class ConsoleHandler
 
     SharedMemory<ConsoleSize>         m_newConsoleSize;
     SharedMemory<SIZE>                m_newScrollPos;
+    SharedMemory<wchar_t>             m_currentDirectory;
 
     NamedPipe                         m_consoleMsgPipe;
 

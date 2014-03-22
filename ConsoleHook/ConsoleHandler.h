@@ -59,6 +59,7 @@ class ConsoleHandler
 
 		SharedMemory<ConsoleSize>         m_newConsoleSize;
 		SharedMemory<SIZE>                m_newScrollPos;
+		SharedMemory<wchar_t>             m_currentDirectory;
 
 		NamedPipe                         m_consoleMsgPipe;
 

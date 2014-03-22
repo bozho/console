@@ -114,6 +114,9 @@ bool ConsoleHandler::OpenSharedObjects()
 
     // message pipe (workaround for User Interface Privilege Isolation messages filtering)
     m_consoleMsgPipe.Open((SharedMemNames::formatPipeName % dwProcessId).str());
+
+    // current directory
+    m_currentDirectory.Open((SharedMemNames::formatCurrentDirectory % dwProcessId).str(), syncObjBoth);
   }
   catch(Win32Exception& ex)
   {
@@ -1239,6 +1242,7 @@ DWORD ConsoleHandler::MonitorThread()
 		m_newScrollPos.GetReqEvent(),
 		m_consoleMouseEvent.GetReqEvent(),
 		m_newConsoleSize.GetReqEvent(),
+		m_currentDirectory.GetReqEvent(),
 		m_consoleMsgPipe.Get(),
 		hStdOut,
 	};
@@ -1300,7 +1304,20 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
+			// get current directory
 			case WAIT_OBJECT_0 + 5 :
+			{
+				m_currentDirectory[0] = 0;
+				DWORD len = ::GetCurrentDirectory(_MAX_PATH, m_currentDirectory.Get());
+				if( len >= _MAX_PATH )
+					// truncated
+					m_currentDirectory[0] = 0;
+				::SetEvent(m_currentDirectory.GetRespEvent());
+				break;
+			}
+
+			// pipe
+			case WAIT_OBJECT_0 + 6 :
 			{
 				try
 				{
@@ -1457,9 +1474,11 @@ DWORD ConsoleHandler::MonitorThread()
 				{
 					// receives ERROR_BROKEN_PIPE when the tab is closed
 				}
+
+				break;
 			}
 
-			case WAIT_OBJECT_0 + 6 :
+			case WAIT_OBJECT_0 + 7 :
 				// something changed in the console
 				// this has to be the last event, since it's the most 
 				// frequent one

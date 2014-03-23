@@ -9,6 +9,7 @@
 #include "DlgSettingsFont.h"
 #include "DlgSettingsFullScreen.h"
 #include "DlgSettingsBehavior.h"
+#include "DlgSettingsBehavior2.h"
 #include "DlgSettingsHotkeys.h"
 #include "DlgSettingsMouse.h"
 #include "DlgSettingsTabs.h"
@@ -170,7 +171,10 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create behavior settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgBehavior(new DlgSettingsBehavior(m_pSettingsRoot));
-	AddDialogToTree(L"Behavior", dlgBehavior, rect);
+	HTREEITEM htiBehavior = AddDialogToTree(L"Behavior", dlgBehavior, rect);
+
+	std::shared_ptr<DlgSettingsBase>	dlgBehavior2(new DlgSettingsBehavior2(m_pSettingsRoot));
+	AddDialogToTree(L"More...", dlgBehavior2, rect, htiBehavior);
 
 	// create hotkeys settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgHotKeys(new DlgSettingsHotkeys(m_pSettingsRoot));
@@ -185,6 +189,7 @@ void DlgSettingsMain::CreateSettingsTree()
 	AddDialogToTree(L"Tabs", dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);
+	m_treeCtrl.Expand(htiBehavior);
 	m_treeCtrl.Expand(htiHotkeys);
 	m_treeCtrl.SelectItem(m_treeCtrl.GetRootItem());
 }

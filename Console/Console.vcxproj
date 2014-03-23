@@ -608,6 +608,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClCompile Include="DlgRenameTab.cpp" />
     <ClCompile Include="DlgSettingsAppearance.cpp" />
     <ClCompile Include="DlgSettingsBehavior.cpp" />
+    <ClCompile Include="DlgSettingsBehavior2.cpp" />
     <ClCompile Include="DlgSettingsConsole.cpp" />
     <ClCompile Include="DlgSettingsFont.cpp" />
     <ClCompile Include="DlgSettingsFullScreen.cpp" />
@@ -658,6 +659,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="DlgSettingsAppearance.h" />
     <ClInclude Include="DlgSettingsBase.h" />
     <ClInclude Include="DlgSettingsBehavior.h" />
+    <ClInclude Include="DlgSettingsBehavior2.h" />
     <ClInclude Include="DlgSettingsConsole.h" />
     <ClInclude Include="DlgSettingsFont.h" />
     <ClInclude Include="DlgSettingsFullScreen.h" />

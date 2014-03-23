@@ -35,6 +35,7 @@
 #define IDD_SETTINGS_FULLSCREEN         217
 #define IDD_SETTINGS_TABS_COLORS        218
 #define IDD_SETTINGS_FONT               219
+#define IDD_SETTINGS_BEHAVIOR_2         220
 
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -339,7 +340,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        219
+#define _APS_NEXT_RESOURCE_VALUE        221
 #define _APS_NEXT_COMMAND_VALUE         32800
 #define _APS_NEXT_CONTROL_VALUE         1212
 #define _APS_NEXT_SYMED_VALUE           101

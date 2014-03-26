@@ -66,8 +66,7 @@ public:
   void AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge);
   void GetRect(CRect& clientRect);
 
-  void SplitHorizontally();
-  void SplitVertically();
+  void Split(CMultiSplitPane::SPLITTYPE);
   bool CloseView(HWND hwnd, bool& boolTabClosed);
   void SwitchView(WORD wID);
   void ResizeView(WORD wID);

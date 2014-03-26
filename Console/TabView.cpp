@@ -357,38 +357,29 @@ void TabView::AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResi
 
 /////////////////////////////////////////////////////////////////////////////
 
-void TabView::SplitHorizontally()
+void TabView::Split(CMultiSplitPane::SPLITTYPE splitType)
 {
-  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
-  {
-    HWND hwndConsoleView = CreateNewConsole();
-    if( hwndConsoleView )
-    {
-      multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
-        hwndConsoleView,
-        CMultiSplitPane::HORIZONTAL));
+	std::wstring strCurrentDirectory(L"");
 
-      CRect clientRect(0, 0, 0, 0);
-      AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
-    }
-  }
-}
+	if( g_settingsHandler->GetBehaviorSettings2().cloneSettings.bUseCurrentDirectory )
+	{
+		std::shared_ptr<ConsoleView> activeConsoleView = GetActiveConsole(_T(__FUNCTION__));
+		strCurrentDirectory = activeConsoleView->GetConsoleHandler().GetCurrentDirectory();
+	}
 
-void TabView::SplitVertically()
-{
-  if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
-  {
-    HWND hwndConsoleView = CreateNewConsole();
-    if( hwndConsoleView )
-    {
-      multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
-        hwndConsoleView,
-        CMultiSplitPane::VERTICAL));
+	if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
+	{
+		HWND hwndConsoleView = CreateNewConsole(strCurrentDirectory);
+		if( hwndConsoleView )
+		{
+			multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
+				hwndConsoleView,
+				splitType));
 
-      CRect clientRect(0, 0, 0, 0);
-      AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
-    }
-  }
+			CRect clientRect(0, 0, 0, 0);
+			AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
+		}
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

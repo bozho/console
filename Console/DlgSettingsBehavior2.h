@@ -21,6 +21,7 @@ class DlgSettingsBehavior2
 		DlgSettingsBehavior2(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsBehavior2)
+			DDX_CHECK(IDC_CHECK_OPEN_CURRENT_DIR, m_behaviorSettings2.cloneSettings.bUseCurrentDirectory)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior2)
@@ -40,7 +41,7 @@ class DlgSettingsBehavior2
 
 	private:
 
-		BehaviorSettings	m_behaviorSettings;
+		BehaviorSettings2	m_behaviorSettings2;
 
 };
 

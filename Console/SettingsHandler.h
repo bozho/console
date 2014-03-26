@@ -419,6 +419,23 @@ struct InstanceSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct CloneSettings : public SettingsBase
+{
+	CloneSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	CloneSettings& operator=(const CloneSettings& other);
+
+	bool bUseCurrentDirectory;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -434,6 +451,23 @@ struct BehaviorSettings : public SettingsBase
 	CloseSettings        closeSettings;
 	FocusSettings        focusSettings;
 	InstanceSettings     instanceSettings;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+struct BehaviorSettings2 : public SettingsBase
+{
+	BehaviorSettings2 ();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	BehaviorSettings2& operator=(const BehaviorSettings2& other);
+
+	CloneSettings        cloneSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -822,6 +856,7 @@ class SettingsHandler
 		ConsoleSettings& GetConsoleSettings() { return m_consoleSettings; }
 		AppearanceSettings& GetAppearanceSettings() { return m_appearanceSettings; }
 		BehaviorSettings& GetBehaviorSettings() { return m_behaviorSettings; }
+		BehaviorSettings2& GetBehaviorSettings2() { return m_behaviorSettings2; }
 		HotKeys& GetHotKeys() { return m_hotKeys; }
 		MouseSettings& GetMouseSettings() { return m_mouseSettings; }
 		TabSettings& GetTabSettings() { return m_tabSettings; }
@@ -841,6 +876,7 @@ class SettingsHandler
 		ConsoleSettings		m_consoleSettings;
 		AppearanceSettings	m_appearanceSettings;
 		BehaviorSettings	m_behaviorSettings;
+		BehaviorSettings2	m_behaviorSettings2;
 		HotKeys				m_hotKeys;
 		MouseSettings		m_mouseSettings;
 

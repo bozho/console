@@ -1807,43 +1807,32 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  MutexLock viewMapLock(m_tabsMutex);
+	MutexLock viewMapLock(m_tabsMutex);
 
-  if( m_activeTabView )
-    m_activeTabView->SplitHorizontally();
+	if( m_activeTabView )
+	{
+		switch( wID )
+		{
+		case ID_SPLIT_HORIZ:
+			m_activeTabView->Split(CMultiSplitPane::HORIZONTAL);
+			break;
 
-  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
-  {
-    if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
-      UIEnable(ID_CLOSE_VIEW, TRUE);
-  }
+		case ID_SPLIT_VERT:
+			m_activeTabView->Split(CMultiSplitPane::VERTICAL);
+			break;
+		}
+	}
 
-  ::SetForegroundWindow(m_hWnd);
-  return 0;
-}
+	if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
+	{
+		if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
+			UIEnable(ID_CLOSE_VIEW, TRUE);
+	}
 
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-  MutexLock viewMapLock(m_tabsMutex);
-
-  if( m_activeTabView )
-    m_activeTabView->SplitVertically();
-
-  if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
-  {
-    if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
-      UIEnable(ID_CLOSE_VIEW, TRUE);
-  }
-
-  ::SetForegroundWindow(m_hWnd);
-  return 0;
+	::SetForegroundWindow(m_hWnd);
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1853,8 +1842,17 @@ LRESULT MainFrame::OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*
 
 LRESULT MainFrame::OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if( m_activeTabView )
-		CreateNewConsole(m_activeTabView->GetTabData());
+	if( !m_activeTabView ) return 0;
+
+	std::wstring strCurrentDirectory(L"");
+
+	if( g_settingsHandler->GetBehaviorSettings2().cloneSettings.bUseCurrentDirectory )
+	{
+		std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+		strCurrentDirectory = activeConsoleView->GetConsoleHandler().GetCurrentDirectory();
+	}
+
+	CreateNewConsole(m_activeTabView->GetTabData(), strCurrentDirectory);
 
 	return 0;
 }

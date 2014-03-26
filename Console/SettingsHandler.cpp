@@ -1268,6 +1268,62 @@ InstanceSettings& InstanceSettings::operator=(const InstanceSettings& other)
 
 
 //////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+CloneSettings::CloneSettings()
+	: bUseCurrentDirectory(true)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CloneSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
+	CComPtr<IXMLDOMElement>	pCloneElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"clone"), pCloneElement))) return false;
+
+	XmlHelper::GetAttribute(pCloneElement, CComBSTR(L"use_current_dir"), bUseCurrentDirectory, true);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CloneSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pCloneElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/clone"), pCloneElement))) return false;
+
+	XmlHelper::SetAttribute(pCloneElement, CComBSTR(L"use_current_dir"), bUseCurrentDirectory);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+CloneSettings& CloneSettings::operator=(const CloneSettings& other)
+{
+	bUseCurrentDirectory = other.bUseCurrentDirectory;
+
+	return *this;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1330,6 +1386,56 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 	closeSettings        = other.closeSettings;
 	focusSettings        = other.focusSettings;
 	instanceSettings     = other.instanceSettings;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BehaviorSettings2::BehaviorSettings2()
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	cloneSettings.Load(pSettingsRoot);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	cloneSettings.Save(pSettingsRoot);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+BehaviorSettings2& BehaviorSettings2::operator=(const BehaviorSettings2& other)
+{
+	cloneSettings        = other.cloneSettings;
 
 	return *this;
 }
@@ -2061,6 +2167,7 @@ SettingsHandler::SettingsHandler()
 , m_consoleSettings()
 , m_appearanceSettings()
 , m_behaviorSettings()
+, m_behaviorSettings2()
 , m_hotKeys()
 , m_mouseSettings()
 , m_tabSettings()
@@ -2171,6 +2278,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	m_consoleSettings.Load(m_pSettingsRoot);
 	m_appearanceSettings.Load(m_pSettingsRoot);
 	m_behaviorSettings.Load(m_pSettingsRoot);
+	m_behaviorSettings2.Load(m_pSettingsRoot);
 	m_hotKeys.Load(m_pSettingsRoot);
 	m_mouseSettings.Load(m_pSettingsRoot);
 
@@ -2195,6 +2303,7 @@ bool SettingsHandler::SaveSettings()
 	m_consoleSettings.Save(m_pSettingsRoot);
 	m_appearanceSettings.Save(m_pSettingsRoot);
 	m_behaviorSettings.Save(m_pSettingsRoot);
+	m_behaviorSettings2.Save(m_pSettingsRoot);
 	m_hotKeys.Save(m_pSettingsRoot);
 	m_mouseSettings.Save(m_pSettingsRoot);
 	m_tabSettings.Save(m_pSettingsRoot);

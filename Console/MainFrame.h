@@ -153,8 +153,8 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_INC_VERT_SIZE  , OnResizeView)
 
 			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
-			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplitHorizontally)
-			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplitVertically)
+			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplit)
+			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplit)
 			COMMAND_ID_HANDLER(ID_GROUP_ALL   , OnGroupAll)
 			COMMAND_ID_HANDLER(ID_UNGROUP_ALL , OnUngroupAll)
 			COMMAND_ID_HANDLER(ID_GROUP_TAB   , OnGroupTab)
@@ -245,8 +245,7 @@ class MainFrame
 		LRESULT OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnSplitHorizontally(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnSplitVertically(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

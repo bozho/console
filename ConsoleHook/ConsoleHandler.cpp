@@ -1474,8 +1474,6 @@ DWORD ConsoleHandler::MonitorThread()
 				{
 					// receives ERROR_BROKEN_PIPE when the tab is closed
 				}
-
-				break;
 			}
 
 			case WAIT_OBJECT_0 + 7 :

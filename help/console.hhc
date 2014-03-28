@@ -65,6 +65,10 @@
 				<param name="Local" value="html\settings_behavior.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Behavior (More...)">
+				<param name="Local" value="html\settings_behavior_more.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Hotkeys">
 				<param name="Local" value="html\settings_hotkeys.html">
 				</OBJECT>

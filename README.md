@@ -28,7 +28,7 @@ Changelog
     + added
     * fixed
 
-Changes in 1.10.0 (beta) (28 Mar 2014)
+Changes in 1.10.0 (30 Mar 2014)
 
     ! Tab number is now full part of the title.
     ! Main title format can be defined by user.

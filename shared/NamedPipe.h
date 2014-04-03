@@ -53,7 +53,7 @@ class NamedPipe
 								0, 0, 0, 0, 0, 0, 0,
 								&tmpSID)) 
 					{
-						Win32Exception::ThrowFromLastError();
+						Win32Exception::ThrowFromLastError("AllocateAndInitializeSid");
 					}
 
 					creatorSID.reset(tmpSID, ::FreeSid);
@@ -72,7 +72,7 @@ class NamedPipe
 					PACL tmpACL = NULL;
 					if (::SetEntriesInAcl(2, ea, NULL, &tmpACL) != ERROR_SUCCESS) 
 					{
-						Win32Exception::ThrowFromLastError();
+						Win32Exception::ThrowFromLastError("SetEntriesInAcl");
 					}
 
 					acl.reset(tmpACL, ::LocalFree);
@@ -82,12 +82,12 @@ class NamedPipe
 				sd.reset(::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH), ::LocalFree);
 				if (!sd)
 				{
-					Win32Exception::ThrowFromLastError();
+					Win32Exception::ThrowFromLastError("LocalAlloc");
 				}
 	 
 				if (!::InitializeSecurityDescriptor(sd.get(), SECURITY_DESCRIPTOR_REVISION)) 
 				{
-					Win32Exception::ThrowFromLastError();
+					Win32Exception::ThrowFromLastError("InitializeSecurityDescriptor");
 				}
 
 				// add the ACL to the security descriptor
@@ -97,7 +97,7 @@ class NamedPipe
 						acl.get(),
 						FALSE))    // not a default DACL
 				{
-					Win32Exception::ThrowFromLastError();
+					Win32Exception::ThrowFromLastError("SetSecurityDescriptorDacl");
 				}
 
 				// initialize a security attributes structure
@@ -120,14 +120,14 @@ class NamedPipe
 
 			if( m_hNamedPipe.get() == INVALID_HANDLE_VALUE )
 			{
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("CreateNamedPipe");
 			}
 
 			m_hEvent.reset(::CreateEvent(NULL, FALSE, FALSE, NULL));
 
 			if( m_hEvent.get() == NULL )
 			{
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("CreateEvent");
 			}
 
 			m_overlap.hEvent = m_hEvent.get();
@@ -136,7 +136,7 @@ class NamedPipe
 			if( !::ConnectNamedPipe(m_hNamedPipe.get(), &m_overlap) )
 			{
 				if( ::GetLastError() != ERROR_IO_PENDING )
-					Win32Exception::ThrowFromLastError();
+					Win32Exception::ThrowFromLastError("ConnectNamedPipe");
 			}
 			else
 			{
@@ -160,14 +160,14 @@ class NamedPipe
 
 			if( m_hNamedPipe.get() == INVALID_HANDLE_VALUE )
 			{
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("CreateFile");
 			}
 
 			m_hEvent.reset(::CreateEvent(NULL, FALSE, FALSE, NULL));
 
 			if( m_hEvent.get() == NULL )
 			{
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("CreateEvent");
 			}
 
 			m_overlap.hEvent = m_hEvent.get();
@@ -190,7 +190,7 @@ class NamedPipe
 				break;
 
 			case WAIT_FAILED:
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("WaitForSingleObject");
 			}
 		}
 
@@ -205,7 +205,7 @@ class NamedPipe
 				&dwNumberOfBytesWritten,
 				NULL) )
 			{
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("WriteFile");
 			}
 		}
 
@@ -220,7 +220,7 @@ class NamedPipe
 				&m_overlap) )
 			{
 				if( ::GetLastError() != ERROR_IO_PENDING )
-					Win32Exception::ThrowFromLastError();
+					Win32Exception::ThrowFromLastError("ReadFile");
 			}
 			else
 			{
@@ -239,7 +239,7 @@ class NamedPipe
 				&dwNumberOfBytesTransferred,
 				FALSE) )
 			{
-				Win32Exception::ThrowFromLastError();
+				Win32Exception::ThrowFromLastError("GetOverlappedResult");
 			}
 
 			return static_cast<size_t>(dwNumberOfBytesTransferred);

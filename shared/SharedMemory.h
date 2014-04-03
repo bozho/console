@@ -186,7 +186,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 					0, 0, 0, 0, 0, 0, 0,
 					&tmpSID)) 
 		{
-      Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("AllocateAndInitializeSid");
 		}
 
 		creatorSID.reset(tmpSID, ::FreeSid);
@@ -202,7 +202,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 
 		if (::SetEntriesInAcl(2, ea, NULL, &tmpACL) != ERROR_SUCCESS) 
 		{
-			Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("SetEntriesInAcl");
 		}
 
 		acl.reset(tmpACL, ::LocalFree);
@@ -211,12 +211,12 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 		sd.reset(::LocalAlloc(LPTR, SECURITY_DESCRIPTOR_MIN_LENGTH), ::LocalFree);
 		if (!sd) 
 		{ 
-			Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("LocalAlloc");
 		} 
 	 
 		if (!::InitializeSecurityDescriptor(sd.get(), SECURITY_DESCRIPTOR_REVISION)) 
 		{  
-			Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("InitializeSecurityDescriptor");
 		} 
 	 
 		// add the ACL to the security descriptor
@@ -226,7 +226,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 				acl.get(), 
 				FALSE))		// not a default DACL 
 		{
-			Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("SetSecurityDescriptorDacl");
 		} 
 
 		// initialize a security attributes structure
@@ -245,7 +245,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 										m_strName.c_str()),
 									::CloseHandle);
 
-	if (!m_hSharedMem) Win32Exception::ThrowFromLastError();
+	if (!m_hSharedMem) Win32Exception::ThrowFromLastError("CreateFileMapping");
 
 	m_pSharedMem = std::shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
 													m_hSharedMem.get(), 
@@ -255,7 +255,7 @@ void SharedMemory<T>::Create(const wstring& strName, DWORD dwSize, SyncObjectTyp
 													0)),
 												::UnmapViewOfFile);
 
-	if (!m_pSharedMem) Win32Exception::ThrowFromLastError();
+	if (!m_pSharedMem) Win32Exception::ThrowFromLastError("MapViewOfFile");
 
 	::ZeroMemory(m_pSharedMem.get(), m_dwSize * sizeof(T));
 
@@ -282,7 +282,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 	{
 		DWORD dwLastError = ::GetLastError();
 		OutputDebugString(str(boost::wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
-		Win32Exception::Throw(dwLastError);
+		Win32Exception::Throw("OpenFileMapping", dwLastError);
 	}
 
 	m_pSharedMem = std::shared_ptr<T>(static_cast<T*>(::MapViewOfFile(
@@ -297,7 +297,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
   {
 		DWORD dwLastError = ::GetLastError();
     OutputDebugString(str(boost::wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
-    Win32Exception::Throw(dwLastError);
+    Win32Exception::Throw("MapViewOfFile", dwLastError);
   }
 
 	if (syncObjects > syncObjNone) CreateSyncObjects(std::shared_ptr<SECURITY_ATTRIBUTES>(), syncObjects, strName);
@@ -460,7 +460,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 							::CreateMutex(sa.get(), FALSE, (wstring(L"") + strName + wstring(L"_mutex")).c_str()),
 							::CloseHandle);
 
-    if( !m_hSharedMutex ) Win32Exception::ThrowFromLastError();
+		if( !m_hSharedMutex ) Win32Exception::ThrowFromLastError("CreateMutex");
 
 		OutputDebugString(str(boost::wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
 
@@ -468,7 +468,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_req_event")).c_str()),
 							::CloseHandle);
 
-    if( !m_hSharedReqEvent ) Win32Exception::ThrowFromLastError();
+		if( !m_hSharedReqEvent ) Win32Exception::ThrowFromLastError("CreateEvent");
 
 		OutputDebugString(str(boost::wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedReqEvent.get())).c_str());
 	}
@@ -479,7 +479,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_resp_event")).c_str()),
 							::CloseHandle);
 
-    if( !m_hSharedRespEvent ) Win32Exception::ThrowFromLastError();
+		if( !m_hSharedRespEvent ) Win32Exception::ThrowFromLastError("CreateEvent");
 
 		OutputDebugString(str(boost::wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedRespEvent.get())).c_str());
 	}

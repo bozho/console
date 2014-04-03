@@ -340,7 +340,7 @@ bool Helpers::IsElevated(void)
 			TOKEN_QUERY,
 			&_hToken) )
 		{
-			Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("OpenProcessToken");
 		}
 
 		hToken.reset(_hToken);
@@ -356,7 +356,7 @@ bool Helpers::IsElevated(void)
 		sizeof(TOKEN_ELEVATION_TYPE),
 		&dwReturnLength ) )
 	{
-		Win32Exception::ThrowFromLastError();
+		Win32Exception::ThrowFromLastError("GetTokenInformation");
 	}
 
 	return tet != TokenElevationTypeLimited;

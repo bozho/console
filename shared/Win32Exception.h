@@ -4,9 +4,14 @@ class Win32Exception : public std::exception
 {
   DWORD errorCode_;
   mutable std::string buff_;
+  std::string api_;
 
   void FormatMessage() const
   {
+		buff_ = "(";
+		buff_ += api_;
+		buff_ += ")";
+
     LPSTR buffer = nullptr;
     DWORD bufferLength = ::FormatMessageA(
       FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER,
@@ -19,16 +24,16 @@ class Win32Exception : public std::exception
     if( bufferLength )
     {
       std::unique_ptr<void, LocalFreeHelper> buffPtr(buffer);
-      buff_ = buffer;
+      buff_ += buffer;
     }
   }
 
 public:
-  Win32Exception(DWORD errorCode) : errorCode_(errorCode) {};
+  Win32Exception(const char * api, DWORD errorCode) : errorCode_(errorCode), api_(api) {};
 
-  __declspec(noreturn) static void Throw(DWORD lastError) {  throw Win32Exception(lastError); }
+  __declspec(noreturn) static void Throw(const char * api, DWORD lastError) { throw Win32Exception(api, lastError); }
 
-  __declspec(noreturn) static void ThrowFromLastError() { Throw(::GetLastError()); };
+  __declspec(noreturn) static void ThrowFromLastError(const char * api) { Throw(api, ::GetLastError()); };
 
   inline DWORD GetErrorCode() const
   {

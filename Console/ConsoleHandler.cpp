@@ -122,7 +122,7 @@ void ConsoleHandler::RunAsAdministrator
 
 	if(!::ShellExecuteEx(&sei))
 	{
-		Win32Exception err(::GetLastError());
+		Win32Exception err("ShellExecuteEx", ::GetLastError());
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL_AS_ADMIN)) % strFile % strParams % err.what()));
 	}
 }
@@ -157,7 +157,7 @@ void ConsoleHandler::CreateShellProcess
 				LOGON32_PROVIDER_DEFAULT,
 				&hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
 			{
-				Win32Exception err(::GetLastError());
+				Win32Exception err("ImpersonateLoggedOnUser", ::GetLastError());
 				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
 			}
 			userToken.reset(hUserToken);
@@ -178,7 +178,7 @@ void ConsoleHandler::CreateShellProcess
 			void*	pEnvironment = nullptr;
 			if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
 			{
-				Win32Exception err(::GetLastError());
+				Win32Exception err("CreateEnvironmentBlock", ::GetLastError());
 				::RevertToSelf();
 				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
 			}
@@ -313,7 +313,7 @@ void ConsoleHandler::CreateShellProcess
 			&si,
 			&pi))
 		{
-			Win32Exception err(::GetLastError());
+			Win32Exception err("CreateProcessWithLogonW", ::GetLastError());
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % strShellCmdLine % userCredentials.user % err.what()));
 		}
 	}
@@ -331,7 +331,7 @@ void ConsoleHandler::CreateShellProcess
 			&si,
 			&pi))
 		{
-			Win32Exception err(::GetLastError());
+			Win32Exception err("CreateProcess", ::GetLastError());
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strShellCmdLine % err.what()));
 		}
 	}
@@ -405,7 +405,7 @@ void ConsoleHandler::StartShellProcess
 		pi.hProcess = ::OpenProcess(SYNCHRONIZE, FALSE, pi.dwProcessId);
 		if( pi.hProcess == NULL )
 		{
-			Win32Exception err(::GetLastError());
+			Win32Exception err("OpenProcess", ::GetLastError());
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
 		}
 	}
@@ -426,7 +426,7 @@ void ConsoleHandler::StartShellProcess
 		CreateSharedObjects(pi.dwProcessId, userCredentials.netOnly? L"" : userCredentials.strAccountName);
 		CreateWatchdog();
 	}
-	catch(Win32Exception& err)
+	catch(std::exception& err)
 	{
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CREATE_SHARED_OBJECTS_FAILED)) % err.what()));
 	}
@@ -440,7 +440,7 @@ void ConsoleHandler::StartShellProcess
 	m_consoleParams->dwBufferRows          = g_settingsHandler->GetConsoleSettings().dwBufferRows;
 	m_consoleParams->dwBufferColumns       = g_settingsHandler->GetConsoleSettings().dwBufferColumns;
 
-	m_hConsoleProcess = std::shared_ptr<void>(pi.hProcess, ::CloseHandle);
+	m_hConsoleProcess.reset(pi.hProcess);
 	m_dwConsolePid    = pi.dwProcessId;
 
 	if (runAsAdministrator)
@@ -450,8 +450,14 @@ void ConsoleHandler::StartShellProcess
 	else
 	{
 		// inject our hook DLL into console process
-		if (!InjectHookDLL(pi))
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
+		try
+		{
+			InjectHookDLL(pi);
+		}
+		catch(std::exception err)
+		{
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
+		}
 
 		// resume the console process
 		::ResumeThread(pi.hThread);
@@ -462,7 +468,7 @@ void ConsoleHandler::StartShellProcess
 	{
 		m_consoleMsgPipe.WaitConnect();
 	}
-	catch(Win32Exception& err)
+	catch(std::exception& err)
 	{
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
 	}
@@ -509,8 +515,14 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
 
 	// inject our hook DLL into console process
-	if (!InjectHookDLL(pi))
-		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"?"));
+	try
+	{
+		InjectHookDLL(pi);
+	}
+	catch(std::exception err)
+	{
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
+	}
 
 	// resume the console process
 	::ResumeThread(pi.hThread);
@@ -722,7 +734,7 @@ void ConsoleHandler::CreateWatchdog()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
+void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 {
 	// allocate memory for parameter in the remote process
 	wstring				strHookDllPath(GetModulePath(NULL));
@@ -741,7 +753,9 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	DWORD			fnWow64LoadLibrary	= 0;
 
 	::ZeroMemory(&wow64Context, sizeof(WOW64_CONTEXT));
-	::IsWow64Process(pi.hProcess, &isWow64Process);
+	if( !::IsWow64Process(pi.hProcess, &isWow64Process) )
+		Win32Exception::ThrowFromLastError("IsWow64Process");
+
 	codeSize = isWow64Process ? 20 : 91;
 #else
 	codeSize = 20;
@@ -774,9 +788,12 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	if (isWow64Process)
 	{
 		wow64Context.ContextFlags = CONTEXT_FULL;
-		::Wow64GetThreadContext(pi.hThread, &wow64Context);
+		if( !::Wow64GetThreadContext(pi.hThread, &wow64Context) )
+			Win32Exception::ThrowFromLastError("Wow64GetThreadContext");
 
 		mem = ::VirtualAllocEx(pi.hProcess, NULL, memLen, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		if( mem == NULL )
+			Win32Exception::ThrowFromLastError("VirtualAllocEx");
 
 		// get 32-bit kernel32
 		wstring strConsoleWowPath(GetModulePath(NULL) + wstring(L"\\ConsoleWow.exe"));
@@ -802,7 +819,7 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 				&siWow,
 				&piWow))
 		{
-			Win32Exception err(::GetLastError());
+			Win32Exception err("CreateProcess", ::GetLastError());
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str() % err.what()));
 		}
 
@@ -819,19 +836,29 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	else
 	{
 		context.ContextFlags = CONTEXT_FULL;
-		::GetThreadContext(pi.hThread, &context);
+		if( !::GetThreadContext(pi.hThread, &context) )
+			Win32Exception::ThrowFromLastError("GetThreadContext");
 
 		mem = ::VirtualAllocEx(pi.hProcess, NULL, memLen, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+		if( mem == NULL )
+			Win32Exception::ThrowFromLastError("VirtualAllocEx");
+
 		fnLoadLibrary = (UINT_PTR)::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
 	}
 
 
 #else
+
 	context.ContextFlags = CONTEXT_FULL;
-	::GetThreadContext(pi.hThread, &context);
+	if( !::GetThreadContext(pi.hThread, &context) )
+		Win32Exception::ThrowFromLastError("GetThreadContext");
 
 	mem = ::VirtualAllocEx(pi.hProcess, NULL, memLen, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	if( mem == NULL )
+		Win32Exception::ThrowFromLastError("VirtualAllocEx");
+
 	fnLoadLibrary = (UINT_PTR)::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+
 #endif
 
 	union
@@ -854,15 +881,18 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		*ip.pB++ = 0x68;			// push  "path\to\our.dll"
 		*ip.pI++ = static_cast<INT>(reinterpret_cast<UINT_PTR>(mem) + codeSize);
 		*ip.pB++ = 0xe8;			// call  LoadLibraryW
-		*ip.pI++ =  static_cast<INT>(fnWow64LoadLibrary - (reinterpret_cast<UINT_PTR>(mem) + (ip.pB+4 - code.get())));
+		*ip.pI++ = static_cast<INT>(fnWow64LoadLibrary - (reinterpret_cast<UINT_PTR>(mem) + (ip.pB+4 - code.get())));
 		*ip.pB++ = 0x61;			// popa
 		*ip.pB++ = 0x9d;			// popf
 		*ip.pB++ = 0xc3;			// ret
 
-		::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL);
-		::FlushInstructionCache(pi.hProcess, mem, memLen);
+		if( !::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL) )
+			Win32Exception::ThrowFromLastError("WriteProcessMemory");
+		if( !::FlushInstructionCache(pi.hProcess, mem, memLen) )
+			Win32Exception::ThrowFromLastError("FlushInstructionCache");
 		wow64Context.Eip = static_cast<DWORD>(reinterpret_cast<UINT_PTR>(mem));
-		::Wow64SetThreadContext(pi.hThread, &wow64Context);
+		if( !::Wow64SetThreadContext(pi.hThread, &wow64Context) )
+			Win32Exception::ThrowFromLastError("Wow64SetThreadContext");
 	}
 	else
 	{
@@ -923,10 +953,13 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		*ip.pB++ = 0x25;
 		*ip.pI++ = -91;
 
-		::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL);
-		::FlushInstructionCache(pi.hProcess, mem, memLen);
+		if( !::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL) )
+			Win32Exception::ThrowFromLastError("WriteProcessMemory");
+		if( !::FlushInstructionCache(pi.hProcess, mem, memLen) )
+			Win32Exception::ThrowFromLastError("FlushInstructionCache");
 		context.Rip = reinterpret_cast<UINT_PTR>(mem) + 16;
-		::SetThreadContext(pi.hThread, &context);
+		if( !::SetThreadContext(pi.hThread, &context) )
+			Win32Exception::ThrowFromLastError("SetThreadContext");
 	}
 
 #else
@@ -943,13 +976,16 @@ bool ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	*ip.pB++ = 0x9d;			// popf
 	*ip.pB++ = 0xc3;			// ret
 
-	::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL);
-	::FlushInstructionCache(pi.hProcess, mem, memLen);
+	if( !::WriteProcessMemory(pi.hProcess, mem, code.get(), memLen, NULL) )
+		Win32Exception::ThrowFromLastError("WriteProcessMemory");
+	if( !::FlushInstructionCache(pi.hProcess, mem, memLen) )
+		Win32Exception::ThrowFromLastError("FlushInstructionCache");
 	context.Eip = reinterpret_cast<UINT_PTR>(mem);
-	::SetThreadContext(pi.hThread, &context);
+	if( !::SetThreadContext(pi.hThread, &context) )
+		Win32Exception::ThrowFromLastError("SetThreadContext");
+
 #endif
 
-	return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ void MyThread::Start(DWORD dwStackSize /*= 0*/)
 
   this->hStopSignalPtr.reset(::CreateEvent(NULL, FALSE, FALSE, NULL));
   if( this->hStopSignalPtr.get() == nullptr )
-    Win32Exception::ThrowFromLastError();
+    Win32Exception::ThrowFromLastError("CreateEvent");
 
   this->hThreadPtr.reset((HANDLE)_beginthreadex(0, dwStackSize, &_MyThreadFunction, (void*)this, 0, NULL));
   if( this->hThreadPtr.get() == nullptr )
@@ -43,11 +43,11 @@ DWORD MyThread::Stop(DWORD dwTimeout)
   {
     if( this->hStopSignalPtr.get() )
       if( !SetEvent(this->hStopSignalPtr.get()) )
-        Win32Exception::ThrowFromLastError();
+        Win32Exception::ThrowFromLastError("SetEvent");
 
     if( this->hThreadPtr.get() )
       if( WaitForSingleObject(this->hThreadPtr.get(), dwTimeout) != WAIT_OBJECT_0 )
-        Win32Exception::ThrowFromLastError();
+        Win32Exception::ThrowFromLastError("WaitForSingleObject");
   }
   catch(std::exception&)
   {
@@ -90,14 +90,14 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
     &hkey);
 
   if( rc != ERROR_SUCCESS )
-    Win32Exception::Throw(rc);
+    Win32Exception::Throw("RegOpenKeyEx", rc);
 
   unique_ptr<HKEY__, RegCloseKeyHelper>hkeyPtr(hkey);
 
   std::unique_ptr<void, CloseHandleHelper>regkeyChangeNotification(
     ::CreateEvent(NULL, FALSE, TRUE, NULL));
   if( regkeyChangeNotification.get() == nullptr )
-    Win32Exception::ThrowFromLastError();
+    Win32Exception::ThrowFromLastError("CreateEvent");
 
   unique_ptr<void, FindCloseChangeNotificationHelper>folderChangeNotification(INVALID_HANDLE_VALUE);
 
@@ -136,7 +136,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
           (LPBYTE)szWallpaperTmp, &(dwValueSize = static_cast<DWORD>(sizeof(szWallpaperTmp))));
 
         if( rc != ERROR_SUCCESS )
-          Win32Exception::Throw(rc);
+          Win32Exception::Throw("RegQueryValueEx", rc);
 
         rc = ::RegQueryValueEx(
           hkeyPtr.get(),
@@ -146,7 +146,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
           (LPBYTE)szWallpaperStyleTmp, &(dwValueSize = static_cast<DWORD>(sizeof(szWallpaperStyleTmp))));
 
         if( rc != ERROR_SUCCESS )
-          Win32Exception::Throw(rc);
+          Win32Exception::Throw("RegQueryValueEx", rc);
 
         rc = ::RegQueryValueEx(
           hkeyPtr.get(),
@@ -156,7 +156,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
           (LPBYTE)szTileWallpaperTmp, &(dwValueSize = static_cast<DWORD>(sizeof(szTileWallpaperTmp))));
 
         if( rc != ERROR_SUCCESS )
-          Win32Exception::Throw(rc);
+          Win32Exception::Throw("RegQueryValueEx", rc);
 
         if( wcscmp(szWallpaperTmp, szWallpaper) || 
             wcscmp(szWallpaperStyleTmp, szWallpaperStyle) ||
@@ -178,7 +178,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
               FILE_NOTIFY_CHANGE_SIZE));
 
           if( folderChangeNotification.get() == INVALID_HANDLE_VALUE )
-            Win32Exception::ThrowFromLastError();
+            Win32Exception::ThrowFromLastError("FindFirstChangeNotification");
 
           if( !boolInit )
             boolWallpaperChangeHasChanged = true;
@@ -194,7 +194,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
           );
 
         if( rc != ERROR_SUCCESS )
-          Win32Exception::Throw(rc);
+          Win32Exception::Throw("RegNotifyChangeKeyValue", rc);
       }
       break;
 
@@ -202,7 +202,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
       {
         // reactive directory monitoring
         if( !::FindNextChangeNotification(folderChangeNotification.get()) )
-           Win32Exception::ThrowFromLastError();
+           Win32Exception::ThrowFromLastError("FindNextChangeNotification");
 
         boolCheckWallpaperChange = true;
       }

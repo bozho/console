@@ -769,7 +769,7 @@ BOOL CALLBACK ImageHandler::MonitorEnumProcWin8(HMONITOR hMonitor, HDC /*hdcMoni
       &hkey);
 
     if( rc != ERROR_SUCCESS )
-      Win32Exception::Throw(rc);
+      Win32Exception::Throw("RegOpenKeyEx", rc);
 
     unique_ptr<HKEY__, RegCloseKeyHelper>hkeyPtr(hkey);
 
@@ -782,7 +782,7 @@ BOOL CALLBACK ImageHandler::MonitorEnumProcWin8(HMONITOR hMonitor, HDC /*hdcMoni
       &(dwValueSize = static_cast<DWORD>(sizeof(dwTranscodedImageCount))));
 
     if( rc != ERROR_SUCCESS )
-      Win32Exception::Throw(rc);
+      Win32Exception::Throw("RegQueryValueEx", rc);
 
     for(DWORD i = 0; i < dwTranscodedImageCount; ++i)
     {
@@ -803,7 +803,7 @@ BOOL CALLBACK ImageHandler::MonitorEnumProcWin8(HMONITOR hMonitor, HDC /*hdcMoni
         &(dwValueSize = static_cast<DWORD>(sizeof(binTranscodedImageCache))));
 
       if( rc != ERROR_SUCCESS )
-        Win32Exception::Throw(rc);
+        Win32Exception::Throw("RegQueryValueEx", rc);
 
       TRACE(
         L"\twallpaper picture on ('%s') is '%s'\n",

@@ -284,7 +284,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 		TranslateMessageEx = (_t_TranslateMessageEx)::GetProcAddress(::GetModuleHandle(L"user32.dll"), "TranslateMessageEx");
 		if( !TranslateMessageEx )
-			Win32Exception::ThrowFromLastError();
+			Win32Exception::ThrowFromLastError("TranslateMessageEx");
 
     int nRet = theLoop.Run();
 

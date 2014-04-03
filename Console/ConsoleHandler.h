@@ -119,8 +119,6 @@ class ConsoleHandler
 		DWORD StartMonitorThread();
 		void StopMonitorThread();
 
-		std::shared_ptr<void> GetConsoleHandle() const					{ return m_hConsoleProcess; }
-
 		SharedMemory<ConsoleParams>& GetConsoleParams()				{ return m_consoleParams; }
 		SharedMemory<ConsoleInfo>& GetConsoleInfo()	{ return m_consoleInfo; }
 		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
@@ -153,7 +151,7 @@ class ConsoleHandler
 		bool CreateSharedObjects(DWORD dwConsoleProcessId, const wstring& strUser);
 		void CreateWatchdog();
 
-		bool InjectHookDLL(PROCESS_INFORMATION& pi);
+		void InjectHookDLL(PROCESS_INFORMATION& pi);
 
 		void CreateShellProcess
 		(
@@ -188,7 +186,7 @@ class ConsoleHandler
     ConsoleChangeDelegate             m_consoleChangeDelegate;
     ConsoleCloseDelegate              m_consoleCloseDelegate;
 
-    std::shared_ptr<void>             m_hConsoleProcess;
+    std::unique_ptr<void, CloseHandleHelper> m_hConsoleProcess;
 
     SharedMemory<ConsoleParams>       m_consoleParams;
     SharedMemory<ConsoleInfo>         m_consoleInfo;

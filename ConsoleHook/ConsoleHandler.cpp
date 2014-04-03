@@ -148,7 +148,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 
   if( hStdOut.get() == INVALID_HANDLE_VALUE )
   {
-    Win32Exception err(::GetLastError());
+    Win32Exception err("CreateFile", ::GetLastError());
     TRACE(L"CreateFile returns error (%lu) : %S\n", err.GetErrorCode(), err.what());
     return;
   }
@@ -158,7 +158,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 
 	if( !::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole) )
   {
-    Win32Exception err(::GetLastError());
+    Win32Exception err("GetConsoleScreenBufferInfo", ::GetLastError());
     TRACE(L"GetConsoleScreenBufferInfo(%p) returns error (%lu) : %S\n", hStdOut.get(), err.GetErrorCode(), err.what());
     return;
   }
@@ -1355,7 +1355,7 @@ DWORD ConsoleHandler::MonitorThread()
 									npmsg.data.winmsg.lparam) )
 								{
 #ifdef _DEBUG
-									Win32Exception err(::GetLastError());
+									Win32Exception err("PostMessage", ::GetLastError());
 									TRACE(
 										L"PostMessage Msg = 0x%08lx WPARAM = %p LPARAM = %p fails (reason: %S)\n",
 										npmsg.data.winmsg.msg,

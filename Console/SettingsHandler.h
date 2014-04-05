@@ -715,6 +715,7 @@ struct TabData
 	: strTitle(L"Console")
 	, strIcon(L"")
 	, bUseDefaultIcon(false)
+	, hwnd(nullptr)
 	, strShell(shell)
 	, strInitialDir(initialDir)
 	, bRunAsUser(false)
@@ -753,6 +754,7 @@ struct TabData
 	wstring							strTitle;
 	wstring							strIcon;
 	bool							bUseDefaultIcon;
+	HWND							hwnd;
 
 	wstring							strShell;
 	wstring							strInitialDir;
@@ -788,9 +790,33 @@ struct TabData
 		if (iconMenu.IsNull())
 		{
 			// load small icon
-			iconMenu.Attach(Helpers::LoadTabIcon(false, bUseDefaultIcon, strIcon, strShell));
+			iconMenu.Attach(GetSmallIcon());
 		}
 		return iconMenu;
+	}
+
+	HICON GetBigIcon(void)
+	{
+		if( hwnd )
+		{
+			return reinterpret_cast<HICON>(::SendMessage(hwnd, WM_GETICON, ICON_BIG, 0));
+		}
+		else
+		{
+			return Helpers::LoadTabIcon(true, bUseDefaultIcon, strIcon, strShell);
+		}
+	}
+
+	HICON GetSmallIcon(void)
+	{
+		if( hwnd )
+		{
+			return reinterpret_cast<HICON>(::SendMessage(hwnd, WM_GETICON, ICON_SMALL2, 0));
+		}
+		else
+		{
+			return Helpers::LoadTabIcon(false, bUseDefaultIcon, strIcon, strShell);
+		}
 	}
 };
 

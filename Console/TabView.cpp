@@ -86,8 +86,8 @@ BOOL TabView::PreTranslateMessage(MSG* pMsg)
 LRESULT TabView::OnCreate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
 {
   // load icon
-  m_bigIcon.Attach(Helpers::LoadTabIcon(true, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
-  m_smallIcon.Attach(Helpers::LoadTabIcon(false, m_tabData->bUseDefaultIcon, m_tabData->strIcon, m_tabData->strShell));
+  m_bigIcon.Attach(m_tabData->GetBigIcon());
+  m_smallIcon.Attach(m_tabData->GetSmallIcon());
 
   LRESULT result = -1;
 

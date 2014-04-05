@@ -721,6 +721,7 @@ struct TabData
 	, strUser()
 	, bNetOnly(false)
 	, bRunAsAdministrator(false)
+	, bCloneable(true)
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
@@ -759,6 +760,7 @@ struct TabData
 	wstring							strUser;
 	bool							bNetOnly;
 	bool							bRunAsAdministrator;
+	bool							bCloneable;
 
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;

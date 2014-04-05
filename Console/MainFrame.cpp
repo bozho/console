@@ -1813,6 +1813,8 @@ LRESULT MainFrame::OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 
 	if( m_activeTabView )
 	{
+		if( !m_activeTabView->GetTabData()->bCloneable ) return 0;
+
 		switch( wID )
 		{
 		case ID_SPLIT_HORIZ:
@@ -1844,15 +1846,24 @@ LRESULT MainFrame::OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 {
 	if( !m_activeTabView ) return 0;
 
+	std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+	if( !activeConsoleView ) return 0;
+
+	std::shared_ptr<TabData> tabData = activeConsoleView->GetTabData();
+	if( !tabData->bCloneable ) return 0;
+
 	std::wstring strCurrentDirectory(L"");
 
 	if( g_settingsHandler->GetBehaviorSettings2().cloneSettings.bUseCurrentDirectory )
 	{
-		std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
 		strCurrentDirectory = activeConsoleView->GetConsoleHandler().GetCurrentDirectory();
 	}
 
-	CreateNewConsole(m_activeTabView->GetTabData(), strCurrentDirectory);
+	ConsoleViewCreate consoleViewCreate;
+	consoleViewCreate.type = ConsoleViewCreate::CREATE;
+	consoleViewCreate.u.userCredentials = nullptr;
+
+	CreateNewConsole(&consoleViewCreate, tabData, strCurrentDirectory);
 
 	return 0;
 }

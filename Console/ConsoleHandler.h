@@ -116,6 +116,8 @@ class ConsoleHandler
 			const wstring& strInitialCmd
 		);
 
+		void AttachToShellProcess(DWORD dwProcessId);
+
 		DWORD StartMonitorThread();
 		void StopMonitorThread();
 
@@ -152,6 +154,7 @@ class ConsoleHandler
 		void CreateWatchdog();
 
 		void InjectHookDLL(PROCESS_INFORMATION& pi);
+		void InjectHookDLL2(PROCESS_INFORMATION& pi);
 
 		void CreateShellProcess
 		(

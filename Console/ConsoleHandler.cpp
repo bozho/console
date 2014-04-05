@@ -534,6 +534,64 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::AttachToShellProcess(DWORD dwProcessId)
+{
+	try
+	{
+		PROCESS_INFORMATION pi = {0, 0, dwProcessId, 0};
+
+		std::unique_ptr<void, CloseHandleHelper> hProcess(::OpenProcess(SYNCHRONIZE|PROCESS_QUERY_INFORMATION|PROCESS_VM_OPERATION|PROCESS_VM_WRITE|PROCESS_VM_READ|PROCESS_CREATE_THREAD, FALSE, pi.dwProcessId));
+		pi.hProcess = hProcess.get();
+		if( pi.hProcess == NULL )
+			Win32Exception::ThrowFromLastError("OpenProcess");
+
+		// create shared memory objects
+		try
+		{
+			CreateSharedObjects(pi.dwProcessId, /*userCredentials.netOnly? L"" : userCredentials.strAccountName*/L"");
+			CreateWatchdog();
+		}
+		catch(Win32Exception& err)
+		{
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CREATE_SHARED_OBJECTS_FAILED)) % err.what()));
+		}
+
+		// write startup params
+		m_consoleParams->dwParentProcessId     = ::GetCurrentProcessId();
+		m_consoleParams->dwNotificationTimeout = g_settingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
+		m_consoleParams->dwRefreshInterval     = g_settingsHandler->GetConsoleSettings().dwRefreshInterval;
+		m_consoleParams->dwRows                = 0;
+		m_consoleParams->dwColumns             = 0;
+		m_consoleParams->dwBufferRows          = g_settingsHandler->GetConsoleSettings().dwBufferRows;
+		m_consoleParams->dwBufferColumns       = g_settingsHandler->GetConsoleSettings().dwBufferColumns;
+
+		m_hConsoleProcess.reset(hProcess.release());
+		m_dwConsolePid    = pi.dwProcessId;
+
+		// inject our hook DLL into console process
+		InjectHookDLL2(pi);
+
+		::CloseHandle(pi.hThread);
+
+		m_consoleMsgPipe.WaitConnect();
+
+		// wait for hook DLL to set console handle
+		if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+
+		ShowWindow(SW_HIDE);
+	}
+	catch(std::exception& err)
+	{
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 DWORD ConsoleHandler::StartMonitorThread()
 {
 	DWORD dwThreadId = 0;
@@ -985,7 +1043,124 @@ void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 		Win32Exception::ThrowFromLastError("SetThreadContext");
 
 #endif
+}
 
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::InjectHookDLL2(PROCESS_INFORMATION& pi)
+{
+	// allocate memory for parameter in the remote process
+	wstring   strHookDllPath(GetModulePath(NULL));
+	UINT_PTR  fnLoadLibrary	= NULL;
+	void*     mem = NULL;
+	size_t    memLen = 0;
+	BOOL      isWow64Process	= FALSE;
+
+#ifdef _WIN64
+	DWORD     fnWow64LoadLibrary = 0;
+
+	if( !::IsWow64Process(pi.hProcess, &isWow64Process) )
+		Win32Exception::ThrowFromLastError("IsWow64Process");
+#endif
+
+	if (isWow64Process)
+	{
+		// starting a 32-bit process from a 64-bit console
+		strHookDllPath += wstring(L"\\ConsoleHook32.dll");
+	}
+	else
+	{
+		// same bitness :-)
+		strHookDllPath += wstring(L"\\ConsoleHook.dll");
+	}
+
+	if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES)
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_HOOK_MISSING)) % strHookDllPath.c_str()));
+
+#ifdef _WIN64
+
+	if (isWow64Process)
+	{
+		// get 32-bit kernel32
+		wstring strConsoleWowPath(GetModulePath(NULL) + wstring(L"\\ConsoleWow.exe"));
+
+		STARTUPINFO siWow;
+		::ZeroMemory(&siWow, sizeof(STARTUPINFO));
+
+		siWow.cb			= sizeof(STARTUPINFO);
+		siWow.dwFlags		= STARTF_USESHOWWINDOW;
+		siWow.wShowWindow	= SW_HIDE;
+
+		PROCESS_INFORMATION piWow;
+
+		if (!::CreateProcess(
+			NULL,
+			const_cast<wchar_t*>(strConsoleWowPath.c_str()),
+			NULL,
+			NULL,
+			FALSE,
+			0,
+			NULL,
+			NULL,
+			&siWow,
+			&piWow))
+		{
+			Win32Exception err("CreateProcess", ::GetLastError());
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strConsoleWowPath.c_str() % err.what()));
+		}
+
+		std::shared_ptr<void> wowProcess(piWow.hProcess, ::CloseHandle);
+		std::shared_ptr<void> wowThread(piWow.hThread, ::CloseHandle);
+
+		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
+		{
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+		}
+
+		::GetExitCodeProcess(wowProcess.get(), reinterpret_cast<DWORD*>(&fnWow64LoadLibrary));
+	}
+	else
+	{
+		fnLoadLibrary = (UINT_PTR)::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+	}
+
+
+#else
+
+	fnLoadLibrary = (UINT_PTR)::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "LoadLibraryW");
+
+#endif
+
+	memLen = (strHookDllPath.length()+1)*sizeof(wchar_t);
+	mem = ::VirtualAllocEx(pi.hProcess, NULL, memLen, MEM_COMMIT, PAGE_READWRITE);
+	if( mem == NULL )
+		Win32Exception::ThrowFromLastError("VirtualAllocEx");
+
+	if( !::WriteProcessMemory(pi.hProcess, mem, strHookDllPath.c_str(), memLen, NULL) )
+		Win32Exception::ThrowFromLastError("WriteProcessMemory");
+
+#ifdef _WIN64
+
+	if (isWow64Process)
+	{
+		pi.hThread =  ::CreateRemoteThread(pi.hProcess, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(fnWow64LoadLibrary), mem, 0, &pi.dwThreadId);
+	}
+	else
+	{
+		pi.hThread =  ::CreateRemoteThread(pi.hProcess, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(fnLoadLibrary), mem, 0, &pi.dwThreadId);
+	}
+
+#else
+
+	pi.hThread =  ::CreateRemoteThread(pi.hProcess, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(fnLoadLibrary), mem, 0, &pi.dwThreadId);
+
+#endif
+
+	if( pi.hThread == NULL )
+		Win32Exception::ThrowFromLastError("CreateRemoteThread");
 }
 
 //////////////////////////////////////////////////////////////////////////////

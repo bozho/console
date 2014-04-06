@@ -237,7 +237,8 @@ struct NamedPipeMessage
 		SHOWWINDOW,
 		SETWINDOWPOS,
 		SENDTEXT,
-		WRITECONSOLEINPUT
+		WRITECONSOLEINPUT,
+		DETACH,
 	} type;
 
 	union

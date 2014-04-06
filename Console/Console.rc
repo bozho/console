@@ -431,9 +431,9 @@ BEGIN
     CONTROL         "Leave highlighted",IDC_CHECK_LEAVE_HIGHLIGHTED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,19,160,72,10
     GROUPBOX        "Inactive tab activity flash",IDC_STATIC,0,115,105,63,WS_GROUP
 
-    CONTROL         "Allow closing the last tab/view",IDC_CHECK_CLOSING_LAST_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,195,180,10
+    CONTROL         "Allow closing/detaching the last tab/view",IDC_CHECK_CLOSING_LAST_TAB,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,195,180,10
     CONTROL         "Confirm before closing multiple tabs/views",IDC_CHECK_CONFIRM_CLOSE_MULTI,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,210,180,10
-    GROUPBOX        "Close",IDC_STATIC,0,180,215,48,WS_GROUP
+    GROUPBOX        "Close/Detach",IDC_STATIC,0,180,215,48,WS_GROUP
 
     CONTROL         "Follow mouse",IDC_CHECK_FOCUS_FOLLOW_MOUSE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,245,62,10
     GROUPBOX        "Focus",IDC_STATIC,0,230,105,33,WS_GROUP
@@ -755,6 +755,7 @@ BEGIN
         MENUITEM "Close All Tabs to the Right", ID_FILE_CLOSE_ALL_TABS_RIGHT
         MENUITEM SEPARATOR
         MENUITEM "&Close View",                 ID_CLOSE_VIEW
+        MENUITEM "&Detach View",                ID_DETACH_VIEW
         MENUITEM SEPARATOR
         MENUITEM "Attach Consoles",             ID_ATTACH_CONSOLES
         MENUITEM SEPARATOR
@@ -809,7 +810,9 @@ BEGIN
         MENUITEM "Close All Tabs to the Right", ID_FILE_CLOSE_ALL_TABS_RIGHT
         MENUITEM SEPARATOR
         MENUITEM "&Close View",                 ID_CLOSE_VIEW
-
+        MENUITEM "&Detach View",                ID_DETACH_VIEW
+        MENUITEM SEPARATOR
+        MENUITEM "Attach Consoles",             ID_ATTACH_CONSOLES
         MENUITEM SEPARATOR
         MENUITEM "&Rename Tab",                 ID_EDIT_RENAME_TAB
         MENUITEM SEPARATOR
@@ -1054,6 +1057,8 @@ BEGIN
     ID_NEXT_VIEW            "Switch to the next view\nNext View"
     ID_PREV_VIEW            "Switch to the previous view\nPrevious View"
     ID_CLOSE_VIEW           "Close the current view\nClose View"
+    ID_DETACH_VIEW          "Detach the current view\nDetach View"
+    ID_ATTACH_CONSOLES      "Attach consoles\nAttach consoles"
     ID_SPLIT_HORIZ          "Split the current view horizontally\nSplit Horizontally"
     ID_SPLIT_VERT           "Split the current view vertically\nSplit Vertically"
     ID_CLONE_IN_NEW_TAB     "Clone the current view in a new tab\nClone in new tab"

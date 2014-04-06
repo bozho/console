@@ -996,7 +996,7 @@ LRESULT MainFrame::OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam
 	for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
 	{
 		bool boolTabClosed;
-		if( it->second->CloseView(reinterpret_cast<HWND>(wParam), boolTabClosed) )
+		if( it->second->CloseView(reinterpret_cast<HWND>(wParam), false, boolTabClosed) )
 		{
 			if( boolTabClosed )
 				CloseTab(it->second->m_hWnd);
@@ -1902,7 +1902,7 @@ LRESULT MainFrame::OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   MutexLock viewMapLock(m_tabsMutex);
 
@@ -1915,7 +1915,7 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
 	if( m_activeTabView )
 	{
 		bool boolTabClosed;
-		m_activeTabView->CloseView(0, boolTabClosed);
+		m_activeTabView->CloseView(0, wID == ID_DETACH_VIEW, boolTabClosed);
 		if( boolTabClosed )
 			CloseTab(m_activeTabView->m_hWnd);
 	}
@@ -1923,7 +1923,10 @@ LRESULT MainFrame::OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCt
   if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
   {
     if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() == 1 )
-      UIEnable(ID_CLOSE_VIEW, FALSE);
+		{
+			UIEnable(ID_CLOSE_VIEW, FALSE);
+			UIEnable(ID_DETACH_VIEW, FALSE);
+		}
   }
 
   ::SetForegroundWindow(m_hWnd);
@@ -1958,7 +1961,10 @@ LRESULT MainFrame::OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 	if( !g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView )
 	{
 		if( m_tabs.size() > 1 || m_tabs.begin()->second->GetViewsCount() > 1 )
+		{
 			UIEnable(ID_CLOSE_VIEW, TRUE);
+			UIEnable(ID_DETACH_VIEW, TRUE);
+		}
 	}
 
 	::SetForegroundWindow(m_hWnd);
@@ -3799,11 +3805,14 @@ void MainFrame::UpdateUI()
 	{
 		UIEnable(ID_FILE_CLOSE_TAB, TRUE);
 		UIEnable(ID_CLOSE_VIEW, TRUE);
+		UIEnable(ID_DETACH_VIEW, TRUE);
 	}
 	else
 	{
 		UIEnable(ID_FILE_CLOSE_TAB, m_tabs.size() > 1);
-		UIEnable(ID_CLOSE_VIEW, m_tabs.size() > 1 || (!m_tabs.empty() && m_tabs.begin()->second->GetViewsCount() > 1));
+		BOOL b = m_tabs.size() > 1 || (!m_tabs.empty() && m_tabs.begin()->second->GetViewsCount() > 1);
+		UIEnable(ID_CLOSE_VIEW, b);
+		UIEnable(ID_DETACH_VIEW, b);
 	}
 
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_BUT_THIS, m_tabs.size() > 1);

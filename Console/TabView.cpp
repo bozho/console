@@ -398,7 +398,7 @@ void TabView::Split(CMultiSplitPane::SPLITTYPE splitType)
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool TabView::CloseView(HWND hwnd, bool& boolTabClosed)
+bool TabView::CloseView(HWND hwnd, bool boolDetach, bool& boolTabClosed)
 {
 	boolTabClosed = false;
 
@@ -414,6 +414,9 @@ bool TabView::CloseView(HWND hwnd, bool& boolTabClosed)
 		ConsoleViewMap::iterator iter = m_views.find(hwnd);
 		if( iter != m_views.end() )
 		{
+			if( boolDetach )
+				iter->second->GetConsoleHandler().Detach();
+
 			iter->second->DestroyWindow();
 			m_views.erase(iter);
 

@@ -221,7 +221,7 @@ class ConsoleView
 		bool	m_bConsoleWindowVisible;
 		bool  m_boolIsGrouped;
 		bool  m_boolImmComposition;
-		
+
 		DWORD	m_dwStartupRows;
 		DWORD	m_dwStartupColumns;
 		DWORD m_dwVScrollMax;

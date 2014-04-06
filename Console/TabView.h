@@ -67,7 +67,7 @@ public:
   void GetRect(CRect& clientRect);
 
   void Split(CMultiSplitPane::SPLITTYPE);
-  bool CloseView(HWND hwnd, bool& boolTabClosed);
+  bool CloseView(HWND hwnd, bool boolDetach, bool& boolTabClosed);
   void SwitchView(WORD wID);
   void ResizeView(WORD wID);
   void SetActiveConsole(HWND hwnd);

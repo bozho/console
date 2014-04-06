@@ -68,6 +68,7 @@ class MainFrame
 			UPDATE_ELEMENT(ID_FILE_CLOSE_ALL_TABS_LEFT, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_FILE_CLOSE_ALL_TABS_RIGHT, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_CLOSE_VIEW, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(ID_DETACH_VIEW, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_EDIT_COPY, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 			UPDATE_ELEMENT(ID_EDIT_SELECT_ALL, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_EDIT_CLEAR_SELECTION, UPDUI_MENUPOPUP)
@@ -154,6 +155,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_INC_VERT_SIZE  , OnResizeView)
 
 			COMMAND_ID_HANDLER(ID_CLOSE_VIEW  , OnCloseView)
+			COMMAND_ID_HANDLER(ID_DETACH_VIEW , OnCloseView)
 			COMMAND_ID_HANDLER(ID_SPLIT_HORIZ , OnSplit)
 			COMMAND_ID_HANDLER(ID_SPLIT_VERT  , OnSplit)
 			COMMAND_ID_HANDLER(ID_GROUP_ALL   , OnGroupAll)
@@ -247,7 +249,7 @@ class MainFrame
 
 		LRESULT OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

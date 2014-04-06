@@ -42,6 +42,7 @@ ConsoleHandler::ConsoleHandler()
 , m_bufferMutex(NULL, FALSE, NULL)
 , m_dwConsolePid(0)
 , m_boolIsElevated(false)
+, m_boolDetaching(false)
 {
 }
 
@@ -50,10 +51,27 @@ ConsoleHandler::~ConsoleHandler()
 	if( m_hMonitorThread.get() )
 		StopMonitorThread();
 
-	if ((m_consoleParams.Get() != NULL) && 
-		(m_consoleParams->hwndConsoleWindow))
+	if( m_consoleParams.Get() && m_consoleParams->hwndConsoleWindow )
 	{
-		SendMessage(WM_CLOSE, 0, 0);
+		if( m_boolDetaching )
+		{
+			CPoint point;
+			::GetCursorPos(&point);
+			SetWindowPos(point.x, point.y, 0, 0, SWP_NOSIZE|SWP_NOZORDER);
+			ShowWindow(SW_SHOW);
+
+			NamedPipeMessage npmsg;
+			npmsg.type = NamedPipeMessage::DETACH;
+			try
+			{
+				m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
+			}
+			catch(std::exception&) { }
+		}
+		else
+		{
+			SendMessage(WM_CLOSE, 0, 0);
+		}
 	}
 }
 

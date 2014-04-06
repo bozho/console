@@ -124,14 +124,15 @@ class ConsoleHandler
 
 		DWORD StartMonitorThread();
 		void StopMonitorThread();
+		void Detach()                                       { m_boolDetaching = true; }
 
-		SharedMemory<ConsoleParams>& GetConsoleParams()				{ return m_consoleParams; }
-		SharedMemory<ConsoleInfo>& GetConsoleInfo()	{ return m_consoleInfo; }
-		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()			{ return m_cursorInfo; }
-		SharedMemory<CHAR_INFO>& GetConsoleBuffer()					{ return m_consoleBuffer; }
-		SharedMemory<ConsoleCopy>& GetCopyInfo()					{ return m_consoleCopyInfo; }
-		SharedMemory<ConsoleSize>& GetNewConsoleSize()				{ return m_newConsoleSize; }
-		SharedMemory<SIZE>& GetNewScrollPos()						{ return m_newScrollPos; }
+		SharedMemory<ConsoleParams>& GetConsoleParams()     { return m_consoleParams; }
+		SharedMemory<ConsoleInfo>& GetConsoleInfo()         { return m_consoleInfo; }
+		SharedMemory<CONSOLE_CURSOR_INFO>& GetCursorInfo()  { return m_cursorInfo; }
+		SharedMemory<CHAR_INFO>& GetConsoleBuffer()         { return m_consoleBuffer; }
+		SharedMemory<ConsoleCopy>& GetCopyInfo()            { return m_consoleCopyInfo; }
+		SharedMemory<ConsoleSize>& GetNewConsoleSize()      { return m_newConsoleSize; }
+		SharedMemory<SIZE>& GetNewScrollPos()               { return m_newScrollPos; }
 
 		void SendMouseEvent(const COORD& mousePos, DWORD dwMouseButtonState, DWORD dwControlKeyState, DWORD dwEventFlags);
 
@@ -216,6 +217,7 @@ class ConsoleHandler
 
     DWORD                             m_dwConsolePid;
     bool                              m_boolIsElevated;
+    bool                              m_boolDetaching;
 
 };
 

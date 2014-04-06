@@ -304,6 +304,7 @@
 #define ID_INC_VERT_SIZE                2219
 #define ID_CLONE_IN_NEW_TAB             2220
 #define ID_ATTACH_CONSOLES              2221
+#define ID_DETACH_VIEW                  2222
 
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000

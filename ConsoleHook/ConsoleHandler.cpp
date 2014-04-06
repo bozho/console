@@ -1459,6 +1459,10 @@ DWORD ConsoleHandler::MonitorThread()
 									::WriteConsoleInput(hStdIn, &record, 1, &dwTextWritten);
 								}
 								break;
+
+							case NamedPipeMessage::DETACH:
+								TRACE(L"NamedPipeMessage::DETACH\n");
+								return 0;
 							}
 
 							npmsglen = 0;

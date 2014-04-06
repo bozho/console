@@ -18,6 +18,7 @@
 
 class TabView;
 class ConsoleView;
+struct ConsoleViewCreate;
 typedef map<HWND, std::shared_ptr<TabView> >	TabViewMap;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -164,6 +165,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_ALL_TABS_BUT_THIS , OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_ALL_TABS_LEFT     , OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_ALL_TABS_RIGHT    , OnFileCloseTab)
+			COMMAND_ID_HANDLER(ID_ATTACH_CONSOLES              , OnAttachConsoles)
 			COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
 			COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
 			COMMAND_ID_HANDLER(ID_EDIT_SELECT_ALL, OnEditSelectAll)
@@ -239,6 +241,7 @@ class MainFrame
 		LRESULT OnFileNewTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnFileCloseTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnAttachConsoles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
@@ -290,7 +293,7 @@ class MainFrame
 
 		void ActivateApp(void);
 		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
-		bool CreateNewConsole(std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
+		bool CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
@@ -324,6 +327,7 @@ class MainFrame
 		void ShowHideWindow();
 
 		static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT /*lprcMonitor*/, LPARAM lpData);
+		static BOOL CALLBACK ConsoleEnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 	public:
 		LRESULT CreateInitialTabs

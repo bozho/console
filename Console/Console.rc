@@ -756,6 +756,8 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "&Close View",                 ID_CLOSE_VIEW
         MENUITEM SEPARATOR
+        MENUITEM "Attach Consoles",             ID_ATTACH_CONSOLES
+        MENUITEM SEPARATOR
         MENUITEM "E&xit",                       ID_APP_EXIT
     END
     POPUP "Edit"

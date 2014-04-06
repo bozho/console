@@ -116,45 +116,65 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 	if (!m_background) m_tabData->backgroundImageType = bktypeNone;
 
-	wstring strInitialDir(m_consoleSettings.strInitialDir);
+	CREATESTRUCT* createStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
+	ConsoleViewCreate* consoleViewCreate = reinterpret_cast<ConsoleViewCreate*>(createStruct->lpCreateParams);
 
-	if (m_strCmdLineInitialDir.length() > 0)
+	if( consoleViewCreate->type == ConsoleViewCreate::CREATE )
 	{
-		strInitialDir = m_strCmdLineInitialDir;
+		wstring strInitialDir(m_consoleSettings.strInitialDir);
+
+		if (m_strCmdLineInitialDir.length() > 0)
+		{
+			strInitialDir = m_strCmdLineInitialDir;
+		}
+		else if (m_tabData->strInitialDir.length() > 0)
+		{
+			strInitialDir = m_tabData->strInitialDir;
+		}
+
+		wstring	strShell(m_consoleSettings.strShell);
+
+		if (m_tabData->strShell.length() > 0)
+		{
+			strShell	= m_tabData->strShell;
+		}
+
+		UserCredentials* userCredentials = consoleViewCreate->u.userCredentials;
+
+		try
+		{
+			m_consoleHandler.StartShellProcess(
+				m_tabData->strTitle,
+				strShell,
+				strInitialDir,
+				*userCredentials,
+				m_strCmdLineInitialCmd,
+				m_dwStartupRows,
+				m_dwStartupColumns);
+
+			m_strUser = userCredentials->user.c_str();
+			m_boolNetOnly = userCredentials->netOnly;
+		}
+		catch (const ConsoleException& ex)
+		{
+			m_exceptionMessage = ex.GetMessage().c_str();
+			return -1;
+		}
 	}
-	else if (m_tabData->strInitialDir.length() > 0)
+	else
 	{
-		strInitialDir = m_tabData->strInitialDir;
-	}
-
-	wstring	strShell(m_consoleSettings.strShell);
-
-	if (m_tabData->strShell.length() > 0)
-	{
-		strShell	= m_tabData->strShell;
-	}
-
-	try
-	{
-		CREATESTRUCT* createStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
-		UserCredentials* userCredentials = reinterpret_cast<UserCredentials*>(createStruct->lpCreateParams);
-
-		m_consoleHandler.StartShellProcess(
-			m_tabData->strTitle,
-			strShell,
-			strInitialDir,
-			*userCredentials,
-			m_strCmdLineInitialCmd,
-			m_dwStartupRows,
-			m_dwStartupColumns);
-
-		m_strUser = userCredentials->user.c_str();
-		m_boolNetOnly = userCredentials->netOnly;
-	}
-	catch (const ConsoleException& ex)
-	{
-		m_exceptionMessage = ex.GetMessage().c_str();
-		return -1;
+		try
+		{
+			m_consoleHandler.AttachToShellProcess(
+				consoleViewCreate->u.dwProcessId,
+				m_dwStartupRows,
+				m_dwStartupColumns);
+		}
+		catch (const ConsoleException& ex)
+		{
+			m_exceptionMessage = ex.GetMessage().c_str();
+			return -1;
+		}
 	}
 
 	m_bInitializing = false;

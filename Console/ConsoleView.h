@@ -21,6 +21,26 @@ class MainFrame;
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct ConsoleViewCreate
+{
+	enum TYPE
+	{
+		CREATE,
+		ATTACH
+	} type;
+
+	union
+	{
+		UserCredentials* userCredentials;
+		DWORD            dwProcessId;
+	} u;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 class ConsoleView
 	: public CWindowImpl<ConsoleView, CWindow, CWinTraits<WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS | WS_VSCROLL | WS_HSCROLL, 0> >
 	, public CursorCharDrawer

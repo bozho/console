@@ -116,7 +116,11 @@ class ConsoleHandler
 			const wstring& strInitialCmd
 		);
 
-		void AttachToShellProcess(DWORD dwProcessId);
+		void AttachToShellProcess(
+			DWORD dwProcessId,
+			DWORD dwStartupRows,
+			DWORD dwStartupColumns
+		);
 
 		DWORD StartMonitorThread();
 		void StopMonitorThread();

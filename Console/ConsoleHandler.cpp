@@ -534,7 +534,10 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::AttachToShellProcess(DWORD dwProcessId)
+void ConsoleHandler::AttachToShellProcess(
+	DWORD dwProcessId,
+	DWORD dwStartupRows,
+	DWORD dwStartupColumns)
 {
 	try
 	{
@@ -560,8 +563,8 @@ void ConsoleHandler::AttachToShellProcess(DWORD dwProcessId)
 		m_consoleParams->dwParentProcessId     = ::GetCurrentProcessId();
 		m_consoleParams->dwNotificationTimeout = g_settingsHandler->GetConsoleSettings().dwChangeRefreshInterval;
 		m_consoleParams->dwRefreshInterval     = g_settingsHandler->GetConsoleSettings().dwRefreshInterval;
-		m_consoleParams->dwRows                = 0;
-		m_consoleParams->dwColumns             = 0;
+		m_consoleParams->dwRows                = dwStartupRows;
+		m_consoleParams->dwColumns             = dwStartupColumns;
 		m_consoleParams->dwBufferRows          = g_settingsHandler->GetConsoleSettings().dwBufferRows;
 		m_consoleParams->dwBufferColumns       = g_settingsHandler->GetConsoleSettings().dwBufferColumns;
 

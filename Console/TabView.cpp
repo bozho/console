@@ -91,9 +91,12 @@ LRESULT TabView::OnCreate (UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHand
 
   LRESULT result = -1;
 
+	CREATESTRUCT* createStruct = reinterpret_cast<CREATESTRUCT*>(lParam);
+	ConsoleViewCreate* consoleViewCreate = reinterpret_cast<ConsoleViewCreate*>(createStruct->lpCreateParams);
+
   ATLTRACE(_T("TabView::OnCreate\n"));
   MutexLock viewMapLock(m_viewsMutex);
-  HWND hwndConsoleView = CreateNewConsole(m_strCmdLineInitialDir, m_strCmdLineInitialCmd);
+  HWND hwndConsoleView = CreateNewConsole(consoleViewCreate, m_strCmdLineInitialDir, m_strCmdLineInitialCmd);
   if( hwndConsoleView )
   {
     result = multisplitClass::OnCreate(uMsg, wParam, lParam, bHandled);
@@ -130,7 +133,7 @@ LRESULT TabView::OnSize (UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL &
   return 1;
 }
 
-HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
+HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
 {
 	DWORD dwRows    = g_settingsHandler->GetConsoleSettings().dwRows;
 	DWORD dwColumns = g_settingsHandler->GetConsoleSettings().dwColumns;
@@ -154,59 +157,64 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 	consoleView->Group(this->IsGrouped());
 	UserCredentials userCredentials;
 
-	if (m_tabData->bRunAsUser)
+	if( consoleViewCreate->type == ConsoleViewCreate::CREATE )
 	{
-    userCredentials.netOnly = m_tabData->bNetOnly;
-#ifdef _USE_AERO
-    // Display a dialog box to request credentials.
-    CREDUI_INFOW ui;
-    ui.cbSize = sizeof(ui);
-    ui.hwndParent = GetConsoleWindow();
-    ui.pszMessageText = m_tabData->strShell.c_str();
-    ui.pszCaptionText = L"Enter username and password";
-    ui.hbmBanner = NULL;
+		consoleViewCreate->u.userCredentials = &userCredentials;
 
-    // we need a target
-    WCHAR szModuleFileName[_MAX_PATH] = L"";
-    ::GetModuleFileName(NULL, szModuleFileName, ARRAYSIZE(szModuleFileName));
+		if (m_tabData->bRunAsUser)
+		{
+			userCredentials.netOnly = m_tabData->bNetOnly;
+	#ifdef _USE_AERO
+			// Display a dialog box to request credentials.
+			CREDUI_INFOW ui;
+			ui.cbSize = sizeof(ui);
+			ui.hwndParent = GetConsoleWindow();
+			ui.pszMessageText = m_tabData->strShell.c_str();
+			ui.pszCaptionText = L"Enter username and password";
+			ui.hbmBanner = NULL;
 
-    WCHAR szUser    [CREDUI_MAX_USERNAME_LENGTH + 1] = L"";
-    WCHAR szPassword[CREDUI_MAX_PASSWORD_LENGTH + 1] = L"";
-    wcscpy_s(szUser, ARRAYSIZE(szUser), m_tabData->strUser.c_str());
+			// we need a target
+			WCHAR szModuleFileName[_MAX_PATH] = L"";
+			::GetModuleFileName(NULL, szModuleFileName, ARRAYSIZE(szModuleFileName));
 
-    DWORD rc = ::CredUIPromptForCredentials(
-      &ui,                                //__in_opt  PCREDUI_INFO pUiInfo,
-      szModuleFileName,                   //__in      PCTSTR pszTargetName,
-      NULL,                               //__in      PCtxtHandle Reserved,
-      0,                                  //__in_opt  DWORD dwAuthError,
-      szUser,                             //__inout   PCTSTR pszUserName,
-      ARRAYSIZE(szUser),                  //__in      ULONG ulUserNameMaxChars,
-      szPassword,                         //__inout   PCTSTR pszPassword,
-      ARRAYSIZE(szPassword),              //__in      ULONG ulPasswordMaxChars,
-      NULL,                               //__inout   PBOOL pfSave,
-      CREDUI_FLAGS_EXCLUDE_CERTIFICATES | //__in      DWORD dwFlags
-      CREDUI_FLAGS_ALWAYS_SHOW_UI       |
-      CREDUI_FLAGS_GENERIC_CREDENTIALS  |
-      CREDUI_FLAGS_DO_NOT_PERSIST
-    );
+			WCHAR szUser    [CREDUI_MAX_USERNAME_LENGTH + 1] = L"";
+			WCHAR szPassword[CREDUI_MAX_PASSWORD_LENGTH + 1] = L"";
+			wcscpy_s(szUser, ARRAYSIZE(szUser), m_tabData->strUser.c_str());
 
-    if( rc != NO_ERROR )
-      return 0;
+			DWORD rc = ::CredUIPromptForCredentials(
+				&ui,                                //__in_opt  PCREDUI_INFO pUiInfo,
+				szModuleFileName,                   //__in      PCTSTR pszTargetName,
+				NULL,                               //__in      PCtxtHandle Reserved,
+				0,                                  //__in_opt  DWORD dwAuthError,
+				szUser,                             //__inout   PCTSTR pszUserName,
+				ARRAYSIZE(szUser),                  //__in      ULONG ulUserNameMaxChars,
+				szPassword,                         //__inout   PCTSTR pszPassword,
+				ARRAYSIZE(szPassword),              //__in      ULONG ulPasswordMaxChars,
+				NULL,                               //__inout   PBOOL pfSave,
+				CREDUI_FLAGS_EXCLUDE_CERTIFICATES | //__in      DWORD dwFlags
+				CREDUI_FLAGS_ALWAYS_SHOW_UI       |
+				CREDUI_FLAGS_GENERIC_CREDENTIALS  |
+				CREDUI_FLAGS_DO_NOT_PERSIST
+			);
 
-    userCredentials.SetUser(szUser);
-    userCredentials.password = szPassword;
-#else
-		DlgCredentials dlg(m_tabData->strUser.c_str());
+			if( rc != NO_ERROR )
+				return 0;
 
-		if (dlg.DoModal() != IDOK) return 0;
+			userCredentials.SetUser(szUser);
+			userCredentials.password = szPassword;
+	#else
+			DlgCredentials dlg(m_tabData->strUser.c_str());
 
-		userCredentials.user     = dlg.GetUser();
-		userCredentials.password = dlg.GetPassword();
-#endif
-	}
-	else
-	{
-		userCredentials.runAsAdministrator = m_tabData->bRunAsAdministrator;
+			if (dlg.DoModal() != IDOK) return 0;
+
+			userCredentials.user     = dlg.GetUser();
+			userCredentials.password = dlg.GetPassword();
+	#endif
+		}
+		else
+		{
+			userCredentials.runAsAdministrator = m_tabData->bRunAsAdministrator;
+		}
 	}
 
 	HWND hwndConsoleView = consoleView->Create(
@@ -216,7 +224,7 @@ HWND TabView::CreateNewConsole(const wstring& strCmdLineInitialDir /*= wstring(L
 											WS_CHILD | WS_VISIBLE,// | WS_CLIPSIBLINGS | WS_CLIPCHILDREN, 
 											0,
 											0U,
-											reinterpret_cast<void*>(&userCredentials));
+											reinterpret_cast<void*>(consoleViewCreate));
 
 	if (hwndConsoleView == NULL)
 	{
@@ -369,7 +377,11 @@ void TabView::Split(CMultiSplitPane::SPLITTYPE splitType)
 
 	if( multisplitClass::defaultFocusPane && multisplitClass::defaultFocusPane->window )
 	{
-		HWND hwndConsoleView = CreateNewConsole(strCurrentDirectory);
+		ConsoleViewCreate consoleViewCreate;
+		consoleViewCreate.type = ConsoleViewCreate::CREATE;
+		consoleViewCreate.u.userCredentials = nullptr;
+
+		HWND hwndConsoleView = CreateNewConsole(&consoleViewCreate, strCurrentDirectory);
 		if( hwndConsoleView )
 		{
 			multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(

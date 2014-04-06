@@ -82,7 +82,7 @@ public:
   inline size_t GetViewsCount(void) const { return m_views.size(); }
 
 private:
-  HWND CreateNewConsole(const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
+  HWND CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
 
 private:
   MainFrame&          m_mainFrame;

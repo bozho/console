@@ -183,6 +183,9 @@ LRESULT MainFrame::CreateInitialTabs
 
 	TabSettings&	tabSettings = g_settingsHandler->GetTabSettings();
 
+	ConsoleViewCreate consoleViewCreate;
+	consoleViewCreate.type = ConsoleViewCreate::CREATE;
+	consoleViewCreate.u.userCredentials = nullptr;
 
 	// create initial console window(s)
 	if (startupTabs.size() == 0)
@@ -1718,6 +1721,131 @@ LRESULT MainFrame::OnFileCloseTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOL CALLBACK MainFrame::ConsoleEnumWindowsProc(HWND hwnd, LPARAM lParam)
+{
+	try
+	{
+		if( ( ::GetWindowLongPtr(hwnd, GWL_STYLE) & WS_VISIBLE ) != WS_VISIBLE ) return TRUE;
+
+		{
+			wchar_t szClassName[_MAX_PATH];
+
+			if( ::GetClassName(hwnd, szClassName, ARRAYSIZE(szClassName)) == 0 )
+				Win32Exception::ThrowFromLastError("GetClassName");
+
+			if( wcscmp(szClassName, L"ConsoleWindowClass") )
+				return TRUE;
+
+			TRACE(L"=====================================================\n");
+			TRACE(L"HWND       : 0x%08X\n", hwnd);
+			TRACE(L"CLASS NAME : %s\n", szClassName);
+		}
+
+#ifdef _DEBUG
+		wchar_t szShellFileName[_MAX_PATH];
+
+		if( ::GetWindowText(hwnd, szShellFileName, ARRAYSIZE(szShellFileName)) == 0 )
+			Win32Exception::ThrowFromLastError("GetWindowText");
+
+		TRACE(L"TEXT       : %s\n", szShellFileName);
+#endif
+
+		DWORD dwProcessId;
+		DWORD dwThreadId;
+		dwThreadId = ::GetWindowThreadProcessId(hwnd, &dwProcessId);
+
+#ifdef _DEBUG
+		try
+		{
+			std::unique_ptr<void, CloseHandleHelper> hProcess(::OpenProcess( PROCESS_QUERY_INFORMATION , FALSE, dwProcessId));
+			if( hProcess.get() == nullptr )
+				Win32Exception::ThrowFromLastError("OpenProcess");
+
+			if( ::GetProcessImageFileName(
+				hProcess.get(),
+				szShellFileName, ARRAYSIZE(szShellFileName)) == 0 )
+				Win32Exception::ThrowFromLastError("GetProcessImageFileName");
+
+			TRACE(L"PROCESS NAME: %s\n", szShellFileName);
+		}
+		catch(std::exception&)
+		{
+		}
+#endif
+
+		TRACE(L"PID         : 0x%08X\n", dwProcessId);
+		TRACE(L"TID         : 0x%08X\n", dwThreadId);
+
+		// Take a snapshot of all modules in the specified process.
+		std::unique_ptr<void, CloseHandleHelper> hModuleSnap(::CreateToolhelp32Snapshot(TH32CS_SNAPMODULE|TH32CS_SNAPMODULE32, dwProcessId));
+		if( hModuleSnap.get() == INVALID_HANDLE_VALUE )
+			Win32Exception::ThrowFromLastError("CreateToolhelp32Snapshot");
+
+		MODULEENTRY32 me32;
+		// Set the size of the structure before using it.
+		me32.dwSize = sizeof( MODULEENTRY32 );
+
+		// Retrieve information about the first module,
+		// and exit if unsuccessful
+		if( !::Module32First( hModuleSnap.get(), &me32) )
+			Win32Exception::ThrowFromLastError("Module32First");
+
+		// Now walk the module list of the process,
+		// and display information about each module
+		bool bHooked = false;
+		do
+		{
+			bHooked = _wcsicmp(me32.szModule, L"ConsoleHook.dll") == 0 || _wcsicmp(me32.szModule, L"ConsoleHook32.dll") == 0;
+
+			if( bHooked )
+			{
+				TRACE(L"MODULE NAME : %s\n", me32.szModule);
+				break;
+			}
+		}
+		while( ::Module32Next( hModuleSnap.get(), &me32 ) );
+
+		TRACE(L"ATTACHING?  : %s\n", bHooked? L"no" : L"yes");
+
+		if( !bHooked )
+		{
+			lParam;
+
+			std::shared_ptr<TabData> tabData(new TabData(L"", L""));
+			tabData->bCloneable = false;
+			tabData->hwnd       = hwnd;
+
+			ConsoleViewCreate consoleViewCreate;
+			consoleViewCreate.type = ConsoleViewCreate::ATTACH;
+			consoleViewCreate.u.dwProcessId = dwProcessId;
+
+			reinterpret_cast<MainFrame*>(lParam)->CreateNewConsole(&consoleViewCreate, tabData);
+		}
+	}
+#ifdef _DEBUG
+	catch(std::exception& err)
+	{
+		TRACE(L"error %S\n", err.what());
+	}
+#else
+	catch(std::exception&) { }
+#endif
+
+	return TRUE;
+}
+
+LRESULT MainFrame::OnAttachConsoles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	::EnumWindows(MainFrame::ConsoleEnumWindowsProc, reinterpret_cast<LPARAM>(this));
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	int nCurSel = m_TabCtrl.GetCurSel();
@@ -2362,12 +2490,16 @@ bool MainFrame::CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInit
 {
 	if (dwTabIndex >= g_settingsHandler->GetTabSettings().tabDataVector.size()) return false;
 
+	ConsoleViewCreate consoleViewCreate;
+	consoleViewCreate.type = ConsoleViewCreate::CREATE;
+	consoleViewCreate.u.userCredentials = nullptr;
+
 	std::shared_ptr<TabData> tabData = g_settingsHandler->GetTabSettings().tabDataVector[dwTabIndex];
 
-	return CreateNewConsole(tabData, strCmdLineInitialDir, strCmdLineInitialCmd);
+	return CreateNewConsole(&consoleViewCreate, tabData, strCmdLineInitialDir, strCmdLineInitialCmd);
 }
 
-bool MainFrame::CreateNewConsole(std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
+bool MainFrame::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
 {
 	MutexLock	tabMapLock(m_tabsMutex);
 
@@ -2377,7 +2509,10 @@ bool MainFrame::CreateNewConsole(std::shared_ptr<TabData> tabData, const wstring
 											m_hWnd, 
 											rcDefault, 
 											NULL, 
-											WS_CHILD | WS_VISIBLE);
+											WS_CHILD | WS_VISIBLE,
+											0,
+											0U,
+											reinterpret_cast<LPVOID>(consoleViewCreate));
 
 	if (hwndTabView == NULL)
 	{

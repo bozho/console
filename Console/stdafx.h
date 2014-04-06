@@ -80,6 +80,8 @@ extern CAppModule _Module;
 
 #include <HtmlHelp.h>
 #include <ShellApi.h>
+#include <tlhelp32.h>
+#include <Psapi.h>
 #ifdef _USE_AERO
 #include <WinCred.h>
 #include <winuser.h>

@@ -1495,12 +1495,14 @@ HotKeys::HotKeys()
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"topview",    ID_TOP_VIEW,         L"Switch to top view")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"bottomview", ID_BOTTOM_VIEW,      L"Switch to bottom view")));
 
-  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dechsize",   ID_DEC_HORIZ_SIZE,   L"Decrease horizontal size")));
-  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"inchsize",   ID_INC_HORIZ_SIZE,   L"Increase horizontal size")));
-  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"decvsize",   ID_DEC_VERT_SIZE,    L"Decrease vertical size")));
-  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"incvsize",   ID_INC_VERT_SIZE,    L"Increase vertical size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dechsize",   ID_DEC_HORIZ_SIZE,   L"Decrease horizontal view size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"inchsize",   ID_INC_HORIZ_SIZE,   L"Increase horizontal view size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"decvsize",   ID_DEC_VERT_SIZE,    L"Decrease vertical view size")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"incvsize",   ID_INC_VERT_SIZE,    L"Increase vertical view size")));
 
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closeview",  ID_CLOSE_VIEW,       L"Close view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"detachview", ID_DETACH_VIEW,      L"Detach view")));
+  commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"attach",     ID_ATTACH_CONSOLES,  L"Attach consoles")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splithoriz", ID_SPLIT_HORIZ,      L"Split horizontally")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"splitvert",  ID_SPLIT_VERT,       L"Split vertically")));
   commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"clone",      ID_CLONE_IN_NEW_TAB, L"Clone view in new tab")));

@@ -83,6 +83,8 @@
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="decvsize"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="incvsize"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="87" command="closeview"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="detachview"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="attach"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="79" command="splithoriz"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="69" command="splitvert"/>
 		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="clone"/>

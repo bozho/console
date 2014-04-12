@@ -1105,7 +1105,7 @@ BEGIN
     IDPANE_SCRL_INDICATOR   "SCRL"
     IDPANE_PID_INDICATOR    "000000"
     IDPANE_SELECTION        "00000000"
-    IDPANE_BUF_COLUMNS_ROWS "000x00000"
+    IDPANE_BUF_COLUMNS_ROWS "0000x00000"
     IDPANE_ZOOM             "0000%"
 END
 
@@ -1122,14 +1122,14 @@ END
 
 STRINGTABLE
 BEGIN
-    MSG_SETTINGS_INVALID_BUFFER_ROWS 
-                            "Invalid number of console buffer rows! Must be between 0 and 32766."
-    MSG_SETTINGS_INVALID_BUFFER_COLUMNS 
-                            "Invalid number of console buffer columns! Must be between 0 and 200."
-    MSG_SETTINGS_INVALID_ROWS 
-                            "Invalid number of console rows! Must be between 0 and 200."
-    MSG_SETTINGS_INVALID_COLUMNS 
-                            "Invalid number of console columns! Must be between 0 and 200."
+    MSG_SETTINGS_INVALID_BUFFER_ROWS
+                            "Invalid number of console buffer rows! Must be between %d and %d."
+    MSG_SETTINGS_INVALID_BUFFER_COLUMNS
+                            "Invalid number of console buffer columns! Must be between %d and %d."
+    MSG_SETTINGS_INVALID_ROWS
+                            "Invalid number of console rows! Must be between %d and %d."
+    MSG_SETTINGS_INVALID_COLUMNS
+                            "Invalid number of console columns! Must be between %d and %d."
 END
 
 #endif    // English (United States) resources

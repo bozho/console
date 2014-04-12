@@ -743,13 +743,13 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring
 	m_cursorInfo.Create((SharedMemNames::formatCursorInfo % dwConsoleProcessId).str(), 1, syncObjRequest, strUser);
 
 	// TODO: max console size
-	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), 200*200, syncObjRequest, strUser);
+	m_consoleBuffer.Create((SharedMemNames::formatBuffer % dwConsoleProcessId).str(), MAX_WINDOW_COLUMNS*MAX_WINDOW_ROWS, syncObjRequest, strUser);
 
 	// initialize buffer with spaces
 	CHAR_INFO ci;
 	ci.Attributes		= 0;
 	ci.Char.UnicodeChar	= L' ';
-	for (int i = 0; i < 200*200; ++i) ::CopyMemory(&m_consoleBuffer[i], &ci, sizeof(CHAR_INFO));
+	for (int i = 0; i < MAX_WINDOW_COLUMNS*MAX_WINDOW_ROWS; ++i) ::CopyMemory(&m_consoleBuffer[i], &ci, sizeof(CHAR_INFO));
 
 	// copy info
 	m_consoleCopyInfo.Create((SharedMemNames::formatCopyInfo % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);

@@ -195,6 +195,20 @@ using namespace boost::multi_index;
 
 
 //////////////////////////////////////////////////////////////////////////////
+// Console limits
+#define MIN_BUFFER_ROWS     0
+#define MAX_BUFFER_ROWS     32766
+#define MIN_BUFFER_COLUMNS  0
+#define MAX_BUFFER_COLUMNS  9999
+#define MIN_WINDOW_ROWS     10
+#define MAX_WINDOW_ROWS     200
+#define MIN_WINDOW_COLUMNS  10
+#define MAX_WINDOW_COLUMNS  300
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 typedef enum
 {

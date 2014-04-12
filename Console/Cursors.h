@@ -31,6 +31,7 @@ enum CursorStyle
 	cstyleFadeBlock  = 11,
 	cstyleConsole    = 12,
 	cstyleXTerm2     = 13,
+	cstyleHBar       = 14,
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -265,6 +266,27 @@ class BarCursor : public Cursor
 	public:
 		BarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
 		~BarCursor() {}
+
+		void Draw(bool bActive, DWORD dwCursorSize);
+
+		void PrepareNext();
+
+	private:
+		CPen	m_pen;
+		bool	m_bVisible;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+// HBarCursor
+
+class HBarCursor : public Cursor
+{
+	public:
+		HBarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer);
+		~HBarCursor() {}
 
 		void Draw(bool bActive, DWORD dwCursorSize);
 

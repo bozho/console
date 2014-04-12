@@ -75,6 +75,15 @@ std::shared_ptr<Cursor> CursorFactory::CreateCursor(HWND hwndConsoleView, bool b
 															bTimer)));
 			break;
 
+		case cstyleHBar :
+			newCursor.reset(dynamic_cast<Cursor*>(new HBarCursor(
+															hwndConsoleView,
+															dcConsoleView,
+															rectCursor,
+															crCursorColor,
+															bTimer)));
+			break;
+
 		case cstyleNBHline :
 			newCursor.reset(dynamic_cast<Cursor*>(new NBHLineCursor(
 															hwndConsoleView,
@@ -496,6 +505,59 @@ void BarCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
 //////////////////////////////////////////////////////////////////////////////
 
 void BarCursor::PrepareNext()
+{
+	m_bVisible = !m_bVisible;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+// HBarCursor
+
+HBarCursor::HBarCursor(HWND hwndConsoleView, const CDC& dcConsoleView, const CRect& rectCursor, COLORREF crCursorColor, bool bTimer)
+: Cursor(hwndConsoleView, dcConsoleView, rectCursor, crCursorColor)
+, m_pen(::CreatePen(PS_SOLID, 1, crCursorColor))
+, m_bVisible(true)
+{
+	m_dcCursor.SelectPen(m_pen);
+
+	UINT uiRate = ::GetCaretBlinkTime();
+	if (uiRate == 0) uiRate = 500;
+
+	if( bTimer )
+		m_uiTimer = ::SetTimer(hwndConsoleView, CURSOR_TIMER, uiRate, NULL);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void HBarCursor::Draw(bool bActive, DWORD /*dwCursorSize*/)
+{
+	if (bActive && m_bVisible)
+	{
+		m_dcCursor.MoveTo(m_rectCursor.left, m_rectCursor.bottom - 1, NULL);
+		m_dcCursor.LineTo(m_rectCursor.right, m_rectCursor.bottom - 1);
+	}
+	else
+	{
+		m_dcCursor.FillRect(&m_rectCursor, m_backgroundBrush);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void HBarCursor::PrepareNext()
 {
 	m_bVisible = !m_bVisible;
 }

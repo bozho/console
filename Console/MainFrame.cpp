@@ -1084,7 +1084,10 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, std::shared_ptr<TabV
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
 	std::wstring strMainTitle  = m_strCmdLineWindowTitle.empty()? windowSettings.strTitle : m_strCmdLineWindowTitle;
-	std::wstring strShellTitle = consoleView->GetConsoleCommand();
+	std::wstring strShellTitle;
+	std::wstring strCurrentDir;
+	bool         bShellTitle   = false;
+	bool         bCurrentDir   = false;
 	int          nTabNumber    = m_TabCtrl.FindItem(*tabView) + 1;
 
 	std::stack<std::shared_ptr<layer>> layers;
@@ -1146,7 +1149,10 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, std::shared_ptr<TabV
 			case L'i': layers.top()->str += std::to_wstring(tabView->GetTabData()->nIndex); break;
 			case L'm': layers.top()->str += strMainTitle; break;
 			case L't': layers.top()->str += tabView->GetTitle(); break;
-			case L's': layers.top()->str += strShellTitle; break;
+			case L's': if( !bShellTitle ) { bShellTitle = true; strShellTitle = consoleView->GetConsoleCommand(); }
+			           layers.top()->str += strShellTitle; break;
+			case L'd': if( !bCurrentDir ) { bCurrentDir = true; strCurrentDir = consoleView->GetConsoleHandler().GetCurrentDirectory(); }
+			           layers.top()->str += strCurrentDir; break;
 			case L'A': layers.top()->str += consoleView->GetConsoleHandler().IsElevated()? L"y" : L""; break;
 			case L'U': layers.top()->str += ( consoleView->IsRunningAsUser() )? L"y" : L""; break;
 			case L'N': layers.top()->str += ( consoleView->IsRunningAsUserNetOnly() )? L"y" : L""; break;
@@ -1164,7 +1170,10 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, std::shared_ptr<TabV
 				case L'u': defined = consoleView->GetUser().GetLength() > 0; break;
 				case L'm': defined = !strMainTitle.empty(); break;
 				case L't': defined = tabView->GetTitle().GetLength() > 0; break;
-				case L's': defined = !strShellTitle.empty(); break;
+				case L's': if( !bShellTitle ) { bShellTitle = true; strShellTitle = consoleView->GetConsoleCommand(); }
+				           defined = !strShellTitle.empty(); break;
+				case L'd': if( !bCurrentDir ) { bCurrentDir = true; strCurrentDir = consoleView->GetConsoleHandler().GetCurrentDirectory(); }
+				           defined = !strCurrentDir.empty(); break;
 				case L'A': defined = consoleView->GetConsoleHandler().IsElevated(); break;
 				case L'U': defined = consoleView->IsRunningAsUser(); break;
 				case L'N': defined = consoleView->IsRunningAsUserNetOnly(); break;

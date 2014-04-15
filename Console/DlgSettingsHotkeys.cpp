@@ -88,10 +88,19 @@ LRESULT DlgSettingsHotkeys::OnListItemChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL
 	if (pCommandData->bExtended)                    wModifiers |= HOTKEYF_EXT;
 	if (pCommandData->bWin)                         wModifiers |= FAKE_HOTKEYF_WIN;
 
-	CString strItemText;
+	if( pCommandData->wCommandID >= ID_EXTERNAL_COMMAND_1 && pCommandData->wCommandID < (ID_EXTERNAL_COMMAND_1 + EXTERNAL_COMMANDS_COUNT) )
+	{
+		m_editCommand.SetWindowText(m_hotKeys.externalCommands[pCommandData->wCommandID - ID_EXTERNAL_COMMAND_1].c_str());
+		m_editCommand.EnableWindow(TRUE);
+	}
+	else
+	{
+		CString strItemText;
 
-	m_listCtrl.GetItemText(pnmv->iItem, 0, strItemText);
-	m_editCommand.SetWindowText(strItemText);
+		m_listCtrl.GetItemText(pnmv->iItem, 0, strItemText);
+		m_editCommand.SetWindowText(strItemText);
+		m_editCommand.EnableWindow(FALSE);
+	}
 	m_hotKeyEdit.SetHotKey(pCommandData->accelHotkey.key, wModifiers);
 	m_hotKeyEdit.UseGlobalKeys(pCommandData->bGlobal);
 
@@ -116,6 +125,13 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 	if (!m_listCtrl.GetSelectedItem(&selectedItem)) return 0;
 
 	HotKeys::CommandData* pCommandData = reinterpret_cast<HotKeys::CommandData*>(selectedItem.lParam);
+
+	if( pCommandData->wCommandID >= ID_EXTERNAL_COMMAND_1 && pCommandData->wCommandID < (ID_EXTERNAL_COMMAND_1 + EXTERNAL_COMMANDS_COUNT) )
+	{
+		CString strItemText;
+		m_editCommand.GetWindowText(strItemText);
+		m_hotKeys.externalCommands[pCommandData->wCommandID - ID_EXTERNAL_COMMAND_1] = strItemText;
+	}
 
 	BYTE fVirt     = FVIRTKEY;
 	bool bExtended = false;

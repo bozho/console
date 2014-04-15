@@ -98,6 +98,7 @@ extern CAppModule _Module;
 #include <map>
 #include <vector>
 #include <stack>
+#include <array>
 using namespace std;
 #pragma warning(pop)
 
@@ -204,6 +205,12 @@ using namespace boost::multi_index;
 #define MAX_WINDOW_ROWS     200
 #define MIN_WINDOW_COLUMNS  10
 #define MAX_WINDOW_COLUMNS  300
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+#define EXTERNAL_COMMANDS_COUNT 10
 
 //////////////////////////////////////////////////////////////////////////////
 

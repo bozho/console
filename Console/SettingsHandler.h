@@ -573,6 +573,8 @@ struct HotKeys : public SettingsBase
 
 	Commands	commands;
 
+	std::array<std::wstring, ID_EXTERNAL_COMMAND_1> externalCommands;
+
 	bool		bUseScrollLock;
 };
 

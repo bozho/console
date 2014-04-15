@@ -1532,6 +1532,12 @@ HotKeys::HotKeys()
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 
+	for(WORD i = 0; i < EXTERNAL_COMMANDS_COUNT; ++i)
+	{
+		std::wstring id = std::to_wstring(i + 1);
+		commands.push_back(std::shared_ptr<CommandData>(new CommandData(std::wstring(L"externalcmd") + id, ID_EXTERNAL_COMMAND_1 + i, std::wstring(L"External command ") + id)));
+	}
+
 	// global commands
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate Console (global)", true)));
 }
@@ -1556,7 +1562,8 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	if (FAILED(hr)) return false;
 
 	long	lListLength;
-	pHotKeyNodes->get_length(&lListLength);
+	hr = pHotKeyNodes->get_length(&lListLength);
+	if (FAILED(hr)) return false;
 
 	for (long i = 0; i < lListLength; ++i)
 	{
@@ -1597,6 +1604,30 @@ bool HotKeys::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 			XmlHelper::GetAttribute(pHotKeyElement, CComBSTR(L"win"), (*it)->bWin, false);
 	}
 
+	CComPtr<IXMLDOMElement>  pExternalCommandsElement;
+	CComPtr<IXMLDOMNodeList> pExternalCommandsNodes;
+
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pSettingsRoot, CComBSTR(L"external_commands"), pExternalCommandsElement))) return false;
+
+	if (FAILED(pExternalCommandsElement->selectNodes(CComBSTR(L"external_command"), &pExternalCommandsNodes))) return false;
+
+	if (FAILED(pExternalCommandsNodes->get_length(&lListLength))) return false;
+
+	for (long i = 0; i < lListLength; ++i)
+	{
+		CComPtr<IXMLDOMNode>    pExternalCommandNode;
+		CComPtr<IXMLDOMElement> pExternalCommandElement;
+
+		pExternalCommandsNodes->get_item(i, &pExternalCommandNode);
+		if (FAILED(pExternalCommandNode.QueryInterface(&pExternalCommandElement))) continue;
+
+		int nId = 0;
+		XmlHelper::GetAttribute(pExternalCommandElement, CComBSTR(L"id"), nId, 0);
+		if( nId < 1 || nId > EXTERNAL_COMMANDS_COUNT ) continue;
+
+		XmlHelper::GetAttribute(pExternalCommandElement, CComBSTR(L"value"), externalCommands[nId - 1], L"");
+	}
+
 	return true;
 }
 
@@ -1629,15 +1660,13 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	}
 
 	CComPtr<IXMLDOMDocument>	pSettingsDoc;
-
-	CommandsSequence::iterator	itCommand;
-	CommandsSequence::iterator	itLastCommand = commands.end();
-	--itLastCommand;
-
 	pHotkeysElement->get_ownerDocument(&pSettingsDoc);
 
-	for (itCommand = commands.begin(); itCommand != commands.end(); ++itCommand)
+	for (auto itCommand = commands.begin(); itCommand != commands.end(); ++itCommand)
 	{
+		// this is just for pretty printing
+		XmlHelper::AddTextNode(pHotkeysElement, CComBSTR(L"\n\t\t"));
+
 		CComPtr<IXMLDOMElement>	pNewHotkeyElement;
 		CComPtr<IXMLDOMNode>	pNewHotkeyOut;
 		bool					bAttrVal;
@@ -1666,17 +1695,49 @@ bool HotKeys::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		}
 
 		pHotkeysElement->appendChild(pNewHotkeyElement, &pNewHotkeyOut);
+	}
+
+	// this is just for pretty printing
+	XmlHelper::AddTextNode(pHotkeysElement, CComBSTR(L"\n\t"));
+
+	CComPtr<IXMLDOMElement>  pExternalCommandsElement;
+	CComPtr<IXMLDOMNodeList> pExternalCommandsNodes;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"external_commands"), pExternalCommandsElement))) return false;
+
+	if (FAILED(pExternalCommandsElement->selectNodes(CComBSTR(L"external_command"), &pExternalCommandsNodes))) return false;
+
+	if (FAILED(pExternalCommandsNodes->get_length(&lListLength))) return false;
+
+	for (long i = lListLength - 1; i >= 0; --i)
+	{
+		CComPtr<IXMLDOMNode> pExternalCommandChildNode;
+		CComPtr<IXMLDOMNode> pRemovedExternalCommandNode;
+		if (FAILED(pExternalCommandsNodes->get_item(i, &pExternalCommandChildNode))) continue;
+
+		pExternalCommandsElement->removeChild(pExternalCommandChildNode, &pRemovedExternalCommandNode);
+	}
+
+	for (auto i = externalCommands.begin(); i != externalCommands.end(); ++i)
+	{
+		if( i->empty() ) continue;
 
 		// this is just for pretty printing
-		if (itCommand == itLastCommand)
-		{
-			XmlHelper::AddTextNode(pHotkeysElement, CComBSTR(L"\n\t"));
-		}
-		else
-		{
-			XmlHelper::AddTextNode(pHotkeysElement, CComBSTR(L"\n\t\t"));
-		}
+		XmlHelper::AddTextNode(pExternalCommandsElement, CComBSTR(L"\n\t\t"));
+
+		CComPtr<IXMLDOMElement> pNewExternalCommandElement;
+		CComPtr<IXMLDOMNode>    pNewExternalCommandOut;
+
+		pSettingsDoc->createElement(CComBSTR(L"external_command"), &pNewExternalCommandElement);
+
+		XmlHelper::SetAttribute(pNewExternalCommandElement, CComBSTR(L"id"), static_cast<int>(i - externalCommands.begin() + 1));
+		XmlHelper::SetAttribute(pNewExternalCommandElement, CComBSTR(L"value"), *i);
+
+		pExternalCommandsElement->appendChild(pNewExternalCommandElement, &pNewExternalCommandOut);
 	}
+
+	// this is just for pretty printing
+	XmlHelper::AddTextNode(pExternalCommandsElement, CComBSTR(L"\n"));
 
 	return true;
 }
@@ -1692,6 +1753,8 @@ HotKeys& HotKeys::operator=(const HotKeys& other)
 
 	commands.clear();
 	commands.insert(commands.begin(), other.commands.begin(), other.commands.end());
+
+	externalCommands = other.externalCommands;
 
 	return *this;
 }

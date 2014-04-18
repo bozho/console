@@ -29,6 +29,7 @@ Changelog
     * fixed
 
 Changes in 1.11.0 (beta) (18 Apr 2014)
+
     ! Window columns limit is now 300.
     ! buffer columns limit is now 9999.
     + Attach consoles.

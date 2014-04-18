@@ -17,7 +17,7 @@ class SharedMemNames
 		static boost::wformat formatWatchdog;
 		static boost::wformat formatAdmin;
 		static boost::wformat formatPipeName;
-		static boost::wformat formatCurrentDirectory;
+		static boost::wformat formatMultipleInfo;
 
 };
 
@@ -42,6 +42,6 @@ boost::wformat SharedMemNames::formatNewScrollPos(L"Console2_newScrollPos_%1%");
 boost::wformat SharedMemNames::formatWatchdog(L"Local\\Console2_parentProcessExit_%1%");
 boost::wformat SharedMemNames::formatAdmin(L"Console2_admin_%1%");
 boost::wformat SharedMemNames::formatPipeName(L"\\\\.\\pipe\\Console2_pipe_%1%");
-boost::wformat SharedMemNames::formatCurrentDirectory(L"Console2_currentDirectory_%1%");
+boost::wformat SharedMemNames::formatMultipleInfo(L"Console2_multipleInfo_%1%");
 
 //////////////////////////////////////////////////////////////////////////////

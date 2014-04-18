@@ -698,9 +698,10 @@ std::wstring ConsoleHandler::GetCurrentDirectory(void) const
 {
 	std::wstring result;
 
-	if( ::SetEvent(m_currentDirectory.GetReqEvent()) &&
-	    ::WaitForSingleObject(m_currentDirectory.GetRespEvent(), 2000) == WAIT_OBJECT_0 )
-		result = m_currentDirectory.Get();
+	m_multipleInfo->fMask = MULTIPLEINFO_CURRENT_DIRECTORY;
+	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
+	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 )
+		result = m_multipleInfo->szCurrentDirectory;
 
 	return result;
 }
@@ -766,8 +767,10 @@ bool ConsoleHandler::CreateSharedObjects(DWORD dwConsoleProcessId, const wstring
 	// message pipe (workaround for User Interface Privilege Isolation messages filtering)
 	m_consoleMsgPipe.Create((SharedMemNames::formatPipeName % dwConsoleProcessId).str(), strUser);
 
-	// current directory
-	m_currentDirectory.Create((SharedMemNames::formatCurrentDirectory % dwConsoleProcessId).str(), _MAX_PATH, syncObjBoth, strUser);
+	// multiple info :
+	//  current directory
+	//  process list
+	m_multipleInfo.Create((SharedMemNames::formatMultipleInfo % dwConsoleProcessId).str(), 1, syncObjBoth, strUser);
 
 	// TODO: separate function for default settings
 	m_consoleParams->dwRows		= 25;

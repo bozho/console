@@ -115,8 +115,10 @@ bool ConsoleHandler::OpenSharedObjects()
     // message pipe (workaround for User Interface Privilege Isolation messages filtering)
     m_consoleMsgPipe.Open((SharedMemNames::formatPipeName % dwProcessId).str());
 
-    // current directory
-    m_currentDirectory.Open((SharedMemNames::formatCurrentDirectory % dwProcessId).str(), syncObjBoth);
+		// multiple info :
+		//  current directory
+		//  process list
+		m_multipleInfo.Open((SharedMemNames::formatMultipleInfo % dwProcessId).str(), syncObjBoth);
   }
   catch(Win32Exception& ex)
   {
@@ -1242,7 +1244,7 @@ DWORD ConsoleHandler::MonitorThread()
 		m_newScrollPos.GetReqEvent(),
 		m_consoleMouseEvent.GetReqEvent(),
 		m_newConsoleSize.GetReqEvent(),
-		m_currentDirectory.GetReqEvent(),
+		m_multipleInfo.GetReqEvent(),
 		m_consoleMsgPipe.Get(),
 		hStdOut,
 	};
@@ -1304,15 +1306,26 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			// get current directory
+			// multiple info
 			case WAIT_OBJECT_0 + 5 :
 			{
-				m_currentDirectory[0] = 0;
-				DWORD len = ::GetCurrentDirectory(_MAX_PATH, m_currentDirectory.Get());
-				if( len >= _MAX_PATH )
-					// truncated
-					m_currentDirectory[0] = 0;
-				::SetEvent(m_currentDirectory.GetRespEvent());
+				//  current directory
+				if( m_multipleInfo->fMask & MULTIPLEINFO_CURRENT_DIRECTORY )
+				{
+					m_multipleInfo->szCurrentDirectory[0] = 0;
+					DWORD len = ::GetCurrentDirectory(_MAX_PATH, m_multipleInfo->szCurrentDirectory);
+					if( len >= _MAX_PATH )
+						// truncated
+						m_multipleInfo->szCurrentDirectory[0] = 0;
+				}
+
+				//  process list
+				if( m_multipleInfo->fMask & MULTIPLEINFO_PROCESS_LIST )
+				{
+					m_multipleInfo->dwProcessCount = ::GetConsoleProcessList(m_multipleInfo->lpdwProcessList, 256);
+				}
+
+				::SetEvent(m_multipleInfo.GetRespEvent());
 				break;
 			}
 

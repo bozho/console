@@ -711,6 +711,23 @@ std::wstring ConsoleHandler::GetCurrentDirectory(void) const
 
 //////////////////////////////////////////////////////////////////////////////
 
+DWORD ConsoleHandler::GetLastProcessId(void) const
+{
+	m_multipleInfo->fMask = MULTIPLEINFO_PROCESS_LIST;
+	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
+	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 &&
+	    m_multipleInfo->dwProcessCount &&
+	    m_multipleInfo->dwProcessCount < 256 )
+		return m_multipleInfo->lpdwProcessList[0];
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::UpdateEnvironmentBlock()
 {
 	void*	pEnvironment	= NULL;

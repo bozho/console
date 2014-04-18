@@ -152,6 +152,7 @@ class ConsoleHandler
 		void SendTextToConsole(const wchar_t* pszText);
 
 		std::wstring GetCurrentDirectory(void) const;
+		DWORD        GetLastProcessId(void) const;
 
 	private:
 

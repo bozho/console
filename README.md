@@ -28,6 +28,18 @@ Changelog
     + added
     * fixed
 
+Changes in 1.11.0 (beta) (18 Apr 2014)
+    ! Window columns limit is now 300.
+    ! buffer columns limit is now 9999.
+    + Attach consoles.
+    + Detach view.
+    + Add horizontal bar cursor.
+    + Add current directory (%d) in text formatting.
+    + Add last process ID attached to the console (%P) in text formatting.
+    + Support external commands (syntax uses title formatting).
+    + Support credential providers (allowing integration of additional authentication mechanisms
+      such as biometrics and smart cards).
+
 Changes in 1.10.0 (30 Mar 2014)
 
     ! Tab number is now full part of the title.

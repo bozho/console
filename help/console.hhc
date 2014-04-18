@@ -33,6 +33,10 @@
 			<param name="Local" value="html\menus.html">
 			</OBJECT>
 		<LI> <OBJECT type="text/sitemap">
+			<param name="Name" value="Text formatting">
+			<param name="Local" value="html\text_formatting.html">
+			</OBJECT>
+		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Settings">
 			</OBJECT>
 		<UL>

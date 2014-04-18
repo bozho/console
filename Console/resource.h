@@ -279,6 +279,7 @@
 #define IDC_CHECK_INTEGRATED_IME        1210
 #define IDC_STATIC_COLOR                1211
 #define IDC_CHECK_OPEN_CURRENT_DIR      1212
+#define IDC_CHECK_USE_CREDPROV          1213
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -346,7 +347,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        221
 #define _APS_NEXT_COMMAND_VALUE         32800
-#define _APS_NEXT_CONTROL_VALUE         1213
+#define _APS_NEXT_CONTROL_VALUE         1214
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

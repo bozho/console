@@ -448,6 +448,9 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "Open new shell in current directory",IDC_CHECK_OPEN_CURRENT_DIR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,15,180,10
     GROUPBOX        "Split/Clone",IDC_STATIC,0,0,215,33
+
+    CONTROL         "Use credential providers",IDC_CHECK_USE_CREDPROV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,50,180,10
+    GROUPBOX        "Run as user",IDC_STATIC,0,35,215,33
 END
 
 IDD_SETTINGS_TABS_1 DIALOGEX 0, 0, 223, 171

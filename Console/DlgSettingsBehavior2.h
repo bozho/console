@@ -22,6 +22,7 @@ class DlgSettingsBehavior2
 
 		BEGIN_DDX_MAP(DlgSettingsBehavior2)
 			DDX_CHECK(IDC_CHECK_OPEN_CURRENT_DIR, m_behaviorSettings2.cloneSettings.bUseCurrentDirectory)
+			DDX_CHECK(IDC_CHECK_USE_CREDPROV,     m_behaviorSettings2.runAsUserSettings.bUseCredentialProviders)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior2)

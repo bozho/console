@@ -164,13 +164,13 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 		if (m_tabData->bRunAsUser)
 		{
 			userCredentials.netOnly = m_tabData->bNetOnly;
-	#ifdef _USE_AERO
+#ifdef _USE_AERO
 			// Display a dialog box to request credentials.
-			CREDUI_INFOW ui;
+			CREDUI_INFO ui;
 			ui.cbSize = sizeof(ui);
-			ui.hwndParent = GetConsoleWindow();
+			ui.hwndParent = m_hWnd;
 			ui.pszMessageText = m_tabData->strShell.c_str();
-			ui.pszCaptionText = L"Enter username and password";
+			ui.pszCaptionText = L"Run as different user";
 			ui.hbmBanner = NULL;
 
 			// we need a target
@@ -181,35 +181,132 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 			WCHAR szPassword[CREDUI_MAX_PASSWORD_LENGTH + 1] = L"";
 			wcscpy_s(szUser, ARRAYSIZE(szUser), m_tabData->strUser.c_str());
 
-			DWORD rc = ::CredUIPromptForCredentials(
-				&ui,                                //__in_opt  PCREDUI_INFO pUiInfo,
-				szModuleFileName,                   //__in      PCTSTR pszTargetName,
-				NULL,                               //__in      PCtxtHandle Reserved,
-				0,                                  //__in_opt  DWORD dwAuthError,
-				szUser,                             //__inout   PCTSTR pszUserName,
-				ARRAYSIZE(szUser),                  //__in      ULONG ulUserNameMaxChars,
-				szPassword,                         //__inout   PCTSTR pszPassword,
-				ARRAYSIZE(szPassword),              //__in      ULONG ulPasswordMaxChars,
-				NULL,                               //__inout   PBOOL pfSave,
-				CREDUI_FLAGS_EXCLUDE_CERTIFICATES | //__in      DWORD dwFlags
-				CREDUI_FLAGS_ALWAYS_SHOW_UI       |
-				CREDUI_FLAGS_GENERIC_CREDENTIALS  |
-				CREDUI_FLAGS_DO_NOT_PERSIST
-			);
+			try
+			{
+				if (g_settingsHandler->GetBehaviorSettings2().runAsUserSettings.bUseCredentialProviders)
+				{
+					ULONG ulAuthPackage = 0;
+					std::unique_ptr<BYTE[]> pvInAuthBlob;
+					ULONG cbInAuthBlob  = 0;
+					std::unique_ptr<void, CoTaskMemFreeHelper> pvOutAuthBlob;
+					ULONG cbOutAuthBlob = 0;
+					BOOL  fSave         = FALSE;
 
-			if( rc != NO_ERROR )
+					if( szUser[0] )
+					{
+						::CredPackAuthenticationBuffer(
+							0,                                //_In_     DWORD dwFlags,
+							szUser,                           //_In_     LPTSTR pszUserName,
+							szPassword,                       //_In_     LPTSTR pszPassword,
+							nullptr,                          //_Out_    PBYTE pPackedCredentials,
+							&cbInAuthBlob                     //_Inout_  DWORD *pcbPackedCredentials
+							);
+
+						pvInAuthBlob.reset(new BYTE [cbInAuthBlob]);
+
+						if( !::CredPackAuthenticationBuffer(
+							0,                                //_In_     DWORD dwFlags,
+							szUser,                           //_In_     LPTSTR pszUserName,
+							szPassword,                       //_In_     LPTSTR pszPassword,
+							pvInAuthBlob.get(),               //_Out_    PBYTE pPackedCredentials,
+							&cbInAuthBlob                     //_Inout_  DWORD *pcbPackedCredentials
+							) )
+							Win32Exception::ThrowFromLastError("CredPackAuthenticationBuffer");
+					}
+
+					{
+						PVOID pvAuthBlob = nullptr;
+						DWORD rc = ::CredUIPromptForWindowsCredentials(
+							&ui,                              //_In_opt_     PCREDUI_INFO pUiInfo,
+							0,                                //_In_         DWORD dwAuthError,
+							&ulAuthPackage,                   //_Inout_      ULONG *pulAuthPackage,
+							pvInAuthBlob.get(),               //_In_opt_     LPCVOID pvInAuthBuffer,
+							cbInAuthBlob,                     //_In_         ULONG ulInAuthBufferSize,
+							&pvAuthBlob,                      //_Out_        LPVOID *ppvOutAuthBuffer,
+							&cbOutAuthBlob,                   //_Out_        ULONG *pulOutAuthBufferSize,
+							&fSave,                           //_Inout_opt_  BOOL *pfSave,
+							pvInAuthBlob.get()                //_In_         DWORD dwFlags
+							? CREDUIWIN_IN_CRED_ONLY
+							: 0
+							);
+
+						if( rc == ERROR_CANCELLED )
+							return 0;
+
+						if( rc != NO_ERROR )
+							Win32Exception::Throw("CredUIPromptForWindowsCredentials", rc);
+
+						pvOutAuthBlob.reset(pvAuthBlob);
+					}
+
+					TCHAR szDomain[CREDUI_MAX_DOMAIN_TARGET_LENGTH + 1] = L"";
+					DWORD maxLenName     = CREDUI_MAX_USERNAME_LENGTH      + 1;
+					DWORD maxLenPassword = CREDUI_MAX_PASSWORD_LENGTH      + 1;
+					DWORD maxLenDomain   = CREDUI_MAX_DOMAIN_TARGET_LENGTH + 1;
+
+					if( !::CredUnPackAuthenticationBuffer(
+						0,
+						pvOutAuthBlob.get(),
+						cbOutAuthBlob,
+						szUser,
+						&maxLenName,
+						szDomain,
+						&maxLenDomain,
+						szPassword,
+						&maxLenPassword
+						) )
+						Win32Exception::ThrowFromLastError("CredUIPromptForWindowsCredentials");
+
+					userCredentials.SetUser(szUser);
+					userCredentials.password = szPassword;
+
+					::SecureZeroMemory(pvOutAuthBlob.get(), cbOutAuthBlob);
+				}
+				else
+				{
+					DWORD rc = ::CredUIPromptForCredentials(
+						&ui,                                //__in_opt  PCREDUI_INFO pUiInfo,
+						szModuleFileName,                   //__in      PCTSTR pszTargetName,
+						NULL,                               //__in      PCtxtHandle Reserved,
+						0,                                  //__in_opt  DWORD dwAuthError,
+						szUser,                             //__inout   PCTSTR pszUserName,
+						ARRAYSIZE(szUser),                  //__in      ULONG ulUserNameMaxChars,
+						szPassword,                         //__inout   PCTSTR pszPassword,
+						ARRAYSIZE(szPassword),              //__in      ULONG ulPasswordMaxChars,
+						NULL,                               //__inout   PBOOL pfSave,
+						CREDUI_FLAGS_EXCLUDE_CERTIFICATES | //__in      DWORD dwFlags
+						CREDUI_FLAGS_ALWAYS_SHOW_UI       |
+						CREDUI_FLAGS_GENERIC_CREDENTIALS  |
+						CREDUI_FLAGS_DO_NOT_PERSIST
+						);
+
+						if( rc == ERROR_CANCELLED )
+							return 0;
+
+						if( rc != NO_ERROR )
+							Win32Exception::Throw("CredUIPromptForCredentials", rc);
+
+					userCredentials.SetUser(szUser);
+					userCredentials.password = szPassword;
+				}
+			}
+			catch(std::exception& err)
+			{
+				MessageBox(
+					boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % m_tabData->strUser % err.what()).c_str(),
+					L"Error",
+					MB_OK|MB_ICONERROR);
 				return 0;
+			}
 
-			userCredentials.SetUser(szUser);
-			userCredentials.password = szPassword;
-	#else
+#else
 			DlgCredentials dlg(m_tabData->strUser.c_str());
 
 			if (dlg.DoModal() != IDOK) return 0;
 
 			userCredentials.user     = dlg.GetUser();
 			userCredentials.password = dlg.GetPassword();
-	#endif
+#endif
 		}
 		else
 		{

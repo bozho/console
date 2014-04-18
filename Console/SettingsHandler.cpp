@@ -1335,6 +1335,67 @@ CloneSettings& CloneSettings::operator=(const CloneSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+RunAsUserSettings::RunAsUserSettings()
+	: bUseCredentialProviders(true)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool RunAsUserSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
+	CComPtr<IXMLDOMElement>	pRunAsUserElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"runas"), pRunAsUserElement))) return false;
+
+	XmlHelper::GetAttribute(pRunAsUserElement, CComBSTR(L"use_credprov"), bUseCredentialProviders, true);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool RunAsUserSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pRunAsUserElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/runas"), pRunAsUserElement))) return false;
+
+	XmlHelper::SetAttribute(pRunAsUserElement, CComBSTR(L"use_credprov"), bUseCredentialProviders);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+RunAsUserSettings& RunAsUserSettings::operator=(const RunAsUserSettings& other)
+{
+	bUseCredentialProviders = other.bUseCredentialProviders;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 BehaviorSettings::BehaviorSettings()
 {
 }
@@ -1412,6 +1473,7 @@ BehaviorSettings2::BehaviorSettings2()
 bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	cloneSettings.Load(pSettingsRoot);
+	runAsUserSettings.Load(pSettingsRoot);
 
 	return true;
 }
@@ -1424,6 +1486,7 @@ bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	cloneSettings.Save(pSettingsRoot);
+	runAsUserSettings.Save(pSettingsRoot);
 
 	return true;
 }
@@ -1436,6 +1499,7 @@ bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 BehaviorSettings2& BehaviorSettings2::operator=(const BehaviorSettings2& other)
 {
 	cloneSettings        = other.cloneSettings;
+	runAsUserSettings    = other.runAsUserSettings;
 
 	return *this;
 }

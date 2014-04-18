@@ -436,6 +436,23 @@ struct CloneSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct RunAsUserSettings : public SettingsBase
+{
+	RunAsUserSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	RunAsUserSettings& operator=(const RunAsUserSettings& other);
+
+	bool bUseCredentialProviders;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct BehaviorSettings : public SettingsBase
 {
 	BehaviorSettings ();
@@ -468,6 +485,7 @@ struct BehaviorSettings2 : public SettingsBase
 	BehaviorSettings2& operator=(const BehaviorSettings2& other);
 
 	CloneSettings        cloneSettings;
+	RunAsUserSettings    runAsUserSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////

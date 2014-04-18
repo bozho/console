@@ -17,6 +17,16 @@ struct CloseHandleHelper
   };
 };
 
+#ifdef _COMBASEAPI_H_
+struct CoTaskMemFreeHelper
+{
+  void operator()(void * toFree)
+  {
+    ::CoTaskMemFree(toFree);
+  };
+};
+#endif
+
 #ifdef _INC_USERENV
 struct DestroyEnvironmentBlockHelper
 {

@@ -728,6 +728,34 @@ DWORD ConsoleHandler::GetLastProcessId(void) const
 
 //////////////////////////////////////////////////////////////////////////////
 
+bool ConsoleHandler::SelectWord(const COORD& coordCurrent, COORD& coordLeft, COORD& coordRight) const
+{
+	m_multipleInfo->fMask = MULTIPLEINFO_SELECT_WORD;
+	m_multipleInfo->coordCurrent = coordCurrent;
+
+	CopyPasteSettings& copyPasteSettings = g_settingsHandler->GetBehaviorSettings().copyPasteSettings;
+	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->szLeftDelimiters,  copyPasteSettings.strLeftDelimiters.c_str());
+	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->szRightDelimiters, copyPasteSettings.strRightDelimiters.c_str());
+	m_multipleInfo->bIncludeLeftDelimiter  = copyPasteSettings.bIncludeLeftDelimiter;
+	m_multipleInfo->bIncludeRightDelimiter = copyPasteSettings.bIncludeRightDelimiter;
+
+	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
+	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 )
+	{
+		coordLeft  = m_multipleInfo->coordLeft;
+		coordRight = m_multipleInfo->coordRight;
+
+		return true;
+	}
+
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::UpdateEnvironmentBlock()
 {
 	void*	pEnvironment	= NULL;

@@ -70,7 +70,7 @@ SelectionHandler::~SelectionHandler()
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::SelectWord(const COORD& coordInit, CharInfo screenBuffer [])
+void SelectionHandler::SelectWord(const COORD& coordInit)
 {
   if (m_selectionState > selstateNoSelection) return;
 
@@ -79,54 +79,7 @@ void SelectionHandler::SelectWord(const COORD& coordInit, CharInfo screenBuffer 
 
   m_consoleView.SetCapture();
 
-  m_coordInitial    = coordInit;
-
-  m_coordCurrent.X  = m_coordInitial.X;
-  m_coordCurrent.Y  = m_coordInitial.Y;
-
-  SMALL_RECT&	 srWindow = m_consoleInfo->csbi.srWindow;
-
-  int nDeltaX = m_coordCurrent.X - srWindow.Left;
-  int nDeltaY = m_coordCurrent.Y - srWindow.Top;
-
-  if (nDeltaX < 0) nDeltaX = 0;
-  if (nDeltaY < 0) nDeltaY = 0;
-
-  CopyPasteSettings& copyPasteSettings = g_settingsHandler->GetBehaviorSettings().copyPasteSettings;
-
-  int nStartSel = nDeltaY * m_consoleParams->dwColumns + nDeltaX - 1;
-  while(nStartSel >= 0)
-  {
-    if( copyPasteSettings.strLeftDelimiters.find(screenBuffer[nStartSel].charInfo.Char.UnicodeChar) != std::wstring::npos )
-    {
-      if( !copyPasteSettings.bIncludeLeftDelimiter )
-        ++nStartSel;
-      break;
-    }
-
-    --nStartSel;
-  }
-  if( nStartSel < 0 ) nStartSel = 0;
-
-  m_coordInitial.X = short(nStartSel % m_consoleParams->dwColumns + srWindow.Left);
-  m_coordInitial.Y = short(nStartSel / m_consoleParams->dwColumns + srWindow.Top);
-
-  DWORD nEndSel = nDeltaY * m_consoleParams->dwColumns + nDeltaX;
-  while (nEndSel < m_consoleParams->dwColumns * m_consoleParams->dwRows)
-  {
-    if( copyPasteSettings.strRightDelimiters.find(screenBuffer[nEndSel].charInfo.Char.UnicodeChar) != std::wstring::npos )
-    {
-      if( !copyPasteSettings.bIncludeRightDelimiter )
-        --nEndSel;
-      break;
-    }
-
-    ++nEndSel;
-  }
-  if( nEndSel >= m_consoleParams->dwColumns * m_consoleParams->dwRows ) nEndSel = m_consoleParams->dwColumns * m_consoleParams->dwRows - 1;
-
-  m_coordCurrent.X = short(nEndSel % m_consoleParams->dwColumns + srWindow.Left);
-  m_coordCurrent.Y = short(nEndSel / m_consoleParams->dwColumns + srWindow.Top);
+  m_consoleHandler.SelectWord(coordInit, m_coordInitial, m_coordCurrent);
 
   m_selectionState = selstateSelectWord;
 

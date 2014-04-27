@@ -291,11 +291,21 @@ struct NamedPipeMessage
 
 #define MULTIPLEINFO_CURRENT_DIRECTORY 0x00000001
 #define MULTIPLEINFO_PROCESS_LIST      0x00000002
+#define MULTIPLEINFO_SELECT_WORD       0x00000004
+
+#define MAX_WORD_DELIMITERS            64
 
 struct MultipleInfo
 {
-	DWORD   fMask;
-	wchar_t szCurrentDirectory[_MAX_PATH];
-	DWORD   lpdwProcessList[256];
-	DWORD   dwProcessCount;
+	IN  DWORD   fMask;
+	OUT wchar_t szCurrentDirectory[_MAX_PATH];
+	OUT DWORD   lpdwProcessList[256];
+	OUT DWORD   dwProcessCount;
+	IN  wchar_t szLeftDelimiters [MAX_WORD_DELIMITERS];
+	IN  wchar_t szRightDelimiters[MAX_WORD_DELIMITERS];
+	IN  bool    bIncludeLeftDelimiter;
+	IN  bool    bIncludeRightDelimiter;
+	IN  COORD   coordCurrent;
+	OUT COORD   coordLeft;
+	OUT COORD   coordRight;
 };

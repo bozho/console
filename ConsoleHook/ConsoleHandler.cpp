@@ -1020,6 +1020,108 @@ void ConsoleHandler::CopyConsoleText()
 	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
 }
 
+void ConsoleHandler::SelectWord(HANDLE hStdOut)
+{
+	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
+	SHORT                        sBufferRows     = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
+	COORD                        coordFrom       = {0, 0};
+	COORD                        coordBufferSize = {sBufferColumns, 1};
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[sBufferColumns]);
+
+	m_multipleInfo->coordLeft.X  = 0;
+	m_multipleInfo->coordLeft.Y  = 0;
+	m_multipleInfo->coordRight.X = sBufferColumns - 1;
+	m_multipleInfo->coordRight.Y = sBufferRows - 1;
+
+	SHORT x0 = m_multipleInfo->coordCurrent.X;
+	SHORT y0 = m_multipleInfo->coordCurrent.Y;
+
+	for (SHORT y = m_multipleInfo->coordCurrent.Y; y >= 0; --y)
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = 0;
+		srBuffer.Top    = y;
+		srBuffer.Right  = (y == m_multipleInfo->coordCurrent.Y)? m_multipleInfo->coordCurrent.X : (sBufferColumns - 1);
+		srBuffer.Bottom = y;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		for (SHORT x = srBuffer.Right; x >= srBuffer.Left; --x)
+		{
+			for (size_t d = 0; m_multipleInfo->szLeftDelimiters[d]; ++d)
+			{
+				if( pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar == m_multipleInfo->szLeftDelimiters[d] )
+				{
+					if( m_multipleInfo->bIncludeLeftDelimiter )
+					{
+						m_multipleInfo->coordLeft.X = x;
+						m_multipleInfo->coordLeft.Y = y;
+					}
+					else
+					{
+						m_multipleInfo->coordLeft.X = x0;
+						m_multipleInfo->coordLeft.Y = y0;
+					}
+					goto right;
+				}
+			}
+			x0 = x;
+		}
+		y0 = y;
+	}
+
+right:
+
+	x0 = m_multipleInfo->coordCurrent.X;
+	y0 = m_multipleInfo->coordCurrent.Y;
+
+	for (SHORT y = m_multipleInfo->coordCurrent.Y; y < sBufferRows; ++y)
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = (y == m_multipleInfo->coordCurrent.Y)? m_multipleInfo->coordCurrent.X : 0;
+		srBuffer.Top    = y;
+		srBuffer.Right  = sBufferColumns - 1;
+		srBuffer.Bottom = y;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		for (SHORT x = srBuffer.Left; x <= srBuffer.Right; ++x)
+		{
+			for (size_t d = 0; m_multipleInfo->szLeftDelimiters[d]; ++d)
+			{
+				if( pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar == m_multipleInfo->szLeftDelimiters[d] )
+				{
+					if( m_multipleInfo->bIncludeRightDelimiter )
+					{
+						m_multipleInfo->coordRight.X = x;
+						m_multipleInfo->coordRight.Y = y;
+					}
+					else
+					{
+						m_multipleInfo->coordRight.X = x0;
+						m_multipleInfo->coordRight.Y = y0;
+					}
+					return;
+				}
+			}
+			x0 = x;
+		}
+		y0 = y;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -1323,6 +1425,12 @@ DWORD ConsoleHandler::MonitorThread()
 				if( m_multipleInfo->fMask & MULTIPLEINFO_PROCESS_LIST )
 				{
 					m_multipleInfo->dwProcessCount = ::GetConsoleProcessList(m_multipleInfo->lpdwProcessList, 256);
+				}
+
+				//  word selection
+				if( m_multipleInfo->fMask & MULTIPLEINFO_SELECT_WORD )
+				{
+					SelectWord(hStdOut);
 				}
 
 				::SetEvent(m_multipleInfo.GetRespEvent());

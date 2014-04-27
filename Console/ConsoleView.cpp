@@ -691,7 +691,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			if ((*it)->action == mouseActionCopy)
 			{
 				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-				m_selectionHandler->SelectWord(GetConsoleCoord(point), m_screenBuffer.get());
+				m_selectionHandler->SelectWord(GetConsoleCoord(point));
 
 				m_mouseCommand = MouseSettings::cmdSelect;
 				return 0;

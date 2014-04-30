@@ -551,7 +551,8 @@ void MainFrame::ActivateApp(void)
 
 void MainFrame::ShowHideWindow(void)
 {
-  bool bQuake = g_settingsHandler->GetAppearanceSettings().stylesSettings.bQuake;
+	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+  bool bQuake = stylesSettings.bQuake;
   bool bActivate = true;
 
   if( bQuake )
@@ -604,16 +605,16 @@ void MainFrame::ShowHideWindow(void)
 	{
 		if( this->IsIconic() )
 		{
-			this->ShowWindow(SW_RESTORE);
+			ShowWindow(SW_RESTORE);
 		}
 		else if(m_bAppActive)
 		{
-			this->ShowWindow(SW_MINIMIZE);
+			ShowWindow(stylesSettings.bTaskbarButton? SW_MINIMIZE : SW_HIDE);
 			bActivate = false;
 		}
 		else
 		{
-			this->ShowWindow(SW_SHOW);
+			ShowWindow(SW_SHOW);
 		}
 	}
 
@@ -680,6 +681,9 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
   switch( GET_SC_WPARAM(wParam) )
   {
   case SC_RESTORE:
+		if( !this->IsWindowVisible() )
+			ShowWindow(SW_SHOW);
+
 		if( this->IsZoomed() )
 			m_bRestoringWindow = true;
     break;
@@ -687,6 +691,17 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
   case SC_MAXIMIZE:
     GetWindowRect(&m_rectRestoredWnd);
     break;
+
+	case SC_MINIMIZE:
+		{
+			StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+			if (!stylesSettings.bTaskbarButton && stylesSettings.bTrayIcon)
+			{
+				ShowWindow(SW_HIDE);
+				return 0;
+			}
+		}
+		break;
   }
 
   bHandled = FALSE;
@@ -700,6 +715,16 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 
 LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
+	if( wParam == SIZE_MINIMIZED )
+	{
+		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+		if (!stylesSettings.bTaskbarButton && stylesSettings.bTrayIcon)
+		{
+			ShowWindow(SW_HIDE);
+			return 0;
+		}
+	}
+
 	// Start timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
 	// when the Console window is resized using a mouse)
 	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
@@ -2857,6 +2882,7 @@ void MainFrame::SetWindowStyles(void)
       // remove minimize button
       dwStyle &= ~WS_MINIMIZEBOX;
     }
+    // remove taskbar button
     dwExStyle &= ~WS_EX_APPWINDOW;
   }
 

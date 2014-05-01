@@ -567,20 +567,24 @@ void MainFrame::ShowHideWindow(void)
       bQuake = false;
       break;
     case dockTL:
-      dwActivateFlags |= AW_VER_POSITIVE;
-      dwHideFlags     |= AW_VER_NEGATIVE;
-      break;
+    case dockTM:
     case dockTR:
       dwActivateFlags |= AW_VER_POSITIVE;
       dwHideFlags     |= AW_VER_NEGATIVE;
       break;
-    case dockBL:
-      dwActivateFlags |= AW_VER_NEGATIVE;
-      dwHideFlags     |= AW_VER_POSITIVE;
+    case dockLM:
+      dwActivateFlags |= AW_HOR_POSITIVE;
+      dwHideFlags     |= AW_HOR_NEGATIVE;
       break;
+    case dockBL:
+    case dockBM:
     case dockBR:
       dwActivateFlags |= AW_VER_NEGATIVE;
       dwHideFlags     |= AW_VER_POSITIVE;
+      break;
+    case dockRM:
+      dwActivateFlags |= AW_HOR_NEGATIVE;
+      dwHideFlags     |= AW_HOR_POSITIVE;
       break;
     }
 
@@ -2214,97 +2218,102 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 {
 	if (!m_activeTabView) return 0;
 
+	DockPosition oldDockPosition = g_settingsHandler->GetAppearanceSettings().positionSettings.dockPosition;
+
 	DlgSettingsMain dlg;
+
+	if (dlg.DoModal() != IDOK) return 0;
 
 	// unregister global hotkeys here, they might change
 	UnregisterGlobalHotkeys();
 
-	if (dlg.DoModal() == IDOK)
+	ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
+
+	DWORD dwTabStyles = ::GetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE);
+	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM; else dwTabStyles &= ~CTCS_BOTTOM;
+	if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB; else dwTabStyles &= ~CTCS_CLOSELASTTAB;
+	::SetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE, dwTabStyles);
+
+	SetWindowStyles();
+
+	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
+	UpdateMenuHotKeys();
+
+	CreateAcceleratorTable();
+
+	SetTransparency();
+
+	// tray icon
+	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
 	{
-		ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
+		SetTrayIcon(NIM_ADD);
+	}
+	else
+	{
+		SetTrayIcon(NIM_DELETE);
+	}
 
-		DWORD dwTabStyles = ::GetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE);
-		if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM; else dwTabStyles &= ~CTCS_BOTTOM;
-		if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB; else dwTabStyles &= ~CTCS_CLOSELASTTAB;
-		::SetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE, dwTabStyles);
+	MutexLock	tabMapLock(m_tabsMutex);
 
-		SetWindowStyles();
+	if( !m_bFullScreen )
+	{
+		m_bMenuChecked = controlsSettings.bShowMenu;
+		ShowMenu(m_bMenuChecked);
+		ShowToolbar(controlsSettings.bShowToolbar);
 
-		UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
-		UpdateMenuHotKeys();
+		bool bShowTabs = false;
 
-		CreateAcceleratorTable();
-
-		SetTransparency();
-
-		// tray icon
-		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
+		if ( controlsSettings.bShowTabs &&
+			(!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
+			)
 		{
-			SetTrayIcon(NIM_ADD);
-		}
-		else
-		{
-			SetTrayIcon(NIM_DELETE);
+			bShowTabs = true;
 		}
 
-    MutexLock	tabMapLock(m_tabsMutex);
+		ShowTabs(bShowTabs);
 
-    if( !m_bFullScreen )
-    {
-      m_bMenuChecked = controlsSettings.bShowMenu;
-      ShowMenu(m_bMenuChecked);
-      ShowToolbar(controlsSettings.bShowToolbar);
+		ShowStatusbar(controlsSettings.bShowStatusbar);
+	}
 
-      bool bShowTabs = false;
+	SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
-      if ( controlsSettings.bShowTabs && 
-        (!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
-        )
-      {
-        bShowTabs = true;
-      }
+	const COLORREF * consoleColors = g_settingsHandler->GetConsoleSettings().consoleColors;
+	for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
+	{
+		it->second->InitializeScrollbars();
+		it->second->GetTabData()->SetColors(consoleColors, false);
+	}
 
-      ShowTabs(bShowTabs);
+	TabDataVector& tabDataVector = g_settingsHandler->GetTabSettings().tabDataVector;
+	for (auto it = tabDataVector.begin(); it != tabDataVector.end(); ++it)
+	{
+		it->get()->SetColors(consoleColors, false);
+	}
 
-      ShowStatusbar(controlsSettings.bShowStatusbar);
-    }
-
-    SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
-
-    const COLORREF * consoleColors = g_settingsHandler->GetConsoleSettings().consoleColors;
-    for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
-    {
-      it->second->InitializeScrollbars();
-      it->second->GetTabData()->SetColors(consoleColors, false);
-    }
-
-    TabDataVector& tabDataVector = g_settingsHandler->GetTabSettings().tabDataVector;
-    for (auto it = tabDataVector.begin(); it != tabDataVector.end(); ++it)
-    {
-      it->get()->SetColors(consoleColors, false);
-    }
-
-		// reindex
-		for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
+	// reindex
+	for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
+	{
+		it->second->GetTabData()->nIndex = 0;
+		for (auto it2 = tabDataVector.begin(); it2 != tabDataVector.end(); ++it2)
 		{
-			it->second->GetTabData()->nIndex = 0;
-			for (auto it2 = tabDataVector.begin(); it2 != tabDataVector.end(); ++it2)
+			if( it2->get()->strTitle == it->second->GetTabData()->strTitle )
 			{
-				if( it2->get()->strTitle == it->second->GetTabData()->strTitle )
-				{
-					it->second->GetTabData()->nIndex = it2->get()->nIndex;
-					break;
-				}
+				it->second->GetTabData()->nIndex = it2->get()->nIndex;
+				break;
 			}
 		}
+	}
 
-    ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
-    AdjustWindowSize(ADJUSTSIZE_WINDOW);
+	ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 
-    UpdateUI();
-  }
+	DockPosition newDockPosition = g_settingsHandler->GetAppearanceSettings().positionSettings.dockPosition;
+	if( newDockPosition != oldDockPosition )
+		DockWindow(g_settingsHandler->GetAppearanceSettings().positionSettings.dockPosition);
 
-  RegisterGlobalHotkeys();
+	UpdateUI();
+
+	RegisterGlobalHotkeys();
 
 	// update tab titles
 	this->PostMessage(
@@ -2312,7 +2321,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		0,
 		0);
 
-  return 0;
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2962,6 +2971,34 @@ void MainFrame::DockWindow(DockPosition dockPosition)
 		{
 			nX = rectDesktop.left;
 			nY = rectDesktop.bottom - rectWindow.Height();
+			break;
+		}
+
+		case dockTM :
+		{
+			nX = rectDesktop.left + (rectDesktop.Width() - rectWindow.Width()) / 2;
+			nY = rectDesktop.top;
+			break;
+		}
+
+		case dockBM :
+		{
+			nX = rectDesktop.left + (rectDesktop.Width() - rectWindow.Width()) / 2;
+			nY = rectDesktop.bottom - rectWindow.Height();
+			break;
+		}
+
+		case dockLM :
+		{
+			nX = rectDesktop.left;
+			nY = rectDesktop.top + (rectDesktop.Height() - rectWindow.Height()) / 2;
+			break;
+		}
+
+		case dockRM :
+		{
+			nX = rectDesktop.right - rectWindow.Width();
+			nY = rectDesktop.top + (rectDesktop.Height() - rectWindow.Height()) / 2;
 			break;
 		}
 

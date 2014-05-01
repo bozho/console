@@ -200,6 +200,10 @@ enum DockPosition
 	dockTR		= 1,
 	dockBL		= 2,
 	dockBR		= 3,
+	dockTM		= 4,
+	dockBM		= 5,
+	dockLM		= 6,
+	dockRM		= 7,
 };
 
 //////////////////////////////////////////////////////////////////////////////

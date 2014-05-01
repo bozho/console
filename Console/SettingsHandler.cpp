@@ -528,11 +528,12 @@ StylesSettings::StylesSettings()
 , bResizable(true)
 , bTaskbarButton(true)
 , bBorder(true)
-, dwInsideBorder(2)
 , bTrayIcon(false)
 , bQuake(false)
 , bJumplist(false)
 , bIntegratedIME(false)
+, dwInsideBorder(2)
+, dwQuakeAnimationTime(300)
 , crSelectionColor(RGB(255, 255, 255))
 {
 }
@@ -555,6 +556,7 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder, 2);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon, false);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"quake_like"), bQuake, false);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"quake_animation_time"), dwQuakeAnimationTime, 300);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"jumplist"), bJumplist, false);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME, false);
 
@@ -585,6 +587,7 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"inside_border"), dwInsideBorder);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"tray_icon"), bTrayIcon);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"quake_like"), bQuake);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"quake_animation_time"), dwQuakeAnimationTime);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"jumplist"), bJumplist);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME);
 
@@ -608,11 +611,12 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	bResizable		= other.bResizable;
 	bTaskbarButton	= other.bTaskbarButton;
 	bBorder			= other.bBorder;
-	dwInsideBorder	= other.dwInsideBorder;
 	bTrayIcon		= other.bTrayIcon;
 	bQuake		= other.bQuake;
 	bJumplist		= other.bJumplist;
 	bIntegratedIME		= other.bIntegratedIME;
+	dwInsideBorder	= other.dwInsideBorder;
+	dwQuakeAnimationTime	= other.dwQuakeAnimationTime;
 	crSelectionColor= other.crSelectionColor;
 
 	return *this;

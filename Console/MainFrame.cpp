@@ -595,12 +595,12 @@ void MainFrame::ShowHideWindow(void)
 
 		if(!this->IsWindowVisible())
 		{
-			::AnimateWindow(m_hWnd, 300, dwActivateFlags);
+			::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwActivateFlags);
 			this->RedrawWindow(NULL, NULL, RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME |RDW_INVALIDATE | RDW_ERASE);
 		}
 		else if(m_bAppActive)
 		{
-			::AnimateWindow(m_hWnd, 300, dwHideFlags);
+			::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwHideFlags);
 			::SetForegroundWindow(this->m_hwndPreviousForeground);
 			bActivate = false;
 		}

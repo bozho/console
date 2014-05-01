@@ -139,19 +139,11 @@
 #define IDC_POS_Y                       1094
 #define IDC_CHECK_HIDE_SCROLLBARS       1094
 #define IDC_CHECK_SHOW_SCROLLBARS       1094
-#define IDC_RADIO_DOCK_NONE             1095
 #define IDC_CHECK_FLAT_SCROLLBARS       1095
-#define IDC_RADIO_DOCK_TL               1096
 #define IDC_CHECK_STYLE_QUAKE           1096
-#define IDC_RADIO_DOCK_TR               1097
 #define IDC_CHECK_USE_JUMPLIST          1097
-#define IDC_RADIO_DOCK_BL               1098
-#define IDC_RADIO_DOCK_BR               1099
-#define IDC_RADIO_Z_REGULAR             1100
 #define IDC_TRIM_TAB_TITLES             1101
-#define IDC_RADIO_Z_BOTTOM              1102
 #define IDC_TRIM_TAB_TITLES_RIGHT       1102
-#define IDC_RADIO_Z_ONTOP               1103
 #define IDC_SNAP                        1104
 #define IDC_CHECK_POSITION              1105
 #define IDC_CHECK_SNAP                  1106
@@ -170,7 +162,6 @@
 #define IDC_TAB_TITLE                   1117
 #define IDC_SPIN_TRIM_TAB_TITLES_RIGHT  1117
 #define IDC_TAB_ICON                    1118
-#define IDC_RADIO_Z_DESKTOP             1118
 #define IDC_TAB_SHELL                   1119
 #define IDC_TAB_INIT_DIR                1120
 #define IDC_COMBO_CURSOR                1121
@@ -280,6 +271,10 @@
 #define IDC_STATIC_COLOR                1211
 #define IDC_CHECK_OPEN_CURRENT_DIR      1212
 #define IDC_CHECK_USE_CREDPROV          1213
+#define IDC_STATIC_QUAKE_1              1214
+#define IDC_STATIC_QUAKE_2              1215
+#define IDC_QUAKE_ANIMATION_TIME        1216
+#define IDC_SPIN_QUAKE_ANIMATION_TIME   1217
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -347,7 +342,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        221
 #define _APS_NEXT_COMMAND_VALUE         32800
-#define _APS_NEXT_CONTROL_VALUE         1214
+#define _APS_NEXT_CONTROL_VALUE         1218
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

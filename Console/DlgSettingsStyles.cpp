@@ -36,9 +36,17 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_transparencySettings.Load(m_pOptionsRoot);
 
 	CUpDownCtrl	spin;
+	UDACCEL udAccel;
 
 	spin.Attach(GetDlgItem(IDC_SPIN_INSIDE_BORDER));
 	spin.SetRange(0, 10);
+	spin.Detach();
+
+	spin.Attach(GetDlgItem(IDC_SPIN_QUAKE_ANIMATION_TIME));
+	spin.SetRange(10, 20000);
+	udAccel.nSec = 0;
+	udAccel.nInc = 10;
+	spin.SetAccel(1, &udAccel);
 	spin.Detach();
 
 	m_sliderActiveAlpha.Attach(GetDlgItem(IDC_ACTIVE_ALPHA));
@@ -59,6 +67,7 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 	EnableTabControls();
 	EnableScrollbarControls();
+	EnableQuakeControls();
 	EnableTransparencyControls();
 
 	DoDataExchange(DDX_LOAD);
@@ -157,6 +166,13 @@ LRESULT DlgSettingsStyles::OnClickedShowScrollbars(WORD /*wNotifyCode*/, WORD /*
 {
 	DoDataExchange(DDX_SAVE);
 	EnableScrollbarControls();
+	return 0;
+}
+
+LRESULT DlgSettingsStyles::OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	DoDataExchange(DDX_SAVE);
+	EnableQuakeControls();
 	return 0;
 }
 
@@ -269,6 +285,14 @@ void DlgSettingsStyles::EnableScrollbarControls()
 	{
 		GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow();
 	}
+}
+
+void DlgSettingsStyles::EnableQuakeControls()
+{
+	GetDlgItem(IDC_STATIC_QUAKE_1).EnableWindow(m_stylesSettings.bQuake);
+	GetDlgItem(IDC_STATIC_QUAKE_2).EnableWindow(m_stylesSettings.bQuake);
+	GetDlgItem(IDC_QUAKE_ANIMATION_TIME).EnableWindow(m_stylesSettings.bQuake);
+	GetDlgItem(IDC_SPIN_QUAKE_ANIMATION_TIME).EnableWindow(m_stylesSettings.bQuake);
 }
 
 //////////////////////////////////////////////////////////////////////////////

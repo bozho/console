@@ -180,11 +180,12 @@ struct StylesSettings : public SettingsBase
 	bool			bResizable;
 	bool			bTaskbarButton;
 	bool			bBorder;
-	DWORD			dwInsideBorder;
 	bool			bTrayIcon;
 	bool			bQuake;
 	bool			bJumplist;
 	bool			bIntegratedIME;
+	DWORD			dwInsideBorder;
+	DWORD			dwQuakeAnimationTime;
 	COLORREF		crSelectionColor;
 };
 

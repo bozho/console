@@ -2886,9 +2886,6 @@ void MainFrame::SetWindowStyles(void)
     dwExStyle &= ~WS_EX_APPWINDOW;
   }
 
-  SetWindowLong(GWL_STYLE, dwStyle);
-  SetWindowLong(GWL_EXSTYLE, dwExStyle);
-
   if( m_bOnCreateDone )
   {
     TRACE(
@@ -2899,20 +2896,23 @@ void MainFrame::SetWindowStyles(void)
     if( dwExStyle != dwOldExStyle )
     {
       this->ShowWindow(SW_HIDE);
-      if (stylesSettings.bTaskbarButton)
-        this->ModifyStyleEx(WS_EX_TOOLWINDOW, WS_EX_APPWINDOW);
-      else
-        this->ModifyStyleEx(WS_EX_APPWINDOW, WS_EX_TOOLWINDOW);
+      SetWindowLong(GWL_EXSTYLE, dwExStyle);
       this->ShowWindow(SW_SHOW);
     }
 
     if( dwStyle != dwOldStyle )
     {
+      SetWindowLong(GWL_STYLE, dwStyle);
       this->SetWindowPos(
         nullptr,
         0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
     }
+  }
+  else
+  {
+    SetWindowLong(GWL_STYLE, dwStyle);
+    SetWindowLong(GWL_EXSTYLE, dwExStyle);
   }
 }
 

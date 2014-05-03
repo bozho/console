@@ -28,18 +28,23 @@ Changelog
     + added
     * fixed
 
-Changes in 1.11.0 (beta) (18 Apr 2014)
+Changes in 1.11.0 (experimental) (01 May 2014)
 
     ! Window columns limit is now 300.
     ! buffer columns limit is now 9999.
+    ! Word selection is no longer limited to the window.
+    ! Minimize to systray when taskbar button is unchecked and systray icon is checked.
+    ! Changing docking position in settings no longer require restart.
     + Attach consoles.
     + Detach view.
     + Add horizontal bar cursor.
-    + Add current directory (%d) in text formatting.
-    + Add last process ID attached to the console (%P) in text formatting.
+    + Add %d to text formatting syntax: current directory.
+    + Add %P to text formatting syntax: ID of last process attached to the console.
     + Support external commands (syntax uses title formatting).
     + Support credential providers (allowing integration of additional authentication mechanisms
       such as biometrics and smart cards).
+    + New docking poitions: top middle, bottom middle, left middle and right middle.
+    + Quake like animation time is settable.
 
 Changes in 1.10.0 (30 Mar 2014)
 
@@ -123,7 +128,7 @@ Changes in 1.07.0 (26 May 2013)
 
     ! Limits the maximized windows size on monitors with taskbar
       so ConsoleZ, with no border, no longer overlaps the taskbar when WIN+UP is pressed
-    ! Restart is no longer needed for this appearance setting: "Tabs on bottom"
+    ! Changing tabbar position in settings no longer require restart.
     ! Settings edition no longer modifies the zoom factor
     + Full screen support
     + Full screen button in taskbar

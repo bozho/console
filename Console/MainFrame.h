@@ -336,6 +336,10 @@ class MainFrame
 		BOOL SetTrayIcon(DWORD dwMessage);
 		void ShowHideWindow();
 
+		void LoadSearchMRU();
+		void SaveSearchMRU();
+		void AddSearchMRU(CString& item);
+
 		static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT /*lprcMonitor*/, LPARAM lpData);
 		static BOOL CALLBACK ConsoleEnumWindowsProc(HWND hwnd, LPARAM lParam);
 

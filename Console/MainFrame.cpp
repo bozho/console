@@ -355,6 +355,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		m_cb.MoveWindow(rectCombo.left, rectCombo.top + (nDiff / 2), rectCombo.Width(), rectCombo.Height());
 	}
 
+	LoadSearchMRU();
+
 	CreateStatusBar();
 
 	// create font
@@ -534,6 +536,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 
 	if (bSaveSettings) g_settingsHandler->SaveSettings();
+
+	SaveSearchMRU();
 
 	// destroy all views
 	MutexLock viewMapLock(m_tabsMutex);
@@ -4047,3 +4051,80 @@ void MainFrame::UpdateUI()
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_LEFT, m_TabCtrl.GetCurSel() > 0);
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_RIGHT, m_TabCtrl.GetCurSel() < (m_TabCtrl.GetItemCount() - 1));
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::LoadSearchMRU()
+{
+	CRegKey key;
+
+	if( key.Open(HKEY_CURRENT_USER, L"Console\\" DEFAULT_CONSOLE_COMMAND, KEY_QUERY_VALUE) != ERROR_SUCCESS ) return;
+
+	ULONG size = 0;
+	if( key.QueryMultiStringValue(L"SearchMRU", nullptr, &size) != ERROR_SUCCESS ) return;
+
+	std::unique_ptr<wchar_t[]> data (new wchar_t[size]);
+
+	if( key.QueryMultiStringValue(L"SearchMRU", data.get(), &size) != ERROR_SUCCESS ) return;
+
+	for(const wchar_t * p = data.get(); *p; p += (wcslen(p) + 1))
+	{
+		m_cb.AddItem(p, 0, 0, 0, 0);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::SaveSearchMRU()
+{
+	CRegKey key;
+
+	if( key.Open(HKEY_CURRENT_USER, L"Console\\" DEFAULT_CONSOLE_COMMAND, KEY_SET_VALUE) != ERROR_SUCCESS ) return;
+
+	CString value;
+
+	for(int i = 0; i < m_cb.GetCount(); ++i)
+	{
+		CString str;
+		if( m_cb.GetItemText(i, str) )
+		{
+			value.Append(str);
+			value.Append(L"\0", 1);
+		}
+	}
+
+	value.Append(L"\0", 1);
+
+	key.SetMultiStringValue(L"SearchMRU", value.GetString());
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::AddSearchMRU(CString& item)
+{
+	for(int i = 0; i < m_cb.GetCount(); ++i)
+	{
+		CString str;
+		if( m_cb.GetItemText(i, str) && ( str == item ) )
+		{
+			// remove duplicate
+			m_cb.DeleteString(i);
+
+			break;
+		}
+	}
+
+	// insert at front
+	m_cb.InsertItem(0, item, 0, 0, 0, 0);
+
+	// remove last if max reached
+	for(int i = m_cb.GetCount() - 1; i > SEARCH_MRU_COUNT; --i)
+		m_cb.DeleteString(i - 1);
+}
+

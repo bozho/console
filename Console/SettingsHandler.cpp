@@ -2335,20 +2335,10 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	{
 		// no path, first try with user's APPDATA dir
 
-		wchar_t wszAppData[32767];
-		::ZeroMemory(wszAppData, sizeof(wszAppData));
-		::GetEnvironmentVariable(L"APPDATA", wszAppData, _countof(wszAppData));
-
 		m_strSettingsFileName = strSettingsFileName;
 
-		if (wszAppData == NULL)
 		{
-			hr = E_FAIL;
-		}
-		else
-		{
-			m_strSettingsPath	= wstring(wszAppData) + wstring(L"\\Console\\");
-			m_settingsDirType	= dirTypeUser;
+			SetUserDataDir(dirTypeUser);
 
 			hr = XmlHelper::OpenXmlDocument(
 								GetSettingsFileName(), 
@@ -2358,8 +2348,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 
 		if (FAILED(hr))
 		{
-			m_strSettingsPath	= Helpers::GetModulePath(NULL);
-			m_settingsDirType	= dirTypeExe;
+			SetUserDataDir(dirTypeExe);
 
 			hr = XmlHelper::OpenXmlDocument(
 								GetSettingsFileName(), 
@@ -2370,15 +2359,16 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 		if (FAILED(hr))
 		{
 			m_strSettingsPath	= L"res://" + Helpers::GetModuleFileName(NULL) + L"/";
-			m_settingsDirType	= dirTypeExe;
 
 			hr = XmlHelper::OpenXmlDocument(
 								GetSettingsFileName(), 
 								m_pSettingsDocument, 
 								m_pSettingsRoot);
 
-			if (FAILED(hr)) return false;
+			SetUserDataDir(dirTypeExe);
 		}
+
+		if (FAILED(hr)) return false;
 	}
 	else
 	{

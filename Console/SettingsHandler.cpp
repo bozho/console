@@ -435,6 +435,7 @@ FullScreenSettings& FullScreenSettings::operator=(const FullScreenSettings& othe
 ControlsSettings::ControlsSettings()
 : bShowMenu(true)
 , bShowToolbar(true)
+, bShowSearchbar(true)
 , bShowStatusbar(true)
 , bShowTabs(true)
 , bHideSingleTab(false)
@@ -458,6 +459,7 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_searchbar"), bShowSearchbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, false);
@@ -482,6 +484,7 @@ bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_searchbar"), bShowSearchbar);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab);
@@ -502,6 +505,7 @@ ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
 {
 	bShowMenu		= other.bShowMenu;
 	bShowToolbar	= other.bShowToolbar;
+	bShowSearchbar	= other.bShowSearchbar;
 	bShowStatusbar	= other.bShowStatusbar;
 	bShowTabs		= other.bShowTabs;
 	bHideSingleTab	= other.bHideSingleTab;

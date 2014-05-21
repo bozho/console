@@ -153,6 +153,7 @@ struct ControlsSettings
 
 	bool			bShowMenu;
 	bool			bShowToolbar;
+	bool			bShowSearchbar;
 	bool			bShowStatusbar;
 	bool			bShowTabs;
 	bool			bHideSingleTab;

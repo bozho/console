@@ -23,6 +23,7 @@ class DlgSettingsStyles
 		BEGIN_DDX_MAP(DlgSettingsStyles)
 			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_controlsSettings.bShowMenu)
 			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_controlsSettings.bShowToolbar)
+			DDX_CHECK(IDC_CHECK_SHOW_SEARCH_BAR, m_controlsSettings.bShowSearchbar)
 			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_controlsSettings.bShowStatusbar)
 			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_controlsSettings.bShowTabs)
 			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_controlsSettings.bHideSingleTab)

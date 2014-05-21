@@ -101,6 +101,7 @@ MainFrame::MainFrame
 , m_bMenuVisible     (true)
 , m_bMenuChecked     (true)
 , m_bToolbarVisible  (true)
+, m_bSearchBarVisible(true)
 , m_bStatusBarVisible(true)
 , m_bTabsVisible     (true)
 , m_bFullScreen      (false)
@@ -147,6 +148,8 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 	if (!m_acceleratorTable.IsNull() && m_acceleratorTable.TranslateAccelerator(m_hWnd, pMsg)) return TRUE;
 
 	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg)) return TRUE;
+
+	if( pMsg->hwnd == m_searchedit.m_hWnd ) return FALSE;
 
 	if (!m_activeTabView) return FALSE;
 
@@ -256,7 +259,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
   }
 
 #ifdef _USE_AERO
-  HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #else
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #endif
@@ -276,20 +279,81 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	m_nFullSreen1Bitmap = m_toolbar.GetImageList().GetImageCount() - 1;
 	m_nFullSreen2Bitmap = m_toolbar.GetBitmap(ID_VIEW_FULLSCREEN);
 
-
 #ifdef _USE_AERO
-  CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE & ~RBS_BANDBORDERS);
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE & ~RBS_BANDBORDERS);
 #else
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 #endif
 	AddSimpleReBarBand(hWndCmdBar, NULL, FALSE);
-	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+	AddSimpleReBarBand(hWndToolBar, NULL, TRUE, 0, TRUE);
+
+	HWND hWndToolBar2 = CreateSimpleToolBarCtrl(m_hWnd, IDR_SEARCH, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+#ifdef _USE_AERO
+	if (hWndToolBar2 != NULL)
+		aero::Subclass(m_searchbar, hWndToolBar2);
+#else
+	m_searchbar = hWndToolBar2;
+#endif
+
+	AddSimpleReBarBand(hWndToolBar2, NULL, FALSE, 0, TRUE);
+
+	SizeSimpleReBarBands();
 
 #ifdef _USE_AERO
-  // we remove the grippers
-  CReBarCtrl rebar(m_hWndToolBar);
-  rebar.LockBands(true);
+	// we remove the grippers
+	CReBarCtrl rebar(m_hWndToolBar);
+	rebar.LockBands(true);
 #endif
+
+	tbi.cbSize = sizeof(TBBUTTONINFO);
+	tbi.dwMask = TBIF_SIZE | TBIF_STATE | TBIF_STYLE;
+
+	// Make sure the underlying button is disabled
+	tbi.fsState = 0;
+	// BTNS_SHOWTEXT will allow the button size to be altered
+	tbi.fsStyle = BTNS_SHOWTEXT;
+	tbi.cx = 100;
+
+	m_searchbar.SetButtonInfo(ID_SEARCH_COMBO, &tbi);
+
+	SizeSimpleReBarBands();
+
+	// Get the button rect
+	CRect rcCombo;
+	m_searchbar.GetItemRect(0, rcCombo);
+
+	// create search bar combo
+	m_cb.Create(m_hWnd, rcCombo, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBS_DROPDOWN | WS_VSCROLL);
+	m_cb.SetParent(hWndToolBar2);
+
+	// set 5 lines visible in combo list
+	m_cb.GetComboCtrl().ResizeClient(rcCombo.Width(),  rcCombo.Height() + 5 * m_cb.GetItemHeight(0));
+
+#ifdef _USE_AERO
+	aero::Subclass(m_searchedit, m_cb.GetEditCtrl().m_hWnd);
+#else
+	m_searchedit = m_cb.GetEditCtrl();
+#endif
+
+	m_searchedit.SetCueBannerText(L"Search...");
+
+	// The combobox might not be centred vertically, and we won't know the
+	// height until it has been created.  Get the size now and see if it
+	// needs to be moved.
+	CRect rectToolBar;
+	CRect rectCombo;
+	m_searchbar.GetClientRect(&rectToolBar);
+	m_cb.GetWindowRect(rectCombo);
+
+	// Get the different between the heights of the toolbar and
+	// the combobox
+	int nDiff = rectToolBar.Height() - rectCombo.Height();
+	// If there is a difference, then move the combobox
+	if (nDiff > 1)
+	{
+		m_searchbar.ScreenToClient(&rectCombo);
+		m_cb.MoveWindow(rectCombo.left, rectCombo.top + (nDiff / 2), rectCombo.Width(), rectCombo.Height());
+	}
 
 	CreateStatusBar();
 
@@ -317,6 +381,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	m_bMenuChecked = controlsSettings.bShowMenu;
 	ShowMenu(m_bMenuChecked);
 	ShowToolbar(controlsSettings.bShowToolbar);
+	ShowSearchBar(controlsSettings.bShowSearchbar);
 	ShowStatusbar(controlsSettings.bShowStatusbar);
 
 	bool bShowTabs = controlsSettings.bShowTabs;
@@ -1595,8 +1660,14 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnTabRightClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnTabRightClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
+	if( idCtrl != m_TabCtrl.GetDlgCtrlID() )
+	{
+		bHandled = FALSE;
+		return 0;
+	}
+
 	NMCTCITEM*       pTabItems = reinterpret_cast<NMCTCITEM*>(pnmh);
 	CTabViewTabItem* pTabItem  = (pTabItems->iItem != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem) : NULL;
 
@@ -2255,6 +2326,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		m_bMenuChecked = controlsSettings.bShowMenu;
 		ShowMenu(m_bMenuChecked);
 		ShowToolbar(controlsSettings.bShowToolbar);
+		ShowSearchBar(controlsSettings.bShowSearchbar);
 
 		bool bShowTabs = false;
 
@@ -2357,6 +2429,22 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
   if( !m_bFullScreen )
   {
     g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible;
+    g_settingsHandler->SaveSettings();
+  }
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnViewSearchBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  ShowSearchBar(!m_bSearchBarVisible);
+  if( !m_bFullScreen )
+  {
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowSearchbar = m_bSearchBarVisible;
     g_settingsHandler->SaveSettings();
   }
   return 0;
@@ -3159,6 +3247,25 @@ void MainFrame::ShowToolbar(bool bShow)
 
 //////////////////////////////////////////////////////////////////////////////
 
+void MainFrame::ShowSearchBar(bool bShow)
+{
+	m_bSearchBarVisible = bShow;
+
+	CReBarCtrl rebar(m_hWndToolBar);
+	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 2);	// searchbar is 3rd added band
+	rebar.ShowBand(nBandIndex, m_bSearchBarVisible);
+	UISetCheck(ID_VIEW_SEARCH_BAR, m_bSearchBarVisible);
+
+	UpdateLayout();
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
+	DockWindow(m_dockPosition);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void MainFrame::ShowStatusbar(bool bShow)
 {
 	m_bStatusBarVisible = bShow;
@@ -3205,11 +3312,9 @@ void MainFrame::ShowFullScreen(bool bShow)
 {
   m_bFullScreen = bShow;
 
-  m_CmdBar.RemoveImage(ID_VIEW_FULLSCREEN);
-
   if( m_bFullScreen )
   {
-    m_CmdBar.AddBitmap(IDR_FULLSCREEN1, ID_VIEW_FULLSCREEN);
+    m_CmdBar.ReplaceBitmap(IDR_FULLSCREEN1, ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen1Bitmap);
 
     // save the non fullscreen position and size
@@ -3224,7 +3329,7 @@ void MainFrame::ShowFullScreen(bool bShow)
   }
   else
   {
-    m_CmdBar.AddBitmap(IDR_FULLSCREEN2, ID_VIEW_FULLSCREEN);
+    m_CmdBar.ReplaceBitmap(IDR_FULLSCREEN2, ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen2Bitmap);
 
     ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;

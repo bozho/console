@@ -75,6 +75,7 @@ class MainFrame
 			UPDATE_ELEMENT(ID_EDIT_PASTE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 			UPDATE_ELEMENT(ID_VIEW_MENU, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
+			UPDATE_ELEMENT(ID_VIEW_SEARCH_BAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_TABS, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_STATUS_BAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_CONSOLE, UPDUI_MENUPOPUP)
@@ -179,6 +180,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_VIEW_MENU, OnViewMenu)
 			COMMAND_ID_HANDLER(ID_VIEW_MENU2, OnViewMenu)
 			COMMAND_ID_HANDLER(ID_VIEW_TOOLBAR, OnViewToolBar)
+			COMMAND_ID_HANDLER(ID_VIEW_SEARCH_BAR, OnViewSearchBar)
 			COMMAND_ID_HANDLER(ID_VIEW_STATUS_BAR, OnViewStatusBar)
 			COMMAND_ID_HANDLER(ID_VIEW_TABS, OnViewTabs)
 			COMMAND_ID_HANDLER(ID_VIEW_CONSOLE, OnViewConsole)
@@ -271,6 +273,7 @@ class MainFrame
 
 		LRESULT OnViewMenu(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnViewSearchBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -318,6 +321,7 @@ class MainFrame
 
 		void ShowMenu      (bool bShow);
 		void ShowToolbar   (bool bShow);
+		void ShowSearchBar (bool bShow);
 		void ShowTabs      (bool bShow);
 		void ShowStatusbar (bool bShow);
 		void ShowFullScreen(bool bShow);
@@ -360,6 +364,7 @@ class MainFrame
 		bool m_bMenuVisible;
 		bool m_bMenuChecked;
 		bool m_bToolbarVisible;
+		bool m_bSearchBarVisible;
 		bool m_bStatusBarVisible;
 		bool m_bTabsVisible;
 		bool m_bFullScreen;
@@ -389,7 +394,17 @@ class MainFrame
 		CRect			m_rectRestoredWnd;
 		CRect			m_rectWndNotFS;
 
-		CToolBarCtrl	m_toolbar;
+		CToolBarCtrl        m_toolbar;
+		CComboBoxEx         m_cb;
+#ifdef _USE_AERO
+		aero::CToolBarCtrl  m_searchbar;
+		aero::CEdit         m_searchedit;
+#else
+		CToolBarCtrl        m_searchbar;
+		CEdit               m_searchedit;
+#endif
+
+		//CSearchComboBox	m_cb;
 		CAccelerator	m_acceleratorTable;
 		UINT			m_uTaskbarRestart;
 		CMultiPaneStatusBarCtrl m_statusBar;

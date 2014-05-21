@@ -1343,6 +1343,71 @@ CloneSettings& CloneSettings::operator=(const CloneSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+SearchSettings::SearchSettings()
+	: bMatchCase(false)
+	, bMatchWholeWord(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool SearchSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
+	CComPtr<IXMLDOMElement>	pSearchElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"search"), pSearchElement))) return false;
+
+	XmlHelper::GetAttribute(pSearchElement, CComBSTR(L"match_case"),       bMatchCase,      false);
+	XmlHelper::GetAttribute(pSearchElement, CComBSTR(L"match_whole_word"), bMatchWholeWord, false);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool SearchSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pSearchElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/search"), pSearchElement))) return false;
+
+	XmlHelper::SetAttribute(pSearchElement, CComBSTR(L"match_case"),       bMatchCase);
+	XmlHelper::SetAttribute(pSearchElement, CComBSTR(L"match_whole_word"), bMatchWholeWord);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+SearchSettings& SearchSettings::operator=(const SearchSettings& other)
+{
+	bMatchCase      = other.bMatchCase;
+	bMatchWholeWord = other.bMatchWholeWord;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 RunAsUserSettings::RunAsUserSettings()
 	: bUseCredentialProviders(true)
 {
@@ -1481,6 +1546,7 @@ BehaviorSettings2::BehaviorSettings2()
 bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	cloneSettings.Load(pSettingsRoot);
+	searchSettings.Load(pSettingsRoot);
 	runAsUserSettings.Load(pSettingsRoot);
 
 	return true;
@@ -1494,6 +1560,7 @@ bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
 	cloneSettings.Save(pSettingsRoot);
+	searchSettings.Save(pSettingsRoot);
 	runAsUserSettings.Save(pSettingsRoot);
 
 	return true;
@@ -1507,6 +1574,7 @@ bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 BehaviorSettings2& BehaviorSettings2::operator=(const BehaviorSettings2& other)
 {
 	cloneSettings        = other.cloneSettings;
+	searchSettings       = other.searchSettings;
 	runAsUserSettings    = other.runAsUserSettings;
 
 	return *this;

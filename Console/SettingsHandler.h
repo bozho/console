@@ -442,6 +442,24 @@ struct CloneSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct SearchSettings : public SettingsBase
+{
+	SearchSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	SearchSettings& operator=(const SearchSettings& other);
+
+	bool bMatchCase;
+	bool bMatchWholeWord;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct RunAsUserSettings : public SettingsBase
 {
 	RunAsUserSettings();
@@ -491,6 +509,7 @@ struct BehaviorSettings2 : public SettingsBase
 	BehaviorSettings2& operator=(const BehaviorSettings2& other);
 
 	CloneSettings        cloneSettings;
+	SearchSettings       searchSettings;
 	RunAsUserSettings    runAsUserSettings;
 };
 

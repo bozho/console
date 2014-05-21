@@ -376,6 +376,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		return created;
 
 	UIAddToolBar(hWndToolBar);
+	UIAddToolBar(hWndToolBar2);
 	UISetBlockAccelerators(true);
 
 	SetWindowStyles();
@@ -398,6 +399,10 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	}
 
 	ShowTabs(bShowTabs);
+
+	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
+	UISetCheck(ID_SEARCH_MATCH_CASE, searchSettings.bMatchCase);
+	UISetCheck(ID_SEARCH_MATCH_WHOLE_WORD, searchSettings.bMatchWholeWord);
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
@@ -4128,3 +4133,27 @@ void MainFrame::AddSearchMRU(CString& item)
 		m_cb.DeleteString(i - 1);
 }
 
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSearchSettings(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
+	switch( wID )
+	{
+	case ID_SEARCH_MATCH_CASE:
+		searchSettings.bMatchCase = !searchSettings.bMatchCase;
+		UISetCheck(ID_SEARCH_MATCH_CASE, searchSettings.bMatchCase);
+		break;
+
+	case ID_SEARCH_MATCH_WHOLE_WORD:
+		searchSettings.bMatchWholeWord = !searchSettings.bMatchWholeWord;
+		UISetCheck(ID_SEARCH_MATCH_WHOLE_WORD, searchSettings.bMatchWholeWord);
+		break;
+	}
+
+	g_settingsHandler->SaveSettings();
+
+	return 0;
+}

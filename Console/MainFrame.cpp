@@ -267,14 +267,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	tbi.dwMask	= TBIF_STYLE;
 	tbi.cbSize	= sizeof(TBBUTTONINFO);
-	
+
 	m_toolbar.GetButtonInfo(ID_FILE_NEW_TAB, &tbi);
-#ifdef _USE_AERO
-  // TBSTYLE_DROPDOWN : the button separator is not drawed
-	tbi.fsStyle |= BTNS_WHOLEDROPDOWN;
-#else
-	tbi.fsStyle |= TBSTYLE_DROPDOWN;
-#endif
+	tbi.fsStyle |= BTNS_DROPDOWN;
 	m_toolbar.SetButtonInfo(ID_FILE_NEW_TAB, &tbi);
 
 	m_toolbar.AddBitmap(1, IDR_FULLSCREEN1);

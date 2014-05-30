@@ -292,8 +292,10 @@ struct NamedPipeMessage
 #define MULTIPLEINFO_CURRENT_DIRECTORY 0x00000001
 #define MULTIPLEINFO_PROCESS_LIST      0x00000002
 #define MULTIPLEINFO_SELECT_WORD       0x00000004
+#define MULTIPLEINFO_SEARCH_TEXT       0x00000008
 
 #define MAX_WORD_DELIMITERS            64
+#define MAX_SEARCH_TEXT                128
 
 struct MultipleInfo
 {
@@ -301,10 +303,23 @@ struct MultipleInfo
 	OUT wchar_t szCurrentDirectory[_MAX_PATH];
 	OUT DWORD   lpdwProcessList[256];
 	OUT DWORD   dwProcessCount;
-	IN  wchar_t szLeftDelimiters [MAX_WORD_DELIMITERS];
-	IN  wchar_t szRightDelimiters[MAX_WORD_DELIMITERS];
-	IN  bool    bIncludeLeftDelimiter;
-	IN  bool    bIncludeRightDelimiter;
+	union
+	{
+		struct
+		{
+			IN  wchar_t szLeftDelimiters [MAX_WORD_DELIMITERS];
+			IN  wchar_t szRightDelimiters[MAX_WORD_DELIMITERS];
+			IN  bool    bIncludeLeftDelimiter;
+			IN  bool    bIncludeRightDelimiter;
+		} select_word;
+		struct
+		{
+			IN  wchar_t szText[MAX_SEARCH_TEXT];
+			IN  bool    bNext;
+			IN  bool    bMatchCase;
+			IN  bool    bMatchWholeWord;
+		} search_text;
+	} u;
 	IN  COORD   coordCurrent;
 	OUT COORD   coordLeft;
 	OUT COORD   coordRight;

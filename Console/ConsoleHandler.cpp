@@ -734,10 +734,38 @@ bool ConsoleHandler::SelectWord(const COORD& coordCurrent, COORD& coordLeft, COO
 	m_multipleInfo->coordCurrent = coordCurrent;
 
 	CopyPasteSettings& copyPasteSettings = g_settingsHandler->GetBehaviorSettings().copyPasteSettings;
-	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->szLeftDelimiters,  copyPasteSettings.strLeftDelimiters.c_str());
-	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->szRightDelimiters, copyPasteSettings.strRightDelimiters.c_str());
-	m_multipleInfo->bIncludeLeftDelimiter  = copyPasteSettings.bIncludeLeftDelimiter;
-	m_multipleInfo->bIncludeRightDelimiter = copyPasteSettings.bIncludeRightDelimiter;
+	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->u.select_word.szLeftDelimiters,  copyPasteSettings.strLeftDelimiters.c_str());
+	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->u.select_word.szRightDelimiters, copyPasteSettings.strRightDelimiters.c_str());
+	m_multipleInfo->u.select_word.bIncludeLeftDelimiter  = copyPasteSettings.bIncludeLeftDelimiter;
+	m_multipleInfo->u.select_word.bIncludeRightDelimiter = copyPasteSettings.bIncludeRightDelimiter;
+
+	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
+	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 )
+	{
+		coordLeft  = m_multipleInfo->coordLeft;
+		coordRight = m_multipleInfo->coordRight;
+
+		return true;
+	}
+
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ConsoleHandler::SearchText(CString& text, bool bNext, const COORD& coordCurrent, COORD& coordLeft, COORD& coordRight) const
+{
+	m_multipleInfo->fMask = MULTIPLEINFO_SEARCH_TEXT;
+	m_multipleInfo->coordCurrent = coordCurrent;
+
+	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
+	m_multipleInfo->u.search_text.bMatchCase = searchSettings.bMatchCase;
+	m_multipleInfo->u.search_text.bMatchWholeWord = searchSettings.bMatchWholeWord;
+	m_multipleInfo->u.search_text.bNext = bNext;
+	wcscpy_s<MAX_SEARCH_TEXT>(m_multipleInfo->u.search_text.szText, text.GetString());
 
 	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
 	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 )

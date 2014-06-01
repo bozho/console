@@ -539,6 +539,7 @@ StylesSettings::StylesSettings()
 , dwInsideBorder(2)
 , dwQuakeAnimationTime(300)
 , crSelectionColor(RGB(255, 255, 255))
+, crHighlightColor(RGB(191, 191, 191))
 {
 }
 
@@ -565,10 +566,12 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME, false);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
+		XmlHelper::GetRGBAttribute(pSelColorElement, crSelectionColor, RGB(255, 255, 255));
 
-	if (FAILED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement))) return false;
-
-	XmlHelper::GetRGBAttribute(pSelColorElement, crSelectionColor, RGB(255, 255, 255));
+	CComPtr<IXMLDOMElement>	pHiColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"highlight_color"), pHiColorElement)))
+		XmlHelper::GetRGBAttribute(pHiColorElement, crHighlightColor, RGB(191, 191, 191));
 
 	return true;
 }
@@ -596,10 +599,12 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
+		XmlHelper::SetRGBAttribute(pSelColorElement, crSelectionColor);
 
-	if (FAILED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement))) return false;
-
-	XmlHelper::SetRGBAttribute(pSelColorElement, crSelectionColor);
+	CComPtr<IXMLDOMElement>	pHiColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"highlight_color"), pHiColorElement)))
+		XmlHelper::SetRGBAttribute(pHiColorElement, crHighlightColor);
 
 	return true;
 }
@@ -622,6 +627,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	dwInsideBorder	= other.dwInsideBorder;
 	dwQuakeAnimationTime	= other.dwQuakeAnimationTime;
 	crSelectionColor= other.crSelectionColor;
+	crHighlightColor= other.crHighlightColor;
 
 	return *this;
 }

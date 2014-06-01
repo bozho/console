@@ -188,6 +188,7 @@ struct StylesSettings : public SettingsBase
 	DWORD			dwInsideBorder;
 	DWORD			dwQuakeAnimationTime;
 	COLORREF		crSelectionColor;
+	COLORREF		crHighlightColor;
 };
 
 //////////////////////////////////////////////////////////////////////////////

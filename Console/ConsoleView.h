@@ -175,6 +175,8 @@ class ConsoleView
 
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
+		void SearchText(CString& text, bool bNext);
+
 		static inline int GetCharWidth(void) { return m_nCharWidth; }
 		static inline int GetCharHeight(void) { return m_nCharHeight; }
 
@@ -264,6 +266,8 @@ class ConsoleView
 		CString							m_exceptionMessage;
 
 		CString             m_strUACPrefix;
+
+		COORD               m_coordSearchText;
 
 // static members
 private:

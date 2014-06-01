@@ -193,8 +193,11 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_VIEW_ZOOM_100, OnZoom)
 			COMMAND_ID_HANDLER(ID_VIEW_ZOOM_INC, OnZoom)
 			COMMAND_ID_HANDLER(ID_VIEW_ZOOM_DEC, OnZoom)
+			COMMAND_ID_HANDLER(ID_SEARCH_PREV,             OnSearchText)
+			COMMAND_ID_HANDLER(ID_SEARCH_NEXT,             OnSearchText)
 			COMMAND_ID_HANDLER(ID_SEARCH_MATCH_CASE,       OnSearchSettings)
 			COMMAND_ID_HANDLER(ID_SEARCH_MATCH_WHOLE_WORD, OnSearchSettings)
+			COMMAND_ID_HANDLER(ID_FIND,                    OnFind)
 
 			COMMAND_RANGE_HANDLER(ID_EXTERNAL_COMMAND_1, (ID_EXTERNAL_COMMAND_1 + EXTERNAL_COMMANDS_COUNT - 1), OnExternalCommand)
 
@@ -283,7 +286,9 @@ class MainFrame
 		LRESULT OnViewConsole(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnZoom(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSearchText(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSearchSettings(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

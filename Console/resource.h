@@ -308,6 +308,7 @@
 #define ID_SEARCH_NEXT                  2925
 #define ID_SEARCH_MATCH_CASE            2926
 #define ID_SEARCH_MATCH_WHOLE_WORD      2927
+#define ID_FIND                         2928
 
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000

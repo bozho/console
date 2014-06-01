@@ -1676,6 +1676,10 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer page left")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
 
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"find",       ID_FIND,        L"Find text")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"findnext",   ID_SEARCH_NEXT, L"Find next")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"findprev",   ID_SEARCH_PREV, L"Find previous")));
+
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 
 	for(WORD i = 0; i < EXTERNAL_COMMANDS_COUNT; ++i)

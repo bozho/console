@@ -4137,6 +4137,29 @@ void MainFrame::AddSearchMRU(CString& item)
 
 /////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnSearchText(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CString item;
+	if( m_searchedit.GetWindowText(item) )
+	{
+		AddSearchMRU(item);
+		TRACE(L"searching %s %s...\n", wID == ID_SEARCH_PREV? L"prev" : L"next", item.GetString());
+
+		if( !m_activeTabView ) return 0;
+
+		std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+		if( !activeConsoleView ) return 0;
+
+		activeConsoleView->SearchText(item, wID == ID_SEARCH_NEXT);
+	}
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnSearchSettings(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
@@ -4154,6 +4177,20 @@ LRESULT MainFrame::OnSearchSettings(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 	}
 
 	g_settingsHandler->SaveSettings();
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if( !m_bSearchBarVisible )
+		ShowSearchBar(true);
+
+	m_searchedit.SetFocus();
 
 	return 0;
 }

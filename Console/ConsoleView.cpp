@@ -83,6 +83,8 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 
 ConsoleView::~ConsoleView()
 {
+	m_coordSearchText.X = -1;
+	m_coordSearchText.Y = -1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1949,6 +1951,71 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 		newScrollPos.SetReqEvent();
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+void ConsoleView::SearchText(CString& text, bool bNext)
+{
+	SMALL_RECT& window = m_consoleHandler.GetConsoleInfo()->csbi.srWindow;
+	COORD&      buffer = m_consoleHandler.GetConsoleInfo()->csbi.dwSize;
+
+	if( m_coordSearchText.X == -1 && m_coordSearchText.Y == -1 )
+	{
+		if( bNext )
+		{
+			// we search from the top/left current window
+			m_coordSearchText.X = window.Left - 1;
+			m_coordSearchText.Y = window.Top;
+		}
+		else
+		{
+			// we search from the bottom/right current window
+			m_coordSearchText.X = window.Right + 1;
+			m_coordSearchText.Y = window.Bottom;
+		}
+	}
+
+	COORD left, right;
+	m_consoleHandler.SearchText(text, bNext, m_coordSearchText, left, right);
+
+	TRACE(L"searching returns %hux%hu - %hux%hu\n", left.X, left.Y, right.X, right.Y);
+
+	if( left.X != -1 && left.Y != -1 && right.X != -1 && right.Y != -1 )
+	{
+		LONG cx = 0;
+		LONG cy = 0;
+
+		if( left.X < window.Left || right.X > window.Right )
+		{
+			cx = left.X - window.Left;
+			if( (window.Right + cx) > buffer.X )
+				cx -= (buffer.X - window.Right);
+		}
+
+		if( left.Y < window.Top || right.Y > window.Bottom )
+		{
+			cy = left.Y - window.Top;
+			if( (window.Bottom + cy) > buffer.Y )
+				cy -= (buffer.Y - window.Bottom);
+		}
+
+		if( cx || cy )
+		{
+			SharedMemory<SIZE>& newScrollPos = m_consoleHandler.GetNewScrollPos();
+			newScrollPos->cx = cx;
+			newScrollPos->cy = cy;
+			newScrollPos.SetReqEvent();
+		}
+	}
+
+	m_selectionHandler->SetHighlightCoordinates(left, right);
+	BitBltOffscreen();
+
+	m_coordSearchText = left;
 }
 
 /////////////////////////////////////////////////////////////////////////////

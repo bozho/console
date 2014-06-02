@@ -55,6 +55,7 @@ class DlgSettingsStyles
 			COMMAND_HANDLER(IDC_CHECK_STYLE_QUAKE, BN_CLICKED, OnClickedQuake)
 			COMMAND_HANDLER(IDC_KEY_COLOR, BN_CLICKED, OnClickedKeyColor)
 			COMMAND_HANDLER(IDC_SELECTION_COLOR, BN_CLICKED, OnClickedSelColor)
+			COMMAND_HANDLER(IDC_HIGHLIGHT_COLOR, BN_CLICKED, OnClickedHiColor)
 			COMMAND_RANGE_CODE_HANDLER(IDC_TRANSPARENCY_TYPE, IDC_TRANSPARENCY_TYPE4, BN_CLICKED, OnClickedTransType)
 		END_MSG_MAP()
 
@@ -73,6 +74,7 @@ class DlgSettingsStyles
 		LRESULT OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedSelColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
+		LRESULT OnClickedHiColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedTransType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:

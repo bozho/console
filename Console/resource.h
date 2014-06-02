@@ -276,6 +276,7 @@
 #define IDC_QUAKE_ANIMATION_TIME        1216
 #define IDC_SPIN_QUAKE_ANIMATION_TIME   1217
 #define IDC_CHECK_SHOW_SEARCH_BAR       1218
+#define IDC_HIGHLIGHT_COLOR             1219
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -351,7 +352,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        221
 #define _APS_NEXT_COMMAND_VALUE         32801
-#define _APS_NEXT_CONTROL_VALUE         1219
+#define _APS_NEXT_CONTROL_VALUE         1220
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

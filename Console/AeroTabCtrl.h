@@ -14,7 +14,6 @@ protected:
   signed char m_iMargin;
   signed char m_iLeftSpacing;
   signed char m_iTopMargin;
-  signed char m_iRadius;
   signed long m_iCloseButtonWidth;
   signed long m_iCloseButtonHeight;
 
@@ -28,9 +27,8 @@ public:
     ,m_bAppActive(true)
     ,m_iCloseButtonWidth(0)
     ,m_iCloseButtonHeight(0)
-    ,m_iMargin(3)
+    ,m_iMargin(2)
     ,m_iLeftSpacing(0)
-    ,m_iRadius(3)
   {
     // We can't use a member initialization list to initialize
     // members of our base class, so do it explictly by assignment here.
@@ -123,80 +121,70 @@ public:
   // Overrides for painting from CDotNetTabCtrlImpl
 public:
 
-  void DrawBackground(RECT /*rcClient*/, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
+  void DrawBackground(RECT rcClient, LPNMCTCCUSTOMDRAW lpNMCustomDraw)
   {
+    Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
+
     if( !aero::IsComposing() )
     {
-      Gdiplus::Graphics g(lpNMCustomDraw->nmcd.hdc);
-      COLORREF clr = lpNMCustomDraw->clrBtnFace;
+      Gdiplus::Color clr;
+      clr.SetFromCOLORREF(lpNMCustomDraw->clrBtnFace);
 
-      g.Clear(
-        Gdiplus::Color(
-            255,
-            GetRValue(clr),
-            GetGValue(clr),
-            GetBValue(clr)));
+      g.Clear(clr);
+    }
+
+    Gdiplus::Color tabcolor;
+    tabcolor.SetFromCOLORREF(lpNMCustomDraw->clrSelectedTab);
+    Gdiplus::SolidBrush brush(tabcolor);
+    Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(0x72000000)), 1.0);
+
+    DWORD dwStyle = this->GetStyle();
+
+    if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
+    {
+      //g.FillRectangle(&brush, rcClient.left, rcClient.top + 1, rcClient.right, rcClient.top + 2);
+      g.DrawLine(&pen, rcClient.left, rcClient.top + 2, rcClient.right, rcClient.top + 2);
+    }
+    else
+    {
+      //g.FillRectangle(&brush, rcClient.left, rcClient.bottom - 2, rcClient.right, rcClient.bottom - 2);
+      g.DrawLine(&pen, rcClient.left, rcClient.bottom - 3, rcClient.right, rcClient.bottom - 3);
     }
   }
 
-  void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
+  void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color, bool bSelected)
   {
     DWORD dwStyle = this->GetStyle();
 
     if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
-      this->DrawTabBottom(rcTab, g, color);
+      this->DrawTabBottom(rcTab, g, color, bSelected);
     else
-      this->DrawTabTop(rcTab, g, color);
+      this->DrawTabTop(rcTab, g, color, bSelected);
   }
 
-  void DrawTabTop(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
+  void DrawTabTop(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color, bool bSelected)
   {
-    Gdiplus::SolidBrush brush(color);
-
-    Gdiplus::GraphicsPath gp;
-
-    INT radius = m_iRadius;
     INT X      = rcTab.left + m_iLeftSpacing;
-    INT Y      = rcTab.top + m_iTopMargin;
-    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing - 2;
-    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin;
+    INT Y      = rcTab.top  + m_iTopMargin;
+    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing;
+    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin - 1;
 
-    /*
-    gp.AddLine(X + radius, Y, X + width - (radius * 2), Y);
-    gp.AddArc(X + width - (radius * 2), Y, radius * 2, radius * 2, 270, 90);
-    gp.AddLine(X + width, Y + radius, X + width, Y + height);
-    gp.AddLine(X + width, Y + height, X, Y + height);
-    gp.AddLine(X, Y + height, X, Y + radius);
-    gp.AddArc(X, Y, radius * 2, radius * 2, 180, 90);
-    */
-    gp.AddLine(X + radius, Y, X + width - radius, Y);
-    gp.AddLine(X + width - radius, Y, X + width, Y + radius);
-    gp.AddLine(X + width, Y + radius, X + width, Y + height);
-    gp.AddLine(X + width, Y + height, X, Y + height);
-    gp.AddLine(X, Y + height, X, Y + radius);
-    gp.AddLine(X, Y + radius, X + radius, Y);
+    Gdiplus::SolidBrush brush(color);
+    Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(0x72000000)), 1.0);
 
-    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
-    Gdiplus::Pen pen(color,1.0);
-    g.DrawPath(&pen, &gp);
+    g.DrawLine(&pen, rcTab.left, rcTab.bottom - 1, rcTab.right, rcTab.bottom - 1);
 
-    g.SetSmoothingMode(Gdiplus::SmoothingModeNone);
-    g.FillPath(&brush, &gp);
-
-    radius += 2;
-    X      -= 1;
-    Y      -= 1;
-    width  += 2;
-    height += 2;
-
-    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
-    Gdiplus::Pen pen2(Gdiplus::Color(64, 0, 0,0),1.0);
-
-    g.DrawLine(&pen2, X, Y + radius, X + radius, Y);
-    g.DrawLine(&pen2, X, Y + height, X, Y + radius);
-    g.DrawLine(&pen2, X + radius, Y, X + width - radius, Y);
-    g.DrawLine(&pen2, X + width - radius, Y, X + width, Y + radius);
-    g.DrawLine(&pen2, X + width, Y + radius, X + width, Y + height);
+    if( bSelected )
+    {
+      g.FillRectangle(&brush, X + 1, Y + 1, width - 2, height);
+      g.DrawLine(&pen, X, Y, X, rcTab.bottom - 2);
+      g.DrawLine(&pen, X + width - 1, Y, X + width - 1, rcTab.bottom - 2);
+      g.DrawLine(&pen, X + 1, Y, X + width - 2, Y);
+    }
+    else
+    {
+      g.FillRectangle(&brush, X + 1, Y + 1, width - 2, height - 1);
+    }
 
 #ifdef _DRAW_TAB_RECT
     {
@@ -209,46 +197,29 @@ public:
 #endif //_DRAW_TAB_RECT
   }
 
-  void DrawTabBottom(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color)
+  void DrawTabBottom(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color, bool bSelected)
   {
-    Gdiplus::SolidBrush brush(color);
-
-    Gdiplus::GraphicsPath gp;
-
-    INT radius = m_iRadius;
     INT X      = rcTab.left + m_iLeftSpacing;
-    INT Y      = rcTab.bottom - m_iTopMargin;
-    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing - 2;
-    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin;
+    INT Y      = rcTab.top;
+    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing;
+    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin - 1;
 
-    gp.AddLine(X + radius, Y, X + width - radius, Y);
-    gp.AddLine(X + width - radius, Y, X + width, Y - radius);
-    gp.AddLine(X + width, Y - radius, X + width, Y - height);
-    gp.AddLine(X + width, Y - height, X, Y - height);
-    gp.AddLine(X, Y - height, X, Y - radius);
-    gp.AddLine(X, Y - radius, X + radius, Y);
+    Gdiplus::SolidBrush brush(color);
+    Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(0x72000000)), 1.0);
 
-    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
-    Gdiplus::Pen pen(color,1.0);
-    g.DrawPath(&pen, &gp);
+    g.DrawLine(&pen, rcTab.left, rcTab.top, rcTab.right, rcTab.top);
 
-    g.SetSmoothingMode(Gdiplus::SmoothingModeNone);
-    g.FillPath(&brush, &gp);
-
-    radius += 2;
-    X      -= 1;
-    Y      += 1;
-    width  += 2;
-    height += 2;
-
-    g.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
-    Gdiplus::Pen pen2(Gdiplus::Color(64, 0, 0,0),1.0);
-
-    g.DrawLine(&pen2, X, Y - radius, X + radius, Y);
-    g.DrawLine(&pen2, X, Y - height, X, Y - radius);
-    g.DrawLine(&pen2, X + radius, Y, X + width - radius, Y);
-    g.DrawLine(&pen2, X + width - radius, Y, X + width, Y - radius);
-    g.DrawLine(&pen2, X + width, Y - radius, X + width, Y - height);
+    if( bSelected )
+    {
+      g.FillRectangle(&brush, X + 1, Y, width - 2, height);
+      g.DrawLine(&pen, X, rcTab.top + 1, X, Y + height);
+      g.DrawLine(&pen, X + width - 1, rcTab.top + 1, X + width - 1, Y + height);
+      g.DrawLine(&pen, X + 1, Y + height, X + width - 2, Y + height);
+    }
+    else
+    {
+      g.FillRectangle(&brush, X + 1, Y + 1, width - 2, height - 1);
+    }
 
 #ifdef _DRAW_TAB_RECT
     {
@@ -346,31 +317,33 @@ public:
       if( bHot )
       {
         tabcolorref = lpNMCustomDraw->clrHighlightHotTrack;
-        byteAlpha   = 96;
+        byteAlpha   = 160;
       }
       else
       {
         tabcolorref = lpNMCustomDraw->clrHighlight;
-        byteAlpha   = 64;
+        byteAlpha   = 128;
       }
-    }
-    else if(bHot)
-    {
-      txtcolorref = lpNMCustomDraw->clrTextInactive;
-      tabcolorref = lpNMCustomDraw->clrSelectedTab;
-      byteAlpha   = 96;
     }
     else
     {
       txtcolorref = lpNMCustomDraw->clrTextInactive;
-      tabcolorref = lpNMCustomDraw->clrSelectedTab;
-      byteAlpha   = 64;
+      if(bHot)
+      {
+        tabcolorref = lpNMCustomDraw->clrSelectedTab;
+        byteAlpha   = 160;
+      }
+      else
+      {
+        tabcolorref = lpNMCustomDraw->clrBtnShadow;
+        byteAlpha   = 128;
+      }
     }
     Gdiplus::Color tabcolor;
     tabcolor.SetFromCOLORREF(tabcolorref);
     tabcolor.SetValue(Gdiplus::Color::MakeARGB(byteAlpha, tabcolor.GetR(), tabcolor.GetG(), tabcolor.GetB()));
 
-    this->DrawTab(rcTab, g, tabcolor);
+    this->DrawTab(rcTab, g, tabcolor, bSelected);
 
     //--------------------------------------------
     // This is how CAeroTabCtrlImpl interprets padding, margin, etc.:
@@ -576,42 +549,44 @@ public:
     zone.bottom = m_rcScrollLeft.bottom;
     zone.right  = m_rcScrollRight.right;
 
-    int iStateScrollLeft = NAV_BB_DISABLED;
+    int iStateScrollLeft = ABS_LEFTDISABLED;
     if( m_dwState & ectcOverflowLeft )
     {
-      iStateScrollLeft = NAV_BB_NORMAL;
+      iStateScrollLeft = ABS_LEFTNORMAL;
       if( ectcMouseDownL_ScrollLeft == (m_dwState & ectcMouseDown) )
-        iStateScrollLeft = NAV_BB_PRESSED;
+        iStateScrollLeft = ABS_LEFTPRESSED;
       else if( ectcMouseOver_ScrollLeft == (m_dwState & ectcMouseOver) )
-        iStateScrollLeft = NAV_BB_HOT;
+        iStateScrollLeft = ABS_LEFTHOT;
     }
 
-    int iStateScrollRight = NAV_BB_DISABLED;
+    int iStateScrollRight = ABS_RIGHTDISABLED;
     if( m_dwState & ectcOverflowRight )
     {
-      iStateScrollRight = NAV_FB_NORMAL;
+      iStateScrollRight = ABS_RIGHTNORMAL;
       if( ectcMouseDownL_ScrollRight == (m_dwState & ectcMouseDown) )
-        iStateScrollRight = NAV_FB_PRESSED;
+        iStateScrollRight = ABS_RIGHTPRESSED;
       else if( ectcMouseOver_ScrollRight == (m_dwState & ectcMouseOver) )
-        iStateScrollRight = NAV_FB_HOT;
+        iStateScrollRight = ABS_RIGHTHOT;
     }
 
-    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_SCROLLBAR /*VSCLASS_TRACKBAR*/);
     if( hTheme )
     {
       ::DrawThemeBackgroundEx(
         hTheme,
         lpNMCustomDraw->nmcd.hdc,
-        NAV_BACKBUTTON,
+        SBP_ARROWBTN,
         iStateScrollLeft,
+        /*TKP_THUMBLEFT,TUVLS_NORMAL,*/
         &m_rcScrollLeft,
         NULL);
 
       ::DrawThemeBackgroundEx(
         hTheme,
         lpNMCustomDraw->nmcd.hdc,
-        NAV_FORWARDBUTTON,
+        SBP_ARROWBTN,
         iStateScrollRight,
+        /*TKP_THUMBRIGHT,TUVRS_PRESSED,*/
         &m_rcScrollRight,
         NULL);
 
@@ -713,14 +688,14 @@ public:
   {
     SIZE size;
 
-    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_SCROLLBAR);
     if( hTheme )
     {
       ::GetThemePartSize(
         hTheme,
         NULL,
-        NAV_BACKBUTTON,
-        0,
+        SBP_ARROWBTN,
+        ABS_LEFTNORMAL,
         NULL,
         TS_TRUE,
         &size

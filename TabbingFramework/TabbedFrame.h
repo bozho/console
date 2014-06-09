@@ -1230,19 +1230,26 @@ public:
   {
     SIZE size;
 
-    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_NAVIGATION);
+    HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_SCROLLBAR);
+    if( hTheme )
+    {
+      ::GetThemePartSize(
+        hTheme,
+        NULL,
+        SBP_ARROWBTN,
+        ABS_LEFTNORMAL,
+        NULL,
+        TS_TRUE,
+        &size
+        );
 
-    ::GetThemePartSize(
-      hTheme,
-      NULL,
-      NAV_BACKBUTTON,
-      0,
-      NULL,
-      TS_TRUE,
-      &size
-      );
-
-    ::CloseThemeData(hTheme);
+      ::CloseThemeData(hTheme);
+    }
+    else
+    {
+      size.cx = 16;
+      size.cy = 16;
+    }
 
     int nNewTabAreaHeight2 = customTabOwnerClass::CalcTabAreaHeight2();
     int nNewTabAreaHeight  = max(size.cy + 4, nNewTabAreaHeight2);

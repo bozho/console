@@ -142,6 +142,7 @@
 #define IDC_CHECK_FLAT_SCROLLBARS       1095
 #define IDC_CHECK_STYLE_QUAKE           1096
 #define IDC_CHECK_USE_JUMPLIST          1097
+#define IDC_CHECK_RTF                   1098
 #define IDC_TRIM_TAB_TITLES             1101
 #define IDC_TRIM_TAB_TITLES_RIGHT       1102
 #define IDC_SNAP                        1104

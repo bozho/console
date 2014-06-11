@@ -337,6 +337,7 @@ void SelectionHandler::CopySelection()
 		m_consoleCopyInfo->bNoWrap         = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bNoWrap;
 		m_consoleCopyInfo->dwEOLSpaces     = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.dwEOLSpaces;
 		m_consoleCopyInfo->bTrimSpaces     = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bTrimSpaces;
+		m_consoleCopyInfo->bRTF            = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bRTF;
 		m_consoleCopyInfo->copyNewlineChar = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.copyNewlineChar;
 		m_consoleCopyInfo->selectionType   = m_selectionType;
     _snprintf_s(

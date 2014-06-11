@@ -322,7 +322,7 @@ struct CopyPasteSettings : public SettingsBase
 	bool			bSensitiveCopy;
 	bool			bNoWrap;
 	bool			bTrimSpaces;
-
+	bool			bRTF;
 	bool			bIncludeLeftDelimiter;
 	bool			bIncludeRightDelimiter;
 	std::wstring strLeftDelimiters;
@@ -471,8 +471,6 @@ struct BehaviorSettings : public SettingsBase
 	ScrollSettings       scrollSettings;
 	TabHighlightSettings tabHighlightSettings;
 	CloseSettings        closeSettings;
-	FocusSettings        focusSettings;
-	InstanceSettings     instanceSettings;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -489,6 +487,8 @@ struct BehaviorSettings2 : public SettingsBase
 
 	BehaviorSettings2& operator=(const BehaviorSettings2& other);
 
+	FocusSettings        focusSettings;
+	InstanceSettings     instanceSettings;
 	CloneSettings        cloneSettings;
 	RunAsUserSettings    runAsUserSettings;
 };

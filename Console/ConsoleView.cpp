@@ -867,7 +867,7 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 			if( ::TrackMouseEvent(&params) )
 			{
 				TRACE(L"onhover %p\n", m_hWnd);
-				if( g_settingsHandler->GetBehaviorSettings().focusSettings.bFollowMouse )
+				if( g_settingsHandler->GetBehaviorSettings2().focusSettings.bFollowMouse )
 					m_mainFrame.SetActiveConsole(m_hwndTabView, m_hWnd);
 				m_bMouseTracking = true;
 			}

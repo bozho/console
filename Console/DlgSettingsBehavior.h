@@ -27,6 +27,7 @@ class DlgSettingsBehavior
 			DDX_CHECK(IDC_CHECK_NO_WRAP, m_behaviorSettings.copyPasteSettings.bNoWrap)
 			DDX_UINT(IDC_EOL_SPACES, m_behaviorSettings.copyPasteSettings.dwEOLSpaces)
 			DDX_CHECK(IDC_CHECK_TRIM_SPACES, m_behaviorSettings.copyPasteSettings.bTrimSpaces)
+			DDX_CHECK(IDC_CHECK_RTF, m_behaviorSettings.copyPasteSettings.bRTF)
 			DDX_RADIO(IDC_RADIO_COPY_NEWLINE_CHAR, m_nCopyNewlineChar)
 			DDX_RADIO(IDC_PAGE_SCROLL, m_nScrollPageType)
 			DDX_UINT(IDC_SCROLL_PAGE_ROWS, m_behaviorSettings.scrollSettings.dwPageScrollRows)
@@ -40,10 +41,6 @@ class DlgSettingsBehavior
 			DDX_TEXT(IDC_RIGHT_DELIMITERS, m_strRightDelimiters)
 			DDX_CHECK(IDC_CHECK_CLOSING_LAST_TAB, m_behaviorSettings.closeSettings.bAllowClosingLastView)
 			DDX_CHECK(IDC_CHECK_CONFIRM_CLOSE_MULTI, m_behaviorSettings.closeSettings.bConfirmClosingMultipleViews)
-
-			DDX_CHECK(IDC_CHECK_FOCUS_FOLLOW_MOUSE, m_behaviorSettings.focusSettings.bFollowMouse)
-			DDX_CHECK(IDC_CHECK_MULTI_INSTANCES, m_behaviorSettings.instanceSettings.bAllowMultipleInstances)
-
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsBehavior)

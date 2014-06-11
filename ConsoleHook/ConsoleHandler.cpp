@@ -1002,9 +1002,10 @@ void ConsoleHandler::CopyConsoleText()
 			0));
 
 	std::unique_ptr<ClipboardData> clipboardDataPtr[2];
-	size_t clipboardDataCount = 2;
-	clipboardDataPtr[0].reset(new ClipboardDataUnicode());
-	clipboardDataPtr[1].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
+	size_t clipboardDataCount = 0;
+	clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataUnicode());
+	if( m_consoleCopyInfo->bRTF )
+		clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
 
 	if( m_consoleCopyInfo->selectionType == seltypeColumn )
 		CopyConsoleTextColumn(hStdOut.get(), clipboardDataPtr, clipboardDataCount);

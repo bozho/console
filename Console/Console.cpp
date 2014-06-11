@@ -165,7 +165,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 		if (!bReuse)
 		{
-			bReuse = !g_settingsHandler->GetBehaviorSettings().instanceSettings.bAllowMultipleInstances;
+			bReuse = !g_settingsHandler->GetBehaviorSettings2().instanceSettings.bAllowMultipleInstances;
 		}
 
 		if (!strSyncName.empty())

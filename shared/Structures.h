@@ -118,6 +118,7 @@ struct ConsoleCopy
 	, bNoWrap(false)
 	, dwEOLSpaces(1)
 	, bTrimSpaces(false)
+	, bRTF(true)
 	, copyNewlineChar(newlineCRLF)
 	, selectionType(seltypeText)
 	, bBold(false)
@@ -148,6 +149,7 @@ struct ConsoleCopy
 	COORD	coordEnd;
 	bool	bNoWrap;
 	bool	bTrimSpaces;
+	bool  bRTF;
 	bool  bBold;
 	bool  bItalic;
 	CopyNewlineChar	copyNewlineChar;

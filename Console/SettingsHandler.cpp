@@ -871,6 +871,7 @@ CopyPasteSettings::CopyPasteSettings()
 , bSensitiveCopy(true)
 , bNoWrap(false)
 , bTrimSpaces(false)
+, bRTF(true)
 , copyNewlineChar(newlineCRLF)
 , bIncludeLeftDelimiter(false)
 , bIncludeRightDelimiter(false)
@@ -899,6 +900,7 @@ bool CopyPasteSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"eol_spaces"), dwEOLSpaces, 1);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces, false);
+	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"rtf"), bRTF, true);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), nNewlineChar, 0);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_left_delimiter"), bIncludeLeftDelimiter, false);
 	XmlHelper::GetAttribute(pCopyPasteElement, CComBSTR(L"include_right_delimiter"), bIncludeRightDelimiter, false);
@@ -927,6 +929,7 @@ bool CopyPasteSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"no_wrap"), bNoWrap);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"eol_spaces"), dwEOLSpaces);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"trim_spaces"), bTrimSpaces);
+	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"rtf"), bRTF);
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"copy_newline_char"), static_cast<int>(copyNewlineChar));
 
 	XmlHelper::SetAttribute(pCopyPasteElement, CComBSTR(L"include_left_delimiter"), bIncludeLeftDelimiter);
@@ -949,6 +952,7 @@ CopyPasteSettings& CopyPasteSettings::operator=(const CopyPasteSettings& other)
 	bSensitiveCopy	= other.bSensitiveCopy;
 	bNoWrap			= other.bNoWrap;
 	bTrimSpaces		= other.bTrimSpaces;
+	bRTF		= other.bRTF;
 	copyNewlineChar	= other.copyNewlineChar;
 	bIncludeLeftDelimiter	= other.bIncludeLeftDelimiter;
 	bIncludeRightDelimiter	= other.bIncludeRightDelimiter;
@@ -1415,8 +1419,6 @@ bool BehaviorSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	scrollSettings.Load(pSettingsRoot);
 	tabHighlightSettings.Load(pSettingsRoot);
 	closeSettings.Load(pSettingsRoot);
-	focusSettings.Load(pSettingsRoot);
-	instanceSettings.Load(pSettingsRoot);
 
 	return true;
 }
@@ -1432,8 +1434,6 @@ bool BehaviorSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	scrollSettings.Save(pSettingsRoot);
 	tabHighlightSettings.Save(pSettingsRoot);
 	closeSettings.Save(pSettingsRoot);
-	focusSettings.Save(pSettingsRoot);
-	instanceSettings.Save(pSettingsRoot);
 
 	return true;
 }
@@ -1449,8 +1449,6 @@ BehaviorSettings& BehaviorSettings::operator=(const BehaviorSettings& other)
 	scrollSettings       = other.scrollSettings;
 	tabHighlightSettings = other.tabHighlightSettings;
 	closeSettings        = other.closeSettings;
-	focusSettings        = other.focusSettings;
-	instanceSettings     = other.instanceSettings;
 
 	return *this;
 }
@@ -1476,6 +1474,8 @@ BehaviorSettings2::BehaviorSettings2()
 
 bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
+	focusSettings.Load(pSettingsRoot);
+	instanceSettings.Load(pSettingsRoot);
 	cloneSettings.Load(pSettingsRoot);
 	runAsUserSettings.Load(pSettingsRoot);
 
@@ -1489,6 +1489,8 @@ bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 {
+	focusSettings.Save(pSettingsRoot);
+	instanceSettings.Save(pSettingsRoot);
 	cloneSettings.Save(pSettingsRoot);
 	runAsUserSettings.Save(pSettingsRoot);
 
@@ -1502,6 +1504,8 @@ bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 BehaviorSettings2& BehaviorSettings2::operator=(const BehaviorSettings2& other)
 {
+	focusSettings        = other.focusSettings;
+	instanceSettings     = other.instanceSettings;
 	cloneSettings        = other.cloneSettings;
 	runAsUserSettings    = other.runAsUserSettings;
 

@@ -79,12 +79,12 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_strCmdLineInitialCmd(strCmdLineInitialCmd)
 , m_boolImmComposition(false)
 {
+	m_coordSearchText.X = -1;
+	m_coordSearchText.Y = -1;
 }
 
 ConsoleView::~ConsoleView()
 {
-	m_coordSearchText.X = -1;
-	m_coordSearchText.Y = -1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1982,7 +1982,10 @@ void ConsoleView::SearchText(CString& text, bool bNext)
 	COORD left, right;
 	m_consoleHandler.SearchText(text, bNext, m_coordSearchText, left, right);
 
-	TRACE(L"searching returns %hux%hu - %hux%hu\n", left.X, left.Y, right.X, right.Y);
+	TRACE(L"searching from %hdx%hd returns %hdx%hd - %hdx%hd\n",
+		m_coordSearchText.X, m_coordSearchText.Y,
+		left.X, left.Y,
+		right.X, right.Y);
 
 	if( left.X != -1 && left.Y != -1 && right.X != -1 && right.Y != -1 )
 	{

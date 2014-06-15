@@ -72,6 +72,9 @@ SelectionHandler::~SelectionHandler()
 
 void SelectionHandler::SelectWord(const COORD& coordInit)
 {
+	// reset selection if selection is not cleared
+	if (m_selectionState > selstateSelecting) m_selectionState = selstateNoSelection;
+
   if (m_selectionState > selstateNoSelection) return;
 
   // stop console scrolling while selecting
@@ -90,6 +93,9 @@ void SelectionHandler::SelectWord(const COORD& coordInit)
 
 void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType)
 {
+	// reset selection if selection is not cleared
+	if (m_selectionState > selstateSelecting) m_selectionState = selstateNoSelection;
+
 	if (m_selectionState > selstateNoSelection) return;
 
 	m_selectionType = selectionType;
@@ -272,6 +278,11 @@ void SelectionHandler::UpdateSelection()
 
 void SelectionHandler::SelectAll(void)
 {
+	// reset selection if selection is not cleared
+	if (m_selectionState > selstateSelecting) m_selectionState = selstateNoSelection;
+
+	if (m_selectionState > selstateNoSelection) return;
+
 	m_coordInitial.X = 0;
 	m_coordInitial.Y = 0;
 	m_coordCurrent.X = m_consoleInfo->csbi.dwSize.X - 1;

@@ -243,7 +243,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 
 //	TRACE(L"===================================================================\n");
 
-	// compare previous buffer, and if different notify Console
+	// compare previous buffer, and if different notify ConsoleZ
 	SharedMemoryLock consoleInfoLock(m_consoleInfo);
 	SharedMemoryLock bufferLock(m_consoleBuffer);
 
@@ -260,7 +260,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 
 		::CopyMemory(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
 		
-		// only Console sets the flag to false, after it's done repainting text
+		// only ConsoleZ sets the flag to false, after it's done repainting text
 		if (textChanged) m_consoleInfo->textChanged = true;
 
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));

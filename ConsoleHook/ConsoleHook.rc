@@ -71,7 +71,7 @@ BEGIN
         BLOCK "000004b0"
         BEGIN
             VALUE "Comments", "Tabbed cool console window (THIS IS NOT A SHELL :-)"
-            VALUE "FileDescription", "Console process hook module"
+            VALUE "FileDescription", "ConsoleZ process hook module"
             VALUE "FileVersion", VERSION_FILE
             VALUE "InternalName", "ConsoleZ"
             VALUE "LegalCopyright", VERSION_COPYRIGHT

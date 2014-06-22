@@ -8,7 +8,7 @@ Display compile progress=No
 Full-text search=Yes
 Index file=console.hhk
 Language=0x409 English (United States)
-Title=Console Help
+Title=ConsoleZ Help
 
 [WINDOWS]
 Main=,"console.hhc","console.hhk","html\introduction.html",,,,,,0x42520,,0x301e,[271,372,1071,972],,,,,,,0
@@ -35,7 +35,6 @@ html\settings_tabs.html
 html\settings_tabs_background.html
 html\settings_tabs_colors.html
 html\language.html
-html\tips_tricks.html
 html\changelog.html
 html\credentials.html
 

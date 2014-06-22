@@ -137,7 +137,7 @@ END
 
 IDD_SETTINGS_MAIN DIALOGEX 0, 0, 354, 321
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Console Settings"
+CAPTION "ConsoleZ Settings"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_TREE_SECTIONS,"SysTreeView32",TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS | TVS_NOSCROLL | WS_BORDER | WS_TABSTOP,7,7,98,265
@@ -804,7 +804,7 @@ BEGIN
     BEGIN
         MENUITEM "&Help",                       ID_HELP
         MENUITEM SEPARATOR
-        MENUITEM "&About Console...",           ID_APP_ABOUT
+        MENUITEM "&About ConsoleZ...",          ID_APP_ABOUT
     END
 END
 
@@ -860,7 +860,7 @@ BEGIN
         BLOCK "000004b0"
         BEGIN
             VALUE "Comments", "Tabbed cool console window (THIS IS NOT A SHELL :-)"
-            VALUE "FileDescription", "Main Console module"
+            VALUE "FileDescription", "Main ConsoleZ module"
             VALUE "FileVersion", VERSION_FILE
             VALUE "InternalName", "ConsoleZ"
             VALUE "LegalCopyright", VERSION_COPYRIGHT
@@ -1007,7 +1007,7 @@ CONSOLE.XML             HTML                    "..\\setup\\config\\console.xml"
 
 STRINGTABLE
 BEGIN
-    IDR_MAINFRAME           "Console"
+    IDR_MAINFRAME           "ConsoleZ"
     IDS_TAB_CREATE_FAILED   "Failed to open %s tab!\nThe process %s could still be running (use the Task Manager to find it and end it)"
 END
 

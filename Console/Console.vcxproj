@@ -691,7 +691,11 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="XmlHelper.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\help\html\credentials.html" />
+    <None Include="..\help\html\settings_appearance_font.html" />
     <None Include="..\help\html\settings_appearance_fullscreen.html" />
+    <None Include="..\help\html\settings_appearance_styles.html" />
+    <None Include="..\help\html\settings_behavior_more.html" />
     <None Include="..\help\html\settings_tabs_background.html" />
     <None Include="..\help\html\settings_tabs_colors.html" />
     <None Include="..\help\html\settings_tabs_main.html" />
@@ -858,6 +862,7 @@ echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Com
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">changelog.html</Message>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)help\html\changelog.html</Outputs>
     </CustomBuild>
+    <None Include="..\help\html\text_formatting.html" />
     <None Include="..\setup\config\console.xml" />
     <None Include="res\Console.ico" />
     <None Include="res\toolbar.bmp" />

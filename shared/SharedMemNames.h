@@ -31,17 +31,17 @@ class SharedMemNames
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::wformat SharedMemNames::formatConsoleParams(L"Console2_params_%1%");
-boost::wformat SharedMemNames::formatInfo(L"Console2_consoleInfo_%1%");
-boost::wformat SharedMemNames::formatCursorInfo(L"Console2_cursorInfo_%1%");
-boost::wformat SharedMemNames::formatBuffer(L"Console2_consoleBuffer_%1%");
-boost::wformat SharedMemNames::formatCopyInfo(L"Console2_consoleCopyInfo_%1%");
-boost::wformat SharedMemNames::formatMouseEvent(L"Console2_consoleMouseEvent_%1%");
-boost::wformat SharedMemNames::formatNewConsoleSize(L"Console2_newConsoleSize_%1%");
-boost::wformat SharedMemNames::formatNewScrollPos(L"Console2_newScrollPos_%1%");
-boost::wformat SharedMemNames::formatWatchdog(L"Local\\Console2_parentProcessExit_%1%");
-boost::wformat SharedMemNames::formatAdmin(L"Console2_admin_%1%");
-boost::wformat SharedMemNames::formatPipeName(L"\\\\.\\pipe\\Console2_pipe_%1%");
-boost::wformat SharedMemNames::formatMultipleInfo(L"Console2_multipleInfo_%1%");
+boost::wformat SharedMemNames::formatConsoleParams(L"ConsoleZ_params_%1%");
+boost::wformat SharedMemNames::formatInfo(L"ConsoleZ_consoleInfo_%1%");
+boost::wformat SharedMemNames::formatCursorInfo(L"ConsoleZ_cursorInfo_%1%");
+boost::wformat SharedMemNames::formatBuffer(L"ConsoleZ_consoleBuffer_%1%");
+boost::wformat SharedMemNames::formatCopyInfo(L"ConsoleZ_consoleCopyInfo_%1%");
+boost::wformat SharedMemNames::formatMouseEvent(L"ConsoleZ_consoleMouseEvent_%1%");
+boost::wformat SharedMemNames::formatNewConsoleSize(L"ConsoleZ_newConsoleSize_%1%");
+boost::wformat SharedMemNames::formatNewScrollPos(L"ConsoleZ_newScrollPos_%1%");
+boost::wformat SharedMemNames::formatWatchdog(L"Local\\ConsoleZ_parentProcessExit_%1%");
+boost::wformat SharedMemNames::formatAdmin(L"ConsoleZ_admin_%1%");
+boost::wformat SharedMemNames::formatPipeName(L"\\\\.\\pipe\\ConsoleZ_pipe_%1%");
+boost::wformat SharedMemNames::formatMultipleInfo(L"ConsoleZ_multipleInfo_%1%");
 
 //////////////////////////////////////////////////////////////////////////////

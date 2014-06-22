@@ -107,7 +107,7 @@ static bool HandleReuse(LPCTSTR lpstrCmdLine)
 	SharedMemory<HWND> sharedInstance;
   try
   {
-    sharedInstance.Open(L"Console", syncObjNone);
+    sharedInstance.Open(L"ConsoleZ", syncObjNone);
   }
   catch(Win32Exception& ex)
   {
@@ -270,7 +270,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
     SharedMemory<HWND> sharedInstance;
     if (bReuse)
     {
-      sharedInstance.Create(L"Console", 1, syncObjNone, _T(""));
+      sharedInstance.Create(L"ConsoleZ", 1, syncObjNone, _T(""));
       sharedInstance = wndMain.m_hWnd;
     }
 

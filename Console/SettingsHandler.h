@@ -737,7 +737,7 @@ enum BackgroundImageType
 struct TabData
 {
 	TabData(const wstring& shell, const wstring& initialDir)
-	: strTitle(L"Console")
+	: strTitle(L"ConsoleZ")
 	, strIcon(L"")
 	, bUseDefaultIcon(false)
 	, hwnd(nullptr)

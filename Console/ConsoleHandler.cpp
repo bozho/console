@@ -291,7 +291,7 @@ void ConsoleHandler::CreateShellProcess
 	if (g_settingsHandler->GetConsoleSettings().bStartHidden)
 	{
 		// Starting Windows console window hidden causes problems with 
-		// some GUI apps started from Console that use SW_SHOWDEFAULT to 
+		// some GUI apps started from ConsoleZ that use SW_SHOWDEFAULT to 
 		// initially show their main window (i.e. the window inherits our 
 		// SW_HIDE flag and remains invisible :-)
 		si.dwFlags		= STARTF_USESHOWWINDOW;

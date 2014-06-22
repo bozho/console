@@ -6,8 +6,8 @@
 #define ID_NEW_TAB_FIRST		1000
 
 // Timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
-// when the Console window is resized using a mouse)
-// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
+// when the ConsoleZ window is resized using a mouse)
+// External utilities that might resize ConsoleZ window usually don't send WM_EXITSIZEMOVE
 // message after resizing a window.
 #define	TIMER_SIZING			42
 #define	TIMER_SIZING_INTERVAL	100

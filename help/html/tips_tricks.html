@@ -15,7 +15,7 @@
 	</h2>
 	
 	<p>
-		Console can completely replace your console windows, but you need to
+		ConsoleZ can completely replace your console windows, but you need to
 		dig around the Registry.
 	</p>
 	<p>
@@ -32,7 +32,7 @@
 	</p>
 	<p>
 		Now, for each console process you'd like to replace, you need to 
-		create one such key with 'Debugger' value set to run Console. Let's 
+		create one such key with 'Debugger' value set to run ConsoleZ. Let's 
 		do it with cmd.exe:
 		
 		<ul>
@@ -41,19 +41,19 @@
 			</li>
 			<li>
 				In it, create a string value named 'Debugger' and set its 
-				value to 'C:\Program Files\Console\Console.exe -dbg' (path to
+				value to 'C:\Program Files\ConsoleZ\Console.exe -dbg' (path to
 				Console.exe may be different on your computer)
 			</li>
 			<li>
 				Try running cmd.exe now!
 			</li>
 			<li>
-				If you wish Console to be started with a specific config file
+				If you wish ConsoleZ to be started with a specific config file
 				and/or tab name, put -c and -t command line options before 
 				-dbg option:
 				<br /><br/>
-				'C:\Program Files\Console\Console.exe -c console_dbg.xml -t 
-				console2 -dbg'
+				'C:\Program Files\ConsoleZ\Console.exe -c console_dbg.xml -t 
+				ConsoleZ -dbg'
 			</li>
 		</ul>
 		
@@ -65,7 +65,7 @@
 		<li>
 			Creating a key like this will affect any program instance. For 
 			example, if cmd.exe is used to run batch files, starting a batch
-			file from Windows explorer, Console will be started. Some 
+			file from Windows explorer, ConsoleZ will be started. Some 
 			applications (like Visual Studio) start shell instances to perform 
 			some tasks. Consider yourselves warned, things may go wrong.
 		</li>
@@ -75,7 +75,7 @@
 		</li>
 		<li>
 			This feature is considered a bit advanced and unsafe. That's why 
-			you can't configure it in Console.
+			you can't configure it in ConsoleZ.
 		</li>
 	</ul>
 </body>

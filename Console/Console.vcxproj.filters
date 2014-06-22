@@ -355,6 +355,21 @@
     <None Include="..\help\html\settings_tabs_main.html">
       <Filter>Help Files\html</Filter>
     </None>
+    <None Include="..\help\html\settings_appearance_font.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\settings_appearance_styles.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\settings_behavior_more.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\text_formatting.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\credentials.html">
+      <Filter>Help Files\html</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc">

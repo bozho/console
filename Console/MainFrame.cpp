@@ -730,8 +730,8 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL&
 	}
 
 	// Start timer that will force a call to ResizeWindow (called from WM_EXITSIZEMOVE handler
-	// when the Console window is resized using a mouse)
-	// External utilities that might resize Console window usually don't send WM_EXITSIZEMOVE
+	// when the ConsoleZ window is resized using a mouse)
+	// External utilities that might resize ConsoleZ window usually don't send WM_EXITSIZEMOVE
 	// message after resizing a window.
 	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
 
@@ -829,7 +829,7 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			CRect	rectWindow;
 			CPoint	pointCursor;
 
-			// we'll snap Console window to the desktop edges
+			// we'll snap ConsoleZ window to the desktop edges
 
 			// WM_WINDOWPOSCHANGING will be called when locking a computer
 			// GetCursorPos will fail in that case; in that case we return and prevent invalid window position after unlock
@@ -3493,7 +3493,7 @@ void MainFrame::SetTransparency()
   switch (transparencySettings.transType)
   {
   case transAlpha:
-    // if Console is pinned to the desktop window, wee need to set it as top-level window temporarily
+    // if ConsoleZ is pinned to the desktop window, wee need to set it as top-level window temporarily
     if (m_zOrder == zorderDesktop) SetParent(NULL);
 
     if ((transparencySettings.byActiveAlpha == 255) &&

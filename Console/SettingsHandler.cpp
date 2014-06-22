@@ -255,7 +255,7 @@ FontSettings& FontSettings::operator=(const FontSettings& other)
 //////////////////////////////////////////////////////////////////////////////
 
 WindowSettings::WindowSettings()
-: strTitle(L"Console")
+: strTitle(L"ConsoleZ")
 , strIcon(L"")
 , strMainTitleFormat(L"?U([%u] )?N({%u} )%m?s( - %s)")
 , strTabTitleFormat(L"%n. ?U([%u] )?N({%u} )%t?s( - %s)")
@@ -277,7 +277,7 @@ bool WindowSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/window"), pWindowElement))) return false;
 
-	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"title"), strTitle, wstring(L"Console"));
+	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"title"), strTitle, wstring(L"ConsoleZ"));
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"icon"), strIcon, wstring(L""));
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"main_title_format"), strMainTitleFormat, wstring(L""));
 	XmlHelper::GetAttribute(pWindowElement, CComBSTR(L"tab_title_format"), strTabTitleFormat, wstring(L""));
@@ -1528,7 +1528,7 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"settings",		ID_EDIT_SETTINGS,	L"Settings dialog")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"help",			ID_HELP,			L"Help")));
 
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit Console")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"exit",			ID_APP_EXIT,		L"Exit ConsoleZ")));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab1",		ID_NEW_TAB_1,		L"New Tab 1")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"newtab2",		ID_NEW_TAB_1 + 1,	L"New Tab 2")));
@@ -1611,7 +1611,7 @@ HotKeys::HotKeys()
 	}
 
 	// global commands
-	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate Console (global)", true)));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"activate",	IDC_GLOBAL_ACTIVATE,	L"Activate ConsoleZ (global)", true)));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2038,7 +2038,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		CComPtr<IXMLDOMElement>	pCursorElement;
 		CComPtr<IXMLDOMElement>	pBackgroundElement;
 
-		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"title"), tabData->strTitle, L"Console");
+		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"title"), tabData->strTitle, L"ConsoleZ");
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"icon"), tabData->strIcon, L"");
 		XmlHelper::GetAttribute(pTabElement, CComBSTR(L"use_default_icon"), tabData->bUseDefaultIcon, false);
 

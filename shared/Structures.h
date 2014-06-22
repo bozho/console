@@ -49,7 +49,7 @@ struct ConsoleParams
 	union
 	{
 		HWND	hwndConsoleWindow;
-		// padding for 32-bit processes started from 64-bit Console
+		// padding for 32-bit processes started from 64-bit ConsoleZ
 		__int64	padding;
 	};
 

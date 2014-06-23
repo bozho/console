@@ -48,6 +48,7 @@ class ConsoleHandler
 		void CopyConsoleTextLine  (HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount);
 		void CopyConsoleTextColumn(HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount);
 		void SelectWord           (HANDLE hStdOut);
+		void SearchText           (HANDLE hStdOut);
 
 	private:
 

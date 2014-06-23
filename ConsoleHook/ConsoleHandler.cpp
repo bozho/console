@@ -1021,6 +1021,11 @@ void ConsoleHandler::CopyConsoleText()
 	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::SelectWord(HANDLE hStdOut)
 {
 	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
@@ -1055,11 +1060,11 @@ void ConsoleHandler::SelectWord(HANDLE hStdOut)
 
 		for (SHORT x = srBuffer.Right; x >= srBuffer.Left; --x)
 		{
-			for (size_t d = 0; m_multipleInfo->szLeftDelimiters[d]; ++d)
+			for (size_t d = 0; m_multipleInfo->u.select_word.szLeftDelimiters[d]; ++d)
 			{
-				if( pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar == m_multipleInfo->szLeftDelimiters[d] )
+				if( pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar == m_multipleInfo->u.select_word.szLeftDelimiters[d] )
 				{
-					if( m_multipleInfo->bIncludeLeftDelimiter )
+					if( m_multipleInfo->u.select_word.bIncludeLeftDelimiter )
 					{
 						m_multipleInfo->coordLeft.X = x;
 						m_multipleInfo->coordLeft.Y = y;
@@ -1100,11 +1105,11 @@ right:
 
 		for (SHORT x = srBuffer.Left; x <= srBuffer.Right; ++x)
 		{
-			for (size_t d = 0; m_multipleInfo->szLeftDelimiters[d]; ++d)
+			for (size_t d = 0; m_multipleInfo->u.select_word.szLeftDelimiters[d]; ++d)
 			{
-				if( pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar == m_multipleInfo->szLeftDelimiters[d] )
+				if( pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar == m_multipleInfo->u.select_word.szLeftDelimiters[d] )
 				{
-					if( m_multipleInfo->bIncludeRightDelimiter )
+					if( m_multipleInfo->u.select_word.bIncludeRightDelimiter )
 					{
 						m_multipleInfo->coordRight.X = x;
 						m_multipleInfo->coordRight.Y = y;
@@ -1120,6 +1125,142 @@ right:
 			x0 = x;
 		}
 		y0 = y;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::SearchText(HANDLE hStdOut)
+{
+	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
+	SHORT                        sBufferRows     = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
+	COORD                        coordFrom       = {0, 0};
+	COORD                        coordBufferSize = {sBufferColumns, 1};
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[sBufferColumns]);
+
+	m_multipleInfo->coordLeft.X  = -1;
+	m_multipleInfo->coordLeft.Y  = -1;
+	m_multipleInfo->coordRight.X = -1;
+	m_multipleInfo->coordRight.Y = -1;
+
+	wchar_t text[MAX_SEARCH_TEXT + 2];
+	int index          = 0;
+	int len            = static_cast<int>(wcslen(m_multipleInfo->u.search_text.szText));
+	int current_offset = static_cast<int>(m_multipleInfo->coordCurrent.Y) * static_cast<int>(sBufferColumns) + static_cast<int>(m_multipleInfo->coordCurrent.X);
+	int offset         = 0;
+	int row_offset     = 0;
+	int last_offset    = INT_MIN;
+
+	if( m_multipleInfo->u.search_text.bMatchWholeWord )
+	{
+		text[0] = 0;
+		for(int i = 0, j = 1; i < len; ++i, ++j)
+			text[j] = m_multipleInfo->u.search_text.bMatchCase? m_multipleInfo->u.search_text.szText[i] : towupper(m_multipleInfo->u.search_text.szText[i]);
+		text[len + 1] = 0;
+
+		index = 1;
+		len += 2;
+		current_offset --;
+	}
+	else
+	{
+		for(int i = 0; i < len; ++i)
+			text[i] = m_multipleInfo->u.search_text.bMatchCase? m_multipleInfo->u.search_text.szText[i] : towupper(m_multipleInfo->u.search_text.szText[i]);
+	}
+
+	for (SHORT y = 0; y < sBufferRows - 1; ++y, row_offset += static_cast<int>(sBufferColumns))
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = 0;
+		srBuffer.Top    = y;
+		srBuffer.Right  = sBufferColumns - 1;
+		srBuffer.Bottom = y;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		int prev_index = index;
+
+		for(int i = (-prev_index); i < static_cast<int>(sBufferColumns); ++i)
+		{
+			offset = row_offset + i;
+
+			if( !m_multipleInfo->u.search_text.bNext && offset >= current_offset )
+			{
+				if( last_offset != INT_MIN )
+				{
+					if( m_multipleInfo->u.search_text.bMatchWholeWord )
+					{
+						last_offset ++;
+						len -= 2;
+					}
+					m_multipleInfo->coordLeft.X  = static_cast<SHORT>(last_offset % static_cast<int>(sBufferColumns));
+					m_multipleInfo->coordLeft.Y  = static_cast<SHORT>(last_offset / static_cast<int>(sBufferColumns));
+					last_offset += (len - 1);
+					m_multipleInfo->coordRight.X = static_cast<SHORT>(last_offset % static_cast<int>(sBufferColumns));
+					m_multipleInfo->coordRight.Y = static_cast<SHORT>(last_offset / static_cast<int>(sBufferColumns));
+				}
+				return;
+			}
+
+			for(int j = (i + index); j < static_cast<int>(sBufferColumns); ++j)
+			{
+				wchar_t c = ( j < 0 )? text[j + prev_index] : pScreenBuffer[j].Char.UnicodeChar;
+
+				if( text[index] == 0 )
+				{
+					if( !iswspace(c) && !iswpunct(c) )
+					{
+						index = 0;
+						break;
+					}
+				}
+				else
+				{
+					if( !m_multipleInfo->u.search_text.bMatchCase )
+						c = towupper(c);
+
+					if( c != text[index] )
+					{
+						index = 0;
+						break;
+					}
+				}
+
+				index++;
+
+				if( index == len )
+				{
+					if( m_multipleInfo->u.search_text.bNext && offset > current_offset )
+					{
+						if( m_multipleInfo->u.search_text.bMatchWholeWord )
+						{
+							offset ++;
+							len -= 2;
+						}
+						m_multipleInfo->coordLeft.X  = static_cast<SHORT>(offset % static_cast<int>(sBufferColumns));
+						m_multipleInfo->coordLeft.Y  = static_cast<SHORT>(offset / static_cast<int>(sBufferColumns));
+						offset += (len - 1);
+						m_multipleInfo->coordRight.X = static_cast<SHORT>(offset % static_cast<int>(sBufferColumns));
+						m_multipleInfo->coordRight.Y = static_cast<SHORT>(offset / static_cast<int>(sBufferColumns));
+						return;
+					}
+
+					last_offset = offset;
+
+					index = 0;
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -1432,6 +1573,11 @@ DWORD ConsoleHandler::MonitorThread()
 				if( m_multipleInfo->fMask & MULTIPLEINFO_SELECT_WORD )
 				{
 					SelectWord(hStdOut);
+				}
+				//  search
+				else if( m_multipleInfo->fMask & MULTIPLEINFO_SEARCH_TEXT )
+				{
+					SearchText(hStdOut);
 				}
 
 				::SetEvent(m_multipleInfo.GetRespEvent());

@@ -153,6 +153,7 @@ struct ControlsSettings
 
 	bool			bShowMenu;
 	bool			bShowToolbar;
+	bool			bShowSearchbar;
 	bool			bShowStatusbar;
 	bool			bShowTabs;
 	bool			bHideSingleTab;
@@ -187,6 +188,7 @@ struct StylesSettings : public SettingsBase
 	DWORD			dwInsideBorder;
 	DWORD			dwQuakeAnimationTime;
 	COLORREF		crSelectionColor;
+	COLORREF		crHighlightColor;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -441,6 +443,24 @@ struct CloneSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct SearchSettings : public SettingsBase
+{
+	SearchSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	SearchSettings& operator=(const SearchSettings& other);
+
+	bool bMatchCase;
+	bool bMatchWholeWord;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct RunAsUserSettings : public SettingsBase
 {
 	RunAsUserSettings();
@@ -490,6 +510,7 @@ struct BehaviorSettings2 : public SettingsBase
 	FocusSettings        focusSettings;
 	InstanceSettings     instanceSettings;
 	CloneSettings        cloneSettings;
+	SearchSettings       searchSettings;
 	RunAsUserSettings    runAsUserSettings;
 };
 

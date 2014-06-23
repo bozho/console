@@ -101,6 +101,7 @@ MainFrame::MainFrame
 , m_bMenuVisible     (true)
 , m_bMenuChecked     (true)
 , m_bToolbarVisible  (true)
+, m_bSearchBarVisible(true)
 , m_bStatusBarVisible(true)
 , m_bTabsVisible     (true)
 , m_bFullScreen      (false)
@@ -147,6 +148,13 @@ BOOL MainFrame::PreTranslateMessage(MSG* pMsg)
 	if (!m_acceleratorTable.IsNull() && m_acceleratorTable.TranslateAccelerator(m_hWnd, pMsg)) return TRUE;
 
 	if(CTabbedFrameImpl<MainFrame>::PreTranslateMessage(pMsg)) return TRUE;
+
+	if( pMsg->hwnd == m_searchedit.m_hWnd )
+	{
+		if( pMsg->message == WM_KEYDOWN && pMsg->wParam == VK_RETURN )
+			this->PostMessage(WM_COMMAND, MAKEWPARAM(ID_SEARCH_PREV, 0));
+		return FALSE;
+	}
 
 	if (!m_activeTabView) return FALSE;
 
@@ -256,7 +264,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
   }
 
 #ifdef _USE_AERO
-  HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #else
 	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #endif
@@ -267,34 +275,92 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	tbi.dwMask	= TBIF_STYLE;
 	tbi.cbSize	= sizeof(TBBUTTONINFO);
-	
+
 	m_toolbar.GetButtonInfo(ID_FILE_NEW_TAB, &tbi);
-#ifdef _USE_AERO
-  // TBSTYLE_DROPDOWN : the button separator is not drawed
-	tbi.fsStyle |= BTNS_WHOLEDROPDOWN;
-#else
-	tbi.fsStyle |= TBSTYLE_DROPDOWN;
-#endif
+	tbi.fsStyle |= BTNS_DROPDOWN;
 	m_toolbar.SetButtonInfo(ID_FILE_NEW_TAB, &tbi);
 
 	m_toolbar.AddBitmap(1, IDR_FULLSCREEN1);
 	m_nFullSreen1Bitmap = m_toolbar.GetImageList().GetImageCount() - 1;
 	m_nFullSreen2Bitmap = m_toolbar.GetBitmap(ID_VIEW_FULLSCREEN);
 
-
 #ifdef _USE_AERO
-  CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE & ~RBS_BANDBORDERS);
+	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE & ~RBS_BANDBORDERS);
 #else
 	CreateSimpleReBar(ATL_SIMPLE_REBAR_NOBORDER_STYLE);
 #endif
 	AddSimpleReBarBand(hWndCmdBar, NULL, FALSE);
-	AddSimpleReBarBand(hWndToolBar, NULL, TRUE);
+	AddSimpleReBarBand(hWndToolBar, NULL, TRUE, 0, TRUE);
+
+	HWND hWndToolBar2 = CreateSimpleToolBarCtrl(m_hWnd, IDR_SEARCH, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+#ifdef _USE_AERO
+	if (hWndToolBar2 != NULL)
+		aero::Subclass(m_searchbar, hWndToolBar2);
+#else
+	m_searchbar = hWndToolBar2;
+#endif
+
+	AddSimpleReBarBand(hWndToolBar2, NULL, FALSE, 0, TRUE);
+
+	SizeSimpleReBarBands();
 
 #ifdef _USE_AERO
-  // we remove the grippers
-  CReBarCtrl rebar(m_hWndToolBar);
-  rebar.LockBands(true);
+	// we remove the grippers
+	CReBarCtrl rebar(m_hWndToolBar);
+	rebar.LockBands(true);
 #endif
+
+	tbi.cbSize = sizeof(TBBUTTONINFO);
+	tbi.dwMask = TBIF_SIZE | TBIF_STATE | TBIF_STYLE;
+
+	// Make sure the underlying button is disabled
+	tbi.fsState = 0;
+	// BTNS_SHOWTEXT will allow the button size to be altered
+	tbi.fsStyle = BTNS_SHOWTEXT;
+	tbi.cx = 100;
+
+	m_searchbar.SetButtonInfo(ID_SEARCH_COMBO, &tbi);
+
+	SizeSimpleReBarBands();
+
+	// Get the button rect
+	CRect rcCombo;
+	m_searchbar.GetItemRect(0, rcCombo);
+
+	// create search bar combo
+	m_cb.Create(m_hWnd, rcCombo, NULL, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBS_DROPDOWN | WS_VSCROLL);
+	m_cb.SetParent(hWndToolBar2);
+
+	// set 5 lines visible in combo list
+	m_cb.GetComboCtrl().ResizeClient(rcCombo.Width(),  rcCombo.Height() + 5 * m_cb.GetItemHeight(0));
+
+#ifdef _USE_AERO
+	aero::Subclass(m_searchedit, m_cb.GetEditCtrl().m_hWnd);
+#else
+	m_searchedit = m_cb.GetEditCtrl();
+#endif
+
+	m_searchedit.SetCueBannerText(L"Search...");
+
+	// The combobox might not be centred vertically, and we won't know the
+	// height until it has been created.  Get the size now and see if it
+	// needs to be moved.
+	CRect rectToolBar;
+	CRect rectCombo;
+	m_searchbar.GetClientRect(&rectToolBar);
+	m_cb.GetWindowRect(rectCombo);
+
+	// Get the different between the heights of the toolbar and
+	// the combobox
+	int nDiff = rectToolBar.Height() - rectCombo.Height();
+	// If there is a difference, then move the combobox
+	if (nDiff > 1)
+	{
+		m_searchbar.ScreenToClient(&rectCombo);
+		m_cb.MoveWindow(rectCombo.left, rectCombo.top + (nDiff / 2), rectCombo.Width(), rectCombo.Height());
+	}
+
+	LoadSearchMRU();
 
 	CreateStatusBar();
 
@@ -315,6 +381,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 		return created;
 
 	UIAddToolBar(hWndToolBar);
+	UIAddToolBar(hWndToolBar2);
 	UISetBlockAccelerators(true);
 
 	SetWindowStyles();
@@ -322,6 +389,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	m_bMenuChecked = controlsSettings.bShowMenu;
 	ShowMenu(m_bMenuChecked);
 	ShowToolbar(controlsSettings.bShowToolbar);
+	ShowSearchBar(controlsSettings.bShowSearchbar);
 	ShowStatusbar(controlsSettings.bShowStatusbar);
 
 	bool bShowTabs = controlsSettings.bShowTabs;
@@ -336,6 +404,10 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	}
 
 	ShowTabs(bShowTabs);
+
+	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
+	UISetCheck(ID_SEARCH_MATCH_CASE, searchSettings.bMatchCase);
+	UISetCheck(ID_SEARCH_MATCH_WHOLE_WORD, searchSettings.bMatchWholeWord);
 
 	DWORD dwFlags	= SWP_NOSIZE|SWP_NOZORDER;
 
@@ -474,6 +546,8 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 
 	if (bSaveSettings) g_settingsHandler->SaveSettings();
+
+	SaveSearchMRU();
 
 	// destroy all views
 	MutexLock viewMapLock(m_tabsMutex);
@@ -1600,8 +1674,14 @@ LRESULT MainFrame::OnTabMiddleClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandl
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnTabRightClick(int /*idCtrl*/, LPNMHDR pnmh, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnTabRightClick(int idCtrl, LPNMHDR pnmh, BOOL& bHandled)
 {
+	if( idCtrl != m_TabCtrl.GetDlgCtrlID() )
+	{
+		bHandled = FALSE;
+		return 0;
+	}
+
 	NMCTCITEM*       pTabItems = reinterpret_cast<NMCTCITEM*>(pnmh);
 	CTabViewTabItem* pTabItem  = (pTabItems->iItem != 0xFFFFFFFF) ? m_TabCtrl.GetItem(pTabItems->iItem) : NULL;
 
@@ -2260,6 +2340,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		m_bMenuChecked = controlsSettings.bShowMenu;
 		ShowMenu(m_bMenuChecked);
 		ShowToolbar(controlsSettings.bShowToolbar);
+		ShowSearchBar(controlsSettings.bShowSearchbar);
 
 		bool bShowTabs = false;
 
@@ -2362,6 +2443,22 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
   if( !m_bFullScreen )
   {
     g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible;
+    g_settingsHandler->SaveSettings();
+  }
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnViewSearchBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  ShowSearchBar(!m_bSearchBarVisible);
+  if( !m_bFullScreen )
+  {
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowSearchbar = m_bSearchBarVisible;
     g_settingsHandler->SaveSettings();
   }
   return 0;
@@ -3166,6 +3263,25 @@ void MainFrame::ShowToolbar(bool bShow)
 
 //////////////////////////////////////////////////////////////////////////////
 
+void MainFrame::ShowSearchBar(bool bShow)
+{
+	m_bSearchBarVisible = bShow;
+
+	CReBarCtrl rebar(m_hWndToolBar);
+	int nBandIndex = rebar.IdToIndex(ATL_IDW_BAND_FIRST + 2);	// searchbar is 3rd added band
+	rebar.ShowBand(nBandIndex, m_bSearchBarVisible);
+	UISetCheck(ID_VIEW_SEARCH_BAR, m_bSearchBarVisible);
+
+	UpdateLayout();
+	AdjustWindowSize(ADJUSTSIZE_WINDOW);
+	DockWindow(m_dockPosition);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void MainFrame::ShowStatusbar(bool bShow)
 {
 	m_bStatusBarVisible = bShow;
@@ -3212,11 +3328,9 @@ void MainFrame::ShowFullScreen(bool bShow)
 {
   m_bFullScreen = bShow;
 
-  m_CmdBar.RemoveImage(ID_VIEW_FULLSCREEN);
-
   if( m_bFullScreen )
   {
-    m_CmdBar.AddBitmap(IDR_FULLSCREEN1, ID_VIEW_FULLSCREEN);
+    m_CmdBar.ReplaceBitmap(IDR_FULLSCREEN1, ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen1Bitmap);
 
     // save the non fullscreen position and size
@@ -3231,7 +3345,7 @@ void MainFrame::ShowFullScreen(bool bShow)
   }
   else
   {
-    m_CmdBar.AddBitmap(IDR_FULLSCREEN2, ID_VIEW_FULLSCREEN);
+    m_CmdBar.ReplaceBitmap(IDR_FULLSCREEN2, ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen2Bitmap);
 
     ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
@@ -3948,4 +4062,144 @@ void MainFrame::UpdateUI()
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_BUT_THIS, m_tabs.size() > 1);
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_LEFT, m_TabCtrl.GetCurSel() > 0);
 	UIEnable(ID_FILE_CLOSE_ALL_TABS_RIGHT, m_TabCtrl.GetCurSel() < (m_TabCtrl.GetItemCount() - 1));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::LoadSearchMRU()
+{
+	CRegKey key;
+
+	if( key.Open(HKEY_CURRENT_USER, L"Console\\" DEFAULT_CONSOLE_COMMAND, KEY_QUERY_VALUE) != ERROR_SUCCESS ) return;
+
+	ULONG size = 0;
+	if( key.QueryMultiStringValue(L"SearchMRU", nullptr, &size) != ERROR_SUCCESS ) return;
+
+	std::unique_ptr<wchar_t[]> data (new wchar_t[size]);
+
+	if( key.QueryMultiStringValue(L"SearchMRU", data.get(), &size) != ERROR_SUCCESS ) return;
+
+	for(const wchar_t * p = data.get(); *p; p += (wcslen(p) + 1))
+	{
+		m_cb.AddItem(p, 0, 0, 0, 0);
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::SaveSearchMRU()
+{
+	CRegKey key;
+
+	if( key.Open(HKEY_CURRENT_USER, L"Console\\" DEFAULT_CONSOLE_COMMAND, KEY_SET_VALUE) != ERROR_SUCCESS ) return;
+
+	CString value;
+
+	for(int i = 0; i < m_cb.GetCount(); ++i)
+	{
+		CString str;
+		if( m_cb.GetItemText(i, str) )
+		{
+			value.Append(str);
+			value.Append(L"\0", 1);
+		}
+	}
+
+	value.Append(L"\0", 1);
+
+	key.SetMultiStringValue(L"SearchMRU", value.GetString());
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::AddSearchMRU(CString& item)
+{
+	for(int i = 0; i < m_cb.GetCount(); ++i)
+	{
+		CString str;
+		if( m_cb.GetItemText(i, str) && ( str == item ) )
+		{
+			// remove duplicate
+			m_cb.DeleteString(i);
+
+			break;
+		}
+	}
+
+	// insert at front
+	m_cb.InsertItem(0, item, 0, 0, 0, 0);
+
+	// remove last if max reached
+	for(int i = m_cb.GetCount() - 1; i > SEARCH_MRU_COUNT; --i)
+		m_cb.DeleteString(i - 1);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSearchText(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CString item;
+	bool    bFind = m_searchedit.GetWindowText(item) > 0;
+
+	if( bFind )
+		AddSearchMRU(item);
+
+	if( !m_activeTabView ) return 0;
+
+	std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+	if( !activeConsoleView ) return 0;
+
+	activeConsoleView->SetFocus();
+
+	if( bFind )
+		activeConsoleView->SearchText(item, wID == ID_SEARCH_NEXT);
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSearchSettings(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
+	switch( wID )
+	{
+	case ID_SEARCH_MATCH_CASE:
+		searchSettings.bMatchCase = !searchSettings.bMatchCase;
+		UISetCheck(ID_SEARCH_MATCH_CASE, searchSettings.bMatchCase);
+		break;
+
+	case ID_SEARCH_MATCH_WHOLE_WORD:
+		searchSettings.bMatchWholeWord = !searchSettings.bMatchWholeWord;
+		UISetCheck(ID_SEARCH_MATCH_WHOLE_WORD, searchSettings.bMatchWholeWord);
+		break;
+	}
+
+	g_settingsHandler->SaveSettings();
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	if( !m_bSearchBarVisible )
+		ShowSearchBar(true);
+
+	m_searchedit.SetFocus();
+
+	return 0;
 }

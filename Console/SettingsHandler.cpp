@@ -435,6 +435,7 @@ FullScreenSettings& FullScreenSettings::operator=(const FullScreenSettings& othe
 ControlsSettings::ControlsSettings()
 : bShowMenu(true)
 , bShowToolbar(true)
+, bShowSearchbar(true)
 , bShowStatusbar(true)
 , bShowTabs(true)
 , bHideSingleTab(false)
@@ -458,6 +459,7 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_searchbar"), bShowSearchbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, false);
@@ -482,6 +484,7 @@ bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
+	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_searchbar"), bShowSearchbar);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab);
@@ -502,6 +505,7 @@ ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
 {
 	bShowMenu		= other.bShowMenu;
 	bShowToolbar	= other.bShowToolbar;
+	bShowSearchbar	= other.bShowSearchbar;
 	bShowStatusbar	= other.bShowStatusbar;
 	bShowTabs		= other.bShowTabs;
 	bHideSingleTab	= other.bHideSingleTab;
@@ -535,6 +539,7 @@ StylesSettings::StylesSettings()
 , dwInsideBorder(2)
 , dwQuakeAnimationTime(300)
 , crSelectionColor(RGB(255, 255, 255))
+, crHighlightColor(RGB(191, 191, 191))
 {
 }
 
@@ -561,10 +566,12 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME, false);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
+		XmlHelper::GetRGBAttribute(pSelColorElement, crSelectionColor, RGB(255, 255, 255));
 
-	if (FAILED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement))) return false;
-
-	XmlHelper::GetRGBAttribute(pSelColorElement, crSelectionColor, RGB(255, 255, 255));
+	CComPtr<IXMLDOMElement>	pHiColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"highlight_color"), pHiColorElement)))
+		XmlHelper::GetRGBAttribute(pHiColorElement, crHighlightColor, RGB(191, 191, 191));
 
 	return true;
 }
@@ -592,10 +599,12 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
+		XmlHelper::SetRGBAttribute(pSelColorElement, crSelectionColor);
 
-	if (FAILED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement))) return false;
-
-	XmlHelper::SetRGBAttribute(pSelColorElement, crSelectionColor);
+	CComPtr<IXMLDOMElement>	pHiColorElement;
+	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"highlight_color"), pHiColorElement)))
+		XmlHelper::SetRGBAttribute(pHiColorElement, crHighlightColor);
 
 	return true;
 }
@@ -618,6 +627,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	dwInsideBorder	= other.dwInsideBorder;
 	dwQuakeAnimationTime	= other.dwQuakeAnimationTime;
 	crSelectionColor= other.crSelectionColor;
+	crHighlightColor= other.crHighlightColor;
 
 	return *this;
 }
@@ -1343,6 +1353,71 @@ CloneSettings& CloneSettings::operator=(const CloneSettings& other)
 
 //////////////////////////////////////////////////////////////////////////////
 
+SearchSettings::SearchSettings()
+	: bMatchCase(false)
+	, bMatchWholeWord(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool SearchSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pBehaviorElement;
+	CComPtr<IXMLDOMElement>	pSearchElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior"), pBehaviorElement))) return false;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pBehaviorElement, CComBSTR(L"search"), pSearchElement))) return false;
+
+	XmlHelper::GetAttribute(pSearchElement, CComBSTR(L"match_case"),       bMatchCase,      false);
+	XmlHelper::GetAttribute(pSearchElement, CComBSTR(L"match_whole_word"), bMatchWholeWord, false);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool SearchSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pSearchElement;
+
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"behavior/search"), pSearchElement))) return false;
+
+	XmlHelper::SetAttribute(pSearchElement, CComBSTR(L"match_case"),       bMatchCase);
+	XmlHelper::SetAttribute(pSearchElement, CComBSTR(L"match_whole_word"), bMatchWholeWord);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+SearchSettings& SearchSettings::operator=(const SearchSettings& other)
+{
+	bMatchCase      = other.bMatchCase;
+	bMatchWholeWord = other.bMatchWholeWord;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 RunAsUserSettings::RunAsUserSettings()
 	: bUseCredentialProviders(true)
 {
@@ -1477,6 +1552,7 @@ bool BehaviorSettings2::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	focusSettings.Load(pSettingsRoot);
 	instanceSettings.Load(pSettingsRoot);
 	cloneSettings.Load(pSettingsRoot);
+	searchSettings.Load(pSettingsRoot);
 	runAsUserSettings.Load(pSettingsRoot);
 
 	return true;
@@ -1492,6 +1568,7 @@ bool BehaviorSettings2::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	focusSettings.Save(pSettingsRoot);
 	instanceSettings.Save(pSettingsRoot);
 	cloneSettings.Save(pSettingsRoot);
+	searchSettings.Save(pSettingsRoot);
 	runAsUserSettings.Save(pSettingsRoot);
 
 	return true;
@@ -1507,6 +1584,7 @@ BehaviorSettings2& BehaviorSettings2::operator=(const BehaviorSettings2& other)
 	focusSettings        = other.focusSettings;
 	instanceSettings     = other.instanceSettings;
 	cloneSettings        = other.cloneSettings;
+	searchSettings       = other.searchSettings;
 	runAsUserSettings    = other.runAsUserSettings;
 
 	return *this;
@@ -1601,6 +1679,10 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollcolright",	ID_SCROLL_RIGHT,		L"Scroll buffer column right")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageleft",	ID_SCROLL_PAGE_LEFT,	L"Scroll buffer page left")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageright",	ID_SCROLL_PAGE_RIGHT,	L"Scroll buffer page right")));
+
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"find",       ID_FIND,        L"Find text")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"findnext",   ID_SEARCH_NEXT, L"Find next")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"findprev",   ID_SEARCH_PREV, L"Find previous")));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 
@@ -2335,20 +2417,10 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	{
 		// no path, first try with user's APPDATA dir
 
-		wchar_t wszAppData[32767];
-		::ZeroMemory(wszAppData, sizeof(wszAppData));
-		::GetEnvironmentVariable(L"APPDATA", wszAppData, _countof(wszAppData));
-
 		m_strSettingsFileName = strSettingsFileName;
 
-		if (wszAppData == NULL)
 		{
-			hr = E_FAIL;
-		}
-		else
-		{
-			m_strSettingsPath	= wstring(wszAppData) + wstring(L"\\Console\\");
-			m_settingsDirType	= dirTypeUser;
+			SetUserDataDir(dirTypeUser);
 
 			hr = XmlHelper::OpenXmlDocument(
 								GetSettingsFileName(), 
@@ -2358,8 +2430,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 
 		if (FAILED(hr))
 		{
-			m_strSettingsPath	= Helpers::GetModulePath(NULL);
-			m_settingsDirType	= dirTypeExe;
+			SetUserDataDir(dirTypeExe);
 
 			hr = XmlHelper::OpenXmlDocument(
 								GetSettingsFileName(), 
@@ -2370,15 +2441,16 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 		if (FAILED(hr))
 		{
 			m_strSettingsPath	= L"res://" + Helpers::GetModuleFileName(NULL) + L"/";
-			m_settingsDirType	= dirTypeExe;
 
 			hr = XmlHelper::OpenXmlDocument(
 								GetSettingsFileName(), 
 								m_pSettingsDocument, 
 								m_pSettingsRoot);
 
-			if (FAILED(hr)) return false;
+			SetUserDataDir(dirTypeExe);
 		}
+
+		if (FAILED(hr)) return false;
 	}
 	else
 	{

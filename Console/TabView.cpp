@@ -329,7 +329,7 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 
 		if (strMessage.GetLength() == 0)
 		{
-			strMessage.Format(IDS_TAB_CREATE_FAILED, m_tabData->strTitle.c_str(), m_tabData->strShell.c_str());
+			strMessage.Format(IDS_ERR_TAB_CREATE_FAILED, m_tabData->strTitle.c_str(), m_tabData->strShell.c_str());
 		}
 
 		::MessageBox(m_hWnd, strMessage, L"Error", MB_OK|MB_ICONERROR);

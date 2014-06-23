@@ -340,7 +340,7 @@ public:
 
 	typedef CAeroImpl<T> _baseAero;
 
-	void Paint(CDCHandle dc, RECT& rClient, RECT& rView, RECT& rDest)
+	void Paint(CDCHandle /*dc*/, RECT& /*rClient*/, RECT& /*rView*/, RECT& /*rDest*/)
 	{}
 
 	BEGIN_MSG_MAP(CWindowImpl)
@@ -585,42 +585,83 @@ inline LPCWSTR CToolBarCtrl::GetThemeName()
 
 inline void CToolBarCtrl::CtrlPaint(HDC hdc, RECT& /*rCtrl*/, RECT& rPaint)
 {
-	int nBtn = GetButtonCount(),
-		iHot = GetHotItem();
+	int nBtn = GetButtonCount();
+	int iHot = GetHotItem();
 
 	CImageList img = GetImageList();
+	CDCHandle dcPaint(hdc);
 
 	int cx, cy;
 	img.GetIconSize(cx, cy);
-
-	RECT rBtn;
-	TOOLBARPARTS part;
-	TOOLBARSTYLESTATES state;
 
 	for (int i = 0; i < nBtn; i++)
 	{
 		TBBUTTONINFO tbbi = {sizeof(TBBUTTONINFO), TBIF_BYINDEX | TBIF_STATE | TBIF_STYLE | TBIF_IMAGE};
 		GetButtonInfo(i, &tbbi);
 
-		part = tbbi.fsStyle & BTNS_SEP ? TP_SEPARATOR : TP_BUTTON;
-		state = tbbi.fsState & TBSTATE_ENABLED ? tbbi.fsState & TBSTATE_CHECKED ? TS_CHECKED : TS_NORMAL : TS_DISABLED;
-		if (i == iHot)
-			state = tbbi.fsState & TBSTATE_PRESSED ? TS_PRESSED : TS_HOT;
-
-
+		RECT rBtn;
 		GetItemRect(i, &rBtn);
-		DrawThemeBackground(hdc, part, state, &rBtn, &rPaint);
 
-		if (part != TP_SEPARATOR)
+		if( tbbi.fsStyle & BTNS_SEP )
 		{
-			RECT rbmp;
-			GetThemeBackgroundContentRect(hdc, part, state, &rBtn, &rbmp);
-			int x = rbmp.left + (rbmp.right - rbmp.left - cx) / 2;
-			int y = rbmp.top + (rbmp.bottom - rbmp.top - cy) / 2;
-      IMAGELISTDRAWPARAMS ildp = {sizeof(IMAGELISTDRAWPARAMS), img, tbbi.iImage, hdc, x, y, 0, 0, 0, 0,
-				CLR_NONE, CLR_NONE, ILD_PRESERVEALPHA, SRCCOPY, (state & TS_DISABLED)? ILS_SATURATE : ILS_NORMAL};
-			img.DrawIndirect(&ildp);
+			DrawThemeBackground(hdc, TP_SEPARATOR, 0, &rBtn, &rPaint);
 		}
+		else
+		{
+			TOOLBARSTYLESTATES state = tbbi.fsState & TBSTATE_ENABLED ? tbbi.fsState & TBSTATE_CHECKED ? TS_CHECKED : TS_NORMAL : TS_DISABLED;
+			if( state == TS_NORMAL && i == iHot )
+				state = tbbi.fsState & TBSTATE_PRESSED ? TS_PRESSED : TS_HOT;
+
+			BOOL hasDropDownArrow = (tbbi.fsStyle & BTNS_DROPDOWN) || (tbbi.fsStyle & BTNS_WHOLEDROPDOWN);
+			BOOL drawSepDropDownArrow = hasDropDownArrow && (~tbbi.fsStyle & BTNS_WHOLEDROPDOWN);
+
+			RECT rbmp;
+
+			if( hasDropDownArrow )
+			{
+				int nDropDownArrowWidth = ::GetSystemMetrics(SM_CXMENUCHECK);
+
+				if( drawSepDropDownArrow )
+				{
+					RECT rBtn2 = rBtn;
+					rBtn2.right -= nDropDownArrowWidth;
+
+					DrawThemeBackground(hdc, TP_SPLITBUTTON, state, &rBtn2, &rPaint);
+					GetThemeBackgroundContentRect(hdc, TP_SPLITBUTTON, state, &rBtn2, &rbmp);
+
+					rBtn2 = rBtn;
+					rBtn2.left = rBtn2.right - nDropDownArrowWidth;
+
+					DrawThemeBackground(hdc, TP_SPLITBUTTONDROPDOWN, state, &rBtn2, &rPaint);
+				}
+				else
+				{
+					RECT rBtn2 = rBtn;
+					rBtn2.right = rBtn2.left + (rBtn2.bottom - rBtn2.top);
+
+					DrawThemeBackground(hdc, TP_SPLITBUTTON, state, &rBtn, &rPaint);
+					GetThemeBackgroundContentRect(hdc, TP_BUTTON, state, &rBtn2, &rbmp);
+
+					rBtn2 = rBtn;
+					rBtn2.left = rBtn2.right - nDropDownArrowWidth;
+
+					DrawThemeBackground(hdc, TP_DROPDOWNBUTTONGLYPH, state, &rBtn2, &rPaint);
+				}
+			}
+			else
+			{
+				DrawThemeBackground(hdc, TP_BUTTON, state, &rBtn, &rPaint);
+				GetThemeBackgroundContentRect(hdc, TP_BUTTON, state, &rBtn, &rbmp);
+			}
+
+			int x = rbmp.left + (rbmp.right  - rbmp.left - cx) / 2;
+			int y = rbmp.top  + (rbmp.bottom - rbmp.top  - cy) / 2;
+
+			if( (tbbi.fsState & TBSTATE_PRESSED) || (tbbi.fsState & TBSTATE_CHECKED) ) x += 1;
+
+			img.DrawEx(tbbi.iImage, hdc, x, y, cx, cy, CLR_NONE, CLR_NONE, (state == TS_DISABLED)? ILS_SATURATE : ILS_NORMAL);
+		}
+
 	}
 };
 

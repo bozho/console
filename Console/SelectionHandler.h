@@ -53,16 +53,22 @@ class SelectionHandler
 		void EndSelection();
 		void ClearSelection();
 		void SelectAll();
+		void SetHighlightCoordinates(COORD& coordLeft, COORD& coordRight);
 
 		inline SelectionState GetState() const;
 		DWORD GetSelectionSize(void);
 
 #ifdef _USE_AERO
 		void Draw(CDC& offscreenDC);
+
+	private:
+		void Highlight(CDC& offscreenDC, COORD& coordStart, COORD& coordEnd, SelectionType selectionType, COLORREF crColor);
 #else //_USE_AERO
 		void BitBlt(CDC& offscreenDC);
 
 	private:
+		void UpdateOffscreenSelection();
+		void Highlight(COORD& coordStart, COORD& coordEnd, SelectionType selectionType, CBrush& paintBrush);
 		void GetFillRect(const COORD& coordStart, const COORD& coordEnd, CRect& fillRect);
 #endif //_USE_AERO
 
@@ -80,7 +86,8 @@ class SelectionHandler
 
 		CRect			m_rectConsoleView;
 
-		CBrush			m_paintBrush;
+		CBrush			m_paintBrushSelection;
+		CBrush			m_paintBrushHighlight;
 		CBrush			m_backgroundBrush;
 #endif //_USE_AERO
 
@@ -103,6 +110,9 @@ class SelectionHandler
 		SHORT			m_coordInitialXTrailing;
 
 		std::shared_ptr<TabData>      m_tabData;
+
+		COORD                         m_coordHighlightLeft;
+		COORD                         m_coordHighlightRight;
 };
 
 //////////////////////////////////////////////////////////////////////////////

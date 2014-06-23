@@ -33,7 +33,8 @@ SelectionHandler::SelectionHandler(
 , m_dcSelection(::CreateCompatibleDC(NULL))
 , m_bmpSelection(NULL)
 , m_rectConsoleView(rectConsoleView)
-, m_paintBrush(::CreateSolidBrush(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor))
+, m_paintBrushSelection(::CreateSolidBrush(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor))
+, m_paintBrushHighlight(::CreateSolidBrush(g_settingsHandler->GetAppearanceSettings().stylesSettings.crHighlightColor))
 , m_backgroundBrush(::CreateSolidBrush(RGB(0, 0, 0)))
 #endif //_USE_AERO
 , m_nCharWidth(nCharWidth)
@@ -57,6 +58,10 @@ SelectionHandler::SelectionHandler(
 	m_dcSelection.SelectBitmap(m_bmpSelection);
 	m_dcSelection.SetBkColor(RGB(0, 0, 0));
 #endif //_USE_AERO
+	m_coordHighlightLeft.X = -1;
+	m_coordHighlightLeft.Y = -1;
+	m_coordHighlightRight.X = -1;
+	m_coordHighlightRight.Y = -1;
 }
 
 SelectionHandler::~SelectionHandler()
@@ -189,36 +194,63 @@ void SelectionHandler::UpdateSelection(const COORD& coordCurrent, CharInfo scree
 
 void SelectionHandler::UpdateSelection()
 {
-	if (m_selectionState < selstateStartedSelecting) return;
+	if( m_selectionState == selstateNoSelection ) return;
 
-#ifndef _USE_AERO
-	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
-#endif //_USE_AERO
-
-	COORD	coordStart;
-	COORD	coordEnd;
-
-	GetSelectionCoordinates(coordStart, coordEnd);
-
-	if ((m_selectionState == selstateStartedSelecting) && 
-		(coordStart.X == coordEnd.X) &&
-		(coordStart.Y == coordEnd.Y))
+	if( m_selectionState == selstateStartedSelecting )
 	{
-		// the cursor didn't move enough yet
-		return;
-	}
+		COORD	coordStart;
+		COORD	coordEnd;
 
-	if (m_selectionState < selstateSelecting) m_selectionState = selstateSelecting;
+		GetSelectionCoordinates(coordStart, coordEnd);
+		if( coordStart.X == coordEnd.X &&
+		    coordStart.Y == coordEnd.Y )
+		{
+			// the cursor didn't move enough yet
+		}
+		else
+		{
+			m_selectionState = selstateSelecting;
+		}
+	}
 
 #ifndef _USE_AERO
 /*
 	TRACE(L"Member coord: %ix%i - %ix%i\n", m_coordInitial.X, m_coordInitial.Y, m_coordCurrent.X, m_coordCurrent.Y);
 	TRACE(L"Sel coord: %ix%i - %ix%i\n", coordStart.X, coordStart.Y, coordEnd.X, coordEnd.Y);
 */
+	UpdateOffscreenSelection();
+#endif //_USE_AERO
+}
 
+#ifndef _USE_AERO
+void SelectionHandler::UpdateOffscreenSelection()
+{
+	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
+
+	if( m_selectionState > selstateStartedSelecting )
+	{
+		COORD coordStart;
+		COORD coordEnd;
+
+		GetSelectionCoordinates(coordStart, coordEnd);
+
+		Highlight(coordStart, coordEnd, m_selectionType, m_paintBrushSelection);
+	}
+
+	if( m_coordHighlightLeft.X != -1 && m_coordHighlightLeft.Y != -1 && m_coordHighlightRight.X != -1 && m_coordHighlightRight.Y != -1 )
+	{
+		Highlight(
+			m_coordHighlightLeft, m_coordHighlightRight,
+			seltypeText,
+			m_paintBrushHighlight);
+	}
+}
+
+void SelectionHandler::Highlight(COORD& coordStart, COORD& coordEnd, SelectionType selectionType, CBrush& paintBrush)
+{
 	CRect	fillRect;
 
-	if (m_selectionType == seltypeText)
+	if (selectionType == seltypeText)
 	{
 		COORD	fillStart;
 		COORD	fillEnd;
@@ -233,7 +265,7 @@ void SelectionHandler::UpdateSelection()
 		fillEnd.Y = coordStart.Y;
 
 		GetFillRect(fillStart, fillEnd, fillRect);
-		m_dcSelection.FillRect(&fillRect, m_paintBrush);
+		m_dcSelection.FillRect(&fillRect, paintBrush);
 
 
 		// paint the rows in between
@@ -246,7 +278,7 @@ void SelectionHandler::UpdateSelection()
 			fillEnd.Y = coordEnd.Y - 1;
 
 			GetFillRect(fillStart, fillEnd, fillRect);
-			m_dcSelection.FillRect(&fillRect, m_paintBrush);
+			m_dcSelection.FillRect(&fillRect, paintBrush);
 		}
 
 		// paint the last row
@@ -260,16 +292,16 @@ void SelectionHandler::UpdateSelection()
 
 			GetFillRect(fillStart, fillEnd, fillRect);
 //		TRACE(L"fill rect: (%ix%i) - (%ix%i)\n", fillRect.left, fillRect.top, fillRect.right, fillRect.bottom);
-			m_dcSelection.FillRect(&fillRect, m_paintBrush);
+			m_dcSelection.FillRect(&fillRect, paintBrush);
 		}
 	}
 	else
 	{
 		GetFillRect(coordStart, coordEnd, fillRect);
-		m_dcSelection.FillRect(&fillRect, m_paintBrush);
+		m_dcSelection.FillRect(&fillRect, paintBrush);
 	}
-#endif //_USE_AERO
 }
+#endif //_USE_AERO
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -394,10 +426,25 @@ void SelectionHandler::ClearSelection()
 	m_selectionState = selstateNoSelection;
 
 #ifndef _USE_AERO
-	m_dcSelection.FillRect(&m_rectConsoleView, m_backgroundBrush);
+	UpdateOffscreenSelection();
 #endif //_USE_AERO
 
 	m_consoleHandler.ResumeScrolling();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void SelectionHandler::SetHighlightCoordinates(COORD& coordLeft, COORD& coordRight)
+{
+	m_coordHighlightLeft  = coordLeft;
+	m_coordHighlightRight = coordRight;
+
+#ifndef _USE_AERO
+	UpdateOffscreenSelection();
+#endif //_USE_AERO
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -408,13 +455,32 @@ void SelectionHandler::ClearSelection()
 
 void SelectionHandler::Draw(CDC& offscreenDC)
 {
-  if (m_selectionState == selstateNoSelection) return;
+	if( m_coordHighlightLeft.X != -1 && m_coordHighlightLeft.Y != -1 && m_coordHighlightRight.X != -1 && m_coordHighlightRight.Y != -1 )
+	{
+		Highlight(
+			offscreenDC,
+			m_coordHighlightLeft, m_coordHighlightRight,
+			seltypeText,
+			g_settingsHandler->GetAppearanceSettings().stylesSettings.crHighlightColor);
+	}
 
-  COORD coordStart;
-  COORD coordEnd;
+	if( m_selectionState > selstateStartedSelecting )
+	{
+		COORD coordStart;
+		COORD coordEnd;
 
-  GetSelectionCoordinates(coordStart, coordEnd);
+		GetSelectionCoordinates(coordStart, coordEnd);
 
+		Highlight(
+			offscreenDC,
+			coordStart, coordEnd,
+			m_selectionType,
+			g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor);
+	}
+}
+
+void SelectionHandler::Highlight(CDC& offscreenDC, COORD& coordStart, COORD& coordEnd, SelectionType selectionType, COLORREF crColor)
+{
   SMALL_RECT& srWindow = m_consoleInfo->csbi.srWindow;
 
   if(   coordEnd.Y < srWindow.Top    ||
@@ -428,13 +494,13 @@ void SelectionHandler::Draw(CDC& offscreenDC)
 
   Gdiplus::Graphics gr(offscreenDC);
 
-  Gdiplus::Color selectionColor;
-  selectionColor.SetFromCOLORREF(g_settingsHandler->GetAppearanceSettings().stylesSettings.crSelectionColor);
-  Gdiplus::Pen        pen  (selectionColor);
-  Gdiplus::SolidBrush brush(Gdiplus::Color(64,  selectionColor.GetR(), selectionColor.GetG(), selectionColor.GetB()));
+  Gdiplus::Color color;
+  color.SetFromCOLORREF(crColor);
+  Gdiplus::Pen        pen  (color);
+  Gdiplus::SolidBrush brush(Gdiplus::Color(64,  color.GetR(), color.GetG(), color.GetB()));
   Gdiplus::GraphicsPath gp;
 
-	if( m_selectionType == seltypeText )
+	if( selectionType == seltypeText )
 	{
 		if( nYStart == nYEnd )
 		{
@@ -513,28 +579,53 @@ void SelectionHandler::Draw(CDC& offscreenDC)
 
 void SelectionHandler::BitBlt(CDC& offscreenDC)
 {
-	if (m_selectionState == selstateNoSelection) return;
+	SHORT y0 = -1, y1 = -1;
 
-	COORD	coordStart;
-	COORD	coordEnd;
-	SHORT	maxX = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
+	if( m_coordHighlightLeft.X != -1 && m_coordHighlightLeft.Y != -1 && m_coordHighlightRight.X != -1 && m_coordHighlightRight.Y != -1 )
+	{
+		y0 = m_coordHighlightLeft.Y;
+		y1 = m_coordHighlightRight.Y;
+	}
 
-	GetSelectionCoordinates(coordStart, coordEnd);
-	coordStart.X	= 0;
-	coordEnd.X		= maxX;
+	if( m_selectionState > selstateNoSelection )
+	{
+		COORD	coordStart;
+		COORD	coordEnd;
 
-	CRect	selectionRect;
-	GetFillRect(coordStart, coordEnd, selectionRect);
+		GetSelectionCoordinates(coordStart, coordEnd);
 
-	offscreenDC.BitBlt(
-					selectionRect.left, 
-					selectionRect.top, 
-					selectionRect.Width(), 
-					selectionRect.Height(), 
-					m_dcSelection, 
-					selectionRect.left, 
-					selectionRect.top, 
-					SRCINVERT);
+		if( y0 != -1 && y1 != -1 )
+		{
+			y0 = min(y0, coordStart.Y);
+			y1 = max(y1, coordEnd.Y);
+		}
+		else
+		{
+			y0 = coordStart.Y;
+			y1 = coordEnd.Y;
+		}
+	}
+
+	if( y0 != -1 && y1 != -1 )
+	{
+		SHORT	maxX = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns - 1) : static_cast<SHORT>(m_consoleParams->dwColumns - 1);
+
+		COORD	coordStart = {0,    y0};
+		COORD	coordEnd   = {maxX, y1};
+
+		CRect	selectionRect;
+		GetFillRect(coordStart, coordEnd, selectionRect);
+
+		offscreenDC.BitBlt(
+			selectionRect.left,
+			selectionRect.top,
+			selectionRect.Width(),
+			selectionRect.Height(),
+			m_dcSelection,
+			selectionRect.left,
+			selectionRect.top,
+			SRCINVERT);
+	}
 }
 
 #endif //_USE_AERO

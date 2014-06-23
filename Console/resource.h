@@ -4,7 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
-#define IDS_TAB_CREATE_FAILED           129
+#define IDR_SEARCH                      129
 
 #define IDPANE_CAPS_INDICATOR           130
 #define IDPANE_NUM_INDICATOR            131
@@ -276,6 +276,8 @@
 #define IDC_STATIC_QUAKE_2              1215
 #define IDC_QUAKE_ANIMATION_TIME        1216
 #define IDC_SPIN_QUAKE_ANIMATION_TIME   1217
+#define IDC_CHECK_SHOW_SEARCH_BAR       1218
+#define IDC_HIGHLIGHT_COLOR             1219
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -303,6 +305,12 @@
 #define ID_CLONE_IN_NEW_TAB             2920
 #define ID_ATTACH_CONSOLES              2921
 #define ID_DETACH_VIEW                  2922
+#define ID_SEARCH_COMBO                 2923
+#define ID_SEARCH_PREV                  2924
+#define ID_SEARCH_NEXT                  2925
+#define ID_SEARCH_MATCH_CASE            2926
+#define ID_SEARCH_MATCH_WHOLE_WORD      2927
+#define ID_FIND                         2928
 
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000
@@ -312,6 +320,7 @@
 #define IDS_ERR_CREATE_SHARED_OBJECTS_FAILED 5004
 #define IDS_ERR_CANT_START_SHELL_AS_ADMIN 5005
 #define IDS_ERR_CANT_GET_ELEVATION_TYPE 5006
+#define IDS_ERR_TAB_CREATE_FAILED       5007
 #define MSG_SETTINGS_INVALID_BUFFER_ROWS 10000
 #define MSG_SETTINGS_INVALID_BUFFER_COLUMNS 10001
 #define MSG_SETTINGS_INVALID_ROWS       10002
@@ -336,14 +345,15 @@
 #define ID_FILE_CLOSE_ALL_TABS_BUT_THIS 32797
 #define ID_FILE_CLOSE_ALL_TABS_LEFT     32798
 #define ID_FILE_CLOSE_ALL_TABS_RIGHT    32799
+#define ID_VIEW_SEARCH_BAR              32800
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        221
-#define _APS_NEXT_COMMAND_VALUE         32800
-#define _APS_NEXT_CONTROL_VALUE         1218
+#define _APS_NEXT_COMMAND_VALUE         32801
+#define _APS_NEXT_CONTROL_VALUE         1220
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

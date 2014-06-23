@@ -154,6 +154,7 @@ class ConsoleHandler
 		std::wstring GetCurrentDirectory(void) const;
 		DWORD        GetLastProcessId(void) const;
 		bool         SelectWord(const COORD& coordCurrent, COORD& coordLeft, COORD& coordRight) const;
+		bool         SearchText(CString& text, bool bNext, const COORD& coordCurrent, COORD& coordLeft, COORD& coordRight) const;
 
 	private:
 

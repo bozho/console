@@ -28,13 +28,15 @@ Changelog
     + added
     * fixed
 
-Changes in 1.11.0 (experimental) (01 May 2014)
+Changes in 1.11.0 (23 Jun 2014)
 
     ! Window columns limit is now 300.
     ! buffer columns limit is now 9999.
     ! Word selection is no longer limited to the window.
     ! Minimize to systray when taskbar button is unchecked and systray icon is checked.
     ! Changing docking position in settings no longer require restart.
+    ! Redesign the tabbar (flat style).
+    ! Allow starting a new selection when current selection is not cleared.
     + Attach consoles.
     + Detach view.
     + Add horizontal bar cursor.
@@ -43,8 +45,12 @@ Changes in 1.11.0 (experimental) (01 May 2014)
     + Support external commands (syntax uses title formatting).
     + Support credential providers (allowing integration of additional authentication mechanisms
       such as biometrics and smart cards).
-    + New docking poitions: top middle, bottom middle, left middle and right middle.
+    + New docking positions: top middle, bottom middle, left middle and right middle.
     + Quake like animation time is settable.
+    + Add search bar.
+    + Allow disabling RTF in settings.
+    * Fix aero toolbar drawing.
+    * Docking no longer affects maximized application.
 
 Changes in 1.10.0 (30 Mar 2014)
 
@@ -73,7 +79,7 @@ Changes in 1.09.1 (17 Dec 2013)
 Changes in 1.09.0 (01 Dec 2013)
 
     ! Title options are more consistent.
-    ! Activate Console (global) hotkey minimizes the application if active.
+    ! Activate ConsoleZ (global) hotkey minimizes the application if active.
     ! Quake like: activates the previous application when hiding.
     ! Buffer rows limit increased to 32766.
     ! Can configure the number of spaces used to detect an end of line.

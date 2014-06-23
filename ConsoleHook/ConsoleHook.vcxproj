@@ -217,7 +217,8 @@
       <SetChecksum>false</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
+      <Command>if not exist "..\bin\x64\$(Configuration)" mkdir "..\bin\x64\$(Configuration)"
+copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug aero|Win32'">
@@ -246,7 +247,8 @@
       <SetChecksum>false</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
+      <Command>if not exist "..\bin\x64\$(Configuration)" mkdir "..\bin\x64\$(Configuration)"
+copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -331,7 +333,8 @@
       <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
+      <Command>if not exist "..\bin\x64\$(Configuration)" mkdir "..\bin\x64\$(Configuration)"
+copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -385,7 +388,8 @@
       <SetChecksum>true</SetChecksum>
     </Link>
     <PostBuildEvent>
-      <Command>copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
+      <Command>if not exist "..\bin\x64\$(Configuration)" mkdir "..\bin\x64\$(Configuration)"
+copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configuration)\ConsoleHook32.dll"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>ConsoleHook32</Message>

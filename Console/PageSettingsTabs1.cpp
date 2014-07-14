@@ -3,8 +3,6 @@
 
 #include "PageSettingsTabs1.h"
 
-extern std::shared_ptr<SettingsHandler>	g_settingsHandler;
-
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -46,48 +44,12 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
-	m_staticCursorAnim.Attach(GetDlgItem(IDC_CURSOR_ANIM));
-	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
-	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
 	m_tabIconEdit.SubclassWindow(GetDlgItem(IDC_TAB_ICON));
 	m_tabShellEdit.SubclassWindow(GetDlgItem(IDC_TAB_SHELL));
 	m_tabInitialDirEdit.SubclassWindow(GetDlgItem(IDC_TAB_INIT_DIR));
 
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT PageSettingsTabs1::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	HWND		hWnd = reinterpret_cast<HWND>(lParam); 
-	CDCHandle	dc(reinterpret_cast<HDC>(wParam));
-
-	if (hWnd == m_staticCursorColor.m_hWnd)
-	{
-		CBrush	brush(::CreateSolidBrush(m_tabData->crCursorColor));
-		CRect	rect;
-
-		m_staticCursorColor.GetClientRect(&rect);
-		dc.FillRect(&rect, brush);
-
-		SetCursor();
-		return 0;
-	}
-
-/*
-    ::SetBkMode(dc, TRANSPARENT);
-
-    // return the brush
-    return (LRESULT)(::GetStockObject(HOLLOW_BRUSH));
-*/
-
-	bHandled = FALSE;
-	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -119,24 +81,6 @@ LRESULT PageSettingsTabs1::OnTabShellChange(WORD /*wNotifyCode*/, WORD /*wID*/, 
 	return 0;
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT PageSettingsTabs1::OnClickedCursorColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/)
-{
-	CColorDialog	dlg(m_tabData->crCursorColor, CC_FULLOPEN);
-
-	if (dlg.DoModal() == IDOK)
-	{
-		// update color
-		m_tabData->crCursorColor = dlg.GetColor();
-		CWindow(hWndCtl).Invalidate();
-	}
-
-	return 0;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -233,9 +177,6 @@ void PageSettingsTabs1::EnableControls()
 	GetDlgItem(IDC_TAB_USER).EnableWindow(m_nRunAs == 1);
 	GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_nRunAs == 1);
 	GetDlgItem(IDC_CHECK_RUN_AS_ADMIN).EnableWindow(m_nRunAs == 0);
-
-	m_staticCursorColor.ShowWindow(static_cast<CursorStyle>(m_comboCursor.GetCurSel()) != cstyleConsole? SW_SHOW : SW_HIDE);
-	GetDlgItem(IDC_STATIC_COLOR).EnableWindow(static_cast<CursorStyle>(m_comboCursor.GetCurSel()) != cstyleConsole);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -257,10 +198,6 @@ void PageSettingsTabs1::Load(std::shared_ptr<TabData>& tabData)
 	m_strUser         = m_tabData->strUser.c_str();
 	m_bNetOnly        = m_tabData->bNetOnly;
 	m_bRunAsAdmin     = m_tabData->bRunAsAdministrator;
-
-	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
-
-	m_staticCursorColor.Invalidate();
 
 	DoDataExchange(DDX_LOAD);
 
@@ -286,128 +223,6 @@ void PageSettingsTabs1::Save()
 	m_tabData->strUser             = m_strUser;
 	m_tabData->bNetOnly            = m_bNetOnly;
 	m_tabData->bRunAsAdministrator = m_bRunAsAdmin;
-
-	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT PageSettingsTabs1::OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	SetCursor();
-	EnableControls();
-
-	return 0;
-}
-
-LRESULT PageSettingsTabs1::OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-  if ((wParam == CURSOR_TIMER) && (m_cursor.get() != NULL))
-  {
-    DrawCursor();
-  }
-
-  return 0;
-}
-
-void PageSettingsTabs1::SetCursor(void)
-{
-  CRect rectCursorAnim;
-  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
-  CClientDC dc(m_staticCursorAnim.m_hWnd);
-  CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
-  dc.FillRect(rectCursorAnim, brush);
-
-  rectCursorAnim.right  -= 12;
-  rectCursorAnim.right  /= 2;
-  rectCursorAnim.bottom -= 8;
-
-  m_cursor.reset();
-  m_cursor = CursorFactory::CreateCursor(
-    m_hWnd,
-    true,
-    static_cast<CursorStyle>(m_comboCursor.GetCurSel()),
-    dc,
-    rectCursorAnim,
-    m_tabData->crCursorColor,
-    this,
-    true);
-
-  DrawCursor();
-}
-
-void PageSettingsTabs1::RedrawCharOnCursor(CDC& dc)
-{
-  CRect rectCursorAnim;
-  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
-
-  rectCursorAnim.right  -= 12;
-  rectCursorAnim.right  /= 2;
-  rectCursorAnim.bottom -= 8;
-
-  rectCursorAnim.OffsetRect(4, 4);
-
-  DrawCursor(
-    dc,
-    rectCursorAnim,
-    g_settingsHandler->GetConsoleSettings().consoleColors[0],
-    m_tabData->crCursorColor);
-}
-
-void PageSettingsTabs1::DrawCursor()
-{
-  m_staticCursorAnim.RedrawWindow();
-
-  CClientDC dc(m_staticCursorAnim.m_hWnd);
-  CBrush brush(::CreateSolidBrush(RGB(0,0,0)));
-
-  m_cursor->PrepareNext();
-
-  CRect rectCursorAnim;
-  m_staticCursorAnim.GetClientRect(&rectCursorAnim);
-  dc.FillRect(rectCursorAnim, brush);
-
-  rectCursorAnim.right  -= 12;
-  rectCursorAnim.right  /= 2;
-  rectCursorAnim.bottom -= 8;
-
-  rectCursorAnim.OffsetRect(4, 4);
-
-  DrawCursor(
-    dc,
-    rectCursorAnim,
-    g_settingsHandler->GetConsoleSettings().consoleColors[7],
-    g_settingsHandler->GetConsoleSettings().consoleColors[0]);
-
-  m_cursor->Draw(true, 40);
-  m_cursor->BitBlt(dc, rectCursorAnim.left, rectCursorAnim.top);
-
-  rectCursorAnim.OffsetRect(rectCursorAnim.Width() + 4, 0);
-
-  DrawCursor(
-    dc,
-    rectCursorAnim,
-    g_settingsHandler->GetConsoleSettings().consoleColors[7],
-    g_settingsHandler->GetConsoleSettings().consoleColors[0]);
-
-  m_cursor->Draw(false, 40);
-  m_cursor->BitBlt(dc, rectCursorAnim.left, rectCursorAnim.top);
-}
-
-void PageSettingsTabs1::DrawCursor(CDC& dc, const CRect& rectCursorAnim, COLORREF fg, COLORREF bg)
-{
-  CBrush brush(::CreateSolidBrush(bg));
-  CPen pen(::CreatePen(PS_SOLID, 2, fg));
-
-  dc.FillRect(rectCursorAnim, brush);
-
-  CRect rectChar(rectCursorAnim);
-  rectChar.DeflateRect(3, 3);
-  dc.SelectPen(pen);
-  dc.MoveTo(rectChar.left , rectChar.top   );
-  dc.LineTo(rectChar.right, rectChar.bottom);
-  dc.MoveTo(rectChar.right, rectChar.top   );
-  dc.LineTo(rectChar.left , rectChar.bottom);
 }
 
 //////////////////////////////////////////////////////////////////////////////

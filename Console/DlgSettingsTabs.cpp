@@ -64,7 +64,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	m_tabCtrl.InsertItem(0, L"Main");
 	m_tabCtrl.InsertItem(1, L"Background");
-	m_tabCtrl.InsertItem(2, L"Colors");
+	m_tabCtrl.InsertItem(2, L"Colors && Cursor");
 
 	CRect	rect;
 	m_tabCtrl.GetWindowRect(&rect);

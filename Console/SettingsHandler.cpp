@@ -29,6 +29,8 @@ ConsoleSettings::ConsoleSettings()
 , bStartHidden(false)
 , bSaveSize(false)
 , backgroundTextOpacity(255)
+, dwCursorStyle(0)
+, crCursorColor(RGB(255, 255, 255))
 {
 	defaultConsoleColors[0]	= 0x000000;
 	defaultConsoleColors[1]	= 0x800000;
@@ -71,10 +73,17 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns, 0);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden, false);
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize, false);
+
+	// old config compatibility
 	XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"background_text_opacity"), backgroundTextOpacity, 255);
 
-	if( !XmlHelper::LoadColors(pConsoleElement, consoleColors) )
+	if( !XmlHelper::LoadColors(pConsoleElement, consoleColors, backgroundTextOpacity) )
 		::CopyMemory(consoleColors, defaultConsoleColors, sizeof(COLORREF)*16);
+
+	CComPtr<IXMLDOMElement>	pCursorElement;
+	if (FAILED(XmlHelper::AddDomElementIfNotExist(pConsoleElement, CComBSTR(L"cursor"), pCursorElement))) return false;
+	XmlHelper::GetAttribute(pCursorElement, CComBSTR(L"style"), dwCursorStyle, 0);
+	XmlHelper::GetRGBAttribute(pCursorElement, crCursorColor, RGB(255, 255, 255));
 
 	return true;
 }
@@ -100,9 +109,15 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"buffer_columns"), dwBufferColumns);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize);
-	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"background_text_opacity"), backgroundTextOpacity);
 
-	XmlHelper::SaveColors(pConsoleElement, consoleColors);
+	CComPtr<IXMLDOMElement>	pCursorElement;
+	if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(L"cursor"), pCursorElement))) return false;
+	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"style"), dwCursorStyle);
+	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"r"), GetRValue(crCursorColor));
+	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"g"), GetGValue(crCursorColor));
+	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"b"), GetBValue(crCursorColor));
+
+	XmlHelper::SaveColors(pConsoleElement, consoleColors, backgroundTextOpacity);
 	return true;
 }
 
@@ -129,6 +144,8 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 	::CopyMemory(consoleColors, other.consoleColors, sizeof(COLORREF)*16);
 
 	backgroundTextOpacity = other.backgroundTextOpacity;
+	dwCursorStyle         = other.dwCursorStyle;
+	crCursorColor         = other.crCursorColor;
 
 	return *this;
 }
@@ -2140,6 +2157,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		{
 			XmlHelper::GetAttribute(pCursorElement, CComBSTR(L"style"), tabData->dwCursorStyle, 0);
 			XmlHelper::GetRGBAttribute(pCursorElement, tabData->crCursorColor, RGB(255, 255, 255));
+			tabData->bInheritedCursor = false;
 		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"background"), pBackgroundElement)))
@@ -2186,7 +2204,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		CComPtr<IXMLDOMElement> pColors;
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"colors"), pColors)))
 		{
-			tabData->bInheritedColors = !XmlHelper::LoadColors(pTabElement, tabData->consoleColors);
+			tabData->bInheritedColors = !XmlHelper::LoadColors(pTabElement, tabData->consoleColors, tabData->backgroundTextOpacity);
 		}
 	}
 
@@ -2265,20 +2283,23 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewConsoleElement, &pNewConsoleOut);
 
-		// add <cursor> tag
-		CComPtr<IXMLDOMElement>	pNewCursorElement;
-		CComPtr<IXMLDOMNode>	pNewCursorOut;
+		if (!(*itTab)->bInheritedCursor)
+		{
+			// add <cursor> tag
+			CComPtr<IXMLDOMElement>	pNewCursorElement;
+			CComPtr<IXMLDOMNode>	pNewCursorOut;
 
-		pSettingsDoc->createElement(CComBSTR(L"cursor"), &pNewCursorElement);
+			pSettingsDoc->createElement(CComBSTR(L"cursor"), &pNewCursorElement);
 
-		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"style"), (*itTab)->dwCursorStyle);
-		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"r"), GetRValue((*itTab)->crCursorColor));
-		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"g"), GetGValue((*itTab)->crCursorColor));
-		XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"b"), GetBValue((*itTab)->crCursorColor));
+			XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"style"), (*itTab)->dwCursorStyle);
+			XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"r"), GetRValue((*itTab)->crCursorColor));
+			XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"g"), GetGValue((*itTab)->crCursorColor));
+			XmlHelper::SetAttribute(pNewCursorElement, CComBSTR(L"b"), GetBValue((*itTab)->crCursorColor));
 
 
-		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
-		pNewTabElement->appendChild(pNewCursorElement, &pNewCursorOut);
+			XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
+			pNewTabElement->appendChild(pNewCursorElement, &pNewCursorOut);
+		}
 
 		// add <background> tag
 		CComPtr<IXMLDOMElement>	pNewBkElement;
@@ -2337,7 +2358,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		if (!(*itTab)->bInheritedColors)
 		{
 			XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
-			XmlHelper::SaveColors(pNewTabElement, (*itTab)->consoleColors);
+			XmlHelper::SaveColors(pNewTabElement, (*itTab)->consoleColors, (*itTab)->backgroundTextOpacity);
 		}
 		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t"));
 
@@ -2496,7 +2517,8 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 
 	for(auto iterTabData = m_tabSettings.tabDataVector.begin(); iterTabData != m_tabSettings.tabDataVector.end(); ++iterTabData)
 	{
-		iterTabData->get()->SetColors(m_consoleSettings.consoleColors, false);
+		iterTabData->get()->SetColors(m_consoleSettings.consoleColors, m_consoleSettings.backgroundTextOpacity, false);
+		iterTabData->get()->SetCursor(m_consoleSettings.dwCursorStyle, m_consoleSettings.crCursorColor, false);
 	}
 
 	return true;

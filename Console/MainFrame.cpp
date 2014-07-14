@@ -2358,17 +2358,19 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 	SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
-	const COLORREF * consoleColors = g_settingsHandler->GetConsoleSettings().consoleColors;
+	ConsoleSettings& consoleSettings = g_settingsHandler->GetConsoleSettings();
 	for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it)
 	{
 		it->second->InitializeScrollbars();
-		it->second->GetTabData()->SetColors(consoleColors, false);
+		it->second->GetTabData()->SetColors(consoleSettings.consoleColors, consoleSettings.backgroundTextOpacity, false);
+		it->second->GetTabData()->SetCursor(consoleSettings.dwCursorStyle, consoleSettings.crCursorColor, false);
 	}
 
 	TabDataVector& tabDataVector = g_settingsHandler->GetTabSettings().tabDataVector;
 	for (auto it = tabDataVector.begin(); it != tabDataVector.end(); ++it)
 	{
-		it->get()->SetColors(consoleColors, false);
+		it->get()->SetColors(consoleSettings.consoleColors, consoleSettings.backgroundTextOpacity, false);
+		it->get()->SetCursor(consoleSettings.dwCursorStyle, consoleSettings.crCursorColor, false);
 	}
 
 	// reindex

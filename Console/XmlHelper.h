@@ -38,8 +38,8 @@ class XmlHelper
 		static void SetAttribute(const CComPtr<IXMLDOMElement>& pElement, const CComBSTR& bstrName, const wstring& strValue);
 
 		static void SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, const COLORREF& crValue);
-		static void SaveColors(CComPtr<IXMLDOMElement>& pElement, const COLORREF colors[16]);
-		static bool LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF colors[16]);
+		static void SaveColors(CComPtr<IXMLDOMElement>& pElement, const COLORREF colors[16], BYTE opacity);
+		static bool LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF colors[16], BYTE & opacity);
 };
 
 //////////////////////////////////////////////////////////////////////////////

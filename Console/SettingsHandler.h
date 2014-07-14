@@ -50,6 +50,9 @@ struct ConsoleSettings : public SettingsBase
 	COLORREF	defaultConsoleColors[16];
 	COLORREF	consoleColors[16];
 	BYTE		backgroundTextOpacity;
+
+	DWORD		dwCursorStyle;
+	COLORREF	crCursorColor;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -769,6 +772,7 @@ struct TabData
 	, bNetOnly(false)
 	, bRunAsAdministrator(false)
 	, bCloneable(true)
+	, bInheritedCursor(true)
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
 	, backgroundImageType(bktypeNone)
@@ -776,6 +780,7 @@ struct TabData
 	, iconMenu()
 	, imageData()
 	, bInheritedColors(true)
+	, backgroundTextOpacity(255)
 	, nIndex(0)
 	{
 		consoleColors[0]  = 0x000000;
@@ -810,6 +815,7 @@ struct TabData
 	bool							bRunAsAdministrator;
 	bool							bCloneable;
 
+	bool							bInheritedCursor;
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;
 
@@ -822,13 +828,26 @@ struct TabData
 
 	bool							bInheritedColors;
 	COLORREF						consoleColors[16];
+	BYTE                backgroundTextOpacity;
 
 	long                nIndex;
 
-	void SetColors(const COLORREF colors[16], const bool bForced)
+	void SetColors(const COLORREF colors[16], const BYTE opacity, const bool bForced)
 	{
 		if (bInheritedColors || bForced)
+		{
 			::CopyMemory(consoleColors, colors, sizeof(consoleColors));
+			backgroundTextOpacity = opacity;
+		}
+	}
+
+	void SetCursor(const DWORD dwNewCursorStyle, const COLORREF crNewCursorColor, const bool bForced)
+	{
+		if (bInheritedCursor || bForced)
+		{
+			this->dwCursorStyle = dwNewCursorStyle;
+			this->crCursorColor = crNewCursorColor;
+		}
 	}
 
 	HICON GetMenuIcon(void)

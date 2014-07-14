@@ -81,59 +81,8 @@ LRESULT DlgSettingsConsole::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_ShellEdit.SubclassWindow(GetDlgItem(IDC_SHELL));
 	m_InitialDirEdit.SubclassWindow(GetDlgItem(IDC_INIT_DIR));
 
-#ifdef _USE_AERO
-	m_staticBGTextOpacity.Attach(GetDlgItem(IDC_BGTEXT_OPACITY_VAL));
-	m_sliderBGTextOpacity.Attach(GetDlgItem(IDC_BGTEXT_OPACITY));
-	m_sliderBGTextOpacity.SetRange(0, 255);
-	m_sliderBGTextOpacity.SetTicFreq(5);
-	m_sliderBGTextOpacity.SetPageSize(5);
-	m_sliderBGTextOpacity.SetPos(m_consoleSettings.backgroundTextOpacity);
-	UpdateSliderText();
-#endif //_USE_AERO
-
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT DlgSettingsConsole::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
-{
-	CWindow		staticCtl(reinterpret_cast<HWND>(lParam));
-	CDCHandle	dc(reinterpret_cast<HDC>(wParam));
-	DWORD		i;
-
-	for (i = IDC_DEF_00; i <= IDC_DEF_15; ++i)
-	{
-		if (staticCtl.m_hWnd == GetDlgItem(i))
-		{
-			CBrush	brush(::CreateSolidBrush(m_consoleSettings.defaultConsoleColors[i-IDC_DEF_00]));
-			CRect	rect;
-
-			staticCtl.GetClientRect(&rect);
-			dc.FillRect(&rect, brush);
-			return 0;
-		}
-	}
-
-	for (i = IDC_CLR_00; i <= IDC_CLR_15; ++i)
-	{
-		if (staticCtl.m_hWnd == GetDlgItem(i))
-		{
-			CBrush	brush(::CreateSolidBrush(m_consoleSettings.consoleColors[i-IDC_CLR_00]));
-			CRect	rect;
-
-			staticCtl.GetClientRect(&rect);
-			dc.FillRect(&rect, brush);
-			return 0;
-		}
-	}
-
-	bHandled = FALSE;
-	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -146,10 +95,6 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 	if (wID == IDOK)
 	{
 		if (!DoDataExchange(DDX_SAVE)) return -1;
-
-#ifdef _USE_AERO
-		m_consoleSettings.backgroundTextOpacity = static_cast<BYTE>(m_sliderBGTextOpacity.GetPos());
-#endif //_USE_AERO
 
 		m_consoleSettings.strShell		= m_strShell;
 		m_consoleSettings.strInitialDir	= m_strInitialDir;
@@ -210,81 +155,6 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*w
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsConsole::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	::CopyMemory(m_consoleSettings.consoleColors, m_consoleSettings.defaultConsoleColors, sizeof(m_consoleSettings.defaultConsoleColors));
-#ifdef _USE_AERO
-	m_sliderBGTextOpacity.SetPos(255);
-	UpdateSliderText();
-#endif //_USE_AERO
-
-	DoDataExchange(DDX_LOAD);
-	Invalidate();
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT DlgSettingsConsole::OnClickedBtnImportColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-  CFileDialog fileDialog(
-    TRUE,
-    NULL,
-    NULL,
-    OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST,
-    L"Config Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0\0");
-
-  if (fileDialog.DoModal() == IDOK)
-  {
-    CComPtr<IXMLDOMDocument> pSettingsDocument;
-    CComPtr<IXMLDOMElement>  pSettingsRoot;
-    if(FAILED(XmlHelper::OpenXmlDocument(
-      fileDialog.m_szFileName,
-      pSettingsDocument,
-      pSettingsRoot))) return 0;
-
-    CComPtr<IXMLDOMElement>	pConsoleElement;
-    if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"console"), pConsoleElement))) return false;
-
-    COLORREF colors[16];
-    if(!XmlHelper::LoadColors(pConsoleElement, colors)) return 0;
-
-    ::CopyMemory(m_consoleSettings.consoleColors, colors, sizeof(m_consoleSettings.defaultConsoleColors));
-
-    DoDataExchange(DDX_LOAD);
-    Invalidate();
-  }
-
-  return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-LRESULT DlgSettingsConsole::OnClickedClrBtn(WORD /*wNotifyCode*/, WORD wID, HWND hWndCtl, BOOL& /*bHandled*/)
-{
-	CColorDialog	dlg(m_consoleSettings.consoleColors[wID-IDC_CLR_00], CC_FULLOPEN);
-
-	if (dlg.DoModal() == IDOK)
-	{
-		// update color
-		m_consoleSettings.consoleColors[wID-IDC_CLR_00] = dlg.GetColor();
-		CWindow(hWndCtl).Invalidate();
-	}
-
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 void DlgSettingsConsole::OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data)
 {
 	CString message;
@@ -322,26 +192,3 @@ void DlgSettingsConsole::OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& d
 
 	DlgSettingsBase::OnDataValidateError(nCtrlID, bSave, data);
 }
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-#ifdef _USE_AERO
-
-LRESULT DlgSettingsConsole::OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
-{
-	UpdateSliderText();
-	return 0;
-}
-
-void DlgSettingsConsole::UpdateSliderText()
-{
-	CString strStaticText;
-	strStaticText.Format(L"%i", m_sliderBGTextOpacity.GetPos());
-
-	m_staticBGTextOpacity.SetWindowText(strStaticText);
-}
-
-#endif //_USE_AERO

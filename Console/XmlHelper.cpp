@@ -328,13 +328,19 @@ void XmlHelper::SetRGBAttribute(const CComPtr<IXMLDOMElement>& pElement, const C
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool XmlHelper::LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF colors[16])
+bool XmlHelper::LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF colors[16], BYTE & opacity)
 {
+	CComPtr<IXMLDOMElement>	pFontColorsElement;
+
+	if (FAILED(GetDomElement(pElement, CComBSTR(L"colors"), pFontColorsElement))) return false;
+
+	GetAttribute(pFontColorsElement, CComBSTR(L"background_text_opacity"), opacity, opacity);
+
 	for (DWORD i = 0; i < 16; ++i)
 	{
 		CComPtr<IXMLDOMElement>	pFontColorElement;
 
-		if (FAILED(GetDomElement(pElement, CComBSTR(str(boost::wformat(L"colors/color[@id='%1%']") % i).c_str()), pFontColorElement))) return false;
+		if (FAILED(GetDomElement(pFontColorsElement, CComBSTR(str(boost::wformat(L"color[@id='%1%']") % i).c_str()), pFontColorElement))) return false;
 
 		DWORD id;
 
@@ -345,11 +351,13 @@ bool XmlHelper::LoadColors(const CComPtr<IXMLDOMElement>& pElement, COLORREF col
 	return true;
 }
 
-void XmlHelper::SaveColors(CComPtr<IXMLDOMElement>& pElement, const COLORREF colors[16])
+void XmlHelper::SaveColors(CComPtr<IXMLDOMElement>& pElement, const COLORREF colors[16], BYTE opacity)
 {
 	CComPtr<IXMLDOMElement>	pFontColorsElement;
 
 	if (FAILED(XmlHelper::AddDomElementIfNotExist(pElement, CComBSTR(L"colors"), pFontColorsElement))) return;
+
+	SetAttribute(pFontColorsElement, CComBSTR(L"background_text_opacity"), opacity);
 
 	for (DWORD i = 0; i < 16; ++i)
 	{

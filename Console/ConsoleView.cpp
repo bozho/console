@@ -2436,6 +2436,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   COLORREF * consoleColors = m_tabData->consoleColors;
 
 #ifdef _USE_AERO
+	BYTE opacity = m_tabData->backgroundTextOpacity;
   Gdiplus::Graphics gr(dc);
 #endif //_USE_AERO
 
@@ -2473,7 +2474,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
           COLORREF backgroundColor = consoleColors[attrBG];
           Gdiplus::SolidBrush backgroundBrush(
             Gdiplus::Color(
-              m_consoleSettings.backgroundTextOpacity,
+              opacity,
               GetRValue(backgroundColor),
               GetGValue(backgroundColor),
               GetBValue(backgroundColor)));
@@ -2511,7 +2512,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
       COLORREF backgroundColor = consoleColors[attrBG];
       Gdiplus::SolidBrush backgroundBrush(
         Gdiplus::Color(
-          m_consoleSettings.backgroundTextOpacity,
+          opacity,
           GetRValue(backgroundColor),
           GetGValue(backgroundColor),
           GetBValue(backgroundColor)));

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "PageSettingsTab.h"
-#include "Cursors.h"
 #include "CFileNameEdit.h"
 
 class PageSettingsTabs1;
@@ -31,7 +30,6 @@ private:
 class PageSettingsTabs1
 	: public CDialogImpl<PageSettingsTabs1>
 	, public CWinDataExchange<PageSettingsTabs1>
-	, public CursorCharDrawer
 	, public PageSettingsTab
 {
 	public:
@@ -54,20 +52,16 @@ class PageSettingsTabs1
 
 		BEGIN_MSG_MAP(PageSettingsTabs1)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
-			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
-			MESSAGE_HANDLER(WM_TIMER, OnTimer)
 
 			COMMAND_HANDLER(IDC_TAB_TITLE, EN_CHANGE, OnTabTitleChange)
 			COMMAND_HANDLER(IDC_TAB_ICON, EN_CHANGE, OnTabIconChange)
 			COMMAND_HANDLER(IDC_TAB_SHELL, EN_CHANGE, OnTabShellChange)
-			COMMAND_HANDLER(IDC_CURSOR_COLOR, BN_CLICKED, OnClickedCursorColor)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_ICON, OnBtnBrowseIcon)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_SHELL, OnClickedBtnBrowseShell)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_DIR, OnClickedBtnBrowseDir)
 			COMMAND_ID_HANDLER(IDC_CHECK_DEFAULT_ICON, OnCheckboxClicked)
 			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_USER, OnCheckboxClicked)
 			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_CURRENT_USER, OnCheckboxClicked)
-			COMMAND_HANDLER(IDC_COMBO_CURSOR, CBN_SELCHANGE, OnCbnSelchangeComboCursor)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -76,13 +70,10 @@ class PageSettingsTabs1
 //		LRESULT NotifyHandler(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
-		LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnTabTitleChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnTabIconChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnTabShellChange(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
-		LRESULT OnClickedCursorColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -98,22 +89,10 @@ class PageSettingsTabs1
 		const CString& GetTabShell() const { return m_strShell; }
 		const bool UseDefaultIcon() const { return m_bUseDefaultIcon; }
 
-		virtual void RedrawCharOnCursor(CDC& dc);
-
 		void ConvertShellLink(CString& strShell);
 
-private:
-  void SetCursor(void);
-  void DrawCursor(void);
-  void DrawCursor(CDC& dc, const CRect& rectCursorAnim, COLORREF fg, COLORREF bg);
-
 	private:
-		std::shared_ptr<Cursor>	m_cursor;
 		std::shared_ptr<TabData>	m_tabData;
-
-		CStatic			m_staticCursorAnim;
-		CComboBox		m_comboCursor;
-		CStatic			m_staticCursorColor;
 
 		CString			m_strTitle;
 		CString			m_strIcon;
@@ -129,8 +108,6 @@ private:
 		CFileNameEdit        m_tabIconEdit;
 		CFileNameAndLinkEdit m_tabShellEdit;
 		CFileNameEdit        m_tabInitialDirEdit;
-public:
-  LRESULT OnCbnSelchangeComboCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 };
 
 //////////////////////////////////////////////////////////////////////////////

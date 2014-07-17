@@ -13,12 +13,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-PageSettingsTabs2::PageSettingsTabs2()
+PageSettingsTabs2::PageSettingsTabs2(ConsoleSettings &consoleSettings)
 : m_tabData()
-, m_nBkType(0)
+, m_consoleSettings(consoleSettings)
 , m_strBkImage(L"")
-, m_bRelative(false)
-, m_bExtend(false)
 {
 }
 
@@ -49,14 +47,40 @@ LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_sliderTintOpacity.SetTicFreq(5);
 	m_sliderTintOpacity.SetPageSize(5);
 
-	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
 	m_staticBkColor.Attach(GetDlgItem(IDC_BK_COLOR));
 	m_staticTintColor.Attach(GetDlgItem(IDC_TINT_COLOR));
 
 	m_bkImageEdit.SubclassWindow(GetDlgItem(IDC_BK_IMAGE));
 
-	DoDataExchange(DDX_LOAD);
 	return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs2::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+{
+	m_tabData->SetBackground(m_consoleSettings.backgroundImageType, m_consoleSettings.crBackgroundColor, m_consoleSettings.imageData, false);
+
+	m_strBkImage = m_tabData->imageData.strFilename.c_str();
+
+	m_comboBkPosition.SetCurSel(static_cast<int>(m_tabData->imageData.imagePosition));
+
+	m_sliderTintOpacity.SetPos(m_tabData->imageData.byTintOpacity);
+
+	m_staticBkColor.Invalidate();
+	m_staticTintColor.Invalidate();
+
+	UpdateSliderText();
+
+	DoDataExchange(DDX_LOAD);
+
+	EnableControls();
+
+	bHandled = FALSE;
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -99,7 +123,12 @@ LRESULT PageSettingsTabs2::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM
 
 LRESULT PageSettingsTabs2::OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	m_tabData->imageData.byTintOpacity  = static_cast<BYTE>(m_sliderTintOpacity.GetPos());
+	m_tabData->bInheritedBackground = false;
+	DoDataExchange(DDX_LOAD);
+
 	UpdateSliderText();
+
 	return 0;
 }
 
@@ -110,9 +139,13 @@ LRESULT PageSettingsTabs2::OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*
 
 LRESULT PageSettingsTabs2::OnClickedBkType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	DoDataExchange(DDX_SAVE);
+	Save();
+	m_tabData->bInheritedBackground = false;
+	DoDataExchange(DDX_LOAD);
+
 	EnableControls();
-	return 0;
+
+	return 1;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -129,6 +162,9 @@ LRESULT PageSettingsTabs2::OnClickedBkColor(WORD /*wNotifyCode*/, WORD /*wID*/, 
 		// update color
 		m_tabData->crBackgroundColor = dlg.GetColor();
 		CWindow(hWndCtl).Invalidate();
+
+		m_tabData->bInheritedBackground = false;
+		DoDataExchange(DDX_LOAD);
 	}
 
 	return 0;
@@ -151,6 +187,7 @@ LRESULT PageSettingsTabs2::OnBtnBrowseImage(WORD /*wNotifyCode*/, WORD /*wID*/, 
 	if (fileDialog.DoModal() == IDOK)
 	{
 		m_strBkImage = fileDialog.m_szFileName;
+		m_tabData->bInheritedBackground = false;
 		DoDataExchange(DDX_LOAD);
 	}
 
@@ -171,7 +208,83 @@ LRESULT PageSettingsTabs2::OnClickedTintColor(WORD /*wNotifyCode*/, WORD /*wID*/
 		// update color
 		m_tabData->imageData.crTint = dlg.GetColor();
 		CWindow(hWndCtl).Invalidate();
+
+		m_tabData->bInheritedBackground = false;
+		DoDataExchange(DDX_LOAD);
 	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs2::OnCbnSelchangeComboBkPos(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_tabData->imageData.imagePosition  = static_cast<ImagePosition>(m_comboBkPosition.GetCurSel());
+	m_tabData->bInheritedBackground = false;
+	DoDataExchange(DDX_LOAD);
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs2::OnChangeBkImage(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	auto strBkImage = m_strBkImage;
+	Save();
+
+	if( m_tabData->bInheritedBackground )
+	{
+		if( strBkImage != m_strBkImage )
+		{
+			m_tabData->bInheritedBackground = false;
+			DoDataExchange(DDX_LOAD);
+		}
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs2::OnClickedBtnInheritBackground(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	Save();
+
+	if (m_tabData->bInheritedBackground)
+	{
+		Invalidate();
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT PageSettingsTabs2::OnClickedBtnSetAsDefaultBackground(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	Save();
+	m_tabData->bInheritedBackground       = true;
+	m_consoleSettings.backgroundImageType = m_tabData->backgroundImageType;
+	m_consoleSettings.crBackgroundColor   = m_tabData->crBackgroundColor;
+	m_consoleSettings.imageData           = m_tabData->imageData;
+
+	DoDataExchange(DDX_LOAD);
+
+	Invalidate();
 
 	return 0;
 }
@@ -216,12 +329,12 @@ void PageSettingsTabs2::EnableControls()
 	GetDlgItem(IDC_TINT_OPACITY).EnableWindow(FALSE);
 	GetDlgItem(IDC_TINT_OPACITY_VAL).EnableWindow(FALSE);
 
-	if (m_nBkType == static_cast<int>(bktypeNone))
+	if (m_tabData->backgroundImageType == bktypeNone)
 	{
 		GetDlgItem(IDC_STATIC_BK_COLOR).EnableWindow();
 		GetDlgItem(IDC_BK_COLOR).EnableWindow();
 	}
-	else if (m_nBkType == static_cast<int>(bktypeImage))
+	else if (m_tabData->backgroundImageType == bktypeImage)
 	{
 		GetDlgItem(IDC_STATIC_BK_IMAGE).EnableWindow();
 		GetDlgItem(IDC_BK_IMAGE).EnableWindow();
@@ -232,7 +345,7 @@ void PageSettingsTabs2::EnableControls()
 		GetDlgItem(IDC_COMBO_BK_POS).EnableWindow();
 	}
 
-	if (m_nBkType != static_cast<int>(bktypeNone))
+	if (m_tabData->backgroundImageType != bktypeNone)
 	{
 		GetDlgItem(IDC_STATIC_TINT_COLOR).EnableWindow();
 		GetDlgItem(IDC_TINT_COLOR).EnableWindow();
@@ -251,22 +364,8 @@ void PageSettingsTabs2::Load(std::shared_ptr<TabData>& tabData)
 {
 	m_tabData		= tabData;
 
-	m_nBkType		= static_cast<int>(m_tabData->backgroundImageType);
-	m_strBkImage	= m_tabData->imageData.strFilename.c_str();
-	m_bRelative		= m_tabData->imageData.bRelative;
-	m_bExtend		= m_tabData->imageData.bExtend;
-
-	m_comboBkPosition.SetCurSel(static_cast<int>(m_tabData->imageData.imagePosition));
-
-	m_sliderTintOpacity.SetPos(m_tabData->imageData.byTintOpacity);
-	UpdateSliderText();
-
-	m_staticBkColor.Invalidate();
-	m_staticTintColor.Invalidate();
-
+	Invalidate();
 	DoDataExchange(DDX_LOAD);
-
-	EnableControls();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -278,13 +377,9 @@ void PageSettingsTabs2::Save()
 {
 	DoDataExchange(DDX_SAVE);
 
-	m_tabData->backgroundImageType		= static_cast<BackgroundImageType>(m_nBkType);
-	m_tabData->imageData.strFilename	= m_strBkImage;
-	m_tabData->imageData.bRelative		= m_bRelative;
-	m_tabData->imageData.bExtend		= m_bExtend;
-
-	m_tabData->imageData.imagePosition	= static_cast<ImagePosition>(m_comboBkPosition.GetCurSel());
-	m_tabData->imageData.byTintOpacity	= static_cast<BYTE>(m_sliderTintOpacity.GetPos());
+	m_tabData->imageData.strFilename    = m_strBkImage;
+	m_tabData->imageData.imagePosition  = static_cast<ImagePosition>(m_comboBkPosition.GetCurSel());
+	m_tabData->imageData.byTintOpacity  = static_cast<BYTE>(m_sliderTintOpacity.GetPos());
 }
 
 //////////////////////////////////////////////////////////////////////////////

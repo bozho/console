@@ -25,6 +25,18 @@ struct SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+enum BackgroundImageType
+{
+	bktypeNone		= 0,
+	bktypeImage		= 1,
+	bktypeDesktop	= 2,
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 struct ConsoleSettings : public SettingsBase
 {
 	ConsoleSettings();
@@ -53,6 +65,10 @@ struct ConsoleSettings : public SettingsBase
 
 	DWORD		dwCursorStyle;
 	COLORREF	crCursorColor;
+
+	BackgroundImageType				backgroundImageType;
+	COLORREF						crBackgroundColor;
+	ImageData						imageData;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -746,18 +762,6 @@ struct MouseSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
-enum BackgroundImageType
-{
-	bktypeNone		= 0,
-	bktypeImage		= 1,
-	bktypeDesktop	= 2,
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 struct TabData
 {
 	TabData(const wstring& shell, const wstring& initialDir)
@@ -775,6 +779,7 @@ struct TabData
 	, bInheritedCursor(true)
 	, dwCursorStyle(0)
 	, crCursorColor(RGB(255, 255, 255))
+	, bInheritedBackground(true)
 	, backgroundImageType(bktypeNone)
 	, crBackgroundColor(RGB(0, 0, 0))
 	, iconMenu()
@@ -819,12 +824,12 @@ struct TabData
 	DWORD							dwCursorStyle;
 	COLORREF						crCursorColor;
 
+	bool							bInheritedBackground;
 	BackgroundImageType				backgroundImageType;
 	COLORREF						crBackgroundColor;
+	ImageData						imageData;
 
 	CIcon							iconMenu;
-
-	ImageData						imageData;
 
 	bool							bInheritedColors;
 	COLORREF						consoleColors[16];
@@ -847,6 +852,16 @@ struct TabData
 		{
 			this->dwCursorStyle = dwNewCursorStyle;
 			this->crCursorColor = crNewCursorColor;
+		}
+	}
+
+	void SetBackground(const BackgroundImageType newBackgroundImageType, const COLORREF crNewBackgroundColor, const ImageData newImageData, const bool bForced)
+	{
+		if (bInheritedBackground || bForced)
+		{
+			this->backgroundImageType = newBackgroundImageType;
+			this->crBackgroundColor   = crNewBackgroundColor;
+			this->imageData           = newImageData;
 		}
 	}
 

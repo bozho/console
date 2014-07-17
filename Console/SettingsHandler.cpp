@@ -31,6 +31,9 @@ ConsoleSettings::ConsoleSettings()
 , backgroundTextOpacity(255)
 , dwCursorStyle(0)
 , crCursorColor(RGB(255, 255, 255))
+, backgroundImageType(bktypeNone)
+, crBackgroundColor(RGB(0, 0, 0))
+, imageData()
 {
 	defaultConsoleColors[0]	= 0x000000;
 	defaultConsoleColors[1]	= 0x800000;
@@ -81,9 +84,43 @@ bool ConsoleSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		::CopyMemory(consoleColors, defaultConsoleColors, sizeof(COLORREF)*16);
 
 	CComPtr<IXMLDOMElement>	pCursorElement;
-	if (FAILED(XmlHelper::AddDomElementIfNotExist(pConsoleElement, CComBSTR(L"cursor"), pCursorElement))) return false;
-	XmlHelper::GetAttribute(pCursorElement, CComBSTR(L"style"), dwCursorStyle, 0);
-	XmlHelper::GetRGBAttribute(pCursorElement, crCursorColor, RGB(255, 255, 255));
+	if (SUCCEEDED(XmlHelper::AddDomElementIfNotExist(pConsoleElement, CComBSTR(L"cursor"), pCursorElement)))
+	{
+		XmlHelper::GetAttribute(pCursorElement, CComBSTR(L"style"), dwCursorStyle, 0);
+		XmlHelper::GetRGBAttribute(pCursorElement, crCursorColor, RGB(255, 255, 255));
+	}
+
+	CComPtr<IXMLDOMElement>	pBackgroundElement;
+	if (SUCCEEDED(XmlHelper::AddDomElementIfNotExist(pConsoleElement, CComBSTR(L"background"), pBackgroundElement)))
+	{
+		DWORD dwBackgroundImageType = 0;
+
+		XmlHelper::GetAttribute(pBackgroundElement, CComBSTR(L"type"), dwBackgroundImageType, 0);
+		backgroundImageType = static_cast<BackgroundImageType>(dwBackgroundImageType);
+
+		XmlHelper::GetRGBAttribute(pBackgroundElement, crBackgroundColor, RGB(0, 0, 0));
+
+		// load image settings and let ImageHandler return appropriate bitmap
+		CComPtr<IXMLDOMElement>	pImageElement;
+		if (SUCCEEDED(XmlHelper::AddDomElementIfNotExist(pBackgroundElement, CComBSTR(L"image"), pImageElement)))
+		{
+			CComPtr<IXMLDOMElement>	pTintElement;
+			if (SUCCEEDED(XmlHelper::AddDomElementIfNotExist(pImageElement, CComBSTR(L"tint"), pTintElement)))
+			{
+				XmlHelper::GetRGBAttribute(pTintElement, imageData.crTint, RGB(0, 0, 0));
+				XmlHelper::GetAttribute(pTintElement, CComBSTR(L"opacity"), imageData.byTintOpacity, 0);
+			}
+
+			DWORD dwImagePosition = 0;
+
+			XmlHelper::GetAttribute(pImageElement, CComBSTR(L"file"),     imageData.strFilename, wstring(L""));
+			XmlHelper::GetAttribute(pImageElement, CComBSTR(L"relative"), imageData.bRelative,   false);
+			XmlHelper::GetAttribute(pImageElement, CComBSTR(L"extend"),   imageData.bExtend,     false);
+			XmlHelper::GetAttribute(pImageElement, CComBSTR(L"position"), dwImagePosition,       0);
+
+			imageData.imagePosition = static_cast<ImagePosition>(dwImagePosition);
+		}
+	}
 
 	return true;
 }
@@ -110,6 +147,8 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"start_hidden"), bStartHidden);
 	XmlHelper::SetAttribute(pConsoleElement, CComBSTR(L"save_size"), bSaveSize);
 
+	XmlHelper::SaveColors(pConsoleElement, consoleColors, backgroundTextOpacity);
+
 	CComPtr<IXMLDOMElement>	pCursorElement;
 	if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(L"cursor"), pCursorElement))) return false;
 	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"style"), dwCursorStyle);
@@ -117,7 +156,39 @@ bool ConsoleSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"g"), GetGValue(crCursorColor));
 	XmlHelper::SetAttribute(pCursorElement, CComBSTR(L"b"), GetBValue(crCursorColor));
 
-	XmlHelper::SaveColors(pConsoleElement, consoleColors, backgroundTextOpacity);
+	// add <background> tag
+	CComPtr<IXMLDOMElement>	pBackgroundElement;
+	if (FAILED(XmlHelper::GetDomElement(pConsoleElement, CComBSTR(L"background"), pBackgroundElement))) return false;
+
+	XmlHelper::SetAttribute(pBackgroundElement, CComBSTR(L"type"), backgroundImageType);
+	XmlHelper::SetRGBAttribute(pBackgroundElement, crBackgroundColor);
+
+	// add <image> tag
+	CComPtr<IXMLDOMElement>	pImageElement;
+	if (FAILED(XmlHelper::GetDomElement(pBackgroundElement, CComBSTR(L"image"), pImageElement))) return false;
+
+	if (backgroundImageType == bktypeImage)
+	{
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"file"),     imageData.strFilename);
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"relative"), imageData.bRelative ? true : false);
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"extend"),   imageData.bExtend ? true : false);
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"position"), static_cast<DWORD>(imageData.imagePosition));
+	}
+	else
+	{
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"file"), wstring(L""));
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"relative"), false);
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"extend"), false);
+		XmlHelper::SetAttribute(pImageElement, CComBSTR(L"position"), 0);
+	}
+
+	// add <tint> tag
+	CComPtr<IXMLDOMElement>	pTintElement;
+	if (FAILED(XmlHelper::GetDomElement(pImageElement, CComBSTR(L"tint"), pTintElement))) return false;
+
+	XmlHelper::SetAttribute(pTintElement, CComBSTR(L"opacity"), imageData.byTintOpacity);
+	XmlHelper::SetRGBAttribute(pTintElement, imageData.crTint);
+
 	return true;
 }
 
@@ -146,6 +217,10 @@ ConsoleSettings& ConsoleSettings::operator=(const ConsoleSettings& other)
 	backgroundTextOpacity = other.backgroundTextOpacity;
 	dwCursorStyle         = other.dwCursorStyle;
 	crCursorColor         = other.crCursorColor;
+
+	backgroundImageType   = other.backgroundImageType;
+	crBackgroundColor     = other.crBackgroundColor;
+	imageData             = other.imageData;
 
 	return *this;
 }
@@ -2199,6 +2274,8 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 					tabData->imageData.imagePosition = static_cast<ImagePosition>(dwImagePosition);
 				}
 			}
+
+			tabData->bInheritedBackground = false;
 		}
 
 		CComPtr<IXMLDOMElement> pColors;
@@ -2301,59 +2378,62 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 			pNewTabElement->appendChild(pNewCursorElement, &pNewCursorOut);
 		}
 
-		// add <background> tag
-		CComPtr<IXMLDOMElement>	pNewBkElement;
-		CComPtr<IXMLDOMNode>	pNewBkOut;
-
-		pSettingsDoc->createElement(CComBSTR(L"background"), &pNewBkElement);
-
-		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"type"), (*itTab)->backgroundImageType);
-		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"r"), GetRValue((*itTab)->crBackgroundColor));
-		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"g"), GetGValue((*itTab)->crBackgroundColor));
-		XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"b"), GetBValue((*itTab)->crBackgroundColor));
-
-
-		// add <image> tag
-		CComPtr<IXMLDOMElement>	pNewImageElement;
-		CComPtr<IXMLDOMNode>	pNewImageOut;
-
-		pSettingsDoc->createElement(CComBSTR(L"image"), &pNewImageElement);
-
-		if ((*itTab)->backgroundImageType == bktypeImage)
+		if (!(*itTab)->bInheritedBackground)
 		{
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"file"), (*itTab)->imageData.strFilename);
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"relative"), (*itTab)->imageData.bRelative ? true : false);
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"extend"), (*itTab)->imageData.bExtend ? true : false);
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"position"), static_cast<DWORD>((*itTab)->imageData.imagePosition));
+			// add <background> tag
+			CComPtr<IXMLDOMElement>	pNewBkElement;
+			CComPtr<IXMLDOMNode>	pNewBkOut;
+
+			pSettingsDoc->createElement(CComBSTR(L"background"), &pNewBkElement);
+
+			XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"type"), (*itTab)->backgroundImageType);
+			XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"r"), GetRValue((*itTab)->crBackgroundColor));
+			XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"g"), GetGValue((*itTab)->crBackgroundColor));
+			XmlHelper::SetAttribute(pNewBkElement, CComBSTR(L"b"), GetBValue((*itTab)->crBackgroundColor));
+
+
+			// add <image> tag
+			CComPtr<IXMLDOMElement>	pNewImageElement;
+			CComPtr<IXMLDOMNode>	pNewImageOut;
+
+			pSettingsDoc->createElement(CComBSTR(L"image"), &pNewImageElement);
+
+			if ((*itTab)->backgroundImageType == bktypeImage)
+			{
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"file"), (*itTab)->imageData.strFilename);
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"relative"), (*itTab)->imageData.bRelative ? true : false);
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"extend"), (*itTab)->imageData.bExtend ? true : false);
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"position"), static_cast<DWORD>((*itTab)->imageData.imagePosition));
+			}
+			else
+			{
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"file"), wstring(L""));
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"relative"), false);
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"extend"), false);
+				XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"position"), 0);
+			}
+
+			// add <tint> tag
+			CComPtr<IXMLDOMElement>	pNewTintElement;
+			CComPtr<IXMLDOMNode>	pNewTintOut;
+
+			pSettingsDoc->createElement(CComBSTR(L"tint"), &pNewTintElement);
+
+			XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"opacity"), (*itTab)->imageData.byTintOpacity);
+			XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"r"), GetRValue((*itTab)->imageData.crTint));
+			XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"g"), GetGValue((*itTab)->imageData.crTint));
+			XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"b"), GetBValue((*itTab)->imageData.crTint));
+
+
+			XmlHelper::AddTextNode(pNewImageElement, CComBSTR(L"\n\t\t\t\t\t"));
+			pNewImageElement->appendChild(pNewTintElement, &pNewTintOut);
+			XmlHelper::AddTextNode(pNewImageElement, CComBSTR(L"\n\t\t\t\t"));
+			XmlHelper::AddTextNode(pNewBkElement, CComBSTR(L"\n\t\t\t\t"));
+			pNewBkElement->appendChild(pNewImageElement, &pNewImageOut);
+			XmlHelper::AddTextNode(pNewBkElement, CComBSTR(L"\n\t\t\t"));
+			XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
+			pNewTabElement->appendChild(pNewBkElement, &pNewBkOut);
 		}
-		else
-		{
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"file"), wstring(L""));
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"relative"), false);
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"extend"), false);
-			XmlHelper::SetAttribute(pNewImageElement, CComBSTR(L"position"), 0);
-		}
-
-		// add <tint> tag
-		CComPtr<IXMLDOMElement>	pNewTintElement;
-		CComPtr<IXMLDOMNode>	pNewTintOut;
-
-		pSettingsDoc->createElement(CComBSTR(L"tint"), &pNewTintElement);
-
-		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"opacity"), (*itTab)->imageData.byTintOpacity);
-		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"r"), GetRValue((*itTab)->imageData.crTint));
-		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"g"), GetGValue((*itTab)->imageData.crTint));
-		XmlHelper::SetAttribute(pNewTintElement, CComBSTR(L"b"), GetBValue((*itTab)->imageData.crTint));
-
-
-		XmlHelper::AddTextNode(pNewImageElement, CComBSTR(L"\n\t\t\t\t\t"));
-		pNewImageElement->appendChild(pNewTintElement, &pNewTintOut);
-		XmlHelper::AddTextNode(pNewImageElement, CComBSTR(L"\n\t\t\t\t"));
-		XmlHelper::AddTextNode(pNewBkElement, CComBSTR(L"\n\t\t\t\t"));
-		pNewBkElement->appendChild(pNewImageElement, &pNewImageOut);
-		XmlHelper::AddTextNode(pNewBkElement, CComBSTR(L"\n\t\t\t"));
-		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
-		pNewTabElement->appendChild(pNewBkElement, &pNewBkOut);
 
 		if (!(*itTab)->bInheritedColors)
 		{
@@ -2519,6 +2599,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 	{
 		iterTabData->get()->SetColors(m_consoleSettings.consoleColors, m_consoleSettings.backgroundTextOpacity, false);
 		iterTabData->get()->SetCursor(m_consoleSettings.dwCursorStyle, m_consoleSettings.crCursorColor, false);
+		iterTabData->get()->SetBackground(m_consoleSettings.backgroundImageType, m_consoleSettings.crBackgroundColor, m_consoleSettings.imageData, false);
 	}
 
 	return true;

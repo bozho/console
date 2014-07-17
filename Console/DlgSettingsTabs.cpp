@@ -17,7 +17,7 @@
 DlgSettingsTabs::DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot, ConsoleSettings &consoleSettings)
 : DlgSettingsBase(pOptionsRoot)
 , m_page1()
-, m_page2()
+, m_page2(consoleSettings)
 , m_page3(consoleSettings)
 {
 	IDD = IDD_SETTINGS_TABS;

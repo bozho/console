@@ -2364,6 +2364,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		it->second->InitializeScrollbars();
 		it->second->GetTabData()->SetColors(consoleSettings.consoleColors, consoleSettings.backgroundTextOpacity, false);
 		it->second->GetTabData()->SetCursor(consoleSettings.dwCursorStyle, consoleSettings.crCursorColor, false);
+		//it->second->GetTabData()->SetBackground(consoleSettings.backgroundImageType, consoleSettings.crBackgroundColor, consoleSettings.imageData, false);
 	}
 
 	TabDataVector& tabDataVector = g_settingsHandler->GetTabSettings().tabDataVector;
@@ -2371,6 +2372,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	{
 		it->get()->SetColors(consoleSettings.consoleColors, consoleSettings.backgroundTextOpacity, false);
 		it->get()->SetCursor(consoleSettings.dwCursorStyle, consoleSettings.crCursorColor, false);
+		it->get()->SetBackground(consoleSettings.backgroundImageType, consoleSettings.crBackgroundColor, consoleSettings.imageData, false);
 	}
 
 	// reindex

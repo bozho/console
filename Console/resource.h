@@ -48,9 +48,7 @@
 #define IDC_BUFFER_ROWS                 1010
 #define IDC_BUFFER_COLUMNS              1011
 #define IDC_SHELL                       1012
-#define IDC_BUFFER_ROWS2                1012
 #define IDC_INIT_DIR                    1013
-#define IDC_BUFFER_COLUMNS2             1013
 #define IDC_BTN_BROWSE_SHELL            1015
 #define IDC_BTN_BROWSE_DIR              1016
 #define IDC_BTN_BROWSE_BK               1017
@@ -103,9 +101,7 @@
 #define IDC_SPIN_COLUMNS                1063
 #define IDC_SPIN_BUFFER_COLUMNS         1064
 #define IDC_BTN_RESET_COLORS            1065
-#define IDC_SPIN_BUFFER_ROWS2           1065
 #define IDC_STATIC_ACTIVE_ALPHA         1066
-#define IDC_SPIN_BUFFER_COLUMNS2        1066
 #define IDC_STATIC_INACTIVE_ALPHA       1067
 #define IDC_TRANSPARENCY_TYPE           1068
 #define IDC_TRANSPARENCY_TYPE2          1069
@@ -119,7 +115,6 @@
 #define IDC_BTN_ASSIGN                  1077
 #define IDC_EDIT_HOTKEY                 1078
 #define IDC_EDIT_COMMAND                1079
-#define IDC_KEY_COLOR2                  1079
 #define IDC_SELECTION_COLOR             1079
 #define IDC_BTN_CLEAR                   1080
 #define IDC_FONT_COLOR                  1081
@@ -158,7 +153,6 @@
 #define IDC_MAIN_TITLE_FORMAT           1114
 #define IDC_TAB_TITLE_FORMAT            1115
 #define IDC_LIST_TABS                   1116
-#define IDC_SPIN_Y2                     1116
 #define IDC_SPIN_TRIM_TAB_TITLES        1116
 #define IDC_TAB_TITLE                   1117
 #define IDC_SPIN_TRIM_TAB_TITLES_RIGHT  1117
@@ -281,6 +275,9 @@
 #define IDC_BTN_INHERIT_CURSOR          1220
 #define IDC_BTN_SET_AS_DEFAULT_COLORS   1221
 #define IDC_BTN_SET_AS_DEFAULT_CURSOR   1222
+#define IDC_BTN_INHERIT_BACKGROUND      1223
+#define IDC_BTN_SET_AS_DEFAULT_BACKGROUND 1224
+
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -356,7 +353,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        221
 #define _APS_NEXT_COMMAND_VALUE         32801
-#define _APS_NEXT_CONTROL_VALUE         1223
+#define _APS_NEXT_CONTROL_VALUE         1225
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

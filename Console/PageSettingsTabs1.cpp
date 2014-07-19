@@ -236,6 +236,20 @@ void PageSettingsTabs1::ConvertShellLink(CString& strShell)
 
 	if( m_strShell.Right(4).CompareNoCase(L".lnk") == 0 )
 	{
+
+		// set title
+		wchar_t szTitle[_MAX_PATH];
+
+		if( _wsplitpath_s(
+			m_strShell.GetString(),
+			nullptr, 0,
+			nullptr, 0,
+			szTitle, ARRAYSIZE(szTitle),
+			nullptr, 0) == 0 )
+		{
+			m_strTitle = szTitle;
+		}
+
 		CComPtr<IShellLink> shellLink;
 		if( SUCCEEDED(shellLink.CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER)) )
 		{

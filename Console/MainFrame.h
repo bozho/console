@@ -55,6 +55,7 @@ class MainFrame
 			vector<wstring>& startupTabs,
 			vector<wstring>& startupDirs,
 			vector<wstring>& startupCmds,
+			vector<DWORD>&   basePriorities,
 			int& nMultiStartSleep,
 			std::wstring& strWorkingDir
 		);
@@ -311,8 +312,8 @@ class MainFrame
 	private:
 
 		void ActivateApp(void);
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
-		bool CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
+		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
+		bool CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
@@ -356,9 +357,10 @@ class MainFrame
 	public:
 		LRESULT CreateInitialTabs
 		(
-			vector<wstring> startupTabs,
-			vector<wstring> startupCmds,
-			vector<wstring> startupDirs,
+			const vector<wstring>& startupTabs,
+			const vector<wstring>& startupCmds,
+			const vector<wstring>& startupDirs,
+			const vector<DWORD>&   basePriorities,
 			int nMultiStartSleep,
 			std::wstring strWorkingDir
 		);
@@ -370,6 +372,7 @@ class MainFrame
 		vector<wstring>	m_startupTabs;
 		vector<wstring>	m_startupDirs;
 		vector<wstring>	m_startupCmds;
+		vector<DWORD>		m_priorities;
 		int						m_nMultiStartSleep;
 		wstring m_strWorkingDir;
 

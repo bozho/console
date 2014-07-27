@@ -37,7 +37,7 @@ bool _boolMenuSysKeyCancelled = false;
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/, DWORD dwBasePriority)
 : m_mainFrame(mainFrame)
 , m_hwndTabView(hwndTabView)
 , m_bInitializing(true)
@@ -77,6 +77,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_boolIsGrouped(false)
 , m_strCmdLineInitialDir(strCmdLineInitialDir)
 , m_strCmdLineInitialCmd(strCmdLineInitialCmd)
+, m_dwBasePriority(dwBasePriority)
 , m_boolImmComposition(false)
 {
 	m_coordSearchText.X = -1;
@@ -151,6 +152,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 				strInitialDir,
 				*userCredentials,
 				m_strCmdLineInitialCmd,
+				m_dwBasePriority == ULONG_MAX? m_tabData->dwBasePriority : m_dwBasePriority,
 				m_dwStartupRows,
 				m_dwStartupColumns);
 

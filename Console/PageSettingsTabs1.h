@@ -108,6 +108,7 @@ class PageSettingsTabs1
 		CFileNameEdit        m_tabIconEdit;
 		CFileNameAndLinkEdit m_tabShellEdit;
 		CFileNameEdit        m_tabInitialDirEdit;
+		CComboBox            m_comboPriority;
 };
 
 //////////////////////////////////////////////////////////////////////////////

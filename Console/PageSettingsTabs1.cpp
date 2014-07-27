@@ -48,6 +48,14 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_tabShellEdit.SubclassWindow(GetDlgItem(IDC_TAB_SHELL));
 	m_tabInitialDirEdit.SubclassWindow(GetDlgItem(IDC_TAB_INIT_DIR));
 
+	m_comboPriority.Attach(GetDlgItem(IDC_COMBO_BASE_PRIORITY));
+	m_comboPriority.AddString(L"Idle");
+	m_comboPriority.AddString(L"Below normal");
+	m_comboPriority.AddString(L"Normal");
+	m_comboPriority.AddString(L"Above normal");
+	m_comboPriority.AddString(L"High");
+	m_comboPriority.AddString(L"Realtime");
+
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
 }
@@ -199,6 +207,8 @@ void PageSettingsTabs1::Load(std::shared_ptr<TabData>& tabData)
 	m_bNetOnly        = m_tabData->bNetOnly;
 	m_bRunAsAdmin     = m_tabData->bRunAsAdministrator;
 
+	m_comboPriority.SetCurSel(m_tabData->dwBasePriority);
+
 	DoDataExchange(DDX_LOAD);
 
 	EnableControls();
@@ -223,6 +233,8 @@ void PageSettingsTabs1::Save()
 	m_tabData->strUser             = m_strUser;
 	m_tabData->bNetOnly            = m_bNetOnly;
 	m_tabData->bRunAsAdministrator = m_bRunAsAdmin;
+
+	m_tabData->dwBasePriority      = m_comboPriority.GetCurSel();
 }
 
 //////////////////////////////////////////////////////////////////////////////

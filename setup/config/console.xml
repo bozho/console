@@ -147,7 +147,7 @@
 	</mouse>
 	<tabs>
 		<tab title="ConsoleZ" use_default_icon="0">
-			<console shell="" init_dir="" run_as_user="0" user="" net_only="0" run_as_admin="0"/>
+			<console shell="" init_dir="" priority="2" run_as_user="0" user="" net_only="0" run_as_admin="0"/>
 		</tab>
 	</tabs>
 	<external_commands/>

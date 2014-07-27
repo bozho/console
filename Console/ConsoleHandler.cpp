@@ -100,7 +100,8 @@ void ConsoleHandler::RunAsAdministrator
 	const wstring& strSyncName,
 	const wstring& strTitle,
 	const wstring& strInitialDir,
-	const wstring& strInitialCmd
+	const wstring& strInitialCmd,
+	DWORD dwBasePriority
 )
 {
 	std::wstring strFile = Helpers::GetModuleFileName(nullptr);
@@ -127,6 +128,9 @@ void ConsoleHandler::RunAsAdministrator
 		strParams += L" -r ";
 		strParams += Helpers::EscapeCommandLineArg(strInitialCmd);
 	}
+	// priority
+	strParams += L" -p ";
+	strParams += TabData::PriorityToString(dwBasePriority);
 
 	SHELLEXECUTEINFO sei = {sizeof(sei)};
 
@@ -155,6 +159,7 @@ void ConsoleHandler::CreateShellProcess
 	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
+	DWORD dwBasePriority,
 	PROCESS_INFORMATION& pi
 )
 {
@@ -311,7 +316,7 @@ void ConsoleHandler::CreateShellProcess
 	}
 
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
-	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT;
+	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT|TabData::GetPriorityClass(dwBasePriority);
 
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
@@ -366,6 +371,7 @@ void ConsoleHandler::StartShellProcess
 	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
+	DWORD dwBasePriority,
 	DWORD dwStartupRows,
 	DWORD dwStartupColumns
 )
@@ -412,7 +418,8 @@ void ConsoleHandler::StartShellProcess
 			strSyncName,
 			strTitle,
 			strInitialDir,
-			strInitialCmd
+			strInitialCmd,
+			dwBasePriority
 		);
 
 		// wait for PID of shell launched in admin ConsoleZ
@@ -434,6 +441,7 @@ void ConsoleHandler::StartShellProcess
 			strInitialDir,
 			userCredentials,
 			strInitialCmd,
+			dwBasePriority,
 			pi
 		);
 	}
@@ -508,7 +516,8 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 	const wstring& strSyncName,
 	const wstring& strShell,
 	const wstring& strInitialDir,
-	const wstring& strInitialCmd
+	const wstring& strInitialCmd,
+	DWORD dwBasePriority
 )
 {
 	SharedMemory<DWORD> pid;
@@ -522,6 +531,7 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 		strInitialDir,
 		userCredentials,
 		strInitialCmd,
+		dwBasePriority,
 		pi
 	);
 

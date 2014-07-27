@@ -11,7 +11,7 @@ class TabView
 public:
   DECLARE_WND_CLASS_EX(L"Console_2_TabView", CS_DBLCLKS, COLOR_WINDOW)
 
-  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir, const wstring& strCmdLineInitialCmd);
+  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir, const wstring& strCmdLineInitialCmd, DWORD dwBasePriority);
   ~TabView();
 
   BOOL PreTranslateMessage(MSG* pMsg);
@@ -82,7 +82,7 @@ public:
   inline size_t GetViewsCount(void) const { return m_views.size(); }
 
 private:
-  HWND CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""));
+	HWND CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
 
 private:
   MainFrame&          m_mainFrame;
@@ -95,6 +95,7 @@ private:
   bool                m_boolIsGrouped;
   wstring             m_strCmdLineInitialDir;
   wstring             m_strCmdLineInitialCmd;
+	DWORD               m_dwBasePriority;
 
   // static members
 private:

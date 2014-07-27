@@ -771,6 +771,7 @@ struct TabData
 	, hwnd(nullptr)
 	, strShell(shell)
 	, strInitialDir(initialDir)
+	, dwBasePriority(2)
 	, bRunAsUser(false)
 	, strUser()
 	, bNetOnly(false)
@@ -814,6 +815,7 @@ struct TabData
 
 	wstring							strShell;
 	wstring							strInitialDir;
+	DWORD							dwBasePriority;
 	bool							bRunAsUser;
 	wstring							strUser;
 	bool							bNetOnly;
@@ -896,6 +898,46 @@ struct TabData
 		else
 		{
 			return Helpers::LoadTabIcon(false, bUseDefaultIcon, strIcon, strShell);
+		}
+	}
+
+	static DWORD GetPriorityClass(DWORD dwPriority)
+	{
+		switch( dwPriority )
+		{
+		case 0:  return IDLE_PRIORITY_CLASS;
+		case 1:  return BELOW_NORMAL_PRIORITY_CLASS;
+		case 2:  return NORMAL_PRIORITY_CLASS;
+		case 3:  return ABOVE_NORMAL_PRIORITY_CLASS;
+		case 4:  return HIGH_PRIORITY_CLASS;
+		case 5:  return REALTIME_PRIORITY_CLASS;
+		default: return NORMAL_PRIORITY_CLASS;
+		}
+	}
+
+	static DWORD StringToPriority(const wchar_t * p)
+	{
+		     if( _wcsicmp(L"Idle",        p) == 0 ) return 0;
+		else if( _wcsicmp(L"BelowNormal", p) == 0 ) return 1;
+		else if( _wcsicmp(L"Normal",      p) == 0 ) return 2;
+		else if( _wcsicmp(L"AboveNormal", p) == 0 ) return 3;
+		else if( _wcsicmp(L"High",        p) == 0 ) return 4;
+		else if( _wcsicmp(L"Realtime",    p) == 0 ) return 5;
+
+		return ULONG_MAX;
+	}
+
+	static const wchar_t * PriorityToString(DWORD dwPriority)
+	{
+		switch( dwPriority )
+		{
+		case 0:  return L"Idle";
+		case 1:  return L"BelowNormal";
+		case 2:  return L"Normal";
+		case 3:  return L"AboveNormal";
+		case 4:  return L"High";
+		case 5:  return L"Realtime";
+		default: return L"Normal";
 		}
 	}
 };

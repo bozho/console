@@ -56,6 +56,42 @@
 	</p>
 	<br/>
 
+	<p class="block-row-name">-p &lt;base priority&gt;</p>
+	<p class="block-row-description">
+		Specifies shell base priority.<br/>
+    <b>Idle</b>: Specifies that the threads of this process run only when the
+    system is idle.<br/>
+    <b>The idle priority class is inherited by child processes.</b>
+    <br/>
+    <br/>
+    <b>BelowNormal</b>: Specifies that the process has priority above Idle
+    but below Normal.<br/>
+    <b>The below normal priority class is inherited by child processes.</b>
+    <br/>
+    <br/>
+    <b>Normal</b>: Specifies that the process has no special scheduling needs.
+    <br/>
+    <br/>
+    <b>AboveNormal</b>: Specifies that the process has priority above Normal
+    but below High.
+    <br/>
+    <br/>
+    <b>High</b>: Specifies that the process performs time-critical tasks
+    that must be executed immediately, regardless of the load on the operating
+    system. The threads of the process preempt the threads of normal or idle
+    priority class processes. <b>Use extreme care when specifying High for the
+    process's priority class, because a high priority class application can use
+    nearly all available processor time.</b>
+    <br/>
+    <br/>
+    <b>Realtime</b>: Specifies that the process has the highest possible priority.
+    <b>The threads of a process with RealTime priority preempt the threads of all
+    other processes, including operating system processes performing important tasks.
+    Thus, a RealTime priority process that executes for more than a very brief
+    interval can cause disk caches not to flush or cause the mouse to be unresponsive.</b>
+	</p>
+	<br/>
+
 	<p class="block-row-name">-ts &lt;sleep time in ms&gt;</p>
 	<p class="block-row-description">
 		Specifies sleep time between starting next tab if multiple -t's 

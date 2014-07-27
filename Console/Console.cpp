@@ -174,6 +174,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 			vector<wstring> startupTabs;
 			vector<wstring> startupDirs;
 			vector<wstring> startupCmds;
+			vector<DWORD>   basePriorities;
 			int nMultiStartSleep = 0;
 			wstring strWorkingDir;
 
@@ -184,6 +185,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 				startupTabs,
 				startupDirs,
 				startupCmds,
+				basePriorities,
 				nMultiStartSleep,
 				strWorkingDir
 			);
@@ -220,6 +222,16 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 						strInitialCmd = startupCmds[0];
 					}
 
+					DWORD dwBasePriority = ULONG_MAX;
+
+					if (basePriorities.size() > 0)
+					{
+						dwBasePriority = basePriorities[0];
+					}
+
+					if (dwBasePriority == ULONG_MAX)
+						dwBasePriority = tabData->get()->dwBasePriority;
+
 					try
 					{
 						ConsoleHandler ConsoleHandler;
@@ -228,7 +240,8 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 							strSyncName,
 							strShell,
 							strInitialDir,
-							strInitialCmd
+							strInitialCmd,
+							dwBasePriority
 						);
 					}
 					catch(Win32Exception&)

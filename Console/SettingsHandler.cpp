@@ -2222,6 +2222,7 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		{
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"shell"), tabData->strShell, strDefaultShell);
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"init_dir"), tabData->strInitialDir, strDefaultInitialDir);
+			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"priority"), tabData->dwBasePriority, 2);
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"run_as_user"), tabData->bRunAsUser, false);
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"user"), tabData->strUser, L"");
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"net_only"), tabData->bNetOnly, false);
@@ -2352,6 +2353,7 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"shell"), (*itTab)->strShell);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"init_dir"), (*itTab)->strInitialDir);
+		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"priority"), (*itTab)->dwBasePriority);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"run_as_user"), (*itTab)->bRunAsUser);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"user"), (*itTab)->strUser);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"net_only"), (*itTab)->bNetOnly);

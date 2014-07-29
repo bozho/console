@@ -1428,6 +1428,9 @@ LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 
 LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
 {
+	// do nothing for minimized or maximized or fullscreen windows
+	if (IsIconic() || IsZoomed() || m_bFullScreen) return 0;
+
 	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 	CRect	windowRect;
 

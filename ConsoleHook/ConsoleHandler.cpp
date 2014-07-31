@@ -1133,6 +1133,89 @@ right:
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::ClickLink(HANDLE hStdOut)
+{
+	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
+	SHORT                        sBufferRows     = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
+	COORD                        coordFrom       = {0, 0};
+	COORD                        coordBufferSize = {sBufferColumns, 1};
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[sBufferColumns]);
+
+	std::wstring strLink;
+
+	for (SHORT y = m_multipleInfo->coordCurrent.Y; y >= 0; --y)
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = 0;
+		srBuffer.Top    = y;
+		srBuffer.Right  = (y == m_multipleInfo->coordCurrent.Y)? m_multipleInfo->coordCurrent.X : (sBufferColumns - 1);
+		srBuffer.Bottom = y;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		for (SHORT x = srBuffer.Right; x >= srBuffer.Left; --x)
+		{
+			wchar_t c = pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar;
+			for (size_t d = 0; m_multipleInfo->u.select_word.szLeftDelimiters[d]; ++d)
+			{
+				if( c == m_multipleInfo->u.select_word.szLeftDelimiters[d] )
+				{
+					goto right;
+				}
+			}
+			strLink.insert(0, &c, 1);
+		}
+	}
+
+right:
+
+	for (SHORT y = m_multipleInfo->coordCurrent.Y; y < sBufferRows; ++y)
+	{
+		SMALL_RECT srBuffer;
+
+		srBuffer.Left   = (y == m_multipleInfo->coordCurrent.Y)? (m_multipleInfo->coordCurrent.X + 1) : 0;
+		srBuffer.Top    = y;
+		srBuffer.Right  = sBufferColumns - 1;
+		srBuffer.Bottom = y;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		for (SHORT x = srBuffer.Left; x <= srBuffer.Right; ++x)
+		{
+			wchar_t c = pScreenBuffer[x - srBuffer.Left].Char.UnicodeChar;
+			for (size_t d = 0; m_multipleInfo->u.select_word.szLeftDelimiters[d]; ++d)
+			{
+				if( c == m_multipleInfo->u.select_word.szLeftDelimiters[d] )
+				{
+					goto link;
+				}
+			}
+			strLink += c;
+		}
+	}
+
+link:
+
+	ShellExecute(NULL, L"open", strLink.c_str(), NULL, NULL, SW_SHOWNORMAL);
+	//MessageBox(NULL, strLink.c_str(), L"link", MB_OK);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::SearchText(HANDLE hStdOut)
 {
 	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
@@ -1578,6 +1661,11 @@ DWORD ConsoleHandler::MonitorThread()
 				else if( m_multipleInfo->fMask & MULTIPLEINFO_SEARCH_TEXT )
 				{
 					SearchText(hStdOut);
+				}
+				// click link
+				if( m_multipleInfo->fMask & MULTIPLEINFO_CLICK_LINK )
+				{
+					ClickLink(hStdOut);
 				}
 
 				::SetEvent(m_multipleInfo.GetRespEvent());

@@ -736,6 +736,16 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			return 0;
 		}
 
+		// click link
+		it = mouseSettings.commands.get<MouseSettings::commandID>().find(MouseSettings::cmdLink);
+		if ((*it)->action == mouseAction)
+		{
+			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+			m_consoleHandler.ClickLink(GetConsoleCoord(point));
+
+			return 0;
+		}
+
 		// menu command
 		for(int i = 0; i < 3; ++i)
 		{

@@ -659,6 +659,7 @@ struct MouseSettings : public SettingsBase
 		cmdMenu2        = 6,
 		cmdMenu3        = 7,
 		cmdColumnSelect = 8,
+		cmdLink         = 9,
 	};
 
 	enum Button

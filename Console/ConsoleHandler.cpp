@@ -766,6 +766,29 @@ bool ConsoleHandler::SelectWord(const COORD& coordCurrent, COORD& coordLeft, COO
 
 //////////////////////////////////////////////////////////////////////////////
 
+bool ConsoleHandler::ClickLink(const COORD& coordCurrent) const
+{
+	m_multipleInfo->fMask = MULTIPLEINFO_CLICK_LINK;
+	m_multipleInfo->coordCurrent = coordCurrent;
+
+	CopyPasteSettings& copyPasteSettings = g_settingsHandler->GetBehaviorSettings().copyPasteSettings;
+	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->u.select_word.szLeftDelimiters,  copyPasteSettings.strLeftDelimiters.c_str());
+	wcscpy_s<MAX_WORD_DELIMITERS>(m_multipleInfo->u.select_word.szRightDelimiters, copyPasteSettings.strRightDelimiters.c_str());
+
+	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
+	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 )
+	{
+		return true;
+	}
+
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool ConsoleHandler::SearchText(CString& text, bool bNext, const COORD& coordCurrent, COORD& coordLeft, COORD& coordRight) const
 {
 	m_multipleInfo->fMask = MULTIPLEINFO_SEARCH_TEXT;

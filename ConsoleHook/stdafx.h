@@ -20,6 +20,7 @@
 #include <windows.h>
 #include <psapi.h>
 #include <dbghelp.h>
+#include <Shellapi.h>
 
 #include <string>
 using namespace std;

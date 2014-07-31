@@ -2023,6 +2023,7 @@ MouseSettings::MouseSettings()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdColumnSelect, L"select_column", L"Select column")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdPaste,        L"paste",         L"Paste text")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdDrag,         L"drag",          L"Drag window")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdLink,         L"link",          L"Click link")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu1,        L"menu",          L"Context menu #1")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu2,        L"menu2",         L"Context menu #2")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(cmdMenu3,        L"menu3",         L"Context menu #3")));

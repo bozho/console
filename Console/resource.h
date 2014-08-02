@@ -36,6 +36,7 @@
 #define IDD_SETTINGS_TABS_COLORS        218
 #define IDD_SETTINGS_FONT               219
 #define IDD_SETTINGS_BEHAVIOR_2         220
+#define IDD_SETTINGS_TABS_ENV           221
 
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -278,6 +279,12 @@
 #define IDC_BTN_INHERIT_BACKGROUND      1223
 #define IDC_BTN_SET_AS_DEFAULT_BACKGROUND 1224
 #define IDC_COMBO_BASE_PRIORITY         1225
+#define IDC_LIST_ENV                    1226
+#define IDC_BTN_ENV_ADD                 1227
+#define IDC_BTN_ENV_DELETE              1228
+#define IDC_BTN_ENV_EDIT                1229
+#define IDC_ENV_VARIABLE                1230
+#define IDC_ENV_VALUE                   1231
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -351,9 +358,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        221
+#define _APS_NEXT_RESOURCE_VALUE        222
 #define _APS_NEXT_COMMAND_VALUE         32801
-#define _APS_NEXT_CONTROL_VALUE         1226
+#define _APS_NEXT_CONTROL_VALUE         1232
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

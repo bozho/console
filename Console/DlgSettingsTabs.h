@@ -5,6 +5,7 @@
 #include "PageSettingsTabs1.h"
 #include "PageSettingsTabs2.h"
 #include "PageSettingsTabsColors.h"
+#include "PageSettingsTabsEnv.h"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -74,11 +75,12 @@ class DlgSettingsTabs
     WTL::CImageList m_ImageList;
 
 		CTabCtrl			m_tabCtrl;
-		PageSettingsTabs1	m_page1;
-		PageSettingsTabs2	m_page2;
-		PageSettingsTabsColors	m_page3;
 
-		PageSettingsTab	*m_pages[3];
+		PageSettingsTabs1       m_page1;
+		PageSettingsTabs2       m_page2;
+		PageSettingsTabsColors  m_page3;
+		PageSettingsTabsEnv     m_page4;
+		PageSettingsTab	*       m_pages[4];
 };
 
 //////////////////////////////////////////////////////////////////////////////

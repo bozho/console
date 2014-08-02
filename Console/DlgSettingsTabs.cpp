@@ -19,12 +19,14 @@ DlgSettingsTabs::DlgSettingsTabs(CComPtr<IXMLDOMElement>& pOptionsRoot, ConsoleS
 , m_page1()
 , m_page2(consoleSettings)
 , m_page3(consoleSettings)
+, m_page4()
 {
 	IDD = IDD_SETTINGS_TABS;
 
 	m_pages[0] = &m_page1;
 	m_pages[1] = &m_page2;
 	m_pages[2] = &m_page3;
+	m_pages[3] = &m_page4;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -65,6 +67,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_tabCtrl.InsertItem(0, L"Main");
 	m_tabCtrl.InsertItem(1, L"Background");
 	m_tabCtrl.InsertItem(2, L"Colors && Cursor");
+	m_tabCtrl.InsertItem(3, L"Environment");
 
 	CRect	rect;
 	m_tabCtrl.GetWindowRect(&rect);
@@ -80,6 +83,9 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	m_page3.Create(m_hWnd, rect);
 	m_page3.SetWindowPos(HWND_TOP, rect.left, rect.top, rect.Width(), rect.Height(), 0);
+
+	m_page4.Create(m_hWnd, rect);
+	m_page4.SetWindowPos(HWND_TOP, rect.left, rect.top, rect.Width(), rect.Height(), 0);
 
 	m_tabCtrl.SetCurSel(0);
 	m_listCtrl.SelectItem(0);

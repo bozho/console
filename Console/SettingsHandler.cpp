@@ -2228,6 +2228,36 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"user"), tabData->strUser, L"");
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"net_only"), tabData->bNetOnly, false);
 			XmlHelper::GetAttribute(pConsoleElement, CComBSTR(L"run_as_admin"), tabData->bRunAsAdministrator, false);
+
+			CComPtr<IXMLDOMNodeList> pEnvNodes;
+			hr = pConsoleElement->selectNodes(CComBSTR(L"env"), &pEnvNodes);
+			if (SUCCEEDED(hr))
+			{
+				long lListLength;
+				pEnvNodes->get_length(&lListLength);
+
+				for (long i = 0; i < lListLength; ++i)
+				{
+					CComPtr<IXMLDOMNode>    pEnvNode;
+					CComPtr<IXMLDOMElement> pEnvElement;
+
+					pEnvNodes->get_item(i, &pEnvNode);
+					if (FAILED(pEnvNode.QueryInterface(&pEnvElement))) continue;
+
+					wstring strEnvVariable;
+					wstring strEnvValue;
+					bool    bEnvChecked = true;
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"var"),   strEnvVariable, L"");
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"value"), strEnvValue,    L"");
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"check"), bEnvChecked,    true);
+					if( !strEnvVariable.empty() )
+					{
+						tabData->strEnvVariables.push_back(strEnvVariable);
+						tabData->strEnvValues.push_back(strEnvValue);
+						tabData->bEnvChecked.push_back(bEnvChecked);
+					}
+				}
+			}
 		}
 
 		if (SUCCEEDED(XmlHelper::GetDomElement(pTabElement, CComBSTR(L"cursor"), pCursorElement)))
@@ -2359,6 +2389,26 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"user"), (*itTab)->strUser);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"net_only"), (*itTab)->bNetOnly);
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"run_as_admin"), (*itTab)->bRunAsAdministrator);
+
+		// add <env> tag
+		if(! (*itTab)->strEnvVariables.empty() )
+		{
+			for(size_t i = 0; i < (*itTab)->strEnvVariables.size(); ++i)
+			{
+				CComPtr<IXMLDOMElement> pNewEnvElement;
+				CComPtr<IXMLDOMNode>    pNewEnvOut;
+
+				pSettingsDoc->createElement(CComBSTR(L"env"), &pNewEnvElement);
+
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"var"),   (*itTab)->strEnvVariables[i]);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"value"), (*itTab)->strEnvValues[i]);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"check"), (*itTab)->bEnvChecked[i]);
+
+				XmlHelper::AddTextNode(pNewConsoleElement, CComBSTR(L"\n\t\t\t\t"));
+				pNewConsoleElement->appendChild(pNewEnvElement, &pNewEnvOut);
+			}
+			XmlHelper::AddTextNode(pNewConsoleElement, CComBSTR(L"\n\t\t\t"));
+		}
 
 		XmlHelper::AddTextNode(pNewTabElement, CComBSTR(L"\n\t\t\t"));
 		pNewTabElement->appendChild(pNewConsoleElement, &pNewConsoleOut);

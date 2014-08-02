@@ -838,6 +838,9 @@ struct TabData
 	COLORREF						consoleColors[16];
 	BYTE                backgroundTextOpacity;
 
+	vector<wstring>     strEnvVariables;
+	vector<wstring>     strEnvValues;
+	vector<bool>        bEnvChecked;
 	long                nIndex;
 
 	void SetColors(const COLORREF colors[16], const BYTE opacity, const bool bForced)

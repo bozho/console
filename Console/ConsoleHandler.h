@@ -105,6 +105,7 @@ class ConsoleHandler
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
 			DWORD dwBasePriority,
+			const wstring& strExtraEnv,
 			DWORD dwStartupRows,
 			DWORD dwStartupColumns
 		);
@@ -115,7 +116,8 @@ class ConsoleHandler
 			const wstring& strShell,
 			const wstring& strInitialDir,
 			const wstring& strInitialCmd,
-			DWORD dwBasePriority
+			DWORD dwBasePriority,
+			const wstring& strExtraEnv
 		);
 
 		void AttachToShellProcess(
@@ -174,6 +176,7 @@ class ConsoleHandler
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
 			DWORD dwBasePriority,
+			const wstring& strExtraEnv,
 			PROCESS_INFORMATION& pi
 		);
 

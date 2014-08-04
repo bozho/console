@@ -944,6 +944,24 @@ struct TabData
 		default: return L"Normal";
 		}
 	}
+
+	std::wstring GetExtraEnv()
+	{
+		std::wstring ret;
+
+		for(size_t i = 0; i < strEnvVariables.size(); ++i)
+		{
+			if( bEnvChecked[i] )
+			{
+				ret += strEnvVariables[i];
+				ret += L"=";
+				ret += strEnvValues[i];
+				ret += L'\0';
+			}
+		}
+
+		return ret;
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////

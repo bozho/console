@@ -241,7 +241,8 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 							strShell,
 							strInitialDir,
 							strInitialCmd,
-							dwBasePriority
+							dwBasePriority,
+							tabData->get()->GetExtraEnv()
 						);
 					}
 					catch(Win32Exception&)

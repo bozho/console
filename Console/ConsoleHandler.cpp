@@ -160,6 +160,7 @@ void ConsoleHandler::CreateShellProcess
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
 	DWORD dwBasePriority,
+	const wstring& strExtraEnv,
 	PROCESS_INFORMATION& pi
 )
 {
@@ -321,6 +322,20 @@ void ConsoleHandler::CreateShellProcess
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
+	// add specific environment variables defined in tad settings
+	wstring strNewEnvironment;
+	for(const wchar_t * p = static_cast<wchar_t *>(userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get());
+	    p && p[0];
+	    p += wcslen(p) + 1)
+	{
+		strNewEnvironment += p;
+		strNewEnvironment += L'\0';
+	}
+
+	strNewEnvironment += strExtraEnv;
+
+	strNewEnvironment += L'\0';
+
 	if (userCredentials.strUsername.length() > 0)
 	{
 		if( !::CreateProcessWithLogonW(
@@ -331,7 +346,7 @@ void ConsoleHandler::CreateShellProcess
 			NULL,
 			const_cast<wchar_t*>(strCmdLine.c_str()),
 			dwStartupFlags,
-			s_environmentBlock.get(),
+			const_cast<wchar_t*>(strNewEnvironment.c_str()),
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
@@ -349,7 +364,7 @@ void ConsoleHandler::CreateShellProcess
 			NULL,
 			FALSE,
 			dwStartupFlags,
-			s_environmentBlock.get(),
+			const_cast<wchar_t*>(strNewEnvironment.c_str()),
 			(strStartupDir.length() > 0) ? const_cast<wchar_t*>(strStartupDir.c_str()) : NULL,
 			&si,
 			&pi))
@@ -372,6 +387,7 @@ void ConsoleHandler::StartShellProcess
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
 	DWORD dwBasePriority,
+	const wstring& strExtraEnv,
 	DWORD dwStartupRows,
 	DWORD dwStartupColumns
 )
@@ -442,6 +458,7 @@ void ConsoleHandler::StartShellProcess
 			userCredentials,
 			strInitialCmd,
 			dwBasePriority,
+			strExtraEnv,
 			pi
 		);
 	}
@@ -517,7 +534,8 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 	const wstring& strShell,
 	const wstring& strInitialDir,
 	const wstring& strInitialCmd,
-	DWORD dwBasePriority
+	DWORD dwBasePriority,
+	const wstring& strExtraEnv
 )
 {
 	SharedMemory<DWORD> pid;
@@ -532,6 +550,7 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 		userCredentials,
 		strInitialCmd,
 		dwBasePriority,
+		strExtraEnv,
 		pi
 	);
 

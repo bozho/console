@@ -133,8 +133,6 @@ MainFrame::MainFrame
 	m_Margins.cyTopHeight    = 0;
 	m_Margins.cyBottomHeight = 0;
 
-	ConsoleHandler::UpdateEnvironmentBlock();
-
 	ParseCommandLine(
 		lpstrCmdLine,
 		m_strCmdLineWindowTitle,

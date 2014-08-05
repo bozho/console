@@ -9,6 +9,7 @@
 #include "aboutdlg.h"
 #include "MainFrame.h"
 #include "Console.h"
+#include "ConsoleException.h"
 #include "WallPaper.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -245,9 +246,13 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 							tabData->get()->GetExtraEnv()
 						);
 					}
-					catch(Win32Exception&)
+					catch (const ConsoleException& ex)
 					{
+						MessageBox(NULL, ex.GetMessage().c_str(), L"error", MB_ICONERROR|MB_OK);
+						return 1;
 					}
+
+					break;
 				}
 			}
 

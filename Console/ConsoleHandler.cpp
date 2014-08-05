@@ -322,6 +322,10 @@ void ConsoleHandler::CreateShellProcess
 	// TODO: not supported yet
 	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
+	// load environment block
+	if( !s_environmentBlock.get() )
+		ConsoleHandler::UpdateEnvironmentBlock();
+
 	// add specific environment variables defined in tad settings
 	wstring strNewEnvironment;
 	for(const wchar_t * p = static_cast<wchar_t *>(userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get());

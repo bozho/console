@@ -35,22 +35,6 @@ LRESULT PageSettingsTabsColors::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, L
 	return TRUE;
 }
 
-LRESULT PageSettingsTabsColors::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
-{
-	m_tabData->SetColors(m_consoleSettings.consoleColors, m_consoleSettings.backgroundTextOpacity, false);
-	m_tabData->SetCursor(m_consoleSettings.dwCursorStyle, m_consoleSettings.crCursorColor, false);
-
-	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
-	m_staticCursorColor.Invalidate();
-#ifdef _USE_AERO
-	m_sliderBGTextOpacity.SetPos(m_tabData->backgroundTextOpacity);
-	UpdateSliderText();
-#endif
-
-	bHandled = FALSE;
-	return 0;
-}
-
 LRESULT PageSettingsTabsColors::OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
 	CWindow		staticCtl(reinterpret_cast<HWND>(lParam));
@@ -121,13 +105,7 @@ LRESULT PageSettingsTabsColors::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WO
 	m_tabData->SetColors(m_consoleSettings.defaultConsoleColors, 255, true);
 	m_tabData->bInheritedColors = false;
 
-#ifdef _USE_AERO
-	m_sliderBGTextOpacity.SetPos(255);
-	UpdateSliderText();
-#endif //_USE_AERO
-
-	DoDataExchange(DDX_LOAD);
-	Invalidate();
+	Load();
 	return 0;
 }
 
@@ -159,8 +137,7 @@ LRESULT PageSettingsTabsColors::OnClickedBtnImportColors(WORD /*wNotifyCode*/, W
     m_tabData->SetColors(colors, opacity, true);
     m_tabData->bInheritedColors = false;
 
-    DoDataExchange(DDX_LOAD);
-    Invalidate();
+    Load();
   }
 
   return 0;
@@ -172,7 +149,7 @@ LRESULT PageSettingsTabsColors::OnClickedBtnInheritColors(WORD /*wNotifyCode*/, 
 
 	if (m_tabData->bInheritedColors)
 	{
-		Invalidate();
+		Load();
 	}
 
 	return 0;
@@ -189,7 +166,7 @@ LRESULT PageSettingsTabsColors::OnClickedBtnInheritCursor(WORD /*wNotifyCode*/, 
 
 	if (m_tabData->bInheritedCursor)
 	{
-		Invalidate();
+		Load();
 	}
 
 	return 0;
@@ -202,13 +179,11 @@ LRESULT PageSettingsTabsColors::OnClickedBtnInheritCursor(WORD /*wNotifyCode*/, 
 
 LRESULT PageSettingsTabsColors::OnClickedBtnSetAsDefaultColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_tabData->bInheritedColors = true;
 	::CopyMemory(m_consoleSettings.consoleColors, m_tabData->consoleColors, sizeof(m_consoleSettings.consoleColors));
 	m_consoleSettings.backgroundTextOpacity = m_tabData->backgroundTextOpacity;
 
+	m_tabData->bInheritedColors = true;
 	DoDataExchange(DDX_LOAD);
-
-	Invalidate();
 
 	return 0;
 }
@@ -220,12 +195,11 @@ LRESULT PageSettingsTabsColors::OnClickedBtnSetAsDefaultColors(WORD /*wNotifyCod
 
 LRESULT PageSettingsTabsColors::OnClickedBtnSetAsDefaultCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	m_tabData->bInheritedCursor = true;
 	m_consoleSettings.crCursorColor = m_tabData->crCursorColor;
 	m_consoleSettings.dwCursorStyle = m_tabData->dwCursorStyle;
-	DoDataExchange(DDX_LOAD);
 
-	Invalidate();
+	m_tabData->bInheritedCursor = true;
+	DoDataExchange(DDX_LOAD);
 
 	return 0;
 }
@@ -241,12 +215,32 @@ void PageSettingsTabsColors::EnableControls()
 	GetDlgItem(IDC_STATIC_COLOR).EnableWindow(static_cast<CursorStyle>(m_comboCursor.GetCurSel()) != cstyleConsole);
 }
 
+void PageSettingsTabsColors::Load()
+{
+	m_tabData->SetColors(m_consoleSettings.consoleColors, m_consoleSettings.backgroundTextOpacity, false);
+
+	for(int nID = IDC_CLR_00; nID <= IDC_CLR_15; ++nID)
+		GetDlgItem(nID).Invalidate();
+
+	m_tabData->SetCursor(m_consoleSettings.dwCursorStyle, m_consoleSettings.crCursorColor, false);
+
+	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
+	m_staticCursorColor.Invalidate();
+#ifdef _USE_AERO
+	m_sliderBGTextOpacity.SetPos(m_tabData->backgroundTextOpacity);
+	UpdateSliderText();
+#endif
+
+	DoDataExchange(DDX_LOAD);
+
+	EnableControls();
+}
+
 void PageSettingsTabsColors::Load(shared_ptr<TabData>& tabData)
 {
 	m_tabData = tabData;
 
-	Invalidate();
-	DoDataExchange(DDX_LOAD);
+	Load();
 }
 
 void PageSettingsTabsColors::Save()
@@ -256,7 +250,7 @@ void PageSettingsTabsColors::Save()
 #ifdef _USE_AERO
 	m_tabData->backgroundTextOpacity = static_cast<BYTE>(m_sliderBGTextOpacity.GetPos());
 #endif //_USE_AERO
-	m_tabData->dwCursorStyle	= m_comboCursor.GetCurSel();
+	m_tabData->dwCursorStyle = m_comboCursor.GetCurSel();
 }
 
 //////////////////////////////////////////////////////////////////////////////

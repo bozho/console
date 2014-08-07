@@ -60,7 +60,7 @@ LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT PageSettingsTabs2::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
+void PageSettingsTabs2::Load()
 {
 	m_tabData->SetBackground(m_consoleSettings.backgroundImageType, m_consoleSettings.crBackgroundColor, m_consoleSettings.imageData, false);
 
@@ -78,9 +78,6 @@ LRESULT PageSettingsTabs2::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 	DoDataExchange(DDX_LOAD);
 
 	EnableControls();
-
-	bHandled = FALSE;
-	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -263,7 +260,7 @@ LRESULT PageSettingsTabs2::OnClickedBtnInheritBackground(WORD /*wNotifyCode*/, W
 
 	if (m_tabData->bInheritedBackground)
 	{
-		Invalidate();
+		Load();
 	}
 
 	return 0;
@@ -277,14 +274,12 @@ LRESULT PageSettingsTabs2::OnClickedBtnInheritBackground(WORD /*wNotifyCode*/, W
 LRESULT PageSettingsTabs2::OnClickedBtnSetAsDefaultBackground(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	Save();
-	m_tabData->bInheritedBackground       = true;
 	m_consoleSettings.backgroundImageType = m_tabData->backgroundImageType;
 	m_consoleSettings.crBackgroundColor   = m_tabData->crBackgroundColor;
 	m_consoleSettings.imageData           = m_tabData->imageData;
 
+	m_tabData->bInheritedBackground       = true;
 	DoDataExchange(DDX_LOAD);
-
-	Invalidate();
 
 	return 0;
 }
@@ -362,10 +357,9 @@ void PageSettingsTabs2::EnableControls()
 
 void PageSettingsTabs2::Load(std::shared_ptr<TabData>& tabData)
 {
-	m_tabData		= tabData;
+	m_tabData = tabData;
 
-	Invalidate();
-	DoDataExchange(DDX_LOAD);
+	Load();
 }
 
 //////////////////////////////////////////////////////////////////////////////

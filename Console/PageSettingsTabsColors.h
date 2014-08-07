@@ -25,7 +25,6 @@ class PageSettingsTabsColors
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
 			MESSAGE_HANDLER(WM_TIMER, OnTimer)
-			MESSAGE_HANDLER(WM_PAINT, OnPaint)
 #ifdef _USE_AERO
 			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 #endif //_USE_AERO
@@ -59,10 +58,6 @@ class PageSettingsTabsColors
 		LRESULT OnClickedBtnSetAsDefaultColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedBtnSetAsDefaultCursor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
-		LRESULT OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
-
-		void EnableControls();
-
 		void Load(shared_ptr<TabData>& tabData);
 		void Save();
 
@@ -71,6 +66,9 @@ class PageSettingsTabsColors
 		void DrawCursor(void);
 		void DrawCursor(CDC& dc, const CRect& rectCursorAnim, COLORREF fg, COLORREF bg);
 		virtual void RedrawCharOnCursor(CDC& dc);
+
+		void EnableControls();
+		void Load();
 
 	private:
 

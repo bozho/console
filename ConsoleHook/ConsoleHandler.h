@@ -28,7 +28,7 @@ class ConsoleHandler
 
 		void ReadConsoleBuffer();
 
-		void ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge);
+		void ResizeConsoleWindow(DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge);
 
 		void CopyConsoleText();
 
@@ -36,7 +36,7 @@ class ConsoleHandler
 
 		void SendMouseEvent(HANDLE hStdIn);
 
-		void ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta);
+		void ScrollConsole(int nXDelta, int nYDelta);
 
 		void SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut);
 
@@ -47,9 +47,9 @@ class ConsoleHandler
 
 		void CopyConsoleTextLine  (HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount);
 		void CopyConsoleTextColumn(HANDLE hStdOut, std::unique_ptr<ClipboardData> clipboardDataPtr[], size_t clipboardDataCount);
-		void SelectWord           (HANDLE hStdOut);
-		void ClickLink            (HANDLE hStdOut);
-		void SearchText           (HANDLE hStdOut);
+		void SelectWord           ();
+		void ClickLink            ();
+		void SearchText           ();
 
 	private:
 
@@ -74,4 +74,54 @@ class ConsoleHandler
 
 //////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////////////
 
+class StdOutHandle
+{
+public:
+	StdOutHandle(bool bReadOnly)
+	{
+		if( bReadOnly )
+		{
+			m_hStdOut = ::CreateFile(
+				L"CONOUT$",
+				GENERIC_READ,
+				FILE_SHARE_READ,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				0);
+		}
+		else
+		{
+			m_hStdOut = ::CreateFile(
+				L"CONOUT$",
+				GENERIC_WRITE | GENERIC_READ,
+				FILE_SHARE_READ | FILE_SHARE_WRITE,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				0);
+		}
+
+		if( m_hStdOut == INVALID_HANDLE_VALUE )
+		{
+			Win32Exception err("CreateFile", ::GetLastError());
+			TRACE(L"CreateFile returns error (%lu) : %S\n", err.GetErrorCode(), err.what());
+		}
+	}
+
+	~StdOutHandle()
+	{
+		if( m_hStdOut && m_hStdOut != INVALID_HANDLE_VALUE )
+			::CloseHandle(m_hStdOut);
+	}
+
+	operator HANDLE() { return m_hStdOut; }
+
+
+private:
+	HANDLE m_hStdOut;
+};
+
+//////////////////////////////////////////////////////////////////////////////

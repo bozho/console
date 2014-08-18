@@ -4,6 +4,10 @@ using namespace std;
 #include "../shared/SharedMemNames.h"
 #include "ConsoleHandler.h"
 
+#define GET_STD_OUT_READ_ONLY  StdOutHandle hStdOut(true); if( hStdOut == INVALID_HANDLE_VALUE ) return;
+
+#define GET_STD_OUT_READ_WRITE StdOutHandle hStdOut(false); if( hStdOut == INVALID_HANDLE_VALUE ) return;
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -138,30 +142,15 @@ void ConsoleHandler::ReadConsoleBuffer()
 {
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
-	// no need to call CloseHandle when done, we're reusing console handles
-	std::unique_ptr<void, CloseHandleHelper> hStdOut(::CreateFile(
-								L"CONOUT$",
-								GENERIC_WRITE | GENERIC_READ,
-								FILE_SHARE_READ | FILE_SHARE_WRITE,
-								NULL,
-								OPEN_EXISTING,
-								0,
-								0));
-
-  if( hStdOut.get() == INVALID_HANDLE_VALUE )
-  {
-    Win32Exception err("CreateFile", ::GetLastError());
-    TRACE(L"CreateFile returns error (%lu) : %S\n", err.GetErrorCode(), err.what());
-    return;
-  }
+	GET_STD_OUT_READ_ONLY
 
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
 	COORD						coordConsoleSize;
 
-	if( !::GetConsoleScreenBufferInfo(hStdOut.get(), &csbiConsole) )
+	if( !::GetConsoleScreenBufferInfo(hStdOut, &csbiConsole) )
   {
     Win32Exception err("GetConsoleScreenBufferInfo", ::GetLastError());
-    TRACE(L"GetConsoleScreenBufferInfo(%p) returns error (%lu) : %S\n", hStdOut.get(), err.GetErrorCode(), err.what());
+    TRACE(L"GetConsoleScreenBufferInfo(%p) returns error (%lu) : %S\n", hStdOut, err.GetErrorCode(), err.what());
     return;
   }
 
@@ -210,10 +199,10 @@ void ConsoleHandler::ReadConsoleBuffer()
 //		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 
 		::ReadConsoleOutput(
-			hStdOut.get(), 
-			pScreenBuffer.get() + dwScreenBufferOffset, 
-			coordBufferSize, 
-			coordStart, 
+			hStdOut,
+			pScreenBuffer.get() + dwScreenBufferOffset,
+			coordBufferSize,
+			coordStart,
 			&srBuffer);
 
 		srBuffer.Top		= srBuffer.Top + coordBufferSize.Y;
@@ -234,7 +223,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 */
 
 	::ReadConsoleOutput(
-		hStdOut.get(), 
+		hStdOut,
 		pScreenBuffer.get() + dwScreenBufferOffset, 
 		coordBufferSize, 
 		coordStart, 
@@ -247,7 +236,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 	SharedMemoryLock consoleInfoLock(m_consoleInfo);
 	SharedMemoryLock bufferLock(m_consoleBuffer);
 
-	::GetConsoleCursorInfo(hStdOut.get(), m_cursorInfo.Get());
+	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
 
 	bool textChanged = (::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0);
 
@@ -274,8 +263,10 @@ void ConsoleHandler::ReadConsoleBuffer()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ResizeConsoleWindow(HANDLE hStdOut, DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge)
+void ConsoleHandler::ResizeConsoleWindow(DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge)
 {
+	GET_STD_OUT_READ_WRITE
+
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 	TRACE(L"Console size: %ix%i\n", csbi.dwSize.X, csbi.dwSize.Y);
@@ -991,15 +982,7 @@ void ConsoleHandler::CopyConsoleText()
 {
 	if (!::OpenClipboard(NULL)) return;
 
-	std::unique_ptr<void, CloseHandleHelper> hStdOut(
-		::CreateFile(
-			L"CONOUT$",
-			GENERIC_WRITE | GENERIC_READ,
-			FILE_SHARE_READ | FILE_SHARE_WRITE,
-			NULL,
-			OPEN_EXISTING,
-			0,
-			0));
+	GET_STD_OUT_READ_ONLY
 
 	std::unique_ptr<ClipboardData> clipboardDataPtr[2];
 	size_t clipboardDataCount = 0;
@@ -1008,9 +991,9 @@ void ConsoleHandler::CopyConsoleText()
 		clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
 
 	if( m_consoleCopyInfo->selectionType == seltypeColumn )
-		CopyConsoleTextColumn(hStdOut.get(), clipboardDataPtr, clipboardDataCount);
+		CopyConsoleTextColumn(hStdOut, clipboardDataPtr, clipboardDataCount);
 	else
-		CopyConsoleTextLine(hStdOut.get(), clipboardDataPtr, clipboardDataCount);
+		CopyConsoleTextLine(hStdOut, clipboardDataPtr, clipboardDataCount);
 
 	::EmptyClipboard();
 
@@ -1026,8 +1009,10 @@ void ConsoleHandler::CopyConsoleText()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SelectWord(HANDLE hStdOut)
+void ConsoleHandler::SelectWord()
 {
+	GET_STD_OUT_READ_ONLY
+
 	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
 	SHORT                        sBufferRows     = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
 	COORD                        coordFrom       = {0, 0};
@@ -1133,8 +1118,10 @@ right:
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ClickLink(HANDLE hStdOut)
+void ConsoleHandler::ClickLink()
 {
+	GET_STD_OUT_READ_ONLY
+
 	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
 	SHORT                        sBufferRows     = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
 	COORD                        coordFrom       = {0, 0};
@@ -1216,8 +1203,10 @@ link:
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SearchText(HANDLE hStdOut)
+void ConsoleHandler::SearchText()
 {
+	GET_STD_OUT_READ_ONLY
+
 	SHORT                        sBufferColumns  = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
 	SHORT                        sBufferRows     = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
 	COORD                        coordFrom       = {0, 0};
@@ -1441,8 +1430,10 @@ void ConsoleHandler::SendMouseEvent(HANDLE hStdIn)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::ScrollConsole(HANDLE hStdOut, int nXDelta, int nYDelta)
+void ConsoleHandler::ScrollConsole(int nXDelta, int nYDelta)
 {
+	GET_STD_OUT_READ_WRITE
+
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	::GetConsoleScreenBufferInfo(hStdOut, &csbi);
 
@@ -1551,7 +1542,7 @@ DWORD ConsoleHandler::MonitorThread()
 
 	if (::WaitForSingleObject(m_consoleParams.GetRespEvent(), 10000) == WAIT_TIMEOUT) return 0;
 
-	ResizeConsoleWindow(hStdOut, m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
+	ResizeConsoleWindow(m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
 
 	// FIX: this seems to case problems on startup
 //	ReadConsoleBuffer();
@@ -1608,7 +1599,7 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newScrollPos);
 
-				ScrollConsole(hStdOut, m_newScrollPos->cx, m_newScrollPos->cy);
+				ScrollConsole(m_newScrollPos->cx, m_newScrollPos->cy);
 				ReadConsoleBuffer();
 				break;
 			}
@@ -1628,7 +1619,7 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_newConsoleSize);
 
-				ResizeConsoleWindow(hStdOut, m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows, m_newConsoleSize->dwResizeWindowEdge);
+				ResizeConsoleWindow(m_newConsoleSize->dwColumns, m_newConsoleSize->dwRows, m_newConsoleSize->dwResizeWindowEdge);
 				ReadConsoleBuffer();
 				break;
 			}
@@ -1655,17 +1646,17 @@ DWORD ConsoleHandler::MonitorThread()
 				//  word selection
 				if( m_multipleInfo->fMask & MULTIPLEINFO_SELECT_WORD )
 				{
-					SelectWord(hStdOut);
+					SelectWord();
 				}
 				//  search
 				else if( m_multipleInfo->fMask & MULTIPLEINFO_SEARCH_TEXT )
 				{
-					SearchText(hStdOut);
+					SearchText();
 				}
-				// click link
+				//  click link
 				if( m_multipleInfo->fMask & MULTIPLEINFO_CLICK_LINK )
 				{
-					ClickLink(hStdOut);
+					ClickLink();
 				}
 
 				::SetEvent(m_multipleInfo.GetRespEvent());

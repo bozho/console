@@ -1,5 +1,15 @@
 #pragma once
 
+#ifdef _DEBUG
+
+#define SharedMemoryTrace ::OutputDebugString
+
+#else
+
+#define SharedMemoryTrace __noop
+
+#endif // _DEBUG
+
 #include <AccCtrl.h>
 #include <Aclapi.h>
 
@@ -281,7 +291,7 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 	if (!m_hSharedMem || (m_hSharedMem.get() == INVALID_HANDLE_VALUE))
 	{
 		DWORD dwLastError = ::GetLastError();
-		OutputDebugString(str(boost::wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"Error opening shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
 		Win32Exception::Throw("OpenFileMapping", dwLastError);
 	}
 
@@ -296,8 +306,8 @@ void SharedMemory<T>::Open(const wstring& strName, SyncObjectTypes syncObjects)
 	if (!m_pSharedMem)
   {
 		DWORD dwLastError = ::GetLastError();
-    OutputDebugString(str(boost::wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
-    Win32Exception::Throw("MapViewOfFile", dwLastError);
+		SharedMemoryTrace(str(boost::wformat(L"Error mapping shared mem %1%, error: %2%\n") % m_strName % dwLastError).c_str());
+		Win32Exception::Throw("MapViewOfFile", dwLastError);
   }
 
 	if (syncObjects > syncObjNone) CreateSyncObjects(std::shared_ptr<SECURITY_ATTRIBUTES>(), syncObjects, strName);
@@ -337,13 +347,13 @@ void SharedMemory<T>::SetReqEvent()
 {
 	if (!m_hSharedReqEvent) 
 	{
-		OutputDebugString(str(boost::wformat(L"Req Event %1% is null!") % m_strName).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"Req Event %1% is null!") % m_strName).c_str());
 		return;
 	}
 	
 	if (!::SetEvent(m_hSharedReqEvent.get()))
 	{
-		OutputDebugString(str(boost::wformat(L"SetEvent %1% failed: %2%!\n") % m_strName % ::GetLastError()).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"SetEvent %1% failed: %2%!\n") % m_strName % ::GetLastError()).c_str());
 	}
 }
 
@@ -357,7 +367,7 @@ void SharedMemory<T>::SetRespEvent()
 {
 	if (!m_hSharedRespEvent)
 	{
-		OutputDebugString(str(boost::wformat(L"Resp Event %1% is null!") % m_strName).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"Resp Event %1% is null!") % m_strName).c_str());
 		return;
 	}
 	::SetEvent(m_hSharedRespEvent.get());
@@ -462,7 +472,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 
 		if( !m_hSharedMutex ) Win32Exception::ThrowFromLastError("CreateMutex");
 
-		OutputDebugString(str(boost::wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
 
 		m_hSharedReqEvent = std::shared_ptr<void>(
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_req_event")).c_str()),
@@ -470,7 +480,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 
 		if( !m_hSharedReqEvent ) Win32Exception::ThrowFromLastError("CreateEvent");
 
-		OutputDebugString(str(boost::wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedReqEvent.get())).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedReqEvent.get())).c_str());
 	}
 
 	if (syncObjects >= syncObjBoth)
@@ -481,7 +491,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 
 		if( !m_hSharedRespEvent ) Win32Exception::ThrowFromLastError("CreateEvent");
 
-		OutputDebugString(str(boost::wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedRespEvent.get())).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedRespEvent.get())).c_str());
 	}
 }
 

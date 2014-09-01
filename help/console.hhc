@@ -96,6 +96,10 @@
 				<param name="Name" value="Tabs (Colors &amp; Cursor)">
 				<param name="Local" value="html\settings_tabs_colors.html">
 				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Tabs (Environment)">
+				<param name="Local" value="html\settings_tabs_environment.html">
+				</OBJECT>
 		</UL>
 		<LI> <OBJECT type="text/sitemap">
 			<param name="Name" value="Language settings">

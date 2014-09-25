@@ -1778,6 +1778,10 @@ HotKeys::HotKeys()
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"cmdMenu1", ID_SHOW_CONTEXT_MENU_1, L"Show Context menu #1")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"cmdMenu2", ID_SHOW_CONTEXT_MENU_2, L"Show Context menu #2")));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"cmdMenu3", ID_SHOW_CONTEXT_MENU_3, L"Show Context menu #3")));
+
 	for(WORD i = 0; i < EXTERNAL_COMMANDS_COUNT; ++i)
 	{
 		std::wstring id = std::to_wstring(i + 1);

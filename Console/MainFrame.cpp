@@ -4230,3 +4230,30 @@ LRESULT MainFrame::OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, 
 
 	return 0;
 }
+
+LRESULT MainFrame::OnShowContextMenu1(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CPoint	screenPoint(0,0);
+	ClientToScreen(&screenPoint);
+	
+	SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(MouseSettings::cmdMenu1), MAKELPARAM(screenPoint.x, screenPoint.y));
+	return 0;
+}
+
+LRESULT MainFrame::OnShowContextMenu2(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CPoint	screenPoint(0, 0);
+	ClientToScreen(&screenPoint);
+
+	SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(MouseSettings::cmdMenu2), MAKELPARAM(screenPoint.x, screenPoint.y));
+	return 0;
+}
+
+LRESULT MainFrame::OnShowContextMenu3(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	CPoint	screenPoint(0, 0);
+	ClientToScreen(&screenPoint);
+
+	SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(MouseSettings::cmdMenu3), MAKELPARAM(screenPoint.x, screenPoint.y));
+	return 0;
+}

@@ -149,6 +149,59 @@ void ConsoleHandler::RunAsAdministrator
 	}
 }
 
+std::wstring MergeEnvironmentVariables(
+	const void * environmentBlock,
+	const std::vector<std::shared_ptr<VarEnv>>& extraEnv)
+{
+	std::wstring strNewEnvironment;
+
+	struct __case_insensitive_compare
+	{
+		bool operator() (const std::wstring& a, const std::wstring& b) const
+		{
+			return (_wcsicmp(a.c_str( ), b.c_str()) < 0);
+		}
+	};
+
+	std::map<std::wstring, std::wstring, __case_insensitive_compare> dictionary;
+
+	for(const wchar_t * p = static_cast<const wchar_t *>(environmentBlock);
+	    p && p[0];
+	    p += wcslen(p) + 1)
+	{
+		const wchar_t * equal = wcschr(p , L'=');
+		if( equal == nullptr ) continue;
+
+		dictionary[std::wstring(p, equal - p)] = std::wstring(equal + 1);
+	}
+
+	for(auto i = extraEnv.cbegin(); i != extraEnv.cend(); ++i)
+	{
+		if( !i->get()->bEnvChecked ) continue;
+
+		auto iter = dictionary.find(i->get()->strEnvVariable);
+
+		if( iter == dictionary.end() )
+			dictionary[i->get()->strEnvVariable] = i->get()->strEnvValue;
+		else if( i->get()->bAppend )
+			iter->second += i->get()->strEnvValue;
+		else if( i->get()->bOverride )
+			iter->second = i->get()->strEnvValue;
+	}
+
+	for(auto i = dictionary.cbegin(); i != dictionary.cend(); ++i)
+	{
+		strNewEnvironment += i->first;
+		strNewEnvironment += L'=';
+		strNewEnvironment += i->second;
+		strNewEnvironment += L'\0';
+	}
+
+	strNewEnvironment += L'\0';
+
+	return strNewEnvironment;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////////////////////
@@ -160,7 +213,7 @@ void ConsoleHandler::CreateShellProcess
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
 	DWORD dwBasePriority,
-	const wstring& strExtraEnv,
+	const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 	PROCESS_INFORMATION& pi
 )
 {
@@ -327,18 +380,9 @@ void ConsoleHandler::CreateShellProcess
 		ConsoleHandler::UpdateEnvironmentBlock();
 
 	// add specific environment variables defined in tad settings
-	wstring strNewEnvironment;
-	for(const wchar_t * p = static_cast<wchar_t *>(userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get());
-	    p && p[0];
-	    p += wcslen(p) + 1)
-	{
-		strNewEnvironment += p;
-		strNewEnvironment += L'\0';
-	}
-
-	strNewEnvironment += strExtraEnv;
-
-	strNewEnvironment += L'\0';
+	wstring strNewEnvironment = MergeEnvironmentVariables(
+		userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get(),
+		extraEnv);
 
 	if (userCredentials.strUsername.length() > 0)
 	{
@@ -391,7 +435,7 @@ void ConsoleHandler::StartShellProcess
 	const UserCredentials& userCredentials,
 	const wstring& strInitialCmd,
 	DWORD dwBasePriority,
-	const wstring& strExtraEnv,
+	const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 	DWORD dwStartupRows,
 	DWORD dwStartupColumns
 )
@@ -462,7 +506,7 @@ void ConsoleHandler::StartShellProcess
 			userCredentials,
 			strInitialCmd,
 			dwBasePriority,
-			strExtraEnv,
+			extraEnv,
 			pi
 		);
 	}
@@ -539,7 +583,7 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 	const wstring& strInitialDir,
 	const wstring& strInitialCmd,
 	DWORD dwBasePriority,
-	const wstring& strExtraEnv
+	const std::vector<std::shared_ptr<VarEnv>>& extraEnv
 )
 {
 	SharedMemory<DWORD> pid;
@@ -554,7 +598,7 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 		userCredentials,
 		strInitialCmd,
 		dwBasePriority,
-		strExtraEnv,
+		extraEnv,
 		pi
 	);
 

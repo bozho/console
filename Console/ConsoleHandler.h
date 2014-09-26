@@ -105,7 +105,7 @@ class ConsoleHandler
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
 			DWORD dwBasePriority,
-			const wstring& strExtraEnv,
+			const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 			DWORD dwStartupRows,
 			DWORD dwStartupColumns
 		);
@@ -117,7 +117,7 @@ class ConsoleHandler
 			const wstring& strInitialDir,
 			const wstring& strInitialCmd,
 			DWORD dwBasePriority,
-			const wstring& strExtraEnv
+			const std::vector<std::shared_ptr<VarEnv>>& extraEnv
 		);
 
 		void AttachToShellProcess(
@@ -176,7 +176,7 @@ class ConsoleHandler
 			const UserCredentials& userCredentials,
 			const wstring& strInitialCmd,
 			DWORD dwBasePriority,
-			const wstring& strExtraEnv,
+			const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 			PROCESS_INFORMATION& pi
 		);
 

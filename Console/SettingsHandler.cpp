@@ -2248,18 +2248,16 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 					pEnvNodes->get_item(i, &pEnvNode);
 					if (FAILED(pEnvNode.QueryInterface(&pEnvElement))) continue;
 
-					wstring strEnvVariable;
-					wstring strEnvValue;
-					bool    bEnvChecked = true;
-					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"var"),   strEnvVariable, L"");
-					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"value"), strEnvValue,    L"");
-					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"check"), bEnvChecked,    true);
-					if( !strEnvVariable.empty() )
-					{
-						tabData->strEnvVariables.push_back(strEnvVariable);
-						tabData->strEnvValues.push_back(strEnvValue);
-						tabData->bEnvChecked.push_back(bEnvChecked);
-					}
+					std::shared_ptr<VarEnv> varenv (new VarEnv);
+
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"var"),      varenv->strEnvVariable, L"");
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"value"),    varenv->strEnvValue,    L"");
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"check"),    varenv->bEnvChecked,    true);
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"override"), varenv->bOverride,      false);
+					XmlHelper::GetAttribute(pEnvElement, CComBSTR(L"append"),   varenv->bAppend,        false);
+
+					if( !varenv->strEnvVariable.empty() )
+						tabData->environmentVariables.push_back(varenv);
 				}
 			}
 		}
@@ -2395,18 +2393,20 @@ bool TabSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 		XmlHelper::SetAttribute(pNewConsoleElement, CComBSTR(L"run_as_admin"), (*itTab)->bRunAsAdministrator);
 
 		// add <env> tag
-		if(! (*itTab)->strEnvVariables.empty() )
+		if(! (*itTab)->environmentVariables.empty() )
 		{
-			for(size_t i = 0; i < (*itTab)->strEnvVariables.size(); ++i)
+			for(size_t i = 0; i < (*itTab)->environmentVariables.size(); ++i)
 			{
 				CComPtr<IXMLDOMElement> pNewEnvElement;
 				CComPtr<IXMLDOMNode>    pNewEnvOut;
 
 				pSettingsDoc->createElement(CComBSTR(L"env"), &pNewEnvElement);
 
-				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"var"),   (*itTab)->strEnvVariables[i]);
-				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"value"), (*itTab)->strEnvValues[i]);
-				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"check"), (*itTab)->bEnvChecked[i]);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"var"),   (*itTab)->environmentVariables[i]->strEnvVariable);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"value"), (*itTab)->environmentVariables[i]->strEnvValue);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"check"), (*itTab)->environmentVariables[i]->bEnvChecked);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"override"), (*itTab)->environmentVariables[i]->bOverride);
+				XmlHelper::SetAttribute(pNewEnvElement, CComBSTR(L"append"), (*itTab)->environmentVariables[i]->bAppend);
 
 				XmlHelper::AddTextNode(pNewConsoleElement, CComBSTR(L"\n\t\t\t\t"));
 				pNewConsoleElement->appendChild(pNewEnvElement, &pNewEnvOut);

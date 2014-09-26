@@ -763,6 +763,24 @@ struct MouseSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct VarEnv
+{
+	VarEnv()
+		: strEnvVariable()
+		, strEnvValue()
+		, bEnvChecked(false)
+		, bOverride(false)
+		, bAppend(false)
+	{
+	}
+
+	std::wstring strEnvVariable;
+	std::wstring strEnvValue;
+	bool         bEnvChecked;
+	bool         bOverride;
+	bool         bAppend;
+};
+
 struct TabData
 {
 	TabData(const wstring& shell, const wstring& initialDir)
@@ -838,9 +856,8 @@ struct TabData
 	COLORREF						consoleColors[16];
 	BYTE                backgroundTextOpacity;
 
-	vector<wstring>     strEnvVariables;
-	vector<wstring>     strEnvValues;
-	vector<bool>        bEnvChecked;
+	std::vector<std::shared_ptr<VarEnv>> environmentVariables;
+
 	long                nIndex;
 
 	void SetColors(const COLORREF colors[16], const BYTE opacity, const bool bForced)
@@ -943,24 +960,6 @@ struct TabData
 		case 5:  return L"Realtime";
 		default: return L"Normal";
 		}
-	}
-
-	std::wstring GetExtraEnv()
-	{
-		std::wstring ret;
-
-		for(size_t i = 0; i < strEnvVariables.size(); ++i)
-		{
-			if( bEnvChecked[i] )
-			{
-				ret += strEnvVariables[i];
-				ret += L"=";
-				ret += strEnvValues[i];
-				ret += L'\0';
-			}
-		}
-
-		return ret;
 	}
 };
 

@@ -285,6 +285,8 @@
 #define IDC_BTN_ENV_EDIT                1229
 #define IDC_ENV_VARIABLE                1230
 #define IDC_ENV_VALUE                   1231
+#define IDC_CHECK_ENV_OVERRIDE          1232
+#define IDC_CHECK_ENV_APPEND            1233
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -363,7 +365,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        222
 #define _APS_NEXT_COMMAND_VALUE         32801
-#define _APS_NEXT_CONTROL_VALUE         1232
+#define _APS_NEXT_CONTROL_VALUE         1234
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

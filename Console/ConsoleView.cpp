@@ -153,7 +153,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 				*userCredentials,
 				m_strCmdLineInitialCmd,
 				m_dwBasePriority == ULONG_MAX? m_tabData->dwBasePriority : m_dwBasePriority,
-				m_tabData->GetExtraEnv(),
+				m_tabData->environmentVariables,
 				m_dwStartupRows,
 				m_dwStartupColumns);
 

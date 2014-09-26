@@ -126,9 +126,9 @@ using namespace boost::multi_index;
 #include "../shared/Win32Exception.h"
 #include "../shared/NamedPipe.h"
 #include "Helpers.h"
-#include "ConsoleHandler.h"
 #include "ImageHandler.h"
 #include "SettingsHandler.h"
+#include "ConsoleHandler.h"
 
 //////////////////////////////////////////////////////////////////////////////
 

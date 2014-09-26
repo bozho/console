@@ -243,7 +243,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 							strInitialDir,
 							strInitialCmd,
 							dwBasePriority,
-							tabData->get()->GetExtraEnv()
+							tabData->get()->environmentVariables
 						);
 					}
 					catch (const ConsoleException& ex)

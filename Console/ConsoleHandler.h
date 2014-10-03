@@ -154,6 +154,7 @@ class ConsoleHandler
 		void SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags);
 		void ShowWindow(int nCmdShow);
 		void SendTextToConsole(const wchar_t* pszText);
+		void Clear();
 
 		std::wstring GetCurrentDirectory(void) const;
 		DWORD        GetLastProcessId(void) const;

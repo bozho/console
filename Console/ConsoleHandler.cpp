@@ -1647,6 +1647,20 @@ void ConsoleHandler::SendTextToConsole(const wchar_t* pszText)
 #endif
 }
 
+void ConsoleHandler::Clear()
+{
+	NamedPipeMessage npmsg;
+	npmsg.type = NamedPipeMessage::CLEAR;
+
+	try
+	{
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
+	}
+	catch(std::exception&)
+	{
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 

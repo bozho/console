@@ -50,6 +50,7 @@ class ConsoleHandler
 		void SelectWord           ();
 		void ClickLink            ();
 		void SearchText           ();
+		void Clear                ();
 
 	private:
 

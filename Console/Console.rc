@@ -1064,7 +1064,7 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_EDIT_CLEAR           "Erase the selection\nErase"
+    ID_EDIT_CLEAR           "Clear screeb\nClear"
     ID_EDIT_CLEAR_ALL       "Erase everything\nErase All"
     ID_EDIT_COPY            "Copy the selection and put it on the Clipboard\nCopy"
     ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"

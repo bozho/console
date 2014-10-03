@@ -156,6 +156,7 @@ class ConsoleView
 
 		CString GetConsoleCommand();
 
+		void Clear();
 		void Copy(const CPoint* pPoint = NULL);
 		void SelectAll();
 		void ClearSelection();

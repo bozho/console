@@ -1464,6 +1464,20 @@ CString ConsoleView::GetConsoleCommand()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::Clear()
+{
+	//clear screen
+	m_consoleHandler.Clear();
+
+	// reset vertical scroll to zero
+	m_dwVScrollMax = 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::Copy(const CPoint* pPoint /* = NULL */)
 {
 	if ((m_selectionHandler->GetState() != SelectionHandler::selstateSelecting) &&

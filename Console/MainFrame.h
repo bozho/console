@@ -173,6 +173,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_FILE_CLOSE_ALL_TABS_RIGHT    , OnFileCloseTab)
 			COMMAND_ID_HANDLER(ID_ATTACH_CONSOLES              , OnAttachConsoles)
 			COMMAND_ID_HANDLER(ID_APP_EXIT, OnFileExit)
+			COMMAND_ID_HANDLER(ID_EDIT_CLEAR, OnEditClear)
 			COMMAND_ID_HANDLER(ID_EDIT_COPY, OnEditCopy)
 			COMMAND_ID_HANDLER(ID_EDIT_SELECT_ALL, OnEditSelectAll)
 			COMMAND_ID_HANDLER(ID_EDIT_CLEAR_SELECTION, OnEditClearSelection)
@@ -274,6 +275,7 @@ class MainFrame
 
 		LRESULT OnFileExit(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
+		LRESULT OnEditClear(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditCopy(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

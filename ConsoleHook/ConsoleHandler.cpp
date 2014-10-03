@@ -1203,6 +1203,37 @@ link:
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::Clear()
+{
+	GET_STD_OUT_READ_WRITE
+
+	COORD coordScreen = { 0, 0 };    /* here's where we'll home the cursor */
+	DWORD cCharsWritten;
+	CONSOLE_SCREEN_BUFFER_INFO csbi; /* to get buffer info */
+	DWORD dwConSize;                 /* number of character cells in the current buffer */
+
+	/* get the number of character cells in the current buffer */
+	::GetConsoleScreenBufferInfo( hStdOut, &csbi );
+	dwConSize = csbi.dwSize.X * csbi.dwSize.Y;
+
+	/* fill the entire screen with blanks */
+	::FillConsoleOutputCharacter( hStdOut, L' ', dwConSize, coordScreen, &cCharsWritten );
+
+	/* get the current text attribute */
+	::GetConsoleScreenBufferInfo( hStdOut, &csbi );
+
+	/* now set the buffer's attributes accordingly */
+	::FillConsoleOutputAttribute( hStdOut, csbi.wAttributes, dwConSize, coordScreen, &cCharsWritten );
+
+	/* put the cursor at (0, 0) */
+	::SetConsoleCursorPosition( hStdOut, coordScreen );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::SearchText()
 {
 	GET_STD_OUT_READ_ONLY
@@ -1335,6 +1366,7 @@ void ConsoleHandler::SearchText()
 		}
 	}
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -1810,6 +1842,10 @@ DWORD ConsoleHandler::MonitorThread()
 							case NamedPipeMessage::DETACH:
 								TRACE(L"NamedPipeMessage::DETACH\n");
 								return 0;
+
+							case NamedPipeMessage::CLEAR:
+								this->Clear();
+								break;
 							}
 
 							npmsglen = 0;

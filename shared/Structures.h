@@ -241,6 +241,7 @@ struct NamedPipeMessage
 		SENDTEXT,
 		WRITECONSOLEINPUT,
 		DETACH,
+		CLEAR,
 	} type;
 
 	union

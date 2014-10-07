@@ -21,17 +21,13 @@ LRESULT PageSettingsTabsEnv::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
 
 	m_listCtrl.InsertColumn(0, L"Variable");
-	m_listCtrl.InsertColumn(1, L"Options");
-	m_listCtrl.InsertColumn(2, L"Value");
+	m_listCtrl.InsertColumn(1, L"Value");
 
 	m_listCtrl.SetColumnWidth(0, 100);
-	m_listCtrl.SetColumnWidth(1, LVSCW_AUTOSIZE);
-	m_listCtrl.SetColumnWidth(2, LVSCW_AUTOSIZE_USEHEADER);
+	m_listCtrl.SetColumnWidth(1, LVSCW_AUTOSIZE_USEHEADER);
 
 	m_editVariable.Attach(GetDlgItem(IDC_ENV_VARIABLE));
 	m_editValue.Attach(GetDlgItem(IDC_ENV_VALUE));
-	m_checkOverride.Attach(GetDlgItem(IDC_CHECK_ENV_OVERRIDE));
-	m_checkAppend.Attach(GetDlgItem(IDC_CHECK_ENV_APPEND));
 
 	return TRUE;
 }
@@ -53,12 +49,7 @@ void PageSettingsTabsEnv::Load(shared_ptr<TabData>& tabData)
 		int nItem = m_listCtrl.InsertItem(m_listCtrl.GetItemCount(), m_tabData->environmentVariables[i]->strEnvVariable.c_str());
 		m_listCtrl.SetCheckState(nItem, m_tabData->environmentVariables[i]->bEnvChecked);
 
-		std::wstring options;
-		if( m_tabData->environmentVariables[i]->bOverride ) options += L'O';
-		if( m_tabData->environmentVariables[i]->bAppend ) options += L'A';
-		m_listCtrl.SetItemText(nItem, 1, options.c_str());
-
-		m_listCtrl.SetItemText(nItem, 2, m_tabData->environmentVariables[i]->strEnvValue.c_str());
+		m_listCtrl.SetItemText(nItem, 1, m_tabData->environmentVariables[i]->strEnvValue.c_str());
 	}
 }
 
@@ -72,26 +63,13 @@ void PageSettingsTabsEnv::Save()
 	{
 		CString strVariable;
 		m_listCtrl.GetItemText(nItem, 0, strVariable);
-		CString strOptions;
-		m_listCtrl.GetItemText(nItem, 1, strOptions);
 		CString strValue;
-		m_listCtrl.GetItemText(nItem, 2, strValue);
+		m_listCtrl.GetItemText(nItem, 1, strValue);
 
 		std::shared_ptr<VarEnv> varenv (new VarEnv);
 		varenv->strEnvVariable = strVariable.GetString();
 		varenv->strEnvValue = strValue.GetString();
 		varenv->bEnvChecked = m_listCtrl.GetCheckState(nItem)? true : false;
-		int idx = 0;
-		if( idx < strOptions.GetLength() && strOptions.GetAt(idx) == L'O' )
-		{
-			varenv->bOverride = true;
-			idx ++;
-		}
-		if( idx < strOptions.GetLength() && strOptions.GetAt(idx) == L'A' )
-		{
-			varenv->bAppend = true;
-			idx ++;
-		}
 		m_tabData->environmentVariables.push_back(varenv);
 	}
 }
@@ -120,12 +98,7 @@ LRESULT PageSettingsTabsEnv::OnClickedBtnEnvAdd(WORD /*wNotifyCode*/, WORD /*wID
 		m_listCtrl.SetCheckState(nItem, TRUE);
 	}
 
-	std::wstring options;
-	if( m_checkOverride.GetCheck() ) options += L'O';
-	if( m_checkAppend.GetCheck() ) options += L'A';
-	m_listCtrl.SetItemText(nItem, 1, options.c_str());
-
-	m_listCtrl.SetItemText(nItem, 2, strValue);
+	m_listCtrl.SetItemText(nItem, 1, strValue);
 
 	return 0;
 }
@@ -147,30 +120,11 @@ LRESULT PageSettingsTabsEnv::OnClickedBtnEnvEdit(WORD /*wNotifyCode*/, WORD /*wI
 
 	CString strVariable;
 	m_listCtrl.GetItemText(nItem, 0, strVariable);
-	CString strOptions;
-	m_listCtrl.GetItemText(nItem, 1, strOptions);
 	CString strValue;
-	m_listCtrl.GetItemText(nItem, 2, strValue);
+	m_listCtrl.GetItemText(nItem, 1, strValue);
 
 	m_editVariable.SetWindowText(strVariable);
 	m_editValue.SetWindowText(strValue);
-
-	bool bOverride = false;
-	bool bAppend = false;
-	int idx = 0;
-	if( idx < strOptions.GetLength() && strOptions.GetAt(idx) == L'O' )
-	{
-		bOverride = true;
-		idx ++;
-	}
-	if( idx < strOptions.GetLength() && strOptions.GetAt(idx) == L'A' )
-	{
-		bAppend = true;
-		idx ++;
-	}
-
-	m_checkOverride.SetCheck(bOverride);
-	m_checkAppend.SetCheck(bAppend);
 
 	return 0;
 }

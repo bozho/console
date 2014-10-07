@@ -769,16 +769,12 @@ struct VarEnv
 		: strEnvVariable()
 		, strEnvValue()
 		, bEnvChecked(false)
-		, bOverride(false)
-		, bAppend(false)
 	{
 	}
 
 	std::wstring strEnvVariable;
 	std::wstring strEnvValue;
 	bool         bEnvChecked;
-	bool         bOverride;
-	bool         bAppend;
 };
 
 struct TabData

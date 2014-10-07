@@ -41,9 +41,6 @@ class PageSettingsTabsEnv
 		CListViewCtrl       m_listCtrl;
 		CEdit               m_editVariable;
 		CEdit               m_editValue;
-		CButton             m_checkOverride;
-		CButton             m_checkAppend;
-
 };
 
 //////////////////////////////////////////////////////////////////////////////

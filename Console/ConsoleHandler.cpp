@@ -7,6 +7,8 @@
 #include "ConsoleException.h"
 #include "ConsoleHandler.h"
 
+#include <regex>
+
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -175,18 +177,44 @@ std::wstring MergeEnvironmentVariables(
 		dictionary[std::wstring(p, equal - p)] = std::wstring(equal + 1);
 	}
 
+	std::map<std::wstring, std::wstring, __case_insensitive_compare> extra;
+
 	for(auto i = extraEnv.cbegin(); i != extraEnv.cend(); ++i)
 	{
 		if( !i->get()->bEnvChecked ) continue;
 
-		auto iter = dictionary.find(i->get()->strEnvVariable);
+		extra[i->get()->strEnvVariable] = i->get()->strEnvValue;
+	}
 
-		if( iter == dictionary.end() )
-			dictionary[i->get()->strEnvVariable] = i->get()->strEnvValue;
-		else if( i->get()->bAppend )
-			iter->second += i->get()->strEnvValue;
-		else if( i->get()->bOverride )
-			iter->second = i->get()->strEnvValue;
+	// variable name has only one restriction: no =
+	std::wregex regexEnvVar(L"%[^=]+%");
+
+	// first pass (we add all variables without %%)
+	for(auto i = extra.begin(); i != extra.end();)
+	{
+		if( std::regex_search(i->second, regexEnvVar) )
+		{
+			++i;
+		}
+		else
+		{
+			dictionary[i->first] = i->second;
+
+			i = extra.erase(i);
+		}
+	}
+
+	// second pass (we add all variables with %%)
+	for(auto i = extra.begin(); i != extra.end(); ++i)
+	{
+		std::wstring str = i->second;
+
+		for(auto j = dictionary.cbegin(); j != dictionary.cend(); ++j)
+		{
+			str = std::regex_replace(str, std::wregex(std::wstring(L"%") + j->first + std::wstring(L"%"), regex_constants::icase), j->second, std::regex_constants::match_any);
+		}
+
+		dictionary[i->first] = str;
 	}
 
 	for(auto i = dictionary.cbegin(); i != dictionary.cend(); ++i)

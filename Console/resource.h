@@ -285,8 +285,6 @@
 #define IDC_BTN_ENV_EDIT                1229
 #define IDC_ENV_VARIABLE                1230
 #define IDC_ENV_VALUE                   1231
-#define IDC_CHECK_ENV_OVERRIDE          1232
-#define IDC_CHECK_ENV_APPEND            1233
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100

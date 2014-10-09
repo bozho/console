@@ -104,6 +104,7 @@
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="71" command="ungroupall"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="84" command="grouptab"/>
 		<hotkey ctrl="1" shift="1" alt="0" extended="0" code="84" command="ungrouptab"/>
+		<hotkey ctrl="0" shift="0" alt="0" extended="0" code="0" command="clear"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="1" code="45" command="copy"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="0" code="65" command="selectall"/>
 		<hotkey ctrl="1" shift="0" alt="0" extended="1" code="46" command="clear_selection"/>
@@ -140,6 +141,7 @@
 			<action ctrl="0" shift="0" alt="0" button="0" name="select_column"/>
 			<action ctrl="0" shift="0" alt="0" button="3" name="paste"/>
 			<action ctrl="1" shift="0" alt="0" button="1" name="drag"/>
+			<action ctrl="0" shift="0" alt="0" button="4" name="link"/>
 			<action ctrl="0" shift="0" alt="0" button="2" name="menu"/>
 			<action ctrl="0" shift="0" alt="0" button="0" name="menu2"/>
 			<action ctrl="0" shift="0" alt="0" button="0" name="menu3"/>

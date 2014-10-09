@@ -28,6 +28,20 @@ Changelog
     + added
     * fixed
 
+Changes in 1.12.0 (09 Oct 2014)
+    ! The tab's title is now modified when you drag & drop a shortcut.
+      The title is set with shortcut filename.
+    ! The default colors map is no longer displayed in Settings/Console
+    ! Mouse command "drag window" has no effect when application is maximized or runs
+      in fullscreen mode.
+    + Tab's background can be inherited.
+    + Tab's cursor can be inherited.
+    + Tab Base Priority.
+    + "Click link" mouse command.
+    + Set environment variables per tabs.
+    + Clear and Reset Scrollback.
+    * Use impersonated user's environment block.
+
 Changes in 1.11.0 (23 Jun 2014)
 
     ! Window columns limit is now 300.
@@ -43,8 +57,8 @@ Changes in 1.11.0 (23 Jun 2014)
     + Add %d to text formatting syntax: current directory.
     + Add %P to text formatting syntax: ID of last process attached to the console.
     + Support external commands (syntax uses title formatting).
-    + Support credential providers (allowing integration of additional authentication mechanisms
-      such as biometrics and smart cards).
+    + Support credential providers (allowing integration of additional authentication
+      mechanisms such as biometrics and smart cards).
     + New docking positions: top middle, bottom middle, left middle and right middle.
     + Quake like animation time is settable.
     + Add search bar.
@@ -111,15 +125,16 @@ Changes in 1.08.0 (28 Sep 2013)
     + user can configure an extra width added to the fixed width of the font.
     + shell can be launched with elevated priviledges (run as administrator).
     + supports shell link files (.lnk) in tabs settings.
-      Icon, program's path, arguments, working directory and "run as administrator" option
-      are extracted from the link.
+      Icon, program's path, arguments, working directory and "run as administrator"
+      option are extracted from the link.
     * Some cursors was hidden with black color.
     * Fade cursor was blinking when console was inactive.
     * Fix DBCS rendering.
     * Fix DBCS selection.
     * Fix DBCS cursor.
     * Fix hang when starting with multiple startup tabs.
-    * Pressing alt key will switch the menu bar visibility only if menu bar is not permanently on.
+    * Pressing alt key will switch the menu bar visibility only if menu bar is not
+      permanently on.
     * Fix pasting to multiple views when views are grouped.
     * Inputs are no longer sent to views do not belong to the group.
     * Active view cannot be painted (and 100% cpu).

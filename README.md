@@ -29,6 +29,7 @@ Changelog
     * fixed
 
 Changes in 1.12.0 (09 Oct 2014)
+
     ! The tab's title is now modified when you drag & drop a shortcut.
       The title is set with shortcut filename.
     ! The default colors map is no longer displayed in Settings/Console

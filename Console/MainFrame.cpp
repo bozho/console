@@ -893,6 +893,11 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 	WINDOWPOS*			pWinPos			= reinterpret_cast<WINDOWPOS*>(lParam);
 	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
+	TRACE(
+		L"MainFrame::OnWindowPosChanging m_bRestoringWindow=%s pWinPos->flags=0x%lx\n",
+		m_bRestoringWindow? L"true" : L"false",
+		pWinPos->flags);
+
 	if (positionSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
 
 	if (m_bRestoringWindow)
@@ -908,7 +913,7 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 		return 0;
 	}
 
-	if (!(pWinPos->flags & SWP_NOMOVE))
+	if (!(pWinPos->flags & SWP_NOMOVE) && GetKeyState(VK_LWIN) >= 0 && GetKeyState(VK_RWIN) >= 0)
 	{
 		// do nothing for minimized or maximized or fullscreen windows
 		if (IsIconic() || IsZoomed() || m_bFullScreen) return 0;
@@ -930,6 +935,14 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 			GetWindowRect(&rectWindow);
 			Helpers::GetDesktopRect(pointCursor, rectDesktop);
 			Helpers::GetMonitorRect(m_hWnd, rectMonitor);
+
+			TRACE(
+				L"MainFrame::OnWindowPosChanging snap 1 winpos(%ix%i,%ix%i) desktop(%ix%i-%ix%i) monitor(%ix%i-%ix%i) pointCursor(%ix%i)\n",
+				pWinPos->x,  pWinPos->y,
+				pWinPos->cx, pWinPos->cy,
+				rectDesktop.left, rectDesktop.top, rectDesktop.right, rectDesktop.bottom,
+				rectMonitor.left, rectMonitor.top, rectMonitor.right, rectMonitor.bottom,
+				pointCursor.x, pointCursor.y);
 
 			if (!rectMonitor.PtInRect(pointCursor))
 			{
@@ -965,12 +978,15 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 				nTB = 2;
 			}
 
+			TRACE(
+				L"MainFrame::OnWindowPosChanging snap 2 nLR=%i nTB=%i\n",
+				nLR, nTB);
+
 			if ((nLR != -1) && (nTB != -1))
 			{
 				m_dockPosition = static_cast<DockPosition>(nTB | nLR);
 			}
 		}
-
 
 		if (m_activeTabView)
 		{

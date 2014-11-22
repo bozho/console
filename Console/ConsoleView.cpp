@@ -384,7 +384,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 	if (!TranslateKeyDown(uMsg, wParam, lParam))
 	{
-		TRACE(L"ConsoleView::OnConsoleFwdMsg Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
+		TRACE_KEY(L"ConsoleView::OnConsoleFwdMsg Msg: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", uMsg, wParam, lParam);
 
 		bool boolPostMessage = false;
 
@@ -469,7 +469,7 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 
 			if( !boolPostMessage )
 			{
-				TRACE(
+				TRACE_KEY(
 					L"-> WriteConsoleInput\n"
 					L"  bKeyDown          = %s\n"
 					L"  dwControlKeyState = 0x%08lx\n"

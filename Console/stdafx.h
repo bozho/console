@@ -273,10 +273,12 @@ void __cdecl operator delete(void* p, LPCSTR lpszFileName, int nLine);
 void Trace(const wchar_t* pszFormat, ...);
 
 #define TRACE		::Trace
+#define TRACE_KEY	__noop
 
 #else
 
 #define TRACE		__noop
+#define TRACE_KEY	__noop
 
 #endif // _DEBUG
 

@@ -64,13 +64,13 @@ BOOL TabView::PreTranslateMessage(MSG* pMsg)
 		// return FALSE if no char is posted
 		if( !TranslateMessageEx(pMsg, TM_POSTCHARBREAKS) )
 		{
-			TRACE(L"TabView::PreTranslateMessage Msg not translated: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", pMsg->message, pMsg->wParam, pMsg->lParam);
+			TRACE_KEY(L"TabView::PreTranslateMessage Msg not translated: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", pMsg->message, pMsg->wParam, pMsg->lParam);
 			::DispatchMessage(pMsg);
 		}
 		else
 		{
 			wLastVirtualKey = static_cast<WORD>(pMsg->wParam);
-			TRACE(L"TabView::PreTranslateMessage Msg translated: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", pMsg->message, pMsg->wParam, pMsg->lParam);
+			TRACE_KEY(L"TabView::PreTranslateMessage Msg translated: 0x%04X, wParam: 0x%08X, lParam: 0x%08X\n", pMsg->message, pMsg->wParam, pMsg->lParam);
 		}
 
 		return TRUE;

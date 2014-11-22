@@ -396,13 +396,15 @@ void TabView::SetResizing(bool bResizing)
   }
 }
 
-void TabView::MainframeMoving()
+bool TabView::MainframeMoving()
 {
+  bool bRelative = false;
   MutexLock	viewMapLock(m_viewsMutex);
   for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
   {
-    it->second->MainframeMoving();
+    bRelative |= it->second->MainframeMoving();
   }
+  return bRelative;
 }
 
 void TabView::SetTitle(const CString& strTitle)

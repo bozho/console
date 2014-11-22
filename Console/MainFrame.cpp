@@ -990,13 +990,14 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 		if (m_activeTabView)
 		{
-			CRect rectClient;
-			GetClientRect(&rectClient);
-
-			m_activeTabView->MainframeMoving();
-			// we need to invalidate client rect here for proper background 
-			// repaint when using relative backgrounds
-			InvalidateRect(&rectClient, FALSE);
+			if (m_activeTabView->MainframeMoving())
+			{
+				CRect rectClient;
+				GetClientRect(&rectClient);
+				// we need to invalidate client rect here for proper background 
+				// repaint when using relative backgrounds
+				InvalidateRect(&rectClient, FALSE);
+			}
 		}
 
 		return 0;

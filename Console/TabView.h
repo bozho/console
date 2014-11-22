@@ -60,7 +60,7 @@ public:
   void SetActive(bool bActive);
   void SetAppActiveStatus(bool bAppActive);
   void SetResizing(bool bResizing);
-  void MainframeMoving();
+  bool MainframeMoving();
   void Repaint(bool bFullRepaint);
   void InitializeScrollbars();
   void AdjustRectAndResize(ADJUSTSIZE as, CRect& clientRect, DWORD dwResizeWindowEdge);

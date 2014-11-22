@@ -146,7 +146,7 @@ class ConsoleView
 		inline DWORD GetFontZoom(void) const { return m_dwFontZoom; }
 		void RecreateOffscreenBuffers(ADJUSTSIZE as);
 		void Repaint(bool bFullRepaint);
-		void MainframeMoving();
+		bool MainframeMoving();
 
 		void SetResizing(bool bResizing);
 		void SetActive(bool bActive);

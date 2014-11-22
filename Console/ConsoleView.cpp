@@ -1377,10 +1377,15 @@ void ConsoleView::Repaint(bool bFullRepaint)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleView::MainframeMoving()
+bool ConsoleView::MainframeMoving()
 {
 	// next OnPaint will do a full repaint
-	if (m_tabData->imageData.bRelative) m_bNeedFullRepaint = true;
+	if (m_tabData->imageData.bRelative)
+	{
+		m_bNeedFullRepaint = true;
+		return true;
+	}
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////

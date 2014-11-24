@@ -4166,11 +4166,11 @@ void MainFrame::SaveSearchMRU()
 		if( m_cb.GetItemText(i, str) )
 		{
 			value.Append(str);
-			value.Append(L"\0", 1);
+			value.AppendChar(0);
 		}
 	}
 
-	value.Append(L"\0", 1);
+	value.AppendChar(0);
 
 	key.SetMultiStringValue(L"SearchMRU", value.GetString());
 }

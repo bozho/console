@@ -28,6 +28,13 @@ Changelog
     + added
     * fixed
 
+Changes in 1.13.0 experimental (28 Nov 2014)
+
+    ! Visual Studio 2013
+    ! Legacy 32 bits version is compatible with Windows XP.
+    * "Snap to desktop edge" is ignored when Win key is down.
+    * Active auto horizontal scroll in search combobox.
+
 Changes in 1.12.0 (09 Oct 2014)
 
     ! The tab's title is now modified when you drag & drop a shortcut.

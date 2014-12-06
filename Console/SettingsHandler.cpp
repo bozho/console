@@ -1777,6 +1777,8 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"findnext",   ID_SEARCH_NEXT, L"Find next")));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"findprev",   ID_SEARCH_PREV, L"Find previous")));
 
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"switchtransparency", ID_SWITCH_TRANSPARENCY, L"Turn on/off transparency")));
+
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"dumpbuffer",	IDC_DUMP_BUFFER,	L"Dump screen buffer")));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"cmdMenu1", ID_SHOW_CONTEXT_MENU_1, L"Show Context menu #1")));

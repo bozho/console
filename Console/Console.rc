@@ -807,6 +807,7 @@ BEGIN
         MENUITEM "Ta&bs",                       ID_VIEW_TABS
         MENUITEM SEPARATOR
         MENUITEM "&Full Screen",                ID_VIEW_FULLSCREEN
+        MENUITEM "Switch On/Off Transparency",  ID_SWITCH_TRANSPARENCY
     END
     POPUP "Help"
     BEGIN
@@ -1084,6 +1085,7 @@ BEGIN
     ID_VIEW_TOOLBAR         "Show or hide the toolbar"
     ID_VIEW_SEARCH_BAR      "Show or hide the search bar"
     ID_VIEW_STATUS_BAR      "Show or hide the status bar"
+    ID_SWITCH_TRANSPARENCY  "Turn on or off transparency"
 END
 
 STRINGTABLE

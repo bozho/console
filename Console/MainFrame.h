@@ -83,6 +83,7 @@ class MainFrame
 			UPDATE_ELEMENT(ID_VIEW_FULLSCREEN, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
 			UPDATE_ELEMENT(ID_SEARCH_MATCH_CASE, UPDUI_TOOLBAR)
 			UPDATE_ELEMENT(ID_SEARCH_MATCH_WHOLE_WORD, UPDUI_TOOLBAR)
+			UPDATE_ELEMENT(ID_SWITCH_TRANSPARENCY, UPDUI_MENUPOPUP)
 
 			UPDATE_ELEMENT(1, UPDUI_STATUSBAR)
 			UPDATE_ELEMENT(2, UPDUI_STATUSBAR)
@@ -200,6 +201,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_SEARCH_MATCH_CASE,       OnSearchSettings)
 			COMMAND_ID_HANDLER(ID_SEARCH_MATCH_WHOLE_WORD, OnSearchSettings)
 			COMMAND_ID_HANDLER(ID_FIND,                    OnFind)
+			COMMAND_ID_HANDLER(ID_SWITCH_TRANSPARENCY,     OnSwitchTransparency)
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_1,     OnShowContextMenu1)
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_2,     OnShowContextMenu2)
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_3,     OnShowContextMenu3)
@@ -295,6 +297,7 @@ class MainFrame
 		LRESULT OnSearchText(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSearchSettings(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSwitchTransparency(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnShowContextMenu1(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnShowContextMenu2(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnShowContextMenu3(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
@@ -393,6 +396,7 @@ class MainFrame
 		bool m_bStatusBarVisible;
 		bool m_bTabsVisible;
 		bool m_bFullScreen;
+		bool m_bTransparencyActive;
 
 		DockPosition	m_dockPosition;
 		ZOrder			m_zOrder;

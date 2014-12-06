@@ -321,6 +321,7 @@
 #define ID_SHOW_CONTEXT_MENU_1          2929
 #define ID_SHOW_CONTEXT_MENU_2          2930
 #define ID_SHOW_CONTEXT_MENU_3          2931
+#define ID_SWITCH_TRANSPARENCY          2932
 
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000

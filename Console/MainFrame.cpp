@@ -115,6 +115,7 @@ MainFrame::MainFrame
 , m_bStatusBarVisible(true)
 , m_bTabsVisible     (true)
 , m_bFullScreen      (false)
+, m_bTransparencyActive(true)
 , m_dockPosition(dockNone)
 , m_zOrder(zorderNormal)
 , m_mousedragOffset(0, 0)
@@ -424,6 +425,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	ShowTabs(bShowTabs);
 
+	UISetCheck(ID_SWITCH_TRANSPARENCY, m_bTransparencyActive);
+
 	SearchSettings& searchSettings = g_settingsHandler->GetBehaviorSettings2().searchSettings;
 	UISetCheck(ID_SEARCH_MATCH_CASE, searchSettings.bMatchCase);
 	UISetCheck(ID_SEARCH_MATCH_WHOLE_WORD, searchSettings.bMatchWholeWord);
@@ -609,8 +612,9 @@ void MainFrame::ActivateApp(void)
   m_activeTabView->SetAppActiveStatus(m_bAppActive);
 
   TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+  TransparencyType transType = m_bTransparencyActive ? transparencySettings.transType : transNone;
 
-  if ((transparencySettings.transType == transAlpha) && 
+  if ((transType == transAlpha) && 
     ((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
   {
     if (m_bAppActive)
@@ -629,7 +633,7 @@ void MainFrame::ActivateApp(void)
   m_TabCtrl.RedrawWindow();
 #endif
 
-  if ((transparencySettings.transType == transGlass) && 
+  if ((transType == transGlass) && 
     (transparencySettings.byActiveAlpha != transparencySettings.byInactiveAlpha))
   {
     m_activeTabView->Repaint(true);
@@ -3618,6 +3622,7 @@ void MainFrame::SetTransparency()
 {
   // set transparency
   TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+  TransparencyType transType = m_bTransparencyActive ? transparencySettings.transType : transNone;
 
   // RAZ
   SetWindowLong(
@@ -3629,7 +3634,7 @@ void MainFrame::SetTransparency()
   DwmIsCompositionEnabled(&fEnabled);
   if( fEnabled )
   {
-    if( transparencySettings.transType != transGlass )
+    if( transType != transGlass )
     {
       // there is a side effect whith glass into client area and no caption (and no resizable)
       // blur is not applied, the window is transparent ...
@@ -3650,7 +3655,7 @@ void MainFrame::SetTransparency()
       }
       else
       {
-        if( transparencySettings.transType == transColorKey )
+        if( transType == transColorKey )
         {
           MARGINS m = {0, 0, 0, 0};
           ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
@@ -3664,7 +3669,7 @@ void MainFrame::SetTransparency()
   }
 #endif
 
-  switch (transparencySettings.transType)
+  switch (transType)
   {
   case transAlpha:
     // if ConsoleZ is pinned to the desktop window, wee need to set it as top-level window temporarily
@@ -3744,7 +3749,9 @@ void MainFrame::SetTransparency()
 
 #ifdef _USE_AERO
   aero::SetAeroGlassActive(fEnabled != FALSE);
+
   m_ATB.Invalidate(TRUE);
+  m_searchbar.Invalidate(TRUE);
   m_TabCtrl.Invalidate(TRUE);
 #endif
 }
@@ -4264,6 +4271,23 @@ LRESULT MainFrame::OnFind(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, 
 
 	return 0;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSwitchTransparency(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	m_bTransparencyActive = !m_bTransparencyActive;
+	UISetCheck(ID_SWITCH_TRANSPARENCY, m_bTransparencyActive);
+	SetTransparency();
+
+	return 0;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
 
 LRESULT MainFrame::OnShowContextMenu1(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {

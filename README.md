@@ -28,10 +28,11 @@ Changelog
     + added
     * fixed
 
-Changes in 1.13.0 experimental (28 Nov 2014)
+Changes in 1.13.0 experimental (06 Dec 2014)
 
     ! Visual Studio 2013
     ! Legacy 32 bits version is compatible with Windows XP.
+    + Switch on/off transparency.
     * "Snap to desktop edge" is ignored when Win key is down.
     * Active auto horizontal scroll in search combobox.
 

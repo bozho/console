@@ -778,22 +778,21 @@ LRESULT MainFrame::OnSysKeydown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
 {
-  // OnSize needs to know this
-  switch( GET_SC_WPARAM(wParam) )
-  {
-  case SC_RESTORE:
-		if( !this->IsWindowVisible() )
+	// OnSize needs to know this
+	switch (GET_SC_WPARAM(wParam))
+	{
+	case SC_RESTORE:
+		if (!this->IsWindowVisible())
 			ShowWindow(SW_SHOW);
+		m_bRestoringWindow = true;
+		break;
 
-		if( this->IsZoomed() )
-			m_bRestoringWindow = true;
-    break;
-
-  case SC_MAXIMIZE:
-    GetWindowRect(&m_rectRestoredWnd);
-    break;
+	case SC_MAXIMIZE:
+		GetWindowRect(&m_rectRestoredWnd);
+		break;
 
 	case SC_MINIMIZE:
+		GetWindowRect(&m_rectRestoredWnd);
 		{
 			StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 			if (!stylesSettings.bTaskbarButton && stylesSettings.bTrayIcon)
@@ -803,10 +802,10 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 			}
 		}
 		break;
-  }
+	}
 
-  bHandled = FALSE;
-  return 0;
+	bHandled = FALSE;
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

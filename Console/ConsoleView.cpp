@@ -2726,30 +2726,43 @@ void ConsoleView::UpdateOffscreen(const CRect& rectBlit)
 			(consoleInfo->csbi.dwCursorPosition.Y >= consoleInfo->csbi.srWindow.Top) &&
 			(consoleInfo->csbi.dwCursorPosition.Y <= consoleInfo->csbi.srWindow.Bottom))
 		{
-			bool DBCS;
+			bool bDBCS    = false;
+			bool bVisible = true;
 			{
 				MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 				DWORD dwOffset =
 					(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_dwScreenColumns +
 					(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left);
-				DBCS = (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) == COMMON_LVB_LEADING_BYTE;
+
+				if( dwOffset >= (m_dwScreenRows * m_dwScreenColumns) )
+				{
+					// ConsoleZ screen buffer and console info mismatch
+					bVisible = false;
+				}
+				else
+				{
+					bDBCS = (m_screenBuffer[dwOffset].charInfo.Attributes & COMMON_LVB_LEADING_BYTE) == COMMON_LVB_LEADING_BYTE;
+				}
 			}
 
-			if( DBCS )
+			if( bVisible )
 			{
-				if( m_cursorDBCS.get() )
-					m_cursorDBCS->BitBlt(
-								m_dcOffscreen,
-								(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder,
-								(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder);
-			}
-			else
-			{
-				if( m_cursor.get() )
-					m_cursor->BitBlt(
-								m_dcOffscreen,
-								(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth + m_nVInsideBorder,
-								(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_nCharHeight + m_nHInsideBorder);
+				if( bDBCS )
+				{
+					if( m_cursorDBCS.get() )
+						m_cursorDBCS->BitBlt(
+						m_dcOffscreen,
+						(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth  + m_nVInsideBorder,
+						(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top)  * m_nCharHeight + m_nHInsideBorder);
+				}
+				else
+				{
+					if( m_cursor.get() )
+						m_cursor->BitBlt(
+						m_dcOffscreen,
+						(consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) * m_nCharWidth  + m_nVInsideBorder,
+						(consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top)  * m_nCharHeight + m_nHInsideBorder);
+				}
 			}
 		}
 	}
@@ -2998,6 +3011,12 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
   DWORD dwOffset =
     (consoleInfo->csbi.dwCursorPosition.Y - consoleInfo->csbi.srWindow.Top) * m_dwScreenColumns +
     (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left);
+
+  if( dwOffset >= (m_dwScreenRows * m_dwScreenColumns) )
+  {
+	  // ConsoleZ screen buffer and console info mismatch
+	  return;
+  }
 
   CRect                      rectCursor;
   CHAR_INFO &                charInfo = m_screenBuffer[dwOffset].charInfo;

@@ -717,44 +717,54 @@ END
 // Toolbar
 //
 
-IDR_MAINFRAME TOOLBAR 16, 16
-BEGIN
-    BUTTON      ID_FILE_NEW_TAB
-    BUTTON      ID_PREV_TAB
-    BUTTON      ID_NEXT_TAB
-    BUTTON      ID_EDIT_RENAME_TAB
-    SEPARATOR
-    BUTTON      ID_EDIT_COPY
-    BUTTON      ID_EDIT_PASTE
-    SEPARATOR
-    BUTTON      ID_SPLIT_HORIZ
-    BUTTON      ID_SPLIT_VERT
-    SEPARATOR
-    BUTTON      ID_VIEW_FULLSCREEN
-    SEPARATOR
-    BUTTON      ID_APP_ABOUT
-    BUTTON      ID_HELP
-END
+IDR_TOOLBAR_16 TOOLBAR 16, 16
+#include "res/Toolbar.rc2"
 
-IDR_SEARCH TOOLBAR 16, 16
-BEGIN
-    BUTTON      ID_SEARCH_COMBO
-    BUTTON      ID_SEARCH_PREV
-    BUTTON      ID_SEARCH_NEXT
-    BUTTON      ID_SEARCH_MATCH_CASE
-    BUTTON      ID_SEARCH_MATCH_WHOLE_WORD
-END
+IDR_TOOLBAR_20 TOOLBAR 20, 20
+#include "res/Toolbar.rc2"
 
+IDR_TOOLBAR_24 TOOLBAR 24, 24
+#include "res/Toolbar.rc2"
+
+IDR_TOOLBAR_32 TOOLBAR 32, 32
+#include "res/Toolbar.rc2"
+
+IDR_SEARCH_16 TOOLBAR 16, 16
+#include "res/SearchBar.rc2"
+
+IDR_SEARCH_20 TOOLBAR 20, 20
+#include "res/SearchBar.rc2"
+
+IDR_SEARCH_24 TOOLBAR 24, 24
+#include "res/SearchBar.rc2"
+
+IDR_SEARCH_32 TOOLBAR 32, 32
+#include "res/SearchBar.rc2"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-IDR_MAINFRAME           BITMAP                  "res\\toolbar_aero.bmp"
-IDR_FULLSCREEN1         BITMAP                  "res\\fullscreen1.bmp"
-IDR_FULLSCREEN2         BITMAP                  "res\\fullscreen2.bmp"
-IDR_SEARCH              BITMAP                  "res\\search.bmp"
+IDR_TOOLBAR_16          BITMAP                  "res\\toolbar_16.bmp"
+IDR_FULLSCREEN1_16      BITMAP                  "res\\fullscreen1_16.bmp"
+IDR_FULLSCREEN2_16      BITMAP                  "res\\fullscreen2_16.bmp"
+IDR_SEARCH_16           BITMAP                  "res\\search_16.bmp"
+
+IDR_TOOLBAR_20          BITMAP                  "res\\toolbar_20.bmp"
+IDR_FULLSCREEN1_20      BITMAP                  "res\\fullscreen1_20.bmp"
+IDR_FULLSCREEN2_20      BITMAP                  "res\\fullscreen2_20.bmp"
+IDR_SEARCH_20           BITMAP                  "res\\search_20.bmp"
+
+IDR_TOOLBAR_24          BITMAP                  "res\\toolbar_24.bmp"
+IDR_FULLSCREEN1_24      BITMAP                  "res\\fullscreen1_24.bmp"
+IDR_FULLSCREEN2_24      BITMAP                  "res\\fullscreen2_24.bmp"
+IDR_SEARCH_24           BITMAP                  "res\\search_24.bmp"
+
+IDR_TOOLBAR_32          BITMAP                  "res\\toolbar_32.bmp"
+IDR_FULLSCREEN1_32      BITMAP                  "res\\fullscreen1_32.bmp"
+IDR_FULLSCREEN2_32      BITMAP                  "res\\fullscreen2_32.bmp"
+IDR_SEARCH_32           BITMAP                  "res\\search_32.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -893,7 +903,8 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "res\\console.ico"
+//IDR_MAINFRAME           ICON                    "res\\console.ico"
+IDR_MAINFRAME           ICON                    "res\\testHighDPI.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1016,7 +1027,6 @@ CONSOLE.XML             HTML                    "..\\setup\\config\\console.xml"
 STRINGTABLE
 BEGIN
     IDR_MAINFRAME              "ConsoleZ"
-    IDR_SEARCH                 "Search"
     ID_SEARCH_COMBO            "\nSearch"
     ID_SEARCH_PREV             "\nFind Previous"
     ID_SEARCH_NEXT             "\nFind Next"

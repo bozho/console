@@ -35,6 +35,8 @@ class Helpers
 		static bool IsElevated(void);
 		static bool CheckOSVersion(DWORD dwMinMajorVersion, DWORD dwMinMinorVersion);
 
+		static int GetHighDefinitionResourceId(int nId);
+
 	private:
 
 		static bool GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

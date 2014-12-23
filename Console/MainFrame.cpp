@@ -265,7 +265,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// attach menu
 	m_CmdBar.AttachMenu(GetMenu());
 	// load command bar images
-	m_CmdBar.LoadImages(IDR_MAINFRAME);
+	m_CmdBar.LoadImages(Helpers::GetHighDefinitionResourceId(IDR_TOOLBAR_16));
 	// remove old menu
 	SetMenu(NULL);
 
@@ -284,9 +284,9 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
   }
 
 #ifdef _USE_AERO
-	HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateAeroToolBarCtrl(m_hWnd, Helpers::GetHighDefinitionResourceId(IDR_TOOLBAR_16), FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #else
-	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, IDR_MAINFRAME, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar = CreateSimpleToolBarCtrl(m_hWnd, Helpers::GetHighDefinitionResourceId(IDR_TOOLBAR_16), FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #endif
 
 	TBBUTTONINFO tbi;
@@ -300,7 +300,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	tbi.fsStyle |= BTNS_DROPDOWN;
 	m_toolbar.SetButtonInfo(ID_FILE_NEW_TAB, &tbi);
 
-	m_toolbar.AddBitmap(1, IDR_FULLSCREEN1);
+	m_toolbar.AddBitmap(1, Helpers::GetHighDefinitionResourceId(IDR_FULLSCREEN1_16));
 	m_nFullSreen1Bitmap = m_toolbar.GetImageList().GetImageCount() - 1;
 	m_nFullSreen2Bitmap = m_toolbar.GetBitmap(ID_VIEW_FULLSCREEN);
 
@@ -312,7 +312,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	AddSimpleReBarBand(hWndCmdBar, NULL, FALSE);
 	AddSimpleReBarBand(hWndToolBar, NULL, TRUE, 0, TRUE);
 
-	HWND hWndToolBar2 = CreateSimpleToolBarCtrl(m_hWnd, IDR_SEARCH, FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
+	HWND hWndToolBar2 = CreateSimpleToolBarCtrl(m_hWnd, Helpers::GetHighDefinitionResourceId(IDR_SEARCH_16), FALSE, ATL_SIMPLE_TOOLBAR_PANE_STYLE);
 #ifdef _USE_AERO
 	if (hWndToolBar2 != NULL)
 		aero::Subclass(m_searchbar, hWndToolBar2);
@@ -337,7 +337,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	tbi.fsState = 0;
 	// BTNS_SHOWTEXT will allow the button size to be altered
 	tbi.fsStyle = BTNS_SHOWTEXT;
-	tbi.cx = 100;
+	tbi.cx = static_cast<WORD>(7 * ::GetSystemMetrics(SM_CXSMICON));
 
 	m_searchbar.SetButtonInfo(ID_SEARCH_COMBO, &tbi);
 
@@ -2979,20 +2979,29 @@ void MainFrame::UpdateStatusBar()
     std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
-      SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
+      //SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
 
       DWORD dwSelectionSize = activeConsoleView->GetSelectionSize();
       if( dwSelectionSize )
         _snwprintf_s(strSelection, ARRAYSIZE(strSelection),   _TRUNCATE, L"%lu", dwSelectionSize);
-
+	  /*
       _snwprintf_s(strColsRows,    ARRAYSIZE(strColsRows),    _TRUNCATE, L"%lux%lu",
         consoleParams->dwColumns,
         consoleParams->dwRows);
+		*/
+	  _snwprintf_s(strColsRows, ARRAYSIZE(strColsRows), _TRUNCATE, L"%lux%lu",
+				   ::GetSystemMetrics(SM_CXMENUCHECK),
+				   ::GetSystemMetrics(SM_CYMENUCHECK));
       _snwprintf_s(strPid,         ARRAYSIZE(strPid),         _TRUNCATE, L"%lu",
         activeConsoleView->GetConsoleHandler().GetConsolePid());
+	  /*
       _snwprintf_s(strBufColsRows, ARRAYSIZE(strBufColsRows), _TRUNCATE, L"%lux%lu",
         consoleParams->dwBufferColumns ? consoleParams->dwBufferColumns : consoleParams->dwColumns,
         consoleParams->dwBufferRows ? consoleParams->dwBufferRows : consoleParams->dwRows);
+		*/
+      _snwprintf_s(strBufColsRows, ARRAYSIZE(strBufColsRows), _TRUNCATE, L"%lux%lu",
+		::GetSystemMetrics(SM_CXSMICON),
+		::GetSystemMetrics(SM_CYSMICON));
       _snwprintf_s(strZoom, ARRAYSIZE(strZoom),               _TRUNCATE, L"%lu%%",
         activeConsoleView->GetFontZoom());
 
@@ -3393,7 +3402,7 @@ void MainFrame::ShowFullScreen(bool bShow)
 
   if( m_bFullScreen )
   {
-    m_CmdBar.ReplaceBitmap(IDR_FULLSCREEN1, ID_VIEW_FULLSCREEN);
+    m_CmdBar.ReplaceBitmap(Helpers::GetHighDefinitionResourceId(IDR_FULLSCREEN1_16), ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen1Bitmap);
 
     // save the non fullscreen position and size
@@ -3408,7 +3417,7 @@ void MainFrame::ShowFullScreen(bool bShow)
   }
   else
   {
-    m_CmdBar.ReplaceBitmap(IDR_FULLSCREEN2, ID_VIEW_FULLSCREEN);
+    m_CmdBar.ReplaceBitmap(Helpers::GetHighDefinitionResourceId(IDR_FULLSCREEN2_16), ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen2Bitmap);
 
     ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;

@@ -376,6 +376,12 @@
     <None Include="..\help\html\credentials.html">
       <Filter>Help Files\html</Filter>
     </None>
+    <None Include="res\Toolbar.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\SearchBar.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc">

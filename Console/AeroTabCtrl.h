@@ -380,10 +380,11 @@ public:
         CIcon tabSmallIcon(m_imageList.ExtractIcon(nImageIndex));
         if( !tabSmallIcon.IsNull() )
         {
-          dcPaint.DrawIconEx(
-            rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset,
-            tabSmallIcon.m_hIcon,
-            16, 16);
+			dcPaint.DrawIconEx(
+				rcText.left, nIconVerticalCenter - nImageHalfHeight + m_nFontSizeTextTopOffset,
+				tabSmallIcon.m_hIcon,
+				ii.rcImage.right - ii.rcImage.left,
+				ii.rcImage.right - ii.rcImage.left);
         }
 
 #ifdef _DRAW_TAB_RECT

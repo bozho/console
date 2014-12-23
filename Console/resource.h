@@ -4,7 +4,7 @@
 //
 #define IDD_ABOUTBOX                    100
 #define IDR_MAINFRAME                   128
-#define IDR_SEARCH                      129
+#define IDR_TAB_POPUP_MENU              129
 
 #define IDPANE_CAPS_INDICATOR           130
 #define IDPANE_NUM_INDICATOR            131
@@ -14,10 +14,6 @@
 #define IDPANE_COLUMNS_ROWS             135
 #define IDPANE_BUF_COLUMNS_ROWS         136
 #define IDPANE_ZOOM                     137
-
-#define IDR_FULLSCREEN1                 150
-#define IDR_FULLSCREEN2                 151
-#define IDR_TAB_POPUP_MENU              152
 
 #define IDD_RENAME_TAB                  204
 #define IDD_SETTINGS_MAIN               205
@@ -37,6 +33,26 @@
 #define IDD_SETTINGS_FONT               219
 #define IDD_SETTINGS_BEHAVIOR_2         220
 #define IDD_SETTINGS_TABS_ENV           221
+
+#define IDR_TOOLBAR_16                  300
+#define IDR_FULLSCREEN1_16              301
+#define IDR_FULLSCREEN2_16              302
+#define IDR_SEARCH_16                   303
+
+#define IDR_TOOLBAR_20                  310
+#define IDR_FULLSCREEN1_20              311
+#define IDR_FULLSCREEN2_20              312
+#define IDR_SEARCH_20                   313
+
+#define IDR_TOOLBAR_24                  320
+#define IDR_FULLSCREEN1_24              321
+#define IDR_FULLSCREEN2_24              322
+#define IDR_SEARCH_24                   323
+
+#define IDR_TOOLBAR_32                  330
+#define IDR_FULLSCREEN1_32              331
+#define IDR_FULLSCREEN2_32              332
+#define IDR_SEARCH_32                   333
 
 #define IDC_TAB_NAME                    1000
 #define IDC_APPLY                       1001
@@ -362,7 +378,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        222
+#define _APS_NEXT_RESOURCE_VALUE        400
 #define _APS_NEXT_COMMAND_VALUE         32801
 #define _APS_NEXT_CONTROL_VALUE         1234
 #define _APS_NEXT_SYMED_VALUE           101

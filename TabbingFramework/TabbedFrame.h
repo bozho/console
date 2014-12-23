@@ -246,9 +246,9 @@ protected:
 // Constructors
 public:
 	CCustomTabOwnerImpl() :
-		m_cxImage(16),
-		m_cyImage(16),
-		m_nTabAreaHeight(24),
+		m_cxImage(::GetSystemMetrics(SM_CXSMICON)),
+		m_cyImage(::GetSystemMetrics(SM_CYSMICON)),
+		m_nTabAreaHeight(::GetSystemMetrics(SM_CYSMICON) + 4),
 		m_nMinTabCountForVisibleTabs(1)
 	{
 		m_bKeepTabsHidden = (m_nMinTabCountForVisibleTabs > 0);
@@ -326,7 +326,7 @@ public:
 		// Dynamically figure out a reasonable tab area height
 		// based on the tab's font metrics
 
-		const int nNominalHeight = 24;
+		const int nNominalHeight = ::GetSystemMetrics(SM_CYSMICON) + 4;
 		const int nNominalFontLogicalUnits = 11;	// 8 point Tahoma with 96 DPI
 
 		// Initialize nFontLogicalUnits to the typical case

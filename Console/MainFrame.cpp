@@ -3105,7 +3105,7 @@ void MainFrame::DockWindow(DockPosition dockPosition)
 	m_dockPosition = dockPosition;
 	if (m_dockPosition == dockNone) return;
 
-	if( this->IsZoomed() ) return;
+	if( this->IsZoomed() || m_bFullScreen ) return;
 
 	CRect			rectDesktop;
 	CRect			rectWindow;

@@ -890,9 +890,7 @@ echo ^&lt;/html^&gt; &gt;&gt;%(RootDir)%(Directory)help\html\changelog.html</Com
     <None Include="..\setup\config\console.xml" />
     <None Include="res\Console.ico" />
     <None Include="res\SearchBar.rc2" />
-    <None Include="res\toolbar.bmp" />
     <None Include="res\Toolbar.rc2" />
-    <None Include="res\toolbar_aero.bmp" />
     <None Include="..\help\console.hhc" />
     <None Include="..\help\console.hhk" />
     <CustomBuild Include="..\help\console.hhp">
@@ -998,6 +996,24 @@ echo %(Filename)%(Extension) : error : failed to create CHM file
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\fullscreen1_16.bmp" />
+    <Image Include="res\fullscreen1_20.bmp" />
+    <Image Include="res\fullscreen1_24.bmp" />
+    <Image Include="res\fullscreen1_32.bmp" />
+    <Image Include="res\fullscreen2_16.bmp" />
+    <Image Include="res\fullscreen2_20.bmp" />
+    <Image Include="res\fullscreen2_24.bmp" />
+    <Image Include="res\fullscreen2_32.bmp" />
+    <Image Include="res\search_16.bmp" />
+    <Image Include="res\search_20.bmp" />
+    <Image Include="res\search_24.bmp" />
+    <Image Include="res\search_32.bmp" />
+    <Image Include="res\toolbar_16.bmp" />
+    <Image Include="res\toolbar_20.bmp" />
+    <Image Include="res\toolbar_24.bmp" />
+    <Image Include="res\toolbar_32.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

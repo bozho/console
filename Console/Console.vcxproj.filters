@@ -280,12 +280,6 @@
     <None Include="res\Console.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="res\toolbar.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="res\toolbar_aero.bmp">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\help\console.hhc">
       <Filter>Help Files</Filter>
     </None>
@@ -393,5 +387,55 @@
       <Filter>Help Files</Filter>
     </CustomBuild>
     <CustomBuild Include="..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\fullscreen1_16.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen1_20.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen1_24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen1_32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen2_16.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen2_20.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen2_24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fullscreen2_32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\search_16.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\search_20.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\search_24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\search_32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\toolbar_16.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\toolbar_20.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\toolbar_24.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\toolbar_32.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -1155,7 +1155,7 @@ public: \
 	if (uMsg == WM_ASKCBFORMATNAME) \
 	{ \
 		SetMsgHandled(TRUE); \
-		func((DWORD)wParam, (LPTSTR)lParam); \
+		func((UINT)wParam, (LPTSTR)lParam); \
 		lResult = 0; \
 		if(IsMsgHandled()) \
 			return TRUE; \
@@ -1325,12 +1325,12 @@ public: \
 			return TRUE; \
 	}
 
-// BOOL OnDeviceChange(UINT nEventType, DEV_BROADCAST_HDR* pHdr)
+// BOOL OnDeviceChange(UINT nEventType, DWORD_PTR dwData)
 #define MSG_WM_DEVICECHANGE(func) \
 	if (uMsg == WM_DEVICECHANGE) \
 	{ \
 		SetMsgHandled(TRUE); \
-		lResult = (LRESULT)func((UINT)wParam, (DEV_BROADCAST_HDR*)lParam); \
+		lResult = (LRESULT)func((UINT)wParam, (DWORD_PTR)lParam); \
 		if(IsMsgHandled()) \
 			return TRUE; \
 	}
@@ -1505,12 +1505,12 @@ public: \
 			return TRUE; \
 	}
 
-// BOOL OnPowerBroadcast(DWORD dwPowerEvent, DWORD dwData)
+// BOOL OnPowerBroadcast(DWORD dwPowerEvent, DWORD_PTR dwData)
 #define MSG_WM_POWERBROADCAST(func) \
 	if (uMsg == WM_POWERBROADCAST) \
 	{ \
 		SetMsgHandled(TRUE); \
-		lResult = (LRESULT)func((DWORD)wParam, (DWORD)lParam); \
+		lResult = (LRESULT)func((DWORD)wParam, (DWORD_PTR)lParam); \
 		if(IsMsgHandled()) \
 			return TRUE; \
 	}

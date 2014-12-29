@@ -1520,10 +1520,10 @@ public:
 			if (GetData()->nAllocLength < nNewLength)
 			{
 				CStringData* pOldData = GetData();
-				LPTSTR pstr = m_pchData;
+				LPTSTR pstrTmp = m_pchData;
 				if(!AllocBuffer(nNewLength))
 					return -1;
-				SecureHelper::memcpy_x(m_pchData, (nNewLength + 1) * sizeof(TCHAR), pstr, (pOldData->nDataLength + 1) * sizeof(TCHAR));
+				SecureHelper::memcpy_x(m_pchData, (nNewLength + 1) * sizeof(TCHAR), pstrTmp, (pOldData->nDataLength + 1) * sizeof(TCHAR));
 				CString::Release(pOldData);
 			}
 
@@ -1986,11 +1986,11 @@ public:
 		// format message into temporary buffer lpszTemp
 		va_list argList;
 		va_start(argList, lpszFormat);
-		LPTSTR lpszTemp;
+		LPTSTR lpszTemp = NULL;
 		BOOL bRet = TRUE;
 
-		if (::FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-				lpszFormat, 0, 0, (LPTSTR)&lpszTemp, 0, &argList) == 0 || lpszTemp == NULL)
+		if ((::FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+				lpszFormat, 0, 0, (LPTSTR)&lpszTemp, 0, &argList) == 0) || (lpszTemp == NULL))
 			bRet = FALSE;
 
 		// assign lpszTemp into the resulting string and free the temporary
@@ -2011,11 +2011,11 @@ public:
 		// format message into temporary buffer lpszTemp
 		va_list argList;
 		va_start(argList, nFormatID);
-		LPTSTR lpszTemp;
+		LPTSTR lpszTemp = NULL;
 		BOOL bRet = TRUE;
 
-		if (::FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER,
-				strFormat, 0, 0, (LPTSTR)&lpszTemp, 0, &argList) == 0 || lpszTemp == NULL)
+		if ((::FormatMessage(FORMAT_MESSAGE_FROM_STRING | FORMAT_MESSAGE_ALLOCATE_BUFFER,
+				strFormat, 0, 0, (LPTSTR)&lpszTemp, 0, &argList) == 0) || (lpszTemp == NULL))
 			bRet = FALSE;
 
 		// assign lpszTemp into the resulting string and free lpszTemp
@@ -2443,7 +2443,7 @@ protected:
 
 		int result = ::WideCharToMultiByte(CP_ACP, 0, wcstr, -1, mbstr, (int)count, NULL, NULL);
 		ATLASSERT(mbstr == NULL || result <= (int)count);
-		if (result > 0)
+		if ((mbstr != NULL) && (result > 0))
 			mbstr[result - 1] = 0;
 		return result;
 	}
@@ -2455,7 +2455,7 @@ protected:
 
 		int result = ::MultiByteToWideChar(CP_ACP, 0, mbstr, -1, wcstr, (int)count);
 		ATLASSERT(wcstr == NULL || result <= (int)count);
-		if (result > 0)
+		if ((wcstr != NULL) && (result > 0))
 			wcstr[result - 1] = 0;
 		return result;
 	}

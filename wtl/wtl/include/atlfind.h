@@ -264,7 +264,6 @@ public:
 	DWORD GetFindReplaceDialogFlags(void) const
 	{
 		DWORD dwFlags = 0;
-
 		if(m_bFindDown)
 			dwFlags |= FR_DOWN;
 		if(m_bMatchCase)
@@ -449,8 +448,7 @@ public:
 		if(message.GetLength() > 0)
 		{
 			_CSTRING_NS::CString formattedMessage;
-			formattedMessage.Format(message,
-				replaceCount, m_sFindNext, m_sReplaceWith);
+			formattedMessage.Format(message, replaceCount, m_sFindNext, m_sReplaceWith);
 			if(m_pFindReplaceDialog != NULL)
 			{
 				m_pFindReplaceDialog->MessageBox(formattedMessage,
@@ -573,7 +571,7 @@ public:
 		int iDir = bFindDown ? +1 : -1;
 
 		// can't find a match before the first character
-		if(nStart == 0 && iDir < 0)
+		if((nStart == 0) && (iDir < 0))
 			return FALSE;
 
 		LPCTSTR lpszText = pT->LockBuffer();
@@ -590,7 +588,7 @@ public:
 			// always go back one for search backwards
 			nStart -= int((lpszText + nStart) - ::CharPrev(lpszText, lpszText + nStart));
 		}
-		else if(nStartChar != nEndChar && pT->SameAsSelected(lpszFind, bMatchCase, bWholeWord))
+		else if((nStartChar != nEndChar) && (pT->SameAsSelected(lpszFind, bMatchCase, bWholeWord)))
 		{
 			// easy to go backward/forward with SBCS
 #ifndef _UNICODE
@@ -602,9 +600,9 @@ public:
 
 		// handle search with nStart past end of buffer
 		UINT nLenFind = ::lstrlen(lpszFind);
-		if(nStart + nLenFind - 1 >= nLen)
+		if((nStart + nLenFind - 1) >= nLen)
 		{
-			if(iDir < 0 && nLen >= nLenFind)
+			if((iDir < 0) && (nLen >= nLenFind))
 			{
 				if(isDBCS)
 				{
@@ -621,7 +619,7 @@ public:
 					// single-byte character set is easy and fast
 					nStart = nLen - nLenFind;
 				}
-				ATLASSERT(nStart + nLenFind - 1 <= nLen);
+				ATLASSERT((nStart + nLenFind - 1) <= nLen);
 			}
 			else
 			{
@@ -686,7 +684,7 @@ public:
 		else
 		{
 			// single-byte string search
-			UINT nCompare;
+			UINT nCompare = 0;
 			if(iDir < 0)
 				nCompare = (UINT)(lpsz - lpszText) + 1;
 			else
@@ -695,7 +693,7 @@ public:
 			while(nCompare > 0)
 			{
 				ATLASSERT(lpsz >= lpszText);
-				ATLASSERT(lpsz + nLenFind - 1 <= lpszText + nLen - 1);
+				ATLASSERT((lpsz + nLenFind - 1) <= (lpszText + nLen - 1));
 
 				LPSTR lpch = (LPSTR)(lpsz + nLenFind);
 				char chSave = *lpch;
@@ -726,15 +724,14 @@ public:
 	LPCTSTR LockBuffer() const
 	{
 		const T* pT = static_cast<const T*>(this);
-
 		ATLASSERT(pT->m_hWnd != NULL);
 
 		BOOL useShadowBuffer = pT->UseShadowBuffer();
 		if(useShadowBuffer)
 		{
-			if(m_pShadowBuffer == NULL || pT->GetModify())
+			if((m_pShadowBuffer == NULL) || pT->GetModify())
 			{
-				ATLASSERT(m_pShadowBuffer != NULL || m_nShadowSize == 0);
+				ATLASSERT((m_pShadowBuffer != NULL) || (m_nShadowSize == 0));
 				UINT nSize = pT->GetWindowTextLength() + 1;
 				if(nSize > m_nShadowSize)
 				{
@@ -767,7 +764,6 @@ public:
 	void UnlockBuffer() const
 	{
 		const T* pT = static_cast<const T*>(this);
-
 		ATLASSERT(pT->m_hWnd != NULL);
 
 		BOOL useShadowBuffer = pT->UseShadowBuffer();
@@ -782,8 +778,8 @@ public:
 	UINT GetBufferLength() const
 	{
 		const T* pT = static_cast<const T*>(this);
-
 		ATLASSERT(pT->m_hWnd != NULL);
+
 		UINT nLen = 0;
 		LPCTSTR lpszText = pT->LockBuffer();
 		if(lpszText != NULL)
@@ -998,7 +994,6 @@ public:
 		}
 
 		BOOL bRet = FALSE;
-
 		if(pT->FindAndSelect(dwFlags, ft) != -1)
 		{
 			bRet = TRUE;   // we found the text

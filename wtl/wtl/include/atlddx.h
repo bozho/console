@@ -148,7 +148,9 @@ namespace WTL
 
 #ifdef __ATLCTRLS_H__
   #define DDX_TAB_INDEX(nID, var)      DDX_INDEX(WTL::CTabCtrl, nID, var)
-  #define DDX_COMBO_INDEX(nID, var)    DDX_INDEX(WTL::CComboBox, nID, var)
+  #ifndef WIN32_PLATFORM_WFSP   // No COMBOBOX on SmartPhones
+    #define DDX_COMBO_INDEX(nID, var)    DDX_INDEX(WTL::CComboBox, nID, var)
+  #endif
   #define DDX_LISTBOX_INDEX(nID, var)  DDX_INDEX(WTL::CListBox, nID, var)
   #define DDX_LISTVIEW_INDEX(nID, var) DDX_INDEX(WTL::CListViewCtrl, nID, var)
 #endif // __ATLCTRLS_H__

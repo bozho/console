@@ -33,10 +33,10 @@
 // required libraries
 #if !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
   #pragma comment(lib, "msimg32.lib")
-#endif // !defined(_ATL_NO_MSIMG) && !defined(_WIN32_WCE)
+#endif
 #if !defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
   #pragma comment(lib, "opengl32.lib")
-#endif // !defined(_ATL_NO_OPENGL) && !defined(_WIN32_WCE)
+#endif
 
 
 ///////////////////////////////////////////////////////////////////////////////

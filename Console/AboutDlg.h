@@ -65,15 +65,37 @@ public:
       PixelFormat32bppARGB, (BYTE*)bmData.Scan0);
     bmpIcon.UnlockBits(&bmData);
 
-    gr.DrawImage(&bmpAlpha, 0, 0);
+    CWindow staticMessage(GetDlgItem(IDC_STATIC));
+    CRect rectVersion;
+    staticMessage.GetWindowRect(rectVersion);
+    ScreenToClient(rectVersion);
+
+    Gdiplus::Rect rect(
+      rectVersion.left, rectVersion.top,
+      rectVersion.Width(), rectVersion.Height());
+
+    INT len = min(rectVersion.Width(), rectVersion.Height());
+    Gdiplus::Rect rect2(
+      rectVersion.left + (rectVersion.Width() - len) / 2,
+      rectVersion.top  + (rectVersion.Height() - len),
+      len, len);
+
+    gr.DrawImage(
+      &bmpAlpha,
+      rect2,
+      0, 0,
+      256, 256,
+      Gdiplus::Unit::UnitPixel);
+
+    Gdiplus::SolidBrush brush(Gdiplus::Color(140,0,0,0));
+    gr.FillRectangle(&brush, rect);
 
     DTTOPTS dtto   = { 0 };
     dtto.dwSize    = sizeof(DTTOPTS);
     dtto.iGlowSize = 16;
-    dtto.crText    = RGB(191,191,255);
+    dtto.crText    = RGB(240,240,240);
     dtto.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR | DTT_GLOWSIZE;
-
-    CRect rectVersion(0x24,0x10,0x24+0x9A,0x10+0xA0);
+   
     CString strMsgVersion;
     strMsgVersion.Format(
       L"\nConsoleZ %i.%i.%i.%i\n"
@@ -85,7 +107,8 @@ public:
       L"Console 2 from\n"
       L"Marko Bozikovic"
       , VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_BUILD2);
-    this->DrawTextW(dc, strMsgVersion, rectVersion, DT_CENTER | DT_VCENTER, dtto);
+
+    this->DrawTextW(dc, strMsgVersion, rectVersion, DT_CENTER, dtto);
   }
 #endif
 };

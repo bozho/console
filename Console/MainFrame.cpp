@@ -2979,29 +2979,20 @@ void MainFrame::UpdateStatusBar()
     std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
     if( activeConsoleView )
     {
-      //SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
+      SharedMemory<ConsoleParams>& consoleParams = activeConsoleView->GetConsoleHandler().GetConsoleParams();
 
       DWORD dwSelectionSize = activeConsoleView->GetSelectionSize();
       if( dwSelectionSize )
         _snwprintf_s(strSelection, ARRAYSIZE(strSelection),   _TRUNCATE, L"%lu", dwSelectionSize);
-	  /*
+
       _snwprintf_s(strColsRows,    ARRAYSIZE(strColsRows),    _TRUNCATE, L"%lux%lu",
         consoleParams->dwColumns,
         consoleParams->dwRows);
-		*/
-	  _snwprintf_s(strColsRows, ARRAYSIZE(strColsRows), _TRUNCATE, L"%lux%lu",
-				   ::GetSystemMetrics(SM_CXMENUCHECK),
-				   ::GetSystemMetrics(SM_CYMENUCHECK));
-      _snwprintf_s(strPid,         ARRAYSIZE(strPid),         _TRUNCATE, L"%lu",
-        activeConsoleView->GetConsoleHandler().GetConsolePid());
-	  /*
+
       _snwprintf_s(strBufColsRows, ARRAYSIZE(strBufColsRows), _TRUNCATE, L"%lux%lu",
         consoleParams->dwBufferColumns ? consoleParams->dwBufferColumns : consoleParams->dwColumns,
         consoleParams->dwBufferRows ? consoleParams->dwBufferRows : consoleParams->dwRows);
-		*/
-      _snwprintf_s(strBufColsRows, ARRAYSIZE(strBufColsRows), _TRUNCATE, L"%lux%lu",
-		::GetSystemMetrics(SM_CXSMICON),
-		::GetSystemMetrics(SM_CYSMICON));
+
       _snwprintf_s(strZoom, ARRAYSIZE(strZoom),               _TRUNCATE, L"%lu%%",
         activeConsoleView->GetFontZoom());
 

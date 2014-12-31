@@ -70,10 +70,6 @@ public:
     staticMessage.GetWindowRect(rectVersion);
     ScreenToClient(rectVersion);
 
-    Gdiplus::Rect rect(
-      rectVersion.left, rectVersion.top,
-      rectVersion.Width(), rectVersion.Height());
-
     INT len = min(rectVersion.Width(), rectVersion.Height());
     Gdiplus::Rect rect2(
       rectVersion.left + (rectVersion.Width() - len) / 2,
@@ -87,8 +83,25 @@ public:
       256, 256,
       Gdiplus::Unit::UnitPixel);
 
+	INT flatLen = rectVersion.Height() / 2;
+
     Gdiplus::SolidBrush brush(Gdiplus::Color(140,0,0,0));
-    gr.FillRectangle(&brush, rect);
+	gr.FillRectangle(
+		&brush,
+		Gdiplus::Rect(
+			rectVersion.left, rectVersion.top,
+			rectVersion.Width(), flatLen));
+
+	Gdiplus::LinearGradientBrush linGrBrush(
+		Gdiplus::Point(0, rectVersion.top + flatLen - 1),
+		Gdiplus::Point(0, rectVersion.bottom),
+		Gdiplus::Color(140,0,0,0),
+		Gdiplus::Color(64,0,0,0));
+	gr.FillRectangle(
+		&linGrBrush,
+		Gdiplus::Rect(
+			rectVersion.left, rectVersion.top + flatLen,
+			rectVersion.Width(), rectVersion.Height() - flatLen));
 
     DTTOPTS dtto   = { 0 };
     dtto.dwSize    = sizeof(DTTOPTS);

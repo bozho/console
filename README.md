@@ -28,7 +28,7 @@ Changelog
     + added
     * fixed
 
-Changes in 1.13.0 experimental (29 Dec 2014)
+Changes in 1.13.0 experimental (03 Jan 2015)
 
     ! Visual Studio 2013
     ! Legacy 32 bits version is compatible with Windows XP.
@@ -39,6 +39,7 @@ Changes in 1.13.0 experimental (29 Dec 2014)
     * Fix restoring with "Snap to desktop edge".
     * Fix crash when attaching a console with a screen bigger than ConsoleZ's view.
     * Docking is ignored when ConsoleZ is full screen.
+    * Fix elevated process detection.
 
 Changes in 1.12.0 (09 Oct 2014)
 

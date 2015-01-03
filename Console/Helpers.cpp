@@ -360,7 +360,7 @@ bool Helpers::IsElevated(void)
 		Win32Exception::ThrowFromLastError("GetTokenInformation");
 	}
 
-	return tet != TokenElevationTypeLimited;
+	return tet == TokenElevationTypeFull;
 }
 
 //////////////////////////////////////////////////////////////////////////////

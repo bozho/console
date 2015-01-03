@@ -4314,3 +4314,31 @@ LRESULT MainFrame::OnShowContextMenu3(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /
 	SendMessage(UM_SHOW_POPUP_MENU, static_cast<WPARAM>(MouseSettings::cmdMenu3), MAKELPARAM(screenPoint.x, screenPoint.y));
 	return 0;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnSendCtrlEvent(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MutexLock lock(m_tabsMutex);
+
+	if( !m_activeTabView ) return 0;
+
+	std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+	if( !activeConsoleView ) return 0;
+
+	if( activeConsoleView->IsGrouped() )
+	{
+		for( TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it )
+		{
+			it->second->SendCtrlCToConsoles();
+		}
+	}
+	else
+	{
+		activeConsoleView->GetConsoleHandler().SendCtrlC();
+	}
+
+	return 0;
+}

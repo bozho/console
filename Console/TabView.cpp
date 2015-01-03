@@ -719,6 +719,20 @@ void TabView::SendTextToConsoles(const wchar_t* pszText)
 
 /////////////////////////////////////////////////////////////////////////////
 
+void TabView::SendCtrlCToConsoles()
+{
+	MutexLock	viewMapLock(m_viewsMutex);
+	for (ConsoleViewMap::iterator it = m_views.begin(); it != m_views.end(); ++it)
+	{
+		if( it->second->IsGrouped() )
+			it->second->GetConsoleHandler().SendCtrlC();
+	}
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+
 void TabView::Group(bool b)
 {
   MutexLock	viewMapLock(m_viewsMutex);

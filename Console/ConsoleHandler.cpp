@@ -1689,6 +1689,20 @@ void ConsoleHandler::Clear()
 	}
 }
 
+void ConsoleHandler::SendCtrlC()
+{
+	NamedPipeMessage npmsg;
+	npmsg.type = NamedPipeMessage::CTRL_C;
+
+	try
+	{
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
+	}
+	catch(std::exception&)
+	{
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 

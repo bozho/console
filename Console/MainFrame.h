@@ -205,6 +205,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_1,     OnShowContextMenu1)
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_2,     OnShowContextMenu2)
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_3,     OnShowContextMenu3)
+			COMMAND_ID_HANDLER(ID_SEND_CTRL_C,             OnSendCtrlEvent)
 
 			COMMAND_RANGE_HANDLER(ID_EXTERNAL_COMMAND_1, (ID_EXTERNAL_COMMAND_1 + EXTERNAL_COMMANDS_COUNT - 1), OnExternalCommand)
 
@@ -301,6 +302,7 @@ class MainFrame
 		LRESULT OnShowContextMenu1(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnShowContextMenu2(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnShowContextMenu3(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSendCtrlEvent(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

@@ -75,6 +75,7 @@ public:
   void PostMessageToConsoles(UINT Msg, WPARAM wParam, LPARAM lParam);
   void WriteConsoleInputToConsoles(KEY_EVENT_RECORD* pkeyEvent);
   void SendTextToConsoles(const wchar_t* pszText);
+  void SendCtrlCToConsoles();
 
   inline bool IsGrouped() const { return m_boolIsGrouped; }
   void Group(bool b);

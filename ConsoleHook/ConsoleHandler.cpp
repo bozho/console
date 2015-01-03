@@ -1846,6 +1846,10 @@ DWORD ConsoleHandler::MonitorThread()
 							case NamedPipeMessage::CLEAR:
 								this->Clear();
 								break;
+
+							case NamedPipeMessage::CTRL_C:
+								::GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+								break;
 							}
 
 							npmsglen = 0;

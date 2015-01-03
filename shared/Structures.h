@@ -242,6 +242,7 @@ struct NamedPipeMessage
 		WRITECONSOLEINPUT,
 		DETACH,
 		CLEAR,
+		CTRL_C,
 	} type;
 
 	union

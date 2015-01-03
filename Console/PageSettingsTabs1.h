@@ -47,7 +47,6 @@ class PageSettingsTabs1
 			DDX_RADIO(IDC_CHECK_RUN_AS_CURRENT_USER, m_nRunAs)
 			DDX_TEXT(IDC_TAB_USER, m_strUser)
 			DDX_CHECK(IDC_CHECK_NET_ONLY, m_bNetOnly)
-			DDX_CHECK(IDC_CHECK_RUN_AS_ADMIN, m_bRunAsAdmin)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(PageSettingsTabs1)
@@ -60,8 +59,9 @@ class PageSettingsTabs1
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_SHELL, OnClickedBtnBrowseShell)
 			COMMAND_ID_HANDLER(IDC_BTN_BROWSE_DIR, OnClickedBtnBrowseDir)
 			COMMAND_ID_HANDLER(IDC_CHECK_DEFAULT_ICON, OnCheckboxClicked)
-			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_USER, OnCheckboxClicked)
 			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_CURRENT_USER, OnCheckboxClicked)
+			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_ADMIN, OnCheckboxClicked)
+			COMMAND_ID_HANDLER(IDC_CHECK_RUN_AS_USER, OnCheckboxClicked)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -103,7 +103,6 @@ class PageSettingsTabs1
 		int				m_nRunAs;
 		CString			m_strUser;
 		bool			m_bNetOnly;
-		bool			m_bRunAsAdmin;
 
 		CFileNameEdit        m_tabIconEdit;
 		CFileNameAndLinkEdit m_tabShellEdit;

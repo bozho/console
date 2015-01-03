@@ -23,7 +23,6 @@ PageSettingsTabs1::PageSettingsTabs1()
 , m_nRunAs(0)
 , m_strUser(L"")
 , m_bNetOnly(false)
-, m_bRunAsAdmin(false)
 , m_tabShellEdit(this)
 {
 }
@@ -182,9 +181,8 @@ void PageSettingsTabs1::EnableControls()
 	GetDlgItem(IDC_TAB_ICON).EnableWindow(m_bUseDefaultIcon == false);
 	GetDlgItem(IDC_BTN_BROWSE_ICON).EnableWindow(m_bUseDefaultIcon == false);
 
-	GetDlgItem(IDC_TAB_USER).EnableWindow(m_nRunAs == 1);
-	GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_nRunAs == 1);
-	GetDlgItem(IDC_CHECK_RUN_AS_ADMIN).EnableWindow(m_nRunAs == 0);
+	GetDlgItem(IDC_TAB_USER).EnableWindow(m_nRunAs == 2);
+	GetDlgItem(IDC_CHECK_NET_ONLY).EnableWindow(m_nRunAs == 2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -202,10 +200,9 @@ void PageSettingsTabs1::Load(std::shared_ptr<TabData>& tabData)
 
 	m_strShell        = m_tabData->strShell.c_str();
 	m_strInitialDir   = m_tabData->strInitialDir.c_str();
-	m_nRunAs          = m_tabData->bRunAsUser? 1 : 0;
+	m_nRunAs          = m_tabData->bRunAsUser? 2 : m_tabData->bRunAsAdministrator? 1 : 0;
 	m_strUser         = m_tabData->strUser.c_str();
 	m_bNetOnly        = m_tabData->bNetOnly;
-	m_bRunAsAdmin     = m_tabData->bRunAsAdministrator;
 
 	m_comboPriority.SetCurSel(m_tabData->dwBasePriority);
 
@@ -229,10 +226,10 @@ void PageSettingsTabs1::Save()
 
 	m_tabData->strShell            = m_strShell;
 	m_tabData->strInitialDir       = m_strInitialDir;
-	m_tabData->bRunAsUser          = m_nRunAs == 1;
+	m_tabData->bRunAsUser          = m_nRunAs == 2;
 	m_tabData->strUser             = m_strUser;
 	m_tabData->bNetOnly            = m_bNetOnly;
-	m_tabData->bRunAsAdministrator = m_bRunAsAdmin;
+	m_tabData->bRunAsAdministrator = m_nRunAs == 1;
 
 	m_tabData->dwBasePriority      = m_comboPriority.GetCurSel();
 }
@@ -313,7 +310,7 @@ void PageSettingsTabs1::ConvertShellLink(CString& strShell)
 					if( SUCCEEDED(shellLink.QueryInterface(&dataList)) &&
 						  SUCCEEDED(dataList->GetFlags(&dwFlags)) )
 					{
-						m_bRunAsAdmin = (dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER;
+						m_nRunAs = (dwFlags & SLDF_RUNAS_USER) == SLDF_RUNAS_USER ? 1 : 0;
 					}
 				}
 			}

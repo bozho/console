@@ -305,7 +305,7 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 
 			if (dlg.DoModal() != IDOK) return 0;
 
-			userCredentials.user     = dlg.GetUser();
+			userCredentials.SetUser(dlg.GetUser());
 			userCredentials.password = dlg.GetPassword();
 #endif
 		}

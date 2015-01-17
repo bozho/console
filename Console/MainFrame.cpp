@@ -326,8 +326,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 #ifdef _USE_AERO
 	// we remove the grippers
-	CReBarCtrl rebar(m_hWndToolBar);
-	rebar.LockBands(true);
+	aero::Subclass(m_rebar, m_hWndToolBar);
+	m_rebar.LockBands(true);
 #endif
 
 	tbi.cbSize = sizeof(TBBUTTONINFO);

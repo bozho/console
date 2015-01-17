@@ -574,6 +574,54 @@ inline void CTabCtrl::CtrlPaint(HDC hdc, RECT& /*rCtrl*/, RECT& /*rPaint*/)
 };
 
 ///////////////////////////////////////////////////////////////////////////////
+// aero::CReBarCtrl - Aero drawing ReBar control
+
+typedef CCtrl<WTL::CReBarCtrl> CReBarCtrl;
+
+inline LPCWSTR CReBarCtrl::GetThemeName()
+{
+	return L"REBAR";
+};
+
+inline void CReBarCtrl::CtrlPaint(HDC hdc, RECT& /*rCtrl*/, RECT& rPaint)
+{
+	m_BufferedPaint.Clear(&rPaint);
+
+	CRect rect;
+	GetWindowRect(rect);
+
+	int nBandCount = GetBandCount();
+	for(int i =0; i < nBandCount; i++)
+	{
+		REBARBANDINFO rbbi = { RunTimeHelper::SizeOf_REBARBANDINFO() };
+		rbbi.fMask = RBBIM_STYLE | RBBIM_HEADERSIZE | RBBIM_CHILD;
+		BOOL bRet = GetBandInfo(i, &rbbi);
+		ATLASSERT(bRet);
+
+		CWindow band(rbbi.hwndChild);
+
+		if( band.IsWindowVisible() )
+		{
+			if( (rbbi.fStyle & RBBS_NOGRIPPER) == 0 )
+			{
+				CRect rectBand;
+				band.GetWindowRect(rectBand);
+
+				SIZE size = {0};
+				GetThemePartSize(hdc, RP_GRIPPER, 0, NULL, TS_TRUE, &size);
+
+				CRect rectGripper(
+					rectBand.left - rect.left - rbbi.cxHeader,
+					rectBand.top - rect.top,
+					rectBand.left - rect.left - rbbi.cxHeader + size.cx,
+					rectBand.bottom - rect.top);
+				DrawThemeBackground(hdc, RP_GRIPPER, 0, rectGripper, &rPaint);
+			}
+		}
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // aero::CToolBarCtrl - Aero translucent ToolBar Control
 
 typedef CCtrl<WTL::CToolBarCtrl> CToolBarCtrl;

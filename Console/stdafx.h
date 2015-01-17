@@ -36,12 +36,12 @@ extern CAppModule _Module;
 #include <atlddx.h>
 #include <atlmisc.h>
 
+#include <atltheme.h>
 #include <atlframe.h>
 #include <atlctrls.h>
 #include <atldlgs.h>
 #include <atlctrlw.h>
 #include <atlctrlx.h>
-#include <atltheme.h>
 #pragma warning(pop)
 
 #include <userenv.h>

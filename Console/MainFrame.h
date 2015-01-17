@@ -428,6 +428,7 @@ class MainFrame
 		CToolBarCtrl        m_toolbar;
 		CComboBoxEx         m_cb;
 #ifdef _USE_AERO
+		aero::CReBarCtrl    m_rebar;
 		aero::CToolBarCtrl  m_searchbar;
 		aero::CEdit         m_searchedit;
 #else

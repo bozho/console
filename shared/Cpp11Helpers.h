@@ -17,6 +17,30 @@ struct CloseHandleHelper
   };
 };
 
+class RevertToSelfHelper
+{
+	bool bIsLoggedOn;
+public:
+	RevertToSelfHelper()
+		: bIsLoggedOn(false)
+	{
+	}
+	~RevertToSelfHelper()
+	{
+		off();
+	}
+	void on(void)
+	{
+		bIsLoggedOn = true;
+	}
+	void off(void)
+	{
+		if( bIsLoggedOn )
+			::RevertToSelf();
+		bIsLoggedOn = false;
+	}
+};
+
 #ifdef _COMBASEAPI_H_
 struct CoTaskMemFreeHelper
 {

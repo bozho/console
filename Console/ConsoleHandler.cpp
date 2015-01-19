@@ -247,6 +247,8 @@ void ConsoleHandler::CreateShellProcess
 {
 	std::unique_ptr<void, DestroyEnvironmentBlockHelper> userEnvironment;
 	std::unique_ptr<void, CloseHandleHelper>             userToken;
+	std::shared_ptr<void>                                userProfileKey;
+	RevertToSelfHelper                                   revertToSelfHelper;
 
 	if (userCredentials.strUsername.length() > 0)
 	{
@@ -260,31 +262,42 @@ void ConsoleHandler::CreateShellProcess
 				userCredentials.password.c_str(),
 				LOGON32_LOGON_INTERACTIVE,
 				LOGON32_PROVIDER_DEFAULT,
-				&hUserToken) || !::ImpersonateLoggedOnUser(hUserToken) )
+				&hUserToken) )
 			{
-				Win32Exception err("ImpersonateLoggedOnUser", ::GetLastError());
+				Win32Exception err("LogonUser", ::GetLastError());
 				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
 			}
 			userToken.reset(hUserToken);
 
-			/*
+			if( !::ImpersonateLoggedOnUser(userToken.get()) )
+			{
+				Win32Exception err("ImpersonateLoggedOnUser", ::GetLastError());
+				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+			}
+			revertToSelfHelper.on();
+
+#if 0
 			// load user's profile
 			// seems to be necessary on WinXP for environment strings' expainsion to work properly
+			// only administrators or LOCALSYSTEM can load a profile since Windows XP SP2
 			PROFILEINFO userProfile;
 			::ZeroMemory(&userProfile, sizeof(PROFILEINFO));
 			userProfile.dwSize = sizeof(PROFILEINFO);
 			userProfile.lpUserName = const_cast<wchar_t*>(userCredentials.strUsername.c_str());
 
-			::LoadUserProfile(userToken.get(), &userProfile);
-			userProfileKey.reset(userProfile.hProfile, bind<BOOL>(::UnloadUserProfile, userToken.get(), _1));
-			*/
+			if( !::LoadUserProfile(userToken.get(), &userProfile) )
+			{
+				Win32Exception err("LoadUserProfile", ::GetLastError());
+				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+			}
+			userProfileKey.reset(userProfile.hProfile, std::bind<BOOL>(::UnloadUserProfile, userToken.get(), std::placeholders::_1));
+#endif
 
 			// load user's environment
-			void*	pEnvironment = nullptr;
+			void* pEnvironment = nullptr;
 			if( !::CreateEnvironmentBlock(&pEnvironment, userToken.get(), FALSE) )
 			{
 				Win32Exception err("CreateEnvironmentBlock", ::GetLastError());
-				::RevertToSelf();
 				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
 			}
 			userEnvironment.reset(pEnvironment);
@@ -365,8 +378,7 @@ void ConsoleHandler::CreateShellProcess
 		Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strShellCmdLine) :
 		Helpers::ExpandEnvironmentStrings(strShellCmdLine));
 
-	if( userToken.get() )
-		::RevertToSelf();
+	revertToSelfHelper.off();
 
 	// setup the startup info struct
 	STARTUPINFO si;
@@ -399,9 +411,6 @@ void ConsoleHandler::CreateShellProcess
 
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
 	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT|TabData::GetPriorityClass(dwBasePriority);
-
-	// TODO: not supported yet
-	//if (bDebugFlag) dwStartupFlags |= DEBUG_PROCESS;
 
 	// load environment block
 	if( !s_environmentBlock.get() )

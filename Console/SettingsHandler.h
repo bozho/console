@@ -772,6 +772,14 @@ struct VarEnv
 	{
 	}
 
+	VarEnv(const std::wstring& strEnvVariable,
+	       const std::wstring& strEnvValue)
+		: strEnvVariable(strEnvVariable)
+		, strEnvValue(strEnvValue)
+		, bEnvChecked(true)
+	{
+	}
+
 	std::wstring strEnvVariable;
 	std::wstring strEnvValue;
 	bool         bEnvChecked;

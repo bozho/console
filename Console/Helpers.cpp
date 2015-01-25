@@ -102,6 +102,142 @@ wstring Helpers::ExpandEnvironmentStringsForUser(HANDLE userToken, const wstring
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+const wchar_t * Helpers::GetEnvironmentVariable(const wchar_t * envb, const wchar_t * str, size_t len /*= SIZE_MAX*/)
+{
+	const wchar_t * ptr = envb;
+
+	if( len == SIZE_MAX ) len = wcslen(str);
+
+	while ((ptr[0] != L'\x00') && !(_wcsnicmp(ptr, str, len) == 0 && ptr[len] == L'=')) ptr += wcslen(ptr)+1;
+
+	if( ptr[0] != L'\x00' )
+		return ptr + len + 1;
+
+	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::wstring Helpers::ExpandEnvironmentStrings(const wchar_t * envb, const std::wstring & str)
+{
+	std::wstring result;
+
+	for(size_t i = 0; i < str.length(); ++i)
+	{
+		if(str[i] != L'%')
+		{
+			result += str[i];
+		}
+		else
+		{
+			const wchar_t * value = nullptr;
+			size_t len = 0;
+
+			for(size_t j = i + 1; j < str.length(); ++j, ++len)
+			{
+				if(str[j] == L'%')
+				{
+					if(len > 0)
+					{
+						value = Helpers::GetEnvironmentVariable(
+							envb,
+							str.data() + i + 1,
+							len);
+					}
+					break;
+				}
+			}
+
+			if(value)
+			{
+				result.append(value);
+				i += len + 1;
+			}
+			else
+			{
+				result.append(str.data() + i, len + 1);
+				i += len;
+			}
+		}
+	}
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::wstring Helpers::ExpandEnvironmentStrings(const std::map<std::wstring, std::wstring, __case_insensitive_compare> & dictionary, const std::wstring & str)
+{
+	std::wstring result;
+
+	for(size_t i = 0; i < str.length(); ++i)
+	{
+		if(str[i] != L'%')
+		{
+			result += str[i];
+		}
+		else
+		{
+			auto value = dictionary.end();
+			size_t len = 0;
+
+			for(size_t j = i + 1; j < str.length(); ++j, ++len)
+			{
+				if(str[j] == L'%')
+				{
+					if(len > 0)
+					{
+						value = dictionary.find(std::wstring(str.data() + i + 1, len));
+					}
+					break;
+				}
+			}
+
+			if(value != dictionary.end())
+			{
+				result.append(value->second);
+				i += len + 1;
+			}
+			else
+			{
+				result.append(str.data() + i, len + 1);
+				i += len;
+			}
+		}
+	}
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::wstring Helpers::GetComputerName(void)
+{
+	std::wstring strComputerName;
+
+	wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1];
+	DWORD   dwComputerNameLen = ARRAYSIZE(szComputerName);
+	if(::GetComputerName(szComputerName, &dwComputerNameLen))
+		strComputerName = szComputerName;
+
+	return strComputerName;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool Helpers::GetMonitorRect(HWND hWnd, CRect& rectMonitor)
 {
 	HMONITOR hMonitor = ::MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);

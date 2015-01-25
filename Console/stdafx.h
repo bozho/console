@@ -45,6 +45,7 @@ extern CAppModule _Module;
 #pragma warning(pop)
 
 #include <userenv.h>
+#include <Lm.h>
 
 #pragma warning(push)
 #pragma warning(disable: 4189 4267)
@@ -99,6 +100,7 @@ extern CAppModule _Module;
 #include <vector>
 #include <stack>
 #include <array>
+#include <regex>
 using namespace std;
 #pragma warning(pop)
 

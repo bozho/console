@@ -237,7 +237,7 @@
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;psapi.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;psapi.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -289,7 +289,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -341,7 +341,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;psapi.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;psapi.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -393,7 +393,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -443,7 +443,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -493,7 +493,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -548,7 +548,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
@@ -600,7 +600,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <AdditionalIncludeDirectories>$(IntDir);../wtl/wtl/include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>..\FreeImage\x64\FreeImagePlus.lib;delayimp.lib;htmlhelp.lib;userenv.lib;Muiload.lib;Credui.lib;imm32.lib;%(AdditionalDependencies);netapi32.lib</AdditionalDependencies>
       <DelayLoadDLLs>uxtheme.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>

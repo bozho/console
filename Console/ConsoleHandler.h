@@ -60,10 +60,7 @@ struct UserCredentials
 			else
 			{
 				// CreateProcessWithLogonW & LOGON_NETCREDENTIALS_ONLY fails if domain is NULL
-				wchar_t szComputerName[MAX_COMPUTERNAME_LENGTH + 1];
-				DWORD   dwComputerNameLen = ARRAYSIZE(szComputerName);
-				if( ::GetComputerName(szComputerName, &dwComputerNameLen) )
-					strDomain = szComputerName;
+				strDomain = Helpers::GetComputerName();
 			}
 
 			if (!strDomain.empty())
@@ -143,7 +140,7 @@ class ConsoleHandler
 		void StopScrolling();
 		void ResumeScrolling();
 
-		static void UpdateEnvironmentBlock();
+		static void UpdateCurrentUserEnvironmentBlock();
 
 		inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
 		inline bool  IsElevated(void) const { return m_boolIsElevated; }

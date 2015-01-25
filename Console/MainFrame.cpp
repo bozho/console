@@ -1098,7 +1098,7 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 	// to change environment, lParam should be "Environment"
 	if (strArea == L"Environment")
 	{
-		ConsoleHandler::UpdateEnvironmentBlock();
+		ConsoleHandler::UpdateCurrentUserEnvironmentBlock();
 	}
 	else
 	{

@@ -41,6 +41,17 @@ public:
 	}
 };
 
+#ifdef _LMAPIBUF_
+struct NetApiBufferFreeHelper
+{
+  void operator()(void * toFree)
+  {
+    if( toFree )
+      ::NetApiBufferFree(static_cast<HANDLE>(toFree));
+  };
+};
+#endif
+
 #ifdef _COMBASEAPI_H_
 struct CoTaskMemFreeHelper
 {

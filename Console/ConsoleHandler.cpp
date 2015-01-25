@@ -7,7 +7,6 @@
 #include "ConsoleException.h"
 #include "ConsoleHandler.h"
 
-#include <regex>
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -157,14 +156,6 @@ std::wstring MergeEnvironmentVariables(
 {
 	std::wstring strNewEnvironment;
 
-	struct __case_insensitive_compare
-	{
-		bool operator() (const std::wstring& a, const std::wstring& b) const
-		{
-			return (_wcsicmp(a.c_str( ), b.c_str()) < 0);
-		}
-	};
-
 	std::map<std::wstring, std::wstring, __case_insensitive_compare> dictionary;
 
 	for(const wchar_t * p = static_cast<const wchar_t *>(environmentBlock);
@@ -207,13 +198,7 @@ std::wstring MergeEnvironmentVariables(
 	// second pass (we add all variables with %%)
 	for(auto i = extra.begin(); i != extra.end(); ++i)
 	{
-		std::wstring str = i->second;
-
-		for(auto j = dictionary.cbegin(); j != dictionary.cend(); ++j)
-		{
-			str = std::regex_replace(str, std::wregex(std::wstring(L"%") + j->first + std::wstring(L"%"), regex_constants::icase), j->second, std::regex_constants::match_any);
-		}
-
+		std::wstring str = Helpers::ExpandEnvironmentStrings(dictionary, i->second);
 		dictionary[i->first] = str;
 	}
 
@@ -249,6 +234,7 @@ void ConsoleHandler::CreateShellProcess
 	std::unique_ptr<void, CloseHandleHelper>             userToken;
 	std::shared_ptr<void>                                userProfileKey;
 	RevertToSelfHelper                                   revertToSelfHelper;
+	std::vector<std::shared_ptr<VarEnv>>                 homeEnv;
 
 	if (userCredentials.strUsername.length() > 0)
 	{
@@ -301,54 +287,140 @@ void ConsoleHandler::CreateShellProcess
 				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
 			}
 			userEnvironment.reset(pEnvironment);
+
+#if 0
+			BYTE dummy[1024];
+			PSID psid = reinterpret_cast<PSID>(dummy);
+			DWORD cbSid = sizeof(dummy);
+			wchar_t szReferencedDomainName[DNLEN + 1] = L"";
+			DWORD cchReferencedDomainName = ARRAYSIZE(szReferencedDomainName);
+			SID_NAME_USE eUse;
+			if(!::LookupAccountName(
+				userCredentials.strDomain.c_str(),
+				userCredentials.strUsername.c_str(),
+				psid, &cbSid,
+				szReferencedDomainName, &cchReferencedDomainName,
+				&eUse))
+			{
+				Win32Exception err("LookupAccountName", ::GetLastError());
+				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+			}
+#endif
+
+			NET_API_STATUS nStatus;
+			LPWSTR pszComputerName = nullptr;
+			if(userCredentials.strDomain != Helpers::GetComputerName())
+			{
+				nStatus = ::NetGetDCName(NULL, userCredentials.strDomain.c_str(), reinterpret_cast<LPBYTE *>(&pszComputerName));
+				if(nStatus != NERR_Success && nStatus != NERR_DCNotFound)
+				{
+					Win32Exception err("NetGetDCName", nStatus);
+					throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+				}
+			}
+			std::unique_ptr<void, NetApiBufferFreeHelper> dcName(pszComputerName);
+
+			LPUSER_INFO_3 pBuf3 = nullptr;
+			nStatus = ::NetUserGetInfo(pszComputerName, userCredentials.strUsername.c_str(), 3, reinterpret_cast<LPBYTE *>(&pBuf3));
+			if( nStatus != NERR_Success )
+			{
+				Win32Exception err("NetUserGetInfo", nStatus);
+				throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+			}
+			std::unique_ptr<void, NetApiBufferFreeHelper> buf3(pBuf3);
+
+			std::wstring strHomeShare;
+			std::wstring strHomeDrive;
+			std::wstring strHomePath;
+			if( pBuf3->usri3_home_dir_drive && *pBuf3->usri3_home_dir_drive )
+			{
+				// home is on a net share
+				strHomeShare = pBuf3->usri3_home_dir;
+				strHomeDrive = pBuf3->usri3_home_dir_drive;
+				strHomePath  = L"\\";
+			}
+			else
+			{
+				std::wstring strHomeDir;
+
+				// local
+				if( pBuf3->usri3_home_dir && *pBuf3->usri3_home_dir )
+				{
+					// defined
+					strHomeDir = pBuf3->usri3_home_dir;
+				}
+				else
+				{
+					// undefined
+					// same as profile
+					wchar_t szUserProfileDirectory[_MAX_PATH] = L"";
+					DWORD   dwUserProfileDirectoryLen         = ARRAYSIZE(szUserProfileDirectory);
+					if( !::GetUserProfileDirectory(userToken.get(), szUserProfileDirectory, &dwUserProfileDirectoryLen) )
+					{
+						Win32Exception err("GetUserProfileDirectory", ::GetLastError());
+						throw ConsoleException(boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % userCredentials.user % err.what()));
+					}
+
+					strHomeDir = szUserProfileDirectory;
+				}
+
+				strHomeDrive = strHomeDir.substr(0, 2);
+				strHomePath  = strHomeDir.substr(2);
+			}
+
+			TRACE(
+				L"HOMESHARE=%s\nHOMEDRIVE=%s\nHOMEPATH=%s\n",
+				strHomeShare.c_str(),
+				strHomeDrive.c_str(),
+				strHomePath.c_str());
+
+			if( !strHomeShare.empty() )
+				homeEnv.push_back(
+					std::shared_ptr<VarEnv>(
+						new VarEnv(std::wstring(L"HOMESHARE"), strHomeShare)));
+			if( !strHomeDrive.empty() )
+				homeEnv.push_back(
+					std::shared_ptr<VarEnv>(
+						new VarEnv(std::wstring(L"HOMEDRIVE"), strHomeDrive)));
+			if( !strHomePath.empty() )
+				homeEnv.push_back(
+					std::shared_ptr<VarEnv>(
+						new VarEnv(std::wstring(L"HOMEPATH"), strHomePath)));
 		}
 	}
+
+	// load environment block
+	if( !s_environmentBlock.get() )
+		ConsoleHandler::UpdateCurrentUserEnvironmentBlock();
+
+	// add specific environment variables defined in tad settings
+	wstring strNewEnvironment = MergeEnvironmentVariables(
+		userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get(),
+		extraEnv);
+
+	// add missing home variables
+	if( !homeEnv.empty() )
+		strNewEnvironment = MergeEnvironmentVariables(
+		strNewEnvironment.c_str(),
+		homeEnv);
 
 	wstring	strShellCmdLine(strShell);
 
-	if (strShellCmdLine.length() == 0)
+	if( strShellCmdLine.empty() )
 	{
-		wchar_t	szComspec[MAX_PATH];
-
-		::ZeroMemory(szComspec, MAX_PATH*sizeof(wchar_t));
-
-		if (userEnvironment.get())
-		{
-			// resolve comspec when running as another user
-			wchar_t* pszComspec = reinterpret_cast<wchar_t*>(userEnvironment.get());
-
-			while ((pszComspec[0] != L'\x00') && (_wcsnicmp(pszComspec, L"comspec", 7) != 0)) pszComspec += wcslen(pszComspec)+1;
-
-			if (pszComspec[0] != L'\x00')
-			{
-				strShellCmdLine = (pszComspec + 8);
-			}
-
-			if (strShellCmdLine.length() == 0) strShellCmdLine = L"cmd.exe";
-		}
-		else
-		{
-			if (::GetEnvironmentVariable(L"COMSPEC", szComspec, MAX_PATH) > 0)
-			{
-				strShellCmdLine = szComspec;
-			}
-
-			if (strShellCmdLine.length() == 0) strShellCmdLine = L"cmd.exe";
-		}
+		strShellCmdLine = Helpers::GetEnvironmentVariable(strNewEnvironment.c_str(), L"ComSpec");
+		if( strShellCmdLine.empty() ) strShellCmdLine = L"cmd.exe";
 	}
 
-	if (strInitialCmd.length() > 0)
+	if( !strInitialCmd.empty())
 	{
 		strShellCmdLine += L" ";
 		strShellCmdLine += strInitialCmd;
 	}
 
-	wstring strStartupDir(
-		userToken.get() ?
-		Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strInitialDir) :
-		Helpers::ExpandEnvironmentStrings(strInitialDir));
+	wstring strStartupDir = Helpers::ExpandEnvironmentStrings(strNewEnvironment.c_str(), strInitialDir);
 
-	if (strStartupDir.length() > 0)
+	if( !strStartupDir.empty() )
 	{
 		if ((*(strStartupDir.end() - 1) == L'\"') && (*strStartupDir.begin() != L'\"'))
 		{
@@ -373,10 +445,7 @@ void ConsoleHandler::CreateShellProcess
 		}
 	}
 
-	wstring strCmdLine(
-		userToken.get() ?
-		Helpers::ExpandEnvironmentStringsForUser(userToken.get(), strShellCmdLine) :
-		Helpers::ExpandEnvironmentStrings(strShellCmdLine));
+	wstring strCmdLine = Helpers::ExpandEnvironmentStrings(strNewEnvironment.c_str(), strShellCmdLine);
 
 	revertToSelfHelper.off();
 
@@ -411,15 +480,6 @@ void ConsoleHandler::CreateShellProcess
 
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
 	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT|TabData::GetPriorityClass(dwBasePriority);
-
-	// load environment block
-	if( !s_environmentBlock.get() )
-		ConsoleHandler::UpdateEnvironmentBlock();
-
-	// add specific environment variables defined in tad settings
-	wstring strNewEnvironment = MergeEnvironmentVariables(
-		userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get(),
-		extraEnv);
 
 	if (userCredentials.strUsername.length() > 0)
 	{
@@ -921,7 +981,7 @@ bool ConsoleHandler::SearchText(CString& text, bool bNext, const COORD& coordCur
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::UpdateEnvironmentBlock()
+void ConsoleHandler::UpdateCurrentUserEnvironmentBlock()
 {
 	void*	pEnvironment	= NULL;
 	HANDLE	hProcessToken	= NULL;

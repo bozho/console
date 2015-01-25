@@ -974,6 +974,10 @@ echo %(Filename)%(Extension) : error : failed to create CHM file
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug Legacy|x64'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug Legacy|x64'">false</LinkObjects>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release Legacy|x64'">false</LinkObjects>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)%(Filename).chm</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(RootDir)%(Directory)html\changelog.html</AdditionalInputs>
     </CustomBuild>
     <None Include="..\help\html\acknowledgements.html" />
     <None Include="..\help\html\changelog.html" />

@@ -169,7 +169,7 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 			// Display a dialog box to request credentials.
 			CREDUI_INFO ui;
 			ui.cbSize = sizeof(ui);
-			ui.hwndParent = m_hWnd;
+			ui.hwndParent = ::IsWindowVisible(m_mainFrame.m_hWnd)? m_mainFrame.m_hWnd : NULL;
 			ui.pszMessageText = m_tabData->strShell.c_str();
 			ui.pszCaptionText = L"Run as different user";
 			ui.hbmBanner = NULL;
@@ -256,7 +256,7 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 						szPassword,
 						&maxLenPassword
 						) )
-						Win32Exception::ThrowFromLastError("CredUIPromptForWindowsCredentials");
+						Win32Exception::ThrowFromLastError("CredUnPackAuthenticationBuffer");
 
 					userCredentials.SetUser(szUser);
 					userCredentials.password = szPassword;
@@ -333,7 +333,7 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 			strMessage.Format(IDS_ERR_TAB_CREATE_FAILED, m_tabData->strTitle.c_str(), m_tabData->strShell.c_str());
 		}
 
-		::MessageBox(m_hWnd, strMessage, L"Error", MB_OK|MB_ICONERROR);
+		MessageBox(strMessage, L"Error", MB_OK|MB_ICONERROR);
 
 		return 0;
 	}

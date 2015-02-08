@@ -1203,6 +1203,42 @@ link:
 
 //////////////////////////////////////////////////////////////////////////////
 
+typedef BOOL (WINAPI * _t_GetCurrentConsoleFontEx)(
+	_In_ HANDLE hConsoleOutput,
+	_In_ BOOL bMaximumWindow,
+	_Out_ PCONSOLE_FONT_INFOEX lpConsoleCurrentFontEx);
+
+void ConsoleHandler::GetFontInfo()
+{
+	GET_STD_OUT_READ_ONLY
+
+	::ZeroMemory(&m_multipleInfo->consoleFontInfo, sizeof(CONSOLE_FONT_INFOEX));
+	m_multipleInfo->consoleFontInfo.cbSize = sizeof(CONSOLE_FONT_INFOEX);
+
+	_t_GetCurrentConsoleFontEx GetCurrentConsoleFontEx = (_t_GetCurrentConsoleFontEx)::GetProcAddress(::GetModuleHandle(L"kernel32.dll"), "GetCurrentConsoleFontEx");
+
+	if(GetCurrentConsoleFontEx)
+	{
+		GetCurrentConsoleFontEx(hStdOut, TRUE, &m_multipleInfo->consoleFontInfo);
+		m_multipleInfo->coordFontSize = ::GetConsoleFontSize(hStdOut, m_multipleInfo->consoleFontInfo.nFont);
+	}
+	else
+	{
+		CONSOLE_FONT_INFO consoleFontInfo;
+		::ZeroMemory(&consoleFontInfo, sizeof(CONSOLE_FONT_INFO));
+
+		::GetCurrentConsoleFont(hStdOut, TRUE, &consoleFontInfo);
+		m_multipleInfo->coordFontSize = ::GetConsoleFontSize(hStdOut, consoleFontInfo.nFont);
+		m_multipleInfo->consoleFontInfo.nFont = consoleFontInfo.nFont;
+		m_multipleInfo->consoleFontInfo.dwFontSize = consoleFontInfo.dwFontSize;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleHandler::Clear()
 {
 	GET_STD_OUT_READ_WRITE
@@ -1689,6 +1725,11 @@ DWORD ConsoleHandler::MonitorThread()
 				if( m_multipleInfo->fMask & MULTIPLEINFO_CLICK_LINK )
 				{
 					ClickLink();
+				}
+				//  font info
+				if(m_multipleInfo->fMask & MULTIPLEINFO_FONT)
+				{
+					GetFontInfo();
 				}
 
 				::SetEvent(m_multipleInfo.GetRespEvent());

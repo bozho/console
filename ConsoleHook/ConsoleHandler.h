@@ -40,6 +40,8 @@ class ConsoleHandler
 
 		void SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut);
 
+		void GetFontInfo();
+
 	private:
 
 		static DWORD WINAPI MonitorThreadStatic(LPVOID lpParameter);

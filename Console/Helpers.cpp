@@ -554,3 +554,58 @@ int Helpers::GetHighDefinitionResourceId(int nId)
 
 //////////////////////////////////////////////////////////////////////////////
 
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string Helpers::ToUtf8(const std::wstring& text)
+{
+	std::string result;
+	int rc = ::WideCharToMultiByte(
+		CP_UTF8,
+		0,
+		text.c_str(), static_cast<int>(text.length()),
+		nullptr, 0,
+		nullptr, nullptr);
+
+	if(rc > 0)
+	{
+		result.resize(rc);
+		::WideCharToMultiByte(
+			CP_UTF8,
+			0,
+			text.c_str(), static_cast<int>(text.length()),
+			&result[0], rc,
+			nullptr, nullptr);
+	}
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void Helpers::WriteLine(HANDLE hFile, const std::wstring& text)
+{
+	std::string utf8 = Helpers::ToUtf8(text);
+
+	if(!::WriteFile(
+		hFile,
+		utf8.data(),
+		static_cast<DWORD>(utf8.size()),
+		NULL,
+		NULL))
+		Win32Exception::ThrowFromLastError("WriteFile");
+
+	if(!::WriteFile(
+		hFile,
+		"\r\n",
+		2,
+		NULL,
+		NULL))
+		Win32Exception::ThrowFromLastError("WriteFile");
+}
+
+//////////////////////////////////////////////////////////////////////////////
+

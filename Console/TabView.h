@@ -82,6 +82,8 @@ public:
 
   inline size_t GetViewsCount(void) const { return m_views.size(); }
 
+	void Diagnose(HANDLE hFile);
+
 private:
 	HWND CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
 

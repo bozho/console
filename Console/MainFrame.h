@@ -206,6 +206,8 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_2,     OnShowContextMenu2)
 			COMMAND_ID_HANDLER(ID_SHOW_CONTEXT_MENU_3,     OnShowContextMenu3)
 			COMMAND_ID_HANDLER(ID_SEND_CTRL_C,             OnSendCtrlEvent)
+			COMMAND_ID_HANDLER(ID_FONT_INFO,               OnFontInfo)
+			COMMAND_ID_HANDLER(ID_DIAGNOSE,                OnDiagnose)
 
 			COMMAND_RANGE_HANDLER(ID_EXTERNAL_COMMAND_1, (ID_EXTERNAL_COMMAND_1 + EXTERNAL_COMMANDS_COUNT - 1), OnExternalCommand)
 
@@ -307,6 +309,8 @@ class MainFrame
 		LRESULT OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnDumpBuffer(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnFontInfo(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnExternalCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
@@ -322,6 +326,8 @@ class MainFrame
 		void SendTextToConsoles(const wchar_t* pszText);
 		bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
 
+		std::wstring FormatTitle(std::wstring strFormat, TabView * tabView, std::shared_ptr<ConsoleView> consoleView);
+
 	private:
 
 		void ActivateApp(void);
@@ -330,7 +336,6 @@ class MainFrame
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
-		std::wstring FormatTitle(std::wstring strFormat, std::shared_ptr<TabView> tabView, std::shared_ptr<ConsoleView> consoleView);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
 		void UpdateOpenedTabsMenu(CMenu& tabsMenu);
 		void UpdateMenuHotKeys(void);
@@ -365,6 +370,7 @@ class MainFrame
 		void AddSearchMRU(CString& item);
 
 		static BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT /*lprcMonitor*/, LPARAM lpData);
+		static BOOL CALLBACK MonitorEnumProcDiag(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData);
 		static BOOL CALLBACK ConsoleEnumWindowsProc(HWND hwnd, LPARAM lParam);
 
 	public:

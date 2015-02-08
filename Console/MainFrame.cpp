@@ -1175,7 +1175,7 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 	return 0;
 }
 
-std::wstring MainFrame::FormatTitle(std::wstring strFormat, std::shared_ptr<TabView> tabView, std::shared_ptr<ConsoleView> consoleView)
+std::wstring MainFrame::FormatTitle(std::wstring strFormat, TabView * tabView, std::shared_ptr<ConsoleView> consoleView)
 {
 /*
                   +-----+
@@ -1377,11 +1377,11 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 
 	WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
 
-	wstring strTabTitle = FormatTitle(windowSettings.strTabTitleFormat, tabView, consoleView);
+	wstring strTabTitle = FormatTitle(windowSettings.strTabTitleFormat, tabView.get(), consoleView);
 
 	if (tabView == m_activeTabView)
 	{
-		m_strWindowTitle = windowSettings.bUseTabTitles? strTabTitle : FormatTitle(windowSettings.strMainTitleFormat, tabView, consoleView);
+		m_strWindowTitle = windowSettings.bUseTabTitles? strTabTitle : FormatTitle(windowSettings.strMainTitleFormat, tabView.get(), consoleView);
 
 		SetWindowText(m_strWindowTitle.c_str());
 		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
@@ -2632,6 +2632,184 @@ LRESULT MainFrame::OnAppAbout(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 {
 	CAboutDlg dlg;
 	dlg.DoModal();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnFontInfo(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	try
+	{
+		if(m_activeTabView)
+		{
+			std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+			if(activeConsoleView)
+			{
+				MessageBox(activeConsoleView->GetConsoleHandler().GetFontInfo().c_str(), L"Font Information", MB_OK);
+			}
+		}
+	}
+	catch(std::exception& e)
+	{
+		::MessageBoxA(0, e.what(), "error", MB_ICONERROR | MB_OK);
+	}
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	try
+	{
+		wchar_t szTempPath[MAX_PATH];
+		wchar_t szTempFileName[MAX_PATH];
+		if(!::GetTempPath(ARRAYSIZE(szTempPath), szTempPath))
+			Win32Exception::ThrowFromLastError("GetTempPath");
+		if(!::GetTempFileName(szTempPath, L"dmp", 0, szTempFileName))
+			Win32Exception::ThrowFromLastError("GetTempFileName");
+
+		{
+			std::unique_ptr<void, CloseHandleHelper> file(
+				::CreateFile(
+					szTempFileName,
+					GENERIC_WRITE,
+					0,
+					NULL,
+					CREATE_ALWAYS,
+					FILE_ATTRIBUTE_NORMAL,
+					NULL));
+
+			if(file.get() == INVALID_HANDLE_VALUE)
+				Win32Exception::ThrowFromLastError("CreateFile");
+
+			std::wstring dummy = L"ConsoleZ "
+
+#ifdef _USE_AERO
+				L"aero "
+#else
+				L"legacy "
+#endif
+
+#ifdef _WIN64
+				L"amd64 "
+#else
+				L"x86 "
+#endif
+
+				_T(VERSION_PRODUCT);
+
+			Helpers::WriteLine(file.get(), dummy);
+
+			{
+				MutexLock tabMapLock(m_tabsMutex);
+
+				for(auto tab = m_tabs.begin(); tab != m_tabs.end(); ++tab)
+				{
+					dummy =
+						(tab->second == m_activeTabView ? std::wstring(L"Tab (active): ") : std::wstring(L"Tab: "))
+						+ tab->second->GetTabData()->strTitle;
+					Helpers::WriteLine(file.get(), dummy);
+
+					tab->second->Diagnose(file.get());
+				}
+			}
+
+			dummy = std::wstring(L"Monitors ") + std::to_wstring(::GetSystemMetrics(SM_CMONITORS));
+			Helpers::WriteLine(file.get(), dummy);
+
+			::EnumDisplayMonitors(NULL, NULL, MainFrame::MonitorEnumProcDiag, reinterpret_cast<LPARAM>(file.get()));
+
+			std::wstring strSettingsFileName = g_settingsHandler->GetSettingsFileName();
+
+			std::unique_ptr<void, CloseHandleHelper> fileSettings(
+				::CreateFile(
+					strSettingsFileName.c_str(),
+					GENERIC_READ,
+					FILE_SHARE_READ,
+					NULL,
+					OPEN_EXISTING,
+					FILE_ATTRIBUTE_NORMAL,
+					NULL));
+
+			if(fileSettings.get() == INVALID_HANDLE_VALUE)
+			{
+				if(GetLastError() == ERROR_FILE_NOT_FOUND)
+				{
+					Helpers::WriteLine(file.get(), std::wstring(L"Settings file internal resource"));
+				}
+				else
+				{
+					Win32Exception::ThrowFromLastError("CreateFile");
+				}
+			}
+			else
+			{
+				dummy = std::wstring(L"Settings file ") + strSettingsFileName;
+				Helpers::WriteLine(file.get(), dummy);
+
+				char buffer[4096];
+				DWORD dwBytesRead;
+				for(;;)
+				{
+					if(!::ReadFile(
+						fileSettings.get(),
+						buffer,
+						sizeof(buffer),
+						&dwBytesRead,
+						NULL))
+						Win32Exception::ThrowFromLastError("ReadFile");
+
+					if(dwBytesRead == 0) break;
+
+					if(!::WriteFile(
+						file.get(),
+						buffer,
+						dwBytesRead,
+						NULL,
+						NULL))
+						Win32Exception::ThrowFromLastError("WriteFile");
+				}
+			}
+		}
+
+		// setup the startup info struct
+		STARTUPINFO si;
+		::ZeroMemory(&si, sizeof(STARTUPINFO));
+		si.cb = sizeof(STARTUPINFO);
+
+		PROCESS_INFORMATION pi;
+
+		if (!::CreateProcess(
+			NULL,
+			const_cast<wchar_t*>(boost::str(boost::wformat(L"notepad.exe \"%1%\"") % szTempFileName).c_str()),
+			NULL,
+			NULL,
+			FALSE,
+			0,
+			NULL,
+			NULL,
+			&si,
+			&pi))
+		{
+			Win32Exception::ThrowFromLastError("CreateProcess");
+		}
+
+		::CloseHandle(pi.hProcess);
+		::CloseHandle(pi.hThread);
+	}
+	catch(std::exception& e)
+	{
+		::MessageBoxA(0, e.what(), "error", MB_ICONERROR|MB_OK);
+	}
 	return 0;
 }
 
@@ -3485,6 +3663,67 @@ BOOL CALLBACK MainFrame::MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOL CALLBACK MainFrame::MonitorEnumProcDiag(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData)
+{
+	MONITORINFOEX miex;
+	miex.cbSize = sizeof(MONITORINFOEX);
+	::GetMonitorInfo(hMonitor, &miex);
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		std::wstring(L"  Flags ") + std::to_wstring(miex.dwFlags)
+		+ std::wstring(((miex.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY)? L"  primary" : L""));
+
+	DISPLAY_DEVICE dd;
+	dd.cb = sizeof(dd);
+	::EnumDisplayDevices(miex.szDevice, 0, &dd, EDD_GET_DEVICE_INTERFACE_NAME);
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		std::wstring(L"  DeviceID ") + dd.DeviceID);
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		std::wstring(L"  DeviceKey ") + dd.DeviceKey);
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		std::wstring(L"  DeviceName ") + dd.DeviceName);
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		std::wstring(L"  DeviceString ") + dd.DeviceString);
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		std::wstring(L"  StateFlags ") + std::to_wstring(dd.StateFlags));
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		boost::str(
+			boost::wformat(L"  Rect (%1%,%2%)x(%3%,%4%)")
+			% lprcMonitor->left
+			% lprcMonitor->top
+			% lprcMonitor->right
+			% lprcMonitor->bottom));
+
+	Helpers::WriteLine(
+		reinterpret_cast<HANDLE>(lpData),
+		boost::str(
+			boost::wformat(L"  Work (%1%,%2%)x(%3%,%4%)")
+			% miex.rcWork.left
+			% miex.rcWork.top
+			% miex.rcWork.right
+			% miex.rcWork.bottom));
+
+	return TRUE;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void MainFrame::ResizeWindow()
 {
 	CRect rectWindow;
@@ -4021,7 +4260,7 @@ LRESULT MainFrame::OnExternalCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 	{
 		strCmdLine = FormatTitle(
 			g_settingsHandler->GetHotKeys().externalCommands[wID - ID_EXTERNAL_COMMAND_1],
-			m_activeTabView,
+			m_activeTabView.get(),
 			consoleView);
 
 		// setup the startup info struct

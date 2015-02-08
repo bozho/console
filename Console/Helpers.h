@@ -56,6 +56,9 @@ class Helpers
 
 		static int GetHighDefinitionResourceId(int nId);
 
+		static std::string ToUtf8(const std::wstring& text);
+		static void WriteLine(HANDLE hFile, const std::wstring& text);
+
 	private:
 
 		static bool GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

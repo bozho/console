@@ -953,6 +953,55 @@ bool ConsoleHandler::ClickLink(const COORD& coordCurrent) const
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::wstring ConsoleHandler::GetFontInfo(void) const
+{
+	std::wstring result(L"");
+
+	m_multipleInfo->fMask = MULTIPLEINFO_FONT;
+	if( ::SetEvent(m_multipleInfo.GetReqEvent()) &&
+	    ::WaitForSingleObject(m_multipleInfo.GetRespEvent(), 2000) == WAIT_OBJECT_0 )
+	{
+		result += L"font index: ";
+		result += std::to_wstring(m_multipleInfo->consoleFontInfo.nFont);
+		result += L"\r\nface name: ";
+		result += m_multipleInfo->consoleFontInfo.FaceName;
+		result += L"\r\nfont familly: ";
+		result += std::to_wstring(m_multipleInfo->consoleFontInfo.FontFamily);
+
+		if((m_multipleInfo->consoleFontInfo.FontFamily & 0xf0) == FF_DECORATIVE ) result += L" DECORATIVE";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & 0xf0) == FF_DONTCARE   ) result += L" DONTCARE";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & 0xf0) == FF_MODERN     ) result += L" MODERN";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & 0xf0) == FF_ROMAN      ) result += L" ROMAN";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & 0xf0) == FF_SCRIPT     ) result += L" SCRIPT";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & 0xf0) == FF_SWISS      ) result += L" SWISS";
+
+		if((m_multipleInfo->consoleFontInfo.FontFamily & TMPF_FIXED_PITCH) == TMPF_FIXED_PITCH ) result += L" fixed pitch";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & TMPF_VECTOR)      == TMPF_VECTOR      ) result += L" vector";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & TMPF_DEVICE)      == TMPF_DEVICE      ) result += L" device";
+		if((m_multipleInfo->consoleFontInfo.FontFamily & TMPF_TRUETYPE)    == TMPF_TRUETYPE    ) result += L" true type";
+
+		result += L"\r\nfont weight: ";
+		result += std::to_wstring(m_multipleInfo->consoleFontInfo.FontWeight);
+		result += L"\r\nfont size: width=";
+		result += std::to_wstring(m_multipleInfo->coordFontSize.X);
+		result += L" height=";
+		result += std::to_wstring(m_multipleInfo->coordFontSize.Y);
+		result += L"\r\nmax window size: cols=";
+		result += std::to_wstring(m_consoleInfo->csbi.dwMaximumWindowSize.X);
+		//result += std::to_wstring(m_multipleInfo->consoleFontInfo.dwFontSize.X);
+		result += L" rows=";
+		result += std::to_wstring(m_consoleInfo->csbi.dwMaximumWindowSize.Y);
+		//result += std::to_wstring(m_multipleInfo->consoleFontInfo.dwFontSize.Y);
+	}
+
+	return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool ConsoleHandler::SearchText(CString& text, bool bNext, const COORD& coordCurrent, COORD& coordLeft, COORD& coordRight) const
 {
 	m_multipleInfo->fMask = MULTIPLEINFO_SEARCH_TEXT;

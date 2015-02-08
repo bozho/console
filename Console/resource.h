@@ -339,6 +339,8 @@
 #define ID_SHOW_CONTEXT_MENU_3          2931
 #define ID_SWITCH_TRANSPARENCY          2932
 #define ID_SEND_CTRL_C                  2933
+#define ID_DIAGNOSE                     2934
+#define ID_FONT_INFO                    2935
 
 #define IDC_DUMP_BUFFER                 3000
 #define IDS_ERR_CANT_START_SHELL        5000

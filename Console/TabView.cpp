@@ -833,3 +833,27 @@ void TabView::OnPaneChanged(void)
   SetAppActiveStatus(m_mainFrame.GetAppActiveStatus());
   SetActive(true);
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void TabView::Diagnose(HANDLE hFile)
+{
+	MutexLock viewMapLock(m_viewsMutex);
+
+	std::shared_ptr<ConsoleView> activeConsole = this->GetActiveConsole(_T(__FUNCTION__));
+
+	for(auto console = m_views.begin(); console != m_views.end(); ++console)
+	{
+		WindowSettings& windowSettings = g_settingsHandler->GetAppearanceSettings().windowSettings;
+		wstring strViewTitle = m_mainFrame.FormatTitle(windowSettings.strTabTitleFormat, this, console->second);
+
+		std::wstring dummy =
+			(console->second == activeConsole ? std::wstring(L"  View (active): ") : std::wstring(L"  View: "))
+			+ strViewTitle;
+		Helpers::WriteLine(hFile, dummy);
+		Helpers::WriteLine(hFile, console->second->GetConsoleHandler().GetFontInfo());
+	}
+}

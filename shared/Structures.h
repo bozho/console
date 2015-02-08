@@ -298,6 +298,7 @@ struct NamedPipeMessage
 #define MULTIPLEINFO_SELECT_WORD       0x00000004
 #define MULTIPLEINFO_SEARCH_TEXT       0x00000008
 #define MULTIPLEINFO_CLICK_LINK        0x00000010
+#define MULTIPLEINFO_FONT              0x00000020
 
 #define MAX_WORD_DELIMITERS            64
 #define MAX_SEARCH_TEXT                128
@@ -328,4 +329,7 @@ struct MultipleInfo
 	IN  COORD   coordCurrent;
 	OUT COORD   coordLeft;
 	OUT COORD   coordRight;
+
+	OUT COORD               coordFontSize;
+	OUT CONSOLE_FONT_INFOEX consoleFontInfo;
 };

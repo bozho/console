@@ -810,6 +810,7 @@ BEGIN
     POPUP "View"
     BEGIN
         MENUITEM "&Console Window",             ID_VIEW_CONSOLE
+        MENUITEM "Font Information...",         ID_FONT_INFO
         MENUITEM SEPARATOR
         MENUITEM "&Menu",                       ID_VIEW_MENU
         MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
@@ -823,6 +824,7 @@ BEGIN
     POPUP "Help"
     BEGIN
         MENUITEM "&Help",                       ID_HELP
+        MENUITEM "Diagnose",                    ID_DIAGNOSE
         MENUITEM SEPARATOR
         MENUITEM "&About ConsoleZ...",          ID_APP_ABOUT
     END

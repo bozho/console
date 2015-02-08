@@ -147,12 +147,16 @@ void ConsoleHandler::ReadConsoleBuffer()
 	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
 	COORD						coordConsoleSize;
 
-	if( !::GetConsoleScreenBufferInfo(hStdOut, &csbiConsole) )
-  {
-    Win32Exception err("GetConsoleScreenBufferInfo", ::GetLastError());
-    TRACE(L"GetConsoleScreenBufferInfo(%p) returns error (%lu) : %S\n", hStdOut, err.GetErrorCode(), err.what());
-    return;
-  }
+	if(!::GetConsoleScreenBufferInfo(hStdOut, &csbiConsole))
+	{
+		Win32Exception err("GetConsoleScreenBufferInfo", ::GetLastError());
+		TRACE(L"GetConsoleScreenBufferInfo(%p) returns error (%lu) : %S\n", hStdOut, err.GetErrorCode(), err.what());
+		return;
+	}
+
+	// check for inconsistent values
+	if(csbiConsole.srWindow.Right < csbiConsole.srWindow.Left || csbiConsole.srWindow.Bottom < csbiConsole.srWindow.Top)
+		return;
 
 	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
 	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;

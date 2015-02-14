@@ -186,7 +186,7 @@ class NamedPipe
 				break;
 
 			case WAIT_TIMEOUT:
-				throw std::exception("timeout");
+				throw std::exception("timeout (NamedPipe::WaitConnect)");
 				break;
 
 			case WAIT_FAILED:

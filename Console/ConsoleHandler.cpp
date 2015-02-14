@@ -585,7 +585,7 @@ void ConsoleHandler::StartShellProcess
 
 		// wait for PID of shell launched in admin ConsoleZ
 		if (::WaitForSingleObject(pid.GetReqEvent(), 10000) == WAIT_TIMEOUT)
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (PID)"));
 
 		pi.dwProcessId = *pid.Get();
 		pi.hProcess = ::OpenProcess(SYNCHRONIZE, FALSE, pi.dwProcessId);
@@ -663,7 +663,7 @@ void ConsoleHandler::StartShellProcess
 
 	// wait for hook DLL to set console handle
 	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
-		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (hook)"));
 
 	ShowWindow(SW_HIDE);
 }
@@ -704,7 +704,7 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 
 	// wait for shared objects creation
 	if (::WaitForSingleObject(pid.GetRespEvent(), 10000) == WAIT_TIMEOUT)
-		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (shared objects creation)"));
 
 	// inject our hook DLL into console process
 	try
@@ -772,7 +772,7 @@ void ConsoleHandler::AttachToShellProcess(
 
 		// wait for hook DLL to set console handle
 		if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (hook2)"));
 
 		ShowWindow(SW_HIDE);
 	}
@@ -1229,7 +1229,7 @@ void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 
 		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
 		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (ConsoleWow.exe)"));
 		}
 
 		::GetExitCodeProcess(wowProcess.get(), reinterpret_cast<DWORD*>(&fnWow64LoadLibrary));
@@ -1460,7 +1460,7 @@ void ConsoleHandler::InjectHookDLL2(PROCESS_INFORMATION& pi)
 
 		if (::WaitForSingleObject(wowProcess.get(), 5000) == WAIT_TIMEOUT)
 		{
-			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout"));
+			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (ConsoleWow.exe)"));
 		}
 
 		::GetExitCodeProcess(wowProcess.get(), reinterpret_cast<DWORD*>(&fnWow64LoadLibrary));

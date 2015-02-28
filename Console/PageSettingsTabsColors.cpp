@@ -223,9 +223,10 @@ void PageSettingsTabsColors::Load()
 		GetDlgItem(nID).Invalidate();
 
 	m_tabData->SetCursor(m_consoleSettings.dwCursorStyle, m_consoleSettings.crCursorColor, false);
-
 	m_comboCursor.SetCurSel(m_tabData->dwCursorStyle);
 	m_staticCursorColor.Invalidate();
+	SetCursor();
+
 #ifdef _USE_AERO
 	m_sliderBGTextOpacity.SetPos(m_tabData->backgroundTextOpacity);
 	UpdateSliderText();

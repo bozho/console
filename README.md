@@ -28,7 +28,11 @@ Changelog
     + added
     * fixed
 
-Changes in 1.13.0 (08 Feb 2015)
+Changes in 1.14.0 (28 Feb 2015)
+
+    * Fix bad cursor display in tabs settings.
+
+Changes in 1.13.0 (14 Feb 2015)
 
     ! Visual Studio 2013
     ! Legacy 32 bits version is compatible with Windows XP.

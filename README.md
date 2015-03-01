@@ -28,9 +28,10 @@ Changelog
     + added
     * fixed
 
-Changes in 1.14.0 (28 Feb 2015)
+Changes in 1.14.0 (02 Mar 2015)
 
     * Fix bad cursor display in tabs settings.
+    * Fix console cursor color.
 
 Changes in 1.13.0 (14 Feb 2015)
 

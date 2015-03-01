@@ -578,7 +578,7 @@ ConsoleCursor::ConsoleCursor(HWND hwndConsoleView, const CDC& dcConsoleView, con
 , m_bVisible(true)
 {
 	// we reset colors with black and white only!
-	m_paintBrush.Attach(::CreateSolidBrush(0x00ffffff));
+	m_paintBrush.Attach(::CreateSolidBrush(0x00c0c0c0));
 	m_backgroundBrush.Attach(::CreateSolidBrush(0x00000000));
 
 	UINT uiRate = ::GetCaretBlinkTime();

@@ -1,5 +1,4 @@
 #include "stdafx.h"
-using namespace std;
 
 #include "../shared/SharedMemNames.h"
 #include "ConsoleHandler.h"
@@ -1640,6 +1639,7 @@ DWORD ConsoleHandler::MonitorThread()
 	};
 
 	DWORD dwWaitRes = 0;
+	auto timePoint1 = std::chrono::high_resolution_clock::now();
 
 	while ((dwWaitRes = ::WaitForMultipleObjects(
 							ARRAYSIZE(arrWaitHandles),
@@ -1743,6 +1743,7 @@ DWORD ConsoleHandler::MonitorThread()
 			// pipe
 			case WAIT_OBJECT_0 + 6 :
 			{
+				::OutputDebugString(L"WAIT_OBJECT_0 + 6\n");
 				try
 				{
 					npmsglen += m_consoleMsgPipe.EndAsync();
@@ -1910,17 +1911,42 @@ DWORD ConsoleHandler::MonitorThread()
 				{
 					// receives ERROR_BROKEN_PIPE when the tab is closed
 				}
+				break;
 			}
 
 			case WAIT_OBJECT_0 + 7 :
 				// something changed in the console
 				// this has to be the last event, since it's the most 
 				// frequent one
-				::Sleep(m_consoleParams->dwNotificationTimeout);
+				//::Sleep(m_consoleParams->dwNotificationTimeout);
+				::OutputDebugString(L"WAIT_OBJECT_0 + 7\n");
+				break;
+
 			case WAIT_TIMEOUT :
 			{
 				// refresh timer
+				auto timePoint2 = std::chrono::high_resolution_clock::now();
+
+				DWORD dwElapsedTime = static_cast<DWORD>(
+					std::chrono::duration_cast<std::chrono::milliseconds>(timePoint2 - timePoint1).count());
+				DWORD dwLastDuration = m_consoleInfo->dwLastRenderingDuration;
+
+				if(dwElapsedTime < dwLastDuration)
+					::Sleep(dwLastDuration - dwElapsedTime);
+
+				timePoint2 = std::chrono::high_resolution_clock::now();
+
 				ReadConsoleBuffer();
+
+				timePoint1 = std::chrono::high_resolution_clock::now();
+
+				TRACE(
+					L"dwElapsedTime=%lu ms dwLastDuration=%lu ms Sleep=%lu ms ReadConsoleBuffer=%lld ns\n",
+					dwElapsedTime,
+					dwLastDuration,
+					dwElapsedTime < dwLastDuration? dwLastDuration - dwElapsedTime : 0UL,
+					std::chrono::duration_cast<std::chrono::nanoseconds>(timePoint1 - timePoint2).count());
+
 				break;
 			}
 		}

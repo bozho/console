@@ -590,11 +590,13 @@ void Helpers::WriteLine(HANDLE hFile, const std::wstring& text)
 {
 	std::string utf8 = Helpers::ToUtf8(text);
 
+	DWORD dwNumberOfBytesWritten;
+
 	if(!::WriteFile(
 		hFile,
 		utf8.data(),
 		static_cast<DWORD>(utf8.size()),
-		NULL,
+		&dwNumberOfBytesWritten, /* This parameter can be NULL only when the lpOverlapped parameter is not NULL. */
 		NULL))
 		Win32Exception::ThrowFromLastError("WriteFile");
 
@@ -602,7 +604,7 @@ void Helpers::WriteLine(HANDLE hFile, const std::wstring& text)
 		hFile,
 		"\r\n",
 		2,
-		NULL,
+		&dwNumberOfBytesWritten, /* This parameter can be NULL only when the lpOverlapped parameter is not NULL. */
 		NULL))
 		Win32Exception::ThrowFromLastError("WriteFile");
 }

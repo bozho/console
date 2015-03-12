@@ -29,6 +29,8 @@ ConsoleHandler::ConsoleHandler()
 , m_hMonitorThread()
 , m_hMonitorThreadExit(std::shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_dwScreenBufferSize(0)
+, m_dwWaitingTime(INFINITE)
+, m_timePoint(std::chrono::high_resolution_clock::now())
 {
 }
 
@@ -138,6 +140,32 @@ bool ConsoleHandler::OpenSharedObjects()
 //////////////////////////////////////////////////////////////////////////////
 
 void ConsoleHandler::ReadConsoleBuffer()
+{
+	auto timePoint2 = std::chrono::high_resolution_clock::now();
+	DWORD dwElapsedTime = static_cast<DWORD>(
+		std::chrono::duration_cast<std::chrono::milliseconds>(timePoint2 - m_timePoint).count());
+	DWORD dwNotificationTimeout = m_consoleParams->dwNotificationTimeout;
+
+	if(dwElapsedTime >= dwNotificationTimeout)
+	{
+		// notification timeout expired
+		ForceReadConsoleBuffer();
+	}
+	else
+	{
+		// wait more
+		m_dwWaitingTime = dwNotificationTimeout - dwElapsedTime;
+	}
+}
+
+void ConsoleHandler::ForceReadConsoleBuffer()
+{
+	RealReadConsoleBuffer();
+	m_dwWaitingTime = INFINITE;
+	m_timePoint = std::chrono::high_resolution_clock::now();
+}
+
+void ConsoleHandler::RealReadConsoleBuffer()
 {
 	// we take a fresh STDOUT handle - seems to work better (in case a program
 	// has opened a new screen output buffer)
@@ -1529,11 +1557,16 @@ void ConsoleHandler::ScrollConsole(int nXDelta, int nYDelta)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ConsoleHandler::SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut)
+void ConsoleHandler::SetConsoleParams()
 {
+	GET_STD_OUT_READ_WRITE
+
 	// get max console size
-	COORD		coordMaxSize;
-	coordMaxSize = ::GetLargestConsoleWindowSize(hStdOut);
+	// /!\ GetLargestConsoleWindowSize requires a HANDLE with write access
+	COORD coordMaxSize = ::GetLargestConsoleWindowSize(hStdOut);
+
+	//if(coordMaxSize.X == 0 && coordMaxSize.Y == 0)
+	//	::MessageBoxA(NULL, "GetLargestConsoleWindowSize", "error", MB_ICONERROR | MB_OK);
 
 	m_consoleParams->dwMaxRows		= coordMaxSize.Y;
 	m_consoleParams->dwMaxColumns	= coordMaxSize.X;
@@ -1550,10 +1583,14 @@ void ConsoleHandler::SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut)
 	if ((m_consoleParams->dwBufferColumns != 0) && (m_consoleParams->dwMaxColumns > m_consoleParams->dwBufferColumns)) m_consoleParams->dwMaxColumns = m_consoleParams->dwBufferColumns;
 
 	// set console window handle and hook monitor thread id
-	m_consoleParams->hwndConsoleWindow	= ::GetConsoleWindow();
-	m_consoleParams->dwHookThreadId		= dwHookThreadId;
+	m_consoleParams->hwndConsoleWindow = ::GetConsoleWindow();
+	m_consoleParams->dwHookThreadId    = ::GetCurrentThreadId();
 
-	TRACE(L"Max columns: %i, max rows: %i\n", m_consoleParams->dwMaxColumns, m_consoleParams->dwMaxRows);
+	TRACE(
+		L"columns: %i, rows: %i\n",
+		L"Max columns: %i, max rows: %i\n",
+		m_consoleParams->dwRows, m_consoleParams->dwColumns,
+		m_consoleParams->dwMaxColumns, m_consoleParams->dwMaxRows);
 
 	// get initial window and cursor info
 	::GetConsoleScreenBufferInfo(hStdOut, &m_consoleInfo->csbi);
@@ -1590,15 +1627,6 @@ DWORD ConsoleHandler::MonitorThread()
 	// TODO: error handling
 	// open shared objects (shared memory, events, etc)
 	if (!OpenSharedObjects()) return 0;
-	
-	HANDLE hStdOut = ::CreateFile(
-						L"CONOUT$",
-						GENERIC_WRITE | GENERIC_READ,
-						FILE_SHARE_READ | FILE_SHARE_WRITE,
-						NULL,
-						OPEN_EXISTING,
-						0,
-						0);
 
 	HANDLE hStdIn = ::CreateFile(
 						L"CONIN$",
@@ -1609,14 +1637,11 @@ DWORD ConsoleHandler::MonitorThread()
 						0,
 						0);
 
-	SetConsoleParams(::GetCurrentThreadId(), hStdOut);
+	SetConsoleParams();
 
 	if (::WaitForSingleObject(m_consoleParams.GetRespEvent(), 10000) == WAIT_TIMEOUT) return 0;
 
 	ResizeConsoleWindow(m_consoleParams->dwColumns, m_consoleParams->dwRows, 0);
-
-	// FIX: this seems to case problems on startup
-//	ReadConsoleBuffer();
 
 	std::shared_ptr<void> parentProcessWatchdog(::OpenMutex(SYNCHRONIZE, FALSE, (LPCTSTR)((SharedMemNames::formatWatchdog % m_consoleParams->dwParentProcessId).str().c_str())), ::CloseHandle);
 	TRACE(L"Watchdog handle: 0x%08X\n", parentProcessWatchdog.get());
@@ -1635,7 +1660,6 @@ DWORD ConsoleHandler::MonitorThread()
 		m_newConsoleSize.GetReqEvent(),
 		m_multipleInfo.GetReqEvent(),
 		m_consoleMsgPipe.Get(),
-		hStdOut,
 	};
 
 	DWORD dwWaitRes = 0;
@@ -1645,7 +1669,8 @@ DWORD ConsoleHandler::MonitorThread()
 							ARRAYSIZE(arrWaitHandles),
 							arrWaitHandles,
 							FALSE,
-							m_consoleParams->dwRefreshInterval)) != WAIT_OBJECT_0)
+							/*m_consoleParams->dwRefreshInterval*/
+							m_dwWaitingTime)) != WAIT_OBJECT_0)
 	{
 		if ((parentProcessWatchdog.get() != NULL) && (::WaitForSingleObject(parentProcessWatchdog.get(), 0) == WAIT_ABANDONED))
 		{
@@ -1743,7 +1768,6 @@ DWORD ConsoleHandler::MonitorThread()
 			// pipe
 			case WAIT_OBJECT_0 + 6 :
 			{
-				::OutputDebugString(L"WAIT_OBJECT_0 + 6\n");
 				try
 				{
 					npmsglen += m_consoleMsgPipe.EndAsync();
@@ -1883,6 +1907,7 @@ DWORD ConsoleHandler::MonitorThread()
 
 									DWORD dwTextWritten = 0;
 									::WriteConsoleInput(hStdIn, &record, 1, &dwTextWritten);
+
 									ReadConsoleBuffer();
 								}
 								break;
@@ -1922,39 +1947,9 @@ DWORD ConsoleHandler::MonitorThread()
 				break;
 			}
 
-			case WAIT_OBJECT_0 + 7 :
-				// something changed in the console
-				// this has to be the last event, since it's the most 
-				// frequent one
-				//::Sleep(m_consoleParams->dwNotificationTimeout);
-				::OutputDebugString(L"WAIT_OBJECT_0 + 7\n");
-				break;
-
-			case WAIT_TIMEOUT :
+			case WAIT_TIMEOUT:
 			{
-				// refresh timer
-				auto timePoint2 = std::chrono::high_resolution_clock::now();
-
-				DWORD dwElapsedTime = static_cast<DWORD>(
-					std::chrono::duration_cast<std::chrono::milliseconds>(timePoint2 - timePoint1).count());
-				DWORD dwLastDuration = m_consoleInfo->dwLastRenderingDuration;
-
-				if(dwElapsedTime < dwLastDuration)
-					::Sleep(dwLastDuration - dwElapsedTime);
-
-				timePoint2 = std::chrono::high_resolution_clock::now();
-
-				ReadConsoleBuffer();
-
-				timePoint1 = std::chrono::high_resolution_clock::now();
-
-				TRACE(
-					L"dwElapsedTime=%lu ms dwLastDuration=%lu ms Sleep=%lu ms ReadConsoleBuffer=%lld ns\n",
-					dwElapsedTime,
-					dwLastDuration,
-					dwElapsedTime < dwLastDuration? dwLastDuration - dwElapsedTime : 0UL,
-					std::chrono::duration_cast<std::chrono::nanoseconds>(timePoint1 - timePoint2).count());
-
+				ForceReadConsoleBuffer();
 				break;
 			}
 		}

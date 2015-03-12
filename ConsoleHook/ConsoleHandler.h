@@ -27,6 +27,8 @@ class ConsoleHandler
 		bool OpenSharedObjects();
 
 		void ReadConsoleBuffer();
+		void ForceReadConsoleBuffer();
+		void RealReadConsoleBuffer();
 
 		void ResizeConsoleWindow(DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge);
 
@@ -38,7 +40,7 @@ class ConsoleHandler
 
 		void ScrollConsole(int nXDelta, int nYDelta);
 
-		void SetConsoleParams(DWORD dwHookThreadId, HANDLE hStdOut);
+		void SetConsoleParams();
 
 		void GetFontInfo();
 
@@ -73,6 +75,9 @@ class ConsoleHandler
 		std::shared_ptr<void>             m_hMonitorThreadExit;
 
 		DWORD                             m_dwScreenBufferSize;
+
+		DWORD                                          m_dwWaitingTime;
+		std::chrono::high_resolution_clock::time_point m_timePoint;
 };
 
 //////////////////////////////////////////////////////////////////////////////

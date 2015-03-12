@@ -145,6 +145,8 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*
 
 LRESULT PageSettingsTabs1::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	DoDataExchange(DDX_SAVE);
+
 	CFolderDialog folderDialog(m_hWnd, L"Choose initial directory");
 
 	if (folderDialog.DoModal() == IDOK)
@@ -241,6 +243,8 @@ void PageSettingsTabs1::Save()
 
 void PageSettingsTabs1::ConvertShellLink(CString& strShell)
 {
+	DoDataExchange(DDX_SAVE);
+
 	m_strShell = strShell;
 
 	if( m_strShell.Right(4).CompareNoCase(L".lnk") == 0 )

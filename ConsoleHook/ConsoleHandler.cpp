@@ -1755,6 +1755,7 @@ DWORD ConsoleHandler::MonitorThread()
 							text.get()[npmsg.data.text.dwTextLen] = 0;
 
 							SendConsoleText(hStdIn, text.get(), npmsg.data.text.dwTextLen);
+							ReadConsoleBuffer();
 
 							text.reset();
 							npmsglen = 0;
@@ -1882,6 +1883,7 @@ DWORD ConsoleHandler::MonitorThread()
 
 									DWORD dwTextWritten = 0;
 									::WriteConsoleInput(hStdIn, &record, 1, &dwTextWritten);
+									ReadConsoleBuffer();
 								}
 								break;
 
@@ -1891,10 +1893,12 @@ DWORD ConsoleHandler::MonitorThread()
 
 							case NamedPipeMessage::CLEAR:
 								this->Clear();
+								ReadConsoleBuffer();
 								break;
 
 							case NamedPipeMessage::CTRL_C:
 								::GenerateConsoleCtrlEvent(CTRL_C_EVENT, 0);
+								ReadConsoleBuffer();
 								break;
 
 							case NamedPipeMessage::READCONSOLEBUFFER:

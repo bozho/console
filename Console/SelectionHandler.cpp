@@ -396,7 +396,7 @@ void SelectionHandler::CopySelection()
 		m_consoleCopyInfo.SetReqEvent();
 	}
 
-	::WaitForSingleObject(m_consoleCopyInfo.GetRespEvent(), INFINITE);
+	::WaitForSingleObject(m_consoleCopyInfo.GetRespEvent(), 5000);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -245,6 +245,7 @@ struct NamedPipeMessage
 		DETACH,
 		CLEAR,
 		CTRL_C,
+		READCONSOLEBUFFER,
 	} type;
 
 	union

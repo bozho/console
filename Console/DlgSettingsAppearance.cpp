@@ -191,8 +191,6 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 
 LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	DoDataExchange(DDX_SAVE);
-
 	CFileDialog fileDialog(
 					TRUE, 
 					NULL, 
@@ -202,6 +200,7 @@ LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD
 
 	if (fileDialog.DoModal() == IDOK)
 	{
+		DoDataExchange(DDX_SAVE);
 		m_strWindowIcon = fileDialog.m_szFileName;
 		DoDataExchange(DDX_LOAD);
 	}

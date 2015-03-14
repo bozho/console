@@ -145,12 +145,11 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*
 
 LRESULT PageSettingsTabs1::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	DoDataExchange(DDX_SAVE);
-
 	CFolderDialog folderDialog(m_hWnd, L"Choose initial directory");
 
 	if (folderDialog.DoModal() == IDOK)
 	{
+		DoDataExchange(DDX_SAVE);
 		m_strInitialDir = folderDialog.m_szFolderPath;
 		DoDataExchange(DDX_LOAD);
 	}

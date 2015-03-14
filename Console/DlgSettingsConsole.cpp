@@ -125,6 +125,7 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /
 
 	if (fileDialog.DoModal() == IDOK)
 	{
+		DoDataExchange(DDX_SAVE);
 		m_strShell = fileDialog.m_szFileName;
 		DoDataExchange(DDX_LOAD);
 	}
@@ -143,6 +144,7 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*w
 
 	if (folderDialog.DoModal() == IDOK)
 	{
+		DoDataExchange(DDX_SAVE);
 		m_strInitialDir = folderDialog.m_szFolderPath;
 		DoDataExchange(DDX_LOAD);
 	}

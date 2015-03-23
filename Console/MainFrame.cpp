@@ -2764,10 +2764,12 @@ LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 				dummy = std::wstring(L"Settings file ") + strSettingsFileName;
 				Helpers::WriteLine(file.get(), dummy);
 
-				char buffer[4096];
-				DWORD dwBytesRead;
 				for(;;)
 				{
+					char buffer[4096];
+					DWORD dwBytesRead;
+					DWORD dwNumberOfBytesWritten;
+
 					if(!::ReadFile(
 						fileSettings.get(),
 						buffer,
@@ -2782,7 +2784,7 @@ LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 						file.get(),
 						buffer,
 						dwBytesRead,
-						NULL,
+						&dwNumberOfBytesWritten, /* This parameter can be NULL only when the lpOverlapped parameter is not NULL. */
 						NULL))
 						Win32Exception::ThrowFromLastError("WriteFile");
 				}

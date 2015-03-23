@@ -337,7 +337,7 @@ class MainFrame
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
 		void UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu);
-		void UpdateOpenedTabsMenu(CMenu& tabsMenu);
+		void UpdateOpenedTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu, bool bContextual);
 		void UpdateMenuHotKeys(void);
 		void UpdateStatusBar();
 		void SetWindowStyles(void);
@@ -415,6 +415,7 @@ class MainFrame
 
 		CMenu			m_tabsMenu;
 		CMenu			m_tabsRPopupMenu;
+		CMenu			m_openedTabsMenu;
 
 		CIcon			m_icon;
 		CIcon			m_smallIcon;

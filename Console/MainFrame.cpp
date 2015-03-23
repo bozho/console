@@ -260,10 +260,16 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
+	// add opened tabs submenu
+	// you cannot define an empty submenu in resource file
+	CMenuHandle menu(GetMenu());
+	m_openedTabsMenu.CreatePopupMenu();
+	menu.InsertMenu(menu.GetMenuItemCount() - 1, MF_BYPOSITION|MF_POPUP, m_openedTabsMenu, L"Tabs");
+
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
 	// attach menu
-	m_CmdBar.AttachMenu(GetMenu());
+	m_CmdBar.AttachMenu(menu);
 	// load command bar images
 	m_CmdBar.LoadImages(Helpers::GetHighDefinitionResourceId(IDR_TOOLBAR_16));
 	// remove old menu
@@ -1172,6 +1178,8 @@ LRESULT MainFrame::OnUpdateTitles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
 			UpdateTabTitle(itView->second);
 	}
 
+	UpdateOpenedTabsMenu(m_CmdBar.GetMenu(), m_openedTabsMenu, false);
+
 	return 0;
 }
 
@@ -1432,7 +1440,7 @@ LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 	case MouseSettings::cmdMenu3:
 		{
 			CMenu menu;
-			UpdateOpenedTabsMenu(menu);
+			UpdateOpenedTabsMenu(m_CmdBar.GetMenu(), menu, true);
 			m_CmdBar.TrackPopupMenu(menu, 0, point.x, point.y);
 		}
 		break;
@@ -3029,7 +3037,7 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 		CMenuItemInfo	menuItem;
 
 		menuItem.fMask    = MIIM_SUBMENU;
-		menuItem.hSubMenu	= HMENU(tabsMenu);
+		menuItem.hSubMenu = HMENU(tabsMenu);
 
 		mainMenu.SetMenuItemInfo(ID_FILE_NEW_TAB, FALSE, &menuItem);
 	}
@@ -3038,42 +3046,51 @@ void MainFrame::UpdateTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu)
 	JumpList::CreateList(g_settingsHandler->GetTabSettings().tabDataVector);
 }
 
-void MainFrame::UpdateOpenedTabsMenu(CMenu& tabsMenu)
+void MainFrame::UpdateOpenedTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu, bool bContextual)
 {
 	if (!tabsMenu.IsNull()) tabsMenu.DestroyMenu();
 	tabsMenu.CreatePopupMenu();
 
-	// in full screen, adds the entry "exit fullscreen"
-	if( m_bFullScreen )
+	// context menu only
+	if(bContextual)
 	{
-		CMenuItemInfo	subMenuItem;
-		WORD wId = ID_VIEW_FULLSCREEN;
-		auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
-
-		std::wstring strTitle = L"Exit Full Screen";
-		if( hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end() )
+		// in full screen, adds the entry "exit fullscreen"
+		if(m_bFullScreen)
 		{
-			strTitle += L"\t";
-			strTitle += hotK->get()->GetHotKeyName();
+			CMenuItemInfo	subMenuItem;
+			WORD wId = ID_VIEW_FULLSCREEN;
+			auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
+
+			std::wstring strTitle = L"Exit Full Screen";
+			if(hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end())
+			{
+				strTitle += L"\t";
+				strTitle += hotK->get()->GetHotKeyName();
+			}
+
+			subMenuItem.fMask = MIIM_STRING | MIIM_ID;
+			subMenuItem.wID = wId;
+			subMenuItem.dwTypeData = const_cast<wchar_t*>(strTitle.c_str());
+			subMenuItem.cch = static_cast<UINT>(strTitle.length() + 1);
+
+			tabsMenu.InsertMenuItem(wId, TRUE, &subMenuItem);
 		}
-
-		subMenuItem.fMask       = MIIM_STRING | MIIM_ID;
-		subMenuItem.wID         = wId;
-		subMenuItem.dwTypeData  = const_cast<wchar_t*>(strTitle.c_str());
-		subMenuItem.cch         = static_cast<UINT>(strTitle.length() + 1);
-
-		tabsMenu.InsertMenuItem(wId, TRUE, &subMenuItem);
 	}
 
 	// build tabs menu
 	WORD wId = ID_SWITCH_TAB_1;
-	MutexLock	tabMapLock(m_tabsMutex);
-	for (auto it = m_tabs.begin(); it != m_tabs.end(); ++it, ++wId)
+	MutexLock tabMapLock(m_tabsMutex);
+	int nCount = GetTabCtrl().GetItemCount();
+	for(int i = 0; i < nCount; ++i, ++wId)
 	{
-		CMenuItemInfo	subMenuItem;
+		auto it = m_tabs.find(GetTabCtrl().GetItem(i)->GetTabView());
+		if(it == m_tabs.end()) continue;
+
+		CMenuItemInfo subMenuItem;
 
 		auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
 
+		UpdateTabTitle(it->second);
 		std::wstring strTitle = it->second->GetTitle();
 		if( hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end() )
 		{
@@ -3090,13 +3107,31 @@ void MainFrame::UpdateOpenedTabsMenu(CMenu& tabsMenu)
 
 		auto tabData = it->second->GetTabData();
 
-		if (m_activeTabView == it->second)
-			tabsMenu.EnableMenuItem(wId, MF_GRAYED | MF_BYCOMMAND);
+		// context menu only
+		if(bContextual)
+		{
+			if(m_activeTabView == it->second)
+				tabsMenu.EnableMenuItem(wId, MF_GRAYED | MF_BYCOMMAND);
+		}
 
 		m_CmdBar.RemoveImage(wId);
 		HICON hiconMenu = tabData->GetMenuIcon();
 		if( hiconMenu )
 			m_CmdBar.AddIcon(hiconMenu, wId);
+	}
+
+	// non context menu only
+	if(!bContextual)
+	{
+		// set tabs menu as popup submenu
+		if(!mainMenu.IsNull())
+		{
+			mainMenu.ModifyMenu(mainMenu.GetMenuItemCount() - 2, MF_BYPOSITION | MF_POPUP, tabsMenu, L"Tabs");
+		}
+		if(!m_contextMenu.IsNull())
+		{
+			m_contextMenu.ModifyMenu(m_contextMenu.GetMenuItemCount() - 2, MF_BYPOSITION | MF_POPUP, tabsMenu, L"Tabs");
+		}
 	}
 }
 

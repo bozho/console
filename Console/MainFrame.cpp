@@ -1650,6 +1650,7 @@ LRESULT MainFrame::OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled)
 	if (appearanceSettings.stylesSettings.bTrayIcon) SetTrayIcon(NIM_MODIFY);
 
 	UpdateUI();
+	UpdateStatusBar();
 
 	bHandled = FALSE;
 	return 0;

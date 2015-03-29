@@ -600,22 +600,21 @@ LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnActivateApp(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& bHandled)
+LRESULT MainFrame::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
 {
-	m_bAppActive = static_cast<BOOL>(wParam)? true : false;
+	LRESULT ret = ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 
-	if (!m_activeTabView) return 0;
+	m_bAppActive = static_cast<BOOL>(wParam)? true : false;
 
 	this->ActivateApp();
 
-	bHandled = FALSE;
-
-	return 0;
+	return ret;
 }
 
 void MainFrame::ActivateApp(void)
 {
-  m_activeTabView->SetAppActiveStatus(m_bAppActive);
+	if (m_activeTabView)
+		m_activeTabView->SetAppActiveStatus(m_bAppActive);
 
   TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
   TransparencyType transType = m_bTransparencyActive ? transparencySettings.transType : transNone;
@@ -639,11 +638,12 @@ void MainFrame::ActivateApp(void)
   m_TabCtrl.RedrawWindow();
 #endif
 
-  if ((transType == transGlass) && 
-    (transparencySettings.byActiveAlpha != transparencySettings.byInactiveAlpha))
-  {
-    m_activeTabView->Repaint(true);
-  }
+	if((transType == transGlass) &&
+	   (transparencySettings.byActiveAlpha != transparencySettings.byInactiveAlpha))
+	{
+		if(m_activeTabView)
+			m_activeTabView->Repaint(true);
+	}
 
 }
 

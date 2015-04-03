@@ -6,8 +6,10 @@
 #pragma once
 
 // Change these values to use different versions
-#define WINVER        0x0601
-#define _WIN32_WINNT  0x0601
+/*
+#define WINVER        0x0602
+#define _WIN32_WINNT  0x0602
+*/
 #ifdef _USE_AERO
 #define _WIN32_IE     0x0700
 #define _RICHEDIT_VER 0x0200
@@ -88,6 +90,8 @@ extern CAppModule _Module;
 #include <winuser.h>
 #endif
 #include <Muiload.h>
+
+#include <shobjidl.h>
 
 #pragma warning(disable: 4503) // disables 'name truncated' warnings
 

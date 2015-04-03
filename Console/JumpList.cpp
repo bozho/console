@@ -4,7 +4,6 @@
 #include "JumpList.h"
 #include "Console.h"
 
-#include <shobjidl.h>
 #include <propkey.h>
 #include <propvarutil.h>
 

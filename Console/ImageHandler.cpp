@@ -463,8 +463,12 @@ void ImageHandler::CreateRelativeImage(const CDC& dc, std::shared_ptr<Background
     else
     {
       // Windows 8 wallpaper (Stretch, Fit & Fill) is handled separately for each monitor
-      MonitorEnumData	enumData(dc, bkImage);
+      MonitorEnumData enumData(dc, bkImage);
+#if _WIN32_WINNT >= 0x0602
+      ImageHandler::LoadDesktopWallpaperWin8(&enumData);
+#else
       ::EnumDisplayMonitors(NULL, NULL, ImageHandler::MonitorEnumProcWin8, reinterpret_cast<LPARAM>(&enumData));
+#endif
     }
   }
 
@@ -726,6 +730,79 @@ BOOL CALLBACK ImageHandler::MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMoni
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+#if _WIN32_WINNT >= 0x0602
+void ImageHandler::LoadDesktopWallpaperWin8(MonitorEnumData* pEnumData)
+{
+	CComPtr<IDesktopWallpaper> desktopWallpaper;
+	HRESULT hr = desktopWallpaper.CoCreateInstance(CLSID_DesktopWallpaper, nullptr, CLSCTX_ALL);
+	if(FAILED(hr)) return;
+
+	UINT count;
+	hr = desktopWallpaper->GetMonitorDevicePathCount(&count);
+	if(FAILED(hr)) return;
+
+	for(UINT i = 0; i < count; i++)
+	{
+		// Get the device path for the monitor.
+		CComHeapPtr<wchar_t> spszId;
+		hr = desktopWallpaper->GetMonitorDevicePathAt(i, &spszId);
+		if(FAILED(hr)) continue;
+
+		// Get the monitor location.
+		CRect rectMonitor;
+		hr = desktopWallpaper->GetMonitorRECT(spszId, (LPRECT)rectMonitor);
+		if(FAILED(hr)) continue;
+
+		// Get the wallpaper on that monitor.
+		CComHeapPtr<wchar_t> spszWallpaper;
+		hr = desktopWallpaper->GetWallpaper(spszId, &spszWallpaper);
+		if(FAILED(hr)) continue;
+
+		TRACE(
+			L"wallpaper picture on '%s' (%ix%i)-(%ix%i) is '%s'\n",
+			static_cast<wchar_t*>(spszId),
+			rectMonitor.left, rectMonitor.top,
+			rectMonitor.right, rectMonitor.bottom,
+			static_cast<wchar_t*>(spszWallpaper));
+
+		std::shared_ptr<BackgroundImage> bkImage;
+
+		if(spszWallpaper.m_pData && *spszWallpaper.m_pData)
+		{
+			bkImage.reset(new BackgroundImage (pEnumData->bkImage->imageData));
+			bkImage->imageData.strFilename = spszWallpaper.m_pData;
+			bkImage->bWallpaper = true;
+			ImageHandler::LoadImageW(bkImage);
+		}
+		else
+		{
+			bkImage = pEnumData->bkImage;
+		}
+
+		// create template image
+		CDC     dcTemplate;
+		CBitmap	bmpTemplate;
+		dcTemplate.CreateCompatibleDC(NULL);
+
+		DWORD dwNewWidth = rectMonitor.Width();
+		DWORD dwNewHeight = rectMonitor.Height();
+		ImageHandler::PaintRelativeImage(pEnumData->dcTemplate, bmpTemplate, bkImage, dwNewWidth, dwNewHeight);
+
+		dcTemplate.SelectBitmap(bmpTemplate);
+
+		ImageHandler::PaintTemplateImage(
+			dcTemplate,
+			rectMonitor.left - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
+			rectMonitor.top - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
+			dwNewWidth,
+			dwNewHeight,
+			rectMonitor.Width(),
+			rectMonitor.Height(),
+			pEnumData->bkImage);
+	}
+}
+#endif
 
 BOOL CALLBACK ImageHandler::MonitorEnumProcWin8(HMONITOR hMonitor, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData)
 {

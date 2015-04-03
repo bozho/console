@@ -176,7 +176,7 @@ class ImageHandler
 		void ReloadDesktopImages();
 
 		void UpdateImageBitmap(const CDC& dc, const CRect& clientRect, std::shared_ptr<BackgroundImage>& bkImage);
-    static inline bool IsWin8(void) { return m_win8; }
+		static inline bool IsWin8(void) { return m_win8; }
 
 	private:
 
@@ -197,6 +197,8 @@ class ImageHandler
 		static BOOL CALLBACK MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData);
 		static BOOL CALLBACK MonitorEnumProcWin8(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT lprcMonitor, LPARAM lpData);
 		static bool CheckWin8(void);
+
+		static void LoadDesktopWallpaperWin8(MonitorEnumData* pEnumData);
 
 	private:
 

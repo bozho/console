@@ -173,6 +173,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 		{
 			wstring strWindowTitle;
 			vector<wstring> startupTabs;
+			vector<wstring> startupTabTitles;
 			vector<wstring> startupDirs;
 			vector<wstring> startupCmds;
 			vector<DWORD>   basePriorities;
@@ -184,6 +185,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 				lpstrCmdLine,
 				strWindowTitle,
 				startupTabs,
+				startupTabTitles,
 				startupDirs,
 				startupCmds,
 				basePriorities,

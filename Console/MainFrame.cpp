@@ -2718,6 +2718,15 @@ LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 
 			Helpers::WriteLine(file.get(), dummy);
 
+			dummy = L"is elevated? ";
+			dummy += Helpers::IsElevated() ? L"yes" : L"no";
+			Helpers::WriteLine(file.get(), dummy);
+
+			dummy = L"UAC prefix \"";
+			dummy += Helpers::GetUACPrefix();
+			dummy += L"\"";
+			Helpers::WriteLine(file.get(), dummy);
+
 			{
 				MutexLock tabMapLock(m_tabsMutex);
 

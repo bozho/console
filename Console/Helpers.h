@@ -59,6 +59,8 @@ class Helpers
 		static std::string ToUtf8(const std::wstring& text);
 		static void WriteLine(HANDLE hFile, const std::wstring& text);
 
+		static std::wstring GetUACPrefix(void);
+
 	private:
 
 		static bool GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

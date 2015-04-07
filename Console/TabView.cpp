@@ -854,6 +854,11 @@ void TabView::Diagnose(HANDLE hFile)
 			(console->second == activeConsole ? std::wstring(L"  View (active): ") : std::wstring(L"  View: "))
 			+ strViewTitle;
 		Helpers::WriteLine(hFile, dummy);
+
+		dummy = L"  is elevated? ";
+		dummy += console->second->GetConsoleHandler().IsElevated() ? L"yes" : L"no";
+		Helpers::WriteLine(hFile, dummy);
+
 		Helpers::WriteLine(hFile, console->second->GetConsoleHandler().GetFontInfo());
 	}
 }

@@ -1431,26 +1431,7 @@ CString ConsoleView::GetConsoleCommand()
 	{
 		if( m_strUACPrefix.IsEmpty() )
 		{
-			// read the prefix in default language
-			std::unique_ptr<HINSTANCE__, FreeMUILibraryHelper> mui (::LoadMUILibrary(L"cmd.exe", MUI_LANGUAGE_ID, LOCALE_USER_DEFAULT));
-			if( mui.get() )
-			{
-				LPWSTR lpBuffer = nullptr;
-				if( FormatMessage(
-					FORMAT_MESSAGE_ALLOCATE_BUFFER |
-					FORMAT_MESSAGE_FROM_HMODULE |
-					FORMAT_MESSAGE_IGNORE_INSERTS,
-					mui.get(),
-					1073751880,
-					0,
-					reinterpret_cast<LPWSTR>(&lpBuffer),
-					0,
-					nullptr) )
-				{
-					m_strUACPrefix = lpBuffer;
-					::LocalFree(lpBuffer);
-				}
-			}
+			m_strUACPrefix = Helpers::GetUACPrefix().c_str();
 		}
 
 		if( strConsoleTitle.GetLength() >= m_strUACPrefix.GetLength()

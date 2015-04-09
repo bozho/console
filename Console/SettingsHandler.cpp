@@ -2601,10 +2601,10 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 		{
 			m_strSettingsPath	= L"res://" + Helpers::GetModuleFileName(NULL) + L"/";
 
-			hr = XmlHelper::OpenXmlDocument(
-								GetSettingsFileName(), 
-								m_pSettingsDocument, 
-								m_pSettingsRoot);
+			hr = XmlHelper::OpenXmlDocumentFromResource(
+				L"CONSOLE.XML",
+				m_pSettingsDocument,
+				m_pSettingsRoot);
 
 			SetUserDataDir(dirTypeExe);
 		}

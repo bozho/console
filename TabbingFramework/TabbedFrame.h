@@ -1192,7 +1192,7 @@ public:
 						//  "ShowWindow(hWndNew, SW_SHOW)" for us
 						// (Call the most derived class's version of UpdateLayout)
 						T* pT = static_cast<T*>(this);
-						pT->UpdateLayout();
+						pT->UpdateLayout(FALSE);
 
 						if(hWndOld)
 						{

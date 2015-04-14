@@ -589,7 +589,7 @@ void ImageHandler::PaintTemplateImage(const CDC& dcTemplate, int nOffsetX, int n
 					(dwDstHeight < bkImage->dwOriginalImageHeight) ? (bkImage->dwOriginalImageHeight - dwDstHeight)/2 : 0,
 					SRCCOPY);
 	}
-  else if (bkImage->imageData.imagePosition == imagePositionFill && ImageHandler::IsWin8())
+  else if (bkImage->imageData.imagePosition == imagePositionFill && (!bkImage->imageData.bExtend) && ImageHandler::IsWin8())
   {
     // Windows 8 filled wallpaper:
     // when image height is greater than screen height

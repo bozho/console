@@ -1068,12 +1068,19 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if (m_bInitializing) return false;
+	if (m_bInitializing) return 0;
 
 	auto now1 = std::chrono::high_resolution_clock::now();
 
-	bool bResize	= ((wParam & UPDATE_CONSOLE_RESIZE) > 0);
-	bool textChanged= ((wParam & UPDATE_CONSOLE_TEXT_CHANGED) > 0);
+	bool bResize      = (wParam & UPDATE_CONSOLE_RESIZE       ) != 0;
+	bool textChanged  = (wParam & UPDATE_CONSOLE_TEXT_CHANGED ) != 0;
+	bool titleChanged = (wParam & UPDATE_CONSOLE_TITLE_CHANGED) != 0;
+
+	if(titleChanged)
+		UpdateTitle();
+
+	if(!bResize && !textChanged)
+		return 0;
 
 	// console size changed, resize offscreen buffers
 	if (bResize)
@@ -1088,8 +1095,6 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
-	UpdateTitle();
-	
 	// if the view is not visible, don't repaint
 	if (!m_bActive)
 	{
@@ -1656,6 +1661,12 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		{
 			wParam |= UPDATE_CONSOLE_TEXT_CHANGED;
 			consoleInfo->textChanged = false;
+		}
+
+		if(consoleInfo->titleChanged)
+		{
+			wParam |= UPDATE_CONSOLE_TITLE_CHANGED;
+			consoleInfo->titleChanged = false;
 		}
 	}
 

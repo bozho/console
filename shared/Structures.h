@@ -176,12 +176,14 @@ struct ConsoleInfo
 	ConsoleInfo()
 	: csbi()
 	, textChanged(false)
+	, titleChanged(false)
 	, dwLastRenderingDuration(0)
 	{
 	}
 
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	bool                       textChanged;
+	bool                       titleChanged;
 	DWORD                      dwLastRenderingDuration;
 };
 

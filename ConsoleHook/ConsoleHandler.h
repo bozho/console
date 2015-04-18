@@ -76,6 +76,8 @@ class ConsoleHandler
 
 		DWORD                             m_dwScreenBufferSize;
 
+		wchar_t                           m_szConsoleTitle[1024];
+
 		DWORD                                          m_dwWaitingTime;
 		std::chrono::high_resolution_clock::time_point m_timePoint;
 };

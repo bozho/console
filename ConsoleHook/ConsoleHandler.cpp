@@ -32,6 +32,7 @@ ConsoleHandler::ConsoleHandler()
 , m_dwWaitingTime(INFINITE)
 , m_timePoint(std::chrono::high_resolution_clock::now())
 {
+	m_szConsoleTitle[0] = 0;
 }
 
 ConsoleHandler::~ConsoleHandler()
@@ -185,8 +186,8 @@ void ConsoleHandler::RealReadConsoleBuffer()
 	if(csbiConsole.srWindow.Right < csbiConsole.srWindow.Left || csbiConsole.srWindow.Bottom < csbiConsole.srWindow.Top)
 		return;
 
-	coordConsoleSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
-	coordConsoleSize.Y	= csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
+	coordConsoleSize.X = csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
+	coordConsoleSize.Y = csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top + 1;
 
 	/*
 	TRACE(L"ReadConsoleBuffer console buffer size: %ix%i\n", csbiConsole.dwSize.X, csbiConsole.dwSize.Y);
@@ -195,8 +196,8 @@ void ConsoleHandler::RealReadConsoleBuffer()
 	*/
 
 	// do console output buffer reading
-	DWORD					dwScreenBufferSize	= coordConsoleSize.X * coordConsoleSize.Y;
-	DWORD					dwScreenBufferOffset= 0;
+	DWORD					dwScreenBufferSize = coordConsoleSize.X * coordConsoleSize.Y;
+	DWORD					dwScreenBufferOffset = 0;
 
 	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
 
@@ -205,29 +206,29 @@ void ConsoleHandler::RealReadConsoleBuffer()
 	COORD		coordStart = {0, 0};
 	SMALL_RECT	srBuffer;
 
-//	TRACE(L"===================================================================\n");
+	//TRACE(L"===================================================================\n");
 
 	// ReadConsoleOutput seems to fail for large (around 6k CHAR_INFO's) buffers
 	// here we calculate max buffer size (row count) for safe reading
-	coordBufferSize.X	= csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
-	coordBufferSize.Y	= 6144 / coordBufferSize.X;
+	coordBufferSize.X = csbiConsole.srWindow.Right - csbiConsole.srWindow.Left + 1;
+	coordBufferSize.Y = 6144 / coordBufferSize.X;
 
 	// initialize reading rectangle
-	srBuffer.Top		= csbiConsole.srWindow.Top;
-	srBuffer.Bottom		= csbiConsole.srWindow.Top + coordBufferSize.Y - 1;
-	srBuffer.Left		= csbiConsole.srWindow.Left;
-	srBuffer.Right		= csbiConsole.srWindow.Left + csbiConsole.srWindow.Right - csbiConsole.srWindow.Left;
+	srBuffer.Top      = csbiConsole.srWindow.Top;
+	srBuffer.Bottom   = csbiConsole.srWindow.Top + coordBufferSize.Y - 1;
+	srBuffer.Left     = csbiConsole.srWindow.Left;
+	srBuffer.Right    = csbiConsole.srWindow.Left + csbiConsole.srWindow.Right - csbiConsole.srWindow.Left;
 
-/*
+	/*
 	TRACE(L"Buffer size for loop reads: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
 	TRACE(L"-------------------------------------------------------------------\n");
-*/
+	*/
 
 	// read rows 'chunks'
 	SHORT i = 0;
-	for (; i < coordConsoleSize.Y / coordBufferSize.Y; ++i)
+	for(; i < coordConsoleSize.Y / coordBufferSize.Y; ++i)
 	{
-//		TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
+		//TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
 
 		::ReadConsoleOutput(
 			hStdOut,
@@ -236,32 +237,32 @@ void ConsoleHandler::RealReadConsoleBuffer()
 			coordStart,
 			&srBuffer);
 
-		srBuffer.Top		= srBuffer.Top + coordBufferSize.Y;
-		srBuffer.Bottom		= srBuffer.Bottom + coordBufferSize.Y;
+		srBuffer.Top    = srBuffer.Top + coordBufferSize.Y;
+		srBuffer.Bottom = srBuffer.Bottom + coordBufferSize.Y;
 
 		dwScreenBufferOffset += coordBufferSize.X * coordBufferSize.Y;
 	}
 
 	// read the last 'chunk', we need to calculate the number of rows in the
 	// last chunk and update bottom coordinate for the region
-	coordBufferSize.Y	= coordConsoleSize.Y - i * coordBufferSize.Y;
-	srBuffer.Bottom		= csbiConsole.srWindow.Bottom;
+	coordBufferSize.Y = coordConsoleSize.Y - i * coordBufferSize.Y;
+	srBuffer.Bottom   = csbiConsole.srWindow.Bottom;
 
-/*
+	/*
 	TRACE(L"Buffer size for last read: %ix%i\n", coordBufferSize.X, coordBufferSize.Y);
 	TRACE(L"-------------------------------------------------------------------\n");
 	TRACE(L"Reading region: (%i, %i) - (%i, %i)\n", srBuffer.Left, srBuffer.Top, srBuffer.Right, srBuffer.Bottom);
-*/
+	*/
 
 	::ReadConsoleOutput(
 		hStdOut,
-		pScreenBuffer.get() + dwScreenBufferOffset, 
-		coordBufferSize, 
-		coordStart, 
+		pScreenBuffer.get() + dwScreenBufferOffset,
+		coordBufferSize,
+		coordStart,
 		&srBuffer);
 
 
-//	TRACE(L"===================================================================\n");
+	//TRACE(L"===================================================================\n");
 
 	// compare previous buffer, and if different notify ConsoleZ
 	SharedMemoryLock consoleInfoLock(m_consoleInfo);
@@ -271,9 +272,21 @@ void ConsoleHandler::RealReadConsoleBuffer()
 
 	bool textChanged = (::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0);
 
+	// compare previous console title
+	bool titleChanged = false;
+	wchar_t szNewConsoleTitle[ARRAYSIZE(m_szConsoleTitle)] = L"";
+	if(::GetConsoleTitle(szNewConsoleTitle, ARRAYSIZE(m_szConsoleTitle))
+	   &&
+	   wcscmp(szNewConsoleTitle, m_szConsoleTitle))
+	{
+		wcscpy_s<ARRAYSIZE(m_szConsoleTitle)>(m_szConsoleTitle, szNewConsoleTitle);
+		titleChanged = true;
+	}
+
 	if ((::memcmp(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
 		(m_dwScreenBufferSize != dwScreenBufferSize) ||
-		textChanged)
+		textChanged ||
+		titleChanged)
 	{
 		// update screen buffer variables
 		m_dwScreenBufferSize = dwScreenBufferSize;
@@ -282,6 +295,9 @@ void ConsoleHandler::RealReadConsoleBuffer()
 		
 		// only ConsoleZ sets the flag to false, after it's done repainting text
 		if (textChanged) m_consoleInfo->textChanged = true;
+
+		// only ConsoleZ sets the flag to false, after it's update title
+		if (titleChanged) m_consoleInfo->titleChanged = true;
 
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
 

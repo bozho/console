@@ -364,7 +364,7 @@ class MainFrame
 		void UnregisterGlobalHotkeys();
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
-		void ShowHideWindow();
+		void ShowHideWindow(bool bShowOnly = false);
 
 		void LoadSearchMRU();
 		void SaveSearchMRU();

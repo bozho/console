@@ -668,76 +668,90 @@ void MainFrame::ActivateApp(void)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowHideWindow(void)
+void MainFrame::ShowHideWindow(bool bShowOnly)
 {
-	StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
-  bool bQuake = stylesSettings.bQuake;
-  bool bActivate = true;
+	bool bVisible = this->IsWindowVisible()? true : false;
+	bool bIconic  = this->IsIconic()? true : false;
 
-  if( bQuake )
-  {
-		DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
-		DWORD dwHideFlags     = AW_HIDE     | AW_SLIDE;
+	TRACE(L"=========== active=%s, visible=%s, iconic=%s ===========\n",
+		  m_bAppActive ? L"true" : L"false",
+		  bVisible ? L"true" : L"false",
+		  bIconic ? L"true" : L"false");
 
-    switch( m_dockPosition )
-    {
-    case dockNone:
-      // effect disabled ...
-      bQuake = false;
-      break;
-    case dockTL:
-    case dockTM:
-    case dockTR:
-      dwActivateFlags |= AW_VER_POSITIVE;
-      dwHideFlags     |= AW_VER_NEGATIVE;
-      break;
-    case dockLM:
-      dwActivateFlags |= AW_HOR_POSITIVE;
-      dwHideFlags     |= AW_HOR_NEGATIVE;
-      break;
-    case dockBL:
-    case dockBM:
-    case dockBR:
-      dwActivateFlags |= AW_VER_NEGATIVE;
-      dwHideFlags     |= AW_VER_POSITIVE;
-      break;
-    case dockRM:
-      dwActivateFlags |= AW_HOR_NEGATIVE;
-      dwHideFlags     |= AW_HOR_POSITIVE;
-      break;
-    }
+	bool bActivate = true;
 
-		if(!m_bAppActive)
-		{
-			this->m_hwndPreviousForeground = ::GetForegroundWindow();
-		}
-
-		if(!this->IsWindowVisible())
-		{
-			::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwActivateFlags);
-			this->RedrawWindow(NULL, NULL, RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME |RDW_INVALIDATE | RDW_ERASE);
-		}
-		else if(m_bAppActive)
-		{
-			::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwHideFlags);
-			::SetForegroundWindow(this->m_hwndPreviousForeground);
-			bActivate = false;
-		}
-	}
-	else
+	if(!(bShowOnly && m_bAppActive && bVisible && !bIconic))
 	{
-		if( this->IsIconic() )
+		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
+		bool bQuake = stylesSettings.bQuake;
+		DWORD dwActivateFlags = AW_ACTIVATE | AW_SLIDE;
+		DWORD dwHideFlags = AW_HIDE | AW_SLIDE;
+
+		if(bQuake)
 		{
-			ShowWindow(SW_RESTORE);
+			switch(m_dockPosition)
+			{
+			case dockNone:
+				// effect disabled ...
+				bQuake = false;
+				break;
+			case dockTL:
+			case dockTM:
+			case dockTR:
+				dwActivateFlags |= AW_VER_POSITIVE;
+				dwHideFlags |= AW_VER_NEGATIVE;
+				break;
+			case dockLM:
+				dwActivateFlags |= AW_HOR_POSITIVE;
+				dwHideFlags |= AW_HOR_NEGATIVE;
+				break;
+			case dockBL:
+			case dockBM:
+			case dockBR:
+				dwActivateFlags |= AW_VER_NEGATIVE;
+				dwHideFlags |= AW_VER_POSITIVE;
+				break;
+			case dockRM:
+				dwActivateFlags |= AW_HOR_NEGATIVE;
+				dwHideFlags |= AW_HOR_POSITIVE;
+				break;
+			}
 		}
-		else if(m_bAppActive)
+
+		if(bQuake)
 		{
-			ShowWindow(stylesSettings.bTaskbarButton? SW_MINIMIZE : SW_HIDE);
-			bActivate = false;
+			if(!m_bAppActive)
+			{
+				this->m_hwndPreviousForeground = ::GetForegroundWindow();
+			}
+
+			if(!bVisible)
+			{
+				::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwActivateFlags);
+				this->RedrawWindow(NULL, NULL, RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME | RDW_INVALIDATE | RDW_ERASE);
+			}
+			else if(m_bAppActive)
+			{
+				::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwHideFlags);
+				::SetForegroundWindow(this->m_hwndPreviousForeground);
+				bActivate = false;
+			}
 		}
 		else
 		{
-			ShowWindow(SW_SHOW);
+			if(bIconic)
+			{
+				ShowWindow(SW_RESTORE);
+			}
+			else if(!bVisible)
+			{
+				ShowWindow(SW_SHOW);
+			}
+			else if(m_bAppActive)
+			{
+				ShowWindow(stylesSettings.bTaskbarButton ? SW_MINIMIZE : SW_HIDE);
+				bActivate = false;
+			}
 		}
 	}
 
@@ -1827,6 +1841,9 @@ LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 	int nNewSel = wID-ID_SWITCH_TAB_1;
 
 	if (nNewSel >= m_TabCtrl.GetItemCount()) return 0;
+
+	ShowHideWindow(true);
+
 	m_TabCtrl.SetCurSel(nNewSel);
 
 	return 0;

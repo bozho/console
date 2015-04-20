@@ -1072,14 +1072,15 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 
 	auto now1 = std::chrono::high_resolution_clock::now();
 
-	bool bResize      = (wParam & UPDATE_CONSOLE_RESIZE       ) != 0;
-	bool textChanged  = (wParam & UPDATE_CONSOLE_TEXT_CHANGED ) != 0;
-	bool titleChanged = (wParam & UPDATE_CONSOLE_TITLE_CHANGED) != 0;
+	bool bResize      = (wParam & UPDATE_CONSOLE_RESIZE       ) ? true : false;
+	bool textChanged  = (wParam & UPDATE_CONSOLE_TEXT_CHANGED ) ? true : false;
+	bool titleChanged = (wParam & UPDATE_CONSOLE_TITLE_CHANGED) ? true : false;
+	bool csbiChanged  = (wParam & UPDATE_CONSOLE_CSBI_CHANGED ) ? true : false;
 
 	if(titleChanged)
 		UpdateTitle();
 
-	if(!bResize && !textChanged)
+	if(!bResize && !textChanged && !csbiChanged)
 		return 0;
 
 	// console size changed, resize offscreen buffers
@@ -1667,6 +1668,12 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		{
 			wParam |= UPDATE_CONSOLE_TITLE_CHANGED;
 			consoleInfo->titleChanged = false;
+		}
+
+		if(consoleInfo->csbiChanged)
+		{
+			wParam |= UPDATE_CONSOLE_CSBI_CHANGED;
+			consoleInfo->csbiChanged = false;
 		}
 	}
 

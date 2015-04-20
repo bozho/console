@@ -283,21 +283,25 @@ void ConsoleHandler::RealReadConsoleBuffer()
 		titleChanged = true;
 	}
 
-	if ((::memcmp(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO)) != 0) ||
-		(m_dwScreenBufferSize != dwScreenBufferSize) ||
-		textChanged ||
-		titleChanged)
+	// compare console buffer information
+	bool csbiChanged = false;
+	if(::memcmp(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO))
+	   ||
+	   m_dwScreenBufferSize != dwScreenBufferSize)
 	{
 		// update screen buffer variables
 		m_dwScreenBufferSize = dwScreenBufferSize;
-
 		::CopyMemory(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
-		
-		// only ConsoleZ sets the flag to false, after it's done repainting text
-		if (textChanged) m_consoleInfo->textChanged = true;
 
-		// only ConsoleZ sets the flag to false, after it's update title
+		csbiChanged = true;
+	}
+
+	if (textChanged || titleChanged || csbiChanged)
+	{
+		// only ConsoleZ sets the flags to false
+		if (textChanged)  m_consoleInfo->textChanged  = true;
 		if (titleChanged) m_consoleInfo->titleChanged = true;
+		if (csbiChanged)  m_consoleInfo->csbiChanged  = true;
 
 		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
 

@@ -1562,7 +1562,7 @@ LRESULT MainFrame::OnDBLClickExtendedFrameToClientArea(int /*idCtrl*/, LPNMHDR p
     if( pnmh->hwndFrom == m_TabCtrl.m_hWnd )
     {
       NMCTCITEM* pTabItem	= reinterpret_cast<NMCTCITEM*>(pnmh);
-      if( pTabItem->iItem == -1 )
+      if( (pTabItem->iItem == -1) && (pTabItem->flags == CTCHT_NOWHERE) )
       {
         // Telling the window to maximize itself might bypass some internal adjustments that the program makes
         // when it maximizes via a system menu command.

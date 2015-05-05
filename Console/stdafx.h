@@ -105,11 +105,13 @@ extern CAppModule _Module;
 #include <stack>
 #include <array>
 #include <regex>
+#include <chrono>
 using namespace std;
 #pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable: 4244 4267 4511 4512 701 4702)
+#define BOOST_ALL_NO_LIB
 #include <boost/bind.hpp>
 #include <boost/format.hpp>
 #include <boost/tokenizer.hpp>
@@ -172,8 +174,9 @@ using namespace boost::multi_index;
 #define UM_START_MOUSE_DRAG		WM_USER + 0x1005
 #define UM_TRAY_NOTIFY			WM_USER + 0x1006
 
-#define UPDATE_CONSOLE_RESIZE		0x0001
-#define UPDATE_CONSOLE_TEXT_CHANGED	0x0002
+#define UPDATE_CONSOLE_RESIZE        0x0001
+#define UPDATE_CONSOLE_TEXT_CHANGED  0x0002
+#define UPDATE_CONSOLE_TITLE_CHANGED 0x0004
 
 #define IDC_TRAY_ICON		0x0001
 

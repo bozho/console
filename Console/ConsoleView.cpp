@@ -79,6 +79,7 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_strCmdLineInitialCmd(strCmdLineInitialCmd)
 , m_dwBasePriority(dwBasePriority)
 , m_boolImmComposition(false)
+, m_timePoint1(std::chrono::high_resolution_clock::now())
 {
 	m_coordSearchText.X = -1;
 	m_coordSearchText.Y = -1;
@@ -1067,10 +1068,19 @@ LRESULT ConsoleView::OnDropFiles(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/
 
 LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	if (m_bInitializing) return false;
+	if (m_bInitializing) return 0;
 
-	bool bResize	= ((wParam & UPDATE_CONSOLE_RESIZE) > 0);
-	bool textChanged= ((wParam & UPDATE_CONSOLE_TEXT_CHANGED) > 0);
+	auto now1 = std::chrono::high_resolution_clock::now();
+
+	bool bResize      = (wParam & UPDATE_CONSOLE_RESIZE       ) != 0;
+	bool textChanged  = (wParam & UPDATE_CONSOLE_TEXT_CHANGED ) != 0;
+	bool titleChanged = (wParam & UPDATE_CONSOLE_TITLE_CHANGED) != 0;
+
+	if(titleChanged)
+		UpdateTitle();
+
+	if(!bResize && !textChanged)
+		return 0;
 
 	// console size changed, resize offscreen buffers
 	if (bResize)
@@ -1085,8 +1095,6 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		m_mainFrame.SendMessage(UM_CONSOLE_RESIZED, 0, 0);
 	}
 
-	UpdateTitle();
-	
 	// if the view is not visible, don't repaint
 	if (!m_bActive)
 	{
@@ -1151,6 +1159,16 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 	}
 
 	Repaint(false);
+
+	auto now2 = std::chrono::high_resolution_clock::now();
+
+	TRACE(
+		L"thd %lu cpu3=%lld ns\n",
+		::GetCurrentThreadId(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count());
+
+//	m_consoleHandler.GetConsoleInfo()->dwLastRenderingDuration = static_cast<DWORD>(
+//		std::chrono::duration_cast<std::chrono::milliseconds>(now2 - now1).count());
 
 	return 0;
 }
@@ -1351,12 +1369,21 @@ void ConsoleView::RecreateOffscreenBuffers(ADJUSTSIZE as)
 
 void ConsoleView::Repaint(bool bFullRepaint)
 {
-  //TRACE(L"ConsoleView::Repaint\n");
+	long long i64cpu4 = 0LL;
+	long long i64cpu5 = 0LL;
+	long long i64cpu6 = 0LL;
+
+	auto now1 = std::chrono::high_resolution_clock::now();
+	auto now2 = now1;
+
 	// OnPaint will do the work for a full repaint
 	if (!m_bNeedFullRepaint)
 	{
 		// not a forced full text repaint, check text difference
 		if (!bFullRepaint) bFullRepaint = (GetBufferDifference() > 15);
+
+		now2 = std::chrono::high_resolution_clock::now();
+		i64cpu4 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
 
 		// repaint text layer
  		if (bFullRepaint)
@@ -1367,9 +1394,23 @@ void ConsoleView::Repaint(bool bFullRepaint)
 		{
 			RepaintTextChanges(m_dcText);
 		}
+
+		now1 = std::chrono::high_resolution_clock::now();
+		i64cpu5 = std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - now2).count();
 	}
 
 	BitBltOffscreen();
+
+	now2 = std::chrono::high_resolution_clock::now();
+	i64cpu6 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
+
+	TRACE(
+		L"thd %lu cpu4=%lld ns cpu5=%lld (%s) cpu6=%lld\n",
+		::GetCurrentThreadId(),
+		i64cpu4,
+		i64cpu5,
+		bFullRepaint ? L"full" : L"partial",
+		i64cpu6);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1567,40 +1608,66 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
-	SharedMemory<ConsoleParams>&	consoleParams	= m_consoleHandler.GetConsoleParams();
-	SharedMemory<ConsoleInfo>&	consoleInfo = m_consoleHandler.GetConsoleInfo();
-	SharedMemory<CHAR_INFO>&	consoleBuffer = m_consoleHandler.GetConsoleBuffer();
-
-	SharedMemoryLock	consoleInfoLock(consoleInfo);
-	SharedMemoryLock	sharedBufferLock(consoleBuffer);
-	MutexLock			localBufferLock(m_consoleHandler.m_bufferMutex);
-
-	// console size changed, resize local buffer
-	if (bResize)
-	{
-		m_dwScreenRows    = consoleParams->dwRows;
-		m_dwScreenColumns = consoleParams->dwColumns;
-		m_screenBuffer.reset(new CharInfo[m_dwScreenRows * m_dwScreenColumns]);
-	}
-	DWORD dwBufferSize = m_dwScreenRows * m_dwScreenColumns;
-
-	// copy changed data
-	for (DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
-	{
-		m_screenBuffer[dwOffset].copy(consoleBuffer.Get() + dwOffset);
-	}
+	auto now1 = std::chrono::high_resolution_clock::now();
 
 	WPARAM wParam = 0;
 
-	if (bResize) wParam |= UPDATE_CONSOLE_RESIZE;
-
-	if (consoleInfo->textChanged)
 	{
-		wParam |= UPDATE_CONSOLE_TEXT_CHANGED;
-		consoleInfo->textChanged = false;
+		SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
+		SharedMemory<ConsoleInfo>&   consoleInfo = m_consoleHandler.GetConsoleInfo();
+		SharedMemory<CHAR_INFO>&     consoleBuffer = m_consoleHandler.GetConsoleBuffer();
+
+		SharedMemoryLock             consoleInfoLock(consoleInfo);
+		SharedMemoryLock             sharedBufferLock(consoleBuffer);
+		MutexLock                    localBufferLock(m_consoleHandler.m_bufferMutex);
+
+		// console size changed, resize local buffer
+		if(bResize)
+		{
+			m_dwScreenRows = consoleParams->dwRows;
+			m_dwScreenColumns = consoleParams->dwColumns;
+			m_screenBuffer.reset(new CharInfo[m_dwScreenRows * m_dwScreenColumns]);
+		}
+		DWORD dwBufferSize = m_dwScreenRows * m_dwScreenColumns;
+
+		// copy changed data
+		for(DWORD dwOffset = 0; dwOffset < dwBufferSize; ++dwOffset)
+		{
+			m_screenBuffer[dwOffset].copy(consoleBuffer.Get() + dwOffset);
+		}
+
+		if(bResize) wParam |= UPDATE_CONSOLE_RESIZE;
+
+		if(consoleInfo->textChanged)
+		{
+			wParam |= UPDATE_CONSOLE_TEXT_CHANGED;
+			consoleInfo->textChanged = false;
+		}
+
+		if(consoleInfo->titleChanged)
+		{
+			wParam |= UPDATE_CONSOLE_TITLE_CHANGED;
+			consoleInfo->titleChanged = false;
+		}
 	}
 
-	PostMessage(UM_UPDATE_CONSOLE_VIEW, wParam);
+	auto now2 = std::chrono::high_resolution_clock::now();
+
+	SendMessage(UM_UPDATE_CONSOLE_VIEW, wParam);
+
+	auto now3 = std::chrono::high_resolution_clock::now();
+
+	TRACE(
+		L"thd %lu delta=%%ld ns cpu1=%lld ns cpu2=%lld ns\n",
+		::GetCurrentThreadId(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - m_timePoint1).count(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now3 - now2).count());
+
+	m_timePoint1 = now3;
+
+	m_consoleHandler.GetConsoleInfo()->dwLastRenderingDuration = static_cast<DWORD>(
+		std::chrono::duration_cast<std::chrono::milliseconds>(now3 - now1).count());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2073,62 +2140,65 @@ void ConsoleView::UpdateTitle()
 
 void ConsoleView::RepaintText(CDC& dc)
 {
+	long long i64cpu7 = 0LL;
+	long long i64cpu8 = 0LL;
+	long long i64cpu9 = 0LL;
+
+	auto now1 = std::chrono::high_resolution_clock::now();
+	auto now2 = now1;
+
 	SIZE	bitmapSize;
 	CRect	bitmapRect;
 
 	dc.GetCurrentBitmap().GetSize(bitmapSize);
-	bitmapRect.left		= 0;
-	bitmapRect.top		= 0;
-	bitmapRect.right	= bitmapSize.cx;
-	bitmapRect.bottom	= bitmapSize.cy;
-/*
-  SIZE	bitmapSize2;
-  m_dcOffscreen.GetCurrentBitmap().GetSize(bitmapSize2);
-  TRACE(L"ConsoleView::RepaintText (%ix%i on %ix%i)\n", bitmapSize.cx, bitmapSize.cy, bitmapSize2.cx, bitmapSize2.cy);
-*/
-	if (m_tabData->backgroundImageType == bktypeNone)
+	bitmapRect.left = 0;
+	bitmapRect.top = 0;
+	bitmapRect.right = bitmapSize.cx;
+	bitmapRect.bottom = bitmapSize.cy;
+
+	if(m_tabData->backgroundImageType == bktypeNone)
 	{
 #ifdef _USE_AERO
-    // set transparency
-    TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
-    if (transparencySettings.transType == transGlass)
-    {
-      Gdiplus::Graphics gr(dc);
+		// set transparency
+		TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+		if(transparencySettings.transType == transGlass)
+		{
+			Gdiplus::Graphics gr(dc);
 
-      COLORREF backgroundColor = m_tabData->crBackgroundColor;
+			COLORREF backgroundColor = m_tabData->crBackgroundColor;
 
-      gr.Clear(
-        Gdiplus::Color(
-          this->m_mainFrame.GetAppActiveStatus()? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
-          GetRValue(backgroundColor),
-          GetGValue(backgroundColor),
-          GetBValue(backgroundColor)));
-    }
-    else
-    {
-      dc.FillRect(&bitmapRect, m_backgroundBrush);
-    }
+			gr.Clear(
+				Gdiplus::Color(
+				this->m_mainFrame.GetAppActiveStatus() ? transparencySettings.byActiveAlpha : transparencySettings.byInactiveAlpha,
+				GetRValue(backgroundColor),
+				GetGValue(backgroundColor),
+				GetBValue(backgroundColor)));
+		}
+		else
+		{
+			dc.FillRect(&bitmapRect, m_backgroundBrush);
+		}
 #else
 		dc.FillRect(&bitmapRect, m_backgroundBrush);
 #endif
 	}
 	else
 	{
-    CRect rectView;
-    GetClientRect(&rectView);
-    CRect rectTab;
-    ::GetClientRect(this->m_hwndTabView, &rectTab);
-    CPoint pointView(0,0);
-    ClientToScreen(&pointView);
-    CPoint pointTab(0,0);
-    ::ClientToScreen(this->m_hwndTabView, &pointTab);
+		CRect rectView;
+		GetClientRect(&rectView);
+		CRect rectTab;
+		::GetClientRect(this->m_hwndTabView, &rectTab);
+		CPoint pointView(0, 0);
+		ClientToScreen(&pointView);
+		CPoint pointTab(0, 0);
+		::ClientToScreen(this->m_hwndTabView, &pointTab);
 
-    //TRACE(L"========UpdateImageBitmap=====================================\n"
-    //      L"rect: %ix%i - %ix%i\n", rectTab.left, rectTab.top, rectTab.right, rectTab.bottom);
+		//TRACE(L"========UpdateImageBitmap=====================================\n"
+		//      L"rect: %ix%i - %ix%i\n", rectTab.left, rectTab.top, rectTab.right, rectTab.bottom);
 
 		g_imageHandler->UpdateImageBitmap(dc, rectTab, m_background);
 
-		if (m_tabData->imageData.bRelative)
+		if(m_tabData->imageData.bRelative)
 		{
 			dc.BitBlt(
 				rectView.left,
@@ -2137,7 +2207,7 @@ void ConsoleView::RepaintText(CDC& dc)
 				rectView.bottom,
 				m_background->dcImage,
 				rectView.left + pointView.x - ::GetSystemMetrics(SM_XVIRTUALSCREEN),
-				rectView.top  + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
+				rectView.top + pointView.y - ::GetSystemMetrics(SM_YVIRTUALSCREEN),
 				SRCCOPY);
 		}
 		else
@@ -2149,17 +2219,33 @@ void ConsoleView::RepaintText(CDC& dc)
 				bitmapRect.bottom,
 				m_background->dcImage,
 				bitmapRect.left + pointView.x - pointTab.x,
-				bitmapRect.top  + pointView.y - pointTab.y,
+				bitmapRect.top + pointView.y - pointTab.y,
 				SRCCOPY);
 		}
 	}
 
-  MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+	now2 = std::chrono::high_resolution_clock::now();
+	i64cpu7 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
 
-  for (DWORD i = 0; i < m_dwScreenRows; ++i)
-  {
-    this->RowTextOut(dc, i);
-  }
+	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+
+	now1 = std::chrono::high_resolution_clock::now();
+	i64cpu8 = std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - now2).count();
+
+	for (DWORD i = 0; i < m_dwScreenRows; ++i)
+	{
+		this->RowTextOut(dc, i);
+	}
+
+	now2 = std::chrono::high_resolution_clock::now();
+	i64cpu9 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
+
+	TRACE(
+		L"thd %lu cpu7=%lld ns cpu8=%lld cpu9=%lld\n",
+		::GetCurrentThreadId(),
+		i64cpu7,
+		i64cpu8,
+		i64cpu9);
 
 #if 0
 	DWORD dwX			= m_nVInsideBorder;
@@ -2441,6 +2527,8 @@ void ConsoleView::RepaintTextChanges(CDC& dc)
 
 void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 {
+	auto now1 = std::chrono::high_resolution_clock::now();
+
   //TRACE(L"ConsoleView::RepaintRow %lu\n", dwRow);
   DWORD dwX      = m_nVInsideBorder;
   DWORD dwY      = m_nHInsideBorder + m_nCharHeight * dwRow;
@@ -2454,6 +2542,8 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 #endif //_USE_AERO
 
   std::unique_ptr<INT[]> dxWidths(new INT[m_dwScreenColumns]);
+
+	auto now2 = std::chrono::high_resolution_clock::now();
 
   // first pass : text background color
   WORD    attrBG    = 0;
@@ -2550,6 +2640,8 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     }
   }
 
+	auto now3 = std::chrono::high_resolution_clock::now();
+
   // second pass : text
   dwX      = m_nVInsideBorder;
   dwOffset = m_dwScreenColumns * dwRow;
@@ -2637,6 +2729,15 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 
     dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), dxWidths.get());
   }
+
+	auto now4 = std::chrono::high_resolution_clock::now();
+
+	TRACE(
+		L"thd %lu cpu10=%lld ns cpu11=%lld cpu12=%lld\n",
+		::GetCurrentThreadId(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now3 - now2).count(),
+		std::chrono::duration_cast<std::chrono::nanoseconds>(now4 - now3).count());
 }
 
 /////////////////////////////////////////////////////////////////////////////

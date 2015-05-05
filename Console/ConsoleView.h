@@ -273,6 +273,7 @@ class ConsoleView
 
 		COORD               m_coordSearchText;
 
+		std::chrono::high_resolution_clock::time_point m_timePoint1;
 // static members
 private:
 

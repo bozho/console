@@ -285,6 +285,21 @@ bool ImageHandler::GetDesktopImageData(ImageData& imageData)
 		}
 	}
 
+#if _WIN32_WINNT >= 0x0602
+	if( ImageHandler::IsWin8() )
+	{
+		CComPtr<IDesktopWallpaper> desktopWallpaper;
+		HRESULT hr = desktopWallpaper.CoCreateInstance(CLSID_DesktopWallpaper, nullptr, CLSCTX_ALL);
+		if( SUCCEEDED(hr) )
+		{
+			CComHeapPtr<wchar_t> spszWallpaper;
+			hr = desktopWallpaper->GetWallpaper(NULL, &spszWallpaper);
+			if( hr == S_OK )
+				imageData.bExtend = true;
+		}
+	}
+#endif
+
 	return true;
 }
 

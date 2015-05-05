@@ -1532,36 +1532,52 @@ DWORD ConsoleHandler::MonitorThread()
 	// resume ConsoleHook's thread
 	m_consoleParams.SetRespEvent();
 
+	DWORD dwWaitRes = 0;
 	HANDLE arrWaitHandles[] = { m_hConsoleProcess.get(), m_hMonitorThreadExit.get(), m_consoleBuffer.GetReqEvent() };
-	while (::WaitForMultipleObjects(sizeof(arrWaitHandles)/sizeof(arrWaitHandles[0]), arrWaitHandles, FALSE, INFINITE) > WAIT_OBJECT_0 + 1)
+	while ((dwWaitRes = ::WaitForMultipleObjects(
+		ARRAYSIZE(arrWaitHandles),
+		arrWaitHandles,
+		FALSE,
+		g_settingsHandler->GetConsoleSettings().dwRefreshInterval)) > (WAIT_OBJECT_0 + 1))
 	{
-		DWORD				dwColumns	= m_consoleInfo->csbi.srWindow.Right - m_consoleInfo->csbi.srWindow.Left + 1;
-		DWORD				dwRows		= m_consoleInfo->csbi.srWindow.Bottom - m_consoleInfo->csbi.srWindow.Top + 1;
-		DWORD				dwBufferColumns	= m_consoleInfo->csbi.dwSize.X;
-		DWORD				dwBufferRows	= m_consoleInfo->csbi.dwSize.Y;
-		bool				bResize		= false;
-
-		if ((m_consoleParams->dwColumns != dwColumns) ||
-			(m_consoleParams->dwRows != dwRows) ||
-			((m_consoleParams->dwBufferColumns != 0) && (m_consoleParams->dwBufferColumns != dwBufferColumns)) ||
-			((m_consoleParams->dwBufferRows != 0) && (m_consoleParams->dwBufferRows != dwBufferRows)))
+		switch(dwWaitRes)
 		{
-			MutexLock handlerLock(m_bufferMutex);
+		case WAIT_OBJECT_0 + 2:
+			{
+				DWORD				dwColumns = m_consoleInfo->csbi.srWindow.Right - m_consoleInfo->csbi.srWindow.Left + 1;
+				DWORD				dwRows = m_consoleInfo->csbi.srWindow.Bottom - m_consoleInfo->csbi.srWindow.Top + 1;
+				DWORD				dwBufferColumns = m_consoleInfo->csbi.dwSize.X;
+				DWORD				dwBufferRows = m_consoleInfo->csbi.dwSize.Y;
+				bool				bResize = false;
 
-			m_consoleParams->dwColumns	= dwColumns;
-			m_consoleParams->dwRows		= dwRows;
+				if((m_consoleParams->dwColumns != dwColumns) ||
+				   (m_consoleParams->dwRows != dwRows) ||
+				   ((m_consoleParams->dwBufferColumns != 0) && (m_consoleParams->dwBufferColumns != dwBufferColumns)) ||
+				   ((m_consoleParams->dwBufferRows != 0) && (m_consoleParams->dwBufferRows != dwBufferRows)))
+				{
+					MutexLock handlerLock(m_bufferMutex);
 
-			// TODO: improve this
-			// this will handle console applications that change console buffer 
-			// size (like Far manager).
-			// This is not a perfect solution, but it's the best one I have
-			// for now
-			if (m_consoleParams->dwBufferColumns != 0)	m_consoleParams->dwBufferColumns= dwBufferColumns;
-			if (m_consoleParams->dwBufferRows != 0)		m_consoleParams->dwBufferRows	= dwBufferRows;
-			bResize = true;
+					m_consoleParams->dwColumns = dwColumns;
+					m_consoleParams->dwRows = dwRows;
+
+					// TODO: improve this
+					// this will handle console applications that change console buffer 
+					// size (like Far manager).
+					// This is not a perfect solution, but it's the best one I have
+					// for now
+					if(m_consoleParams->dwBufferColumns != 0)	m_consoleParams->dwBufferColumns = dwBufferColumns;
+					if(m_consoleParams->dwBufferRows != 0)		m_consoleParams->dwBufferRows = dwBufferRows;
+					bResize = true;
+				}
+
+				m_consoleChangeDelegate(bResize);
+			}
+			break;
+
+		case WAIT_TIMEOUT:
+			ReadConsoleBuffer();
+			break;
 		}
-
-		m_consoleChangeDelegate(bResize);
 	}
 
 	TRACE(L"exiting thread\n");
@@ -1811,6 +1827,20 @@ void ConsoleHandler::SendCtrlC()
 {
 	NamedPipeMessage npmsg;
 	npmsg.type = NamedPipeMessage::CTRL_C;
+
+	try
+	{
+		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
+	}
+	catch(std::exception&)
+	{
+	}
+}
+
+void ConsoleHandler::ReadConsoleBuffer()
+{
+	NamedPipeMessage npmsg;
+	npmsg.type = NamedPipeMessage::READCONSOLEBUFFER;
 
 	try
 	{

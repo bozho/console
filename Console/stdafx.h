@@ -284,11 +284,13 @@ void Trace(const wchar_t* pszFormat, ...);
 
 #define TRACE		::Trace
 #define TRACE_KEY	__noop
+#define TRACE_PERF	__noop
 
 #else
 
 #define TRACE		__noop
 #define TRACE_KEY	__noop
+#define TRACE_PERF	__noop
 
 #endif // _DEBUG
 

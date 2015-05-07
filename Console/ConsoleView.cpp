@@ -1163,7 +1163,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 
 	auto now2 = std::chrono::high_resolution_clock::now();
 
-	TRACE(
+	TRACE_PERF(
 		L"thd %lu cpu3=%lld ns\n",
 		::GetCurrentThreadId(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count());
@@ -1405,7 +1405,7 @@ void ConsoleView::Repaint(bool bFullRepaint)
 	now2 = std::chrono::high_resolution_clock::now();
 	i64cpu6 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
 
-	TRACE(
+	TRACE_PERF(
 		L"thd %lu cpu4=%lld ns cpu5=%lld (%s) cpu6=%lld\n",
 		::GetCurrentThreadId(),
 		i64cpu4,
@@ -1664,7 +1664,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 
 	auto now3 = std::chrono::high_resolution_clock::now();
 
-	TRACE(
+	TRACE_PERF(
 		L"thd %lu delta=%%ld ns cpu1=%lld ns cpu2=%lld ns\n",
 		::GetCurrentThreadId(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - m_timePoint1).count(),
@@ -2247,7 +2247,7 @@ void ConsoleView::RepaintText(CDC& dc)
 	now2 = std::chrono::high_resolution_clock::now();
 	i64cpu9 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
 
-	TRACE(
+	TRACE_PERF(
 		L"thd %lu cpu7=%lld ns cpu8=%lld cpu9=%lld\n",
 		::GetCurrentThreadId(),
 		i64cpu7,
@@ -2739,7 +2739,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 
 	auto now4 = std::chrono::high_resolution_clock::now();
 
-	TRACE(
+	TRACE_PERF(
 		L"thd %lu cpu10=%lld ns cpu11=%lld cpu12=%lld\n",
 		::GetCurrentThreadId(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count(),

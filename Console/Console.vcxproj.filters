@@ -218,9 +218,6 @@
     <ClInclude Include="TabView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wtlaero.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="XmlHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -274,6 +271,9 @@
     </ClInclude>
     <ClInclude Include="PageSettingsTabsEnv.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wtlaero.h">
+      <Filter>Header Files\GUI custom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

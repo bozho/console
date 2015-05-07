@@ -313,7 +313,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	TBBUTTONINFO tbi;
 	m_toolbar.Attach(hWndToolBar);
-	m_toolbar.SendMessage(TB_SETEXTENDEDSTYLE, 0, static_cast<WPARAM>(TBSTYLE_EX_DRAWDDARROWS));
+	m_toolbar.SetExtendedStyle(TBSTYLE_EX_DRAWDDARROWS);
 
 	tbi.dwMask	= TBIF_STYLE;
 	tbi.cbSize	= sizeof(TBBUTTONINFO);
@@ -865,7 +865,10 @@ LRESULT MainFrame::OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL&
 	// when the ConsoleZ window is resized using a mouse)
 	// External utilities that might resize ConsoleZ window usually don't send WM_EXITSIZEMOVE
 	// message after resizing a window.
-	SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
+	if(wParam == 0)
+	{
+		SetTimer(TIMER_SIZING, TIMER_SIZING_INTERVAL);
+	}
 
 	if (wParam == SIZE_MAXIMIZED)
 	{
@@ -941,13 +944,12 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	if (m_bRestoringWindow)
 	{
-		SetWindowPos(
-			NULL, 
-			m_rectRestoredWnd.left, 
-			m_rectRestoredWnd.top, 
-			0, 
-			0, 
-			SWP_NOSIZE|SWP_NOZORDER|SWP_NOSENDCHANGING);
+		TRACE(
+			L"MainFrame::OnWindowPosChanging restoring (%i,%i)-(%i,%i)\n",
+			m_rectRestoredWnd.left, m_rectRestoredWnd.top,
+			m_rectRestoredWnd.right, m_rectRestoredWnd.bottom);
+		pWinPos->x = m_rectRestoredWnd.left;
+		pWinPos->y = m_rectRestoredWnd.top;
 
 		return 0;
 	}

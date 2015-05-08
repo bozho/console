@@ -286,6 +286,8 @@ void Trace(const wchar_t* pszFormat, ...);
 #define TRACE_KEY	__noop
 #define TRACE_PERF	__noop
 
+//#define CONSOLEZ_CHRONOS
+
 #else
 
 #define TRACE		__noop

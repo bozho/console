@@ -178,7 +178,6 @@ struct ConsoleInfo
 	, textChanged(false)
 	, titleChanged(false)
 	, csbiChanged(false)
-	, dwLastRenderingDuration(0)
 	{
 	}
 
@@ -186,7 +185,6 @@ struct ConsoleInfo
 	bool                       textChanged;
 	bool                       titleChanged;
 	bool                       csbiChanged;
-	DWORD                      dwLastRenderingDuration;
 };
 
 //////////////////////////////////////////////////////////////////////////////

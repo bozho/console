@@ -79,7 +79,9 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_strCmdLineInitialCmd(strCmdLineInitialCmd)
 , m_dwBasePriority(dwBasePriority)
 , m_boolImmComposition(false)
+#ifdef CONSOLEZ_CHRONOS
 , m_timePoint1(std::chrono::high_resolution_clock::now())
+#endif // CONSOLEZ_CHRONOS
 {
 	m_coordSearchText.X = -1;
 	m_coordSearchText.Y = -1;
@@ -1070,7 +1072,9 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 {
 	if (m_bInitializing) return 0;
 
+#ifdef CONSOLEZ_CHRONOS
 	auto now1 = std::chrono::high_resolution_clock::now();
+#endif // CONSOLEZ_CHRONOS
 
 	bool bResize      = (wParam & UPDATE_CONSOLE_RESIZE       ) ? true : false;
 	bool textChanged  = (wParam & UPDATE_CONSOLE_TEXT_CHANGED ) ? true : false;
@@ -1161,15 +1165,14 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 
 	Repaint(false);
 
+#ifdef CONSOLEZ_CHRONOS
 	auto now2 = std::chrono::high_resolution_clock::now();
 
 	TRACE_PERF(
 		L"thd %lu cpu3=%lld ns\n",
 		::GetCurrentThreadId(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count());
-
-//	m_consoleHandler.GetConsoleInfo()->dwLastRenderingDuration = static_cast<DWORD>(
-//		std::chrono::duration_cast<std::chrono::milliseconds>(now2 - now1).count());
+#endif // CONSOLEZ_CHRONOS
 
 	return 0;
 }
@@ -1370,12 +1373,15 @@ void ConsoleView::RecreateOffscreenBuffers(ADJUSTSIZE as)
 
 void ConsoleView::Repaint(bool bFullRepaint)
 {
+#ifdef CONSOLEZ_CHRONOS
 	long long i64cpu4 = 0LL;
 	long long i64cpu5 = 0LL;
 	long long i64cpu6 = 0LL;
 
 	auto now1 = std::chrono::high_resolution_clock::now();
 	auto now2 = now1;
+#endif // CONSOLEZ_CHRONOS
+
 
 	// OnPaint will do the work for a full repaint
 	if (!m_bNeedFullRepaint)
@@ -1383,8 +1389,10 @@ void ConsoleView::Repaint(bool bFullRepaint)
 		// not a forced full text repaint, check text difference
 		if (!bFullRepaint) bFullRepaint = (GetBufferDifference() > 15);
 
+#ifdef CONSOLEZ_CHRONOS
 		now2 = std::chrono::high_resolution_clock::now();
 		i64cpu4 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
+#endif // CONSOLEZ_CHRONOS
 
 		// repaint text layer
  		if (bFullRepaint)
@@ -1396,12 +1404,15 @@ void ConsoleView::Repaint(bool bFullRepaint)
 			RepaintTextChanges(m_dcText);
 		}
 
+#ifdef CONSOLEZ_CHRONOS
 		now1 = std::chrono::high_resolution_clock::now();
 		i64cpu5 = std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - now2).count();
+#endif // CONSOLEZ_CHRONOS
 	}
 
 	BitBltOffscreen();
 
+#ifdef CONSOLEZ_CHRONOS
 	now2 = std::chrono::high_resolution_clock::now();
 	i64cpu6 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
 
@@ -1412,6 +1423,7 @@ void ConsoleView::Repaint(bool bFullRepaint)
 		i64cpu5,
 		bFullRepaint ? L"full" : L"partial",
 		i64cpu6);
+#endif // CONSOLEZ_CHRONOS
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1609,7 +1621,9 @@ void ConsoleView::DumpBuffer()
 
 void ConsoleView::OnConsoleChange(bool bResize)
 {
+#ifdef CONSOLEZ_CHRONOS
 	auto now1 = std::chrono::high_resolution_clock::now();
+#endif // CONSOLEZ_CHRONOS
 
 	WPARAM wParam = 0;
 
@@ -1658,10 +1672,13 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		}
 	}
 
+#ifdef CONSOLEZ_CHRONOS
 	auto now2 = std::chrono::high_resolution_clock::now();
+#endif // CONSOLEZ_CHRONOS
 
 	SendMessage(UM_UPDATE_CONSOLE_VIEW, wParam);
 
+#ifdef CONSOLEZ_CHRONOS
 	auto now3 = std::chrono::high_resolution_clock::now();
 
 	TRACE_PERF(
@@ -1672,9 +1689,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now3 - now2).count());
 
 	m_timePoint1 = now3;
-
-	m_consoleHandler.GetConsoleInfo()->dwLastRenderingDuration = static_cast<DWORD>(
-		std::chrono::duration_cast<std::chrono::milliseconds>(now3 - now1).count());
+#endif // CONSOLEZ_CHRONOS
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -2147,12 +2162,15 @@ void ConsoleView::UpdateTitle()
 
 void ConsoleView::RepaintText(CDC& dc)
 {
+#ifdef CONSOLEZ_CHRONOS
 	long long i64cpu7 = 0LL;
 	long long i64cpu8 = 0LL;
 	long long i64cpu9 = 0LL;
 
 	auto now1 = std::chrono::high_resolution_clock::now();
 	auto now2 = now1;
+#endif // CONSOLEZ_CHRONOS
+
 
 	SIZE	bitmapSize;
 	CRect	bitmapRect;
@@ -2187,7 +2205,7 @@ void ConsoleView::RepaintText(CDC& dc)
 		}
 #else
 		dc.FillRect(&bitmapRect, m_backgroundBrush);
-#endif
+#endif // _USE_AERO
 	}
 	else
 	{
@@ -2231,19 +2249,25 @@ void ConsoleView::RepaintText(CDC& dc)
 		}
 	}
 
+#ifdef CONSOLEZ_CHRONOS
 	now2 = std::chrono::high_resolution_clock::now();
 	i64cpu7 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
+#endif // CONSOLEZ_CHRONOS
+
 
 	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
 
+#ifdef CONSOLEZ_CHRONOS
 	now1 = std::chrono::high_resolution_clock::now();
 	i64cpu8 = std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - now2).count();
+#endif // CONSOLEZ_CHRONOS
 
 	for (DWORD i = 0; i < m_dwScreenRows; ++i)
 	{
 		this->RowTextOut(dc, i);
 	}
 
+#ifdef CONSOLEZ_CHRONOS
 	now2 = std::chrono::high_resolution_clock::now();
 	i64cpu9 = std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count();
 
@@ -2253,6 +2277,7 @@ void ConsoleView::RepaintText(CDC& dc)
 		i64cpu7,
 		i64cpu8,
 		i64cpu9);
+#endif // CONSOLEZ_CHRONOS
 
 #if 0
 	DWORD dwX			= m_nVInsideBorder;

@@ -135,7 +135,6 @@ MainFrame::MainFrame
 , m_dwWindowHeight(0)
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
-, m_rectRestoredWnd(0, 0, 0, 0)
 , m_bAppActive(true)
 , m_hwndPreviousForeground(NULL)
 {
@@ -820,15 +819,11 @@ LRESULT MainFrame::OnSysCommand(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/,
 	case SC_RESTORE:
 		if (!this->IsWindowVisible())
 			ShowWindow(SW_SHOW);
+
 		m_bRestoringWindow = true;
 		break;
 
-	case SC_MAXIMIZE:
-		GetWindowRect(&m_rectRestoredWnd);
-		break;
-
 	case SC_MINIMIZE:
-		GetWindowRect(&m_rectRestoredWnd);
 		{
 			StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 			if (!stylesSettings.bTaskbarButton && stylesSettings.bTrayIcon)
@@ -942,22 +937,14 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	if (positionSettings.zOrder == zorderOnBottom) pWinPos->hwndInsertAfter = HWND_BOTTOM;
 
-	if (m_bRestoringWindow)
-	{
-		TRACE(
-			L"MainFrame::OnWindowPosChanging restoring (%i,%i)-(%i,%i)\n",
-			m_rectRestoredWnd.left, m_rectRestoredWnd.top,
-			m_rectRestoredWnd.right, m_rectRestoredWnd.bottom);
-		pWinPos->x = m_rectRestoredWnd.left;
-		pWinPos->y = m_rectRestoredWnd.top;
-
-		return 0;
-	}
-
 	if (!(pWinPos->flags & SWP_NOMOVE) && GetKeyState(VK_LWIN) >= 0 && GetKeyState(VK_RWIN) >= 0)
 	{
-		// do nothing for minimized or maximized or fullscreen windows
-		if (IsIconic() || IsZoomed() || m_bFullScreen) return 0;
+		// do nothing for minimized or maximized or fullscreen windows or restoring
+		if(IsIconic() || IsZoomed() || m_bFullScreen || m_bRestoringWindow)
+		{
+			bHandled = FALSE;
+			return 0;
+		}
 
 		if (positionSettings.nSnapDistance >= 0)
 		{

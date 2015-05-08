@@ -432,7 +432,6 @@ class MainFrame
 
 		bool			m_bAppActive;
 		bool			m_bRestoringWindow;
-		CRect			m_rectRestoredWnd;
 		CRect			m_rectWndNotFS;
 
 		CToolBarCtrl        m_toolbar;

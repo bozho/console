@@ -547,9 +547,26 @@ public:
 
 		::SendMessage(hWnd, TB_ADDBUTTONS, nItems, (LPARAM)pTBBtn);
 		::SendMessage(hWnd, TB_SETBITMAPSIZE, 0, MAKELONG(pData->wWidth, __max(pData->wHeight, cyFontHeight)));
+
+		// when toolbar receives WM_THEMECHANGED
+		// buttons' size and position are recalculated
+		// WTL default code specifies the same size for each button
+		// with a drop down button the result is bad :
+		//   buttons' size increase or buttons get out of the toolbar
+		//   tooltips are no longer working
+		// to reproduce the problem :
+		//   use remote desktop
+		//   lauch the application
+		//   disconnect remote desktop
+		//   reconnect remote desktop
+		//   the toolbar with drop down button has bad aspect
+		// we fix by using toolbar auto sizing
+#if 0
 		const int cxyButtonMargin = 7;
 		::SendMessage(hWnd, TB_SETBUTTONSIZE, 0, MAKELONG(pData->wWidth + cxyButtonMargin, __max(pData->wHeight, cyFontHeight) + cxyButtonMargin));
-
+#else
+		::SendMessage(hWnd, TB_AUTOSIZE, 0, 0);
+#endif
 		return hWnd;
 	}
 

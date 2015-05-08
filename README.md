@@ -28,17 +28,30 @@ Changelog
     + added
     * fixed
 
-Changes in 1.14.0 experimental (23 Mar 2015)
+Changes in 1.14.0 (08 May 2015)
 
+    ! Limit frame rate to avoid unresponsive application.
+    ! Use IDesktopWallpaper to retrieve monitors' wallpaper (Win8).
+    ! Update title even without text modification.
+    ! Double-click on scroll buttons do nothing.
     + 'Tabs' entry in the menubar.
+    + -n command arg to set startup tab title.
     * Fix bad cursor display in tabs settings.
     * Fix console cursor color.
+    * Fix a crash in diagnostic report writing.
+    * Call DoDataExchange(DDX_SAVE) before modifiying values
+      in browse shell/initial dir buttons.
+    * Prevent from infinite waiting when the shell is terminated
+      during a mouse forwarding or a text selection.
+    * Fix program does not respond by opening the setting dialog.
+    * Fix toolbar does not work from remote desktop.
 
 Changes in 1.13.0 (14 Feb 2015)
 
     ! Visual Studio 2013
+    ! WTL 9.4140 final
     ! Legacy 32 bits version is compatible with Windows XP.
-    ! Support high DPI
+    ! Support high DPI.
     ! Create HOMEDRIVE, HOMEPATH and HOMESHARE environment variables
       when launching shell as different user.
     ! Expand environment strings using environment bloc

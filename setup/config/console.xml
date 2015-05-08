@@ -46,7 +46,7 @@
 		<close allow_closing_last_view="0" confirm_closing_multiple_views="1"/>
 		<focus follow_mouse="0"/>
 		<instance allow_multi="1"/>
-		<clone use_current_dir="1"/>
+		<clone use_current_dir="0"/>
 		<search match_case="0" match_whole_word="0"/>
 		<runas use_credprov="1"/>
 	</behavior>

@@ -165,7 +165,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		}
 		catch (const ConsoleException& ex)
 		{
-			m_exceptionMessage = ex.GetMessage().c_str();
+			m_exceptionMessage = ex.GetMessage();
 			return -1;
 		}
 	}
@@ -180,7 +180,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 		}
 		catch (const ConsoleException& ex)
 		{
-			m_exceptionMessage = ex.GetMessage().c_str();
+			m_exceptionMessage = ex.GetMessage();
 			return -1;
 		}
 	}

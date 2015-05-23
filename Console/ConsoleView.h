@@ -169,7 +169,7 @@ class ConsoleView
 		void DumpBuffer();
 		void InitializeScrollbars();
 
-		const CString& GetExceptionMessage() const { return m_exceptionMessage; }
+		const std::wstring& GetExceptionMessage() const { return m_exceptionMessage; }
 
 		inline bool IsGrouped() const { return m_boolIsGrouped; }
 		void Group(bool b) { m_boolIsGrouped = b; }
@@ -267,7 +267,7 @@ class ConsoleView
 		// since message handlers are not exception-safe,
 		// we'll store error messages thrown during OnCreate
 		// handler here...
-		CString							m_exceptionMessage;
+		std::wstring        m_exceptionMessage;
 
 		CString             m_strUACPrefix;
 

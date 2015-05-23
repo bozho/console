@@ -326,14 +326,14 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 
 	if (hwndConsoleView == NULL)
 	{
-		CString	strMessage(consoleView->GetExceptionMessage());
+		std::wstring strMessage(consoleView->GetExceptionMessage());
 
-		if (strMessage.GetLength() == 0)
+		if(strMessage.empty())
 		{
-			strMessage.Format(IDS_ERR_TAB_CREATE_FAILED, m_tabData->strTitle.c_str(), m_tabData->strShell.c_str());
+			strMessage = boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_TAB_CREATE_FAILED)) % m_tabData->strTitle.c_str() % m_tabData->strShell.c_str());
 		}
 
-		MessageBox(strMessage, L"Error", MB_OK|MB_ICONERROR);
+		MessageBox(strMessage.c_str(), L"Error", MB_OK|MB_ICONERROR);
 
 		return 0;
 	}

@@ -240,6 +240,7 @@ void DlgSettingsAppearance::EnableControls()
 	GetDlgItem(IDC_TRIM_TAB_TITLES_RIGHT).EnableWindow(m_bTrimTabTitles);
 	GetDlgItem(IDC_SPIN_TRIM_TAB_TITLES_RIGHT).EnableWindow(m_bTrimTabTitles);
 	GetDlgItem(IDC_STATIC_TRIM_CHARS).EnableWindow(m_bTrimTabTitles);
+	GetDlgItem(IDC_STATIC_TRIM_CHARS2).EnableWindow(m_bTrimTabTitles);
 	GetDlgItem(IDC_STATIC_TRIM_CHARS_RIGHT).EnableWindow(m_bTrimTabTitles);
 
 	GetDlgItem(IDC_WINDOW_ICON).EnableWindow(!m_windowSettings.bUseTabIcon);

@@ -210,6 +210,7 @@
 #define IDC_CHECK_SENSITIVE_COPY        1147
 #define IDC_CHECK_TRIM_TAB_TITLES       1148
 #define IDC_STATIC_TRIM_CHARS           1149
+#define IDC_STATIC_TRIM_CHARS2          1150
 #define IDC_PAGE_SCROLL                 1150
 #define IDC_PAGE_SCROLL2                1151
 #define IDC_SCROLL_PAGE_ROWS            1152

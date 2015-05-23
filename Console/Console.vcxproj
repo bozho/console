@@ -639,6 +639,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClCompile Include="DlgSettingsMouse.cpp" />
     <ClCompile Include="DlgSettingsStyles.cpp" />
     <ClCompile Include="DlgSettingsTabs.cpp" />
+    <ClCompile Include="DlgSettingsTransparency.cpp" />
     <ClCompile Include="Helpers.cpp" />
     <ClCompile Include="ImageHandler.cpp" />
     <ClCompile Include="JumpList.cpp" />
@@ -691,6 +692,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <ClInclude Include="DlgSettingsMouse.h" />
     <ClInclude Include="DlgSettingsStyles.h" />
     <ClInclude Include="DlgSettingsTabs.h" />
+    <ClInclude Include="DlgSettingsTransparency.h" />
     <ClInclude Include="FastDelegate.h" />
     <ClInclude Include="Helpers.h" />
     <ClInclude Include="HotkeyEdit.h" />

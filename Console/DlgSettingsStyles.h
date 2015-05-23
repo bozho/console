@@ -40,23 +40,19 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_INTEGRATED_IME, m_stylesSettings.bIntegratedIME)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_UINT(IDC_QUAKE_ANIMATION_TIME, m_stylesSettings.dwQuakeAnimationTime)
-			DDX_RADIO(IDC_TRANSPARENCY_TYPE, reinterpret_cast<int&>(m_transparencySettings.transType))
 			DDX_CHECK(IDC_CHECK_HIDE_TAB_ICONS, m_controlsSettings.bHideTabIcons)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsStyles)
 			MESSAGE_HANDLER(WM_INITDIALOG, OnInitDialog)
 			MESSAGE_HANDLER(WM_CTLCOLORSTATIC, OnCtlColorStatic)
-			MESSAGE_HANDLER(WM_HSCROLL, OnHScroll)
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_HANDLER(IDC_CHECK_SHOW_TABS, BN_CLICKED, OnClickedShowTabs)
 			COMMAND_HANDLER(IDC_CHECK_SHOW_SCROLLBARS, BN_CLICKED, OnClickedShowScrollbars)
 			COMMAND_HANDLER(IDC_CHECK_STYLE_QUAKE, BN_CLICKED, OnClickedQuake)
-			COMMAND_HANDLER(IDC_KEY_COLOR, BN_CLICKED, OnClickedKeyColor)
 			COMMAND_HANDLER(IDC_SELECTION_COLOR, BN_CLICKED, OnClickedSelColor)
 			COMMAND_HANDLER(IDC_HIGHLIGHT_COLOR, BN_CLICKED, OnClickedHiColor)
-			COMMAND_RANGE_CODE_HANDLER(IDC_TRANSPARENCY_TYPE, IDC_TRANSPARENCY_TYPE4, BN_CLICKED, OnClickedTransType)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -66,33 +62,24 @@ class DlgSettingsStyles
 
 		LRESULT OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnCtlColorStatic(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
-		LRESULT OnHScroll(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedShowTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedShowScrollbars(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
-		LRESULT OnClickedKeyColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedSelColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedHiColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
-		LRESULT OnClickedTransType(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
 
-		void UpdateSliderText(HWND hwnd);
 		void EnableTabControls();
 		void EnableScrollbarControls();
 		void EnableQuakeControls();
-		void EnableTransparencyControls();
 
 	private:
 
 		ControlsSettings			m_controlsSettings;
 		StylesSettings				m_stylesSettings;
-		TransparencySettings		m_transparencySettings;
-
-		CTrackBarCtrl				m_sliderActiveAlpha;
-		CTrackBarCtrl				m_sliderInactiveAlpha;
 };
 
 //////////////////////////////////////////////////////////////////////////////

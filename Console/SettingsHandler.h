@@ -204,6 +204,7 @@ struct StylesSettings : public SettingsBase
 	bool			bQuake;
 	bool			bJumplist;
 	bool			bIntegratedIME;
+	bool			bHideWhenInactive;
 	DWORD			dwInsideBorder;
 	DWORD			dwQuakeAnimationTime;
 	COLORREF		crSelectionColor;

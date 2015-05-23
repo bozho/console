@@ -136,6 +136,7 @@ MainFrame::MainFrame
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
 , m_bRestoringWindow(false)
 , m_bAppActive(true)
+, m_bShowingHidingWindow(false)
 , m_hwndPreviousForeground(NULL)
 {
 	m_Margins.cxLeftWidth    = 0;
@@ -620,6 +621,12 @@ LRESULT MainFrame::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	LRESULT ret = ::DefWindowProc(m_hWnd, uMsg, wParam, lParam);
 
 	m_bAppActive = static_cast<BOOL>(wParam)? true : false;
+	TRACE(L"OnActivateApp (%s)\n", m_bAppActive? L"true" : L"false");
+
+	if(m_bShowingHidingWindow) return ret;
+
+	if(!m_bAppActive && g_settingsHandler->GetAppearanceSettings().stylesSettings.bHideWhenInactive)
+		this->ShowHideWindow(ShowHideWidowAction::SHWA_HIDE_ONLY);
 
 	this->ActivateApp();
 
@@ -667,19 +674,34 @@ void MainFrame::ActivateApp(void)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowHideWindow(bool bShowOnly)
+void MainFrame::ShowHideWindow(ShowHideWidowAction action /*= ShowHideWidowAction::SHWA_SWITCH*/)
 {
+	m_bShowingHidingWindow = true;
+
 	bool bVisible = this->IsWindowVisible()? true : false;
 	bool bIconic  = this->IsIconic()? true : false;
 
-	TRACE(L"=========== active=%s, visible=%s, iconic=%s ===========\n",
+	TRACE(L"====in====== active=%s, visible=%s, iconic=%s, action=%i ====in=====\n",
 		  m_bAppActive ? L"true" : L"false",
 		  bVisible ? L"true" : L"false",
-		  bIconic ? L"true" : L"false");
+		  bIconic ? L"true" : L"false",
+		  action);
 
 	bool bActivate = true;
+	bool bSwitch   = true;
 
-	if(!(bShowOnly && m_bAppActive && bVisible && !bIconic))
+	if(action == ShowHideWidowAction::SHWA_HIDE_ONLY && !bVisible && bIconic)
+	{
+		bActivate = false;
+		bSwitch   = false;
+	}
+
+	if(action == ShowHideWidowAction::SHWA_SHOW_ONLY && m_bAppActive && bVisible && !bIconic)
+	{
+		bSwitch   = false;
+	}
+
+	if(bSwitch)
 	{
 		StylesSettings& stylesSettings = g_settingsHandler->GetAppearanceSettings().stylesSettings;
 		bool bQuake = stylesSettings.bQuake;
@@ -719,37 +741,53 @@ void MainFrame::ShowHideWindow(bool bShowOnly)
 
 		if(bQuake)
 		{
-			if(!m_bAppActive)
-			{
-				this->m_hwndPreviousForeground = ::GetForegroundWindow();
-			}
-
-			if(!bVisible)
-			{
-				::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwActivateFlags);
-				this->RedrawWindow(NULL, NULL, RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME | RDW_INVALIDATE | RDW_ERASE);
-			}
-			else if(m_bAppActive)
+			if(action == ShowHideWidowAction::SHWA_HIDE_ONLY)
 			{
 				::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwHideFlags);
-				::SetForegroundWindow(this->m_hwndPreviousForeground);
 				bActivate = false;
+			}
+			else
+			{
+				if(!m_bAppActive)
+				{
+					this->m_hwndPreviousForeground = ::GetForegroundWindow();
+				}
+
+				if(!bVisible)
+				{
+					::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwActivateFlags);
+					this->RedrawWindow(NULL, NULL, RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME | RDW_INVALIDATE | RDW_ERASE);
+				}
+				else if(m_bAppActive)
+				{
+					::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwHideFlags);
+					::SetForegroundWindow(this->m_hwndPreviousForeground);
+					bActivate = false;
+				}
 			}
 		}
 		else
 		{
-			if(bIconic)
-			{
-				ShowWindow(SW_RESTORE);
-			}
-			else if(!bVisible)
-			{
-				ShowWindow(SW_SHOW);
-			}
-			else if(m_bAppActive)
+			if(action == ShowHideWidowAction::SHWA_HIDE_ONLY)
 			{
 				ShowWindow(stylesSettings.bTaskbarButton ? SW_MINIMIZE : SW_HIDE);
 				bActivate = false;
+			}
+			else
+			{
+				if(bIconic)
+				{
+					ShowWindow(SW_RESTORE);
+				}
+				else if(!bVisible)
+				{
+					ShowWindow(SW_SHOW);
+				}
+				else if(m_bAppActive)
+				{
+					ShowWindow(stylesSettings.bTaskbarButton ? SW_MINIMIZE : SW_HIDE);
+					bActivate = false;
+				}
 			}
 		}
 	}
@@ -770,6 +808,14 @@ void MainFrame::ShowHideWindow(bool bShowOnly)
     ::SetCursorPos(cursorPos.x, cursorPos.y);
     ::SetForegroundWindow(m_hWnd);
   }
+
+	TRACE(L"====out===== visible=%s, iconic=%s, activate=%s, switch=%s ====out====\n",
+			  this->IsWindowVisible() ? L"true" : L"false",
+			  this->IsIconic() ? L"true" : L"false",
+			  bActivate ? L"true" : L"false",
+			  bSwitch ? L"true" : L"false");
+
+	m_bShowingHidingWindow = false;
 }
 
 LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
@@ -1831,7 +1877,7 @@ LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 
 	if (nNewSel >= m_TabCtrl.GetItemCount()) return 0;
 
-	ShowHideWindow(true);
+	ShowHideWindow(ShowHideWidowAction::SHWA_SHOW_ONLY);
 
 	m_TabCtrl.SetCurSel(nNewSel);
 

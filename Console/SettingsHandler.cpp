@@ -628,6 +628,7 @@ StylesSettings::StylesSettings()
 , bQuake(false)
 , bJumplist(false)
 , bIntegratedIME(false)
+, bHideWhenInactive(false)
 , dwInsideBorder(2)
 , dwQuakeAnimationTime(300)
 , crSelectionColor(RGB(255, 255, 255))
@@ -656,6 +657,7 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"quake_animation_time"), dwQuakeAnimationTime, 300);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"jumplist"), bJumplist, false);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME, false);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"hide_when_inactive"), bHideWhenInactive, false);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
 	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
@@ -689,6 +691,7 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"quake_animation_time"), dwQuakeAnimationTime);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"jumplist"), bJumplist);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"hide_when_inactive"), bHideWhenInactive);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
 	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
@@ -716,6 +719,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	bQuake		= other.bQuake;
 	bJumplist		= other.bJumplist;
 	bIntegratedIME		= other.bIntegratedIME;
+	bHideWhenInactive = other.bHideWhenInactive;
 	dwInsideBorder	= other.dwInsideBorder;
 	dwQuakeAnimationTime	= other.dwQuakeAnimationTime;
 	crSelectionColor= other.crSelectionColor;

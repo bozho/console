@@ -21,6 +21,13 @@ class ConsoleView;
 struct ConsoleViewCreate;
 typedef map<HWND, std::shared_ptr<TabView> >	TabViewMap;
 
+enum ShowHideWidowAction
+{
+	SHWA_SWITCH = 0,
+	SHWA_SHOW_ONLY = 1,
+	SHWA_HIDE_ONLY = 2,
+};
+
 //////////////////////////////////////////////////////////////////////////////
 
 class MainFrame 
@@ -364,7 +371,7 @@ class MainFrame
 		void UnregisterGlobalHotkeys();
 		void CreateStatusBar();
 		BOOL SetTrayIcon(DWORD dwMessage);
-		void ShowHideWindow(bool bShowOnly = false);
+		void ShowHideWindow(ShowHideWidowAction action = ShowHideWidowAction::SHWA_SWITCH);
 
 		void LoadSearchMRU();
 		void SaveSearchMRU();
@@ -431,6 +438,7 @@ class MainFrame
 		DWORD			m_dwResizeWindowEdge;
 
 		bool			m_bAppActive;
+		bool			m_bShowingHidingWindow;
 		bool			m_bRestoringWindow;
 		CRect			m_rectWndNotFS;
 

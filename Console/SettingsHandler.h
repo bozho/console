@@ -550,10 +550,10 @@ struct HotKeys : public SettingsBase
 
 	struct CommandData
 	{
-		CommandData(const wstring& command, WORD commandID, const wstring& description, bool global = false)
+		CommandData(const wstring& command, WORD commandID, const UINT descriptionID, bool global = false)
 		: strCommand(command)
 		, wCommandID(commandID)
-		, strDescription(description)
+		, strDescription(Helpers::LoadString(descriptionID))
 		, bExtended(false)
 		, bGlobal(global)
 		, bWin(false)
@@ -723,10 +723,10 @@ struct MouseSettings : public SettingsBase
 
 	struct CommandData
 	{
-		CommandData(Command cmd, wstring strCmd, wstring strDesc)
+		CommandData(Command cmd, wstring strCmd, const UINT descriptionID)
 		: command(cmd)
 		, strCommand(strCmd)
-		, strDescription(strDesc)
+		, strDescription(Helpers::LoadString(descriptionID))
 		{
 		}
 

@@ -42,7 +42,7 @@ class DlgSettingsMain
 	private:
 
 		void CreateSettingsTree();
-		HTREEITEM AddDialogToTree(const wstring& strName, const std::shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent = NULL);
+		HTREEITEM AddDialogToTree(const UINT descriptionID, const std::shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent = NULL);
 
 	private:
 

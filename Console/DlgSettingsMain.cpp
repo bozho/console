@@ -154,46 +154,46 @@ void DlgSettingsMain::CreateSettingsTree()
 
 	// create console settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgConsole(new DlgSettingsConsole(m_pSettingsRoot));
-	AddDialogToTree(L"Console", dlgConsole, rect);
+	AddDialogToTree(IDS_SETTINGS_CONSOLE, dlgConsole, rect);
 
 	// create appearance settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgAppearance(new DlgSettingsAppearance(m_pSettingsRoot));
-	HTREEITEM htiAppearance = AddDialogToTree(L"Appearance", dlgAppearance, rect);
+	HTREEITEM htiAppearance = AddDialogToTree(IDS_SETTINGS_APPEARANCE, dlgAppearance, rect);
 
 	// create styles settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgStyles(new DlgSettingsStyles(m_pSettingsRoot));
-	AddDialogToTree(L"Styles", dlgStyles, rect, htiAppearance);
+	AddDialogToTree(IDS_SETTINGS_STYLES, dlgStyles, rect, htiAppearance);
 
 	// create window transparency dialog
 	std::shared_ptr<DlgSettingsBase>	dlgTransparency(new DlgSettingsTransparency(m_pSettingsRoot));
-	AddDialogToTree(L"Transparency", dlgTransparency, rect, htiAppearance);
+	AddDialogToTree(IDS_SETTINGS_TRANSPARENCY, dlgTransparency, rect, htiAppearance);
 
 	// create styles settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgFont(new DlgSettingsFont(m_pSettingsRoot));
-	AddDialogToTree(L"Font", dlgFont, rect, htiAppearance);
+	AddDialogToTree(IDS_SETTINGS_FONT, dlgFont, rect, htiAppearance);
 
 	// create full screen settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgFullScreen(new DlgSettingsFullScreen(m_pSettingsRoot));
-	AddDialogToTree(L"Full screen", dlgFullScreen, rect, htiAppearance);
+	AddDialogToTree(IDS_SETTINGS_FULLSCREEN, dlgFullScreen, rect, htiAppearance);
 
 	// create behavior settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgBehavior(new DlgSettingsBehavior(m_pSettingsRoot));
-	HTREEITEM htiBehavior = AddDialogToTree(L"Behavior", dlgBehavior, rect);
+	HTREEITEM htiBehavior = AddDialogToTree(IDS_SETTINGS_BEHAVIOR, dlgBehavior, rect);
 
 	std::shared_ptr<DlgSettingsBase>	dlgBehavior2(new DlgSettingsBehavior2(m_pSettingsRoot));
-	AddDialogToTree(L"More...", dlgBehavior2, rect, htiBehavior);
+	AddDialogToTree(IDS_SETTINGS_MORE, dlgBehavior2, rect, htiBehavior);
 
 	// create hotkeys settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgHotKeys(new DlgSettingsHotkeys(m_pSettingsRoot));
-	HTREEITEM htiHotkeys = AddDialogToTree(L"Hotkeys", dlgHotKeys, rect);
+	HTREEITEM htiHotkeys = AddDialogToTree(IDS_SETTINGS_HOTKEYS, dlgHotKeys, rect);
 
 	// create mouse commands settings dialog
 	std::shared_ptr<DlgSettingsBase>	dlgMouseCmds(new DlgSettingsMouse(m_pSettingsRoot));
-	AddDialogToTree(L"Mouse", dlgMouseCmds, rect, htiHotkeys);
+	AddDialogToTree(IDS_SETTINGS_MOUSE, dlgMouseCmds, rect, htiHotkeys);
 
 	// create tabs settings dialog
 	shared_ptr<DlgSettingsBase>	dlgTabs(new DlgSettingsTabs(m_pSettingsRoot, dynamic_cast<DlgSettingsConsole*>(dlgConsole.get())->m_consoleSettings));
-	AddDialogToTree(L"Tabs", dlgTabs, rect);
+	AddDialogToTree(IDS_SETTINGS_TABS, dlgTabs, rect);
 
 	m_treeCtrl.Expand(htiAppearance);
 	m_treeCtrl.Expand(htiBehavior);
@@ -206,12 +206,12 @@ void DlgSettingsMain::CreateSettingsTree()
 
 //////////////////////////////////////////////////////////////////////////////
 
-HTREEITEM DlgSettingsMain::AddDialogToTree(const wstring& strName, const std::shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/)
+HTREEITEM DlgSettingsMain::AddDialogToTree(const UINT descriptionID, const std::shared_ptr<DlgSettingsBase>& newDlg, CRect& rect, HTREEITEM htiParent /*= NULL*/)
 {
 	newDlg->Create(m_hWnd, rect);
 	newDlg->SetWindowPos(HWND_TOP, rect.left, rect.top, 0, 0, SWP_NOSIZE);
 
-	HTREEITEM hItem = m_treeCtrl.InsertItem(strName.c_str(), htiParent, NULL);
+	HTREEITEM hItem = m_treeCtrl.InsertItem(Helpers::LoadString(descriptionID).c_str(), htiParent, NULL);
 
 	if (hItem != NULL) m_settingsDlgMap.insert(SettingsDlgsMap::value_type(hItem, newDlg));
 

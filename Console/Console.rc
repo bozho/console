@@ -970,6 +970,142 @@ BEGIN
                             "Invalid number of console columns! Must be between %d and %d."
 END
 
+STRINGTABLE
+BEGIN
+    IDS_EDIT_SETTINGS        "Settings dialog"
+    IDS_HELP                 "Help"
+
+    IDS_APP_EXIT             "Exit ConsoleZ"
+
+    IDS_NEW_TAB_1            "New Tab 1"
+    IDS_NEW_TAB_2            "New Tab 2"
+    IDS_NEW_TAB_3            "New Tab 3"
+    IDS_NEW_TAB_4            "New Tab 4"
+    IDS_NEW_TAB_5            "New Tab 5"
+    IDS_NEW_TAB_6            "New Tab 6"
+    IDS_NEW_TAB_7            "New Tab 7"
+    IDS_NEW_TAB_8            "New Tab 8"
+    IDS_NEW_TAB_9            "New Tab 9"
+    IDS_NEW_TAB_10           "New Tab 10"
+    IDS_NEW_TAB_11           "New Tab 11"
+    IDS_NEW_TAB_12           "New Tab 12"
+
+    IDS_SWITCH_TAB_1         "Switch to tab 1"
+    IDS_SWITCH_TAB_2         "Switch to tab 2"
+    IDS_SWITCH_TAB_3         "Switch to tab 3"
+    IDS_SWITCH_TAB_4         "Switch to tab 4"
+    IDS_SWITCH_TAB_5         "Switch to tab 5"
+    IDS_SWITCH_TAB_6         "Switch to tab 6"
+    IDS_SWITCH_TAB_7         "Switch to tab 7"
+    IDS_SWITCH_TAB_8         "Switch to tab 8"
+    IDS_SWITCH_TAB_9         "Switch to tab 9"
+    IDS_SWITCH_TAB_10        "Switch to tab 10"
+
+    IDS_NEXT_TAB             "Switch to next tab"
+    IDS_PREV_TAB             "Switch to previous tab"
+
+    IDS_FILE_CLOSE_TAB       "Close tab"
+    IDS_EDIT_RENAME_TAB      "Rename tab"
+
+    IDS_NEXT_VIEW            "Switch to next view"
+    IDS_PREV_VIEW            "Switch to previous view"
+    IDS_LEFT_VIEW            "Switch to left view"
+    IDS_RIGHT_VIEW           "Switch to right view"
+    IDS_TOP_VIEW             "Switch to top view"
+    IDS_BOTTOM_VIEW          "Switch to bottom view"
+
+    IDS_DEC_HORIZ_SIZE       "Decrease horizontal view size"
+    IDS_INC_HORIZ_SIZE       "Increase horizontal view size"
+    IDS_DEC_VERT_SIZE        "Decrease vertical view size"
+    IDS_INC_VERT_SIZE        "Increase vertical view size"
+
+    IDS_CLOSE_VIEW           "Close view"
+    IDS_DETACH_VIEW          "Detach view"
+    IDS_ATTACH_CONSOLES      "Attach consoles"
+    IDS_SPLIT_HORIZ          "Split horizontally"
+    IDS_SPLIT_VERT           "Split vertically"
+    IDS_CLONE_IN_NEW_TAB     "Clone view in new tab"
+    IDS_VIEW_FULLSCREEN      "Full Screen"
+    IDS_VIEW_ZOOM_100        "Zoom 100%"
+    IDS_VIEW_ZOOM_INC        "Zoom increment"
+    IDS_VIEW_ZOOM_DEC        "Zoom decrement"
+    IDS_GROUP_ALL            "Group all"
+    IDS_UNGROUP_ALL          "Ungroup all"
+    IDS_GROUP_TAB            "Group tab"
+    IDS_UNGROUP_TAB          "Ungroup tab"
+
+    IDS_EDIT_CLEAR           "Clear screen"
+    IDS_EDIT_COPY            "Copy selection"
+    IDS_EDIT_SELECT_ALL      "Select all"
+    IDS_EDIT_CLEAR_SELECTION "Clear selection"
+    IDS_EDIT_PASTE           "Paste"
+    IDS_EDIT_STOP_SCROLLING  "Stop scrolling"
+
+    IDS_SCROLL_UP            "Scroll buffer row up"
+    IDS_SCROLL_DOWN          "Scroll buffer row down"
+    IDS_SCROLL_PAGE_UP       "Scroll buffer page up"
+    IDS_SCROLL_PAGE_DOWN     "Scroll buffer page down"
+    IDS_SCROLL_LEFT          "Scroll buffer column left"
+    IDS_SCROLL_RIGHT         "Scroll buffer column right"
+    IDS_SCROLL_PAGE_LEFT     "Scroll buffer page left"
+    IDS_SCROLL_PAGE_RIGHT    "Scroll buffer page right"
+
+    IDS_FIND                 "Find text"
+    IDS_SEARCH_NEXT          "Find next"
+    IDS_SEARCH_PREV          "Find previous"
+
+    IDS_SWITCH_TRANSPARENCY  "Turn on/off transparency"
+
+    IDS_DUMP_BUFFER          "Dump screen buffer"
+
+    IDS_SHOW_CONTEXT_MENU_1  "Show Context menu #1"
+    IDS_SHOW_CONTEXT_MENU_2  "Show Context menu #2"
+    IDS_SHOW_CONTEXT_MENU_3  "Show Context menu #3"
+
+    IDS_SEND_CTRL_C          "Send CTRL-C event"
+
+    IDS_EXTERNAL_COMMAND_1   "External command 1"
+    IDS_EXTERNAL_COMMAND_2   "External command 2"
+    IDS_EXTERNAL_COMMAND_3   "External command 3"
+    IDS_EXTERNAL_COMMAND_4   "External command 4"
+    IDS_EXTERNAL_COMMAND_5   "External command 5"
+    IDS_EXTERNAL_COMMAND_6   "External command 6"
+    IDS_EXTERNAL_COMMAND_7   "External command 7"
+    IDS_EXTERNAL_COMMAND_8   "External command 8"
+    IDS_EXTERNAL_COMMAND_9   "External command 9"
+    IDS_EXTERNAL_COMMAND_10  "External command 10"
+
+    IDS_GLOBAL_ACTIVATE      "Activate ConsoleZ (global)"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MOUSE_COPY           "Copy/clear selection"
+    IDS_MOUSE_SELECT         "Select text"
+    IDS_MOUSE_COLUMNSELECT   "Select column"
+    IDS_MOUSE_PASTE          "Paste text"
+    IDS_MOUSE_DRAG           "Drag window"
+    IDS_MOUSE_LINK           "Click link"
+    IDS_MOUSE_MENU1          "Context menu #1"
+    IDS_MOUSE_MENU2          "Context menu #2"
+    IDS_MOUSE_MENU3          "Context menu #3"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_SETTINGS_CONSOLE     "Console"
+    IDS_SETTINGS_APPEARANCE  "Appearance"
+    IDS_SETTINGS_STYLES      "Styles"
+    IDS_SETTINGS_TRANSPARENCY "Transparency"
+    IDS_SETTINGS_FONT        "Font"
+    IDS_SETTINGS_FULLSCREEN  "Full screen"
+    IDS_SETTINGS_BEHAVIOR    "Behavior"
+    IDS_SETTINGS_MORE        "More..."
+    IDS_SETTINGS_HOTKEYS     "Hotkeys"
+    IDS_SETTINGS_MOUSE       "Mouse"
+    IDS_SETTINGS_TABS        "Tabs"
+END
+
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////
 

@@ -1246,7 +1246,6 @@ right:
 link:
 
 	ShellExecute(NULL, L"open", strLink.c_str(), NULL, NULL, SW_SHOWNORMAL);
-	//MessageBox(NULL, strLink.c_str(), L"link", MB_OK);
 }
 
 //////////////////////////////////////////////////////////////////////////////

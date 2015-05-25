@@ -88,8 +88,12 @@ BOOL CALLBACK DlgSettingsFullScreen::MonitorEnumProc(HMONITOR hMonitor, HDC /*hd
 
   std::wstring strMonitor = miex.szDevice;
   strMonitor += L" - ";
-  if( hMonitor == ::MonitorFromWindow(p->m_hWnd, MONITOR_DEFAULTTONULL) )
-    strMonitor += L"[current] - ";
+  if(hMonitor == ::MonitorFromWindow(p->m_hWnd, MONITOR_DEFAULTTONULL))
+	{
+		strMonitor += L"[";
+		strMonitor += Helpers::LoadStringW(MSG_SETTINGS_FULLSCREEN_CURRENT);
+		strMonitor += L"] - ";
+	}
   strMonitor += dd.DeviceString;
   p->m_comboFullScreenMonitor.AddString(strMonitor.c_str());
 

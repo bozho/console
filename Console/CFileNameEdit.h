@@ -35,7 +35,6 @@ public:
 
 			if( this->OnDropFile(strFilename) )
 				SetWindowText(strFilename);
-			//::MessageBox(m_hWnd,szFilename,L"Information",MB_OK);
 		}
 		::DragFinish(hDrop);
 		return 0;

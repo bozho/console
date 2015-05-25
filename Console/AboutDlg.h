@@ -109,19 +109,9 @@ public:
     dtto.crText    = RGB(240,240,240);
     dtto.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR | DTT_GLOWSIZE;
    
-    CString strMsgVersion;
-    strMsgVersion.Format(
-      L"\nConsoleZ %i.%i.%i.%i\n"
-      L"Copyleft (ↄ)\n"
-      L"2011-2015\n"
-      L"Christophe Bucher\n"
-      L"\n"
-      L"a modified version of\n"
-      L"Console 2 from\n"
-      L"Marko Bozikovic"
-      , VERSION_MAJOR, VERSION_MINOR, VERSION_BUILD, VERSION_BUILD2);
+    std::wstring strMsgVersion = boost::str(boost::wformat(Helpers::LoadStringW(MSG_ABOUT)) % VERSION_MAJOR % VERSION_MINOR % VERSION_BUILD % VERSION_BUILD2);
 
-    this->DrawTextW(dc, strMsgVersion, rectVersion, DT_CENTER, dtto);
+    this->DrawTextW(dc, strMsgVersion.c_str(), rectVersion, DT_CENTER, dtto);
   }
 #endif
 };

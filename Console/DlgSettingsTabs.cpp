@@ -233,7 +233,7 @@ LRESULT DlgSettingsTabs::OnDown(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT DlgSettingsTabs::OnDelete(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	if (::MessageBox(m_hWnd, L"Delete selected tab?", L"ConsoleZ", MB_YESNO|MB_ICONQUESTION) != IDYES) return 0;
+	if (MessageBox(Helpers::LoadString(MSG_SETTINGS_DELETE_TAB).c_str(), L"ConsoleZ", MB_YESNO|MB_ICONQUESTION) != IDYES) return 0;
 
 	int nItem = m_listCtrl.GetSelectedIndex();
 

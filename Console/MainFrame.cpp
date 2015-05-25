@@ -280,7 +280,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	// you cannot define an empty submenu in resource file
 	CMenuHandle menu(GetMenu());
 	m_openedTabsMenu.CreatePopupMenu();
-	menu.InsertMenu(menu.GetMenuItemCount() - 1, MF_BYPOSITION|MF_POPUP, m_openedTabsMenu, L"Tabs");
+	menu.InsertMenu(menu.GetMenuItemCount() - 1, MF_BYPOSITION|MF_POPUP, m_openedTabsMenu, Helpers::LoadStringW(IDS_SETTINGS_TABS).c_str());
 
 	// create command bar window
 	HWND hWndCmdBar = m_CmdBar.Create(m_hWnd, rcDefault, NULL, ATL_SIMPLE_CMDBAR_PANE_STYLE);
@@ -382,7 +382,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	m_searchedit = m_cb.GetEditCtrl();
 #endif
 
-	m_searchedit.SetCueBannerText(L"Search...");
+	m_searchedit.SetCueBannerText(Helpers::LoadStringW(MSG_MAINFRAME_SEARCH).c_str());
 
 	// The combobox might not be centred vertically, and we won't know the
 	// height until it has been created.  Get the size now and see if it
@@ -537,21 +537,21 @@ LRESULT MainFrame::OnEraseBkgnd(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lPara
 
 LRESULT MainFrame::OnClose(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  if( g_settingsHandler->GetBehaviorSettings().closeSettings.bConfirmClosingMultipleViews )
-  {
-    MutexLock lock(m_tabsMutex);
+	if(g_settingsHandler->GetBehaviorSettings().closeSettings.bConfirmClosingMultipleViews)
+	{
+		MutexLock lock(m_tabsMutex);
 
-    if( m_tabs.size() > 1 )
-    {
-      if( ::MessageBox(m_hWnd, L"Are you sure you want close all tabs ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL )
-        return 0;
-    }
-    else if( m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() > 1 )
-    {
-        if( ::MessageBox(m_hWnd, L"Are you sure you want close all views ?", L"Close", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL )
-          return 0;
-    }
-  }
+		if(m_tabs.size() > 1)
+		{
+			if(MessageBox(Helpers::LoadString(MSG_MAINFRAME_CLOSE_ALL_TABS).c_str(), L"ConsoleZ", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL)
+				return 0;
+		}
+		else if(m_tabs.size() == 1 && m_tabs.begin()->second->GetViewsCount() > 1)
+		{
+			if(MessageBox(Helpers::LoadString(MSG_MAINFRAME_CLOSE_ALL_VIEWS).c_str(), L"ConsoleZ", MB_OKCANCEL | MB_ICONQUESTION) == IDCANCEL)
+				return 0;
+		}
+	}
 
 	// save settings on exit
 	bool				bSaveSettings		= false;
@@ -1437,8 +1437,7 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, TabView * tabView, s
 	return result;
 
 error:
-	result = L"syntax error at position ";
-	result += std::to_wstring(position);
+	result = boost::str(boost::wformat(Helpers::LoadStringW(MSG_MAINFRAME_SYNTAX_ERROR)) % position);
 
 	return result;
 }
@@ -2733,7 +2732,7 @@ LRESULT MainFrame::OnFontInfo(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 	}
 	catch(std::exception& e)
 	{
-		::MessageBoxA(0, e.what(), "error", MB_ICONERROR | MB_OK);
+		::MessageBoxA(0, e.what(), "exception", MB_ICONERROR | MB_OK);
 	}
 	return 0;
 }
@@ -2896,7 +2895,7 @@ LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 	}
 	catch(std::exception& e)
 	{
-		::MessageBoxA(0, e.what(), "error", MB_ICONERROR|MB_OK);
+		::MessageBoxA(0, e.what(), "exception", MB_ICONERROR|MB_OK);
 	}
 	return 0;
 }
@@ -3146,7 +3145,7 @@ void MainFrame::UpdateOpenedTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu, bool
 			WORD wId = ID_VIEW_FULLSCREEN;
 			auto hotK = g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().find(wId);
 
-			std::wstring strTitle = L"Exit Full Screen";
+			std::wstring strTitle = Helpers::LoadStringW(MSG_MAINFRAME_EXIT_FULLSCREEN);
 			if(hotK != g_settingsHandler->GetHotKeys().commands.get<HotKeys::commandID>().end())
 			{
 				strTitle += L"\t";
@@ -3211,11 +3210,11 @@ void MainFrame::UpdateOpenedTabsMenu(CMenuHandle mainMenu, CMenu& tabsMenu, bool
 		// set tabs menu as popup submenu
 		if(!mainMenu.IsNull())
 		{
-			mainMenu.ModifyMenu(mainMenu.GetMenuItemCount() - 2, MF_BYPOSITION | MF_POPUP, tabsMenu, L"Tabs");
+			mainMenu.ModifyMenu(mainMenu.GetMenuItemCount() - 2, MF_BYPOSITION | MF_POPUP, tabsMenu, Helpers::LoadStringW(IDS_SETTINGS_TABS).c_str());
 		}
 		if(!m_contextMenu.IsNull())
 		{
-			m_contextMenu.ModifyMenu(m_contextMenu.GetMenuItemCount() - 2, MF_BYPOSITION | MF_POPUP, tabsMenu, L"Tabs");
+			m_contextMenu.ModifyMenu(m_contextMenu.GetMenuItemCount() - 2, MF_BYPOSITION | MF_POPUP, tabsMenu, Helpers::LoadStringW(IDS_SETTINGS_TABS).c_str());
 		}
 	}
 }
@@ -4413,7 +4412,7 @@ LRESULT MainFrame::OnExternalCommand(WORD /*wNotifyCode*/, WORD wID, HWND /*hWnd
 	{
 		MessageBox(
 			boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_CANT_START_SHELL)) % strCmdLine % err.what()).c_str(),
-			L"Error",
+			Helpers::LoadString(IDS_CAPTION_ERROR).c_str(),
 			MB_OK|MB_ICONERROR);
 	}
 

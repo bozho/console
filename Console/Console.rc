@@ -987,6 +987,7 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_CAPTION_ERROR "Error"
     IDS_ERR_CANT_START_SHELL "Unable to start %1% (reason:%2%)!"
     IDS_ERR_CANT_START_SHELL_AS_USER "Unable to start %1% as user %2% (reason:%3%)!"
     IDS_ERR_DLL_INJECTION_FAILED "DLL injection has failed (reason:%1%)!"
@@ -1000,13 +1001,38 @@ END
 STRINGTABLE
 BEGIN
     MSG_SETTINGS_INVALID_BUFFER_ROWS
-                            "Invalid number of console buffer rows! Must be between %d and %d."
+                            "Invalid number of console buffer rows! Must be between %1% and %2%."
     MSG_SETTINGS_INVALID_BUFFER_COLUMNS
-                            "Invalid number of console buffer columns! Must be between %d and %d."
+                            "Invalid number of console buffer columns! Must be between %1% and %2%."
     MSG_SETTINGS_INVALID_ROWS
-                            "Invalid number of console rows! Must be between %d and %d."
+                            "Invalid number of console rows! Must be between %1% and %2%."
     MSG_SETTINGS_INVALID_COLUMNS
-                            "Invalid number of console columns! Must be between %d and %d."
+                            "Invalid number of console columns! Must be between %1% and %2%."
+    MSG_SETTINGS_HOTKEY_ALREADY_ASSIGNED
+                            "Hotkey is already assigned to '%1%' command!"
+    MSG_SETTINGS_HOTKEY_NONE
+                            "None"
+    MSG_SETTINGS_FULLSCREEN_CURRENT
+                            "current"
+    MSG_SETTINGS_DELETE_TAB
+                            "Delete selected tab?"
+    MSG_SETTINGS_INIT_DIR
+                            "Choose initial directory"
+
+    MSG_MAINFRAME_CLOSE_ALL_TABS
+                            "Are you sure you want close all tabs ?"
+    MSG_MAINFRAME_CLOSE_ALL_VIEWS
+                            "Are you sure you want close all views ?"
+    MSG_MAINFRAME_SEARCH
+                            "Search..."
+    MSG_MAINFRAME_EXIT_FULLSCREEN
+                            "Exit Full Screen"
+    MSG_MAINFRAME_SYNTAX_ERROR
+                            "syntax error at position %1%"
+
+    MSG_TABVIEW_RUNAS       "Run as different user"
+
+    MSG_ABOUT               "\nConsoleZ %1%.%2%.%3%.%4%\nCopyright (c)\n2011-2015\nChristophe Bucher\n\na modified version of\nConsole 2 from\nMarko Bozikovic"
 END
 
 STRINGTABLE

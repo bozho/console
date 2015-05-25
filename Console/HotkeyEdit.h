@@ -242,9 +242,9 @@ CString CHotkeyEditT<T>::GetHotKeyName(UINT uiVk, WORD wModifiers)
 {
 	CString	strKeyName(L"");
 
-	if ((uiVk == 0) && (wModifiers == 0)) return CString(L"None");
+	if ((uiVk == 0) && (wModifiers == 0)) return CString(Helpers::LoadStringW(MSG_SETTINGS_HOTKEY_NONE).c_str());
 
-  if (wModifiers & FAKE_HOTKEYF_WIN)
+	if (wModifiers & FAKE_HOTKEYF_WIN)
 	{
 		strKeyName += L"WIN+";
 	}

@@ -140,7 +140,7 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /
 
 LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CFolderDialog folderDialog(m_hWnd, L"Choose initial directory");
+	CFolderDialog folderDialog(m_hWnd, Helpers::LoadStringW(MSG_SETTINGS_INIT_DIR).c_str());
 
 	if (folderDialog.DoModal() == IDOK)
 	{
@@ -159,38 +159,42 @@ LRESULT DlgSettingsConsole::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*w
 
 void DlgSettingsConsole::OnDataValidateError(UINT nCtrlID, BOOL bSave, _XData& data)
 {
-	CString message;
+	std::wstring message;
 
 	switch (nCtrlID)
 	{
 		case IDC_BUFFER_ROWS :
 		{
-			message.Format(MSG_SETTINGS_INVALID_BUFFER_ROWS, MIN_BUFFER_ROWS, MAX_BUFFER_ROWS);
+			message = boost::str(boost::wformat(Helpers::LoadStringW(MSG_SETTINGS_INVALID_BUFFER_ROWS)) % MIN_BUFFER_ROWS % MAX_BUFFER_ROWS);
 			break;
 		}
 
 		case IDC_BUFFER_COLUMNS :
 		{
-			message.Format(MSG_SETTINGS_INVALID_BUFFER_COLUMNS, MIN_BUFFER_COLUMNS, MAX_BUFFER_COLUMNS);
+			message = boost::str(boost::wformat(Helpers::LoadStringW(MSG_SETTINGS_INVALID_BUFFER_COLUMNS)) % MIN_BUFFER_COLUMNS % MAX_BUFFER_COLUMNS);
 			break;
 		}
 
 		case IDC_ROWS :
 		{
-			message.Format(MSG_SETTINGS_INVALID_ROWS, MIN_WINDOW_ROWS, MAX_WINDOW_ROWS);
+			message = boost::str(boost::wformat(Helpers::LoadStringW(MSG_SETTINGS_INVALID_ROWS)) % MIN_WINDOW_ROWS % MAX_WINDOW_ROWS);
 			break;
 		}
 
 		case IDC_COLUMNS :
 		{
-			message.Format(MSG_SETTINGS_INVALID_COLUMNS, MIN_WINDOW_COLUMNS, MAX_WINDOW_COLUMNS);
+			message = boost::str(boost::wformat(Helpers::LoadStringW(MSG_SETTINGS_INVALID_COLUMNS)) % MIN_WINDOW_COLUMNS % MAX_WINDOW_COLUMNS);
 			break;
 		}
 
 		default: break;
 	}
 
-	if (message.GetLength() > 0) ::MessageBox(this->GetParent(), message, L"Error", MB_OK|MB_ICONERROR);
+	if(!message.empty())
+		MessageBox(
+			message.c_str(),
+			Helpers::LoadString(IDS_CAPTION_ERROR).c_str(),
+			MB_OK|MB_ICONERROR);
 
 	DlgSettingsBase::OnDataValidateError(nCtrlID, bSave, data);
 }

@@ -154,12 +154,9 @@ LRESULT DlgSettingsHotkeys::OnBtnAssign(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 				if( (*it)->bExtended != bExtended ) continue;
 				if( (*it)->bWin != bWin ) continue;
 
-				std::wstring error =
-					std::wstring(L"Hotkey is already assigned to '") +
-					(*it)->strDescription +
-					std::wstring(L"' command!");
+				std::wstring error = boost::str(boost::wformat(Helpers::LoadStringW(MSG_SETTINGS_HOTKEY_ALREADY_ASSIGNED)) % (*it)->strDescription.c_str());
+				MessageBox(error.c_str(), Helpers::LoadString(IDS_CAPTION_ERROR).c_str(), MB_OK);
 
-				::MessageBox(m_hWnd, error.c_str(), L"error", MB_OK);
 				return 0;
 			}
 		}

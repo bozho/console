@@ -138,7 +138,7 @@ LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*
 
 LRESULT PageSettingsTabs1::OnClickedBtnBrowseDir(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	CFolderDialog folderDialog(m_hWnd, L"Choose initial directory");
+	CFolderDialog folderDialog(m_hWnd, Helpers::LoadStringW(MSG_SETTINGS_INIT_DIR).c_str());
 
 	if (folderDialog.DoModal() == IDOK)
 	{

@@ -250,7 +250,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 					}
 					catch (const ConsoleException& ex)
 					{
-						MessageBox(NULL, ex.GetMessage().c_str(), L"error", MB_ICONERROR|MB_OK);
+						MessageBox(NULL, ex.GetMessage().c_str(), Helpers::LoadString(IDS_CAPTION_ERROR).c_str(), MB_ICONERROR|MB_OK);
 						return 1;
 					}
 

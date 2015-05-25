@@ -167,11 +167,12 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 			userCredentials.netOnly = m_tabData->bNetOnly;
 #ifdef _USE_AERO
 			// Display a dialog box to request credentials.
+			std::wstring message = Helpers::LoadString(MSG_TABVIEW_RUNAS);
 			CREDUI_INFO ui;
 			ui.cbSize = sizeof(ui);
 			ui.hwndParent = ::IsWindowVisible(m_mainFrame.m_hWnd)? m_mainFrame.m_hWnd : NULL;
 			ui.pszMessageText = m_tabData->strShell.c_str();
-			ui.pszCaptionText = L"Run as different user";
+			ui.pszCaptionText = message.c_str();
 			ui.hbmBanner = NULL;
 
 			// we need a target
@@ -295,7 +296,7 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 			{
 				MessageBox(
 					boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_CANT_START_SHELL_AS_USER)) % L"?" % m_tabData->strUser % err.what()).c_str(),
-					L"Error",
+					Helpers::LoadString(IDS_CAPTION_ERROR).c_str(),
 					MB_OK|MB_ICONERROR);
 				return 0;
 			}
@@ -333,7 +334,14 @@ HWND TabView::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstri
 			strMessage = boost::str(boost::wformat(Helpers::LoadStringW(IDS_ERR_TAB_CREATE_FAILED)) % m_tabData->strTitle.c_str() % m_tabData->strShell.c_str());
 		}
 
-		MessageBox(strMessage.c_str(), L"Error", MB_OK|MB_ICONERROR);
+		// /!\ MessageBox must be a child of NULL
+		// otherwise if an exception occured during the creation of mainframe
+		// error message is hidden
+		::MessageBox(
+			0,
+			strMessage.c_str(),
+			Helpers::LoadString(IDS_CAPTION_ERROR).c_str(),
+			MB_OK|MB_ICONERROR);
 
 		return 0;
 	}

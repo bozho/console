@@ -191,12 +191,13 @@ LRESULT DlgSettingsAppearance::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /
 
 LRESULT DlgSettingsAppearance::OnClickedBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	std::wstring strFiler = Helpers::LoadFileFilter(MSG_SETTINGS_ICON_FILES);
 	CFileDialog fileDialog(
-					TRUE, 
-					NULL, 
-					NULL, 
-					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
-					L"Icon Files (*.ico)\0*.ico\0\0");
+		TRUE,
+		NULL,
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST,
+		strFiler.c_str());
 
 	if (fileDialog.DoModal() == IDOK)
 	{

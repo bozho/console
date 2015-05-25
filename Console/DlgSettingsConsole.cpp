@@ -116,12 +116,13 @@ LRESULT DlgSettingsConsole::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hW
 
 LRESULT DlgSettingsConsole::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	std::wstring strFilter = Helpers::LoadFileFilter(MSG_SETTINGS_EXECUTABLE_FILES);
 	CFileDialog fileDialog(
-					TRUE, 
-					NULL, 
-					NULL, 
-					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
-					L"Executable Files (*.exe)\0*.exe\0Batch Files (*.bat;*.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0");
+		TRUE,
+		NULL,
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST,
+		strFilter.c_str());
 
 	if (fileDialog.DoModal() == IDOK)
 	{

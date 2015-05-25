@@ -170,12 +170,13 @@ LRESULT PageSettingsTabs2::OnClickedBkColor(WORD /*wNotifyCode*/, WORD /*wID*/, 
 
 LRESULT PageSettingsTabs2::OnBtnBrowseImage(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	std::wstring strFilter = Helpers::LoadFileFilter(MSG_SETTINGS_IMAGE_FILES);
 	CFileDialog fileDialog(
-					TRUE, 
-					NULL, 
-					NULL, 
-					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST, 
-					L"Image Files (*.jpg)\0*.jpg\0All Files (*.*)\0*.*\0\0");
+		TRUE,
+		NULL,
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST,
+		strFilter.c_str());
 
 	if (fileDialog.DoModal() == IDOK)
 	{

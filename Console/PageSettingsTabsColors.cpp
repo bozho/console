@@ -111,12 +111,13 @@ LRESULT PageSettingsTabsColors::OnClickedBtnResetColors(WORD /*wNotifyCode*/, WO
 
 LRESULT PageSettingsTabsColors::OnClickedBtnImportColors(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-  CFileDialog fileDialog(
-    TRUE,
-    NULL,
-    NULL,
-    OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST,
-    L"Config Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0\0");
+	std::wstring strFilter = Helpers::LoadFileFilter(MSG_SETTINGS_CONFIG_FILES);
+	CFileDialog fileDialog(
+		TRUE,
+		NULL,
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST,
+		strFilter.c_str());
 
   if (fileDialog.DoModal() == IDOK)
   {

@@ -330,14 +330,27 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 //////////////////////////////////////////////////////////////////////////////
 
-wstring Helpers::LoadString(UINT uID)
+std::wstring Helpers::LoadString(UINT uID)
 {
   wchar_t str[0x800];
 
   if( ::LoadString(::GetModuleHandle(NULL), uID, str, ARRAYSIZE(str)) )
-    return wstring(str);
+    return std::wstring(str);
   else
-    return wstring(L"LoadString failed");
+    return std::wstring(L"LoadString failed");
+}
+
+std::wstring Helpers::LoadFileFilter(UINT uID)
+{
+	// The OPENFILENAME struct (used by the CFileDialog) expects
+	// the filter string components to be delimited using '\0' chars.
+	// Unfortunately, strings containing \0 can't be embed in applications string table,
+	// so a pipe symbol is used instead
+	std::wstring str = Helpers::LoadStringW(uID);
+
+	std::replace(str.begin(), str.end(), L'|', L'\0');
+
+	return str;
 }
 
 //////////////////////////////////////////////////////////////////////////////

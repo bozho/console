@@ -114,12 +114,13 @@ LRESULT PageSettingsTabs1::OnBtnBrowseIcon(WORD /*wNotifyCode*/, WORD /*wID*/, H
 
 LRESULT PageSettingsTabs1::OnClickedBtnBrowseShell(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	std::wstring strFilter = Helpers::LoadFileFilter(MSG_SETTINGS_EXECUTABLE_FILES_AND_LINKS);
 	CFileDialog fileDialog(
-					TRUE, 
-					NULL, 
-					NULL, 
-					OFN_FILEMUSTEXIST|OFN_HIDEREADONLY|OFN_NOCHANGEDIR|OFN_PATHMUSTEXIST|OFN_NODEREFERENCELINKS, 
-					L"Executable Files (*.exe)\0*.exe\0Shell Links (*.lnk)\0*.lnk\0Batch Files (*.bat;*.cmd)\0*.bat;*.cmd\0All Files (*.*)\0*.*\0\0");
+		TRUE,
+		NULL,
+		NULL,
+		OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR | OFN_PATHMUSTEXIST | OFN_NODEREFERENCELINKS,
+		strFilter.c_str());
 
 	if (fileDialog.DoModal() == IDOK)
 	{

@@ -1018,6 +1018,16 @@ BEGIN
                             "Delete selected tab?"
     MSG_SETTINGS_INIT_DIR
                             "Choose initial directory"
+    MSG_SETTINGS_ICON_FILES
+                            "Icon Files (*.ico)|*.ico||"
+    MSG_SETTINGS_EXECUTABLE_FILES
+                            "Executable Files (*.exe)|*.exe|Batch Files (*.bat;*.cmd)|*.bat;*.cmd|All Files (*.*)|*.*||"
+    MSG_SETTINGS_EXECUTABLE_FILES_AND_LINKS
+                            "Executable Files (*.exe)|*.exe|Shell Links (*.lnk)|*.lnk|Batch Files (*.bat;*.cmd)|*.bat;*.cmd|All Files (*.*)|*.*||"
+    MSG_SETTINGS_IMAGE_FILES
+                            "Image Files (*.jpg)|*.jpg|All Files (*.*)|*.*||"
+    MSG_SETTINGS_CONFIG_FILES
+                            "Config Files (*.xml)|*.xml|All Files (*.*)|*.*||"
 
     MSG_MAINFRAME_CLOSE_ALL_TABS
                             "Are you sure you want close all tabs ?"

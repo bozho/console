@@ -45,8 +45,8 @@ LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
 
-	m_listCtrl.InsertColumn(0, L"Command");
-	m_listCtrl.InsertColumn(1, L"Mouse action");
+	m_listCtrl.InsertColumn(0, Helpers::LoadStringW(IDS_SETTINGS_COMMAND).c_str());
+	m_listCtrl.InsertColumn(1, Helpers::LoadStringW(IDS_SETTINGS_MOUSE_ACTION).c_str());
 
 	m_listCtrl.SetColumnWidth(0, 170);
 	m_listCtrl.SetColumnWidth(1, 218);

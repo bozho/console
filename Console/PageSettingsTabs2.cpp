@@ -32,15 +32,11 @@ PageSettingsTabs2::PageSettingsTabs2(ConsoleSettings &consoleSettings)
 
 LRESULT PageSettingsTabs2::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	ExecuteDlgInit(IDD);
+
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
 	m_comboBkPosition.Attach(GetDlgItem(IDC_COMBO_BK_POS));
-	m_comboBkPosition.AddString(L"Center");
-	m_comboBkPosition.AddString(L"Stretch");
-	m_comboBkPosition.AddString(L"Tile");
-	m_comboBkPosition.AddString(L"Fit");
-	m_comboBkPosition.AddString(L"Fill");
-
 	m_staticTintOpacity.Attach(GetDlgItem(IDC_TINT_OPACITY_VAL));
 	m_sliderTintOpacity.Attach(GetDlgItem(IDC_TINT_OPACITY));
 	m_sliderTintOpacity.SetRange(0, 255);

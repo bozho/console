@@ -20,8 +20,8 @@ LRESULT PageSettingsTabsEnv::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPAR
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_ENV));
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle() | LVS_EX_FULLROWSELECT | LVS_EX_CHECKBOXES);
 
-	m_listCtrl.InsertColumn(0, L"Variable");
-	m_listCtrl.InsertColumn(1, L"Value");
+	m_listCtrl.InsertColumn(0, Helpers::LoadStringW(IDS_SETTINGS_VARIABLE).c_str());
+	m_listCtrl.InsertColumn(1, Helpers::LoadStringW(IDS_SETTINGS_VALUE).c_str());
 
 	m_listCtrl.SetColumnWidth(0, 100);
 	m_listCtrl.SetColumnWidth(1, LVSCW_AUTOSIZE_USEHEADER);

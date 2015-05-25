@@ -37,7 +37,6 @@ LRESULT DlgSettingsFullScreen::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LP
 
   m_fullScreenSettings.Load(m_pOptionsRoot);
 
-  m_comboFullScreenMonitor.AddString(L"Current");
   ::EnumDisplayMonitors(NULL, NULL, DlgSettingsFullScreen::MonitorEnumProc, reinterpret_cast<LPARAM>(this));
   if( m_fullScreenSettings.dwFullScreenMonitor > static_cast<DWORD>(m_comboFullScreenMonitor.GetCount()) )
     m_comboFullScreenMonitor.SetCurSel(0);

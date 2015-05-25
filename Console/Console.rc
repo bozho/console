@@ -848,6 +848,45 @@ BEGIN
     0
 END
 
+IDD_SETTINGS_TABS_2 DLGINIT
+BEGIN
+    IDC_COMBO_BK_POS, 0x403, 7, 0
+0x6543, 0x746e, 0x7265, "\000" 
+    IDC_COMBO_BK_POS, 0x403, 8, 0
+0x7453, 0x6572, 0x6374, 0x0068, 
+    IDC_COMBO_BK_POS, 0x403, 5, 0
+0x6954, 0x656c, "\000" 
+    IDC_COMBO_BK_POS, 0x403, 4, 0
+0x6946, 0x0074, 
+    IDC_COMBO_BK_POS, 0x403, 5, 0
+0x6946, 0x6c6c, "\000" 
+    0
+END
+
+IDD_SETTINGS_FULLSCREEN DLGINIT
+BEGIN
+    IDC_COMBO_FULLSCREEN_MONITOR, 0x403, 8, 0
+0x7543, 0x7272, 0x6e65, 0x0074, 
+    0
+END
+
+IDD_SETTINGS_TABS_1 DLGINIT
+BEGIN
+    IDC_COMBO_BASE_PRIORITY, 0x403, 5, 0
+0x6449, 0x656c, "\000" 
+    IDC_COMBO_BASE_PRIORITY, 0x403, 13, 0
+0x6542, 0x6f6c, 0x2077, 0x6f6e, 0x6d72, 0x6c61, "\000" 
+    IDC_COMBO_BASE_PRIORITY, 0x403, 7, 0
+0x6f4e, 0x6d72, 0x6c61, "\000" 
+    IDC_COMBO_BASE_PRIORITY, 0x403, 13, 0
+0x6241, 0x766f, 0x2065, 0x6f6e, 0x6d72, 0x6c61, "\000" 
+    IDC_COMBO_BASE_PRIORITY, 0x403, 5, 0
+0x6948, 0x6867, "\000" 
+    IDC_COMBO_BASE_PRIORITY, 0x403, 9, 0
+0x6552, 0x6c61, 0x6974, 0x656d, "\000" 
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1093,17 +1132,27 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_SETTINGS_CONSOLE     "Console"
-    IDS_SETTINGS_APPEARANCE  "Appearance"
-    IDS_SETTINGS_STYLES      "Styles"
-    IDS_SETTINGS_TRANSPARENCY "Transparency"
-    IDS_SETTINGS_FONT        "Font"
-    IDS_SETTINGS_FULLSCREEN  "Full screen"
-    IDS_SETTINGS_BEHAVIOR    "Behavior"
-    IDS_SETTINGS_MORE        "More..."
-    IDS_SETTINGS_HOTKEYS     "Hotkeys"
-    IDS_SETTINGS_MOUSE       "Mouse"
-    IDS_SETTINGS_TABS        "Tabs"
+    IDS_SETTINGS_CONSOLE       "Console"
+    IDS_SETTINGS_APPEARANCE    "Appearance"
+    IDS_SETTINGS_STYLES        "Styles"
+    IDS_SETTINGS_TRANSPARENCY  "Transparency"
+    IDS_SETTINGS_FONT          "Font"
+    IDS_SETTINGS_FULLSCREEN    "Full screen"
+    IDS_SETTINGS_BEHAVIOR      "Behavior"
+    IDS_SETTINGS_MORE          "More..."
+    IDS_SETTINGS_HOTKEYS       "Hotkeys"
+    IDS_SETTINGS_MOUSE         "Mouse"
+    IDS_SETTINGS_TABS          "Tabs"
+    IDS_SETTINGS_COMMAND       "Command"
+    IDS_SETTINGS_MOUSE_ACTION  "Mouse action"
+    IDS_SETTINGS_TAB_NAME      "Tab name"
+    IDS_SETTINGS_MAIN          "Main"
+    IDS_SETTINGS_BACKGROUND    "Background"
+    IDS_SETTINGS_COLORS_CURSOR "Colors && Cursor"
+    IDS_SETTINGS_ENVIRONMENT   "Environment"
+    IDS_SETTINGS_HOTKEY        "Hotkey"
+    IDS_SETTINGS_VARIABLE      "Variable"
+    IDS_SETTINGS_VALUE         "Value"
 END
 
 #endif    // English (United States) resources

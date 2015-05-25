@@ -49,7 +49,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_TABS));
 
 	m_listCtrl.SetExtendedListViewStyle(m_listCtrl.GetExtendedListViewStyle()|LVS_EX_FULLROWSELECT);
-	m_listCtrl.InsertColumn(0, L"Tab name");
+	m_listCtrl.InsertColumn(0, Helpers::LoadStringW(IDS_SETTINGS_TAB_NAME).c_str());
 	m_listCtrl.SetColumnWidth(0, 188);
 	m_listCtrl.SetImageList(m_ImageList, LVSIL_SMALL);
 	//m_listCtrl.SetIconSpacing(16, 16);
@@ -67,10 +67,10 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	m_tabCtrl.Attach(GetDlgItem(IDC_TABS));
 
-	m_tabCtrl.InsertItem(0, L"Main");
-	m_tabCtrl.InsertItem(1, L"Background");
-	m_tabCtrl.InsertItem(2, L"Colors && Cursor");
-	m_tabCtrl.InsertItem(3, L"Environment");
+	m_tabCtrl.InsertItem(0, Helpers::LoadStringW(IDS_SETTINGS_MAIN).c_str());
+	m_tabCtrl.InsertItem(1, Helpers::LoadStringW(IDS_SETTINGS_BACKGROUND).c_str());
+	m_tabCtrl.InsertItem(2, Helpers::LoadStringW(IDS_SETTINGS_TAB_NAME).c_str());
+	m_tabCtrl.InsertItem(3, Helpers::LoadStringW(IDS_SETTINGS_ENVIRONMENT).c_str());
 
 	CRect	rect;
 	m_tabCtrl.GetWindowRect(&rect);

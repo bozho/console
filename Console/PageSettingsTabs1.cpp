@@ -48,13 +48,6 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_tabInitialDirEdit.SubclassWindow(GetDlgItem(IDC_TAB_INIT_DIR));
 
 	m_comboPriority.Attach(GetDlgItem(IDC_COMBO_BASE_PRIORITY));
-	m_comboPriority.AddString(L"Idle");
-	m_comboPriority.AddString(L"Below normal");
-	m_comboPriority.AddString(L"Normal");
-	m_comboPriority.AddString(L"Above normal");
-	m_comboPriority.AddString(L"High");
-	m_comboPriority.AddString(L"Realtime");
-
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
 }

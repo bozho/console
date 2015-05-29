@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- 
+	Set the path below to where the boost library is located on your machine, and rename this file to "BoostIncludePath.props.user".
+	NOTE: If the project is currently open in Visual Studio, you must unload the project/solution and re-open it for any changes to take effect.
+	-->
+    <BoostIncludePath>C:\third-party-libraries\boost-1.57.0</BoostIncludePath>
+  </PropertyGroup>
+</Project>

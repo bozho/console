@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="FRA">
+      <UniqueIdentifier>{84f413ed-6b2c-4902-9ad0-eff267353137}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="makefile" />
+    <None Include="FRA\console.ini">
+      <Filter>FRA</Filter>
+    </None>
+  </ItemGroup>
+</Project>

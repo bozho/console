@@ -332,12 +332,12 @@ HBITMAP Helpers::CreateBitmap(HDC dc, DWORD dwWidth, DWORD dwHeight, CBitmap& bi
 
 std::wstring Helpers::LoadString(UINT uID)
 {
-  wchar_t str[0x800];
+	CAtlString localized;
 
-  if( ::LoadString(::GetModuleHandle(NULL), uID, str, ARRAYSIZE(str)) )
-    return std::wstring(str);
-  else
-    return std::wstring(L"LoadString failed");
+	if(localized.LoadStringW(uID))
+		return std::wstring(localized);
+	else
+		return std::wstring(L"LoadString failed");
 }
 
 std::wstring Helpers::LoadFileFilter(UINT uID)

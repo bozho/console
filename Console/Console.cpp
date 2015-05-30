@@ -327,6 +327,50 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 //////////////////////////////////////////////////////////////////////////////
 
+void LoadLocalizedResources()
+{
+	HMODULE hResources = NULL;
+
+	wchar_t szLang[9];
+
+	// user language
+	if(::GetLocaleInfo(LOCALE_CUSTOM_UI_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0)
+	{
+		wstring dll (L"console_");
+		dll += szLang;
+		dll += L".dll";
+		hResources = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
+
+		Win32Exception ex("LoadLibraryEx", ::GetLastError());
+		TRACE(L"LOCALE_CUSTOM_UI_DEFAULT LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+	}
+
+	// default resources are in english
+	if(!hResources && ::_wcsicmp(szLang, L"eng") == 0) return;
+
+	// system language
+	if(!hResources && ::GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0)
+	{
+		wstring dll (L"console_");
+		dll += szLang;
+		dll += L".dll";
+		hResources = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
+
+		Win32Exception ex("LoadLibraryEx", ::GetLastError());
+		TRACE(L"LOCALE_SYSTEM_DEFAULT LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+	}
+
+	if(hResources)
+	{
+		_Module.SetResourceInstance(hResources);
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
 	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
@@ -349,6 +393,8 @@ int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lp
 
 	hRes = _Module.Init(NULL, hInstance);
 	ATLASSERT(SUCCEEDED(hRes));
+
+	LoadLocalizedResources();
 
 	int nRet = Run(lpstrCmdLine, nCmdShow);
 

@@ -31,13 +31,12 @@ DlgSettingsMouse::DlgSettingsMouse(CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 LRESULT DlgSettingsMouse::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	ExecuteDlgInit(IDD);
-
 	m_mouseSettings.Load(m_pOptionsRoot);
 
 	m_listCtrl.Attach(GetDlgItem(IDC_LIST_MOUSE_COMMANDS));
 	m_editCommand.Attach(GetDlgItem(IDC_EDIT_COMMAND));
 	m_comboButtons.Attach(GetDlgItem(IDC_COMBO_BUTTONS));
+	Helpers::LoadCombo(m_comboButtons, IDC_COMBO_BUTTONS);
 
 	m_btnCtrl.Attach(GetDlgItem(IDC_CHECK_CTRL));
 	m_btnShift.Attach(GetDlgItem(IDC_CHECK_SHIFT));

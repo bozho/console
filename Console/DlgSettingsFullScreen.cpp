@@ -31,9 +31,8 @@ DlgSettingsFullScreen::DlgSettingsFullScreen(CComPtr<IXMLDOMElement>& pOptionsRo
 
 LRESULT DlgSettingsFullScreen::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-  ExecuteDlgInit(IDD);
-
   m_comboFullScreenMonitor.Attach(GetDlgItem(IDC_COMBO_FULLSCREEN_MONITOR));
+	Helpers::LoadCombo(m_comboFullScreenMonitor, IDC_COMBO_FULLSCREEN_MONITOR);
 
   m_fullScreenSettings.Load(m_pOptionsRoot);
 

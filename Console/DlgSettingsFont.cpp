@@ -31,9 +31,8 @@ DlgSettingsFont::DlgSettingsFont(CComPtr<IXMLDOMElement>& pOptionsRoot)
 
 LRESULT DlgSettingsFont::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	ExecuteDlgInit(IDD);
-
 	m_comboFontSmoothing.Attach(GetDlgItem(IDC_COMBO_SMOOTHING));
+	Helpers::LoadCombo(m_comboFontSmoothing, IDC_COMBO_SMOOTHING);
 
 	m_fontSettings.Load(m_pOptionsRoot);
 

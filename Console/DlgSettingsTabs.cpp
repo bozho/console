@@ -69,7 +69,7 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 	m_tabCtrl.InsertItem(0, Helpers::LoadStringW(IDS_SETTINGS_MAIN).c_str());
 	m_tabCtrl.InsertItem(1, Helpers::LoadStringW(IDS_SETTINGS_BACKGROUND).c_str());
-	m_tabCtrl.InsertItem(2, Helpers::LoadStringW(IDS_SETTINGS_TAB_NAME).c_str());
+	m_tabCtrl.InsertItem(2, Helpers::LoadStringW(IDS_SETTINGS_COLORS_CURSOR).c_str());
 	m_tabCtrl.InsertItem(3, Helpers::LoadStringW(IDS_SETTINGS_ENVIRONMENT).c_str());
 
 	CRect	rect;

@@ -14,12 +14,11 @@ PageSettingsTabsColors::PageSettingsTabsColors(ConsoleSettings &consoleSettings)
 
 LRESULT PageSettingsTabsColors::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	ExecuteDlgInit(IDD);
-
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
 	m_staticCursorAnim.Attach(GetDlgItem(IDC_CURSOR_ANIM));
 	m_comboCursor.Attach(GetDlgItem(IDC_COMBO_CURSOR));
+	Helpers::LoadCombo(m_comboCursor, IDC_COMBO_CURSOR);
 	m_staticCursorColor.Attach(GetDlgItem(IDC_CURSOR_COLOR));
 
 #ifdef _USE_AERO

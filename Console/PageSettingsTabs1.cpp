@@ -39,8 +39,6 @@ PageSettingsTabs1::PageSettingsTabs1()
 
 LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
-	ExecuteDlgInit(IDD);
-
 	if (CTheme().IsThemingSupported()) ::EnableThemeDialogTexture(m_hWnd, ETDT_USETABTEXTURE);
 
 	m_tabIconEdit.SubclassWindow(GetDlgItem(IDC_TAB_ICON));
@@ -48,6 +46,8 @@ LRESULT PageSettingsTabs1::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	m_tabInitialDirEdit.SubclassWindow(GetDlgItem(IDC_TAB_INIT_DIR));
 
 	m_comboPriority.Attach(GetDlgItem(IDC_COMBO_BASE_PRIORITY));
+	Helpers::LoadCombo(m_comboPriority, IDC_COMBO_BASE_PRIORITY);
+
 	DoDataExchange(DDX_LOAD);
 	return TRUE;
 }

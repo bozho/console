@@ -50,6 +50,8 @@ class Helpers
 
 		static std::wstring LoadString(UINT uID);
 		static std::wstring LoadFileFilter(UINT uID);
+		static void LoadCombo(CComboBox& cb, UINT uID);
+
 		static HICON LoadTabIcon(bool bBigIcon, bool bUseDefaultIcon, const wstring& strIcon, const wstring& strShell);
 
 		static bool IsElevated(void);

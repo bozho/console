@@ -4,11 +4,17 @@
     <Filter Include="FRA">
       <UniqueIdentifier>{84f413ed-6b2c-4902-9ad0-eff267353137}</UniqueIdentifier>
     </Filter>
+    <Filter Include="RUS">
+      <UniqueIdentifier>{f8ff1951-f9e2-4965-abff-9692d4025ba0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="makefile" />
     <None Include="FRA\console.ini">
       <Filter>FRA</Filter>
+    </None>
+    <None Include="RUS\console.ini">
+      <Filter>RUS</Filter>
     </None>
   </ItemGroup>
 </Project>

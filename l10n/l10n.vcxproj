@@ -17,6 +17,7 @@
   <ItemGroup>
     <None Include="FRA\console.ini" />
     <None Include="makefile" />
+    <None Include="RUS\console.ini" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{86262ED4-F5D5-4199-9BE3-D8C86054CD12}</ProjectGuid>

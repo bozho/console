@@ -353,6 +353,19 @@ std::wstring Helpers::LoadFileFilter(UINT uID)
 	return str;
 }
 
+void Helpers::LoadCombo(CComboBox& cb, UINT uID)
+{
+	std::wstring combo = Helpers::LoadStringW(uID);
+	std::vector<std::wstring> tok;
+	boost::algorithm::split(tok, combo, boost::is_any_of(L";"));
+
+	for(auto tok_iter = tok.begin(); tok_iter != tok.end(); ++tok_iter)
+	{
+		if(!tok_iter->empty())
+			cb.AddString(tok_iter->c_str());
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 

@@ -17,3 +17,4 @@ help/html/changelog.html
 
 l10n/*/res/
 l10n/*/resource.h
+l10n/*/*.ucs2.rc

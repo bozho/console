@@ -28,6 +28,11 @@ Changelog
     + added
     * fixed
 
+Changes in 1.15.0 (31 May 2015) experimental
+
+    + Hide when loosing focus.
+    + Support localization.
+
 Changes in 1.14.0 (08 May 2015)
 
     ! Limit frame rate to avoid unresponsive application.

@@ -1752,6 +1752,7 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"selectall",          ID_EDIT_SELECT_ALL,      IDS_EDIT_SELECT_ALL     )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"clear_selection",    ID_EDIT_CLEAR_SELECTION, IDS_EDIT_CLEAR_SELECTION)));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"paste",              ID_EDIT_PASTE,           IDS_EDIT_PASTE          )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"paste_selection",    ID_PASTE_SELECTION,      IDS_PASTE_SELECTION     )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"stopscroll",         ID_EDIT_STOP_SCROLLING,  IDS_EDIT_STOP_SCROLLING )));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollrowup",        ID_SCROLL_UP,            IDS_SCROLL_UP           )));

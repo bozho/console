@@ -53,6 +53,7 @@ class SelectionHandler
 		void EndSelection();
 		void ClearSelection();
 		void SelectAll();
+		std::wstring GetSelection();
 		void SetHighlightCoordinates(COORD& coordLeft, COORD& coordRight);
 
 		inline SelectionState GetState() const;

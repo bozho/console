@@ -669,6 +669,16 @@ public:
     }
   }
 
+  const wchar_t * GetText(void) const
+  {
+	  return strText.c_str();
+  }
+
+  size_t GetTextLength(void) const
+  {
+	  return strText.length();
+  }
+
 private:
   wstring strText;
   wstring strRow;
@@ -1053,6 +1063,48 @@ void ConsoleHandler::CopyConsoleText()
 
 	::CloseClipboard();
 	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ConsoleHandler::GetSelectionPart()
+{
+	m_consoleCopyInfo->szSelectionPart[0] = 0;
+
+	if( m_consoleCopyInfo->dwSelectionPartOffset == 0 )
+	{
+		GET_STD_OUT_READ_ONLY
+
+		m_selectionFullText.reset(new ClipboardDataUnicode());
+
+		if( m_consoleCopyInfo->selectionType == seltypeColumn )
+			CopyConsoleTextColumn(hStdOut, &m_selectionFullText, 1);
+		else
+			CopyConsoleTextLine(hStdOut, &m_selectionFullText, 1);
+	}
+
+	if( m_selectionFullText.get() )
+	{
+		ClipboardDataUnicode * p = reinterpret_cast<ClipboardDataUnicode *>(m_selectionFullText.get());
+		if( p->GetTextLength() > m_consoleCopyInfo->dwSelectionPartOffset )
+		{
+			size_t part_len = p->GetTextLength() - m_consoleCopyInfo->dwSelectionPartOffset;
+			if( part_len > MAX_SELECTION_PART ) part_len = MAX_SELECTION_PART;
+
+			wcsncpy_s(
+				m_consoleCopyInfo->szSelectionPart,
+				MAX_SELECTION_PART + 1,
+				p->GetText() + m_consoleCopyInfo->dwSelectionPartOffset,
+				part_len);
+
+			m_consoleCopyInfo->szSelectionPart[part_len] = 0;
+
+			m_consoleCopyInfo->dwSelectionPartOffset += static_cast<DWORD>(part_len);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1705,7 +1757,14 @@ DWORD ConsoleHandler::MonitorThread()
 			{
 				SharedMemoryLock memLock(m_consoleCopyInfo);
 
-				CopyConsoleText();
+				if( m_consoleCopyInfo->bClipboard )
+				{
+					CopyConsoleText();
+				}
+				else
+				{
+					GetSelectionPart();
+				}
 				m_consoleCopyInfo.SetRespEvent();
 				break;
 			}
@@ -1917,7 +1976,7 @@ DWORD ConsoleHandler::MonitorThread()
 										L"  wRepeatCount      = %hu\n"
 										L"  wVirtualKeyCode   = 0x%04hx\n"
 										L"  wVirtualScanCode  = 0x%04hx\n",
-										record.Event.KeyEvent.bKeyDown?"TRUE":"FALSE",
+										record.Event.KeyEvent.bKeyDown?L"TRUE":L"FALSE",
 										record.Event.KeyEvent.dwControlKeyState,
 										record.Event.KeyEvent.uChar.UnicodeChar,
 										record.Event.KeyEvent.wRepeatCount,

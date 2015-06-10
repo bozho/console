@@ -1588,6 +1588,29 @@ void ConsoleView::ClearSelection()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::PasteSelection()
+{
+	if ((m_selectionHandler->GetState() != SelectionHandler::selstateSelecting) &&
+		(m_selectionHandler->GetState() != SelectionHandler::selstateSelected))
+	{
+		return;
+	}
+
+	std::wstring sel = m_selectionHandler->GetSelection();
+	m_selectionHandler->ClearSelection();
+	BitBltOffscreen();
+
+	if( this->IsGrouped() )
+		m_mainFrame.SendTextToConsoles(sel.c_str());
+	else
+		m_consoleHandler.SendTextToConsole(sel.c_str());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::DumpBuffer()
 {
 	wofstream of;

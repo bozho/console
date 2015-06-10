@@ -44,6 +44,8 @@ class ConsoleHandler
 
 		void GetFontInfo();
 
+		void GetSelectionPart();
+
 	private:
 
 		static DWORD WINAPI MonitorThreadStatic(LPVOID lpParameter);
@@ -80,6 +82,8 @@ class ConsoleHandler
 
 		DWORD                                          m_dwWaitingTime;
 		std::chrono::high_resolution_clock::time_point m_timePoint;
+
+		std::unique_ptr<ClipboardData>    m_selectionFullText;
 };
 
 //////////////////////////////////////////////////////////////////////////////

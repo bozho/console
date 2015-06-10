@@ -82,6 +82,7 @@ class MainFrame
 			UPDATE_ELEMENT(ID_EDIT_SELECT_ALL, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_EDIT_CLEAR_SELECTION, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_EDIT_PASTE, UPDUI_MENUPOPUP | UPDUI_TOOLBAR)
+			UPDATE_ELEMENT(ID_PASTE_SELECTION, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_MENU, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_TOOLBAR, UPDUI_MENUPOPUP)
 			UPDATE_ELEMENT(ID_VIEW_SEARCH_BAR, UPDUI_MENUPOPUP)
@@ -187,6 +188,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_EDIT_SELECT_ALL, OnEditSelectAll)
 			COMMAND_ID_HANDLER(ID_EDIT_CLEAR_SELECTION, OnEditClearSelection)
 			COMMAND_ID_HANDLER(ID_EDIT_PASTE, OnEditPaste)
+			COMMAND_ID_HANDLER(ID_PASTE_SELECTION, OnPasteSelection)
 			COMMAND_ID_HANDLER(ID_EDIT_STOP_SCROLLING, OnEditStopScrolling)
 			COMMAND_ID_HANDLER(ID_EDIT_RENAME_TAB, OnEditRenameTab)
 			COMMAND_ID_HANDLER(ID_EDIT_SETTINGS, OnEditSettings)
@@ -293,6 +295,7 @@ class MainFrame
 		LRESULT OnEditSelectAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnPasteSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

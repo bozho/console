@@ -110,6 +110,8 @@ enum SelectionType
 
 //////////////////////////////////////////////////////////////////////////////
 
+#define MAX_SELECTION_PART             256
+
 struct ConsoleCopy
 {
 	ConsoleCopy()
@@ -124,6 +126,8 @@ struct ConsoleCopy
 	, bBold(false)
 	, bItalic(false)
 	, dwSize(24)
+	, bClipboard(true)
+	, dwSelectionPartOffset(0)
 	{
 		consoleColors[0]  = 0x000000;
 		consoleColors[1]  = 0x800000;
@@ -158,6 +162,10 @@ struct ConsoleCopy
 	DWORD dwEOLSpaces;
 	char szFontName [256];
 	COLORREF consoleColors[16];
+
+  bool    bClipboard; 
+  wchar_t szSelectionPart[MAX_SELECTION_PART + 1]; /* text + zero terminated char */
+  DWORD	  dwSelectionPartOffset;
 };
 
 
@@ -304,6 +312,7 @@ struct NamedPipeMessage
 #define MULTIPLEINFO_SEARCH_TEXT       0x00000008
 #define MULTIPLEINFO_CLICK_LINK        0x00000010
 #define MULTIPLEINFO_FONT              0x00000020
+#define MULTIPLEINFO_SELECTION_PART    0x00000040
 
 #define MAX_WORD_DELIMITERS            64
 #define MAX_SEARCH_TEXT                128

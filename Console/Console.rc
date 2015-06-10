@@ -630,6 +630,7 @@ BEGIN
         MENUITEM "Select &All",                 ID_EDIT_SELECT_ALL
         MENUITEM "Cl&ear Selection",            ID_EDIT_CLEAR_SELECTION
         MENUITEM "&Paste",                      ID_EDIT_PASTE
+        MENUITEM "Paste selection",             ID_PASTE_SELECTION
         MENUITEM SEPARATOR
         MENUITEM "Stop Scr&olling",             ID_EDIT_STOP_SCROLLING
         MENUITEM SEPARATOR
@@ -782,6 +783,7 @@ BEGIN
     ID_EDIT_CUT             "Cut the selection and put it on the Clipboard\nCut"
     ID_EDIT_FIND            "Find the specified text\nFind"
     ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
+    ID_PASTE_SELECTION      "Insert selected text\nPaste Selection"
     ID_EDIT_STOP_SCROLLING  "Stop Scrolling\nStop Scrolling"
     ID_EDIT_SELECT_ALL      "Select the entire document\nSelect All"
     ID_EDIT_RENAME_TAB      "Rename the active tab\nRename tab"
@@ -970,6 +972,7 @@ BEGIN
     IDS_EDIT_SELECT_ALL      "Select all"
     IDS_EDIT_CLEAR_SELECTION "Clear selection"
     IDS_EDIT_PASTE           "Paste"
+    IDS_PASTE_SELECTION      "Paste selection"
     IDS_EDIT_STOP_SCROLLING  "Stop scrolling"
 
     IDS_SCROLL_UP            "Scroll buffer row up"

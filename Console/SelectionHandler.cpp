@@ -393,6 +393,8 @@ void SelectionHandler::CopySelection()
     m_consoleCopyInfo->dwSize  = g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize * 2;
     ::CopyMemory(m_consoleCopyInfo->consoleColors, m_tabData->consoleColors, sizeof(m_consoleCopyInfo->consoleColors));
 
+    m_consoleCopyInfo->bClipboard = true;
+
 		m_consoleCopyInfo.SetReqEvent();
 	}
 
@@ -430,6 +432,46 @@ void SelectionHandler::ClearSelection()
 #endif //_USE_AERO
 
 	m_consoleHandler.ResumeScrolling();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::wstring SelectionHandler::GetSelection()
+{
+	std::wstring result;
+
+	if( m_selectionState < selstateSelecting ) return result;
+
+	{
+		SharedMemoryLock	memLock(m_consoleCopyInfo);
+
+		GetSelectionCoordinates(m_consoleCopyInfo->coordStart, m_consoleCopyInfo->coordEnd);
+
+		m_consoleCopyInfo->bNoWrap = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bNoWrap;
+		m_consoleCopyInfo->dwEOLSpaces = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.dwEOLSpaces;
+		m_consoleCopyInfo->bTrimSpaces = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.bTrimSpaces;
+		m_consoleCopyInfo->copyNewlineChar = g_settingsHandler->GetBehaviorSettings().copyPasteSettings.copyNewlineChar;
+		m_consoleCopyInfo->selectionType = m_selectionType;
+
+		m_consoleCopyInfo->bClipboard = false;
+		m_consoleCopyInfo->szSelectionPart[0] = 0;
+		m_consoleCopyInfo->dwSelectionPartOffset = 0;
+	}
+
+	std::wstring part;
+	do
+	{
+		m_consoleCopyInfo.SetReqEvent();
+		if( ::WaitForSingleObject(m_consoleCopyInfo.GetRespEvent(), INFINITE) != WAIT_OBJECT_0 ) break;
+		part = m_consoleCopyInfo->szSelectionPart;
+		result += part;
+	}
+	while( !part.empty() );
+
+	return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////

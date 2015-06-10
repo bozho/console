@@ -343,6 +343,7 @@
 #define ID_SEND_CTRL_C                  2933
 #define ID_DIAGNOSE                     2934
 #define ID_FONT_INFO                    2935
+#define ID_PASTE_SELECTION              2936
 
 #define IDC_DUMP_BUFFER                 3000
 
@@ -444,6 +445,7 @@
 #define IDS_EXTERNAL_COMMAND_9          6084
 #define IDS_EXTERNAL_COMMAND_10         6085
 #define IDS_GLOBAL_ACTIVATE             6086
+#define IDS_PASTE_SELECTION             6087
 
 #define IDS_MOUSE_COPY                  7000
 #define IDS_MOUSE_SELECT                7001

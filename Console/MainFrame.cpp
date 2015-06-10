@@ -2377,6 +2377,23 @@ LRESULT MainFrame::OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnPasteSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+  if (!m_activeTabView) return 0;
+  std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+  if( activeConsoleView )
+  {
+    activeConsoleView->PasteSelection();
+  }
+
+  return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   PasteToConsoles();
@@ -3296,6 +3313,7 @@ void MainFrame::UpdateStatusBar()
       UIEnable(ID_EDIT_COPY,            activeConsoleView->CanCopy()           ? TRUE : FALSE);
       UIEnable(ID_EDIT_CLEAR_SELECTION, activeConsoleView->CanClearSelection() ? TRUE : FALSE);
       UIEnable(ID_EDIT_PASTE,           activeConsoleView->CanPaste()          ? TRUE : FALSE);
+      UIEnable(ID_PASTE_SELECTION,      activeConsoleView->CanClearSelection() ? TRUE : FALSE);
       UISetCheck(ID_VIEW_CONSOLE, activeConsoleView->GetConsoleWindowVisible() ? TRUE : FALSE);
     }
   }

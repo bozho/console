@@ -160,6 +160,7 @@ class ConsoleView
 		void Copy(const CPoint* pPoint = NULL);
 		void SelectAll();
 		void ClearSelection();
+		void PasteSelection();
 		DWORD GetSelectionSize(void) const { return m_selectionHandler->GetSelectionSize(); }
 
 		bool CanCopy() const { return m_selectionHandler->GetState() == SelectionHandler::selstateSelected; }

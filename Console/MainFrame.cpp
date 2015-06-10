@@ -3307,6 +3307,9 @@ void MainFrame::UpdateStatusBar()
         consoleParams->dwBufferColumns ? consoleParams->dwBufferColumns : consoleParams->dwColumns,
         consoleParams->dwBufferRows ? consoleParams->dwBufferRows : consoleParams->dwRows);
 
+      _snwprintf_s(strPid, ARRAYSIZE(strPid),                 _TRUNCATE, L"%lu",
+        activeConsoleView->GetConsoleHandler().GetConsolePid());
+
       _snwprintf_s(strZoom, ARRAYSIZE(strZoom),               _TRUNCATE, L"%lu%%",
         activeConsoleView->GetFontZoom());
 

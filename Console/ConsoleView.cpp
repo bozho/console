@@ -1481,7 +1481,7 @@ CString ConsoleView::GetConsoleCommand()
 	{
 		strConsoleTitle = L"";
 	}
-	else if( this->GetConsoleHandler().IsElevated() )
+	else /*if( this->GetConsoleHandler().IsElevated() )*/
 	{
 		if( m_strUACPrefix.IsEmpty() )
 		{

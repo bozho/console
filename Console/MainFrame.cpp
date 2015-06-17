@@ -2234,7 +2234,7 @@ LRESULT MainFrame::OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 	consoleViewCreate.type = ConsoleViewCreate::CREATE;
 	consoleViewCreate.u.userCredentials = nullptr;
 
-	CreateNewConsole(&consoleViewCreate, tabData, strCurrentDirectory, wstring(L""), wstring(L""), activeConsoleView->GetBasePriority());
+	CreateNewConsole(&consoleViewCreate, tabData, std::wstring(L""), strCurrentDirectory, std::wstring(L""), activeConsoleView->GetBasePriority());
 
 	return 0;
 }

@@ -1471,17 +1471,18 @@ void ConsoleView::SetActive(bool bActive)
 
 /////////////////////////////////////////////////////////////////////////////
 
+static CString _strDefaultTitle(DEFAULT_CONSOLE_COMMAND);
+
 CString ConsoleView::GetConsoleCommand()
 {
 	CWindow consoleWnd(m_consoleHandler.GetConsoleParams()->hwndConsoleWindow);
 	CString strConsoleTitle(L"");
 
 	consoleWnd.GetWindowText(strConsoleTitle);
-	if( strConsoleTitle.Find(DEFAULT_CONSOLE_COMMAND) != -1 )
-	{
-		strConsoleTitle = L"";
-	}
-	else /*if( this->GetConsoleHandler().IsElevated() )*/
+
+	int len = 0;
+
+	/*if( this->GetConsoleHandler().IsElevated() )*/
 	{
 		if( m_strUACPrefix.IsEmpty() )
 		{
@@ -1490,11 +1491,24 @@ CString ConsoleView::GetConsoleCommand()
 
 		if( strConsoleTitle.GetLength() >= m_strUACPrefix.GetLength()
 		    &&
-		    strConsoleTitle.Left(m_strUACPrefix.GetLength()).Compare(m_strUACPrefix) == 0 )
+		    wcsncmp(strConsoleTitle.GetString(), m_strUACPrefix.GetString(), m_strUACPrefix.GetLength()) == 0 )
 		{
-			strConsoleTitle = strConsoleTitle.Right(strConsoleTitle.GetLength() - m_strUACPrefix.GetLength());
+			len = m_strUACPrefix.GetLength();
 		}
 	}
+
+	if( (strConsoleTitle.GetLength() - len) >= _strDefaultTitle.GetLength()
+	    &&
+	    wcsncmp(strConsoleTitle.GetString() + len, _strDefaultTitle.GetString(), _strDefaultTitle.GetLength()) == 0 )
+	{
+		len += _strDefaultTitle.GetLength();
+
+		if( wcsncmp(strConsoleTitle.GetString() + len, L" - ", 3) == 0 )
+			len += 3;
+	}
+
+	if( len > 0 )
+		strConsoleTitle = strConsoleTitle.Mid(len);
 
 	return strConsoleTitle.Trim();
 }

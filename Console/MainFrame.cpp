@@ -1369,6 +1369,9 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, TabView * tabView, s
 			           layers.top()->str += strShellTitle; break;
 			case L'd': if( !bCurrentDir ) { bCurrentDir = true; strCurrentDir = consoleView->GetConsoleHandler().GetCurrentDirectory(); }
 			           layers.top()->str += strCurrentDir; break;
+			case L'D': if( !bCurrentDir ) { bCurrentDir = true; strCurrentDir = consoleView->GetConsoleHandler().GetCurrentDirectory(); }
+			           { size_t pos = strCurrentDir.find_last_of(L"/\\"); if( pos != strCurrentDir.npos ) layers.top()->str += strCurrentDir.substr(pos + 1); }
+			           break;
 			case L'A': layers.top()->str += consoleView->GetConsoleHandler().IsElevated()? L"y" : L""; break;
 			case L'U': layers.top()->str += ( consoleView->IsRunningAsUser() )? L"y" : L""; break;
 			case L'N': layers.top()->str += ( consoleView->IsRunningAsUserNetOnly() )? L"y" : L""; break;
@@ -1390,6 +1393,15 @@ std::wstring MainFrame::FormatTitle(std::wstring strFormat, TabView * tabView, s
 				           defined = !strShellTitle.empty(); break;
 				case L'd': if( !bCurrentDir ) { bCurrentDir = true; strCurrentDir = consoleView->GetConsoleHandler().GetCurrentDirectory(); }
 				           defined = !strCurrentDir.empty(); break;
+				case L'D': if( !bCurrentDir ) { bCurrentDir = true; strCurrentDir = consoleView->GetConsoleHandler().GetCurrentDirectory(); }
+				           {
+				            	size_t pos = strCurrentDir.find_last_of(L"/\\");
+				            	if( pos != strCurrentDir.npos )
+				            		defined = !strCurrentDir.substr(pos + 1).empty();
+				            	else
+				            		defined = false;
+				           }
+				           break;
 				case L'A': defined = consoleView->GetConsoleHandler().IsElevated(); break;
 				case L'U': defined = consoleView->IsRunningAsUser(); break;
 				case L'N': defined = consoleView->IsRunningAsUserNetOnly(); break;

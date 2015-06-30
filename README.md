@@ -1,6 +1,8 @@
 ConsoleZ
 ========
 
+[![Join the chat at https://gitter.im/cbucher/console](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/cbucher/console?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![screenshot005](https://github.com/cbucher/console/wiki/screenshot001.png)
 
 This is a modified version of Console 2 for a better experience under Windows Vista/7/8 and a better visual rendering.

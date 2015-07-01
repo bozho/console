@@ -138,6 +138,8 @@ MainFrame::MainFrame
 , m_bAppActive(true)
 , m_bShowingHidingWindow(false)
 , m_hwndPreviousForeground(NULL)
+, m_uTaskbarRestart(::RegisterWindowMessage(TEXT("TaskbarCreated")))
+, m_uReloadDesktopImages(::RegisterWindowMessage(TEXT("ReloadDesktopImages")))
 {
 	m_Margins.cxLeftWidth    = 0;
 	m_Margins.cxRightWidth   = 0;
@@ -479,7 +481,6 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	DockWindow(positionSettings.dockPosition);
 	SetZOrder(positionSettings.zOrder);
 
-	m_uTaskbarRestart = RegisterWindowMessage(TEXT("TaskbarCreated"));
 	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
 	SetWindowIcons();
 
@@ -1173,17 +1174,32 @@ LRESULT MainFrame::OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lPar
 	}
 	else
 	{
-		// otherwise, we don't know what has changed
-		// technically, we can skip reloading for "Policy" and "intl", but
-		// hopefully they don't happen often, so reload everything
-		g_imageHandler->ReloadDesktopImages();
-
-
-		// can't use Invalidate because full repaint is in order
-		m_activeTabView->Repaint(true);
+		/*
+		IDesktopWallpaper creation failed with RPC_E_CANTCALLOUT_ININPUTSYNCCALL
+		RPC_E_CANTCALLOUT_ININPUTSYNCCALL means that we attempted to make a marshalled COM call
+		from within the handler for a windows message sent via SendMessage.
+		This is to help avoid certain deadlock situations.
+		We use PostMessage to queue up a message to ourself, and in that posted message handler,
+		invoke the COM callback.
+		*/
+		PostMessage(m_uReloadDesktopImages);
 	}
 
 	return 0;
+}
+
+LRESULT MainFrame::OnReloadDesktopImages(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	// otherwise, we don't know what has changed
+	// technically, we can skip reloading for "Policy" and "intl", but
+	// hopefully they don't happen often, so reload everything
+	g_imageHandler->ReloadDesktopImages();
+
+
+	// can't use Invalidate because full repaint is in order
+	m_activeTabView->Repaint(true);
+
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

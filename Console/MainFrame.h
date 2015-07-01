@@ -131,6 +131,7 @@ class MainFrame
 			MESSAGE_HANDLER(UM_SHOW_POPUP_MENU, OnShowPopupMenu)
 			MESSAGE_HANDLER(UM_START_MOUSE_DRAG, OnStartMouseDrag)
 			MESSAGE_HANDLER(m_uTaskbarRestart, OnTaskbarCreated)
+			MESSAGE_HANDLER(m_uReloadDesktopImages, OnReloadDesktopImages)
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
 			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 
@@ -249,6 +250,7 @@ class MainFrame
 		LRESULT OnTimer(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnSettingChange(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnReloadDesktopImages(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnConsoleResized(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /* bHandled */);
 		LRESULT OnConsoleClosed(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -459,6 +461,7 @@ class MainFrame
 		//CSearchComboBox	m_cb;
 		CAccelerator	m_acceleratorTable;
 		UINT			m_uTaskbarRestart;
+		UINT			m_uReloadDesktopImages;
 		CMultiPaneStatusBarCtrl m_statusBar;
 		CMenuHandle m_contextMenu;
 

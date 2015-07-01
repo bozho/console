@@ -373,7 +373,8 @@ void LoadLocalizedResources()
 
 int WINAPI _tWinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPTSTR lpstrCmdLine, int nCmdShow)
 {
-	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	// CoInitializeEx(COINIT_MULTITHREADED) can affect functions that rely on shell objects
+	HRESULT hRes = ::CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 	ATLASSERT(SUCCEEDED(hRes));
 
 #ifdef _USE_AERO

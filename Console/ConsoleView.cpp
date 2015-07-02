@@ -843,7 +843,7 @@ LRESULT ConsoleView::OnMouseMove(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		CRect	rectClient;
 		GetClientRect(&rectClient);
 
-    if (point.x < rectClient.left + m_nVInsideBorder)
+		if (point.x < rectClient.left + m_nVInsideBorder)
 		{
 			DoScroll(SB_HORZ, SB_LINELEFT, 0);
 		}
@@ -2017,6 +2017,9 @@ void ConsoleView::InitializeScrollbars()
 void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 {
 	int nDelta = 0;
+	int nCurrentPos = (nType == SB_VERT) ?
+		m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Top :
+		m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Left;
 
 	ScrollSettings& scrollSettings = g_settingsHandler->GetBehaviorSettings().scrollSettings;
 
@@ -2055,7 +2058,7 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 		case SB_THUMBTRACK:
 		case SB_THUMBPOSITION:
-			nDelta = nThumbPos - ::FlatSB_GetScrollPos(m_hWnd, nType);
+			nDelta = nThumbPos - nCurrentPos;
 			break;
 
 		case SB_ENDSCROLL:
@@ -2067,7 +2070,6 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 
 	if( nType == SB_VERT )
 	{
-		int nCurrentPos = m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Top;
 		int nVScrollMaxTop = static_cast<int>(m_dwVScrollMax - m_consoleHandler.GetConsoleParams()->dwRows + 1);
 		if( (nCurrentPos + nDelta) > nVScrollMaxTop )
 			nDelta = nVScrollMaxTop - nCurrentPos;

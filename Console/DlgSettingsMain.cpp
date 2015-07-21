@@ -74,6 +74,51 @@ LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	if (wID == IDOK)
+	{
+		if (m_checkUserDataDir.IsWindowEnabled())
+		{
+			g_settingsHandler->SetUserDataDir((m_checkUserDataDir.GetCheck() == 1) ? SettingsHandler::dirTypeUser : SettingsHandler::dirTypeExe);
+		}
+
+		HRESULT hr = m_pSettingsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
+		while (FAILED(hr))
+		{
+			std::wstring error = boost::str(boost::wformat(Helpers::LoadStringW(MSG_SETTINGS_CONFIG_FILE_WRITE_ERROR)) % g_settingsHandler->GetSettingsFileName().c_str());
+			if( g_settingsHandler->GetSettingsDirType() == SettingsHandler::dirTypeExe )
+			{
+				error += L"\n\n";
+				error += Helpers::LoadStringW(MSG_SETTINGS_CONFIG_FILE_WRITE_ERROR_EXEDIR);
+			}
+
+			switch( MessageBox(error.c_str(), Helpers::LoadStringW(IDS_CAPTION_ERROR).c_str(), MB_CANCELTRYCONTINUE | MB_ICONERROR) )
+			{
+			case IDCANCEL:
+				return 0;
+				break;
+
+			case IDTRYAGAIN:
+				hr = m_pSettingsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
+				break;
+
+			case IDCONTINUE:
+				hr = S_OK;
+				break;
+			}
+		}
+
+		if( g_settingsHandler->GetSettingsDirType() == SettingsHandler::dirTypeExe )
+		{
+			// rename the file located in %APPDATA%\console
+			g_settingsHandler->SetUserDataDir(SettingsHandler::dirTypeUser);
+			MoveFile(
+				g_settingsHandler->GetSettingsFileName().c_str(),
+				(g_settingsHandler->GetSettingsFileName() + L".bak").c_str());
+
+			g_settingsHandler->SetUserDataDir(SettingsHandler::dirTypeExe);
+		}
+	}
+
 	SettingsDlgsMap::iterator it = m_settingsDlgMap.begin();
 	for (; it != m_settingsDlgMap.end(); ++it)
 	{
@@ -87,15 +132,6 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 	for (it = m_settingsDlgMap.begin(); it != m_settingsDlgMap.end(); ++it)
 	{
 		it->second->DestroyWindow();
-	}
-
-	if (wID == IDOK)
-	{
-		if (m_checkUserDataDir.IsWindowEnabled())
-		{
-			g_settingsHandler->SetUserDataDir((m_checkUserDataDir.GetCheck() == 1) ? SettingsHandler::dirTypeUser : SettingsHandler::dirTypeExe);
-		}
-		m_pSettingsDocument->save(CComVariant(g_settingsHandler->GetSettingsFileName().c_str()));
 	}
 
 	EndDialog(wID);

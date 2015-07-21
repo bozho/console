@@ -2596,7 +2596,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 				m_pSettingsDocument,
 				m_pSettingsRoot);
 
-			SetUserDataDir(dirTypeExe);
+			SetUserDataDir(dirTypeUser);
 		}
 
 		if (FAILED(hr)) return false;

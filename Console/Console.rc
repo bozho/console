@@ -876,6 +876,10 @@ BEGIN
                             "current"
     MSG_SETTINGS_DELETE_TAB
                             "Delete selected tab?"
+    MSG_SETTINGS_CONFIG_FILE_WRITE_ERROR
+                            "Configuration cannot be saved. Make sure you have write permission for %1%."
+    MSG_SETTINGS_CONFIG_FILE_WRITE_ERROR_EXEDIR
+                            "It is recommended to save settings to user directory."
     MSG_SETTINGS_INIT_DIR
                             "Choose initial directory"
     MSG_SETTINGS_ICON_FILES

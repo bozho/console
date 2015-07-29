@@ -986,14 +986,10 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 	if (!(pWinPos->flags & SWP_NOMOVE) && GetKeyState(VK_LWIN) >= 0 && GetKeyState(VK_RWIN) >= 0)
 	{
-		// do nothing for minimized or maximized or fullscreen windows or restoring
-		if(IsIconic() || IsZoomed() || m_bFullScreen || m_bRestoringWindow)
-		{
-			bHandled = FALSE;
-			return 0;
-		}
+		// no docking for minimized or maximized or fullscreen windows or restoring
+		bool bNoDocking = IsIconic() || IsZoomed() || m_bFullScreen || m_bRestoringWindow;
 
-		if (positionSettings.nSnapDistance >= 0)
+		if( !bNoDocking && positionSettings.nSnapDistance >= 0 )
 		{
 			m_dockPosition	= dockNone;
 

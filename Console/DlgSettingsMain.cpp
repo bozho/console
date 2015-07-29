@@ -74,6 +74,18 @@ LRESULT DlgSettingsMain::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 
 LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
+	// send IDOK to all settings dialogs
+	// That triggers DoDataExchange(DDX_SAVE)
+	SettingsDlgsMap::iterator it = m_settingsDlgMap.begin();
+	for (; it != m_settingsDlgMap.end(); ++it)
+	{
+		if ((it->second)->SendMessage(WM_COMMAND, wID, 0) != 0)
+		{
+			m_treeCtrl.Select(it->first, TVGN_CARET);
+			return -1;
+		}
+	}
+
 	if (wID == IDOK)
 	{
 		if (m_checkUserDataDir.IsWindowEnabled())
@@ -116,16 +128,6 @@ LRESULT DlgSettingsMain::OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndC
 				(g_settingsHandler->GetSettingsFileName() + L".bak").c_str());
 
 			g_settingsHandler->SetUserDataDir(SettingsHandler::dirTypeExe);
-		}
-	}
-
-	SettingsDlgsMap::iterator it = m_settingsDlgMap.begin();
-	for (; it != m_settingsDlgMap.end(); ++it)
-	{
-		if ((it->second)->SendMessage(WM_COMMAND, wID, 0) != 0)
-		{
-			m_treeCtrl.Select(it->first, TVGN_CARET);
-			return -1;
 		}
 	}
 

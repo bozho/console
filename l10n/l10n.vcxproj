@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release Legacy|Win32">
       <Configuration>Release Legacy</Configuration>
       <Platform>Win32</Platform>
@@ -24,11 +20,6 @@
     <Keyword>MakeFileProj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Makefile</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v120</PlatformToolset>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Makefile</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -42,9 +33,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -52,14 +40,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <IntDir>..\obj\$(ProjectName)\$(Configuration)\</IntDir>
-    <OutDir>..\bin\$(ProjectName)\$(Configuration)\</OutDir>
-    <NMakeBuildCommandLine>nmake release /D configuration="$(Configuration)"</NMakeBuildCommandLine>
-    <NMakeReBuildCommandLine>nmake release /A /D configuration="$(Configuration)"</NMakeReBuildCommandLine>
-    <NMakeCleanCommandLine>nmake clean /D configuration="$(Configuration)"</NMakeCleanCommandLine>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;_USE_AERO;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
     <NMakeBuildCommandLine>nmake release /D configuration="$(Configuration)" /D _USE_AERO=1</NMakeBuildCommandLine>
@@ -75,6 +55,8 @@
     <NMakeCleanCommandLine>nmake clean /D configuration="$(Configuration)"</NMakeCleanCommandLine>
     <OutDir>..\bin\$(ProjectName)\$(Configuration)\</OutDir>
     <IntDir>..\obj\$(ProjectName)\$(Configuration)\</IntDir>
+    <NMakeOutput>
+    </NMakeOutput>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

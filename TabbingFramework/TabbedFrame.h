@@ -737,6 +737,35 @@ public:
 		return bSuccess;
 	}
 
+	BOOL UpdateTabProgress(HWND hWnd, unsigned long long ullProgressCompleted, unsigned long long ullProgressTotal)
+	{
+		BOOL bSuccess = FALSE;
+
+		TTabCtrl::TItem tcItem;
+		tcItem.SetTabView(hWnd);
+
+		int nTab = m_TabCtrl.FindItem(&tcItem, CTFI_TABVIEW);
+		if( nTab >= 0 )
+		{
+			TTabCtrl::TItem* pItem = m_TabCtrl.GetItem(nTab);
+
+			unsigned long long ullOldProgressCompleted = pItem->GetProgressCompleted();
+			unsigned long long ullOldProgressTotal     = pItem->GetProgressTotal();
+
+			pItem->SetProgress(ullProgressCompleted, ullProgressTotal);
+
+			if( ullOldProgressCompleted != ullProgressCompleted || ullOldProgressTotal != ullProgressTotal )
+			{
+				m_TabCtrl.UpdateLayout();
+				m_TabCtrl.Invalidate();
+			}
+
+			bSuccess = TRUE;
+		}
+
+		return bSuccess;
+	}
+
 	BOOL UpdateTabImage(HWND hWnd, int nImageIndex = -1)
 	{
 		BOOL bSuccess = FALSE;

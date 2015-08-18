@@ -57,6 +57,7 @@ class ConsoleHandler
 		void ClickLink            ();
 		void SearchText           ();
 		void Clear                ();
+		bool GetPowerShellProgress(HANDLE hStdOut, CONSOLE_SCREEN_BUFFER_INFO& csbiConsole, unsigned long long & ullProgressCompleted, unsigned long long & ullProgressTotal);
 
 	private:
 

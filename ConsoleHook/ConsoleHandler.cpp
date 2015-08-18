@@ -264,27 +264,44 @@ void ConsoleHandler::RealReadConsoleBuffer()
 
 	//TRACE(L"===================================================================\n");
 
+	unsigned long long ullProgressCompleted = 0ULL;
+	unsigned long long ullProgressTotal     = 0ULL;
+	GetPowerShellProgress(hStdOut, csbiConsole, ullProgressCompleted, ullProgressTotal);
+
 	// compare previous buffer, and if different notify ConsoleZ
 	SharedMemoryLock consoleInfoLock(m_consoleInfo);
 	SharedMemoryLock bufferLock(m_consoleBuffer);
 
 	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
 
-	bool textChanged = (::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0);
+	bool somethingChanged = false;
+
+	// compare text
+	if(::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0)
+	{
+		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
+
+		somethingChanged = true;
+
+		// only ConsoleZ sets the flags to false
+		m_consoleInfo->textChanged  = true;
+	}
 
 	// compare previous console title
-	bool titleChanged = false;
 	wchar_t szNewConsoleTitle[ARRAYSIZE(m_szConsoleTitle)] = L"";
 	if(::GetConsoleTitle(szNewConsoleTitle, ARRAYSIZE(m_szConsoleTitle))
 	   &&
 	   wcscmp(szNewConsoleTitle, m_szConsoleTitle))
 	{
 		wcscpy_s<ARRAYSIZE(m_szConsoleTitle)>(m_szConsoleTitle, szNewConsoleTitle);
-		titleChanged = true;
+
+		somethingChanged = true;
+
+		// only ConsoleZ sets the flags to false
+		m_consoleInfo->titleChanged = true;
 	}
 
 	// compare console buffer information
-	bool csbiChanged = false;
 	if(::memcmp(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO))
 	   ||
 	   m_dwScreenBufferSize != dwScreenBufferSize)
@@ -293,20 +310,137 @@ void ConsoleHandler::RealReadConsoleBuffer()
 		m_dwScreenBufferSize = dwScreenBufferSize;
 		::CopyMemory(&m_consoleInfo->csbi, &csbiConsole, sizeof(CONSOLE_SCREEN_BUFFER_INFO));
 
-		csbiChanged = true;
+		somethingChanged = true;
+
+		// only ConsoleZ sets the flags to false
+		m_consoleInfo->csbiChanged  = true;
 	}
 
-	if (textChanged || titleChanged || csbiChanged)
+	// compare progress
+	if(ullProgressCompleted != m_consoleInfo->ullProgressCompleted || ullProgressTotal != m_consoleInfo->ullProgressTotal)
 	{
+		m_consoleInfo->ullProgressCompleted = ullProgressCompleted;
+		m_consoleInfo->ullProgressTotal     = ullProgressTotal;
+
+		somethingChanged = true;
+
 		// only ConsoleZ sets the flags to false
-		if (textChanged)  m_consoleInfo->textChanged  = true;
-		if (titleChanged) m_consoleInfo->titleChanged = true;
-		if (csbiChanged)  m_consoleInfo->csbiChanged  = true;
+		m_consoleInfo->progressChanged  = true;
+	}
 
-		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
-
+	// if something changed then event is alerted
+	if(somethingChanged)
+	{
 		m_consoleBuffer.SetReqEvent();
 	}
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ConsoleHandler::GetPowerShellProgress(HANDLE hStdOut, CONSOLE_SCREEN_BUFFER_INFO& csbiConsole, unsigned long long & ullProgressCompleted, unsigned long long & ullProgressTotal)
+{
+	SHORT sBufferColumns = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
+	SHORT sBufferRows    = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
+
+	// buffer width is too small to display a progress bar!
+	if( sBufferColumns <= 12 )
+		return false;
+
+	// we search the empty line of color 3e
+	// this line is in third row
+	// of the window containing the cursor
+	SHORT sMinRow = csbiConsole.dwCursorPosition.Y
+	              - (csbiConsole.srWindow.Right - csbiConsole.srWindow.Left)
+	              + 2;
+	if( sMinRow < 2 ) sMinRow = 2;
+
+	SHORT sMaxRow = csbiConsole.dwCursorPosition.Y + 2;
+	if( sMaxRow >= sBufferRows ) sMaxRow = sBufferRows - 1;
+
+	COORD coordFrom       = {0, 0};
+	COORD coordBufferSize = {sBufferColumns, 1};
+
+	SMALL_RECT srBuffer;
+	srBuffer.Left  = 0;
+	srBuffer.Right = sBufferColumns - 1;
+	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[sBufferColumns]);
+
+	TRACE(L"GetPowerShellProgress from %hd to %hd\n", sMinRow, sMaxRow);
+	for( SHORT sRow = sMinRow; sRow <= sMaxRow; ++sRow )
+	{
+		srBuffer.Top    = sRow;
+		srBuffer.Bottom = sRow;
+
+		::ReadConsoleOutput(
+			hStdOut,
+			pScreenBuffer.get(),
+			coordBufferSize,
+			coordFrom,
+			&srBuffer);
+
+		bool bEmpty = true;
+		for( SHORT i = srBuffer.Left; i < srBuffer.Right; ++i )
+		{
+			if( pScreenBuffer[i].Attributes != 0x3e ||  pScreenBuffer[i].Char.UnicodeChar != L' ' )
+			{
+				bEmpty = false;
+				break;
+			}
+		}
+
+		if( bEmpty )
+		{
+			// we search "    [ooo...ooo   ...   ]"
+			for( SHORT sRow2 = sRow + 3; sRow2 < min(sMaxRow + 10, sBufferRows); ++sRow2 )
+			{
+				srBuffer.Top    = sRow2;
+				srBuffer.Bottom = sRow2;
+
+				::ReadConsoleOutput(
+					hStdOut,
+					pScreenBuffer.get(),
+					coordBufferSize,
+					coordFrom,
+					&srBuffer);
+
+				if( pScreenBuffer[0].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[1].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[2].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[3].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[4].Char.UnicodeChar != L'[' ) continue;
+
+				if( pScreenBuffer[sBufferColumns - 1].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[sBufferColumns - 2].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[sBufferColumns - 3].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[sBufferColumns - 4].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[sBufferColumns - 5].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[sBufferColumns - 6].Char.UnicodeChar != L' ' ) continue;
+				if( pScreenBuffer[sBufferColumns - 7].Char.UnicodeChar != L']' ) continue;
+
+				int nBarLength = 0;
+				for(SHORT sCol = 5; sCol < sBufferColumns - 7; ++sCol)
+				{
+					if( pScreenBuffer[sCol].Char.UnicodeChar == L'o' ) nBarLength++;
+					else if ( pScreenBuffer[sCol].Char.UnicodeChar != L' ' ) return false;
+				}
+
+				TRACE(L"GetPowerShellProgress progress = %i/%i\n", 
+							nBarLength,
+							sBufferColumns - 12);
+
+				ullProgressCompleted = nBarLength;
+				ullProgressTotal     = sBufferColumns - 12;
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	return false;
 }
 
 //////////////////////////////////////////////////////////////////////////////

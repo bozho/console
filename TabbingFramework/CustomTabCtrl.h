@@ -359,6 +359,8 @@ protected:
 	_CSTRING_NS::CString m_sToolTip;
 	bool m_bHighlighted;
 	bool m_bCanClose;
+	unsigned long long m_ullProgressCompleted;
+	unsigned long long m_ullProgressTotal;
 
 public:
 	// NOTE: These are here for backwards compatibility.
@@ -387,7 +389,9 @@ public:
 	CCustomTabItem() :
 		m_nImage(-1),
 		m_bHighlighted(false),
-		m_bCanClose(true)
+		m_bCanClose(true),
+		m_ullProgressCompleted(0ULL),
+		m_ullProgressTotal(0ULL)
 	{
 		::SetRectEmpty(&m_rcItem);
 	}
@@ -411,6 +415,8 @@ public:
 			m_sToolTip      = rhs.m_sToolTip;
 			m_bHighlighted  = rhs.m_bHighlighted;
 			m_bCanClose     = rhs.m_bCanClose;
+			m_ullProgressCompleted = rhs.m_ullProgressCompleted;
+			m_ullProgressTotal = rhs.m_ullProgressTotal;
 		}
 		return *this;
 	}
@@ -418,6 +424,19 @@ public:
 // Accessors
 public:
 
+	unsigned long long GetProgressCompleted() const
+	{
+		return m_ullProgressCompleted;
+	}
+	unsigned long long GetProgressTotal() const
+	{
+		return m_ullProgressTotal;
+	}
+	void SetProgress(unsigned long long ullProgressCompleted, unsigned long long ullProgressTotal)
+	{
+		m_ullProgressCompleted = ullProgressCompleted;
+		m_ullProgressTotal     = ullProgressTotal;
+	}
 	RECT GetRect() const
 	{
 		return m_rcItem;

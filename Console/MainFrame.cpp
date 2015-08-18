@@ -140,6 +140,7 @@ MainFrame::MainFrame
 , m_hwndPreviousForeground(NULL)
 , m_uTaskbarRestart(::RegisterWindowMessage(TEXT("TaskbarCreated")))
 , m_uReloadDesktopImages(::RegisterWindowMessage(TEXT("ReloadDesktopImages")))
+, m_uTaskbarButtonCreated(::RegisterWindowMessage(TEXT("TaskbarButtonCreated")))
 {
 	m_Margins.cxLeftWidth    = 0;
 	m_Margins.cxRightWidth   = 0;
@@ -275,6 +276,12 @@ LRESULT MainFrame::CreateInitialTabs
 
 LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+	// Let the TaskbarButtonCreated message through the UIPI filter. If we don't
+	// do this, Explorer would be unable to send that message to our window if we
+	// were running elevated. It's OK to make the call all the time, since if we're
+	// not elevated, this is a no-op.
+	::ChangeWindowMessageFilter(m_uTaskbarButtonCreated, MSGFLT_ADD);
+
 	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;
 
@@ -1475,6 +1482,12 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 
 	wstring strTabTitle = FormatTitle(windowSettings.strTabTitleFormat, tabView.get(), consoleView);
 
+	unsigned long long ullProgressCompleted = 0ULL;
+	unsigned long long ullProgressTotal     = 0ULL;
+	consoleView->GetProgress(ullProgressCompleted, ullProgressTotal);
+
+	UpdateTabProgress(*tabView, ullProgressCompleted, ullProgressTotal);
+
 	if (tabView == m_activeTabView)
 	{
 		m_strWindowTitle = windowSettings.bUseTabTitles? strTabTitle : FormatTitle(windowSettings.strMainTitleFormat, tabView.get(), consoleView);
@@ -1482,6 +1495,8 @@ void MainFrame::UpdateTabTitle(std::shared_ptr<TabView> tabView)
 		SetWindowText(m_strWindowTitle.c_str());
 		if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon)
 			SetTrayIcon(NIM_MODIFY);
+
+		SetProgress(ullProgressCompleted, ullProgressTotal);
 	}
 
 	// we always set the tool tip text to the complete, untrimmed title
@@ -1688,6 +1703,50 @@ LRESULT MainFrame::OnTaskbarCreated(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 	if (g_settingsHandler->GetAppearanceSettings().stylesSettings.bTrayIcon) SetTrayIcon(NIM_ADD);
 
 	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT MainFrame::OnTaskbarButtonCreated(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
+{
+	TRACE(L"*** OnTaskbarButtonCreated ***\n");
+	//Minimum supported client: Windows 7 / Windows Server 2008 R2
+	if( Helpers::CheckOSVersion(6, 1) )
+	{
+		m_pTaskbarList.Release();
+		m_pTaskbarList.CoCreateInstance ( CLSID_TaskbarList );
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainFrame::SetProgress(unsigned long long ullProgressCompleted, unsigned long long ullProgressTotal)
+{
+	if ( m_pTaskbarList )
+	{
+		if( ullProgressTotal )
+			m_pTaskbarList->SetProgressValue(m_hWnd, ullProgressCompleted, ullProgressTotal);
+		else
+		{
+			m_pTaskbarList->SetProgressState(m_hWnd, TBPF_NOPROGRESS);
+
+			RECT rect;
+			//m_activeTabView->GetWindowRect(&rect);
+			m_activeTabView->GetClientRect(&rect);
+			m_activeTabView->MapWindowPoints(this->m_hWnd, reinterpret_cast<LPPOINT>(&rect), 2);
+			HRESULT hr;
+			hr = m_pTaskbarList->SetThumbnailClip(m_hWnd, &rect);
+			TRACE(L"SetThumbnailClip returns %d\n", hr);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

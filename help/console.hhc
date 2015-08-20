@@ -57,6 +57,10 @@
 				<param name="Local" value="html\settings_appearance_styles.html">
 				</OBJECT>
 			<LI> <OBJECT type="text/sitemap">
+				<param name="Name" value="Appearance (Transparency)">
+				<param name="Local" value="html\settings_appearance_transparency.html">
+				</OBJECT>
+			<LI> <OBJECT type="text/sitemap">
 				<param name="Name" value="Appearance (Font)">
 				<param name="Local" value="html\settings_appearance_font.html">
 				</OBJECT>

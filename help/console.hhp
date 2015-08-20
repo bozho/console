@@ -25,6 +25,7 @@ html\settings.html
 html\settings_console.html
 html\settings_appearance.html
 html\settings_appearance_styles.html
+html\settings_appearance_transparency.html
 html\settings_appearance_font.html
 html\settings_appearance_fullscreen.html
 html\settings_behavior.html

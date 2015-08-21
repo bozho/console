@@ -274,10 +274,11 @@ struct PositionSettings : public SettingsBase
 
 enum TransparencyType
 {
-	transNone		= 0,
-	transAlpha		= 1,
-	transColorKey	= 2,
-	transGlass		= 3
+	transNone             = 0,
+	transAlpha            = 1,
+	transColorKey         = 2,
+	transGlass            = 3,
+	transAlphaAndColorKey = 4,
 };
 
 //////////////////////////////////////////////////////////////////////////////

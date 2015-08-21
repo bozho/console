@@ -124,7 +124,7 @@
 #define IDC_TRANSPARENCY_TYPE2          1069
 #define IDC_TRANSPARENCY_TYPE3          1070
 #define IDC_TRANSPARENCY_TYPE4          1071
-#define IDC_KEY_COLOR                   1072
+#define IDC_TRANSPARENCY_TYPE5          1072
 #define IDC_STATIC_ACTIVE_WINDOW        1073
 #define IDC_STATIC_INACTIVE_WINDOW      1074
 #define IDC_STATIC_KEY_COLOR            1075
@@ -149,12 +149,12 @@
 #define IDC_CHECK_HIDE_SINGLE_TAB       1092
 #define IDC_CHECK_STYLE_TRAY            1093
 #define IDC_POS_Y                       1094
-#define IDC_CHECK_HIDE_SCROLLBARS       1094
 #define IDC_CHECK_SHOW_SCROLLBARS       1094
 #define IDC_CHECK_FLAT_SCROLLBARS       1095
 #define IDC_CHECK_STYLE_QUAKE           1096
 #define IDC_CHECK_USE_JUMPLIST          1097
 #define IDC_CHECK_RTF                   1098
+#define IDC_KEY_COLOR                   1099
 #define IDC_TRIM_TAB_TITLES             1101
 #define IDC_TRIM_TAB_TITLES_RIGHT       1102
 #define IDC_SNAP                        1104

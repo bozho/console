@@ -642,7 +642,7 @@ void MainFrame::ActivateApp(void)
   TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
   TransparencyType transType = m_bTransparencyActive ? transparencySettings.transType : transNone;
 
-  if ((transType == transAlpha) && 
+  if ((transType == transAlpha || transType == transAlphaAndColorKey) &&
     ((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
   {
     if (m_bAppActive)
@@ -4057,7 +4057,7 @@ void MainFrame::SetTransparency()
       }
       else
       {
-        if( transType == transColorKey )
+        if( transType == transColorKey || transType == transAlphaAndColorKey)
         {
           MARGINS m = {0, 0, 0, 0};
           ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
@@ -4074,30 +4074,29 @@ void MainFrame::SetTransparency()
   switch (transType)
   {
   case transAlpha:
-    // if ConsoleZ is pinned to the desktop window, wee need to set it as top-level window temporarily
-    if (m_zOrder == zorderDesktop) SetParent(NULL);
-
-    if ((transparencySettings.byActiveAlpha == 255) &&
-      (transparencySettings.byInactiveAlpha == 255))
     {
+      if( transparencySettings.byActiveAlpha == 255 &&
+         transparencySettings.byInactiveAlpha == 255 )
+         break;
+
+      // if ConsoleZ is pinned to the desktop window, wee need to set it as top-level window temporarily
+      if( m_zOrder == zorderDesktop ) SetParent(NULL);
+
+      SetWindowLong(
+        GWL_EXSTYLE,
+        GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
+
+      ::SetLayeredWindowAttributes(
+        m_hWnd,
+        0,
+        transparencySettings.byActiveAlpha,
+        LWA_ALPHA);
+
+      // back to desktop-pinned mode, if needed
+      if( m_zOrder == zorderDesktop ) SetParent(GetDesktopWindow());
 
       break;
     }
-
-    SetWindowLong(
-      GWL_EXSTYLE, 
-      GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
-
-    ::SetLayeredWindowAttributes(
-      m_hWnd,
-      0, 
-      transparencySettings.byActiveAlpha, 
-      LWA_ALPHA);
-
-    // back to desktop-pinned mode, if needed
-    if (m_zOrder == zorderDesktop) SetParent(GetDesktopWindow());
-
-    break;
 
   case transColorKey :
     {
@@ -4107,6 +4106,29 @@ void MainFrame::SetTransparency()
 #endif
 
       SetWindowLong(
+        GWL_EXSTYLE,
+        GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
+
+      ::SetLayeredWindowAttributes(
+        m_hWnd,
+        transparencySettings.crColorKey,
+        0,
+        LWA_COLORKEY);
+
+      break;
+    }
+
+  case transAlphaAndColorKey:
+    {
+#ifdef _USE_AERO
+      // under VISTA/Windows 7 color key transparency replace aero glass by black
+      fEnabled = FALSE;
+#endif
+
+      // if ConsoleZ is pinned to the desktop window, wee need to set it as top-level window temporarily
+      if (m_zOrder == zorderDesktop) SetParent(NULL);
+
+      SetWindowLong(
         GWL_EXSTYLE, 
         GetWindowLong(GWL_EXSTYLE) | WS_EX_LAYERED);
 
@@ -4114,7 +4136,10 @@ void MainFrame::SetTransparency()
         m_hWnd,
         transparencySettings.crColorKey, 
         transparencySettings.byActiveAlpha, 
-        LWA_COLORKEY);
+        LWA_COLORKEY | LWA_ALPHA);
+
+      // back to desktop-pinned mode, if needed
+      if( m_zOrder == zorderDesktop ) SetParent(GetDesktopWindow());
 
       break;
     }

@@ -200,7 +200,9 @@ void DlgSettingsTransparency::EnableTransparencyControls()
 	GetDlgItem(IDC_STATIC_KEY_COLOR).EnableWindow(FALSE);
 	GetDlgItem(IDC_KEY_COLOR).EnableWindow(FALSE);
 
-	if (m_transparencySettings.transType == transAlpha || m_transparencySettings.transType == transGlass)
+	if (m_transparencySettings.transType == transAlpha ||
+	    m_transparencySettings.transType == transAlphaAndColorKey ||
+	    m_transparencySettings.transType == transGlass)
 	{
 		GetDlgItem(IDC_STATIC_ACTIVE_WINDOW).EnableWindow();
 		GetDlgItem(IDC_STATIC_INACTIVE_WINDOW).EnableWindow();
@@ -208,10 +210,11 @@ void DlgSettingsTransparency::EnableTransparencyControls()
 		GetDlgItem(IDC_INACTIVE_ALPHA).EnableWindow();
 		GetDlgItem(IDC_STATIC_ACTIVE_ALPHA).EnableWindow();
 		GetDlgItem(IDC_STATIC_INACTIVE_ALPHA).EnableWindow();
-
 	}
-	else if (m_transparencySettings.transType == transColorKey)
-	{
+
+	if (m_transparencySettings.transType == transColorKey ||
+	    m_transparencySettings.transType == transAlphaAndColorKey)
+  {
 		GetDlgItem(IDC_STATIC_KEY_COLOR).EnableWindow();
 		GetDlgItem(IDC_KEY_COLOR).EnableWindow();
 	}

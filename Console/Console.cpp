@@ -161,7 +161,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
     if (!g_settingsHandler->LoadSettings(Helpers::ExpandEnvironmentStrings(strConfigFile)))
     {
-      throw std::exception("enable to load settings!");
+      throw std::exception("Unable to load settings!");
     }
 
 		if (!bReuse)

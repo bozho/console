@@ -1082,10 +1082,9 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 
 	bool bResize      = (wParam & UPDATE_CONSOLE_RESIZE       ) ? true : false;
 	bool textChanged  = (wParam & UPDATE_CONSOLE_TEXT_CHANGED ) ? true : false;
-	bool titleChanged = (wParam & UPDATE_CONSOLE_TITLE_CHANGED) ? true : false;
 	bool csbiChanged  = (wParam & UPDATE_CONSOLE_CSBI_CHANGED ) ? true : false;
 
-	if(titleChanged)
+	if(wParam & UPDATE_CONSOLE_TITLE_CHANGED || wParam & UPDATE_CONSOLE_PROGRESS_CHANGED)
 		UpdateTitle();
 
 	if(!bResize && !textChanged && !csbiChanged)
@@ -1522,6 +1521,20 @@ CString ConsoleView::GetConsoleCommand()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleView::GetProgress(unsigned long long & ullProgressCompleted, unsigned long long & ullProgressTotal)
+{
+	auto consoleInfo = m_consoleHandler.GetConsoleInfo();
+	SharedMemoryLock consoleInfoLock(consoleInfo);
+
+	ullProgressCompleted = consoleInfo->ullProgressCompleted;
+	ullProgressTotal     = consoleInfo->ullProgressTotal;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 void ConsoleView::Clear()
 {
 	//clear screen
@@ -1714,6 +1727,12 @@ void ConsoleView::OnConsoleChange(bool bResize)
 		{
 			wParam |= UPDATE_CONSOLE_CSBI_CHANGED;
 			consoleInfo->csbiChanged = false;
+		}
+
+		if(consoleInfo->progressChanged)
+		{
+			wParam |= UPDATE_CONSOLE_PROGRESS_CHANGED;
+			consoleInfo->progressChanged = false;
 		}
 	}
 

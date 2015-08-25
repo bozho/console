@@ -155,6 +155,7 @@ class ConsoleView
 		bool  IsRunningAsUser() const { return m_strUser.GetLength() > 0 && !m_boolNetOnly; }
 
 		CString GetConsoleCommand();
+		void    GetProgress(unsigned long long & ullProgressCompleted, unsigned long long & ullProgressTotal);
 
 		void Clear();
 		void Copy(const CPoint* pPoint = NULL);

@@ -152,38 +152,51 @@ public:
     }
   }
 
-  void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color, bool bSelected)
+  void DrawTab(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& colorTab, Gdiplus::Color& colorProgressBar, bool bSelected, TItem* pItem)
   {
     DWORD dwStyle = this->GetStyle();
 
     if (CTCS_BOTTOM == (dwStyle & CTCS_BOTTOM))
-      this->DrawTabBottom(rcTab, g, color, bSelected);
+      this->DrawTabBottom(rcTab, g, colorTab, colorProgressBar, bSelected, pItem);
     else
-      this->DrawTabTop(rcTab, g, color, bSelected);
+      this->DrawTabTop(rcTab, g, colorTab, colorProgressBar, bSelected, pItem);
   }
 
-  void DrawTabTop(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color, bool bSelected)
+  void DrawTabTop(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& colorTab, Gdiplus::Color& colorProgressBar, bool bSelected, TItem* pItem)
   {
-    INT X      = rcTab.left + m_iLeftSpacing;
-    INT Y      = rcTab.top  + m_iTopMargin;
-    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing;
-    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin - 1;
+    INT X       = rcTab.left + m_iLeftSpacing;
+    INT Y       = rcTab.top + m_iTopMargin;
+    INT width   = rcTab.right - rcTab.left - m_iLeftSpacing;
+    INT height  = rcTab.bottom - rcTab.top - m_iTopMargin - 1;
+    INT height2 = bSelected ? height : (height - 1);
 
-    Gdiplus::SolidBrush brush(color);
+    Gdiplus::SolidBrush brushTab(colorTab);
     Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(0x72000000)), 1.0);
 
     g.DrawLine(&pen, rcTab.left, rcTab.bottom - 1, rcTab.right, rcTab.bottom - 1);
 
-    if( bSelected )
+    if( pItem->GetProgressTotal() )
     {
-      g.FillRectangle(&brush, X + 1, Y + 1, width - 2, height);
-      g.DrawLine(&pen, X, Y, X, rcTab.bottom - 2);
-      g.DrawLine(&pen, X + width - 1, Y, X + width - 1, rcTab.bottom - 2);
-      g.DrawLine(&pen, X + 1, Y, X + width - 2, Y);
+      Gdiplus::SolidBrush brushProgressBar(colorProgressBar);
+      INT widthProgressBar = static_cast<INT>(pItem->GetProgressCompleted() * (width - 2) / pItem->GetProgressTotal());
+      INT widthRemaining = width - 2 - widthProgressBar;
+
+      if( widthProgressBar )
+        g.FillRectangle(&brushProgressBar, X + 1, Y + 1, widthProgressBar, height2);
+
+      if( widthRemaining )
+        g.FillRectangle(&brushTab, X + 1 + widthProgressBar, Y + 1, widthRemaining, height2);
     }
     else
     {
-      g.FillRectangle(&brush, X + 1, Y + 1, width - 2, height - 1);
+      g.FillRectangle(&brushTab, X + 1, Y + 1, width - 2, height2);
+    }
+
+    if( bSelected )
+    {
+      g.DrawLine(&pen, X, Y, X, rcTab.bottom - 2);
+      g.DrawLine(&pen, X + width - 1, Y, X + width - 1, rcTab.bottom - 2);
+      g.DrawLine(&pen, X + 1, Y, X + width - 2, Y);
     }
 
 #ifdef _DRAW_TAB_RECT
@@ -197,28 +210,42 @@ public:
 #endif //_DRAW_TAB_RECT
   }
 
-  void DrawTabBottom(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& color, bool bSelected)
+  void DrawTabBottom(RECT& rcTab, Gdiplus::Graphics& g, Gdiplus::Color& colorTab, Gdiplus::Color& colorProgressBar, bool bSelected, TItem* pItem)
   {
-    INT X      = rcTab.left + m_iLeftSpacing;
-    INT Y      = rcTab.top;
-    INT width  = rcTab.right  - rcTab.left - m_iLeftSpacing;
-    INT height = rcTab.bottom - rcTab.top  - m_iTopMargin - 1;
+    INT X       = rcTab.left + m_iLeftSpacing;
+    INT Y       = rcTab.top;
+    INT Y2      = bSelected ? Y : (Y + 1);
+    INT width   = rcTab.right - rcTab.left - m_iLeftSpacing;
+    INT height  = rcTab.bottom - rcTab.top - m_iTopMargin - 1;
+    INT height2 = bSelected ? height : (height - 1);
 
-    Gdiplus::SolidBrush brush(color);
+    Gdiplus::SolidBrush brushTab(colorTab);
     Gdiplus::Pen pen(Gdiplus::Color(static_cast<Gdiplus::ARGB>(0x72000000)), 1.0);
 
     g.DrawLine(&pen, rcTab.left, rcTab.top, rcTab.right, rcTab.top);
 
-    if( bSelected )
+    if( pItem->GetProgressTotal() )
     {
-      g.FillRectangle(&brush, X + 1, Y, width - 2, height);
-      g.DrawLine(&pen, X, rcTab.top + 1, X, Y + height);
-      g.DrawLine(&pen, X + width - 1, rcTab.top + 1, X + width - 1, Y + height);
-      g.DrawLine(&pen, X + 1, Y + height, X + width - 2, Y + height);
+      Gdiplus::SolidBrush brushProgressBar(colorProgressBar);
+      INT widthProgressBar = static_cast<INT>(pItem->GetProgressCompleted() * (width - 2) / pItem->GetProgressTotal());
+      INT widthRemaining = width - 2 - widthProgressBar;
+
+      if( widthProgressBar )
+        g.FillRectangle(&brushProgressBar, X + 1, Y2, widthProgressBar, height2);
+
+      if( widthRemaining )
+        g.FillRectangle(&brushTab, X + 1 + widthProgressBar, Y2, widthRemaining, height2);
     }
     else
     {
-      g.FillRectangle(&brush, X + 1, Y + 1, width - 2, height - 1);
+      g.FillRectangle(&brushTab, X + 1, Y2, width - 2, height2);
+    }
+
+    if( bSelected )
+    {
+      g.DrawLine(&pen, X, rcTab.top + 1, X, Y + height);
+      g.DrawLine(&pen, X + width - 1, rcTab.top + 1, X + width - 1, Y + height);
+      g.DrawLine(&pen, X + 1, Y + height, X + width - 2, Y + height);
     }
 
 #ifdef _DRAW_TAB_RECT
@@ -302,48 +329,59 @@ public:
       lpNMCustomDraw->hFontSelected :
     lpNMCustomDraw->hFontInactive);
 
-    COLORREF txtcolorref = 0;
-    COLORREF tabcolorref = 0;
-    BYTE byteAlpha = 0;
+    COLORREF colorrefText        = 0;
+    COLORREF colorrefTab         = 0;
+    COLORREF colorrefProgressBar = 0;
+    BYTE     byteAlpha           = 0;
+
     if(bSelected)
     {
-      txtcolorref = lpNMCustomDraw->clrTextSelected;
-      tabcolorref = lpNMCustomDraw->clrSelectedTab;
-      byteAlpha   = 255;
+      colorrefText        = lpNMCustomDraw->clrTextSelected;
+      colorrefTab         = lpNMCustomDraw->clrSelectedTab;
+      colorrefProgressBar = RGB(0x7f, 0xff, 0x00);
+      byteAlpha           = 255;
     }
     else if(bHighlighted)
     {
-      txtcolorref = lpNMCustomDraw->clrHighlightText;
+      colorrefText        = lpNMCustomDraw->clrHighlightText;
+      colorrefProgressBar = RGB(0x90, 0xee, 0x90);
       if( bHot )
       {
-        tabcolorref = lpNMCustomDraw->clrHighlightHotTrack;
-        byteAlpha   = 160;
+        colorrefTab       = lpNMCustomDraw->clrHighlightHotTrack;
+        byteAlpha         = 160;
       }
       else
       {
-        tabcolorref = lpNMCustomDraw->clrHighlight;
-        byteAlpha   = 128;
+        colorrefTab       = lpNMCustomDraw->clrHighlight;
+        byteAlpha         = 128;
       }
     }
     else
     {
-      txtcolorref = lpNMCustomDraw->clrTextInactive;
+      colorrefText        = lpNMCustomDraw->clrTextInactive;
+      colorrefProgressBar = RGB(0x55, 0x6b, 0x2f);
       if(bHot)
       {
-        tabcolorref = lpNMCustomDraw->clrSelectedTab;
-        byteAlpha   = 160;
+        colorrefTab       = lpNMCustomDraw->clrSelectedTab;
+        byteAlpha         = 160;
       }
       else
       {
-        tabcolorref = lpNMCustomDraw->clrBtnShadow;
-        byteAlpha   = 128;
+        colorrefTab       = lpNMCustomDraw->clrBtnShadow;
+        byteAlpha         = 128;
       }
     }
-    Gdiplus::Color tabcolor;
-    tabcolor.SetFromCOLORREF(tabcolorref);
-    tabcolor.SetValue(Gdiplus::Color::MakeARGB(byteAlpha, tabcolor.GetR(), tabcolor.GetG(), tabcolor.GetB()));
 
-    this->DrawTab(rcTab, g, tabcolor, bSelected);
+    Gdiplus::Color colorTab        (Gdiplus::Color::MakeARGB(byteAlpha,
+                                                             GetRValue(colorrefTab),
+                                                             GetGValue(colorrefTab),
+                                                             GetBValue(colorrefTab)));
+    Gdiplus::Color colorProgressBar(Gdiplus::Color::MakeARGB(byteAlpha,
+                                                             GetRValue(colorrefProgressBar),
+                                                             GetGValue(colorrefProgressBar),
+                                                             GetBValue(colorrefProgressBar)));
+
+    this->DrawTab(rcTab, g, colorTab, colorProgressBar, bSelected, pItem);
 
     //--------------------------------------------
     // This is how CAeroTabCtrlImpl interprets padding, margin, etc.:
@@ -413,7 +451,7 @@ public:
       DTTOPTS dtto = { 0 };
       dtto.dwSize = sizeof(DTTOPTS);
       dtto.iGlowSize = 8;
-      dtto.crText = txtcolorref;
+      dtto.crText = colorrefText;
       dtto.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE;
 
       HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_WINDOW);

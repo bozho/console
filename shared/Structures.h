@@ -186,13 +186,19 @@ struct ConsoleInfo
 	, textChanged(false)
 	, titleChanged(false)
 	, csbiChanged(false)
+	, progressChanged(false)
+	, ullProgressCompleted(0ULL)
+	, ullProgressTotal(0ULL)
 	{
 	}
 
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	unsigned long long         ullProgressCompleted;
+	unsigned long long         ullProgressTotal;
 	bool                       textChanged;
 	bool                       titleChanged;
 	bool                       csbiChanged;
+	bool                       progressChanged;
 };
 
 //////////////////////////////////////////////////////////////////////////////

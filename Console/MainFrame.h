@@ -132,6 +132,7 @@ class MainFrame
 			MESSAGE_HANDLER(UM_START_MOUSE_DRAG, OnStartMouseDrag)
 			MESSAGE_HANDLER(m_uTaskbarRestart, OnTaskbarCreated)
 			MESSAGE_HANDLER(m_uReloadDesktopImages, OnReloadDesktopImages)
+			MESSAGE_HANDLER(m_uTaskbarButtonCreated, OnTaskbarButtonCreated)
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
 			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 
@@ -259,6 +260,7 @@ class MainFrame
 		LRESULT OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTrayNotify(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnTaskbarCreated(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
+		LRESULT OnTaskbarButtonCreated(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 
 		LRESULT OnTabChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
 		LRESULT OnTabOrderChanged(int /*idCtrl*/, LPNMHDR pnmh, BOOL& bHandled);
@@ -338,6 +340,7 @@ class MainFrame
 		void PasteToConsoles();
 		void SendTextToConsoles(const wchar_t* pszText);
 		bool GetAppActiveStatus(void) const { return this->m_bAppActive; }
+		void SetProgress(unsigned long long ullProgressCompleted, unsigned long long ullProgressTotal);
 
 		std::wstring FormatTitle(std::wstring strFormat, TabView * tabView, std::shared_ptr<ConsoleView> consoleView);
 
@@ -462,6 +465,7 @@ class MainFrame
 		CAccelerator	m_acceleratorTable;
 		UINT			m_uTaskbarRestart;
 		UINT			m_uReloadDesktopImages;
+		UINT			m_uTaskbarButtonCreated;
 		CMultiPaneStatusBarCtrl m_statusBar;
 		CMenuHandle m_contextMenu;
 
@@ -470,6 +474,8 @@ class MainFrame
 		int     m_nFullSreen1Bitmap;
 		int     m_nFullSreen2Bitmap;
 		HWND    m_hwndPreviousForeground;
+
+		CComPtr<ITaskbarList3> m_pTaskbarList;
 };
 
 //////////////////////////////////////////////////////////////////////////////

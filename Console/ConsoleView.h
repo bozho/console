@@ -181,6 +181,8 @@ class ConsoleView
 
 		void SearchText(CString& text, bool bNext);
 
+		std::wstring GetFontInfo(void) const;
+
 		static inline int GetCharWidth(void) { return m_nCharWidth; }
 		static inline int GetCharHeight(void) { return m_nCharHeight; }
 
@@ -200,6 +202,7 @@ class ConsoleView
 		void RepaintText(CDC& dc);
 		void RepaintTextChanges(CDC& dc);
 		void RowTextOut(CDC& dc, DWORD dwRow);
+		inline void ExtTextOut(CDC& dc, CRect & rect, std::wstring & strText, COLORREF colorFG);
 
 		void BitBltOffscreen(bool bOnlyCursor = false);
 		void UpdateOffscreen(const CRect& rectBlit);
@@ -246,6 +249,10 @@ class ConsoleView
 		std::unique_ptr<CharInfo[]> m_screenBuffer;
 		DWORD	                      m_dwScreenRows;
 		DWORD	                      m_dwScreenColumns;
+		std::unique_ptr<INT[]>      m_dxWidths;
+		std::unique_ptr<INT[]>      m_dxLigatureWidths;
+		std::unique_ptr<UINT[]>     m_orders;
+		std::unique_ptr<wchar_t[]>  m_glyphs;
 
 		ConsoleSettings&				m_consoleSettings;
 		AppearanceSettings&				m_appearanceSettings;

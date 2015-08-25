@@ -29,6 +29,7 @@ class DlgSettingsFont
 			DDX_CHECK(IDC_CHECK_USE_COLOR, m_fontSettings.bUseColor)
 			DDX_CHECK(IDC_CHECK_BOLD_INTENSIFIED, m_fontSettings.bBoldIntensified)
 			DDX_CHECK(IDC_CHECK_ITALIC_INTENSIFIED, m_fontSettings.bItalicIntensified)
+			DDX_CHECK(IDC_CHECK_LIGATURE, m_fontSettings.bLigature)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsFont)

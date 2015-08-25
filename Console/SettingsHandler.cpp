@@ -246,6 +246,7 @@ FontSettings::FontSettings()
 , crFontColor(0)
 , bBoldIntensified(false)
 , bItalicIntensified(false)
+, bLigature(false)
 {
 }
 
@@ -271,6 +272,7 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"smoothing"), nFontSmoothing, 0);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold_intensified"), bBoldIntensified, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic_intensified"), bItalicIntensified, false);
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"ligature"), bLigature, false);
 
 	fontSmoothing = static_cast<FontSmoothing>(nFontSmoothing);
 
@@ -303,6 +305,7 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"smoothing"), static_cast<int>(fontSmoothing));
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold_intensified"), bBoldIntensified);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic_intensified"), bItalicIntensified);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"ligature"), bLigature);
 
 	CComPtr<IXMLDOMElement>	pColorElement;
 
@@ -329,6 +332,7 @@ FontSettings& FontSettings::operator=(const FontSettings& other)
 	fontSmoothing	= other.fontSmoothing;
 	bBoldIntensified		= other.bBoldIntensified;
 	bItalicIntensified		= other.bItalicIntensified;
+	bLigature = other.bLigature;
 
 	bUseColor		= other.bUseColor;
 	crFontColor		= other.crFontColor;

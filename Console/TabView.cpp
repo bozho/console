@@ -867,6 +867,10 @@ void TabView::Diagnose(HANDLE hFile)
 		dummy += console->second->GetConsoleHandler().IsElevated() ? L"yes" : L"no";
 		Helpers::WriteLine(hFile, dummy);
 
+		Helpers::WriteLine(hFile, L"  Windows console font");
 		Helpers::WriteLine(hFile, console->second->GetConsoleHandler().GetFontInfo());
+
+		Helpers::WriteLine(hFile, L"  ConsoleZ font");
+		Helpers::WriteLine(hFile, console->second->GetFontInfo());
 	}
 }

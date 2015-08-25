@@ -208,6 +208,10 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	m_dwScreenRows    = m_consoleHandler.GetConsoleParams()->dwRows;
 	m_dwScreenColumns = m_consoleHandler.GetConsoleParams()->dwColumns;
 	m_screenBuffer.reset(new CharInfo[m_dwScreenRows * m_dwScreenColumns]);
+	m_dxWidths.reset(new INT[m_dwScreenColumns]);
+	m_dxLigatureWidths.reset(new INT[m_dwScreenColumns]);
+	m_orders.reset(new UINT[m_dwScreenColumns]);
+	m_glyphs.reset(new wchar_t[m_dwScreenColumns]);
 
 	m_consoleHandler.StartMonitorThread();
 
@@ -1679,6 +1683,10 @@ void ConsoleView::OnConsoleChange(bool bResize)
 			m_dwScreenRows = consoleParams->dwRows;
 			m_dwScreenColumns = consoleParams->dwColumns;
 			m_screenBuffer.reset(new CharInfo[m_dwScreenRows * m_dwScreenColumns]);
+			m_dxWidths.reset(new INT[m_dwScreenColumns]);
+			m_dxLigatureWidths.reset(new INT[m_dwScreenColumns]);
+			m_orders.reset(new UINT[m_dwScreenColumns]);
+			m_glyphs.reset(new wchar_t[m_dwScreenColumns]);
 		}
 		DWORD dwBufferSize = m_dwScreenRows * m_dwScreenColumns;
 
@@ -2612,8 +2620,6 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
   Gdiplus::Graphics gr(dc);
 #endif //_USE_AERO
 
-  std::unique_ptr<INT[]> dxWidths(new INT[m_dwScreenColumns]);
-
 	auto now2 = std::chrono::high_resolution_clock::now();
 
   // first pass : text background color
@@ -2755,9 +2761,6 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
       {
         // draw text and reset
 
-        dc.SetBkMode(TRANSPARENT);
-        dc.SetTextColor(colorFG);
-
         CRect rect;
         rect.top    = dwY;
         rect.left   = dwX;
@@ -2766,7 +2769,7 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
         // in italic a part of the previous char is drawn in the following char space
         rect.right  = dwX + dwFGWidth + nCharWidth;
 
-        dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), dxWidths.get());
+        ExtTextOut(dc, rect, strText, colorFG);
 
         strText.clear();
         colorFG   = colorFG2;
@@ -2784,21 +2787,18 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
     }
 
     strText += charInfo.Char.UnicodeChar;
-    dxWidths[dwCharIdx ++] = nCharWidth;
+    m_dxWidths[dwCharIdx ++] = nCharWidth;
   }
 
   if( dwFGWidth > 0 )
   {
-    dc.SetBkMode(TRANSPARENT);
-    dc.SetTextColor(colorFG);
-
     CRect rect;
     rect.top    = dwY;
     rect.left   = dwX;
     rect.bottom = dwY + m_nCharHeight;
     rect.right  = dwX + dwFGWidth;
 
-    dc.ExtTextOut(dwX, dwY, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), dxWidths.get());
+    ExtTextOut(dc, rect, strText, colorFG);
   }
 
 	auto now4 = std::chrono::high_resolution_clock::now();
@@ -2809,6 +2809,63 @@ void ConsoleView::RowTextOut(CDC& dc, DWORD dwRow)
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now3 - now2).count(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now4 - now3).count());
+}
+
+inline void ConsoleView::ExtTextOut(CDC& dc, CRect & rect, std::wstring & strText, COLORREF colorFG)
+{
+	dc.SetBkMode(TRANSPARENT);
+
+	if( m_appearanceSettings.fontSettings.bLigature )
+	{
+#if 0
+		dc.SetTextColor(RGB(240, 0, 0));
+		dc.ExtTextOut(rect.left, rect.top, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), m_dxWidths.get());
+#endif
+
+		dc.SetTextColor(colorFG);
+
+		GCP_RESULTS gcpResults = {
+			sizeof(GCP_RESULTS),  // DWORD lStructSize
+			nullptr,              // LPWSTR lpOutString
+			m_orders.get(),       // UINT FAR *lpOrder
+			nullptr,              // int FAR *lpDx
+			nullptr,              // int FAR *lpCaretPos
+			nullptr,              // LPSTR lpClass
+			m_glyphs.get(),       // LPWSTR lpGlyphs
+			m_dwScreenColumns,    // UINT nGlyphs
+			m_dwScreenColumns     // int nMaxFit
+		};
+
+		DWORD dwRes = ::GetCharacterPlacement(
+			dc,
+			strText.c_str(),
+			static_cast<int>(strText.length()),
+			0,
+			&gcpResults,
+			GCP_LIGATE);
+
+		if( dwRes )
+		{
+			memset(m_dxLigatureWidths.get(), 0, m_dwScreenColumns * sizeof(INT));
+
+			for( int i = 0; i < static_cast<int>(strText.length()); ++i )
+			{
+				m_dxLigatureWidths[m_orders[i]] += m_dxWidths[i];
+			}
+
+			dc.ExtTextOut(rect.left, rect.top, ETO_CLIPPED | ETO_GLYPH_INDEX, &rect, m_glyphs.get(), gcpResults.nGlyphs, m_dxLigatureWidths.get());
+		}
+		else
+		{
+			TRACE(L"GetCharacterPlacement fails\n");
+		}
+	}
+	else
+	{
+		dc.SetTextColor(colorFG);
+
+		dc.ExtTextOut(rect.left, rect.top, ETO_CLIPPED, &rect, strText.c_str(), static_cast<UINT>(strText.length()), m_dxWidths.get());
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -3300,4 +3357,33 @@ LRESULT ConsoleView::OnIMEEndComposition(UINT /*uMsg*/, WPARAM /*wParam*/, LPARA
 	m_boolImmComposition = false;
 
 	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::wstring ConsoleView::GetFontInfo(void) const
+{
+	std::wstring ret;
+
+	DWORD dwFontLanguageInfo = ::GetFontLanguageInfo(m_dcText);
+
+	if( dwFontLanguageInfo == GCP_ERROR )
+		ret = L"GetFontLanguageInfo returns an error!\n";
+	else
+	{
+		ret = std::wstring( L"GetFontLanguageInfo returns ") + std::to_wstring(dwFontLanguageInfo) + std::wstring(L".\r\n");
+		if( dwFontLanguageInfo & GCP_DBCS       ) ret += L"The character set is DBCS.\r\n";
+		if( dwFontLanguageInfo & GCP_DIACRITIC  ) ret += L"The font/language contains diacritic glyphs.\r\n";
+		if( dwFontLanguageInfo & FLI_GLYPHS     ) ret += L"The font contains extra glyphs not normally accessible using the code page.\r\n";
+		if( dwFontLanguageInfo & GCP_GLYPHSHAPE ) ret += L"The font/language contains multiple glyphs per code point or per code point combination (supports shaping and/or ligation), and the font contains advanced glyph tables to provide extra glyphs for the extra shapes.\r\n";
+		if( dwFontLanguageInfo & GCP_KASHIDA    ) ret += L"The font/ language permits Kashidas.\r\n";
+		if( dwFontLanguageInfo & GCP_LIGATE     ) ret += L"The font/language contains ligation glyphs which can be substituted for specific character combinations.\r\n";
+		if( dwFontLanguageInfo & GCP_USEKERNING ) ret += L"The font contains a kerning table which can be used to provide better spacing between the characters and glyphs.\r\n";
+		if( dwFontLanguageInfo & GCP_REORDER    ) ret += L"The language requires reordering for displayfor example, Hebrew or Arabic.\r\n";
+	}
+
+	return ret;
 }

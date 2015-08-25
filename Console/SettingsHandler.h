@@ -109,7 +109,7 @@ struct FontSettings : public SettingsBase
 	FontSmoothing	fontSmoothing;
 	bool			bBoldIntensified;
 	bool			bItalicIntensified;
-
+	bool			bLigature;
 	bool			bUseColor;
 	COLORREF		crFontColor;
 };

@@ -30,16 +30,20 @@ Changelog
     + added
     * fixed
 
-Changes in 1.15.0 (02 Jul 2015) experimental
+Changes in 1.15.0 (26 aug 2015) experimental
 
     + Hide when loosing focus.
     + Support localization.
     + New command: paste selection.
     + Support %D (current directory leaf) in text formatting.
+    + Support PowerShell progress bar.
+    + Support typographic ligatures.
     * Fix "Clone in new Tab" inverts initial directory and tab's title.
     * Fix incomplete shell title.
     * Fix touch scrolling broken on Win10.
     * Fix 'Browse...' button for icon change causes program "Not Responding".
+    * Fix repaint failure when backgroung is a relative image
+      and the application in minimized.
 
 Changes in 1.14.0 (08 May 2015)
 

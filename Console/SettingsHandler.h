@@ -82,9 +82,11 @@ struct ConsoleSettings : public SettingsBase
 
 enum FontSmoothing
 {
-	fontSmoothDefault	= 0,
-	fontSmoothNone		= 1,
-	fontSmoothCleartype	= 2
+	fontSmoothDefault          = 0,
+	fontSmoothNone             = 1,
+	fontSmoothCleartype        = 2,
+	fontSmoothCleartypeNatural = 3,
+	fontSmoothAntialiased      = 4,
 };
 
 //////////////////////////////////////////////////////////////////////////////

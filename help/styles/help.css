@@ -34,6 +34,12 @@ font-family: Verdana;
 font-size: 12px;
 }
 
+table, th, td
+{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
 td
 {
 font-family: Verdana;

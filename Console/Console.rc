@@ -304,7 +304,7 @@ BEGIN
     CONTROL         "",IDC_SPIN_FONT_EXTRAWIDTH,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,218,34,11,14
 
     RTEXT           "Smoothing:",IDC_STATIC,10,55,37,8
-    COMBOBOX        IDC_COMBO_SMOOTHING,50,53,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO_SMOOTHING,50,53,93,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     CONTROL         "C&ustom color:",IDC_CHECK_USE_COLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,75,56,16
     CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,69,76,16,14,WS_EX_DLGMODALFRAME
     CONTROL         "Display intensified colors in bold",IDC_CHECK_BOLD_INTENSIFIED,
@@ -1065,7 +1065,7 @@ BEGIN
     IDC_COMBO_CURSOR             "XTerm;Block;Nonblinking block;Pulse;Bar;Nonblinking horz. line;Horizontal line;Vertical line;Rect;Nonblinking rect;Pulsating rect;Fading block;Console;XTerm2;Horizontal bar;"
     IDC_COMBO_DOCKING            "None;Top left;Top right;Bottom left;Bottom right;Top middle;Bottom middle;Left middle;Right middle;"
     IDC_COMBO_ZORDER             "Regular;Always on top;Always on bottom;Pinned to desktop;"
-    IDC_COMBO_SMOOTHING          "Default;None;ClearType;"
+    IDC_COMBO_SMOOTHING          "Default;None;ClearType;Natural ClearType;Antialiased"
     IDC_COMBO_BUTTONS            "None;Left;Right;Middle;Fourth;Fifth;"
     IDC_COMBO_BK_POS             "Center;Stretch;Tile;Fit;Fill;"
     IDC_COMBO_FULLSCREEN_MONITOR "Current;"

@@ -46,7 +46,6 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_bActive(true)
 , m_bMouseTracking(false)
 , m_bNeedFullRepaint(true) // first OnPaint will do a full repaint
-, m_bUseTextAlphaBlend(false)
 , m_bConsoleWindowVisible(false)
 , m_dwStartupRows(dwRows)
 , m_dwStartupColumns(dwColumns)
@@ -1776,34 +1775,6 @@ void ConsoleView::CreateOffscreenBuffers()
 	CWindowDC	dcWindow(m_hWnd);
 	CRect		rectWindowMax;
 
-	// get ClearType status
-	BOOL	bSmoothing		= FALSE;
-	UINT	uSmoothingType	= 0;
-	CDC		dcDdesktop(::GetDC(NULL));
-	
-	::SystemParametersInfo(SPI_GETFONTSMOOTHING, 0, (void*)&bSmoothing, 0);
-	::SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, (void*)&uSmoothingType, 0);
-
-	if
-	(
-		(
-			(dcDdesktop.GetDeviceCaps(BITSPIXEL)*dcDdesktop.GetDeviceCaps(PLANES) == 32) // 32-bit depth only
-			&&
-			bSmoothing
-			&& 
-			(uSmoothingType == FE_FONTSMOOTHINGCLEARTYPE)
-		)
-		||
-		(m_appearanceSettings.fontSettings.fontSmoothing == fontSmoothCleartype)
-	)
-	{
-		m_bUseTextAlphaBlend = true;
-	}
-	else
-	{
-		m_bUseTextAlphaBlend = false;
-	}
-
 	// get window rect based on font and console size
 	GetRect(rectWindowMax);
 
@@ -1892,16 +1863,18 @@ bool ConsoleView::CreateFont(const wstring& strFontName)
 
   CDC dcText(::CreateCompatibleDC(NULL));
 
-	BYTE	byFontQuality = DEFAULT_QUALITY;
+	BYTE	byFontQuality;
 
 	FontSettings& fontSettings = g_settingsHandler->GetAppearanceSettings().fontSettings;
 
 	switch (fontSettings.fontSmoothing)
 	{
-		case fontSmoothDefault:   byFontQuality = DEFAULT_QUALITY;        break;
-		case fontSmoothNone:      byFontQuality = NONANTIALIASED_QUALITY; break;
-		case fontSmoothCleartype: byFontQuality = CLEARTYPE_QUALITY;      break;
-		default : DEFAULT_QUALITY;
+		case fontSmoothDefault:          byFontQuality = DEFAULT_QUALITY;           break;
+		case fontSmoothNone:             byFontQuality = NONANTIALIASED_QUALITY;    break;
+		case fontSmoothCleartype:        byFontQuality = CLEARTYPE_QUALITY;         break;
+		case fontSmoothCleartypeNatural: byFontQuality = CLEARTYPE_NATURAL_QUALITY; break;
+		case fontSmoothAntialiased:      byFontQuality = ANTIALIASED_QUALITY;       break;
+		default :                        byFontQuality = DEFAULT_QUALITY;           break;
 	}
 
 	bool bBold   = fontSettings.bBold;

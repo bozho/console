@@ -228,7 +228,6 @@ class ConsoleView
 		bool	m_bActive;
 		bool	m_bMouseTracking;
 		bool	m_bNeedFullRepaint;
-		bool	m_bUseTextAlphaBlend;
 		bool	m_bConsoleWindowVisible;
 		bool  m_boolIsGrouped;
 		bool  m_boolImmComposition;

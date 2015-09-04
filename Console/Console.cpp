@@ -327,22 +327,96 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 //////////////////////////////////////////////////////////////////////////////
 
+HMODULE LoadLocalizedResources(const wchar_t * szLang)
+{
+	HMODULE hResources = nullptr;
+
+	wstring dll (L"console_");
+	dll += szLang;
+	dll += L".dll";
+
+	DWORD  verHandle = NULL;
+	UINT   size      = 0;
+	DWORD  verSize   = ::GetFileVersionInfoSize(dll.c_str(), &verHandle);
+	std::unique_ptr<BYTE[]> verData(new BYTE[verSize]);
+
+	if( verSize == 0 || !::GetFileVersionInfo(dll.c_str(), verHandle, verSize, verData.get()) )
+	{
+		Win32Exception ex("GetFileVersionInfo", ::GetLastError());
+		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+
+		return hResources;
+	}
+
+	void * lpBuffer  = nullptr;
+	if( !::VerQueryValue(verData.get(), L"\\", &lpBuffer, &size) )
+	{
+		Win32Exception ex("VerQueryValue", ::GetLastError());
+		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+
+		return hResources;
+	}
+
+	VS_FIXEDFILEINFO *verInfo = static_cast<VS_FIXEDFILEINFO *>(lpBuffer);
+	if( size == 0 || verInfo->dwSignature != 0xfeef04bd )
+	{
+		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (bad file version)\n", szLang, dll.c_str(), hResources);
+
+		return hResources;
+	}
+
+	TRACE(
+		L"Resources File Version: %d.%d.%d.%d\n",
+		(verInfo->dwFileVersionMS >> 16) & 0xffff,
+		(verInfo->dwFileVersionMS >> 0) & 0xffff,
+		(verInfo->dwFileVersionLS >> 16) & 0xffff,
+		(verInfo->dwFileVersionLS >> 0) & 0xffff);
+
+	ULONGLONG ullDllVer = MAKEDLLVERULL(
+		(verInfo->dwFileVersionMS >> 16) & 0xffff,
+		(verInfo->dwFileVersionMS >> 0) & 0xffff,
+		(verInfo->dwFileVersionLS >> 16) & 0xffff,
+		(verInfo->dwFileVersionLS >> 0) & 0xffff);
+
+	TRACE(
+		L"ConsoleZ File Version: %d.%d.%d.%d\n",
+		VERSION_MAJOR,
+		VERSION_MINOR,
+		VERSION_BUILD,
+		VERSION_BUILD2);
+
+	ULONGLONG ullExeVer = MAKEDLLVERULL(
+		VERSION_MAJOR,
+		VERSION_MINOR,
+		VERSION_BUILD,
+		VERSION_BUILD2);
+
+	if( ullExeVer == ullDllVer )
+	{
+		hResources = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
+
+		Win32Exception ex("LoadLibraryEx", ::GetLastError());
+		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+	}
+	else
+	{
+		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (file version mismatch)\n", szLang, dll.c_str(), hResources);
+	}
+
+	return hResources;
+}
+
 void LoadLocalizedResources()
 {
-	HMODULE hResources = NULL;
+	HMODULE hResources = nullptr;
 
 	wchar_t szLang[9];
 
 	// user language
 	if(::GetLocaleInfo(LOCALE_CUSTOM_UI_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0)
 	{
-		wstring dll (L"console_");
-		dll += szLang;
-		dll += L".dll";
-		hResources = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
-
-		Win32Exception ex("LoadLibraryEx", ::GetLastError());
-		TRACE(L"LOCALE_CUSTOM_UI_DEFAULT LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+		TRACE(L"LOCALE_CUSTOM_UI_DEFAULT ");
+		hResources = LoadLocalizedResources(szLang);
 	}
 
 	// default resources are in english
@@ -351,13 +425,8 @@ void LoadLocalizedResources()
 	// system language
 	if(!hResources && ::GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0)
 	{
-		wstring dll (L"console_");
-		dll += szLang;
-		dll += L".dll";
-		hResources = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
-
-		Win32Exception ex("LoadLibraryEx", ::GetLastError());
-		TRACE(L"LOCALE_SYSTEM_DEFAULT LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+		TRACE(L"LOCALE_SYSTEM_DEFAULT ");
+		hResources = LoadLocalizedResources(szLang);
 	}
 
 	if(hResources)

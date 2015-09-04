@@ -172,8 +172,8 @@ void ConsoleHandler::RealReadConsoleBuffer()
 	// has opened a new screen output buffer)
 	GET_STD_OUT_READ_ONLY
 
-	CONSOLE_SCREEN_BUFFER_INFO	csbiConsole;
-	COORD						coordConsoleSize;
+	CONSOLE_SCREEN_BUFFER_INFO csbiConsole;
+	COORD                      coordConsoleSize;
 
 	if(!::GetConsoleScreenBufferInfo(hStdOut, &csbiConsole))
 	{
@@ -196,15 +196,15 @@ void ConsoleHandler::RealReadConsoleBuffer()
 	*/
 
 	// do console output buffer reading
-	DWORD					dwScreenBufferSize = coordConsoleSize.X * coordConsoleSize.Y;
-	DWORD					dwScreenBufferOffset = 0;
+	DWORD       dwScreenBufferSize = coordConsoleSize.X * coordConsoleSize.Y;
+	DWORD       dwScreenBufferOffset = 0;
 
 	std::unique_ptr<CHAR_INFO[]> pScreenBuffer(new CHAR_INFO[dwScreenBufferSize]);
 
-	COORD		coordBufferSize;
+	COORD      coordBufferSize;
 	// start coordinates for the buffer are always (0, 0) - we use offset
-	COORD		coordStart = {0, 0};
-	SMALL_RECT	srBuffer;
+	COORD      coordStart = {0, 0};
+	SMALL_RECT srBuffer;
 
 	//TRACE(L"===================================================================\n");
 
@@ -277,9 +277,11 @@ void ConsoleHandler::RealReadConsoleBuffer()
 	bool somethingChanged = false;
 
 	// compare text
-	if(::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO)) != 0)
+	if(m_dwScreenBufferSize != dwScreenBufferSize
+	   ||
+	   ::memcmp(m_consoleBuffer.Get(), pScreenBuffer.get(), dwScreenBufferSize * sizeof(CHAR_INFO)) != 0)
 	{
-		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), m_dwScreenBufferSize*sizeof(CHAR_INFO));
+		::CopyMemory(m_consoleBuffer.Get(), pScreenBuffer.get(), dwScreenBufferSize * sizeof(CHAR_INFO));
 
 		somethingChanged = true;
 

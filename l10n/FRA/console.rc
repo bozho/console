@@ -232,7 +232,7 @@ BEGIN
     CONTROL         "IME intégré",IDC_CHECK_INTEGRATED_IME,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,130,59,100,16
 
     CONTROL         "&Quake like",IDC_CHECK_STYLE_QUAKE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,75,100,16
-    RTEXT           "Durée de l'animation :",IDC_STATIC_QUAKE_1,20,94,74,8
+    LTEXT           "Durée de l'animation :",IDC_STATIC_QUAKE_1,20,94,74,8
     EDITTEXT        IDC_QUAKE_ANIMATION_TIME,95,91,40,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
     CONTROL         "",IDC_SPIN_QUAKE_ANIMATION_TIME,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,130,85,11,14
     LTEXT           "ms",IDC_STATIC_QUAKE_2,138,94,10,8
@@ -267,21 +267,23 @@ STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "&Aucun",IDC_TRANSPARENCY_TYPE,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE | WS_GROUP,10,11,100,16
-    CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,10,27,100,16
-    CONTROL         "Couleur clé",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,10,104,100,16
+    CONTROL         "&Alpha",IDC_TRANSPARENCY_TYPE2,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,10,43,100,16
+    CONTROL         "Couleur clé",IDC_TRANSPARENCY_TYPE3,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,10,120,100,16
 #ifdef _USE_AERO
-    CONTROL         "Effet verre",IDC_TRANSPARENCY_TYPE4,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,130,27,100,16
+    CONTROL         "Effet verre",IDC_TRANSPARENCY_TYPE4,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,130,43,100,16
 #endif
-    LTEXT           "Fenêtre &active",IDC_STATIC_ACTIVE_WINDOW,22,45,240,8
-    CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,20,55,192,20
-    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,215,57,14,8,0,WS_EX_RIGHT
-    
-    LTEXT           "Fenêtre &inactive",IDC_STATIC_INACTIVE_WINDOW,22,75,240,8
-    CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,20,85,192,20
-    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,215,87,14,8,0,WS_EX_RIGHT
+    CONTROL         "Alpha et couleur clé",IDC_TRANSPARENCY_TYPE5,"Button",BS_AUTORADIOBUTTON  | BS_MULTILINE,10,27,100,16
 
-    LTEXT           "Couleur clé :",IDC_STATIC_KEY_COLOR,22,125,44,8
-    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,67,122,16,14,WS_EX_DLGMODALFRAME
+    LTEXT           "Fenêtre &active",IDC_STATIC_ACTIVE_WINDOW,22,61,240,8
+    CONTROL         "",IDC_ACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,20,71,192,20
+    LTEXT           "255",IDC_STATIC_ACTIVE_ALPHA,215,73,14,8,0,WS_EX_RIGHT
+    
+    LTEXT           "Fenêtre &inactive",IDC_STATIC_INACTIVE_WINDOW,22,91,240,8
+    CONTROL         "",IDC_INACTIVE_ALPHA,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,20,101,192,20
+    LTEXT           "255",IDC_STATIC_INACTIVE_ALPHA,215,103,14,8,0,WS_EX_RIGHT
+
+    LTEXT           "Couleur clé :",IDC_STATIC_KEY_COLOR,22,141,40,8
+    CONTROL         "",IDC_KEY_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,65,138,16,14,WS_EX_DLGMODALFRAME
 END
 
 IDD_SETTINGS_FONT DIALOGEX 0, 0, 235, 265
@@ -297,18 +299,20 @@ BEGIN
     CONTROL         "&Gras",IDC_CHECK_BOLD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,36,50,10
     CONTROL         "It&alique",IDC_CHECK_ITALIC,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,65,36,50,10
 
-    RTEXT           "Largeur supplémentaire :",IDC_STATIC,119,33,75,16
+    RTEXT           "Largeur supplémentaire :",IDC_STATIC,119,37,75,8
     EDITTEXT        IDC_FONT_EXTRAWIDTH,196,34,30,14,ES_AUTOHSCROLL | ES_NUMBER,WS_EX_RIGHT
     CONTROL         "",IDC_SPIN_FONT_EXTRAWIDTH,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,218,34,11,14
 
     RTEXT           "Lissage :",IDC_STATIC,10,55,37,8
-    COMBOBOX        IDC_COMBO_SMOOTHING,50,53,65,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    CONTROL         "Co&uleur personnalisée :",IDC_CHECK_USE_COLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,70,89,10
-    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,100,68,16,14,WS_EX_DLGMODALFRAME
+    COMBOBOX        IDC_COMBO_SMOOTHING,50,53,93,65,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Co&uleur personnalisée :",IDC_CHECK_USE_COLOR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,75,56,16
+    CONTROL         "",IDC_FONT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,69,76,16,14,WS_EX_DLGMODALFRAME
     CONTROL         "Afficher les couleurs intenses en gras",IDC_CHECK_BOLD_INTENSIFIED,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,84,240,16
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,95,240,16
     CONTROL         "Afficher les couleurs intenses en italique",IDC_CHECK_ITALIC_INTENSIFIED,
-                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,101,240,16
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,115,240,16
+    CONTROL         "Activer la ligature typographique",IDC_CHECK_LIGATURE,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,135,240,16
 END
 
 IDD_SETTINGS_TABS DIALOGEX 0, 0, 237, 265
@@ -876,6 +880,10 @@ BEGIN
                             "courant"
     MSG_SETTINGS_DELETE_TAB
                             "Voulez-vous supprimer l'onglet sélectionné ?"
+    MSG_SETTINGS_CONFIG_FILE_WRITE_ERROR
+                            "La sauvegarde de la configuration a échoué. Vérifiez que vous avez les droits d'écriture pour %1%."
+    MSG_SETTINGS_CONFIG_FILE_WRITE_ERROR_EXEDIR
+                            "Il est recommandé d'enregistrer les paramètres dans le répertoire de l'utilisateur."
     MSG_SETTINGS_INIT_DIR
                             "Définir le répertoire de démarrage"
     MSG_SETTINGS_ICON_FILES
@@ -902,7 +910,7 @@ BEGIN
 
     MSG_TABVIEW_RUNAS       "Lancer en tant qu'un autre utilisateur"
 
-    MSG_ABOUT               "\nConsoleZ %1%.%2%.%3%.%4%\nCopyright (c)\n2011-2015\nChristophe Bucher\n\na modified version of\nConsole 2 from\nMarko Bozikovic"
+    MSG_ABOUT               "\nConsoleZ %1%.%2%.%3%.%4%\nCopyright (C) 2011-2015\nChristophe Bucher\n\nversion modifiée de\nConsole 2\nécrit par\nMarko Bozikovic"
 END
 
 STRINGTABLE
@@ -1057,7 +1065,7 @@ BEGIN
     IDC_COMBO_CURSOR             "XTerm;Block;Nonblinking block;Pulse;Bar;Nonblinking horz. line;Horizontal line;Vertical line;Rect;Nonblinking rect;Pulsating rect;Fading block;Console;XTerm2;Horizontal bar;"
     IDC_COMBO_DOCKING            "Aucun;Coin haut gauche;Coin haut droit;Coin bas gauche;Coin bas droit;Milieu haut;Milieu bas;Milieu gauche;Milieu droit;"
     IDC_COMBO_ZORDER             "Normal;Toujours au dessus;Toujours en dessous;Épinglé au bureau;"
-    IDC_COMBO_SMOOTHING          "Défaut;Aucun;ClearType;"
+    IDC_COMBO_SMOOTHING          "Default;None;ClearType;Natural ClearType;Antialiased"
     IDC_COMBO_BUTTONS            "Aucun;Gauche;Droit;Milieu;Quatrième;Cinquième;"
     IDC_COMBO_BK_POS             "Center;Stretch;Tile;Fit;Fill;"
     IDC_COMBO_FULLSCREEN_MONITOR "Courant;"

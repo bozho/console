@@ -30,7 +30,7 @@ Changelog
     + added
     * fixed
 
-Changes in 1.15.0 (26 aug 2015) experimental
+Changes in 1.15.0 (07 sep 2015)
 
     + Hide when loosing focus.
     + Support localization.
@@ -38,12 +38,14 @@ Changes in 1.15.0 (26 aug 2015) experimental
     + Support %D (current directory leaf) in text formatting.
     + Support PowerShell progress bar.
     + Support typographic ligatures.
+    + Support missing font smoothings: antialiased and "natural" cleartype.
     * Fix "Clone in new Tab" inverts initial directory and tab's title.
     * Fix incomplete shell title.
     * Fix touch scrolling broken on Win10.
     * Fix "Browse..." button for icon change causes program "Not Responding".
     * Fix repaint failure when backgroung is a relative image
       and the application is minimized.
+    * Fix hook can crash during resizing.
 
 Changes in 1.14.0 (08 May 2015)
 

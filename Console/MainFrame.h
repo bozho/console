@@ -132,7 +132,9 @@ class MainFrame
 			MESSAGE_HANDLER(UM_START_MOUSE_DRAG, OnStartMouseDrag)
 			MESSAGE_HANDLER(m_uTaskbarRestart, OnTaskbarCreated)
 			MESSAGE_HANDLER(m_uReloadDesktopImages, OnReloadDesktopImages)
+#ifdef _USE_AERO
 			MESSAGE_HANDLER(m_uTaskbarButtonCreated, OnTaskbarButtonCreated)
+#endif
 			MESSAGE_HANDLER(UM_TRAY_NOTIFY, OnTrayNotify)
 			MESSAGE_HANDLER(WM_COPYDATA, OnCopyData)
 
@@ -465,7 +467,9 @@ class MainFrame
 		CAccelerator	m_acceleratorTable;
 		UINT			m_uTaskbarRestart;
 		UINT			m_uReloadDesktopImages;
+#ifdef _USE_AERO
 		UINT			m_uTaskbarButtonCreated;
+#endif
 		CMultiPaneStatusBarCtrl m_statusBar;
 		CMenuHandle m_contextMenu;
 

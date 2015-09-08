@@ -140,7 +140,9 @@ MainFrame::MainFrame
 , m_hwndPreviousForeground(NULL)
 , m_uTaskbarRestart(::RegisterWindowMessage(TEXT("TaskbarCreated")))
 , m_uReloadDesktopImages(::RegisterWindowMessage(TEXT("ReloadDesktopImages")))
+#ifdef _USE_AERO
 , m_uTaskbarButtonCreated(::RegisterWindowMessage(TEXT("TaskbarButtonCreated")))
+#endif
 {
 	m_Margins.cxLeftWidth    = 0;
 	m_Margins.cxRightWidth   = 0;
@@ -276,11 +278,13 @@ LRESULT MainFrame::CreateInitialTabs
 
 LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
+#ifdef _USE_AERO
 	// Let the TaskbarButtonCreated message through the UIPI filter. If we don't
 	// do this, Explorer would be unable to send that message to our window if we
 	// were running elevated. It's OK to make the call all the time, since if we're
 	// not elevated, this is a no-op.
 	::ChangeWindowMessageFilter(m_uTaskbarButtonCreated, MSGFLT_ADD);
+#endif
 
 	ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
 	PositionSettings&	positionSettings= g_settingsHandler->GetAppearanceSettings().positionSettings;

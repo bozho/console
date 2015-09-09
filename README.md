@@ -30,7 +30,7 @@ Changelog
     + added
     * fixed
 
-Changes in 1.15.0 (07 sep 2015)
+Changes in 1.15.0 (09 sep 2015)
 
     + Hide when loosing focus.
     + Support localization.
@@ -39,6 +39,9 @@ Changes in 1.15.0 (07 sep 2015)
     + Support PowerShell progress bar.
     + Support typographic ligatures.
     + Support missing font smoothings: antialiased and "natural" cleartype.
+    + Support localization.
+    + French localization.
+    + Russian localization.
     * Fix "Clone in new Tab" inverts initial directory and tab's title.
     * Fix incomplete shell title.
     * Fix touch scrolling broken on Win10.

@@ -30,7 +30,7 @@ Changelog
     + added
     * fixed
 
-Changes in 1.15.0 (09 sep 2015)
+Changes in 1.15.0 (10 sep 2015)
 
     + Hide when loosing focus.
     + Support localization.

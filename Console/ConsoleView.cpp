@@ -558,7 +558,7 @@ LRESULT ConsoleView::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*
           uScrollAmount = 3;
         nScrollDelta *= static_cast<int>(uScrollAmount);
       }
-      DoScroll(SB_VERT, SB_THUMBPOSITION, ::FlatSB_GetScrollPos(m_hWnd, SB_VERT) - nScrollDelta);
+      DoScroll(SB_VERT, SB_WHEEL, nScrollDelta);
     }
   }
 
@@ -2059,6 +2059,10 @@ void ConsoleView::DoScroll(int nType, int nScrollCode, int nThumbPos)
 		case SB_THUMBTRACK:
 		case SB_THUMBPOSITION:
 			nDelta = nThumbPos - nCurrentPos;
+			break;
+
+		case SB_WHEEL:
+			nDelta = -nThumbPos;
 			break;
 
 		case SB_ENDSCROLL:

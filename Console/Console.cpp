@@ -343,7 +343,7 @@ HMODULE LoadLocalizedResources(const wchar_t * szLang)
 	if( verSize == 0 || !::GetFileVersionInfo(dll.c_str(), verHandle, verSize, verData.get()) )
 	{
 		Win32Exception ex("GetFileVersionInfo", ::GetLastError());
-		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+		TRACE(L"szLang=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
 
 		return hResources;
 	}
@@ -352,7 +352,7 @@ HMODULE LoadLocalizedResources(const wchar_t * szLang)
 	if( !::VerQueryValue(verData.get(), L"\\", &lpBuffer, &size) )
 	{
 		Win32Exception ex("VerQueryValue", ::GetLastError());
-		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+		TRACE(L"szLang=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
 
 		return hResources;
 	}
@@ -360,7 +360,7 @@ HMODULE LoadLocalizedResources(const wchar_t * szLang)
 	VS_FIXEDFILEINFO *verInfo = static_cast<VS_FIXEDFILEINFO *>(lpBuffer);
 	if( size == 0 || verInfo->dwSignature != 0xfeef04bd )
 	{
-		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (bad file version)\n", szLang, dll.c_str(), hResources);
+		TRACE(L"szLang=%s dll=%s hResources=%p (bad file version)\n", szLang, dll.c_str(), hResources);
 
 		return hResources;
 	}
@@ -396,38 +396,93 @@ HMODULE LoadLocalizedResources(const wchar_t * szLang)
 		hResources = ::LoadLibraryEx(dll.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
 
 		Win32Exception ex("LoadLibraryEx", ::GetLastError());
-		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
+		TRACE(L"szLang=%s dll=%s hResources=%p (%S)\n", szLang, dll.c_str(), hResources, ex.what());
 	}
 	else
 	{
-		TRACE(L"LOCALE_SISO639LANGNAME2=%s dll=%s hResources=%p (file version mismatch)\n", szLang, dll.c_str(), hResources);
+		TRACE(L"szLang=%s dll=%s hResources=%p (file version mismatch)\n", szLang, dll.c_str(), hResources);
 	}
 
 	return hResources;
 }
 
+#ifdef _USING_V110_SDK71_
+
+struct {
+	LANGID language;
+	wchar_t *iso639;
+} languages[] = {
+	{ LANG_ENGLISH, L"eng" },
+	{ LANG_FRENCH,  L"fra" },
+	{ LANG_RUSSIAN, L"rus" },
+};
+
+HMODULE LoadLocalizedResourcesXP(LANGID langid)
+{
+	HMODULE hResources = nullptr;
+
+	for( size_t i = 0; i < ARRAYSIZE(languages); ++i )
+	{
+		if( languages[i].language == langid )
+		{
+			hResources = LoadLocalizedResources(languages[i].iso639);
+			break;
+		}
+	}
+
+	return hResources;
+}
+#endif
+
 void LoadLocalizedResources()
 {
 	HMODULE hResources = nullptr;
 
-	wchar_t szLang[9];
-
-	// user language
-	if(::GetLocaleInfo(LOCALE_CUSTOM_UI_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0)
+#ifdef _USING_V110_SDK71_
+	// Windows XP ...
+	if( !Helpers::CheckOSVersion(6, 0) )
 	{
-		TRACE(L"LOCALE_CUSTOM_UI_DEFAULT ");
-		hResources = LoadLocalizedResources(szLang);
+		hResources = LoadLocalizedResourcesXP(PRIMARYLANGID(::GetUserDefaultUILanguage()));
+
+		if( !hResources )
+			hResources = LoadLocalizedResourcesXP(PRIMARYLANGID(::GetSystemDefaultUILanguage()));
 	}
-
-	// default resources are in english
-	if(!hResources && ::_wcsicmp(szLang, L"eng") == 0) return;
-
-	// system language
-	if(!hResources && ::GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0)
+	else
 	{
-		TRACE(L"LOCALE_SYSTEM_DEFAULT ");
-		hResources = LoadLocalizedResources(szLang);
+#endif
+
+		wchar_t szLang[9];
+
+		// user language
+		if( ::GetLocaleInfo(LOCALE_CUSTOM_UI_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0 )
+		{
+			TRACE(L"LOCALE_CUSTOM_UI_DEFAULT ");
+			hResources = LoadLocalizedResources(szLang);
+		}
+		else
+		{
+			Win32Exception ex("GetLocaleInfo", ::GetLastError());
+			TRACE(L"LOCALE_CUSTOM_UI_DEFAULT fails %S\n", ex.what());
+		}
+
+		// default resources are in english
+		if( !hResources && ::_wcsicmp(szLang, L"eng") == 0 ) return;
+
+		// system language
+		if( !hResources && ::GetLocaleInfo(LOCALE_SYSTEM_DEFAULT, LOCALE_SISO639LANGNAME2, szLang, 9) > 0 )
+		{
+			TRACE(L"LOCALE_SYSTEM_DEFAULT ");
+			hResources = LoadLocalizedResources(szLang);
+		}
+		else
+		{
+			Win32Exception ex("GetLocaleInfo", ::GetLastError());
+			TRACE(L"LOCALE_SYSTEM_DEFAULT fails %S\n", ex.what());
+		}
+
+#ifdef _USING_V110_SDK71_
 	}
+#endif
 
 	if(hResources)
 	{

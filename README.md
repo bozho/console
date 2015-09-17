@@ -5,7 +5,7 @@ ConsoleZ
 
 ![screenshot005](https://github.com/cbucher/console/wiki/screenshot001.png)
 
-This is a modified version of Console 2 for a better experience under Windows Vista/7/8 and a better visual rendering.
+This is a modified version of Console 2 for a better experience under Windows Vista/7/8/10 and a better visual rendering.
 
 This fork supports:
 
@@ -20,6 +20,8 @@ This fork supports:
 * Strict monospace font rendering
 * Settable opacity of text background color
 * Full screen
+* PowerShell progress bar
+* Localization
 * and more...
 
 Changelog
@@ -38,7 +40,7 @@ Changes in 1.15.0 (10 sep 2015)
     + Support %D (current directory leaf) in text formatting.
     + Support PowerShell progress bar.
     + Support typographic ligatures.
-    + Support missing font smoothings: antialiased and "natural" cleartype.
+    + Support missing font smoothings: antialiased and "natural" ClearType.
     + Support localization.
     + French localization.
     + Russian localization.
@@ -46,7 +48,7 @@ Changes in 1.15.0 (10 sep 2015)
     * Fix incomplete shell title.
     * Fix touch scrolling broken on Win10.
     * Fix "Browse..." button for icon change causes program "Not Responding".
-    * Fix repaint failure when backgroung is a relative image
+    * Fix repaint failure when background is a relative image
       and the application is minimized.
     * Fix hook can crash during resizing.
 

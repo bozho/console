@@ -82,7 +82,7 @@ class ConsoleHandler
 		wchar_t                           m_szConsoleTitle[1024];
 
 		DWORD                                          m_dwWaitingTime;
-		std::chrono::high_resolution_clock::time_point m_timePoint;
+		std::chrono::system_clock::time_point m_timePoint;
 
 		std::unique_ptr<ClipboardData>    m_selectionFullText;
 };

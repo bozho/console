@@ -29,7 +29,7 @@
 #define _WTL_NO_WTYPES
 
 #pragma warning(push)
-#pragma warning(disable: 4996)
+#pragma warning(disable: 4091 4302 4458 4838 4996)
 #include <atlapp.h>
 
 extern CAppModule _Module;
@@ -50,7 +50,7 @@ extern CAppModule _Module;
 #include <Lm.h>
 
 #pragma warning(push)
-#pragma warning(disable: 4189 4267)
+#pragma warning(disable: 4091 4189 4267 4458 4838)
 #include <atlgdix.h>
 
 #ifdef _USE_AERO
@@ -77,9 +77,9 @@ extern CAppModule _Module;
 #include "AeroTabCtrl.h"
 #endif
 #include "TabbedFrame.h"
+#include "multisplit.h"
 
 #pragma warning(pop)
-#include "multisplit.h"
 
 #include <HtmlHelp.h>
 #include <ShellApi.h>
@@ -90,6 +90,20 @@ extern CAppModule _Module;
 #include <winuser.h>
 #endif
 #include <Muiload.h>
+#if _MSC_VER >= 1900
+/*
+Muiload.lib(muiload.obj) : error LNK2019: unresolved external symbol _vsnwprintf referenced in function
+"long __cdecl StringVPrintfWorkerW(unsigned short *,unsigned __int64,unsigned __int64 *,unsigned short const *,char *)" (?StringVPrintfWorkerW@@YAJPEAG_KPEA_KPEBGPEAD@Z)
+
+The definitions of all of the printf and scanf functions have been moved inline into <stdio.h>, <conio.h>,
+and other CRT headers.This is a breaking change that leads to a linker error(LNK2019, unresolved external
+symbol) for any programs that declared these functions locally without including the appropriate CRT
+headers.If possible, you should update the code to include the CRT headers(that is, add #include <stdio.h>)
+and the inline functions, but if you do not want to modify your code to include these header files,
+an alternative solution is to add an additional library to your linker input, legacy_stdio_definitions.lib.
+*/
+#pragma comment (lib, "legacy_stdio_definitions.lib")
+#endif
 
 #include <shobjidl.h>
 

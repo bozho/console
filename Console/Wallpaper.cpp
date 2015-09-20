@@ -211,7 +211,7 @@ DWORD WallPaperThread::Process(HANDLE hStopSignal)
 
     if( boolWallpaperChangeHasChanged || boolCheckWallpaperChange || boolInit )
     {
-      _stat64 theStat;
+			struct _stat64 theStat;
       if( _wstat64(szWallpaper, &theStat) )
         throw std::exception(_sys_errlist[errno]);
 

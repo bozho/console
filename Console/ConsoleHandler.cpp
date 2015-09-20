@@ -1489,7 +1489,7 @@ void ConsoleHandler::InjectHookDLL2(PROCESS_INFORMATION& pi)
 
 	if (isWow64Process)
 	{
-		pi.hThread =  ::CreateRemoteThread(pi.hProcess, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(fnWow64LoadLibrary), mem, 0, &pi.dwThreadId);
+		pi.hThread =  ::CreateRemoteThread(pi.hProcess, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(static_cast<UINT_PTR>(fnWow64LoadLibrary)), mem, 0, &pi.dwThreadId);
 	}
 	else
 	{

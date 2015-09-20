@@ -2821,15 +2821,15 @@ inline void ConsoleView::ExtTextOut(CDC& dc, CRect & rect, std::wstring & strTex
 		dc.SetTextColor(colorFG);
 
 		GCP_RESULTS gcpResults = {
-			sizeof(GCP_RESULTS),  // DWORD lStructSize
-			nullptr,              // LPWSTR lpOutString
-			m_orders.get(),       // UINT FAR *lpOrder
-			nullptr,              // int FAR *lpDx
-			nullptr,              // int FAR *lpCaretPos
-			nullptr,              // LPSTR lpClass
-			m_glyphs.get(),       // LPWSTR lpGlyphs
-			m_dwScreenColumns,    // UINT nGlyphs
-			m_dwScreenColumns     // int nMaxFit
+			sizeof(GCP_RESULTS),                // DWORD lStructSize
+			nullptr,                            // LPWSTR lpOutString
+			m_orders.get(),                     // UINT FAR *lpOrder
+			nullptr,                            // int FAR *lpDx
+			nullptr,                            // int FAR *lpCaretPos
+			nullptr,                            // LPSTR lpClass
+			m_glyphs.get(),                     // LPWSTR lpGlyphs
+			m_dwScreenColumns,                  // UINT nGlyphs
+			static_cast<int>(m_dwScreenColumns) // int nMaxFit
 		};
 
 		DWORD dwRes = ::GetCharacterPlacement(
@@ -3244,17 +3244,17 @@ void ConsoleView::RedrawCharOnCursor(CDC& dc)
   if( g_settingsHandler->GetAppearanceSettings().fontSettings.bItalic && 
       (consoleInfo->csbi.dwCursorPosition.X - consoleInfo->csbi.srWindow.Left) > 0 )
   {
-    CHAR_INFO & charInfo = m_screenBuffer[dwOffset - 1].charInfo;
-    int       nCharWidth = (charInfo.Attributes & COMMON_LVB_TRAILING_BYTE)? m_nCharWidth * 2 : m_nCharWidth;
+    CHAR_INFO & charInfo2 = m_screenBuffer[dwOffset - 1].charInfo;
+    int       nCharWidth2 = (charInfo2.Attributes & COMMON_LVB_TRAILING_BYTE)? m_nCharWidth * 2 : m_nCharWidth;
 
-    colorBG = consoleColors[(charInfo.Attributes & 0xF0) >> 4];
+    colorBG = consoleColors[(charInfo2.Attributes & 0xF0) >> 4];
 
     dc.SetTextColor(colorBG);
     dc.ExtTextOut(
-      rectCursor.left - nCharWidth, rectCursor.top,
+      rectCursor.left - nCharWidth2, rectCursor.top,
       ETO_CLIPPED,
       &rectCursor,
-      &charInfo.Char.UnicodeChar, 1,
+      &charInfo2.Char.UnicodeChar, 1,
       nullptr);
   }
 

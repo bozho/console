@@ -30,7 +30,7 @@ ConsoleHandler::ConsoleHandler()
 , m_hMonitorThreadExit(std::shared_ptr<void>(::CreateEvent(NULL, FALSE, FALSE, NULL), ::CloseHandle))
 , m_dwScreenBufferSize(0)
 , m_dwWaitingTime(INFINITE)
-, m_timePoint(std::chrono::high_resolution_clock::now())
+, m_timePoint(std::chrono::system_clock::now())
 {
 	m_szConsoleTitle[0] = 0;
 }
@@ -142,7 +142,7 @@ bool ConsoleHandler::OpenSharedObjects()
 
 void ConsoleHandler::ReadConsoleBuffer()
 {
-	auto timePoint2 = std::chrono::high_resolution_clock::now();
+	auto timePoint2 = std::chrono::system_clock::now();
 	DWORD dwElapsedTime = static_cast<DWORD>(
 		std::chrono::duration_cast<std::chrono::milliseconds>(timePoint2 - m_timePoint).count());
 	DWORD dwNotificationTimeout = m_consoleParams->dwNotificationTimeout;
@@ -163,7 +163,7 @@ void ConsoleHandler::ForceReadConsoleBuffer()
 {
 	RealReadConsoleBuffer();
 	m_dwWaitingTime = INFINITE;
-	m_timePoint = std::chrono::high_resolution_clock::now();
+	m_timePoint = std::chrono::system_clock::now();
 }
 
 void ConsoleHandler::RealReadConsoleBuffer()
@@ -1870,7 +1870,7 @@ DWORD ConsoleHandler::MonitorThread()
 	};
 
 	DWORD dwWaitRes = 0;
-	auto timePoint1 = std::chrono::high_resolution_clock::now();
+	auto timePoint1 = std::chrono::system_clock::now();
 
 	while ((dwWaitRes = ::WaitForMultipleObjects(
 							ARRAYSIZE(arrWaitHandles),

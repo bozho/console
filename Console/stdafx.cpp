@@ -45,7 +45,7 @@ void __cdecl operator delete(void* pData, LPCSTR /* lpszFileName */, int /* nLin
 //////////////////////////////////////////////////////////////////////////////
 // trace function and TRACE macro
 
-#ifdef _DEBUG
+#if 1
 #include <stdio.h>
 
 void Trace(const wchar_t* pszFormat, ...)

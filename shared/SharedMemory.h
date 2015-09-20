@@ -472,7 +472,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 
 		if( !m_hSharedMutex ) Win32Exception::ThrowFromLastError("CreateMutex");
 
-		SharedMemoryTrace(str(boost::wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % (DWORD)(m_hSharedMutex.get())).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"m_hSharedMutex %1%: %2%\n") % m_strName % reinterpret_cast<DWORD_PTR>(m_hSharedMutex.get())).c_str());
 
 		m_hSharedReqEvent = std::shared_ptr<void>(
 							::CreateEvent(sa.get(), FALSE, FALSE, (wstring(L"") + strName + wstring(L"_req_event")).c_str()),
@@ -480,7 +480,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 
 		if( !m_hSharedReqEvent ) Win32Exception::ThrowFromLastError("CreateEvent");
 
-		SharedMemoryTrace(str(boost::wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedReqEvent.get())).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"m_hSharedReqEvent %1%: %2%\n") % m_strName % reinterpret_cast<DWORD_PTR>(m_hSharedReqEvent.get())).c_str());
 	}
 
 	if (syncObjects >= syncObjBoth)
@@ -491,7 +491,7 @@ void SharedMemory<T>::CreateSyncObjects(const std::shared_ptr<SECURITY_ATTRIBUTE
 
 		if( !m_hSharedRespEvent ) Win32Exception::ThrowFromLastError("CreateEvent");
 
-		SharedMemoryTrace(str(boost::wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % (DWORD)(m_hSharedRespEvent.get())).c_str());
+		SharedMemoryTrace(str(boost::wformat(L"m_hSharedRespEvent %1%: %2%\n") % m_strName % reinterpret_cast<DWORD_PTR>(m_hSharedRespEvent.get())).c_str());
 	}
 }
 

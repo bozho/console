@@ -2198,10 +2198,10 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	HRESULT hr = pSettingsRoot->selectNodes(CComBSTR(L"tabs/tab"), &pTabNodes);
 	if (FAILED(hr)) return false;
 
-	long	lListLength;
-	pTabNodes->get_length(&lListLength);
+	long	lTabNodesCount;
+	pTabNodes->get_length(&lTabNodesCount);
 
-	for (long i = 0; i < lListLength; ++i)
+	for (long i = 0; i < lTabNodesCount; ++i)
 	{
 		CComPtr<IXMLDOMNode>	pTabNode;
 		CComPtr<IXMLDOMElement>	pTabElement;
@@ -2236,15 +2236,15 @@ bool TabSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 			hr = pConsoleElement->selectNodes(CComBSTR(L"env"), &pEnvNodes);
 			if (SUCCEEDED(hr))
 			{
-				long lListLength;
-				pEnvNodes->get_length(&lListLength);
+				long lEnvNodesCount;
+				pEnvNodes->get_length(&lEnvNodesCount);
 
-				for (long i = 0; i < lListLength; ++i)
+				for (long j = 0; j < lEnvNodesCount; ++j)
 				{
 					CComPtr<IXMLDOMNode>    pEnvNode;
 					CComPtr<IXMLDOMElement> pEnvElement;
 
-					pEnvNodes->get_item(i, &pEnvNode);
+					pEnvNodes->get_item(j, &pEnvNode);
 					if (FAILED(pEnvNode.QueryInterface(&pEnvElement))) continue;
 
 					std::shared_ptr<VarEnv> varenv (new VarEnv);

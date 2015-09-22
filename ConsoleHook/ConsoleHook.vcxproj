@@ -89,7 +89,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <BoostIncludePath>G:\gitstuff\boost_1_57_0</BoostIncludePath>
+    <BoostIncludePath>G:\gitstuff\boost_1_59_0</BoostIncludePath>
   </PropertyGroup>
   <Import Project="BoostIncludePath.props.user" Condition="exists('BoostIncludePath.props.user')" />
   <PropertyGroup>

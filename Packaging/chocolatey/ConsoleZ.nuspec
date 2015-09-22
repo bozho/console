@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>ConsoleZ</id>
+    <version>1.15.0.15253</version>
+    <authors>cbucher</authors>
+    <owners>cbucher</owners>
+    <licenseUrl>http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html</licenseUrl>
+    <projectUrl>https://github.com/cbucher/console</projectUrl>
+    <iconUrl>https://raw.github.com/wiki/cbucher/console/ConsoleZ_128.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>![screenshot005](https://github.com/cbucher/console/wiki/screenshot001.png)
+
+This is a modified version of Console 2 for a better experience under Windows Vista/7/8/10 and a better visual rendering.
+
+This fork supports:
+
+* Splitting Tabs into views (horizontally and vertically)
+* Grouping views (so input sent to one goes to all of them)
+* Windows Vista aero glass theme
+* Windows 7 jumplist
+* Windows 7 wallpaper positions and slideshow
+* Windows 8 wallpapers on dual screen
+* Zooming with Ctrl-Mouse
+* Quake style console animation
+* Strict monospace font rendering
+* Settable opacity of text background color
+* Full screen
+* PowerShell progress bar
+* Localization
+* and more...</description>
+    <summary>This is a modified version of Console 2 for a better experience under Windows Vista/7/8/10 and a better visual rendering.</summary>
+    <releaseNotes>
+    + Hide when loosing focus.
+    + Support localization.
+    + New command "paste selection".
+    + Support %D (current directory leaf) in text formatting.
+    + Support PowerShell progress bar.
+    + Support typographic ligatures.
+    + Support missing font smoothings: antialiased and "natural" ClearType.
+    + Support localization.
+    + French localization.
+    + Russian localization.
+    * Fix "Clone in new Tab" inverts initial directory and tab's title.
+    * Fix incomplete shell title.
+    * Fix touch scrolling broken on Win10.
+    * Fix "Browse..." button for icon change causes program "Not Responding".
+    * Fix repaint failure when background is a relative image
+      and the application is minimized.
+    * Fix hook can crash during resizing.
+    </releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>shell console tabs split glass fullscreen</tags>
+  </metadata>
+</package>

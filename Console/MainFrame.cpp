@@ -637,8 +637,15 @@ LRESULT MainFrame::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 	if(m_bShowingHidingWindow) return ret;
 
-	if(!m_bAppActive && g_settingsHandler->GetAppearanceSettings().stylesSettings.bHideWhenInactive)
-		this->ShowHideWindow(ShowHideWidowAction::SHWA_HIDE_ONLY);
+	if( !m_bAppActive && g_settingsHandler->GetAppearanceSettings().stylesSettings.bHideWhenInactive )
+	{
+		// only if new active window is not owned by our application!
+		HWND hwndForeground = ::GetForegroundWindow();
+		HWND hwndForegroundOwner = ::GetAncestor(hwndForeground, GA_ROOTOWNER);
+		TRACE(L"*** OnActivateAPP fg = %p fgowner = %p m_hwnd = %p\n", hwndForeground, hwndForegroundOwner, m_hWnd);
+		if( hwndForegroundOwner != m_hWnd )
+			this->ShowHideWindow(ShowHideWidowAction::SHWA_HIDE_ONLY);
+	}
 
 	this->ActivateApp();
 

@@ -1,5 +1,13 @@
 #pragma once
 
+struct LocalFreeHelper
+{
+	void operator()(void * toFree)
+	{
+		::LocalFree(static_cast<HLOCAL>(toFree));
+	};
+};
+
 class Win32Exception : public std::exception
 {
   DWORD errorCode_;

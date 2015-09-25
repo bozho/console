@@ -1,11 +1,11 @@
 #pragma once
 
-struct LocalFreeHelper
+struct GlobalFreeHelper
 {
-  void operator()(void * toFree)
-  {
-    ::LocalFree(static_cast<HLOCAL>(toFree));
-  };
+	void operator()(void * toFree)
+	{
+		::GlobalFree(static_cast<HGLOBAL>(toFree));
+	};
 };
 
 struct CloseHandleHelper
@@ -15,6 +15,15 @@ struct CloseHandleHelper
     if( toFree && toFree != INVALID_HANDLE_VALUE )
       ::CloseHandle(static_cast<HANDLE>(toFree));
   };
+};
+
+struct GlobalUnlockHelper
+{
+	void operator()(void * toFree)
+	{
+		if( toFree )
+			::GlobalUnlock(toFree);
+	};
 };
 
 class RevertToSelfHelper
@@ -38,6 +47,63 @@ public:
 		if( bIsLoggedOn )
 			::RevertToSelf();
 		bIsLoggedOn = false;
+	}
+};
+
+class ClipboardHelper
+{
+	bool bIsClipboardOpened;
+public:
+	ClipboardHelper()
+	{
+		this->bIsClipboardOpened = ::OpenClipboard(NULL) != 0;
+		if( !this->bIsClipboardOpened )
+			Win32Exception::ThrowFromLastError("OpenClipboard");
+	}
+
+	~ClipboardHelper()
+	{
+		if( this->bIsClipboardOpened )
+		{
+			if( !::CloseClipboard() )
+				Win32Exception::ThrowFromLastError("CloseClipboard");
+		}
+	}
+
+	void empty()
+	{
+		if( !::EmptyClipboard() )
+			Win32Exception::ThrowFromLastError("EmptyClipboard");
+	}
+
+	HANDLE getData()
+	{
+		HANDLE hData = ::GetClipboardData(CF_UNICODETEXT);
+		if( hData == nullptr )
+			Win32Exception::ThrowFromLastError("GetClipboardData");
+
+		return hData;
+	}
+
+	void setData(UINT uFormat, const void* p, size_t size)
+	{
+		std::unique_ptr<void, GlobalFreeHelper> global(::GlobalAlloc(GMEM_MOVEABLE, size));
+		if( global.get() == nullptr )
+			Win32Exception::ThrowFromLastError("GlobalAlloc");
+
+		{
+			std::unique_ptr<void, GlobalUnlockHelper> lock(::GlobalLock(global.get()));
+			if( lock.get() == nullptr )
+				Win32Exception::ThrowFromLastError("GlobalLock");
+
+			::CopyMemory(lock.get(), p, size);
+		}
+
+		if( ::SetClipboardData(uFormat, global.get()) == nullptr )
+			Win32Exception::ThrowFromLastError("SetClipboardData");
+
+		// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
+		global.release();
 	}
 };
 

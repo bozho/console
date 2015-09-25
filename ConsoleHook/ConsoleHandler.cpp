@@ -707,45 +707,7 @@ public:
   virtual size_t GetRowLength(void) = 0;
   virtual void TrimRight(void) = 0;
   virtual void Wrap(CopyNewlineChar) = 0;
-  virtual void Publish(void) = 0;
-
-  class Global
-  {
-  public:
-    Global(const void* p, size_t size)
-    {
-      hText = ::GlobalAlloc(GMEM_MOVEABLE, size);
-      if( hText )
-      {
-        LPVOID lpTextLock = ::GlobalLock(hText);
-        if ( lpTextLock )
-        {
-          ::CopyMemory(lpTextLock, p, size);
-          ::GlobalUnlock(hText);
-        }
-      }
-    }
-    ~Global(void)
-    {
-      if( hText )
-      {
-        // we need to global-free data only if copying failed
-        ::GlobalFree(hText);
-      }
-    }
-    HGLOBAL release(void)
-    {
-      HGLOBAL h = hText;
-      hText = NULL;
-      return h;
-    }
-    HGLOBAL get(void) const
-    {
-      return hText;
-    }
-  private:
-    HGLOBAL hText;
-  };
+  virtual void Publish(ClipboardHelper&) = 0;
 };
 
 class ClipboardDataUnicode : public ClipboardData
@@ -793,16 +755,9 @@ public:
       default:          strRow += wstring(L"\r\n"); break;
     }
   }
-  virtual void Publish(void)
+  virtual void Publish(ClipboardHelper& clipboard)
   {
-    ClipboardData::Global global(strText.c_str(), (strText.length()+1)*sizeof(wchar_t));
-
-    if( !global.get() ) return;
-
-    if( ::SetClipboardData(CF_UNICODETEXT, global.get()) )
-    {
-      global.release();
-    }
+		clipboard.setData(CF_UNICODETEXT, strText.c_str(), (strText.length() + 1) * sizeof(wchar_t));
   }
 
   const wchar_t * GetText(void) const
@@ -953,18 +908,11 @@ public:
   {
     strTrimRowRtf += "\\line\n";
   }
-  virtual void Publish(void)
+  virtual void Publish(ClipboardHelper& clipboard)
   {
     strRtf += "}";
 
-    ClipboardData::Global global(strRtf.c_str(), strRtf.length() + 1);
-
-    if( !global.get() ) return;
-
-    if( ::SetClipboardData(::RegisterClipboardFormat(L"Rich Text Format"), global.get()) )
-    {
-      global.release();
-    }
+		clipboard.setData(::RegisterClipboardFormat(L"Rich Text Format"), strRtf.c_str(), strRtf.length() + 1);
   }
 
 private:
@@ -1177,28 +1125,32 @@ void ConsoleHandler::CopyConsoleTextColumn(HANDLE hStdOut, std::unique_ptr<Clipb
 
 void ConsoleHandler::CopyConsoleText()
 {
-	if (!::OpenClipboard(NULL)) return;
+	try
+	{
+		ClipboardHelper clipboard;
 
-	GET_STD_OUT_READ_ONLY
+		GET_STD_OUT_READ_ONLY
 
-	std::unique_ptr<ClipboardData> clipboardDataPtr[2];
-	size_t clipboardDataCount = 0;
-	clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataUnicode());
-	if( m_consoleCopyInfo->bRTF )
-		clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
+			std::unique_ptr<ClipboardData> clipboardDataPtr[2];
+		size_t clipboardDataCount = 0;
+		clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataUnicode());
+		if( m_consoleCopyInfo->bRTF )
+			clipboardDataPtr[clipboardDataCount++].reset(new ClipboardDataRtf(m_consoleCopyInfo.Get()));
 
-	if( m_consoleCopyInfo->selectionType == seltypeColumn )
-		CopyConsoleTextColumn(hStdOut, clipboardDataPtr, clipboardDataCount);
-	else
-		CopyConsoleTextLine(hStdOut, clipboardDataPtr, clipboardDataCount);
+		if( m_consoleCopyInfo->selectionType == seltypeColumn )
+			CopyConsoleTextColumn(hStdOut, clipboardDataPtr, clipboardDataCount);
+		else
+			CopyConsoleTextLine(hStdOut, clipboardDataPtr, clipboardDataCount);
 
-	::EmptyClipboard();
+		clipboard.empty();
 
-	for(size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex ++)
-		clipboardDataPtr[clipboardDataIndex]->Publish();
-
-	::CloseClipboard();
-	// !!! No call to GlobalFree here. Next app that uses clipboard will call EmptyClipboard to free the data
+		for( size_t clipboardDataIndex = 0; clipboardDataIndex < clipboardDataCount; clipboardDataIndex++ )
+			clipboardDataPtr[clipboardDataIndex]->Publish(clipboard);
+	}
+	catch( std::exception& e )
+	{
+		::MessageBoxA(0, e.what(), "exception", MB_ICONERROR | MB_OK);
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////

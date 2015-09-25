@@ -4424,41 +4424,37 @@ void MainFrame::PasteToConsoles()
 	std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
 	if( activeConsoleView && activeConsoleView->CanPaste() )
 	{
-		std::wstring text;
-
-		if( !::OpenClipboard(NULL) ) return;
-
-		HANDLE hData = GetClipboardData(CF_UNICODETEXT);
-		if( hData )
+		try
 		{
-			wchar_t * pszText = static_cast<wchar_t*>( GlobalLock(hData) );
-			if( pszText )
+			std::wstring text;
+
 			{
-				try
+				ClipboardHelper clipboard;
+
+				std::unique_ptr<void, GlobalUnlockHelper> lock(::GlobalLock(clipboard.getData()));
+				if( lock.get() == nullptr )
+					Win32Exception::ThrowFromLastError("GlobalLock");
+
+				text = static_cast<wchar_t*>(lock.get());
+			}
+
+			if( !text.empty() )
+			{
+				if( activeConsoleView->IsGrouped() )
 				{
-					text = pszText;
+					MutexLock lock(m_tabsMutex);
+					for( TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it )
+					{
+						it->second->SendTextToConsoles(text.c_str());
+					}
 				}
-				catch(std::bad_alloc&)
-				{
-				}
-				::GlobalUnlock(hData);
+				else
+					activeConsoleView->GetConsoleHandler().SendTextToConsole(text.c_str());
 			}
 		}
-
-		::CloseClipboard();
-
-		if( !text.empty() )
+		catch( std::exception& e )
 		{
-			if( activeConsoleView->IsGrouped() )
-			{
-				MutexLock lock(m_tabsMutex);
-				for (TabViewMap::iterator it = m_tabs.begin(); it != m_tabs.end(); ++it)
-				{
-					it->second->SendTextToConsoles(text.c_str());
-				}
-			}
-			else
-				activeConsoleView->GetConsoleHandler().SendTextToConsole(text.c_str());
+			::MessageBoxA(0, e.what(), "exception", MB_ICONERROR | MB_OK);
 		}
 	}
 }

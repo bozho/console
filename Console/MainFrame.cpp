@@ -30,6 +30,7 @@ void MainFrame::ParseCommandLine
 	vector<wstring>& startupCmds,
 	vector<DWORD>&   basePriorities,
 	int& nMultiStartSleep,
+	ShowHideWindowAction& visibility,
 	std::wstring& strWorkingDir
 )
 {
@@ -90,6 +91,15 @@ void MainFrame::ParseCommandLine
 			nMultiStartSleep = _wtoi(argv[i]);
 			if (nMultiStartSleep < 0) nMultiStartSleep = 500;
 		}
+		else if( wstring(argv[i]) == wstring(L"-v") )
+		{
+			// ConsoleZ visibility
+			++i;
+			if( i == argc ) break;
+			     if( _wcsicmp(L"Show",   argv[i]) == 0 ) visibility = ShowHideWindowAction::SHWA_SHOW_ONLY;
+			else if( _wcsicmp(L"Hide",   argv[i]) == 0 ) visibility = ShowHideWindowAction::SHWA_HIDE_ONLY;
+			else if( _wcsicmp(L"Switch", argv[i]) == 0 ) visibility = ShowHideWindowAction::SHWA_SWITCH;
+		}
 		else if (wstring(argv[i]) == wstring(L"-cwd"))
 		{
 			++i;
@@ -149,6 +159,8 @@ MainFrame::MainFrame
 	m_Margins.cyTopHeight    = 0;
 	m_Margins.cyBottomHeight = 0;
 
+	ShowHideWindowAction visibility = ShowHideWindowAction::SHWA_DONOTHING;
+
 	ParseCommandLine(
 		lpstrCmdLine,
 		m_strCmdLineWindowTitle,
@@ -158,6 +170,7 @@ MainFrame::MainFrame
 		m_startupCmds,
 		m_priorities,
 		m_nMultiStartSleep,
+		visibility,
 		m_strWorkingDir);
 }
 
@@ -529,6 +542,8 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	if( g_settingsHandler->GetAppearanceSettings().fullScreenSettings.bStartInFullScreen )
 		ShowFullScreen(true);
 
+	//ShowHideWindow(m_visibility);
+
 	return 0;
 }
 
@@ -644,7 +659,7 @@ LRESULT MainFrame::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 		HWND hwndForegroundOwner = ::GetAncestor(hwndForeground, GA_ROOTOWNER);
 		TRACE(L"*** OnActivateAPP fg = %p fgowner = %p m_hwnd = %p\n", hwndForeground, hwndForegroundOwner, m_hWnd);
 		if( hwndForegroundOwner != m_hWnd )
-			this->ShowHideWindow(ShowHideWidowAction::SHWA_HIDE_ONLY);
+			this->ShowHideWindow(ShowHideWindowAction::SHWA_HIDE_ONLY);
 	}
 
 	this->ActivateApp();
@@ -693,8 +708,10 @@ void MainFrame::ActivateApp(void)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainFrame::ShowHideWindow(ShowHideWidowAction action /*= ShowHideWidowAction::SHWA_SWITCH*/)
+void MainFrame::ShowHideWindow(ShowHideWindowAction action /*= ShowHideWindowAction::SHWA_SWITCH*/)
 {
+	if( action == ShowHideWindowAction::SHWA_DONOTHING ) return;
+
 	m_bShowingHidingWindow = true;
 
 	bool bVisible = this->IsWindowVisible()? true : false;
@@ -709,13 +726,13 @@ void MainFrame::ShowHideWindow(ShowHideWidowAction action /*= ShowHideWidowActio
 	bool bActivate = true;
 	bool bSwitch   = true;
 
-	if(action == ShowHideWidowAction::SHWA_HIDE_ONLY && !bVisible && bIconic)
+	if(action == ShowHideWindowAction::SHWA_HIDE_ONLY && !bVisible && bIconic)
 	{
 		bActivate = false;
 		bSwitch   = false;
 	}
 
-	if(action == ShowHideWidowAction::SHWA_SHOW_ONLY && m_bAppActive && bVisible && !bIconic)
+	if(action == ShowHideWindowAction::SHWA_SHOW_ONLY && m_bAppActive && bVisible && !bIconic)
 	{
 		bSwitch   = false;
 	}
@@ -760,7 +777,7 @@ void MainFrame::ShowHideWindow(ShowHideWidowAction action /*= ShowHideWidowActio
 
 		if(bQuake)
 		{
-			if(action == ShowHideWidowAction::SHWA_HIDE_ONLY)
+			if(action == ShowHideWindowAction::SHWA_HIDE_ONLY)
 			{
 				::AnimateWindow(m_hWnd, stylesSettings.dwQuakeAnimationTime, dwHideFlags);
 				bActivate = false;
@@ -787,7 +804,7 @@ void MainFrame::ShowHideWindow(ShowHideWidowAction action /*= ShowHideWidowActio
 		}
 		else
 		{
-			if(action == ShowHideWidowAction::SHWA_HIDE_ONLY)
+			if(action == ShowHideWindowAction::SHWA_HIDE_ONLY)
 			{
 				ShowWindow(stylesSettings.bTaskbarButton ? SW_MINIMIZE : SW_HIDE);
 				bActivate = false;
@@ -1970,7 +1987,7 @@ LRESULT MainFrame::OnSwitchTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/,
 
 	if (nNewSel >= m_TabCtrl.GetItemCount()) return 0;
 
-	ShowHideWindow(ShowHideWidowAction::SHWA_SHOW_ONLY);
+	ShowHideWindow(ShowHideWindowAction::SHWA_SHOW_ONLY);
 
 	m_TabCtrl.SetCurSel(nNewSel);
 
@@ -4490,12 +4507,15 @@ LRESULT MainFrame::OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 	vector<wstring> startupDirs;
 	vector<DWORD>   basePriorities;
 	int nMultiStartSleep = 0;
+	ShowHideWindowAction visibility = ShowHideWindowAction::SHWA_DONOTHING;
 	wstring strWorkingDir;
 
 	wstring ignoreTitle;
 
-	ParseCommandLine((LPCTSTR)cds->lpData, ignoreTitle, startupTabs, startupTabTitles, startupDirs, startupCmds, basePriorities, nMultiStartSleep, strWorkingDir);
+	ParseCommandLine((LPCTSTR)cds->lpData, ignoreTitle, startupTabs, startupTabTitles, startupDirs, startupCmds, basePriorities, nMultiStartSleep, visibility, strWorkingDir);
 	CreateInitialTabs(startupTabs, startupTabTitles, startupCmds, startupDirs, basePriorities, nMultiStartSleep, strWorkingDir);
+
+	ShowHideWindow(visibility);
 
 	return 0;
 }

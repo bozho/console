@@ -68,7 +68,8 @@ void ParseCommandLine
 	LPTSTR lptstrCmdLine,
 	wstring& strConfigFile,
 	bool& bReuse,
-	wstring& strSyncName
+	wstring& strSyncName,
+	ShowHideWindowAction& visibility
 )
 {
 	int argc = 0;
@@ -94,6 +95,15 @@ void ParseCommandLine
 			++i;
 			if (i == argc) break;
 			strSyncName = argv[i];
+		}
+		else if( wstring(argv[i]) == wstring(L"-v") )
+		{
+			// ConsoleZ visibility
+			++i;
+			if( i == argc ) break;
+			     if( _wcsicmp(L"Show", argv[i]) == 0 ) visibility = ShowHideWindowAction::SHWA_SHOW_ONLY;
+			else if( _wcsicmp(L"Hide", argv[i]) == 0 ) visibility = ShowHideWindowAction::SHWA_HIDE_ONLY;
+			else if( _wcsicmp(L"Switch", argv[i]) == 0 ) visibility = ShowHideWindowAction::SHWA_SWITCH;
 		}
 	}
 }
@@ -144,15 +154,17 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
     CMessageLoop theLoop;
     _Module.AddMessageLoop(&theLoop);
 
-    wstring strConfigFile(L"");
-    bool    bReuse = false;
-    wstring strSyncName;
+		std::wstring         strConfigFile(L"");
+		bool                 bReuse = false;
+		std::wstring         strSyncName;
+		ShowHideWindowAction visibility = ShowHideWindowAction::SHWA_DONOTHING;
 
-    ParseCommandLine(
-      lpstrCmdLine,
-      strConfigFile,
-      bReuse,
-      strSyncName);
+		ParseCommandLine(
+			lpstrCmdLine,
+			strConfigFile,
+			bReuse,
+			strSyncName,
+			visibility);
 
     if (strConfigFile.length() == 0)
     {
@@ -190,6 +202,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 				startupCmds,
 				basePriorities,
 				nMultiStartSleep,
+				visibility,
 				strWorkingDir
 			);
 
@@ -285,6 +298,11 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
     ::ChangeWindowMessageFilter(WM_COPYDATA, MSGFLT_ADD);
     ::ChangeWindowMessageFilter(0x0049, MSGFLT_ADD);
 #endif
+
+		if( visibility == ShowHideWindowAction::SHWA_HIDE_ONLY )
+		{
+			nCmdShow = g_settingsHandler->GetAppearanceSettings().stylesSettings.bTaskbarButton ? SW_MINIMIZE : SW_HIDE;
+		}
 
     wndMain.ShowWindow(nCmdShow);
 

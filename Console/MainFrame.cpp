@@ -672,26 +672,34 @@ void MainFrame::ActivateApp(void)
 	if (m_activeTabView)
 		m_activeTabView->SetAppActiveStatus(m_bAppActive);
 
-  TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
-  TransparencyType transType = m_bTransparencyActive ? transparencySettings.transType : transNone;
+	TransparencySettings& transparencySettings = g_settingsHandler->GetAppearanceSettings().transparencySettings;
+	TransparencyType transType = m_bTransparencyActive ? transparencySettings.transType : transNone;
 
-  if ((transType == transAlpha || transType == transAlphaAndColorKey) &&
-    ((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)))
-  {
-    if (m_bAppActive)
-    {
-      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byActiveAlpha, LWA_ALPHA);
-    }
-    else
-    {
-      ::SetLayeredWindowAttributes(m_hWnd, RGB(0, 0, 0), transparencySettings.byInactiveAlpha, LWA_ALPHA);
-    }
+	if( (transType == transAlpha || transType == transAlphaAndColorKey) &&
+		 ((transparencySettings.byActiveAlpha != 255) || (transparencySettings.byInactiveAlpha != 255)) )
+	{
+		if( m_bAppActive )
+		{
+			::SetLayeredWindowAttributes(
+				m_hWnd,
+				transparencySettings.crColorKey,
+				transparencySettings.byActiveAlpha,
+				transType == transAlpha ? LWA_ALPHA : (LWA_COLORKEY | LWA_ALPHA));
+		}
+		else
+		{
+			::SetLayeredWindowAttributes(
+				m_hWnd,
+				transparencySettings.crColorKey,
+				transparencySettings.byInactiveAlpha,
+				transType == transAlpha ? LWA_ALPHA : (LWA_COLORKEY | LWA_ALPHA));
+		}
 
-  }
+	}
 
 #ifdef _USE_AERO
-  m_TabCtrl.SetAppActiveStatus(m_bAppActive);
-  m_TabCtrl.RedrawWindow();
+	m_TabCtrl.SetAppActiveStatus(m_bAppActive);
+	m_TabCtrl.RedrawWindow();
 #endif
 
 	if((transType == transGlass) &&
@@ -4221,8 +4229,8 @@ void MainFrame::SetTransparency()
 
       ::SetLayeredWindowAttributes(
         m_hWnd,
-        transparencySettings.crColorKey, 
-        transparencySettings.byActiveAlpha, 
+        transparencySettings.crColorKey,
+        transparencySettings.byActiveAlpha,
         LWA_COLORKEY | LWA_ALPHA);
 
       // back to desktop-pinned mode, if needed

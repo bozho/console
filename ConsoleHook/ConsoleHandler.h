@@ -9,6 +9,59 @@
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+class StdOutHandle
+{
+public:
+	StdOutHandle(bool bReadOnly)
+	{
+		if( bReadOnly )
+		{
+			m_hStdOut = ::CreateFile(
+				L"CONOUT$",
+				GENERIC_READ,
+				FILE_SHARE_READ,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				0);
+		}
+		else
+		{
+			m_hStdOut = ::CreateFile(
+				L"CONOUT$",
+				GENERIC_WRITE | GENERIC_READ,
+				FILE_SHARE_READ | FILE_SHARE_WRITE,
+				NULL,
+				OPEN_EXISTING,
+				0,
+				0);
+		}
+
+		if( m_hStdOut == INVALID_HANDLE_VALUE )
+		{
+			Win32Exception err("CreateFile", ::GetLastError());
+			TRACE(L"CreateFile returns error (%lu) : %S\n", err.GetErrorCode(), err.what());
+		}
+	}
+
+	~StdOutHandle()
+	{
+		if( m_hStdOut && m_hStdOut != INVALID_HANDLE_VALUE )
+			::CloseHandle(m_hStdOut);
+	}
+
+	operator HANDLE() { return m_hStdOut; }
+
+
+private:
+	HANDLE m_hStdOut;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////
+
 class ClipboardData;
 
 class ConsoleHandler
@@ -85,58 +138,8 @@ class ConsoleHandler
 		std::chrono::system_clock::time_point m_timePoint;
 
 		std::unique_ptr<ClipboardData>    m_selectionFullText;
-};
 
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-class StdOutHandle
-{
-public:
-	StdOutHandle(bool bReadOnly)
-	{
-		if( bReadOnly )
-		{
-			m_hStdOut = ::CreateFile(
-				L"CONOUT$",
-				GENERIC_READ,
-				FILE_SHARE_READ,
-				NULL,
-				OPEN_EXISTING,
-				0,
-				0);
-		}
-		else
-		{
-			m_hStdOut = ::CreateFile(
-				L"CONOUT$",
-				GENERIC_WRITE | GENERIC_READ,
-				FILE_SHARE_READ | FILE_SHARE_WRITE,
-				NULL,
-				OPEN_EXISTING,
-				0,
-				0);
-		}
-
-		if( m_hStdOut == INVALID_HANDLE_VALUE )
-		{
-			Win32Exception err("CreateFile", ::GetLastError());
-			TRACE(L"CreateFile returns error (%lu) : %S\n", err.GetErrorCode(), err.what());
-		}
-	}
-
-	~StdOutHandle()
-	{
-		if( m_hStdOut && m_hStdOut != INVALID_HANDLE_VALUE )
-			::CloseHandle(m_hStdOut);
-	}
-
-	operator HANDLE() { return m_hStdOut; }
-
-
-private:
-	HANDLE m_hStdOut;
+		StdOutHandle                      m_hStdOut;
 };
 
 //////////////////////////////////////////////////////////////////////////////

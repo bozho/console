@@ -16,6 +16,8 @@ class Win32Exception : public std::exception
 
   void FormatMessage() const
   {
+		if( !buff_.empty() ) return;
+
 		buff_ = "(";
 		buff_ += api_;
 		buff_ += ")";

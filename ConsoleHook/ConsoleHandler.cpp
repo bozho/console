@@ -31,6 +31,7 @@ ConsoleHandler::ConsoleHandler()
 , m_dwScreenBufferSize(0)
 , m_dwWaitingTime(INFINITE)
 , m_timePoint(std::chrono::system_clock::now())
+, m_hStdOut(true)
 {
 	m_szConsoleTitle[0] = 0;
 }
@@ -344,8 +345,12 @@ void ConsoleHandler::RealReadConsoleBuffer()
 
 bool ConsoleHandler::GetPowerShellProgress(HANDLE hStdOut, CONSOLE_SCREEN_BUFFER_INFO& csbiConsole, unsigned long long & ullProgressCompleted, unsigned long long & ullProgressTotal)
 {
-	SHORT sBufferColumns = (m_consoleParams->dwBufferColumns > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferColumns) : static_cast<SHORT>(m_consoleParams->dwColumns);
-	SHORT sBufferRows    = (m_consoleParams->dwBufferRows    > 0) ? static_cast<SHORT>(m_consoleParams->dwBufferRows)    : static_cast<SHORT>(m_consoleParams->dwRows);
+	// if we are in another screen buffer
+	// we avoid the progress bar detection
+	if( hStdOut != m_hStdOut ) return false;
+
+	SHORT sBufferColumns = csbiConsole.dwSize.X;
+	SHORT sBufferRows    = csbiConsole.dwSize.Y;
 
 	// buffer width is too small to display a progress bar!
 	if( sBufferColumns <= 12 )
@@ -355,7 +360,7 @@ bool ConsoleHandler::GetPowerShellProgress(HANDLE hStdOut, CONSOLE_SCREEN_BUFFER
 	// this line is in third row
 	// of the window containing the cursor
 	SHORT sMinRow = csbiConsole.dwCursorPosition.Y
-	              - (csbiConsole.srWindow.Right - csbiConsole.srWindow.Left)
+	              - (csbiConsole.srWindow.Bottom - csbiConsole.srWindow.Top)
 	              + 2;
 	if( sMinRow < 2 ) sMinRow = 2;
 

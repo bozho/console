@@ -527,11 +527,11 @@ public:
     rcCloseButton.right  = rcCloseButton.left + m_iCloseButtonWidth;
     rcCloseButton.bottom = rcCloseButton.top  + m_iCloseButtonHeight;
 
-    int iStateCloseButton = CBS_NORMAL;
+    int iStateCloseButton = SCBS_NORMAL;
     if( ectcMouseDownL_CloseButton == (m_dwState & ectcMouseDown) )
-      iStateCloseButton = CBS_PUSHED;
+      iStateCloseButton = SCBS_PUSHED;
     else if( ectcMouseOver_CloseButton == (m_dwState & ectcMouseOver) )
-      iStateCloseButton = CBS_HOT;
+      iStateCloseButton = SCBS_HOT;
 
     HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_WINDOW);
     if( hTheme )
@@ -690,11 +690,11 @@ public:
 
     if (CTCS_CLOSEBUTTON == (dwStyle & CTCS_CLOSEBUTTON) && ( m_Items.GetCount() > 1 || CTCS_CLOSELASTTAB == (dwStyle & CTCS_CLOSELASTTAB)))
     {
-      SIZE size;
-
       HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_WINDOW);
       if( hTheme )
       {
+        SIZE size;
+
         ::GetThemePartSize(
           hTheme,
           NULL,
@@ -707,8 +707,10 @@ public:
 
         ::CloseThemeData(hTheme);
 
-        m_iCloseButtonWidth  = size.cx;
-        m_iCloseButtonHeight = size.cy;
+        // I cannot find a system metrics for the size of the close button.
+        // So I manually resize.
+        m_iCloseButtonWidth  = ::MulDiv(size.cx, ::GetSystemMetrics(SM_CXSMICON), 16);
+        m_iCloseButtonHeight = ::MulDiv(size.cy, ::GetSystemMetrics(SM_CYSMICON), 16);
       }
       else
       {
@@ -730,6 +732,7 @@ public:
     HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_SCROLLBAR);
     if( hTheme )
     {
+      /*
       ::GetThemePartSize(
         hTheme,
         NULL,
@@ -739,6 +742,12 @@ public:
         TS_TRUE,
         &size
         );
+        */
+
+      // GetThemeSysSize returns size stored in the current visual style
+      // (SysMetrics section of the visual style) scaled to the current screen dpi.
+      size.cx = ::GetThemeSysSize(hTheme, SM_CXVSCROLL);
+      size.cy = ::GetThemeSysSize(hTheme, SM_CYHSCROLL);
 
       ::CloseThemeData(hTheme);
     }

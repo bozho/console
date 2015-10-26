@@ -108,9 +108,10 @@ public:
     dtto.iGlowSize = 16;
     dtto.crText    = RGB(240,240,240);
     dtto.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR | DTT_GLOWSIZE;
-   
+
     std::wstring strMsgVersion = boost::str(boost::wformat(Helpers::LoadStringW(MSG_ABOUT)) % VERSION_MAJOR % VERSION_MINOR % VERSION_BUILD % VERSION_BUILD2);
 
+    ::SelectObject(dc, AtlGetDefaultGuiFont());
     this->DrawTextW(dc, strMsgVersion.c_str(), rectVersion, DT_CENTER, dtto);
   }
 #endif

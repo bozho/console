@@ -75,10 +75,18 @@ LRESULT DlgSettingsTabs::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /
 	CRect	rect;
 	m_tabCtrl.GetWindowRect(&rect);
 	ScreenToClient(&rect);
-
-	rect.DeflateRect(10, 25, 10, 10);
+	m_tabCtrl.AdjustRect(FALSE, &rect);
 
 	m_page1.Create(m_hWnd, rect);
+
+	// we assume all pages have the same size
+	// we center the page position
+	CRect rect2;
+	m_page1.GetWindowRect(&rect2);
+	rect.DeflateRect(
+		rect.Width() > rect2.Width() ? (rect.Width() - rect2.Width()) / 2 : 0,
+		rect.Height() > rect2.Height() ? (rect.Height() - rect2.Height()) / 2 : 0);
+
 	m_page1.SetWindowPos(HWND_TOP, rect.left, rect.top, rect.Width(), rect.Height(), SWP_SHOWWINDOW);
 
 	m_page2.Create(m_hWnd, rect);

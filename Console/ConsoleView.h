@@ -127,6 +127,8 @@ class ConsoleView
 
 		virtual void RedrawCharOnCursor(CDC& dc);
 
+		LRESULT OnSelectionKeyPressed(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+
 	public:
 
 		void GetRect(CRect& clientRect);

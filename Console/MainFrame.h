@@ -195,6 +195,9 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_EDIT_CLEAR_SELECTION, OnEditClearSelection)
 			COMMAND_ID_HANDLER(ID_EDIT_PASTE, OnEditPaste)
 			COMMAND_ID_HANDLER(ID_PASTE_SELECTION, OnPasteSelection)
+
+			COMMAND_RANGE_HANDLER(ID_TEXT_SELECTION_LEFT_KEY, ID_COLUMN_SELECTION_PAGEDOWN_KEY, OnSelectionKeyPressed)
+
 			COMMAND_ID_HANDLER(ID_EDIT_STOP_SCROLLING, OnEditStopScrolling)
 			COMMAND_ID_HANDLER(ID_EDIT_RENAME_TAB, OnEditRenameTab)
 			COMMAND_ID_HANDLER(ID_EDIT_SETTINGS, OnEditSettings)
@@ -304,6 +307,7 @@ class MainFrame
 		LRESULT OnEditClearSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnPasteSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSelectionKeyPressed(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditStopScrolling(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditRenameTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

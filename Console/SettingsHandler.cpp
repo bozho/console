@@ -1759,6 +1759,23 @@ HotKeys::HotKeys()
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"paste_selection",    ID_PASTE_SELECTION,      IDS_PASTE_SELECTION     )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"stopscroll",         ID_EDIT_STOP_SCROLLING,  IDS_EDIT_STOP_SCROLLING )));
 
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselleft",        ID_TEXT_SELECTION_LEFT_KEY      , ID_TEXT_SELECTION_LEFT_KEY      )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselright",       ID_TEXT_SELECTION_RIGHT_KEY     , ID_TEXT_SELECTION_RIGHT_KEY     )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textseltop",         ID_TEXT_SELECTION_TOP_KEY       , ID_TEXT_SELECTION_TOP_KEY       )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselbottom",      ID_TEXT_SELECTION_BOTTOM_KEY    , ID_TEXT_SELECTION_BOTTOM_KEY    )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselhome",        ID_TEXT_SELECTION_HOME_KEY      , ID_TEXT_SELECTION_HOME_KEY      )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselend",         ID_TEXT_SELECTION_END_KEY       , ID_TEXT_SELECTION_END_KEY       )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselpageup",      ID_TEXT_SELECTION_PAGEUP_KEY    , ID_TEXT_SELECTION_PAGEUP_KEY    )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"textselpagedown",    ID_TEXT_SELECTION_PAGEDOWN_KEY  , ID_TEXT_SELECTION_PAGEDOWN_KEY  )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselleft",         ID_COLUMN_SELECTION_LEFT_KEY    , ID_COLUMN_SELECTION_LEFT_KEY    )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselright",        ID_COLUMN_SELECTION_RIGHT_KEY   , ID_COLUMN_SELECTION_RIGHT_KEY   )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colseltop",          ID_COLUMN_SELECTION_TOP_KEY     , ID_COLUMN_SELECTION_TOP_KEY     )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselbottom",       ID_COLUMN_SELECTION_BOTTOM_KEY  , ID_COLUMN_SELECTION_BOTTOM_KEY  )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselhome",         ID_COLUMN_SELECTION_HOME_KEY    , ID_COLUMN_SELECTION_HOME_KEY    )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselend",          ID_COLUMN_SELECTION_END_KEY     , ID_COLUMN_SELECTION_END_KEY     )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselpageup",       ID_COLUMN_SELECTION_PAGEUP_KEY  , ID_COLUMN_SELECTION_PAGEUP_KEY  )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"colselpagedown",     ID_COLUMN_SELECTION_PAGEDOWN_KEY, ID_COLUMN_SELECTION_PAGEDOWN_KEY)));
+
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollrowup",        ID_SCROLL_UP,            IDS_SCROLL_UP           )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollrowdown",      ID_SCROLL_DOWN,          IDS_SCROLL_DOWN         )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"scrollpageup",       ID_SCROLL_PAGE_UP,       IDS_SCROLL_PAGE_UP      )));

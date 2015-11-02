@@ -96,7 +96,7 @@ void SelectionHandler::SelectWord(const COORD& coordInit)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType)
+void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType, bool bWithMouse)
 {
 	// reset selection if selection is not cleared
 	if (m_selectionState > selstateSelecting) m_selectionState = selstateNoSelection;
@@ -108,7 +108,8 @@ void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuf
 	// stop console scrolling while selecting
 	m_consoleHandler.StopScrolling();
 
-	m_consoleView.SetCapture();
+	if( bWithMouse )
+		m_consoleView.SetCapture();
 
 	m_coordInitial		= coordInit;
 
@@ -148,15 +149,16 @@ void SelectionHandler::StartSelection(const COORD& coordInit, CharInfo screenBuf
 
 void SelectionHandler::UpdateSelection(const COORD& coordCurrent, CharInfo screenBuffer [])
 {
-	if ((m_selectionState != selstateStartedSelecting) &&
-		(m_selectionState != selstateSelecting))
+	//if ((m_selectionState != selstateStartedSelecting) &&
+	//	(m_selectionState != selstateSelecting))
+	if( m_selectionState == selstateNoSelection )
 	{
 		return;
 	}
 
 	if ((coordCurrent.X == m_coordCurrent.X) && (coordCurrent.Y == m_coordCurrent.Y)) return;
 
-//	TRACE(L"Update selection current: %ix%i\n", coordCurrent.X, coordCurrent.Y);
+	TRACE(L"Update selection current: %ix%i\n", coordCurrent.X, coordCurrent.Y);
 	m_coordCurrent = coordCurrent;
 
 

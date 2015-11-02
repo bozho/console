@@ -2513,6 +2513,23 @@ LRESULT MainFrame::OnPasteSelection(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*h
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnSelectionKeyPressed(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL& bHandled)
+{
+	if (!m_activeTabView) return 0;
+	std::shared_ptr<ConsoleView> activeConsoleView = m_activeTabView->GetActiveConsole(_T(__FUNCTION__));
+	if( activeConsoleView )
+	{
+		return activeConsoleView->OnSelectionKeyPressed(wNotifyCode, wID, hWndCtl, bHandled);
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnEditPaste(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   PasteToConsoles();

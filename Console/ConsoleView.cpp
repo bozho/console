@@ -513,6 +513,116 @@ LRESULT ConsoleView::OnConsoleFwdMsg(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	return 0;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT ConsoleView::OnSelectionKeyPressed(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	auto state = m_selectionHandler->GetState();
+
+	MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
+
+	COORD coordMaxBuffer =
+	{
+		static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwMaxColumns - 1),
+		static_cast<SHORT>(m_consoleHandler.GetConsoleParams()->dwMaxRows - 1)
+	};
+
+	if( state == SelectionHandler::selstateNoSelection )
+	{
+		// start selection from the cursor position
+		COORD coordCursorPosition = m_consoleHandler.GetConsoleInfo()->csbi.dwCursorPosition;
+		SelectionType seltype = (wID < ID_COLUMN_SELECTION_LEFT_KEY) ? seltypeText : seltypeColumn;
+
+		m_selectionHandler->StartSelection(coordCursorPosition, m_screenBuffer.get(), seltype, false);
+	}
+
+	// calculate the shifting
+	COORD coordCurrentPosition = m_selectionHandler->GetCurrentPosition();
+
+	// regardless the selection type
+	switch( (wID < ID_COLUMN_SELECTION_LEFT_KEY) ? wID : (wID - ID_COLUMN_SELECTION_LEFT_KEY + ID_TEXT_SELECTION_LEFT_KEY) )
+	{
+	case ID_TEXT_SELECTION_LEFT_KEY:
+		if( coordCurrentPosition.X == 0 )
+		{
+			if( coordCurrentPosition.Y > 0 )
+			{
+				coordCurrentPosition.X = coordMaxBuffer.X;
+				coordCurrentPosition.Y--;
+			}
+		}
+		else
+		{
+			coordCurrentPosition.X--;
+		}
+		break;
+
+	case ID_TEXT_SELECTION_RIGHT_KEY:
+		if( coordCurrentPosition.X == coordMaxBuffer.X )
+		{
+			if( coordCurrentPosition.Y < coordMaxBuffer.Y )
+			{
+				coordCurrentPosition.X = 0;
+				coordCurrentPosition.Y++;
+			}
+		}
+		else
+		{
+			coordCurrentPosition.X++;
+		}
+		break;
+
+	case ID_TEXT_SELECTION_TOP_KEY:
+		if( coordCurrentPosition.Y > 0 )
+		{
+			coordCurrentPosition.Y--;
+		}
+		break;
+
+	case ID_TEXT_SELECTION_BOTTOM_KEY:
+		if( coordCurrentPosition.Y < coordMaxBuffer.Y )
+		{
+			coordCurrentPosition.Y++;
+		}
+		break;
+
+	case ID_TEXT_SELECTION_HOME_KEY:
+		coordCurrentPosition.X = 0;
+		break;
+
+	case ID_TEXT_SELECTION_END_KEY:
+		coordCurrentPosition.X = coordMaxBuffer.X;
+		break;
+
+	case ID_TEXT_SELECTION_PAGEUP_KEY:
+		coordCurrentPosition.Y -= static_cast<SHORT>(m_dwScreenRows);
+		if( coordCurrentPosition.Y < 0 ) coordCurrentPosition.Y = 0;
+		break;
+
+	case ID_TEXT_SELECTION_PAGEDOWN_KEY:
+		coordCurrentPosition.Y += static_cast<SHORT>(m_dwScreenRows);
+		if( coordCurrentPosition.Y > coordMaxBuffer.Y ) coordCurrentPosition.Y = coordMaxBuffer.Y;
+		break;
+	}
+
+	// update selection
+	m_selectionHandler->UpdateSelection(coordCurrentPosition, m_screenBuffer.get());
+
+	// end selection / stop mouse capture
+	m_selectionHandler->EndSelection();
+
+	BitBltOffscreen();
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
 
 LRESULT ConsoleView::OnMouseWheel(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
@@ -688,7 +798,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			::SetCursor(::LoadCursor(NULL, IDC_IBEAM));
 
 			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get(), seltypeText);
+			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get(), seltypeText, true);
 
 			m_mouseCommand = MouseSettings::cmdSelect;
 			return 0;
@@ -716,7 +826,7 @@ LRESULT ConsoleView::OnMouseButton(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL
 			::SetCursor(::LoadCursor(NULL, IDC_CROSS));
 
 			MutexLock bufferLock(m_consoleHandler.m_bufferMutex);
-			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get(), seltypeColumn);
+			m_selectionHandler->StartSelection(GetConsoleCoord(point, true), m_screenBuffer.get(), seltypeColumn, true);
 
 			m_mouseCommand = MouseSettings::cmdColumnSelect;
 			return 0;

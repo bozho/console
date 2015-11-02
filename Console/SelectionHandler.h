@@ -44,7 +44,7 @@ class SelectionHandler
 
 	public:
 
-		void StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType);
+		void StartSelection(const COORD& coordInit, CharInfo screenBuffer [], SelectionType selectionType, bool bWithMouse);
 		void SelectWord(const COORD& coordInit);
 		void UpdateSelection(const COORD& coordCurrent, CharInfo screenBuffer []);
 		void UpdateSelection();
@@ -56,7 +56,14 @@ class SelectionHandler
 		std::wstring GetSelection();
 		void SetHighlightCoordinates(COORD& coordLeft, COORD& coordRight);
 
-		inline SelectionState GetState() const;
+		inline SelectionState GetState() const
+		{
+			return m_selectionState;
+		}
+		inline COORD GetCurrentPosition() const
+		{
+			return m_coordCurrent;
+		}
 		DWORD GetSelectionSize(void);
 
 #ifdef _USE_AERO
@@ -125,11 +132,3 @@ class SelectionHandler
 
 
 //////////////////////////////////////////////////////////////////////////////
-
-inline SelectionHandler::SelectionState SelectionHandler::GetState() const
-{ 
-	return m_selectionState;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-

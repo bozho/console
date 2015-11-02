@@ -1020,6 +1020,23 @@ BEGIN
     IDS_EXTERNAL_COMMAND_10  "External command 10"
 
     IDS_GLOBAL_ACTIVATE      "Activate ConsoleZ (global)"
+
+    ID_TEXT_SELECTION_LEFT_KEY        "Text selection left key"
+    ID_TEXT_SELECTION_RIGHT_KEY       "Text selection right key"
+    ID_TEXT_SELECTION_TOP_KEY         "Text selection top key"
+    ID_TEXT_SELECTION_BOTTOM_KEY      "Text selection bottom key"
+    ID_TEXT_SELECTION_HOME_KEY        "Text selection home key"
+    ID_TEXT_SELECTION_END_KEY         "Text selection end key"
+    ID_TEXT_SELECTION_PAGEUP_KEY      "Text selection page up key"
+    ID_TEXT_SELECTION_PAGEDOWN_KEY    "Text selection page down key"
+    ID_COLUMN_SELECTION_LEFT_KEY      "Column selection left key"
+    ID_COLUMN_SELECTION_RIGHT_KEY     "Column selection right key"
+    ID_COLUMN_SELECTION_TOP_KEY       "Column selection top key"
+    ID_COLUMN_SELECTION_BOTTOM_KEY    "Column selection bottom key"
+    ID_COLUMN_SELECTION_HOME_KEY      "Column selection home key"
+    ID_COLUMN_SELECTION_END_KEY       "Column selection end key"
+    ID_COLUMN_SELECTION_PAGEUP_KEY    "Column selection page up key"
+    ID_COLUMN_SELECTION_PAGEDOWN_KEY  "Column selection page down key"
 END
 
 STRINGTABLE

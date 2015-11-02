@@ -163,14 +163,14 @@ struct FullScreenSettings : public SettingsBase
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ControlsSettings
+struct ControlsSettings2
 {
-	ControlsSettings();
+	ControlsSettings2();
 
-	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
-	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Load(const CComPtr<IXMLDOMElement>& pCtrlsElement);
+	bool Save(const CComPtr<IXMLDOMElement>& pCtrlsElement);
 
-	ControlsSettings& operator=(const ControlsSettings& other);
+	ControlsSettings2& operator=(const ControlsSettings2& other);
 
 	bool			bShowMenu;
 	bool			bShowToolbar;
@@ -182,6 +182,31 @@ struct ControlsSettings
 	bool			bHideTabIcons;
 	bool			bShowScrollbars;
 	bool			bFlatScrollbars;
+};
+
+struct ControlsSettings
+{
+	ControlsSettings();
+
+	bool Load(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+	bool Save(const CComPtr<IXMLDOMElement>& pSettingsRoot);
+
+	ControlsSettings& operator=(const ControlsSettings& other);
+
+	bool         bIsFullScreen;
+	inline bool& ShowMenu      (void) { return bIsFullScreen? controlsFullScreen.bShowMenu       : controlsWindowed.bShowMenu       ; }
+	inline bool& ShowToolbar   (void) { return bIsFullScreen? controlsFullScreen.bShowToolbar    : controlsWindowed.bShowToolbar    ; }
+	inline bool& ShowSearchbar (void) { return bIsFullScreen? controlsFullScreen.bShowSearchbar  : controlsWindowed.bShowSearchbar  ; }
+	inline bool& ShowStatusbar (void) { return bIsFullScreen? controlsFullScreen.bShowStatusbar  : controlsWindowed.bShowStatusbar  ; }
+	inline bool& ShowTabs      (void) { return bIsFullScreen? controlsFullScreen.bShowTabs       : controlsWindowed.bShowTabs       ; }
+	inline bool& HideSingleTab (void) { return bIsFullScreen? controlsFullScreen.bHideSingleTab  : controlsWindowed.bHideSingleTab  ; }
+	inline bool& TabsOnBottom  (void) { return bIsFullScreen? controlsFullScreen.bTabsOnBottom   : controlsWindowed.bTabsOnBottom   ; }
+	inline bool& HideTabIcons  (void) { return bIsFullScreen? controlsFullScreen.bHideTabIcons   : controlsWindowed.bHideTabIcons   ; }
+	inline bool& ShowScrollbars(void) { return bIsFullScreen? controlsFullScreen.bShowScrollbars : controlsWindowed.bShowScrollbars ; }
+	inline bool& FlatScrollbars(void) { return bIsFullScreen? controlsFullScreen.bFlatScrollbars : controlsWindowed.bFlatScrollbars ; }
+
+	ControlsSettings2 controlsFullScreen;
+	ControlsSettings2 controlsWindowed;
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -440,7 +440,7 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 	SetReflectNotifications(true);
 
 	DWORD dwTabStyles = CTCS_TOOLTIPS | CTCS_DRAGREARRANGE | CTCS_SCROLL | CTCS_CLOSEBUTTON | CTCS_HOTTRACK;
-	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM;
+	if (controlsSettings.TabsOnBottom()) dwTabStyles |= CTCS_BOTTOM;
 	if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB;
 
 	CreateTabWindow(m_hWnd, rcDefault, dwTabStyles);
@@ -454,20 +454,20 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	SetWindowStyles();
 
-	m_bMenuChecked = controlsSettings.bShowMenu;
+	m_bMenuChecked = controlsSettings.ShowMenu();
 	ShowMenu(m_bMenuChecked);
-	ShowToolbar(controlsSettings.bShowToolbar);
-	ShowSearchBar(controlsSettings.bShowSearchbar);
-	ShowStatusbar(controlsSettings.bShowStatusbar);
+	ShowToolbar(controlsSettings.ShowToolbar());
+	ShowSearchBar(controlsSettings.ShowSearchbar());
+	ShowStatusbar(controlsSettings.ShowStatusbar());
 
-	bool bShowTabs = controlsSettings.bShowTabs;
+	bool bShowTabs = controlsSettings.ShowTabs();
 
 	{
 		MutexLock lock(m_tabsMutex);
 
 		UpdateUI();
 
-		if (m_tabs.size() <= 1 && controlsSettings.bHideSingleTab)
+		if (m_tabs.size() <= 1 && controlsSettings.HideSingleTab())
 			bShowTabs = false;
 	}
 
@@ -2598,7 +2598,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 	ControlsSettings& controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
 
 	DWORD dwTabStyles = ::GetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE);
-	if (controlsSettings.bTabsOnBottom) dwTabStyles |= CTCS_BOTTOM; else dwTabStyles &= ~CTCS_BOTTOM;
+	if (controlsSettings.TabsOnBottom()) dwTabStyles |= CTCS_BOTTOM; else dwTabStyles &= ~CTCS_BOTTOM;
 	if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB; else dwTabStyles &= ~CTCS_CLOSELASTTAB;
 	::SetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE, dwTabStyles);
 
@@ -2623,26 +2623,23 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 
 	MutexLock	tabMapLock(m_tabsMutex);
 
-	if( !m_bFullScreen )
+	m_bMenuChecked = controlsSettings.ShowMenu();
+	ShowMenu(m_bMenuChecked);
+	ShowToolbar(controlsSettings.ShowToolbar());
+	ShowSearchBar(controlsSettings.ShowSearchbar());
+
+	bool bShowTabs = false;
+
+	if ( controlsSettings.ShowTabs() &&
+		(!controlsSettings.HideSingleTab() || (m_tabs.size() > 1))
+		)
 	{
-		m_bMenuChecked = controlsSettings.bShowMenu;
-		ShowMenu(m_bMenuChecked);
-		ShowToolbar(controlsSettings.bShowToolbar);
-		ShowSearchBar(controlsSettings.bShowSearchbar);
-
-		bool bShowTabs = false;
-
-		if ( controlsSettings.bShowTabs &&
-			(!controlsSettings.bHideSingleTab || (m_tabs.size() > 1))
-			)
-		{
-			bShowTabs = true;
-		}
-
-		ShowTabs(bShowTabs);
-
-		ShowStatusbar(controlsSettings.bShowStatusbar);
+		bShowTabs = true;
 	}
+
+	ShowTabs(bShowTabs);
+
+	ShowStatusbar(controlsSettings.ShowStatusbar());
 
 	SetZOrder(g_settingsHandler->GetAppearanceSettings().positionSettings.zOrder);
 
@@ -2717,7 +2714,7 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
 		ShowMenu(m_bMenuChecked);
 		if( !m_bFullScreen )
 		{
-			g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowMenu = m_bMenuChecked;
+			g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowMenu() = m_bMenuChecked;
 			g_settingsHandler->SaveSettings();
 		}
 	}
@@ -2734,7 +2731,7 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
   ShowToolbar(!m_bToolbarVisible);
   if( !m_bFullScreen )
   {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowToolbar = m_bToolbarVisible;
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowToolbar() = m_bToolbarVisible;
     g_settingsHandler->SaveSettings();
   }
   return 0;
@@ -2750,7 +2747,7 @@ LRESULT MainFrame::OnViewSearchBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
   ShowSearchBar(!m_bSearchBarVisible);
   if( !m_bFullScreen )
   {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowSearchbar = m_bSearchBarVisible;
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowSearchbar() = m_bSearchBarVisible;
     g_settingsHandler->SaveSettings();
   }
   return 0;
@@ -2766,7 +2763,7 @@ LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
   ShowStatusbar(!m_bStatusBarVisible);
   if( !m_bFullScreen )
   {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowStatusbar = m_bStatusBarVisible;
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowStatusbar() = m_bStatusBarVisible;
     g_settingsHandler->SaveSettings();
   }
   return 0;
@@ -2782,7 +2779,7 @@ LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
   ShowTabs(!m_bTabsVisible);
   if( !m_bFullScreen )
   {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs = m_bTabsVisible;
+    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowTabs() = m_bTabsVisible;
     g_settingsHandler->SaveSettings();
   }
   return 0;
@@ -3157,7 +3154,7 @@ bool MainFrame::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shar
 		tabView->SetTitle(cstrTabTitle);
 	}
 
-	if( g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideTabIcons )
+	if( g_settingsHandler->GetAppearanceSettings().controlsSettings.HideTabIcons() )
 		AddTab(hwndTabView, cstrTabTitle);
 	else
 		AddTabWithIcon(hwndTabView, cstrTabTitle, tabView->GetIcon(false));
@@ -3171,10 +3168,10 @@ bool MainFrame::CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shar
   }
 
   if( !m_bFullScreen &&
-      g_settingsHandler->GetAppearanceSettings().controlsSettings.bShowTabs &&
+      g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowTabs() &&
       (
         m_tabs.size() > 1 ||
-        !g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab
+        !g_settingsHandler->GetAppearanceSettings().controlsSettings.HideSingleTab()
       )
     )
   {
@@ -3220,7 +3217,7 @@ void MainFrame::CloseTab(HWND hwndTabView)
 
   if ((m_tabs.size() == 1) &&
     m_bTabsVisible && 
-    (g_settingsHandler->GetAppearanceSettings().controlsSettings.bHideSingleTab))
+    (g_settingsHandler->GetAppearanceSettings().controlsSettings.HideSingleTab()))
   {
     ShowTabs(false);
   }
@@ -3853,37 +3850,38 @@ void MainFrame::ShowFullScreen(bool bShow)
     // save the non fullscreen position and size
     // normal or maximized
     GetWindowRect(&m_rectWndNotFS);
-
-    m_bMenuChecked = false;
-    ShowMenu     (false);
-    ShowToolbar  (false);
-    ShowStatusbar(false);
-    ShowTabs     (false);
   }
   else
   {
     m_CmdBar.ReplaceBitmap(Helpers::GetHighDefinitionResourceId(IDR_FULLSCREEN2_16), ID_VIEW_FULLSCREEN);
     m_toolbar.ChangeBitmap(ID_VIEW_FULLSCREEN, m_nFullSreen2Bitmap);
-
-    ControlsSettings&	controlsSettings= g_settingsHandler->GetAppearanceSettings().controlsSettings;
-
-    bool bShowTabs = controlsSettings.bShowTabs;
-
-    if( bShowTabs )
-    {
-      MutexLock lock(m_tabsMutex);
-      if ((m_tabs.size() == 1) && (controlsSettings.bHideSingleTab))
-      {
-        bShowTabs = false;
-      }
-    }
-
-    m_bMenuChecked = controlsSettings.bShowMenu;
-    ShowMenu     (m_bMenuChecked);
-    ShowToolbar  (controlsSettings.bShowToolbar);
-    ShowStatusbar(controlsSettings.bShowStatusbar);
-    ShowTabs     (bShowTabs);
   }
+
+	ControlsSettings&	controlsSettings = g_settingsHandler->GetAppearanceSettings().controlsSettings;
+	controlsSettings.bIsFullScreen = m_bFullScreen;
+
+	DWORD dwTabStyles = ::GetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE);
+	if (controlsSettings.TabsOnBottom()) dwTabStyles |= CTCS_BOTTOM; else dwTabStyles &= ~CTCS_BOTTOM;
+	if (g_settingsHandler->GetBehaviorSettings().closeSettings.bAllowClosingLastView) dwTabStyles |= CTCS_CLOSELASTTAB; else dwTabStyles &= ~CTCS_CLOSELASTTAB;
+	::SetWindowLong(GetTabCtrl().m_hWnd, GWL_STYLE, dwTabStyles);
+
+	bool bShowTabs = controlsSettings.ShowTabs();
+
+	if( bShowTabs )
+	{
+		MutexLock lock(m_tabsMutex);
+		if( (m_tabs.size() == 1) && (controlsSettings.HideSingleTab()) )
+		{
+			bShowTabs = false;
+		}
+	}
+
+	m_bMenuChecked = controlsSettings.ShowMenu();
+	ShowMenu(m_bMenuChecked);
+	ShowToolbar(controlsSettings.ShowToolbar());
+	ShowSearchBar(controlsSettings.ShowSearchbar());
+	ShowStatusbar(controlsSettings.ShowStatusbar());
+	ShowTabs(bShowTabs);
 
   UISetCheck(ID_VIEW_FULLSCREEN, m_bFullScreen);
 

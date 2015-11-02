@@ -528,13 +528,13 @@ FullScreenSettings& FullScreenSettings::operator=(const FullScreenSettings& othe
 
 //////////////////////////////////////////////////////////////////////////////
 
-ControlsSettings::ControlsSettings()
+ControlsSettings2::ControlsSettings2()
 : bShowMenu(true)
 , bShowToolbar(true)
 , bShowSearchbar(true)
 , bShowStatusbar(true)
 , bShowTabs(true)
-, bHideSingleTab(false)
+, bHideSingleTab(true)
 , bTabsOnBottom(false)
 , bHideTabIcons(false)
 , bShowScrollbars(true)
@@ -547,18 +547,14 @@ ControlsSettings::ControlsSettings()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+bool ControlsSettings2::Load(const CComPtr<IXMLDOMElement>& pCtrlsElement)
 {
-	CComPtr<IXMLDOMElement>	pCtrlsElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
-
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_searchbar"), bShowSearchbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_statusbar"), bShowStatusbar, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_tabs"), bShowTabs, true);
-	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, false);
+	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_single_tab"), bHideSingleTab, true);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"tabs_on_bottom"), bTabsOnBottom, false);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"hide_tab_icons"), bHideTabIcons, false);
 	XmlHelper::GetAttribute(pCtrlsElement, CComBSTR(L"show_scrollbars"), bShowScrollbars, true);
@@ -572,12 +568,8 @@ bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+bool ControlsSettings2::Save(const CComPtr<IXMLDOMElement>& pCtrlsElement)
 {
-	CComPtr<IXMLDOMElement>	pCtrlsElement;
-
-	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement))) return false;
-
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_menu"), bShowMenu);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_toolbar"), bShowToolbar);
 	XmlHelper::SetAttribute(pCtrlsElement, CComBSTR(L"show_searchbar"), bShowSearchbar);
@@ -597,7 +589,7 @@ bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 
 //////////////////////////////////////////////////////////////////////////////
 
-ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
+ControlsSettings2& ControlsSettings2::operator=(const ControlsSettings2& other)
 {
 	bShowMenu		= other.bShowMenu;
 	bShowToolbar	= other.bShowToolbar;
@@ -609,6 +601,86 @@ ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
 	bHideTabIcons	= other.bHideTabIcons;
 	bShowScrollbars	= other.bShowScrollbars;
 	bFlatScrollbars	= other.bFlatScrollbars;
+
+	return *this;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+ControlsSettings::ControlsSettings()
+: bIsFullScreen(false)
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ControlsSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	CComPtr<IXMLDOMElement>	pAppearanceElement;
+	if (FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance"), pAppearanceElement))) return false;
+
+	// FULLSCREEN
+	{
+		CComPtr<IXMLDOMElement>	pFullScreenElement;
+		CComPtr<IXMLDOMElement>	pCtrlsElement;
+		if (FAILED(XmlHelper::AddDomElementIfNotExist(pAppearanceElement, CComBSTR(L"fullscreen"), pFullScreenElement))) return false;
+		if (FAILED(XmlHelper::AddDomElementIfNotExist(pFullScreenElement, CComBSTR(L"controls"), pCtrlsElement))) return false;
+
+		if( !controlsFullScreen.Load(pCtrlsElement) ) return false;
+	}
+
+	// WINDOWED
+	{
+		CComPtr<IXMLDOMElement>	pCtrlsElement;
+		if (FAILED(XmlHelper::AddDomElementIfNotExist(pAppearanceElement, CComBSTR(L"controls"), pCtrlsElement))) return false;
+
+		if( !controlsWindowed.Load(pCtrlsElement) ) return false;
+	}
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool ControlsSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
+{
+	// FULLSCREEN
+	{
+		CComPtr<IXMLDOMElement>	pCtrlsElement;
+		if( FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/fullscreen/controls"), pCtrlsElement)) ) return false;
+
+		if( !controlsFullScreen.Save(pCtrlsElement) ) return false;
+	}
+
+	// WINDOWED
+	{
+		CComPtr<IXMLDOMElement>	pCtrlsElement;
+		if( FAILED(XmlHelper::GetDomElement(pSettingsRoot, CComBSTR(L"appearance/controls"), pCtrlsElement)) ) return false;
+
+		if( !controlsWindowed.Save(pCtrlsElement) ) return false;
+	}
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+ControlsSettings& ControlsSettings::operator=(const ControlsSettings& other)
+{
+	controlsFullScreen = other.controlsFullScreen;
+	controlsWindowed   = other.controlsWindowed;
 
 	return *this;
 }

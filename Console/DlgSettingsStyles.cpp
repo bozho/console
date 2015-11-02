@@ -191,16 +191,16 @@ LRESULT DlgSettingsStyles::OnClickedHiColor(WORD /*wNotifyCode*/, WORD /*wID*/, 
 
 void DlgSettingsStyles::EnableTabControls()
 {
-	GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow(m_controlsSettings.bShowTabs);
-	GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow(m_controlsSettings.bShowTabs);
-	GetDlgItem(IDC_CHECK_HIDE_TAB_ICONS).EnableWindow(m_controlsSettings.bShowTabs);
+	GetDlgItem(IDC_CHECK_HIDE_SINGLE_TAB).EnableWindow(m_controlsSettings.ShowTabs());
+	GetDlgItem(IDC_CHECK_TABS_ON_BOTTOM).EnableWindow(m_controlsSettings.ShowTabs());
+	GetDlgItem(IDC_CHECK_HIDE_TAB_ICONS).EnableWindow(m_controlsSettings.ShowTabs());
 }
 
 void DlgSettingsStyles::EnableScrollbarControls()
 {
 	GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow(FALSE);
 
-	if (m_controlsSettings.bShowScrollbars)
+	if (m_controlsSettings.ShowScrollbars())
 	{
 		GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow();
 	}
@@ -212,6 +212,26 @@ void DlgSettingsStyles::EnableQuakeControls()
 	GetDlgItem(IDC_STATIC_QUAKE_2).EnableWindow(m_stylesSettings.bQuake);
 	GetDlgItem(IDC_QUAKE_ANIMATION_TIME).EnableWindow(m_stylesSettings.bQuake);
 	GetDlgItem(IDC_SPIN_QUAKE_ANIMATION_TIME).EnableWindow(m_stylesSettings.bQuake);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+LRESULT DlgSettingsStyles::OnClickedControlsFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	// save FULLSCREEN or WINDOWED settings
+	DoDataExchange(DDX_SAVE);
+
+	// switch FULLSCREEN <-> WINDOWED
+	m_controlsSettings.bIsFullScreen = !m_controlsSettings.bIsFullScreen;
+
+	DoDataExchange(DDX_LOAD);
+	EnableTabControls();
+	EnableScrollbarControls();
+
+	return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////

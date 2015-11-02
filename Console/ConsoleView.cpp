@@ -2062,12 +2062,12 @@ void ConsoleView::InitializeScrollbars()
 {
 	SharedMemory<ConsoleParams>& consoleParams = m_consoleHandler.GetConsoleParams();
 
-	m_bShowVScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows);
-	m_bShowHScroll = m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
+	m_bShowVScroll = m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferRows > consoleParams->dwRows);
+	m_bShowHScroll = m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
 
 //	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
 
-	if (m_appearanceSettings.controlsSettings.bFlatScrollbars)
+	if (m_appearanceSettings.controlsSettings.FlatScrollbars())
 	{
 		::InitializeFlatSB(m_hWnd);
 		::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, FSB_ENCARTA_MODE, TRUE);
@@ -2086,7 +2086,7 @@ void ConsoleView::InitializeScrollbars()
 	TRACE(L"----------------------------------------------------------------\n");
 */
 
-	if (m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferRows > consoleParams->dwRows))
+	if (m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferRows > consoleParams->dwRows))
 	{
 		m_dwVScrollMax = max(m_dwVScrollMax, consoleParams->dwRows - 1);
 
@@ -2103,7 +2103,7 @@ void ConsoleView::InitializeScrollbars()
 		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
 	}
 
-	if (m_appearanceSettings.controlsSettings.bShowScrollbars && (consoleParams->dwBufferColumns > consoleParams->dwColumns))
+	if (m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferColumns > consoleParams->dwColumns))
 	{
 		// set horizontal scrollbar stuff
 		SCROLLINFO	si ;

@@ -305,6 +305,7 @@
 #define IDC_ENV_VALUE                   1231
 #define IDC_CHECK_HIDE_WHEN_INACTIVE    1232
 #define IDC_CHECK_LIGATURE              1233
+#define IDC_CHECK_CONTROLS_FULLSCREEN   1234
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100

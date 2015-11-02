@@ -21,15 +21,16 @@ class DlgSettingsStyles
 		DlgSettingsStyles(CComPtr<IXMLDOMElement>& pOptionsRoot);
 
 		BEGIN_DDX_MAP(DlgSettingsStyles)
-			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_controlsSettings.bShowMenu)
-			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_controlsSettings.bShowToolbar)
-			DDX_CHECK(IDC_CHECK_SHOW_SEARCH_BAR, m_controlsSettings.bShowSearchbar)
-			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_controlsSettings.bShowStatusbar)
-			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_controlsSettings.bShowTabs)
-			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_controlsSettings.bHideSingleTab)
-			DDX_CHECK(IDC_CHECK_TABS_ON_BOTTOM, m_controlsSettings.bTabsOnBottom)
-			DDX_CHECK(IDC_CHECK_SHOW_SCROLLBARS, m_controlsSettings.bShowScrollbars)
-			DDX_CHECK(IDC_CHECK_FLAT_SCROLLBARS, m_controlsSettings.bFlatScrollbars)
+			DDX_CHECK(IDC_CHECK_SHOW_MENU, m_controlsSettings.ShowMenu())
+			DDX_CHECK(IDC_CHECK_SHOW_TOOLBAR, m_controlsSettings.ShowToolbar())
+			DDX_CHECK(IDC_CHECK_SHOW_SEARCH_BAR, m_controlsSettings.ShowSearchbar())
+			DDX_CHECK(IDC_CHECK_SHOW_STATUS, m_controlsSettings.ShowStatusbar())
+			DDX_CHECK(IDC_CHECK_SHOW_TABS, m_controlsSettings.ShowTabs())
+			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_controlsSettings.HideSingleTab())
+			DDX_CHECK(IDC_CHECK_TABS_ON_BOTTOM, m_controlsSettings.TabsOnBottom())
+			DDX_CHECK(IDC_CHECK_SHOW_SCROLLBARS, m_controlsSettings.ShowScrollbars())
+			DDX_CHECK(IDC_CHECK_FLAT_SCROLLBARS, m_controlsSettings.FlatScrollbars())
+			DDX_CHECK(IDC_CHECK_HIDE_TAB_ICONS, m_controlsSettings.HideTabIcons())
 			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_stylesSettings.bCaption)
 			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_stylesSettings.bResizable)
 			DDX_CHECK(IDC_CHECK_STYLE_BORDER, m_stylesSettings.bBorder)
@@ -41,7 +42,6 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_HIDE_WHEN_INACTIVE, m_stylesSettings.bHideWhenInactive)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_UINT(IDC_QUAKE_ANIMATION_TIME, m_stylesSettings.dwQuakeAnimationTime)
-			DDX_CHECK(IDC_CHECK_HIDE_TAB_ICONS, m_controlsSettings.bHideTabIcons)
 		END_DDX_MAP()
 
 		BEGIN_MSG_MAP(DlgSettingsStyles)
@@ -54,6 +54,7 @@ class DlgSettingsStyles
 			COMMAND_HANDLER(IDC_CHECK_STYLE_QUAKE, BN_CLICKED, OnClickedQuake)
 			COMMAND_HANDLER(IDC_SELECTION_COLOR, BN_CLICKED, OnClickedSelColor)
 			COMMAND_HANDLER(IDC_HIGHLIGHT_COLOR, BN_CLICKED, OnClickedHiColor)
+			COMMAND_HANDLER(IDC_CHECK_CONTROLS_FULLSCREEN, BN_CLICKED, OnClickedControlsFullScreen)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -70,6 +71,7 @@ class DlgSettingsStyles
 		LRESULT OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedSelColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedHiColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
+		LRESULT OnClickedControlsFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 	private:
 

@@ -29,7 +29,6 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_HIDE_SINGLE_TAB, m_controlsSettings.HideSingleTab())
 			DDX_CHECK(IDC_CHECK_TABS_ON_BOTTOM, m_controlsSettings.TabsOnBottom())
 			DDX_CHECK(IDC_CHECK_SHOW_SCROLLBARS, m_controlsSettings.ShowScrollbars())
-			DDX_CHECK(IDC_CHECK_FLAT_SCROLLBARS, m_controlsSettings.FlatScrollbars())
 			DDX_CHECK(IDC_CHECK_HIDE_TAB_ICONS, m_controlsSettings.HideTabIcons())
 			DDX_CHECK(IDC_CHECK_STYLE_CAPTION, m_stylesSettings.bCaption)
 			DDX_CHECK(IDC_CHECK_STYLE_RESIZABLE, m_stylesSettings.bResizable)
@@ -50,7 +49,6 @@ class DlgSettingsStyles
 			COMMAND_ID_HANDLER(IDOK, OnCloseCmd)
 			COMMAND_ID_HANDLER(IDCANCEL, OnCloseCmd)
 			COMMAND_HANDLER(IDC_CHECK_SHOW_TABS, BN_CLICKED, OnClickedShowTabs)
-			COMMAND_HANDLER(IDC_CHECK_SHOW_SCROLLBARS, BN_CLICKED, OnClickedShowScrollbars)
 			COMMAND_HANDLER(IDC_CHECK_STYLE_QUAKE, BN_CLICKED, OnClickedQuake)
 			COMMAND_HANDLER(IDC_SELECTION_COLOR, BN_CLICKED, OnClickedSelColor)
 			COMMAND_HANDLER(IDC_HIGHLIGHT_COLOR, BN_CLICKED, OnClickedHiColor)
@@ -67,7 +65,6 @@ class DlgSettingsStyles
 
 		LRESULT OnCloseCmd(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnClickedShowTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
-		LRESULT OnClickedShowScrollbars(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedSelColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedHiColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
@@ -76,7 +73,6 @@ class DlgSettingsStyles
 	private:
 
 		void EnableTabControls();
-		void EnableScrollbarControls();
 		void EnableQuakeControls();
 
 	private:

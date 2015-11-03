@@ -1243,7 +1243,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		si.nPos   = consoleInfo->csbi.srWindow.Top;
 		si.nMax   = m_dwVScrollMax;
 		si.nMin   = 0;
-		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+		SetScrollInfo(SB_VERT, &si, TRUE);
 
 /*
 		TRACE(L"----------------------------------------------------------------\n");
@@ -1257,7 +1257,7 @@ LRESULT ConsoleView::OnUpdateConsoleView(UINT /*uMsg*/, WPARAM wParam, LPARAM /*
 		si.cbSize = sizeof(si); 
 		si.fMask  = SIF_POS | SIF_DISABLENOSCROLL;
 		si.nPos   = consoleInfo->csbi.srWindow.Left; 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
+		SetScrollInfo(SB_HORZ, &si, TRUE);
 	}
 
 	if ((m_selectionHandler->GetState() == SelectionHandler::selstateStartedSelecting) ||
@@ -2065,20 +2065,8 @@ void ConsoleView::InitializeScrollbars()
 	m_bShowVScroll = m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferRows > consoleParams->dwRows);
 	m_bShowHScroll = m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferColumns > consoleParams->dwColumns);
 
-//	if (m_nScrollbarStyle != FSB_REGULAR_MODE)
-
-	if (m_appearanceSettings.controlsSettings.FlatScrollbars())
-	{
-		::InitializeFlatSB(m_hWnd);
-		::FlatSB_SetScrollProp(m_hWnd, WSB_PROP_VSTYLE, FSB_ENCARTA_MODE, TRUE);
-	}
-	else
-	{
-		::UninitializeFlatSB(m_hWnd);
-	}
-
-	::FlatSB_ShowScrollBar(m_hWnd, SB_VERT, m_bShowVScroll);
-	::FlatSB_ShowScrollBar(m_hWnd, SB_HORZ, m_bShowHScroll);
+	ShowScrollBar(SB_VERT, m_bShowVScroll);
+	ShowScrollBar(SB_HORZ, m_bShowHScroll);
 
 /*
 	TRACE(L"InitializeScrollbars, console wnd: 0x%08X\n", m_hWnd);
@@ -2100,7 +2088,7 @@ void ConsoleView::InitializeScrollbars()
 		si.nMin		= 0 ;
 		si.nPos		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Top;
 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_VERT, &si, TRUE);
+		SetScrollInfo(SB_VERT, &si, TRUE);
 	}
 
 	if (m_appearanceSettings.controlsSettings.ShowScrollbars() && (consoleParams->dwBufferColumns > consoleParams->dwColumns))
@@ -2115,7 +2103,7 @@ void ConsoleView::InitializeScrollbars()
 		si.nMin		= 0 ;
 		si.nPos		= m_consoleHandler.GetConsoleInfo()->csbi.srWindow.Left;
 
-		::FlatSB_SetScrollInfo(m_hWnd, SB_HORZ, &si, TRUE);
+		SetScrollInfo(SB_HORZ, &si, TRUE);
 	}
 }
 

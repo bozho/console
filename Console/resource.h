@@ -150,7 +150,6 @@
 #define IDC_CHECK_STYLE_TRAY            1093
 #define IDC_POS_Y                       1094
 #define IDC_CHECK_SHOW_SCROLLBARS       1094
-#define IDC_CHECK_FLAT_SCROLLBARS       1095
 #define IDC_CHECK_STYLE_QUAKE           1096
 #define IDC_CHECK_USE_JUMPLIST          1097
 #define IDC_CHECK_RTF                   1098

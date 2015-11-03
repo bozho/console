@@ -49,7 +49,6 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	spin.Detach();
 
 	EnableTabControls();
-	EnableScrollbarControls();
 	EnableQuakeControls();
 
 	DoDataExchange(DDX_LOAD);
@@ -127,13 +126,6 @@ LRESULT DlgSettingsStyles::OnClickedShowTabs(WORD /*wNotifyCode*/, WORD /*wID*/,
 	return 0;
 }
 
-LRESULT DlgSettingsStyles::OnClickedShowScrollbars(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
-{
-	DoDataExchange(DDX_SAVE);
-	EnableScrollbarControls();
-	return 0;
-}
-
 LRESULT DlgSettingsStyles::OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	DoDataExchange(DDX_SAVE);
@@ -196,16 +188,6 @@ void DlgSettingsStyles::EnableTabControls()
 	GetDlgItem(IDC_CHECK_HIDE_TAB_ICONS).EnableWindow(m_controlsSettings.ShowTabs());
 }
 
-void DlgSettingsStyles::EnableScrollbarControls()
-{
-	GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow(FALSE);
-
-	if (m_controlsSettings.ShowScrollbars())
-	{
-		GetDlgItem(IDC_CHECK_FLAT_SCROLLBARS).EnableWindow();
-	}
-}
-
 void DlgSettingsStyles::EnableQuakeControls()
 {
 	GetDlgItem(IDC_STATIC_QUAKE_1).EnableWindow(m_stylesSettings.bQuake);
@@ -229,7 +211,6 @@ LRESULT DlgSettingsStyles::OnClickedControlsFullScreen(WORD /*wNotifyCode*/, WOR
 
 	DoDataExchange(DDX_LOAD);
 	EnableTabControls();
-	EnableScrollbarControls();
 
 	return 0;
 }

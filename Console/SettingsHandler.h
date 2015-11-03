@@ -181,7 +181,6 @@ struct ControlsSettings2
 	bool			bTabsOnBottom;
 	bool			bHideTabIcons;
 	bool			bShowScrollbars;
-	bool			bFlatScrollbars;
 };
 
 struct ControlsSettings
@@ -203,7 +202,6 @@ struct ControlsSettings
 	inline bool& TabsOnBottom  (void) { return bIsFullScreen? controlsFullScreen.bTabsOnBottom   : controlsWindowed.bTabsOnBottom   ; }
 	inline bool& HideTabIcons  (void) { return bIsFullScreen? controlsFullScreen.bHideTabIcons   : controlsWindowed.bHideTabIcons   ; }
 	inline bool& ShowScrollbars(void) { return bIsFullScreen? controlsFullScreen.bShowScrollbars : controlsWindowed.bShowScrollbars ; }
-	inline bool& FlatScrollbars(void) { return bIsFullScreen? controlsFullScreen.bFlatScrollbars : controlsWindowed.bFlatScrollbars ; }
 
 	ControlsSettings2 controlsFullScreen;
 	ControlsSettings2 controlsWindowed;

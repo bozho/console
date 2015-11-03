@@ -2712,11 +2712,8 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
 	{
 		m_bMenuChecked = !m_bMenuChecked;
 		ShowMenu(m_bMenuChecked);
-		if( !m_bFullScreen )
-		{
-			g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowMenu() = m_bMenuChecked;
-			g_settingsHandler->SaveSettings();
-		}
+		g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowMenu() = m_bMenuChecked;
+		g_settingsHandler->SaveSettings();
 	}
   return 0;
 }
@@ -2729,11 +2726,9 @@ LRESULT MainFrame::OnViewMenu(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, 
 LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   ShowToolbar(!m_bToolbarVisible);
-  if( !m_bFullScreen )
-  {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowToolbar() = m_bToolbarVisible;
-    g_settingsHandler->SaveSettings();
-  }
+  g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowToolbar() = m_bToolbarVisible;
+  g_settingsHandler->SaveSettings();
+
   return 0;
 }
 
@@ -2745,11 +2740,9 @@ LRESULT MainFrame::OnViewToolBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWnd
 LRESULT MainFrame::OnViewSearchBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   ShowSearchBar(!m_bSearchBarVisible);
-  if( !m_bFullScreen )
-  {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowSearchbar() = m_bSearchBarVisible;
-    g_settingsHandler->SaveSettings();
-  }
+  g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowSearchbar() = m_bSearchBarVisible;
+  g_settingsHandler->SaveSettings();
+
   return 0;
 }
 
@@ -2761,11 +2754,9 @@ LRESULT MainFrame::OnViewSearchBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   ShowStatusbar(!m_bStatusBarVisible);
-  if( !m_bFullScreen )
-  {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowStatusbar() = m_bStatusBarVisible;
-    g_settingsHandler->SaveSettings();
-  }
+  g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowStatusbar() = m_bStatusBarVisible;
+  g_settingsHandler->SaveSettings();
+
   return 0;
 }
 
@@ -2777,11 +2768,9 @@ LRESULT MainFrame::OnViewStatusBar(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hW
 LRESULT MainFrame::OnViewTabs(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   ShowTabs(!m_bTabsVisible);
-  if( !m_bFullScreen )
-  {
-    g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowTabs() = m_bTabsVisible;
-    g_settingsHandler->SaveSettings();
-  }
+  g_settingsHandler->GetAppearanceSettings().controlsSettings.ShowTabs() = m_bTabsVisible;
+  g_settingsHandler->SaveSettings();
+
   return 0;
 }
 

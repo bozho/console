@@ -52,7 +52,7 @@ class DlgSettingsStyles
 			COMMAND_HANDLER(IDC_CHECK_STYLE_QUAKE, BN_CLICKED, OnClickedQuake)
 			COMMAND_HANDLER(IDC_SELECTION_COLOR, BN_CLICKED, OnClickedSelColor)
 			COMMAND_HANDLER(IDC_HIGHLIGHT_COLOR, BN_CLICKED, OnClickedHiColor)
-			COMMAND_HANDLER(IDC_CHECK_CONTROLS_FULLSCREEN, BN_CLICKED, OnClickedControlsFullScreen)
+			NOTIFY_CODE_HANDLER(TCN_SELCHANGE, OnTabItemChanged)
 		END_MSG_MAP()
 
 // Handler prototypes (uncomment arguments if needed):
@@ -68,7 +68,7 @@ class DlgSettingsStyles
 		LRESULT OnClickedQuake(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedSelColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
 		LRESULT OnClickedHiColor(WORD /*wNotifyCode*/, WORD /*wID*/, HWND hWndCtl, BOOL& /*bHandled*/);
-		LRESULT OnClickedControlsFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnTabItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/);
 
 	private:
 
@@ -76,6 +76,8 @@ class DlgSettingsStyles
 		void EnableQuakeControls();
 
 	private:
+
+		CTabCtrl              m_tabCtrl;
 
 		ControlsSettings			m_controlsSettings;
 		StylesSettings				m_stylesSettings;

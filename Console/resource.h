@@ -150,6 +150,7 @@
 #define IDC_CHECK_STYLE_TRAY            1093
 #define IDC_POS_Y                       1094
 #define IDC_CHECK_SHOW_SCROLLBARS       1094
+#define IDC_TABS_CONTROLS               1095
 #define IDC_CHECK_STYLE_QUAKE           1096
 #define IDC_CHECK_USE_JUMPLIST          1097
 #define IDC_CHECK_RTF                   1098
@@ -304,7 +305,6 @@
 #define IDC_ENV_VALUE                   1231
 #define IDC_CHECK_HIDE_WHEN_INACTIVE    1232
 #define IDC_CHECK_LIGATURE              1233
-#define IDC_CHECK_CONTROLS_FULLSCREEN   1234
 
 #define ID_NEW_TAB_1                    2000
 #define ID_SWITCH_TAB_1                 2100
@@ -496,6 +496,7 @@
 #define IDS_SETTINGS_HOTKEY             8018
 #define IDS_SETTINGS_VARIABLE           8019
 #define IDS_SETTINGS_VALUE              8020
+#define IDS_SETTINGS_WINDOWED           8021
 
 #define MSG_SETTINGS_INVALID_BUFFER_ROWS 10000
 #define MSG_SETTINGS_INVALID_BUFFER_COLUMNS 10001

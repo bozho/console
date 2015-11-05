@@ -48,6 +48,11 @@ LRESULT DlgSettingsStyles::OnInitDialog(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM
 	spin.SetAccel(1, &udAccel);
 	spin.Detach();
 
+	m_tabCtrl.Attach(GetDlgItem(IDC_TABS_CONTROLS));
+
+	m_tabCtrl.InsertItem(0, Helpers::LoadStringW(IDS_SETTINGS_WINDOWED).c_str());
+	m_tabCtrl.InsertItem(1, Helpers::LoadStringW(IDS_SETTINGS_FULLSCREEN).c_str());
+
 	EnableTabControls();
 	EnableQuakeControls();
 
@@ -201,13 +206,13 @@ void DlgSettingsStyles::EnableQuakeControls()
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT DlgSettingsStyles::OnClickedControlsFullScreen(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+LRESULT DlgSettingsStyles::OnTabItemChanged(int /*idCtrl*/, LPNMHDR /*pnmh*/, BOOL& /*bHandled*/)
 {
 	// save FULLSCREEN or WINDOWED settings
 	DoDataExchange(DDX_SAVE);
 
 	// switch FULLSCREEN <-> WINDOWED
-	m_controlsSettings.bIsFullScreen = !m_controlsSettings.bIsFullScreen;
+	m_controlsSettings.bIsFullScreen = m_tabCtrl.GetCurSel() == 1;
 
 	DoDataExchange(DDX_LOAD);
 	EnableTabControls();

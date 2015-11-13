@@ -3079,6 +3079,16 @@ LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 					FILE_ATTRIBUTE_NORMAL,
 					NULL));
 
+			Helpers::WriteLine(file.get(), std::wstring(L"System dpi ") + std::to_wstring(::GetDeviceCaps(GetDC(), LOGPIXELSY)));
+			Helpers::WriteLine(file.get(), std::wstring(L"System metrics"));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CXSMICON        ") + std::to_wstring(::GetSystemMetrics(SM_CXSMICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYSMICON        ") + std::to_wstring(::GetSystemMetrics(SM_CYSMICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CXICON          ") + std::to_wstring(::GetSystemMetrics(SM_CXICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYICON          ") + std::to_wstring(::GetSystemMetrics(SM_CYICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CXVIRTUALSCREEN ") + std::to_wstring(::GetSystemMetrics(SM_CXVIRTUALSCREEN)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYVIRTUALSCREEN ") + std::to_wstring(::GetSystemMetrics(SM_CYVIRTUALSCREEN)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYVIRTUALSCREEN ") + std::to_wstring(::GetSystemMetrics(SM_CYVIRTUALSCREEN)));
+
 			if(fileSettings.get() == INVALID_HANDLE_VALUE)
 			{
 				if(GetLastError() == ERROR_FILE_NOT_FOUND)
@@ -4049,7 +4059,7 @@ BOOL CALLBACK MainFrame::MonitorEnumProcDiag(HMONITOR hMonitor, HDC /*hdcMonitor
 
 	Helpers::WriteLine(
 		reinterpret_cast<HANDLE>(lpData),
-		std::wstring(L"  Flags ") + std::to_wstring(miex.dwFlags)
+		std::wstring(L"+ Flags ") + std::to_wstring(miex.dwFlags)
 		+ std::wstring(((miex.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY)? L"  primary" : L""));
 
 	DISPLAY_DEVICE dd;
@@ -4093,6 +4103,25 @@ BOOL CALLBACK MainFrame::MonitorEnumProcDiag(HMONITOR hMonitor, HDC /*hdcMonitor
 			% miex.rcWork.top
 			% miex.rcWork.right
 			% miex.rcWork.bottom));
+
+#ifndef _USING_V110_SDK71_
+	UINT dpiX; UINT dpiY;
+	if( Helpers::GetDpiForMonitor(hMonitor, MDT_DEFAULT, &dpiX, &dpiY) )
+	{
+		Helpers::WriteLine(
+			reinterpret_cast<HANDLE>(lpData),
+			boost::str(
+				boost::wformat(L"  DPI (per monitor: yes) X=%1% Y=%2%")
+				% dpiX
+				% dpiY));
+	}
+	else
+#endif
+	{
+		Helpers::WriteLine(
+			reinterpret_cast<HANDLE>(lpData),
+			std::wstring(L"  DPI (per monitor: no)"));
+	}
 
 	return TRUE;
 }

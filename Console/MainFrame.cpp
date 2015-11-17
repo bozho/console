@@ -669,6 +669,7 @@ LRESULT MainFrame::OnActivateApp(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 
 void MainFrame::ActivateApp(void)
 {
+	TRACE(L"ActivateApp (%s)\n", m_bAppActive? L"true" : L"false");
 	if (m_activeTabView)
 		m_activeTabView->SetAppActiveStatus(m_bAppActive);
 
@@ -720,6 +721,7 @@ void MainFrame::ShowHideWindow(ShowHideWindowAction action /*= ShowHideWindowAct
 {
 	if( action == ShowHideWindowAction::SHWA_DONOTHING ) return;
 
+	bool bOldAppActive = m_bAppActive;
 	m_bShowingHidingWindow = true;
 
 	bool bVisible = this->IsWindowVisible()? true : false;
@@ -860,6 +862,8 @@ void MainFrame::ShowHideWindow(ShowHideWindowAction action /*= ShowHideWindowAct
 			  bSwitch ? L"true" : L"false");
 
 	m_bShowingHidingWindow = false;
+	if( bOldAppActive != m_bAppActive )
+		this->ActivateApp();
 }
 
 LRESULT MainFrame::OnHotKey(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/)

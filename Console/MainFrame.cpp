@@ -2332,6 +2332,27 @@ LRESULT MainFrame::OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOO
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnSwap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	MutexLock viewMapLock(m_tabsMutex);
+
+	if( m_activeTabView )
+	{
+		if( m_activeTabView->SwapWithPreviousFocusPane() )
+		{
+			CRect clientRect(0, 0, 0, 0);
+			m_activeTabView->AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
+		}
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
 	if( !m_activeTabView ) return 0;

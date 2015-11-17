@@ -227,6 +227,7 @@ class MainFrame
 			COMMAND_ID_HANDLER(ID_SEND_CTRL_C,             OnSendCtrlEvent)
 			COMMAND_ID_HANDLER(ID_FONT_INFO,               OnFontInfo)
 			COMMAND_ID_HANDLER(ID_DIAGNOSE,                OnDiagnose)
+			COMMAND_ID_HANDLER(ID_SPLIT_SWAP,              OnSwap)
 
 			COMMAND_RANGE_HANDLER(ID_EXTERNAL_COMMAND_1, (ID_EXTERNAL_COMMAND_1 + EXTERNAL_COMMANDS_COUNT - 1), OnExternalCommand)
 
@@ -293,6 +294,7 @@ class MainFrame
 		LRESULT OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloseView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnSplit(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnSwap(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnCloneInNewTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnGroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnUngroupAll(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

@@ -418,6 +418,30 @@ namespace WTL
 			}
 		}
 
+		bool contains(CMultiSplitPane* pane)
+		{
+			if( this == pane )
+				return true;
+
+			if( this->pane0 )
+				return this->pane0->contains(pane) || this->pane1->contains(pane);
+			else
+				return false;
+		}
+
+		void swap(CMultiSplitPane* pane)
+		{
+			// exchange only panes with a window
+			if( this->window == nullptr || pane->window == nullptr ) return;
+
+			HWND _window = this->window;
+			this->window = pane->window;
+			pane->window = _window;
+
+			this->updateLayout();
+			pane->updateLayout();
+		}
+
 		CMultiSplitPane* get(WHERE position)
 		{
 			POINT point;
@@ -593,23 +617,25 @@ namespace WTL
 	class CMultiSplitImpl
 	{
 	public :
-		CRect visibleRect;                // visible area defined by parent
+		CRect visibleRect;                 // visible area defined by parent
 		CMultiSplitPane tree;
-		CMultiSplitPane* defaultFocusPane;// pane to focus when splitter gets focus
-		CMultiSplitPane* resizingPane;    // pane with splitbar moving
-		int              resizingDelta;   // splitbar delta move
-		int              resizingDelta0;  // splitbar delta on click
-		bool drawContentWhileResizing;    // resize content while moving splitter bar (system setting)
-		int edgeWidth, edgeHeight;        // edge width/height (system setting)
-		static HCURSOR vertCursor;        // cursor to display on vertical splitter bar
-		static HCURSOR horzCursor;        // cursor to display on horizontal splitter bar
+		CMultiSplitPane* defaultFocusPane; // pane to focus when splitter gets focus
+		CMultiSplitPane* previousFocusPane;// pane to focus when splitter gets focus
+		CMultiSplitPane* resizingPane;     // pane with splitbar moving
+		int              resizingDelta;    // splitbar delta move
+		int              resizingDelta0;   // splitbar delta on click
+		bool drawContentWhileResizing;     // resize content while moving splitter bar (system setting)
+		int edgeWidth, edgeHeight;         // edge width/height (system setting)
+		static HCURSOR vertCursor;         // cursor to display on vertical splitter bar
+		static HCURSOR horzCursor;         // cursor to display on horizontal splitter bar
 
 		// Constructor
 
 		CMultiSplitImpl (void)
 			:
 			defaultFocusPane (&this->tree),
-			resizingPane (0),
+			previousFocusPane (nullptr),
+			resizingPane (nullptr),
 			resizingDelta (0),
 			resizingDelta0 (0),
 			drawContentWhileResizing (true),
@@ -923,11 +949,49 @@ namespace WTL
 		void SetDefaultFocusPane(CMultiSplitPane* newDefaultPane, bool bAppActive = true)
 		{
 			bool boolNotify = newDefaultPane != this->defaultFocusPane;
+
+			if( boolNotify )
+			{
+				// if defaultFocusPane is not a window
+				// then defaultFocusPane has been split
+				// pane0 is used as new previousFocusPane
+				if( this->defaultFocusPane->pane0 )
+					this->previousFocusPane = this->defaultFocusPane->pane0;
+				else
+					this->previousFocusPane = this->defaultFocusPane;
+			}
+
 			this->defaultFocusPane = newDefaultPane;
 			if( bAppActive && newDefaultPane && ::IsWindow(newDefaultPane->window) )
 				::SetFocus(newDefaultPane->window);
+
 			if( boolNotify )
 				this->OnPaneChanged();
+
+#if 0
+			this->tree.dump(0, nullptr);
+			ATLTRACE(L"defaultFocusPane=%p\n", defaultFocusPane);
+			ATLTRACE(L"previousFocusPane=%p\n", previousFocusPane);
+#endif
+		}
+
+		bool SwapWithPreviousFocusPane()
+		{
+			if( this->defaultFocusPane &&
+			    this->previousFocusPane &&
+			    this->defaultFocusPane != this->previousFocusPane &&
+			    this->tree.contains(this->defaultFocusPane) &&        // exchange only panes contained in the tree
+			    this->tree.contains(this->previousFocusPane) &&
+			    this->defaultFocusPane->window &&                     // exchange only panes with a window
+			    this->previousFocusPane->window )
+			{
+				this->defaultFocusPane->swap(this->previousFocusPane);
+				SetDefaultFocusPane(this->previousFocusPane);
+
+				return true;
+			}
+
+			return false;
 		}
 
 		virtual void OnPaneChanged(void)

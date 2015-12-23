@@ -2236,6 +2236,31 @@ LRESULT MainFrame::OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 
 //////////////////////////////////////////////////////////////////////////////
 
+LRESULT MainFrame::OnMoveTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
+{
+	int nCurSel = m_TabCtrl.GetCurSel();
+
+	switch( wID )
+	{
+	case ID_MOVE_TAB_LEFT:
+		if( nCurSel > 0 )
+			m_TabCtrl.MoveItem(nCurSel, nCurSel - 1);
+		break;
+
+	case ID_MOVE_TAB_RIGHT:
+		if( nCurSel < (m_TabCtrl.GetItemCount() - 1) )
+			m_TabCtrl.MoveItem(nCurSel, nCurSel + 1);
+		break;
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 LRESULT MainFrame::OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
   if( m_activeTabView )

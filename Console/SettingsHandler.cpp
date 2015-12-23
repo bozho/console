@@ -1788,6 +1788,8 @@ HotKeys::HotKeys()
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"nexttab",            ID_NEXT_TAB,             IDS_NEXT_TAB            )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"prevtab",            ID_PREV_TAB,             IDS_PREV_TAB            )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"movetableft",        ID_MOVE_TAB_LEFT,        IDS_MOVE_TAB_LEFT       )));
+	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"movetabright",       ID_MOVE_TAB_RIGHT,       IDS_MOVE_TAB_RIGHT      )));
 
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"closetab",           ID_FILE_CLOSE_TAB,       IDS_FILE_CLOSE_TAB      )));
 	commands.push_back(std::shared_ptr<CommandData>(new CommandData(L"renametab",          ID_EDIT_RENAME_TAB,      IDS_EDIT_RENAME_TAB     )));

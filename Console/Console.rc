@@ -952,6 +952,8 @@ BEGIN
 
     IDS_NEXT_TAB             "Switch to next tab"
     IDS_PREV_TAB             "Switch to previous tab"
+    IDS_MOVE_TAB_LEFT        "Move tab in focus left"
+    IDS_MOVE_TAB_RIGHT       "Move tab in focus right"
 
     IDS_FILE_CLOSE_TAB       "Close tab"
     IDS_EDIT_RENAME_TAB      "Rename tab"

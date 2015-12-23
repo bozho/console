@@ -162,6 +162,9 @@ class MainFrame
 			COMMAND_RANGE_HANDLER(ID_SWITCH_TAB_1, ID_SWITCH_TAB_1 + 9, OnSwitchTab)
 			COMMAND_ID_HANDLER(ID_NEXT_TAB, OnNextTab)
 			COMMAND_ID_HANDLER(ID_PREV_TAB, OnPrevTab)
+			COMMAND_ID_HANDLER(ID_MOVE_TAB_LEFT,  OnMoveTab)
+			COMMAND_ID_HANDLER(ID_MOVE_TAB_RIGHT, OnMoveTab)
+
 			COMMAND_ID_HANDLER(ID_NEXT_VIEW   , OnSwitchView)
 			COMMAND_ID_HANDLER(ID_PREV_VIEW   , OnSwitchView)
 			COMMAND_ID_HANDLER(ID_LEFT_VIEW   , OnSwitchView)
@@ -289,6 +292,7 @@ class MainFrame
 		LRESULT OnAttachConsoles(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnNextTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnPrevTab(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
+		LRESULT OnMoveTab(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 
 		LRESULT OnSwitchView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);
 		LRESULT OnResizeView(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL& /*bHandled*/);

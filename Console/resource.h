@@ -363,6 +363,8 @@
 #define ID_FONT_INFO                    2935
 #define ID_PASTE_SELECTION              2936
 #define ID_SPLIT_SWAP                   2937
+#define ID_MOVE_TAB_LEFT                2938
+#define ID_MOVE_TAB_RIGHT               2939
 
 #define IDC_DUMP_BUFFER                 3000
 
@@ -466,6 +468,8 @@
 #define IDS_GLOBAL_ACTIVATE             6086
 #define IDS_PASTE_SELECTION             6087
 #define IDS_SPLIT_SWAP                  6088
+#define IDS_MOVE_TAB_LEFT               6089
+#define IDS_MOVE_TAB_RIGHT              6090
 
 #define IDS_MOUSE_COPY                  7000
 #define IDS_MOUSE_SELECT                7001

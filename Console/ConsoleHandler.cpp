@@ -65,6 +65,7 @@ ConsoleHandler::~ConsoleHandler()
 			npmsg.type = NamedPipeMessage::DETACH;
 			try
 			{
+				CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 				m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 			}
 			catch(std::exception&) { }
@@ -1616,6 +1617,7 @@ void ConsoleHandler::PostMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 #ifdef _DEBUG
@@ -1640,6 +1642,7 @@ void ConsoleHandler::WriteConsoleInput(KEY_EVENT_RECORD* pkeyEvent)
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 #ifdef _DEBUG
@@ -1696,6 +1699,7 @@ void ConsoleHandler::SendMessage(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 		try
 		{
+			CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 			m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 		}
 #ifdef _DEBUG
@@ -1739,6 +1743,7 @@ void ConsoleHandler::SetWindowPos(int X, int Y, int cx, int cy, UINT uFlags)
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 #ifdef _DEBUG
@@ -1764,6 +1769,7 @@ void ConsoleHandler::ShowWindow(int nCmdShow)
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 #ifdef _DEBUG
@@ -1793,6 +1799,7 @@ void ConsoleHandler::SendTextToConsole(const wchar_t* pszText)
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 		m_consoleMsgPipe.Write(pszText, textLen * sizeof(wchar_t));
 	}
@@ -1816,6 +1823,7 @@ void ConsoleHandler::Clear()
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 	catch(std::exception&)
@@ -1830,6 +1838,7 @@ void ConsoleHandler::SendCtrlC()
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 	catch(std::exception&)
@@ -1844,6 +1853,7 @@ void ConsoleHandler::ReadConsoleBuffer()
 
 	try
 	{
+		CriticalSectionLock lock(m_consoleMsgPipeWriteLock);
 		m_consoleMsgPipe.Write(&npmsg, sizeof(npmsg));
 	}
 	catch(std::exception&)

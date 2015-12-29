@@ -220,6 +220,7 @@ class ConsoleHandler
     SharedMemory<MultipleInfo>        m_multipleInfo;
 
     NamedPipe                         m_consoleMsgPipe;
+    CriticalSection                   m_consoleMsgPipeWriteLock;
 
     std::shared_ptr<void>             m_hMonitorThread;
     std::shared_ptr<void>             m_hMonitorThreadExit;

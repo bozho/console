@@ -1855,7 +1855,7 @@ void ConsoleView::OnConsoleChange(bool bResize)
 	auto now3 = std::chrono::high_resolution_clock::now();
 
 	TRACE_PERF(
-		L"thd %lu delta=%%ld ns cpu1=%lld ns cpu2=%lld ns\n",
+		L"thd %lu delta=%lld ns cpu1=%lld ns cpu2=%lld ns\n",
 		::GetCurrentThreadId(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now1 - m_timePoint1).count(),
 		std::chrono::duration_cast<std::chrono::nanoseconds>(now2 - now1).count(),

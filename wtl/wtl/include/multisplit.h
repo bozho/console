@@ -951,15 +951,7 @@ namespace WTL
 			bool boolNotify = newDefaultPane != this->defaultFocusPane;
 
 			if( boolNotify )
-			{
-				// if defaultFocusPane is not a window
-				// then defaultFocusPane has been split
-				// pane0 is used as new previousFocusPane
-				if( this->defaultFocusPane->pane0 )
-					this->previousFocusPane = this->defaultFocusPane->pane0;
-				else
-					this->previousFocusPane = this->defaultFocusPane;
-			}
+				this->previousFocusPane = this->defaultFocusPane;
 
 			this->defaultFocusPane = newDefaultPane;
 			if( bAppActive && newDefaultPane && ::IsWindow(newDefaultPane->window) )
@@ -992,6 +984,44 @@ namespace WTL
 			}
 
 			return false;
+		}
+
+		bool Split(HWND windowPane1, CMultiSplitPane::SPLITTYPE splitType)
+		{
+			if( this->defaultFocusPane == nullptr )
+				return false;
+
+			CMultiSplitPane* pane1 = this->defaultFocusPane->split(
+				windowPane1,
+				splitType);
+
+			if( pane1 == nullptr )
+				return false;
+
+			// defaultFocusPane has been split
+			// pane0 must be used as new previousFocusPane
+			this->defaultFocusPane = this->defaultFocusPane->pane0;
+			this->SetDefaultFocusPane(pane1);
+
+			return true;
+		}
+
+		bool Remove()
+		{
+#ifdef _DEBUG
+			ATLTRACE(L"%p-TabView::CloseView tree\n", ::GetCurrentThreadId());
+			this->tree.dump(0, 0);
+			ATLTRACE(L"%p-TabView::CloseView defaultFocusPane\n", ::GetCurrentThreadId());
+			if( this->defaultFocusPane )
+				this->defaultFocusPane->dump(0, this->defaultFocusPane->parent);
+#endif
+
+			if( this->defaultFocusPane )
+				this->SetDefaultFocusPane(this->defaultFocusPane->remove());
+			else
+				return false;
+
+			return true;
 		}
 
 		virtual void OnPaneChanged(void)

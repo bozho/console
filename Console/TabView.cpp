@@ -493,9 +493,9 @@ void TabView::Split(CMultiSplitPane::SPLITTYPE splitType)
 		HWND hwndConsoleView = CreateNewConsole(&consoleViewCreate, strCurrentDirectory, wstring(L""), activeConsoleView->GetBasePriority());
 		if( hwndConsoleView )
 		{
-			multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->split(
+			multisplitClass::Split(
 				hwndConsoleView,
-				splitType));
+				splitType);
 
 			CRect clientRect(0, 0, 0, 0);
 			AdjustRectAndResize(ADJUSTSIZE_WINDOW, clientRect, WMSZ_BOTTOM);
@@ -529,18 +529,7 @@ bool TabView::CloseView(HWND hwnd, bool boolDetach, bool& boolTabClosed)
 			iter->second->DestroyWindow();
 			m_views.erase(iter);
 
-#ifdef _DEBUG
-			ATLTRACE(L"%p-TabView::CloseView tree\n",
-				::GetCurrentThreadId());
-			multisplitClass::tree.dump(0, 0);
-			ATLTRACE(L"%p-TabView::CloseView defaultFocusPane\n",
-				::GetCurrentThreadId());
-			if( multisplitClass::defaultFocusPane )
-				multisplitClass::defaultFocusPane->dump(0, multisplitClass::defaultFocusPane->parent);
-#endif
-
-			if( multisplitClass::defaultFocusPane )
-				multisplitClass::SetDefaultFocusPane(multisplitClass::defaultFocusPane->remove());
+			multisplitClass::Remove();
 
 			if( m_views.empty() )
 				boolTabClosed = true;

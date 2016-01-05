@@ -32,6 +32,18 @@ Changelog
     + added
     * fixed
 
+Changes in 1.16.0 experimental (05 jan 2016)
+
+    + Command-line switch to toggle window visibility.
+    + Select text/column with keyboard.
+    + Per-monitor DPI awareness.
+    + Arrange tabs using keyboard.
+    * Hide, when loosing focus, only if the new foreground window
+      is not owned by our application.
+    * Fix crash when screen buffer size is reduced.
+    * Fix dpi scaling of some GUI parts.
+    * Fix activation by hotkey.
+
 Changes in 1.15.0 (10 sep 2015)
 
     + Hide when loosing focus.

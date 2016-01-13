@@ -183,27 +183,12 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 		if (!strSyncName.empty())
 		{
-			wstring strWindowTitle;
-			vector<wstring> startupTabs;
-			vector<wstring> startupTabTitles;
-			vector<wstring> startupDirs;
-			vector<wstring> startupCmds;
-			vector<DWORD>   basePriorities;
-			int nMultiStartSleep = 0;
-			wstring strWorkingDir;
+			CommandLineOptions commandLineOptions;
 
 			MainFrame::ParseCommandLine
 			(
 				lpstrCmdLine,
-				strWindowTitle,
-				startupTabs,
-				startupTabTitles,
-				startupDirs,
-				startupCmds,
-				basePriorities,
-				nMultiStartSleep,
-				visibility,
-				strWorkingDir
+				commandLineOptions
 			);
 
 			TabSettings& tabSettings = g_settingsHandler->GetTabSettings();
@@ -211,17 +196,19 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 			// find tab with corresponding name...
 			for (auto tabData = tabSettings.tabDataVector.begin(); tabData != tabSettings.tabDataVector.end(); ++tabData)
 			{
-				if (tabData->get()->strTitle == startupTabs[0])
+				if (tabData->get()->strTitle == commandLineOptions.startupTabs[0])
 				{
-					wstring strInitialDir(g_settingsHandler->GetConsoleSettings().strInitialDir);
+					ConsoleOptions consoleOptions;
 
-					if (startupDirs.size() > 0 && startupDirs[0].length() > 0)
+					consoleOptions.strInitialDir = g_settingsHandler->GetConsoleSettings().strInitialDir;
+
+					if (commandLineOptions.startupDirs.size() > 0 && commandLineOptions.startupDirs[0].length() > 0)
 					{
-						strInitialDir = startupDirs[0];
+						consoleOptions.strInitialDir = commandLineOptions.startupDirs[0];
 					}
 					else if (tabData->get()->strInitialDir.length() > 0)
 					{
-						strInitialDir = tabData->get()->strInitialDir;
+						consoleOptions.strInitialDir = tabData->get()->strInitialDir;
 					}
 
 					wstring	strShell(g_settingsHandler->GetConsoleSettings().strShell);
@@ -231,33 +218,29 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 						strShell	= tabData->get()->strShell;
 					}
 
-					wstring strInitialCmd = strWorkingDir;
+					consoleOptions.strInitialCmd = commandLineOptions.strWorkingDir;
 
-					if (startupCmds.size() > 0 && startupCmds[0].length() > 0)
+					if (commandLineOptions.startupCmds.size() > 0 && commandLineOptions.startupCmds[0].length() > 0)
 					{
-						strInitialCmd = startupCmds[0];
+						consoleOptions.strInitialCmd = commandLineOptions.startupCmds[0];
 					}
 
-					DWORD dwBasePriority = ULONG_MAX;
-
-					if (basePriorities.size() > 0)
+					if (commandLineOptions.basePriorities.size() > 0)
 					{
-						dwBasePriority = basePriorities[0];
+						consoleOptions.dwBasePriority = commandLineOptions.basePriorities[0];
 					}
 
-					if (dwBasePriority == ULONG_MAX)
-						dwBasePriority = tabData->get()->dwBasePriority;
+					if (consoleOptions.dwBasePriority == ULONG_MAX)
+						consoleOptions.dwBasePriority = tabData->get()->dwBasePriority;
 
 					try
 					{
-						ConsoleHandler ConsoleHandler;
-						ConsoleHandler.StartShellProcessAsAdministrator
+						ConsoleHandler consoleHandler;
+						consoleHandler.StartShellProcessAsAdministrator
 						(
+							consoleOptions,
 							strSyncName,
 							strShell,
-							strInitialDir,
-							strInitialCmd,
-							dwBasePriority,
 							tabData->get()->environmentVariables
 						);
 					}

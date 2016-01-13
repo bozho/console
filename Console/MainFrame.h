@@ -31,6 +31,34 @@ enum ShowHideWindowAction
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct CommandLineOptions
+{
+	CommandLineOptions()
+		: strWindowTitle()
+		, startupTabs()
+		, startupTabTitles()
+		, startupDirs()
+		, startupCmds()
+		, basePriorities()
+		, nMultiStartSleep(0)
+		, visibility(ShowHideWindowAction::SHWA_DONOTHING)
+		, strWorkingDir()
+	{
+	}
+
+	std::wstring strWindowTitle;
+	std::vector<std::wstring> startupTabs;
+	std::vector<std::wstring> startupTabTitles;
+	std::vector<std::wstring> startupDirs;
+	std::vector<std::wstring> startupCmds;
+	std::vector<DWORD> basePriorities;
+	int nMultiStartSleep;
+	ShowHideWindowAction visibility;
+	std::wstring strWorkingDir;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
 class MainFrame 
 	: public CTabbedFrameImpl<MainFrame>
 	, public CUpdateUI<MainFrame>
@@ -59,15 +87,7 @@ class MainFrame
 		static void ParseCommandLine
 		(
 			LPCTSTR lptstrCmdLine,
-			wstring& strWindowTitle,
-			vector<wstring>& startupTabs,
-			vector<wstring>& startupTabTitles,
-			vector<wstring>& startupDirs,
-			vector<wstring>& startupCmds,
-			vector<DWORD>&   basePriorities,
-			int& nMultiStartSleep,
-			ShowHideWindowAction& visibility,
-			std::wstring& strWorkingDir
+			CommandLineOptions& commandLineOptions
 		);
 
 		virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -361,8 +381,8 @@ class MainFrame
 	private:
 
 		void ActivateApp(void);
-		bool CreateNewConsole(DWORD dwTabIndex, const wstring& strTabTitle = wstring(L""), const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
-		bool CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shared_ptr<TabData> tabData, const wstring& strTabTitle = wstring(L""), const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
+		bool CreateNewConsole(DWORD dwTabIndex, const ConsoleOptions& consoleOptions = ConsoleOptions());
+		bool CreateNewConsole(ConsoleViewCreate* consoleViewCreate, std::shared_ptr<TabData> tabData, const ConsoleOptions& consoleOptions = ConsoleOptions());
 		void CloseTab(CTabViewTabItem* pTabItem);
 
 		void UpdateTabTitle(std::shared_ptr<TabView> tabView);
@@ -406,26 +426,14 @@ class MainFrame
 	public:
 		LRESULT CreateInitialTabs
 		(
-			const vector<wstring>& startupTabs,
-			const vector<wstring>& startupTabTitles,
-			const vector<wstring>& startupCmds,
-			const vector<wstring>& startupDirs,
-			const vector<DWORD>&   basePriorities,
-			int nMultiStartSleep,
-			std::wstring strWorkingDir
+			const CommandLineOptions& commandLineOptions
 		);
 		LRESULT OnCopyData(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 
 		bool					m_bOnCreateDone;
 
 	private:
-		vector<wstring>	m_startupTabs;
-		vector<wstring>	m_startupTabTitles;
-		vector<wstring>	m_startupDirs;
-		vector<wstring>	m_startupCmds;
-		vector<DWORD>	m_priorities;
-		int				m_nMultiStartSleep;
-		wstring m_strWorkingDir;
+		CommandLineOptions m_commandLineOptions;
 
 		std::shared_ptr<TabView>	m_activeTabView;
 
@@ -453,7 +461,6 @@ class MainFrame
 		CIcon			m_smallIcon;
 
 		std::wstring m_strWindowTitle;
-		std::wstring m_strCmdLineWindowTitle;
 
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;

@@ -50,7 +50,7 @@ class ConsoleView
 		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS, COLOR_WINDOW)
 //		DECLARE_WND_CLASS_EX(L"Console_2_View", CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS, COLOR_WINDOW)
 
-		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
+		ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const ConsoleOptions& consoleOptions);
 		~ConsoleView();
 
 		BEGIN_MSG_MAP(ConsoleView)
@@ -178,7 +178,7 @@ class ConsoleView
 		inline bool IsGrouped() const { return m_boolIsGrouped; }
 		void Group(bool b) { m_boolIsGrouped = b; }
 
-		inline DWORD GetBasePriority() const { return m_dwBasePriority; }
+		inline DWORD GetBasePriority() const { return m_consoleOptions.dwBasePriority; }
 
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 
@@ -220,9 +220,7 @@ class ConsoleView
 		MainFrame& m_mainFrame;
 		HWND       m_hwndTabView;
 
-		wstring m_strCmdLineInitialDir;
-		wstring m_strCmdLineInitialCmd;
-		DWORD   m_dwBasePriority;
+		ConsoleOptions m_consoleOptions;
 
 		bool	m_bInitializing;
 		bool	m_bResizing;

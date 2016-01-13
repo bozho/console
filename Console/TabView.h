@@ -11,7 +11,7 @@ class TabView
 public:
   DECLARE_WND_CLASS_EX(L"Console_2_TabView", CS_DBLCLKS, COLOR_WINDOW)
 
-  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData, const wstring& strCmdLineInitialDir, const wstring& strCmdLineInitialCmd, DWORD dwBasePriority);
+  TabView(MainFrame& mainFrame, std::shared_ptr<TabData> tabData, const ConsoleOptions& consoleOptions);
   ~TabView();
 
   BOOL PreTranslateMessage(MSG* pMsg);
@@ -54,8 +54,8 @@ public:
   std::shared_ptr<ConsoleView> GetActiveConsole(const TCHAR*);
   std::shared_ptr<TabData>     GetTabData() { return m_tabData; }
 
-  void SetTitle(const CString& strTitle);
-  const CString& GetTitle() const { return m_strTitle; }
+  void SetTitle(const std::wstring& strTitle);
+  const std::wstring& GetTitle() const { return m_consoleOptions.strTitle; }
   CIcon& GetIcon(bool bBigIcon = true) { return bBigIcon ? m_bigIcon : m_smallIcon; }
   void SetActive(bool bActive);
   void SetAppActiveStatus(bool bAppActive);
@@ -85,20 +85,17 @@ public:
 	void Diagnose(HANDLE hFile);
 
 private:
-	HWND CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const wstring& strCmdLineInitialDir = wstring(L""), const wstring& strCmdLineInitialCmd = wstring(L""), DWORD dwBasePriority = ULONG_MAX);
+	HWND CreateNewConsole(ConsoleViewCreate* consoleViewCreate, const ConsoleOptions& consoleOptions);
 
 private:
   MainFrame&          m_mainFrame;
   ConsoleViewMap      m_views;
   Mutex               m_viewsMutex;
   std::shared_ptr<TabData> m_tabData;
-  CString             m_strTitle;
   CIcon               m_bigIcon;
   CIcon               m_smallIcon;
   bool                m_boolIsGrouped;
-  wstring             m_strCmdLineInitialDir;
-  wstring             m_strCmdLineInitialCmd;
-	DWORD               m_dwBasePriority;
+	ConsoleOptions      m_consoleOptions;
 
   // static members
 private:

@@ -83,6 +83,27 @@ struct UserCredentials
 
 //////////////////////////////////////////////////////////////////////////////
 
+struct ConsoleOptions
+{
+	ConsoleOptions()
+		: strTitle()
+		, strInitialDir()
+		, strInitialCmd()
+		, dwBasePriority(ULONG_MAX)
+	{
+	}
+
+	std::wstring strTitle;
+	std::wstring strInitialDir;
+	std::wstring strInitialCmd;
+	DWORD        dwBasePriority;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 class ConsoleHandler
 {
 	public:
@@ -96,12 +117,9 @@ class ConsoleHandler
 		void SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate, ConsoleCloseDelegate consoleCloseDelegate);
 		void StartShellProcess
 		(
-			const wstring& strTitle,
+			const ConsoleOptions& consoleOptions,
 			const wstring& strShell,
-			const wstring& strInitialDir,
 			const UserCredentials& userCredentials,
-			const wstring& strInitialCmd,
-			DWORD dwBasePriority,
 			const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 			DWORD dwStartupRows,
 			DWORD dwStartupColumns
@@ -109,11 +127,9 @@ class ConsoleHandler
 
 		void StartShellProcessAsAdministrator
 		(
+			const ConsoleOptions& consoleOptions,
 			const wstring& strSyncName,
 			const wstring& strShell,
-			const wstring& strInitialDir,
-			const wstring& strInitialCmd,
-			DWORD dwBasePriority,
 			const std::vector<std::shared_ptr<VarEnv>>& extraEnv
 		);
 
@@ -172,22 +188,17 @@ class ConsoleHandler
 
 		void CreateShellProcess
 		(
+			const ConsoleOptions& consoleOptions,
 			const wstring& strShell,
-			const wstring& strInitialDir,
 			const UserCredentials& userCredentials,
-			const wstring& strInitialCmd,
-			DWORD dwBasePriority,
 			const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 			PROCESS_INFORMATION& pi
 		);
 
 		void RunAsAdministrator
 		(
-			const wstring& strSyncName,
-			const wstring& strTitle,
-			const wstring& strInitialDir,
-			const wstring& strInitialCmd,
-			DWORD dwBasePriority
+			const ConsoleOptions& consoleOptions,
+			const wstring& strSyncName
 		);
 
 	private:

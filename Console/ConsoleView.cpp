@@ -37,9 +37,10 @@ bool _boolMenuSysKeyCancelled = false;
 
 //////////////////////////////////////////////////////////////////////////////
 
-ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const wstring& strCmdLineInitialDir /*= wstring(L"")*/, const wstring& strCmdLineInitialCmd /*= wstring(L"")*/, DWORD dwBasePriority)
+ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr<TabData> tabData, DWORD dwRows, DWORD dwColumns, const ConsoleOptions& consoleOptions)
 : m_mainFrame(mainFrame)
 , m_hwndTabView(hwndTabView)
+, m_consoleOptions(consoleOptions)
 , m_bInitializing(true)
 , m_bResizing(false)
 , m_bAppActive(true)
@@ -74,9 +75,6 @@ ConsoleView::ConsoleView(MainFrame& mainFrame, HWND hwndTabView, std::shared_ptr
 , m_dcOffscreen(::CreateCompatibleDC(NULL))
 , m_dcText(::CreateCompatibleDC(NULL))
 , m_boolIsGrouped(false)
-, m_strCmdLineInitialDir(strCmdLineInitialDir)
-, m_strCmdLineInitialCmd(strCmdLineInitialCmd)
-, m_dwBasePriority(dwBasePriority)
 , m_boolImmComposition(false)
 #ifdef CONSOLEZ_CHRONOS
 , m_timePoint1(std::chrono::high_resolution_clock::now())
@@ -126,15 +124,17 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 	if( consoleViewCreate->type == ConsoleViewCreate::CREATE )
 	{
-		wstring strInitialDir(m_consoleSettings.strInitialDir);
+		ConsoleOptions consoleOptions;
 
-		if (m_strCmdLineInitialDir.length() > 0)
+		consoleOptions.strInitialDir = m_consoleSettings.strInitialDir;
+
+		if (m_consoleOptions.strInitialDir.length() > 0)
 		{
-			strInitialDir = m_strCmdLineInitialDir;
+			consoleOptions.strInitialDir = m_consoleOptions.strInitialDir;
 		}
 		else if (m_tabData->strInitialDir.length() > 0)
 		{
-			strInitialDir = m_tabData->strInitialDir;
+			consoleOptions.strInitialDir = m_tabData->strInitialDir;
 		}
 
 		wstring	strShell(m_consoleSettings.strShell);
@@ -146,15 +146,16 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 		UserCredentials* userCredentials = consoleViewCreate->u.userCredentials;
 
+		consoleOptions.strTitle = m_tabData->strTitle;
+		consoleOptions.strInitialCmd = m_consoleOptions.strInitialCmd;
+		consoleOptions.dwBasePriority = m_consoleOptions.dwBasePriority == ULONG_MAX ? m_tabData->dwBasePriority : m_consoleOptions.dwBasePriority;
+
 		try
 		{
 			m_consoleHandler.StartShellProcess(
-				m_tabData->strTitle,
+				consoleOptions,
 				strShell,
-				strInitialDir,
 				*userCredentials,
-				m_strCmdLineInitialCmd,
-				m_dwBasePriority == ULONG_MAX? m_tabData->dwBasePriority : m_dwBasePriority,
 				m_tabData->environmentVariables,
 				m_dwStartupRows,
 				m_dwStartupColumns);

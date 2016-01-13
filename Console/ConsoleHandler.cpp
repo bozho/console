@@ -99,11 +99,8 @@ void ConsoleHandler::SetupDelegates(ConsoleChangeDelegate consoleChangeDelegate,
 
 void ConsoleHandler::RunAsAdministrator
 (
-	const wstring& strSyncName,
-	const wstring& strTitle,
-	const wstring& strInitialDir,
-	const wstring& strInitialCmd,
-	DWORD dwBasePriority
+	const ConsoleOptions& consoleOptions,
+	const wstring& strSyncName
 )
 {
 	std::wstring strFile = Helpers::GetModuleFileName(nullptr);
@@ -117,22 +114,22 @@ void ConsoleHandler::RunAsAdministrator
 	strParams += Helpers::EscapeCommandLineArg(g_settingsHandler->GetSettingsFileName());
 	// tab name
 	strParams += L" -t ";
-	strParams += Helpers::EscapeCommandLineArg(strTitle);
+	strParams += Helpers::EscapeCommandLineArg(consoleOptions.strTitle);
 	// directory
-	if (!strInitialDir.empty())
+	if (!consoleOptions.strInitialDir.empty())
 	{
 		strParams += L" -d ";
-		strParams += Helpers::EscapeCommandLineArg(strInitialDir);
+		strParams += Helpers::EscapeCommandLineArg(consoleOptions.strInitialDir);
 	}
 	// startup shell command
-	if (!strInitialCmd.empty())
+	if (!consoleOptions.strInitialCmd.empty())
 	{
 		strParams += L" -r ";
-		strParams += Helpers::EscapeCommandLineArg(strInitialCmd);
+		strParams += Helpers::EscapeCommandLineArg(consoleOptions.strInitialCmd);
 	}
 	// priority
 	strParams += L" -p ";
-	strParams += TabData::PriorityToString(dwBasePriority);
+	strParams += TabData::PriorityToString(consoleOptions.dwBasePriority);
 
 	SHELLEXECUTEINFO sei = {sizeof(sei)};
 
@@ -222,11 +219,9 @@ std::wstring MergeEnvironmentVariables(
 
 void ConsoleHandler::CreateShellProcess
 (
+	const ConsoleOptions& consoleOptions,
 	const wstring& strShell,
-	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
-	const wstring& strInitialCmd,
-	DWORD dwBasePriority,
 	const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 	PROCESS_INFORMATION& pi
 )
@@ -394,7 +389,7 @@ void ConsoleHandler::CreateShellProcess
 	if( !s_environmentBlock.get() )
 		ConsoleHandler::UpdateCurrentUserEnvironmentBlock();
 
-	// add specific environment variables defined in tad settings
+	// add specific environment variables defined in tab settings
 	wstring strNewEnvironment = MergeEnvironmentVariables(
 		userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get(),
 		extraEnv);
@@ -413,13 +408,13 @@ void ConsoleHandler::CreateShellProcess
 		if( strShellCmdLine.empty() ) strShellCmdLine = L"cmd.exe";
 	}
 
-	if( !strInitialCmd.empty())
+	if( !consoleOptions.strInitialCmd.empty())
 	{
 		strShellCmdLine += L" ";
-		strShellCmdLine += strInitialCmd;
+		strShellCmdLine += consoleOptions.strInitialCmd;
 	}
 
-	wstring strStartupDir = Helpers::ExpandEnvironmentStrings(strNewEnvironment.c_str(), strInitialDir);
+	wstring strStartupDir = Helpers::ExpandEnvironmentStrings(strNewEnvironment.c_str(), consoleOptions.strInitialDir);
 
 	if( !strStartupDir.empty() )
 	{
@@ -480,7 +475,7 @@ void ConsoleHandler::CreateShellProcess
 	}
 
 	// we must use CREATE_UNICODE_ENVIRONMENT here, since s_environmentBlock contains Unicode strings
-	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT|TabData::GetPriorityClass(dwBasePriority);
+	DWORD dwStartupFlags = CREATE_NEW_CONSOLE|CREATE_SUSPENDED|CREATE_UNICODE_ENVIRONMENT|TabData::GetPriorityClass(consoleOptions.dwBasePriority);
 
 	if (userCredentials.strUsername.length() > 0)
 	{
@@ -527,12 +522,9 @@ void ConsoleHandler::CreateShellProcess
 
 void ConsoleHandler::StartShellProcess
 (
-	const wstring& strTitle,
+	const ConsoleOptions& consoleOptions,
 	const wstring& strShell,
-	const wstring& strInitialDir,
 	const UserCredentials& userCredentials,
-	const wstring& strInitialCmd,
-	DWORD dwBasePriority,
 	const std::vector<std::shared_ptr<VarEnv>>& extraEnv,
 	DWORD dwStartupRows,
 	DWORD dwStartupColumns
@@ -577,11 +569,8 @@ void ConsoleHandler::StartShellProcess
 		pid.Create(strSyncName, 1, syncObjBoth, L"");
 
 		RunAsAdministrator(
-			strSyncName,
-			strTitle,
-			strInitialDir,
-			strInitialCmd,
-			dwBasePriority
+			consoleOptions,
+			strSyncName
 		);
 
 		// wait for PID of shell launched in admin ConsoleZ
@@ -599,11 +588,9 @@ void ConsoleHandler::StartShellProcess
 	else
 	{
 		CreateShellProcess(
+			consoleOptions,
 			strShell,
-			strInitialDir,
 			userCredentials,
-			strInitialCmd,
-			dwBasePriority,
 			extraEnv,
 			pi
 		);
@@ -676,11 +663,9 @@ void ConsoleHandler::StartShellProcess
 
 void ConsoleHandler::StartShellProcessAsAdministrator
 (
+	const ConsoleOptions& consoleOptions,
 	const wstring& strSyncName,
 	const wstring& strShell,
-	const wstring& strInitialDir,
-	const wstring& strInitialCmd,
-	DWORD dwBasePriority,
 	const std::vector<std::shared_ptr<VarEnv>>& extraEnv
 )
 {
@@ -691,11 +676,9 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 	PROCESS_INFORMATION pi = {0, 0, 0, 0};
 
 	CreateShellProcess(
+		consoleOptions,
 		strShell,
-		strInitialDir,
 		userCredentials,
-		strInitialCmd,
-		dwBasePriority,
 		extraEnv,
 		pi
 	);

@@ -179,6 +179,7 @@ class ConsoleView
 		void Group(bool b) { m_boolIsGrouped = b; }
 
 		inline DWORD GetBasePriority() const { return m_consoleOptions.dwBasePriority; }
+		inline std::wstring GetEnvironment() const { return m_consoleOptions.strEnvironment; }
 
 		void DoScroll(int nType, int nScrollCode, int nThumbPos);
 

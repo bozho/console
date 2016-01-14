@@ -148,6 +148,7 @@ LRESULT ConsoleView::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, B
 
 		consoleOptions.strTitle = m_tabData->strTitle;
 		consoleOptions.strInitialCmd = m_consoleOptions.strInitialCmd;
+		consoleOptions.strEnvironment = m_consoleOptions.strEnvironment;
 		consoleOptions.dwBasePriority = m_consoleOptions.dwBasePriority == ULONG_MAX ? m_tabData->dwBasePriority : m_consoleOptions.dwBasePriority;
 
 		try

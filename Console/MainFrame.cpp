@@ -99,6 +99,46 @@ void MainFrame::ParseCommandLine
 			if (i == argc) break;
 			commandLineOptions.strWorkingDir = argv[i];
 		}
+		else if (wstring(argv[i]) == wstring(L"-ebx"))
+		{
+			// environment block
+			++i;
+			if (i == argc) break;
+			size_t len = ::wcslen(argv[i]) / 2;
+			if( len >= 2 && ::memcmp(argv[i] + (len - 2) * 2, L"0000", sizeof(L"0000")) == 0 )
+			{
+				commandLineOptions.strEnvironment.resize(len);
+				const wchar_t * pin = argv[i];
+				unsigned char * pout = reinterpret_cast<unsigned char *>(&commandLineOptions.strEnvironment[0]);
+				for( size_t j = 0; j < len; ++j )
+				{
+					unsigned char hi, low;
+					wchar_t whi = pin[j * 2], wlo = pin[j * 2 + 1];
+
+					if( whi >= L'0' && whi <= L'9' )
+						hi = static_cast<unsigned char>(whi - L'0');
+					else if( whi >= L'a' && whi <= L'f' )
+						hi = static_cast<unsigned char>(whi - L'a' + 10);
+					else
+					{
+						commandLineOptions.strEnvironment.clear();
+						break;
+					}
+
+					if( wlo >= L'0' && wlo <= L'9' )
+						low = static_cast<unsigned char>(wlo - L'0');
+					else if( wlo >= L'a' && wlo <= L'f' )
+						low = static_cast<unsigned char>(wlo - L'a' + 10);
+					else
+					{
+						commandLineOptions.strEnvironment.clear();
+						break;
+					}
+
+					pout[j] = hi << 4 | low;
+				}
+			}
+		}
 	}
 
 	// make sure that startupTabTitles, startupDirs, and startupCmds are at least as big as startupTabs
@@ -225,6 +265,8 @@ LRESULT MainFrame::CreateInitialTabs
 
 			consoleOptions.dwBasePriority = commandLineOptions.basePriorities.size() > 0? commandLineOptions.basePriorities[0] : tabSettings.tabDataVector[0]->dwBasePriority;
 
+			consoleOptions.strEnvironment = commandLineOptions.strEnvironment;
+
 			bAtLeastOneStarted = CreateNewConsole(
 				0,
 				consoleOptions);
@@ -248,6 +290,8 @@ LRESULT MainFrame::CreateInitialTabs
 					consoleOptions.strInitialDir  = commandLineOptions.startupDirs[tabIndex].empty() && tabSettings.tabDataVector[i]->strInitialDir.empty() ? commandLineOptions.strWorkingDir : commandLineOptions.startupDirs[tabIndex];
 					consoleOptions.strInitialCmd  = commandLineOptions.startupCmds[tabIndex];
 					consoleOptions.dwBasePriority = commandLineOptions.basePriorities[tabIndex];
+
+					consoleOptions.strEnvironment = commandLineOptions.strEnvironment;
 
 					if (CreateNewConsole(
 						static_cast<DWORD>(i),

@@ -130,9 +130,15 @@ static bool HandleReuse(LPCTSTR lpstrCmdLine)
 	{
 		::SetForegroundWindow(*sharedInstance);
 
+		ConsoleHandler::UpdateCurrentUserEnvironmentBlock();
+
 		std::wstring commandLine = lpstrCmdLine;
+
 		commandLine += L" -cwd ";
 		commandLine += Helpers::EscapeCommandLineArg(Helpers::GetCurrentDirectory());
+
+		commandLine += L" -ebx ";
+		commandLine += ConsoleHandler::DumpCurrentUserEnvironmentBlock();
 
 		COPYDATASTRUCT cds = {0};
 		cds.dwData = 0;

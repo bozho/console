@@ -43,6 +43,7 @@ struct CommandLineOptions
 		, nMultiStartSleep(0)
 		, visibility(ShowHideWindowAction::SHWA_DONOTHING)
 		, strWorkingDir()
+		, strEnvironment()
 	{
 	}
 
@@ -55,6 +56,7 @@ struct CommandLineOptions
 	int nMultiStartSleep;
 	ShowHideWindowAction visibility;
 	std::wstring strWorkingDir;
+	std::wstring strEnvironment;
 };
 
 //////////////////////////////////////////////////////////////////////////////

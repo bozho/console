@@ -89,6 +89,7 @@ struct ConsoleOptions
 		: strTitle()
 		, strInitialDir()
 		, strInitialCmd()
+		, strEnvironment()
 		, dwBasePriority(ULONG_MAX)
 	{
 	}
@@ -96,6 +97,7 @@ struct ConsoleOptions
 	std::wstring strTitle;
 	std::wstring strInitialDir;
 	std::wstring strInitialCmd;
+	std::wstring strEnvironment;
 	DWORD        dwBasePriority;
 };
 
@@ -157,6 +159,7 @@ class ConsoleHandler
 		void ResumeScrolling();
 
 		static void UpdateCurrentUserEnvironmentBlock();
+		static std::wstring DumpCurrentUserEnvironmentBlock();
 
 		inline DWORD GetConsolePid(void) const { return m_dwConsolePid; }
 		inline bool  IsElevated(void) const { return m_boolIsElevated; }

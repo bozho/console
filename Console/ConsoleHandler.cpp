@@ -390,8 +390,12 @@ void ConsoleHandler::CreateShellProcess
 		ConsoleHandler::UpdateCurrentUserEnvironmentBlock();
 
 	// add specific environment variables defined in tab settings
-	wstring strNewEnvironment = MergeEnvironmentVariables(
-		userEnvironment.get()? userEnvironment.get() : s_environmentBlock.get(),
+	std::wstring strNewEnvironment = MergeEnvironmentVariables(
+		userEnvironment.get()?
+			userEnvironment.get() :
+			(consoleOptions.strEnvironment.empty()?
+				s_environmentBlock.get() :
+				consoleOptions.strEnvironment.c_str()),
 		extraEnv);
 
 	// add missing home variables
@@ -1020,10 +1024,49 @@ void ConsoleHandler::UpdateCurrentUserEnvironmentBlock()
 	HANDLE	hProcessToken	= NULL;
 
 	::OpenProcessToken(::GetCurrentProcess(), TOKEN_ALL_ACCESS, &hProcessToken);
-	::CreateEnvironmentBlock(&pEnvironment, hProcessToken, FALSE);
+	::CreateEnvironmentBlock(&pEnvironment, hProcessToken, TRUE);
 	::CloseHandle(hProcessToken);
 
 	s_environmentBlock.reset(pEnvironment, ::DestroyEnvironmentBlock);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::wstring ConsoleHandler::DumpCurrentUserEnvironmentBlock()
+{
+	static const wchar_t th[] = L"0123456789abcdef";
+
+	std::wstring result(L"");
+
+	if( s_environmentBlock.get() )
+	{
+		// determine the size of the block
+		size_t size = 0;
+		for(const wchar_t * p = static_cast<const wchar_t *>(s_environmentBlock.get());
+		    p[size];
+		    size += wcslen(p + size) + 1)
+		{
+		}
+		// size in bytes
+		size *= sizeof(wchar_t);
+
+		// allocate
+		result.resize(size * 2);
+
+		// encode
+		const unsigned char * pin = static_cast<const unsigned char *>(s_environmentBlock.get());
+		wchar_t * pout = &result[0];
+		for( size_t i = 0; i < size; ++i )
+		{
+			pout[i * 2    ] = th[pin[i] >> 4];
+			pout[i * 2 + 1] = th[pin[i] & 0x0f];
+		}
+	}
+
+	return result;
 }
 
 //////////////////////////////////////////////////////////////////////////////

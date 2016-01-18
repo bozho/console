@@ -4321,24 +4321,48 @@ void MainFrame::SetTransparency()
 #ifdef _USE_AERO
       if( fEnabled )
       {
-        // there is a side effect whith glass into client area and no caption (and no resizable)
-        // blur is not applied, the window is transparent ...
-        DWORD	dwStyle = GetWindowLong(GWL_STYLE);
+				struct ACCENTPOLICY
+				{
+					int nAccentState;
+					int nFlags;
+					int nColor;
+					int nAnimationId;
+				};
+				struct WINCOMPATTRDATA
+				{
+					int nAttribute;
+					PVOID pData;
+					ULONG ulDataSize;
+				};
+				typedef BOOL(WINAPI*pSetWindowCompositionAttribute)(HWND, WINCOMPATTRDATA*);
+				const pSetWindowCompositionAttribute SetWindowCompositionAttribute = (pSetWindowCompositionAttribute)GetProcAddress(::GetModuleHandle(L"user32.dll"), "SetWindowCompositionAttribute");
+				if( SetWindowCompositionAttribute )
+				{
+					ACCENTPOLICY policy = { 3, 0, 0, 0 };
+					WINCOMPATTRDATA data = { 19, &policy, sizeof(ACCENTPOLICY) };
+					SetWindowCompositionAttribute(m_hWnd, &data);
+				}
+				else
+				{
+					// there is a side effect whith glass into client area and no caption (and no resizable)
+					// blur is not applied, the window is transparent ...
+					DWORD	dwStyle = GetWindowLong(GWL_STYLE);
 
-        if( (dwStyle & WS_CAPTION) != WS_CAPTION && (dwStyle & WS_THICKFRAME) != WS_THICKFRAME )
-        {
-          DWM_BLURBEHIND bb = {0};
-          bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;
-          bb.fEnable = TRUE;
-          bb.fTransitionOnMaximized = TRUE;
-          bb.hRgnBlur = NULL;
-          ::DwmEnableBlurBehindWindow(m_hWnd, &bb);
-        }
-        else
-        {
-          MARGINS m = {-1,-1,-1,-1};
-          ::DwmExtendFrameIntoClientArea(m_hWnd, &m);
-        }
+					if( (dwStyle & WS_CAPTION) != WS_CAPTION && (dwStyle & WS_THICKFRAME) != WS_THICKFRAME )
+					{
+						DWM_BLURBEHIND bb = {0};
+						bb.dwFlags = DWM_BB_ENABLE | DWM_BB_TRANSITIONONMAXIMIZED;
+						bb.fEnable = TRUE;
+						bb.fTransitionOnMaximized = TRUE;
+						bb.hRgnBlur = NULL;
+						::DwmEnableBlurBehindWindow(m_hWnd, &bb);
+					}
+					else
+					{
+						MARGINS m = {-1,-1,-1,-1};
+						::DwmExtendFrameIntoClientArea(m_hWnd, &m);
+					}
+				}
       }
 #endif
 

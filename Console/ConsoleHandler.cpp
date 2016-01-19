@@ -634,7 +634,7 @@ void ConsoleHandler::StartShellProcess
 		{
 			InjectHookDLL(pi);
 		}
-		catch(std::exception err)
+		catch(std::exception& err)
 		{
 			throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
 		}
@@ -699,7 +699,7 @@ void ConsoleHandler::StartShellProcessAsAdministrator
 	{
 		InjectHookDLL(pi);
 	}
-	catch(std::exception err)
+	catch(std::exception& err)
 	{
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % err.what()));
 	}

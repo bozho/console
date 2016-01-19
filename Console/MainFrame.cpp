@@ -4321,6 +4321,12 @@ void MainFrame::SetTransparency()
 #ifdef _USE_AERO
       if( fEnabled )
       {
+				#define	ACCENT_ENABLE_GRADIENT            1
+				#define ACCENT_ENABLE_TRANSPARENTGRADIENT 2
+				#define ACCENT_ENABLE_BLURBEHIND          3
+
+				#define WCA_ACCENT_POLICY 19
+
 				struct ACCENTPOLICY
 				{
 					int nAccentState;
@@ -4328,18 +4334,25 @@ void MainFrame::SetTransparency()
 					int nColor;
 					int nAnimationId;
 				};
+
 				struct WINCOMPATTRDATA
 				{
 					int nAttribute;
 					PVOID pData;
 					ULONG ulDataSize;
 				};
+
 				typedef BOOL(WINAPI*pSetWindowCompositionAttribute)(HWND, WINCOMPATTRDATA*);
-				const pSetWindowCompositionAttribute SetWindowCompositionAttribute = (pSetWindowCompositionAttribute)GetProcAddress(::GetModuleHandle(L"user32.dll"), "SetWindowCompositionAttribute");
+
+				const pSetWindowCompositionAttribute SetWindowCompositionAttribute =
+					Helpers::CheckOSVersion(10, 0)?
+						(pSetWindowCompositionAttribute)::GetProcAddress(::GetModuleHandle(L"user32.dll"), "SetWindowCompositionAttribute") :
+						nullptr;
+
 				if( SetWindowCompositionAttribute )
 				{
-					ACCENTPOLICY policy = { 3, 0, 0, 0 };
-					WINCOMPATTRDATA data = { 19, &policy, sizeof(ACCENTPOLICY) };
+					ACCENTPOLICY policy = { ACCENT_ENABLE_BLURBEHIND, 0, 0, 0 };
+					WINCOMPATTRDATA data = { WCA_ACCENT_POLICY, &policy, sizeof(ACCENTPOLICY) };
 					SetWindowCompositionAttribute(m_hWnd, &data);
 				}
 				else

@@ -107,6 +107,10 @@ an alternative solution is to add an additional library to your linker input, le
 
 #include <shobjidl.h>
 
+#ifndef _USING_V110_SDK71_
+#include <ShellScalingAPI.h>
+#endif
+
 #pragma warning(disable: 4503) // disables 'name truncated' warnings
 
 #pragma warning(push)

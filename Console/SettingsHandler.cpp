@@ -247,6 +247,7 @@ FontSettings::FontSettings()
 , bBoldIntensified(false)
 , bItalicIntensified(false)
 , bLigature(false)
+, dwDpiAwareness(1)
 {
 }
 
@@ -273,6 +274,7 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold_intensified"), bBoldIntensified, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic_intensified"), bItalicIntensified, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"ligature"), bLigature, false);
+	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"dpi_awareness"), dwDpiAwareness, 1);
 
 	fontSmoothing = static_cast<FontSmoothing>(nFontSmoothing);
 
@@ -306,6 +308,7 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold_intensified"), bBoldIntensified);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic_intensified"), bItalicIntensified);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"ligature"), bLigature);
+	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"dpi_awareness"), dwDpiAwareness);
 
 	CComPtr<IXMLDOMElement>	pColorElement;
 

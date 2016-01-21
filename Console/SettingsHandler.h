@@ -114,6 +114,7 @@ struct FontSettings : public SettingsBase
 	bool			bLigature;
 	bool			bUseColor;
 	COLORREF		crFontColor;
+	DWORD			dwDpiAwareness;
 };
 
 //////////////////////////////////////////////////////////////////////////////

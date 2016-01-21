@@ -266,6 +266,12 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
     if (bReuse && HandleReuse(lpstrCmdLine))
       return 0;
 
+#ifndef _USING_V110_SDK71_
+
+     Helpers::SetProcessDpiAwareness((PROCESS_DPI_AWARENESS)g_settingsHandler->GetAppearanceSettings().fontSettings.dwDpiAwareness);
+
+#endif
+
     // create main window
     NoTaskbarParent noTaskbarParent;
     MainFrame wndMain(lpstrCmdLine);

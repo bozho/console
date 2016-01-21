@@ -64,6 +64,11 @@ class Helpers
 
 		static std::wstring GetUACPrefix(void);
 
+#ifndef _USING_V110_SDK71_
+		static bool GetDpiForMonitor(HMONITOR hmonitor, MONITOR_DPI_TYPE dpiType, UINT *dpiX, UINT *dpiY);
+		static bool SetProcessDpiAwareness(PROCESS_DPI_AWARENESS value);
+#endif
+
 	private:
 
 		static bool GetMonitorRect(HMONITOR hMonitor, bool bIgnoreTaskbar, CRect& rectDesktop);

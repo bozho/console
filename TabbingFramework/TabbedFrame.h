@@ -1262,15 +1262,10 @@ public:
     HTHEME hTheme = ::OpenThemeData(m_hWnd, VSCLASS_SCROLLBAR);
     if( hTheme )
     {
-      ::GetThemePartSize(
-        hTheme,
-        NULL,
-        SBP_ARROWBTN,
-        ABS_LEFTNORMAL,
-        NULL,
-        TS_TRUE,
-        &size
-        );
+      // GetThemeSysSize returns size stored in the current visual style
+      // (SysMetrics section of the visual style) scaled to the current screen dpi.
+      size.cx = ::GetThemeSysSize(hTheme, SM_CXVSCROLL);
+      size.cy = ::GetThemeSysSize(hTheme, SM_CYHSCROLL);
 
       ::CloseThemeData(hTheme);
     }
@@ -1280,7 +1275,7 @@ public:
       size.cy = 16;
     }
 
-    int nNewTabAreaHeight2 = customTabOwnerClass::CalcTabAreaHeight2();
+    int nNewTabAreaHeight2 = ::GetSystemMetrics(SM_CYSMICON) * 3 / 2;
     int nNewTabAreaHeight  = max(size.cy + 4, nNewTabAreaHeight2);
 
     this->GetTabCtrl().SetTopMargin(nNewTabAreaHeight - nNewTabAreaHeight2);

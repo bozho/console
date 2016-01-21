@@ -171,6 +171,7 @@ MainFrame::MainFrame
 , m_dwWindowWidth(0)
 , m_dwWindowHeight(0)
 , m_dwResizeWindowEdge(WMSZ_BOTTOM)
+, m_dwScreenDpi(96)
 , m_bRestoringWindow(false)
 , m_bAppActive(true)
 , m_bShowingHidingWindow(false)
@@ -451,8 +452,25 @@ LRESULT MainFrame::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/,
 
 	CreateStatusBar();
 
+#ifndef _USING_V110_SDK71_
+
+	// get startup monitor
+	CRect startupRect{ positionSettings.nX, positionSettings.nY, 0, 0 };
+	HMONITOR startupMonitor = MonitorFromRect(&startupRect, (startupRect.left == -1 && startupRect.top == -1) ? MONITOR_DEFAULTTOPRIMARY : MONITOR_DEFAULTTONEAREST);
+
+	// get starting dpi
+	UINT dpiX; UINT dpiY = 96;
+	if (Helpers::GetDpiForMonitor(startupMonitor, MDT_DEFAULT, &dpiX, &dpiY))
+		m_dwScreenDpi = dpiY;
+
+#else
+
+	m_dwScreenDpi = CDC(::CreateCompatibleDC(NULL)).GetDeviceCaps(LOGPIXELSY);
+
+#endif
+
 	// create font
-	ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
+	ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false, m_dwScreenDpi);
 
 	// initialize tabs
 	UpdateTabsMenu(m_CmdBar.GetMenu(), m_tabsMenu);
@@ -1148,6 +1166,29 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 
 //////////////////////////////////////////////////////////////////////////////
+
+
+LRESULT MainFrame::OnDpiChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/)
+{
+	DWORD dpi = HIWORD(wParam);
+	if (dpi != m_dwScreenDpi)
+	{
+		m_dwScreenDpi = dpi;
+		ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false, m_dwScreenDpi);
+
+		CRect newRect = CRect(reinterpret_cast<RECT*>(lParam));
+		SetWindowPos(HWND_TOP, newRect.left, newRect.top, newRect.Width(), newRect.Height(), SWP_NOZORDER | SWP_NOACTIVATE);
+		AdjustWindowSize(ADJUSTSIZE_WINDOW);
+	}
+
+	return 0;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 LRESULT MainFrame::OnMouseButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled)
 {
@@ -2747,7 +2788,7 @@ LRESULT MainFrame::OnEditSettings(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWn
 		}
 	}
 
-	ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false);
+	ConsoleView::RecreateFont(g_settingsHandler->GetAppearanceSettings().fontSettings.dwSize, false, m_dwScreenDpi);
 	AdjustWindowSize(ADJUSTSIZE_WINDOW);
 
 	DockPosition newDockPosition = g_settingsHandler->GetAppearanceSettings().positionSettings.dockPosition;
@@ -2900,7 +2941,7 @@ LRESULT MainFrame::OnZoom(WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/, BOOL
 			}
 
 			// recreate font with new size
-			if (ConsoleView::RecreateFont(dwNewSize, true))
+			if (ConsoleView::RecreateFont(dwNewSize, true, m_dwScreenDpi))
 			{
 				// only if the new size is different (to avoid flickering at extremes)
 				AdjustWindowSize(ADJUSTSIZE_FONT);
@@ -3036,6 +3077,16 @@ LRESULT MainFrame::OnDiagnose(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl
 					OPEN_EXISTING,
 					FILE_ATTRIBUTE_NORMAL,
 					NULL));
+
+			Helpers::WriteLine(file.get(), std::wstring(L"System dpi ") + std::to_wstring(::GetDeviceCaps(GetDC(), LOGPIXELSY)));
+			Helpers::WriteLine(file.get(), std::wstring(L"System metrics"));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CXSMICON        ") + std::to_wstring(::GetSystemMetrics(SM_CXSMICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYSMICON        ") + std::to_wstring(::GetSystemMetrics(SM_CYSMICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CXICON          ") + std::to_wstring(::GetSystemMetrics(SM_CXICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYICON          ") + std::to_wstring(::GetSystemMetrics(SM_CYICON)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CXVIRTUALSCREEN ") + std::to_wstring(::GetSystemMetrics(SM_CXVIRTUALSCREEN)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYVIRTUALSCREEN ") + std::to_wstring(::GetSystemMetrics(SM_CYVIRTUALSCREEN)));
+			Helpers::WriteLine(file.get(), std::wstring(L"  SM_CYVIRTUALSCREEN ") + std::to_wstring(::GetSystemMetrics(SM_CYVIRTUALSCREEN)));
 
 			if(fileSettings.get() == INVALID_HANDLE_VALUE)
 			{
@@ -4007,7 +4058,7 @@ BOOL CALLBACK MainFrame::MonitorEnumProcDiag(HMONITOR hMonitor, HDC /*hdcMonitor
 
 	Helpers::WriteLine(
 		reinterpret_cast<HANDLE>(lpData),
-		std::wstring(L"  Flags ") + std::to_wstring(miex.dwFlags)
+		std::wstring(L"+ Flags ") + std::to_wstring(miex.dwFlags)
 		+ std::wstring(((miex.dwFlags & MONITORINFOF_PRIMARY) == MONITORINFOF_PRIMARY)? L"  primary" : L""));
 
 	DISPLAY_DEVICE dd;
@@ -4051,6 +4102,25 @@ BOOL CALLBACK MainFrame::MonitorEnumProcDiag(HMONITOR hMonitor, HDC /*hdcMonitor
 			% miex.rcWork.top
 			% miex.rcWork.right
 			% miex.rcWork.bottom));
+
+#ifndef _USING_V110_SDK71_
+	UINT dpiX; UINT dpiY;
+	if (Helpers::GetDpiForMonitor(hMonitor, MDT_DEFAULT, &dpiX, &dpiY))
+	{
+		Helpers::WriteLine(
+			reinterpret_cast<HANDLE>(lpData),
+			boost::str(
+				boost::wformat(L"  DPI (per monitor: yes) X=%1% Y=%2%")
+				% dpiX
+				% dpiY));
+	}
+	else
+#endif
+	{
+		Helpers::WriteLine(
+			reinterpret_cast<HANDLE>(lpData),
+			std::wstring(L"  DPI (per monitor: no)"));
+	}
 
 	return TRUE;
 }

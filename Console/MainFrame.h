@@ -141,6 +141,7 @@ class MainFrame
 			MESSAGE_HANDLER(WM_SIZE, OnSize)
 			MESSAGE_HANDLER(WM_SIZING, OnSizing)
 			MESSAGE_HANDLER(WM_WINDOWPOSCHANGING, OnWindowPosChanging)
+			MESSAGE_HANDLER(WM_DPICHANGED, OnDpiChanged)
 			MESSAGE_HANDLER(WM_LBUTTONUP, OnMouseButtonUp)
 			MESSAGE_HANDLER(WM_RBUTTONUP, OnMouseButtonUp)
 			MESSAGE_HANDLER(WM_MBUTTONUP, OnMouseButtonUp)
@@ -278,6 +279,7 @@ class MainFrame
 		LRESULT OnSize(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& bHandled);
 		LRESULT OnSizing(UINT /*uMsg*/, WPARAM wParam, LPARAM /*lParam*/, BOOL& /*bHandled*/);
 		LRESULT OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& bHandled);
+		LRESULT OnDpiChanged(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnMouseButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& bHandled);
 		LRESULT OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/);
 		LRESULT OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/);
@@ -467,6 +469,7 @@ class MainFrame
 		DWORD			m_dwWindowWidth;
 		DWORD			m_dwWindowHeight;
 		DWORD			m_dwResizeWindowEdge;
+		DWORD			m_dwScreenDpi;
 
 		bool			m_bAppActive;
 		bool			m_bShowingHidingWindow;

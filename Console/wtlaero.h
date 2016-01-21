@@ -493,6 +493,7 @@ public:
 		HDC hDCPaint = NULL;
 		RECT rCtrl;
 		GetClientRect(&rCtrl);
+		if( rCtrl.bottom == 0 ) return;
 		m_BufferedPaint.Begin(hdc, &rCtrl, m_dwFormat, &m_PaintParams, &hDCPaint);
 		ATLASSERT(hDCPaint != NULL);
 		CtrlPaint(hDCPaint, rCtrl, rPaint);

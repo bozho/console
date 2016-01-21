@@ -191,7 +191,6 @@
 copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
@@ -244,7 +243,6 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
 copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
@@ -297,7 +295,6 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
 copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
@@ -350,7 +347,6 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
 copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
@@ -401,7 +397,6 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
 copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
@@ -457,7 +452,6 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
@@ -505,7 +499,6 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     </Link>
     <Manifest>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
     </Manifest>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -560,7 +553,6 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
 copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</Command>
     </PostBuildEvent>
     <Manifest>
-      <EnableDpiAwareness>true</EnableDpiAwareness>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>

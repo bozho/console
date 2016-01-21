@@ -165,7 +165,6 @@ MainFrame::MainFrame
 , m_bTransparencyActive(true)
 , m_dockPosition(dockNone)
 , m_zOrder(zorderNormal)
-, m_mousedragOffset(0, 0)
 , m_tabs()
 , m_tabsMutex(NULL, FALSE, NULL)
 , m_dwWindowWidth(0)
@@ -1209,33 +1208,6 @@ LRESULT MainFrame::OnMouseButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lP
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnMouseMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
-{
-	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-
-	if (::GetCapture() == m_hWnd)
-	{
-		ClientToScreen(&point);
-
-		SetWindowPos(
-			NULL, 
-			point.x - m_mousedragOffset.x, 
-			point.y - m_mousedragOffset.y, 
-			0, 
-			0,
-			SWP_NOSIZE|SWP_NOZORDER);
-
-		RedrawWindow(NULL, NULL, RDW_UPDATENOW|RDW_ALLCHILDREN);
-	}
-
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 LRESULT MainFrame::OnExitSizeMove(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	ResizeWindow();
@@ -1657,21 +1629,14 @@ LRESULT MainFrame::OnShowPopupMenu(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam, 
 
 //////////////////////////////////////////////////////////////////////////////
 
-LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL& /*bHandled*/)
+LRESULT MainFrame::OnStartMouseDrag(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL& /*bHandled*/)
 {
 	// do nothing for minimized or maximized or fullscreen windows
 	if (IsIconic() || IsZoomed() || m_bFullScreen) return 0;
 
-	CPoint	point(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
-	CRect	windowRect;
+	ReleaseCapture();
+	SendMessage(WM_NCLBUTTONDOWN, HTCAPTION, 0);
 
-	GetWindowRect(windowRect);
-
-	m_mousedragOffset = point;
-	m_mousedragOffset.x -= windowRect.left;
-	m_mousedragOffset.y -= windowRect.top;
-
-	SetCapture();
 	return 0;
 }
 
@@ -1687,19 +1652,8 @@ LRESULT MainFrame::OnStartMouseDragExtendedFrameToClientArea(int /*idCtrl*/, LPN
       NMCTCITEM* pTabItem	= reinterpret_cast<NMCTCITEM*>(pnmh);
       if( pTabItem->iItem == -1 )
       {
-        CRect	tabWindowRect;
-        m_TabCtrl.GetWindowRect(tabWindowRect);
-
-        CRect	windowRect;
-        GetWindowRect(windowRect);
-
-        m_mousedragOffset = pTabItem->pt;
-        m_mousedragOffset.x += tabWindowRect.left;
-        m_mousedragOffset.y += tabWindowRect.top;
-        m_mousedragOffset.x -= windowRect.left;
-        m_mousedragOffset.y -= windowRect.top;
-
-        SetCapture();
+		ReleaseCapture();
+		SendMessage(WM_NCLBUTTONDOWN, HTCAPTION, 0);
       }
     }
     else if( pnmh->code == NM_LDOWN && pnmh->hwndFrom == m_toolbar.m_hWnd )
@@ -1708,19 +1662,8 @@ LRESULT MainFrame::OnStartMouseDragExtendedFrameToClientArea(int /*idCtrl*/, LPN
 
       if( pMouse->dwItemSpec == SIZE_MAX )
       {
-        CRect	toolbarWindowRect;
-        m_toolbar.GetWindowRect(toolbarWindowRect);
-
-        CRect	windowRect;
-        GetWindowRect(windowRect);
-
-        m_mousedragOffset = pMouse->pt;
-        m_mousedragOffset.x += toolbarWindowRect.left;
-        m_mousedragOffset.y += toolbarWindowRect.top;
-        m_mousedragOffset.x -= windowRect.left;
-        m_mousedragOffset.y -= windowRect.top;
-
-        SetCapture();
+		ReleaseCapture();
+		SendMessage(WM_NCLBUTTONDOWN, HTCAPTION, 0);
       }
     }
   }

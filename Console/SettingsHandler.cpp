@@ -247,7 +247,6 @@ FontSettings::FontSettings()
 , bBoldIntensified(false)
 , bItalicIntensified(false)
 , bLigature(false)
-, dwDpiAwareness(1)
 {
 }
 
@@ -274,7 +273,6 @@ bool FontSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"bold_intensified"), bBoldIntensified, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"italic_intensified"), bItalicIntensified, false);
 	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"ligature"), bLigature, false);
-	XmlHelper::GetAttribute(pFontElement, CComBSTR(L"dpi_awareness"), dwDpiAwareness, 1);
 
 	fontSmoothing = static_cast<FontSmoothing>(nFontSmoothing);
 
@@ -308,7 +306,6 @@ bool FontSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"bold_intensified"), bBoldIntensified);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"italic_intensified"), bItalicIntensified);
 	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"ligature"), bLigature);
-	XmlHelper::SetAttribute(pFontElement, CComBSTR(L"dpi_awareness"), dwDpiAwareness);
 
 	CComPtr<IXMLDOMElement>	pColorElement;
 
@@ -704,6 +701,7 @@ StylesSettings::StylesSettings()
 , bJumplist(false)
 , bIntegratedIME(false)
 , bHideWhenInactive(false)
+, bPerMonitorDpi(false)
 , dwInsideBorder(2)
 , dwQuakeAnimationTime(300)
 , crSelectionColor(RGB(255, 255, 255))
@@ -733,6 +731,7 @@ bool StylesSettings::Load(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"jumplist"), bJumplist, false);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME, false);
 	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"hide_when_inactive"), bHideWhenInactive, false);
+	XmlHelper::GetAttribute(pStylesElement, CComBSTR(L"per_monitor_dpi"), bPerMonitorDpi, false);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
 	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
@@ -767,6 +766,7 @@ bool StylesSettings::Save(const CComPtr<IXMLDOMElement>& pSettingsRoot)
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"jumplist"), bJumplist);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"integrated_ime"), bIntegratedIME);
 	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"hide_when_inactive"), bHideWhenInactive);
+	XmlHelper::SetAttribute(pStylesElement, CComBSTR(L"per_monitor_dpi"), bPerMonitorDpi);
 
 	CComPtr<IXMLDOMElement>	pSelColorElement;
 	if (SUCCEEDED(XmlHelper::GetDomElement(pStylesElement, CComBSTR(L"selection_color"), pSelColorElement)))
@@ -795,6 +795,7 @@ StylesSettings& StylesSettings::operator=(const StylesSettings& other)
 	bJumplist		= other.bJumplist;
 	bIntegratedIME		= other.bIntegratedIME;
 	bHideWhenInactive = other.bHideWhenInactive;
+	bPerMonitorDpi = other.bPerMonitorDpi;
 	dwInsideBorder	= other.dwInsideBorder;
 	dwQuakeAnimationTime	= other.dwQuakeAnimationTime;
 	crSelectionColor= other.crSelectionColor;

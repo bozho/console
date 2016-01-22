@@ -39,6 +39,7 @@ class DlgSettingsStyles
 			DDX_CHECK(IDC_CHECK_USE_JUMPLIST, m_stylesSettings.bJumplist)
 			DDX_CHECK(IDC_CHECK_INTEGRATED_IME, m_stylesSettings.bIntegratedIME)
 			DDX_CHECK(IDC_CHECK_HIDE_WHEN_INACTIVE, m_stylesSettings.bHideWhenInactive)
+			DDX_CHECK(IDC_CHECK_PER_MONITOR_DPI, m_stylesSettings.bPerMonitorDpi)
 			DDX_UINT(IDC_INSIDE_BORDER, m_stylesSettings.dwInsideBorder)
 			DDX_UINT(IDC_QUAKE_ANIMATION_TIME, m_stylesSettings.dwQuakeAnimationTime)
 		END_DDX_MAP()

@@ -114,7 +114,6 @@ struct FontSettings : public SettingsBase
 	bool			bLigature;
 	bool			bUseColor;
 	COLORREF		crFontColor;
-	DWORD			dwDpiAwareness;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -231,6 +230,7 @@ struct StylesSettings : public SettingsBase
 	bool			bJumplist;
 	bool			bIntegratedIME;
 	bool			bHideWhenInactive;
+	bool			bPerMonitorDpi;
 	DWORD			dwInsideBorder;
 	DWORD			dwQuakeAnimationTime;
 	COLORREF		crSelectionColor;

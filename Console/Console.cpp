@@ -268,7 +268,7 @@ int Run(LPTSTR lpstrCmdLine = NULL, int nCmdShow = SW_SHOWDEFAULT)
 
 #ifndef _USING_V110_SDK71_
 
-     Helpers::SetProcessDpiAwareness((PROCESS_DPI_AWARENESS)g_settingsHandler->GetAppearanceSettings().fontSettings.dwDpiAwareness);
+     Helpers::SetProcessDpiAwareness(g_settingsHandler->GetAppearanceSettings().stylesSettings.bPerMonitorDpi ? PROCESS_PER_MONITOR_DPI_AWARE : PROCESS_SYSTEM_DPI_AWARE);
 
 #endif
 

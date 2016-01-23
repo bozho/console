@@ -148,7 +148,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     RTEXT           "&Заголовок:",IDC_STATIC,10,15,43,8
     EDITTEXT        IDC_WINDOW_TITLE,55,13,85,14,ES_AUTOHSCROLL
-    CONTROL         "Ис&пользовать заголовок вкладки",IDC_CHECK_USE_TAB_TITLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,170,14,58,10
+	CONTROL         "Ис&пользовать заголовок вкладки", IDC_CHECK_USE_TAB_TITLE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP | BS_MULTILINE, 150, 13, 78, 16
 
     RTEXT           "Формат заголовка основного окна:",IDC_STATIC,10,31,63,16
     EDITTEXT        IDC_MAIN_TITLE_FORMAT,75,33,150,14,ES_AUTOHSCROLL
@@ -360,7 +360,7 @@ BEGIN
     GROUPBOX        "Разделители слов",IDC_STATIC,120,80,115,48
 
     CONTROL         "Мигает",IDC_CHECK_FLASH_TAB,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,145,100,10
-    LTEXT           "раз",IDC_STATIC_FLASHES,55,160,28,8
+    LTEXT           "раз(а)",IDC_STATIC_FLASHES,55,160,28,8
     EDITTEXT        IDC_TAB_FLASHES,20,158,33,14,ES_AUTOHSCROLL | ES_NUMBER | WS_GROUP,WS_EX_RIGHT
     CONTROL         "",IDC_SPIN_TAB_FLASHES,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,75,158,11,14
     CONTROL         "и остается выделеной",IDC_CHECK_LEAVE_HIGHLIGHTED,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,19,175,90,10
@@ -385,8 +385,8 @@ BEGIN
     CONTROL         "При наведении мыши",IDC_CHECK_FOCUS_FOLLOW_MOUSE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,15,100,10
     GROUPBOX        "Фокус",IDC_STATIC,0,0,100,33,WS_GROUP
 
-    CONTROL         "Разрешить запуск нескольких копий программы",IDC_CHECK_MULTI_INSTANCES,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,130,11,100,16
-    GROUPBOX        "Копии программы",IDC_STATIC,120,0,115,33,WS_GROUP
+	CONTROL         "Разрешить запуск нескольких копий программы", IDC_CHECK_MULTI_INSTANCES, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 115, 10, 120, 20
+	GROUPBOX        "Копии программы", IDC_STATIC, 105, 0, 130, 33, WS_GROUP
 
     CONTROL         "Открывать новую оболочку в текущей директории",IDC_CHECK_OPEN_CURRENT_DIR,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,50,240,10
     GROUPBOX        "Разделение/Клонирование",IDC_STATIC,0,35,235,33
@@ -400,12 +400,12 @@ STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | DS_CONTROL | WS_CHILD
 EXSTYLE WS_EX_CONTROLPARENT
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    RTEXT           "&Заголовок:",IDC_STATIC,8,19,45,8,0
-    EDITTEXT        IDC_TAB_TITLE,55,16,160,14,ES_AUTOHSCROLL
-    RTEXT           "Иконка:",IDC_STATIC,8,34,45,8
-    EDITTEXT        IDC_TAB_ICON,55,31,90,14,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
-    PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON,147,31,15,14
-    CONTROL         "Стандартная",IDC_CHECK_DEFAULT_ICON,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,167,31,48,16
+    RTEXT           "&Заголовок:",IDC_STATIC, 8, 19, 40, 8, 0
+	EDITTEXT        IDC_TAB_TITLE, 50, 16, 93, 14, ES_AUTOHSCROLL
+    RTEXT           "Иконка:",IDC_STATIC, 8, 34, 30, 8
+	EDITTEXT        IDC_TAB_ICON, 50, 31, 93, 14, ES_AUTOHSCROLL, WS_EX_ACCEPTFILES
+	PUSHBUTTON      "...", IDC_BTN_BROWSE_ICON, 145, 31, 15, 14
+	CONTROL         "Стандартная", IDC_CHECK_DEFAULT_ICON, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 163, 34, 57, 10
     GROUPBOX        "Заголовок && иконка",IDC_STATIC,0,3,221,50,0,WS_EX_TRANSPARENT
 
     RTEXT           "&Командная оболочка:",IDC_STATIC,8,71,75,8
@@ -441,13 +441,13 @@ BEGIN
     EDITTEXT        IDC_BK_IMAGE,48,43,155,14,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
     PUSHBUTTON      "...",IDC_BTN_BROWSE_BK,206,43,15,14
     CONTROL         "Относительно",IDC_CHECK_BK_RELATIVE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,23,62,65,10
-    CONTROL         "Показывать на всех мониторах",IDC_CHECK_BK_EXTEND,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,23,83,195,16
+	CONTROL         "Показывать на всех мониторах", IDC_CHECK_BK_EXTEND, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 23, 77, 195, 10
     RTEXT           "Положение:",IDC_STATIC_BK_POS, 90, 63, 47, 8,NOT WS_GROUP
     COMBOBOX        IDC_COMBO_BK_POS,140,61,63,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     RTEXT           "Ц&вет оттенка:",IDC_STATIC_TINT_COLOR,23,103,50,8,NOT WS_GROUP
     CONTROL         "",IDC_TINT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,78,100,16,14,WS_EX_DLGMODALFRAME
-    RTEXT           "Прозрачность:",IDC_STATIC_TINT_OPACITY, 23, 118, 185, 8,NOT WS_GROUP
-    CONTROL         "",IDC_TINT_OPACITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,60,131,148,20
+	LTEXT           "Прозрачность:", IDC_STATIC_TINT_OPACITY, 23, 118, 185, 8, NOT WS_GROUP
+	CONTROL         "", IDC_TINT_OPACITY, "msctls_trackbar32", TBS_AUTOTICKS | WS_TABSTOP, 20, 127, 188, 20
     LTEXT           "255",IDC_TINT_OPACITY_VAL,207,129,14,8,0,WS_EX_RIGHT
 
     CONTROL         "&Наследовать",IDC_BTN_INHERIT_BACKGROUND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,152,60,10
@@ -646,7 +646,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Разделить по &горизонтали",         ID_SPLIT_HORIZ
         MENUITEM "&Разделить по вертикали",           ID_SPLIT_VERT
-        MENUITEM "Swap Views",                  ID_SPLIT_SWAP
+        MENUITEM "Поменять местами",                  ID_SPLIT_SWAP
         MENUITEM "К&лонировать в новой  вкладке",           ID_CLONE_IN_NEW_TAB
         MENUITEM SEPARATOR
         MENUITEM "&Настройки...",                ID_EDIT_SETTINGS
@@ -695,7 +695,7 @@ BEGIN
         MENUITEM SEPARATOR
         MENUITEM "Разделить по &горизонтали",         ID_SPLIT_HORIZ
         MENUITEM "&Разделить по вертикали",           ID_SPLIT_VERT
-        MENUITEM "Swap Views",                  ID_SPLIT_SWAP
+        MENUITEM "Поменять местами",                  ID_SPLIT_SWAP
         MENUITEM "К&лонировать в новой  вкладке",           ID_CLONE_IN_NEW_TAB
         MENUITEM SEPARATOR
 
@@ -828,7 +828,7 @@ BEGIN
     ID_ATTACH_CONSOLES      "Прикрепить консоли\nПрикрепить консоли"
     ID_SPLIT_HORIZ          "Разделить текущее окно по горизонтали\nРазделить по горизонтали"
     ID_SPLIT_VERT           "Разделить текущее окно по вертикали\nРазделить по вертикали"
-    ID_SPLIT_SWAP           "Swap with the view that previously had focus\nSwap Views"
+    ID_SPLIT_SWAP           "Поменять местами с предыдущим\nПоменять местами"
 
     ID_CLONE_IN_NEW_TAB     "Клонировать текущее окно в новую вкладку\nКлонировать в новую вкладку"
     ID_VIEW_FULLSCREEN      "Переключиться в полноэкранный режим\nВо весь экран"
@@ -952,8 +952,8 @@ BEGIN
 
     IDS_NEXT_TAB             "Перейти на следующую вкладку"
     IDS_PREV_TAB             "Перейти на предыдущую вкладку"
-    IDS_MOVE_TAB_LEFT        "Move tab in focus left"
-    IDS_MOVE_TAB_RIGHT       "Move tab in focus right"
+    IDS_MOVE_TAB_LEFT        "Переместить текущую вкладку налево"
+    IDS_MOVE_TAB_RIGHT       "Переместить текущую вкладку направо"
 
     IDS_FILE_CLOSE_TAB       "Закрть вкладку"
     IDS_EDIT_RENAME_TAB      "Переименовать вкладку"
@@ -975,7 +975,7 @@ BEGIN
     IDS_ATTACH_CONSOLES      "Прикрепить консоли"
     IDS_SPLIT_HORIZ          "Разделить по горизонтали"
     IDS_SPLIT_VERT           "Разделить по вертикали"
-    IDS_SPLIT_SWAP           "Swap with the view that previously had focus"
+    IDS_SPLIT_SWAP           "Поменять местами с предыдущим"
     IDS_CLONE_IN_NEW_TAB     "Клонировать окно в новую вкладку"
     IDS_VIEW_FULLSCREEN      "Во весь экран"
     IDS_VIEW_ZOOM_100        "Масштаб 100%"
@@ -1030,22 +1030,22 @@ BEGIN
 
     IDS_GLOBAL_ACTIVATE      "Переключиться на ConsoleZ (глобальная)"
 
-    ID_TEXT_SELECTION_LEFT_KEY        "Text selection left key"
-    ID_TEXT_SELECTION_RIGHT_KEY       "Text selection right key"
-    ID_TEXT_SELECTION_TOP_KEY         "Text selection top key"
-    ID_TEXT_SELECTION_BOTTOM_KEY      "Text selection bottom key"
-    ID_TEXT_SELECTION_HOME_KEY        "Text selection home key"
-    ID_TEXT_SELECTION_END_KEY         "Text selection end key"
-    ID_TEXT_SELECTION_PAGEUP_KEY      "Text selection page up key"
-    ID_TEXT_SELECTION_PAGEDOWN_KEY    "Text selection page down key"
-    ID_COLUMN_SELECTION_LEFT_KEY      "Column selection left key"
-    ID_COLUMN_SELECTION_RIGHT_KEY     "Column selection right key"
-    ID_COLUMN_SELECTION_TOP_KEY       "Column selection top key"
-    ID_COLUMN_SELECTION_BOTTOM_KEY    "Column selection bottom key"
-    ID_COLUMN_SELECTION_HOME_KEY      "Column selection home key"
-    ID_COLUMN_SELECTION_END_KEY       "Column selection end key"
-    ID_COLUMN_SELECTION_PAGEUP_KEY    "Column selection page up key"
-    ID_COLUMN_SELECTION_PAGEDOWN_KEY  "Column selection page down key"
+    ID_TEXT_SELECTION_LEFT_KEY        "Выделить текст левее"
+    ID_TEXT_SELECTION_RIGHT_KEY       "Выделить текст правее"
+    ID_TEXT_SELECTION_TOP_KEY         "Выделить текст выше"
+    ID_TEXT_SELECTION_BOTTOM_KEY      "Выделить текст ниже"
+    ID_TEXT_SELECTION_HOME_KEY        "Выделить тескт до начала"
+    ID_TEXT_SELECTION_END_KEY         "Выделить тескт до конца"
+    ID_TEXT_SELECTION_PAGEUP_KEY      "Выделить страницу текста вверх"
+    ID_TEXT_SELECTION_PAGEDOWN_KEY    "Выделить страницу текста вниз"
+    ID_COLUMN_SELECTION_LEFT_KEY      "Выделить колонку левее"
+    ID_COLUMN_SELECTION_RIGHT_KEY     "Выделить колонку правее"
+    ID_COLUMN_SELECTION_TOP_KEY       "Выделить колонку выше"
+    ID_COLUMN_SELECTION_BOTTOM_KEY    "Выделить колонку ниже"
+    ID_COLUMN_SELECTION_HOME_KEY      "Выделить колонку до начала"
+    ID_COLUMN_SELECTION_END_KEY       "Выделить колонку до конца"
+    ID_COLUMN_SELECTION_PAGEUP_KEY    "Выделить колонку на страницу вверх"
+    ID_COLUMN_SELECTION_PAGEDOWN_KEY  "Выделить колонку на страницу вниз"
 END
 
 STRINGTABLE
@@ -1084,7 +1084,7 @@ BEGIN
     IDS_SETTINGS_HOTKEY        "Клавиша"
     IDS_SETTINGS_VARIABLE      "Переменная"
     IDS_SETTINGS_VALUE         "Значение"
-    IDS_SETTINGS_WINDOWED      "Windowed"
+    IDS_SETTINGS_WINDOWED      "В окне"
 END
 
 STRINGTABLE

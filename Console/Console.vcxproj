@@ -377,6 +377,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE_XML;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -394,6 +395,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -428,6 +430,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE_XML;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -447,6 +450,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>
@@ -484,6 +488,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;_USE_AERO;_CONSOLE_XML;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -502,6 +507,7 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>res\supportedOS.manifest;%(AdditionalManifestFiles)</AdditionalManifestFiles>
@@ -536,6 +542,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;_USE_AERO;_CONSOLE_XML;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -553,6 +560,7 @@ copy "..\setup\dlls\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\"</C
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>olepro32.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Message>FreeImage</Message>

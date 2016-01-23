@@ -270,6 +270,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -284,6 +285,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "..\bin\x64\$(Configuration)" mkdir "..\bin\x64\$(Configuration)"
@@ -301,6 +303,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -315,6 +318,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -325,6 +329,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -339,6 +344,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "..\bin\x64\$(Configuration)" mkdir "..\bin\x64\$(Configuration)"
@@ -359,6 +365,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <AdditionalDependencies>psapi.lib;dbghelp.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -373,6 +380,7 @@ copy "..\bin\$(Platform)\$(Configuration)\ConsoleHook.dll" "..\bin\x64\$(Configu
       <ImportLibrary>$(OutDir)ConsoleHook.lib</ImportLibrary>
       <TargetMachine>MachineX64</TargetMachine>
       <SetChecksum>true</SetChecksum>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

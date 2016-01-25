@@ -32,12 +32,19 @@ Changelog
     + added
     * fixed
 
-Changes in 1.16.0 experimental (05 jan 2016)
+Changes in 1.16.0 experimental (23 jan 2016)
 
     + Command-line switch to toggle window visibility.
     + Select text/column with keyboard.
     + Per-monitor DPI awareness.
     + Arrange tabs using keyboard.
+    + Allow distinct controls settings for full screen
+      and windowed application.
+    + Environment inheritage is coming back.
+      Inheritage works now with mono-instance.
+      There is no inheritage when the shell run as administrator
+      or whith another user credentials!
+    + Glass effect transparency under Windows 10.
     * Hide, when loosing focus, only if the new foreground window
       is not owned by our application.
     * Fix crash when screen buffer size is reduced.

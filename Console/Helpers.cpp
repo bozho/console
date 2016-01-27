@@ -691,15 +691,25 @@ bool Helpers::GetDpiForMonitor(HMONITOR hmonitor, MONITOR_DPI_TYPE dpiType, UINT
 
 bool Helpers::SetProcessDpiAwareness(PROCESS_DPI_AWARENESS value)
 {
+	bool res = false;
+
 	HMODULE hmodule = ::LoadLibrary(L"Shcore.dll");
-	if (hmodule == nullptr) return false;
+	if( hmodule )
+	{
+		typedef HRESULT(WINAPI* SetProcessDpiAwareness_t)(PROCESS_DPI_AWARENESS value);
 
-	typedef HRESULT(WINAPI* SetProcessDpiAwareness_t)(PROCESS_DPI_AWARENESS value);
+		SetProcessDpiAwareness_t fnSetProcessDpiAwareness = (SetProcessDpiAwareness_t)::GetProcAddress(hmodule, "SetProcessDpiAwareness");
+		res = fnSetProcessDpiAwareness && fnSetProcessDpiAwareness(value) == S_OK;
 
-	SetProcessDpiAwareness_t fnSetProcessDpiAwareness = (SetProcessDpiAwareness_t)::GetProcAddress(hmodule, "SetProcessDpiAwareness");
-	bool res = fnSetProcessDpiAwareness && fnSetProcessDpiAwareness(value) == S_OK;
+		::FreeLibrary(hmodule);
+	}
 
-	::FreeLibrary(hmodule);
+	if( !res )
+	{
+		// function SetProcessDpiAwareness does not exist
+		// we use SetProcessDpiAware
+		res = ::SetProcessDPIAware() != FALSE;
+	}
 
 	return res;
 }

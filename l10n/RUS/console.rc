@@ -72,7 +72,7 @@ BEGIN
 #ifndef _USE_AERO
     CTEXT           "\nConsoleZ",IDC_STATIC_VERSION,25,41,78,25
     ICON            IDR_MAINFRAME,IDC_APPICON,55,26,20,20
-    CTEXT           "\nCopyright (C) 2011-2015\nChristophe Bucher\n\nмодифицированная версия\nConsole 2\nMarko Bozikovic\nперевод koros aka ya158 koros@ya.ru",IDC_APPTEXT, 14, 64, 103, 80,,WS_EX_TRANSPARENT
+    CTEXT           "\nCopyright (C) 2011-2016\nChristophe Bucher\n\nмодифицированная версия\nConsole 2\nMarko Bozikovic\nперевод koros aka ya158 koros@ya.ru",IDC_APPTEXT, 14, 64, 103, 80,,WS_EX_TRANSPARENT
 #endif
     GROUPBOX        "",IDC_STATIC,7,7,115,137
 END
@@ -148,7 +148,7 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     RTEXT           "&Заголовок:",IDC_STATIC,10,15,43,8
     EDITTEXT        IDC_WINDOW_TITLE,55,13,85,14,ES_AUTOHSCROLL
-	CONTROL         "Ис&пользовать заголовок вкладки", IDC_CHECK_USE_TAB_TITLE, "Button", BS_AUTOCHECKBOX | WS_TABSTOP | BS_MULTILINE, 150, 13, 78, 16
+    CONTROL         "Ис&пользовать заголовок вкладки",IDC_CHECK_USE_TAB_TITLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP, 150, 13, 78, 16
 
     RTEXT           "Формат заголовка основного окна:",IDC_STATIC,10,31,63,16
     EDITTEXT        IDC_MAIN_TITLE_FORMAT,75,33,150,14,ES_AUTOHSCROLL
@@ -386,8 +386,8 @@ BEGIN
     CONTROL         "При наведении мыши",IDC_CHECK_FOCUS_FOLLOW_MOUSE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,15,100,10
     GROUPBOX        "Фокус",IDC_STATIC,0,0,100,33,WS_GROUP
 
-	CONTROL         "Разрешить запуск нескольких копий программы", IDC_CHECK_MULTI_INSTANCES, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 115, 10, 120, 20
-	GROUPBOX        "Копии программы", IDC_STATIC, 105, 0, 130, 33, WS_GROUP
+    CONTROL         "Разрешить запуск нескольких копий программы",IDC_CHECK_MULTI_INSTANCES,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 115, 10, 120, 20
+    GROUPBOX        "Копии программы",IDC_STATIC, 105, 0, 130, 33,WS_GROUP
 
     CONTROL         "Открывать новую оболочку в текущей директории",IDC_CHECK_OPEN_CURRENT_DIR,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,50,240,10
     GROUPBOX        "Разделение/Клонирование",IDC_STATIC,0,35,235,33
@@ -402,11 +402,11 @@ EXSTYLE WS_EX_CONTROLPARENT
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     RTEXT           "&Заголовок:",IDC_STATIC, 8, 19, 40, 8, 0
-	EDITTEXT        IDC_TAB_TITLE, 50, 16, 93, 14, ES_AUTOHSCROLL
+    EDITTEXT        IDC_TAB_TITLE, 50, 16, 93, 14,ES_AUTOHSCROLL
     RTEXT           "Иконка:",IDC_STATIC, 8, 34, 30, 8
-	EDITTEXT        IDC_TAB_ICON, 50, 31, 93, 14, ES_AUTOHSCROLL, WS_EX_ACCEPTFILES
-	PUSHBUTTON      "...", IDC_BTN_BROWSE_ICON, 145, 31, 15, 14
-	CONTROL         "Стандартная", IDC_CHECK_DEFAULT_ICON, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 163, 34, 57, 10
+    EDITTEXT        IDC_TAB_ICON, 50, 31, 93, 14,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
+    PUSHBUTTON      "...",IDC_BTN_BROWSE_ICON, 145, 31, 15, 14
+    CONTROL         "Стандартная",IDC_CHECK_DEFAULT_ICON,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 163, 34, 57, 10
     GROUPBOX        "Заголовок && иконка",IDC_STATIC,0,3,221,50,0,WS_EX_TRANSPARENT
 
     RTEXT           "&Командная оболочка:",IDC_STATIC,8,71,75,8
@@ -442,13 +442,13 @@ BEGIN
     EDITTEXT        IDC_BK_IMAGE,48,43,155,14,ES_AUTOHSCROLL,WS_EX_ACCEPTFILES
     PUSHBUTTON      "...",IDC_BTN_BROWSE_BK,206,43,15,14
     CONTROL         "Относительно",IDC_CHECK_BK_RELATIVE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,23,62,65,10
-	CONTROL         "Показывать на всех мониторах", IDC_CHECK_BK_EXTEND, "Button", BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 23, 77, 195, 10
+    CONTROL         "Показывать на всех мониторах",IDC_CHECK_BK_EXTEND,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP, 23, 77, 195, 10
     RTEXT           "Положение:",IDC_STATIC_BK_POS, 90, 63, 47, 8,NOT WS_GROUP
     COMBOBOX        IDC_COMBO_BK_POS,140,61,63,53,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     RTEXT           "Ц&вет оттенка:",IDC_STATIC_TINT_COLOR,23,103,50,8,NOT WS_GROUP
     CONTROL         "",IDC_TINT_COLOR,"Static",SS_BLACKFRAME | SS_NOTIFY,78,100,16,14,WS_EX_DLGMODALFRAME
-	LTEXT           "Прозрачность:", IDC_STATIC_TINT_OPACITY, 23, 118, 185, 8, NOT WS_GROUP
-	CONTROL         "", IDC_TINT_OPACITY, "msctls_trackbar32", TBS_AUTOTICKS | WS_TABSTOP, 20, 127, 188, 20
+    RTEXT           "Прозрачность:",IDC_STATIC_TINT_OPACITY, 23, 118, 185, 8,NOT WS_GROUP
+    CONTROL         "",IDC_TINT_OPACITY,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP, 20, 127, 188, 20
     LTEXT           "255",IDC_TINT_OPACITY_VAL,207,129,14,8,0,WS_EX_RIGHT
 
     CONTROL         "&Наследовать",IDC_BTN_INHERIT_BACKGROUND,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,5,152,60,10
@@ -917,7 +917,7 @@ BEGIN
 
     MSG_TABVIEW_RUNAS       "Запустить от имени другого пользователя"
 
-    MSG_ABOUT               "\nConsoleZ %1%.%2%.%3%.%4%\nCopyright (c)\n2011-2015\nChristophe Bucher\n\nмодифицированная\nверсия\nConsole 2\nMarko Bozikovic\nперевод koros aka ya158\nkoros@ya.ru"
+    MSG_ABOUT               "\nConsoleZ %1%.%2%.%3%.%4%\nCopyright (c)\n2011-2016\nChristophe Bucher\n\nмодифицированная\nверсия\nConsole 2\nMarko Bozikovic\nперевод koros aka ya158\nkoros@ya.ru"
 END
 
 STRINGTABLE

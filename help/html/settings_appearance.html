@@ -32,13 +32,13 @@
 
 	<p class="block-row-name">Main format</p>
 	<p class="block-row-description">
-		Specifies the text used to format the main window title. See <a href=html\text_formatting.html>text formating</a> syntax.
+		Specifies the text used to format the main window title. See <a href=html\text_formatting.html>text formatting</a> syntax.
 	</p>
 	<br />
 
 	<p class="block-row-name">Tab format</p>
 	<p class="block-row-description">
-		Specifies the text used to format the tab title. See <a href=html\text_formatting.html>text formating</a> syntax.
+		Specifies the text used to format the tab title. See <a href=html\text_formatting.html>text formatting</a> syntax.
 	</p>
 	<br />
 
@@ -49,13 +49,13 @@
 	</p>
 	<br />
 
-	<p class="block-row-name">character width</p>
+	<p class="block-row-name">to ... characters</p>
 	<p class="block-row-description">
 		Specify the maximum number of character of the tab name.
 	</p>
 	<br />
 
-	<p class="block-row-name">chars at end</p>
+	<p class="block-row-name">from ... characters at the end</p>
 	<p class="block-row-description">
 		Specify the number of characters to take from the end of the string.
 		The total number will not exceed the <b>character width</b>.
@@ -128,32 +128,74 @@
 	<br />
 
 
-	<h2>Docking</h2>
-
-	<p class="block-row-name">
-    None<br />
-    Top left<br />
-    Top right<br />
-    Bottom left<br />
-    Bottom right<br />
-    Top middle<br />
-    Bottom middle<br />
-    Right middle<br />
-    Left middle<br />
-  </p>
+	<p class="block-row-name">Docking</p>
 	<p class="block-row-description">
-		Allows you to specify initial window docking type.
+		Specifies initial window docking type.
+		<table>
+			<tr>
+				<td><b>None</b></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><b>Top left</b></td>
+				<td><img src="../images/docking_top_left.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Top right</b></td>
+				<td><img src="../images/docking_top_right.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Bottom left</b></td>
+				<td><img src="../images/docking_bottom_left.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Bottom right</b></td>
+				<td><img src="../images/docking_bottom_right.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Top middle</b></td>
+				<td><img src="../images/docking_top_middle.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Bottom middle</b></td>
+				<td><img src="../images/docking_bottom_middle.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Right middle</b></td>
+				<td><img src="../images/docking_right_middle.png"/></td>
+			</tr>
+			<tr>
+				<td><b>Left middle</b></td>
+				<td><img src="../images/docking_left_middle.png"/></td>
+			</tr>
+		</table>
 	</p>
 	<br />
 
-	<h2>Z order</h2>
-
-	<p class="block-row-name">Regular<br />Always on top<br />Always on bottom<br />Pinned to desktop</p>
+	<p class="block-row-name">Z order</p>
 	<p class="block-row-description">
 		Allows you to specify window Z order.
-		<br />
-		<b>Note:</b> Pinned to desktop currently works only in Windows 
-		Explorer (i.e. other shells like Litestep are not supported)
+		<table>
+			<tr>
+				<td><b>Regular</b></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td><b>Always on top</b></td>
+				<td>Places the window above all non-topmost windows. The window maintains its topmost position even when it is deactivated.</td>
+			</tr>
+			<tr>
+				<td><b>Always on bottom</b></td>
+				<td>Places the window at the bottom of all other windows. The window maintains its bottom position even when it is active.</td>
+			</tr>
+			<tr>
+				<td><b>Pinned to desktop</b></td>
+				<td>
+						<b>Note:</b> Pinned to desktop currently works only in Windows
+						Explorer (i.e. other shells like Litestep are not supported)
+				</td>
+			</tr>
+		</table>
 	</p>
 	<br />
 

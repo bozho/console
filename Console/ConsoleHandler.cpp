@@ -441,7 +441,7 @@ void ConsoleHandler::CreateShellProcess
 			(dwDirAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 		{
 			// no directory, use Console.exe directory
-			strStartupDir = Helpers::GetModulePath(NULL);
+			strStartupDir = Helpers::GetModulePath(NULL, true);
 		}
 	}
 
@@ -1165,7 +1165,7 @@ void ConsoleHandler::CreateWatchdog()
 void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 {
 	// allocate memory for parameter in the remote process
-	wstring				strHookDllPath(GetModulePath(NULL));
+	wstring				strHookDllPath(Helpers::GetModulePath(NULL, true));
 
 	CONTEXT		context;
 	
@@ -1192,12 +1192,12 @@ void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 	if (isWow64Process)
 	{
 		// starting a 32-bit process from a 64-bit console
-		strHookDllPath += wstring(L"\\ConsoleHook32.dll");
+		strHookDllPath += wstring(L"ConsoleHook32.dll");
 	}
 	else
 	{
 		// same bitness :-)
-		strHookDllPath += wstring(L"\\ConsoleHook.dll");
+		strHookDllPath += wstring(L"ConsoleHook.dll");
 	}
 
   if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES)
@@ -1224,7 +1224,7 @@ void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 			Win32Exception::ThrowFromLastError("VirtualAllocEx");
 
 		// get 32-bit kernel32
-		wstring strConsoleWowPath(GetModulePath(NULL) + wstring(L"\\ConsoleWow.exe"));
+		wstring strConsoleWowPath(Helpers::GetModulePath(NULL, true) + wstring(L"ConsoleWow.exe"));
 
 		STARTUPINFO siWow;
 		::ZeroMemory(&siWow, sizeof(STARTUPINFO));
@@ -1423,7 +1423,7 @@ void ConsoleHandler::InjectHookDLL(PROCESS_INFORMATION& pi)
 void ConsoleHandler::InjectHookDLL2(PROCESS_INFORMATION& pi)
 {
 	// allocate memory for parameter in the remote process
-	wstring   strHookDllPath(GetModulePath(NULL));
+	wstring   strHookDllPath(Helpers::GetModulePath(NULL, true));
 	UINT_PTR  fnLoadLibrary	= NULL;
 	void*     mem = NULL;
 	size_t    memLen = 0;
@@ -1439,12 +1439,12 @@ void ConsoleHandler::InjectHookDLL2(PROCESS_INFORMATION& pi)
 	if (isWow64Process)
 	{
 		// starting a 32-bit process from a 64-bit console
-		strHookDllPath += wstring(L"\\ConsoleHook32.dll");
+		strHookDllPath += wstring(L"ConsoleHook32.dll");
 	}
 	else
 	{
 		// same bitness :-)
-		strHookDllPath += wstring(L"\\ConsoleHook.dll");
+		strHookDllPath += wstring(L"ConsoleHook.dll");
 	}
 
 	if (::GetFileAttributes(strHookDllPath.c_str()) == INVALID_FILE_ATTRIBUTES)
@@ -1455,7 +1455,7 @@ void ConsoleHandler::InjectHookDLL2(PROCESS_INFORMATION& pi)
 	if (isWow64Process)
 	{
 		// get 32-bit kernel32
-		wstring strConsoleWowPath(GetModulePath(NULL) + wstring(L"\\ConsoleWow.exe"));
+		wstring strConsoleWowPath(Helpers::GetModulePath(NULL, true) + wstring(L"ConsoleWow.exe"));
 
 		STARTUPINFO siWow;
 		::ZeroMemory(&siWow, sizeof(STARTUPINFO));
@@ -1885,24 +1885,6 @@ void ConsoleHandler::ReadConsoleBuffer()
 	catch(std::exception&)
 	{
 	}
-}
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-
-//////////////////////////////////////////////////////////////////////////////
-
-wstring ConsoleHandler::GetModulePath(HMODULE hModule)
-{
-	wchar_t szModulePath[MAX_PATH+1];
-	::ZeroMemory(szModulePath, (MAX_PATH+1)*sizeof(wchar_t));
-
-	::GetModuleFileName(hModule, szModulePath, MAX_PATH);
-
-	wstring strPath(szModulePath);
-
-	return strPath.substr(0, strPath.rfind(L'\\'));
 }
 
 //////////////////////////////////////////////////////////////////////////////

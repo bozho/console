@@ -2711,7 +2711,7 @@ bool SettingsHandler::LoadSettings(const wstring& strSettingsFileName)
 		{
 			m_settingsDirType = dirTypeUser;
 		}
-		else if (equals(m_strSettingsPath, Helpers::GetModulePath(NULL), is_iequal()))
+		else if (equals(m_strSettingsPath, Helpers::GetModulePath(NULL, true), is_iequal()))
 		{
 			m_settingsDirType = dirTypeExe;
 		}
@@ -2778,7 +2778,7 @@ void SettingsHandler::SetUserDataDir(SettingsDirType settingsDirType)
 {
 	if (settingsDirType == dirTypeExe)
 	{
-		m_strSettingsPath = Helpers::GetModulePath(NULL);
+		m_strSettingsPath = Helpers::GetModulePath(NULL, true);
 	}
 	else if (settingsDirType == dirTypeUser)
 	{

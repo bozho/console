@@ -11,7 +11,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-wstring Helpers::GetModulePath(HINSTANCE hInstance)
+wstring Helpers::GetModulePath(HINSTANCE hInstance, bool boolTrailingPathDelimiter)
 {
 	wchar_t szModulePath[MAX_PATH] = L"";
 
@@ -19,7 +19,7 @@ wstring Helpers::GetModulePath(HINSTANCE hInstance)
 
 	wstring strPath(szModulePath);
 
-	return strPath.substr(0, strPath.rfind(L'\\')+1);
+	return strPath.substr(0, strPath.rfind(L'\\') + (boolTrailingPathDelimiter? 1 : 0));
 }
 
 //////////////////////////////////////////////////////////////////////////////

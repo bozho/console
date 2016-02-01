@@ -27,7 +27,7 @@ class Helpers
 {
 	public:
 
-		static wstring GetModulePath(HINSTANCE hInstance);
+		static wstring GetModulePath(HINSTANCE hInstance, bool boolTrailingPathDelimiter);
 		static wstring GetModuleFileName(HINSTANCE hInstance);
 
 		static wstring GetCurrentDirectory(void);

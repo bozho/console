@@ -209,12 +209,6 @@ class ConsoleHandler
 		static DWORD WINAPI MonitorThreadStatic(LPVOID lpParameter);
 		DWORD MonitorThread();
 
-
-	private:
-
-		wstring GetModulePath(HMODULE hModule);
-
-
 	private:
 
     ConsoleChangeDelegate             m_consoleChangeDelegate;

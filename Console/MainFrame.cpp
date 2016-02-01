@@ -3133,7 +3133,7 @@ LRESULT MainFrame::OnDumpBuffer(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndC
 
 LRESULT MainFrame::OnHelp(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL& /*bHandled*/)
 {
-	::HtmlHelp(m_hWnd, (Helpers::GetModulePath(NULL) + wstring(L"console.chm")).c_str(), HH_DISPLAY_TOPIC, NULL);
+	::HtmlHelp(m_hWnd, (Helpers::GetModulePath(NULL, true) + wstring(L"console.chm")).c_str(), HH_DISPLAY_TOPIC, NULL);
 	return 0;
 }
 

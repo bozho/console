@@ -230,7 +230,7 @@ void ConsoleHandler::CreateShellProcess
 	std::unique_ptr<void, CloseHandleHelper>             userToken;
 	std::shared_ptr<void>                                userProfileKey;
 	RevertToSelfHelper                                   revertToSelfHelper;
-	std::vector<std::shared_ptr<VarEnv>>                 homeEnv;
+	std::vector<std::shared_ptr<VarEnv>>                 embededEnv = extraEnv;
 
 	if (userCredentials.strUsername.length() > 0)
 	{
@@ -371,15 +371,15 @@ void ConsoleHandler::CreateShellProcess
 				strHomePath.c_str());
 
 			if( !strHomeShare.empty() )
-				homeEnv.push_back(
+				embededEnv.push_back(
 					std::shared_ptr<VarEnv>(
 						new VarEnv(std::wstring(L"HOMESHARE"), strHomeShare)));
 			if( !strHomeDrive.empty() )
-				homeEnv.push_back(
+				embededEnv.push_back(
 					std::shared_ptr<VarEnv>(
 						new VarEnv(std::wstring(L"HOMEDRIVE"), strHomeDrive)));
 			if( !strHomePath.empty() )
-				homeEnv.push_back(
+				embededEnv.push_back(
 					std::shared_ptr<VarEnv>(
 						new VarEnv(std::wstring(L"HOMEPATH"), strHomePath)));
 		}
@@ -389,6 +389,14 @@ void ConsoleHandler::CreateShellProcess
 	if( !s_environmentBlock.get() )
 		ConsoleHandler::UpdateCurrentUserEnvironmentBlock();
 
+	// add specific ConsoleZxxx environment variables
+	embededEnv.push_back(
+		std::shared_ptr<VarEnv>(
+			new VarEnv(std::wstring(L"ConsoleZBaseDir"), Helpers::GetModulePath(NULL, false))));
+	embededEnv.push_back(
+		std::shared_ptr<VarEnv>(
+			new VarEnv(std::wstring(L"ConsoleZVersion"), _TEXT(VERSION_FILE))));
+
 	// add specific environment variables defined in tab settings
 	std::wstring strNewEnvironment = MergeEnvironmentVariables(
 		userEnvironment.get()?
@@ -396,13 +404,7 @@ void ConsoleHandler::CreateShellProcess
 			(consoleOptions.strEnvironment.empty()?
 				s_environmentBlock.get() :
 				consoleOptions.strEnvironment.c_str()),
-		extraEnv);
-
-	// add missing home variables
-	if( !homeEnv.empty() )
-		strNewEnvironment = MergeEnvironmentVariables(
-		strNewEnvironment.c_str(),
-		homeEnv);
+		embededEnv);
 
 	wstring	strShellCmdLine(strShell);
 

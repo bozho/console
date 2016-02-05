@@ -659,6 +659,11 @@ void ConsoleHandler::StartShellProcess
 	if (::WaitForSingleObject(m_consoleParams.GetReqEvent(), 10000) == WAIT_TIMEOUT)
 		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_DLL_INJECTION_FAILED)) % L"timeout (hook)"));
 
+	// if console window is null
+	// then the current process in not a Win32 console application
+	if( m_consoleParams->hwndConsoleWindow == nullptr )
+		throw ConsoleException(boost::str(boost::wformat(Helpers::LoadString(IDS_ERR_IS_NOT_A_WIN32_CONSOLE)) % strShell));
+
 	ShowWindow(SW_HIDE);
 }
 

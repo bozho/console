@@ -1759,8 +1759,6 @@ void ConsoleHandler::SetConsoleParams()
 	// get initial window and cursor info
 	::GetConsoleScreenBufferInfo(hStdOut, &m_consoleInfo->csbi);
 	::GetConsoleCursorInfo(hStdOut, m_cursorInfo.Get());
-
-	m_consoleParams.SetReqEvent();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1802,6 +1800,12 @@ DWORD ConsoleHandler::MonitorThread()
 						0);
 
 	SetConsoleParams();
+
+	m_consoleParams.SetReqEvent();
+
+	// if console window is null
+	// then the current process in not a Win32 console application
+	if( m_consoleParams->hwndConsoleWindow == nullptr ) return 0;
 
 	if (::WaitForSingleObject(m_consoleParams.GetRespEvent(), 10000) == WAIT_TIMEOUT) return 0;
 

@@ -32,8 +32,10 @@ Changelog
     + added
     * fixed
 
-Changes in 1.16.0 experimental (23 jan 2016)
+Changes in 1.16.0 (07 feb 2016)
 
+    ! PowerShell progressbar detection is disbled.
+    ! ConsoleZ hook can detect if the shell is a Win32 console application.
     + Command-line switch to toggle window visibility.
     + Select text/column with keyboard.
     + Per-monitor DPI awareness.
@@ -45,6 +47,9 @@ Changes in 1.16.0 experimental (23 jan 2016)
       There is no inheritage when the shell run as administrator
       or whith another user credentials!
     + Glass effect transparency under Windows 10.
+    + Specific ConsoleZxxx environment variables:
+      ConsoleZBaseDir folder containing console.exe
+      ConsoleZVersion current version of ConsoleZ
     * Hide, when loosing focus, only if the new foreground window
       is not owned by our application.
     * Fix crash when screen buffer size is reduced.

@@ -34,22 +34,22 @@ Changelog
 
 Changes in 1.16.0 (07 feb 2016)
 
-    ! PowerShell progressbar detection is disbled.
-    ! ConsoleZ hook can detect if the shell is a Win32 console application.
+    ! PowerShell progressbar detection is disabled.
+    ! ConsoleZ hook can detect if the shell is not a Win32 console application.
     + Command-line switch to toggle window visibility.
     + Select text/column with keyboard.
     + Per-monitor DPI awareness.
     + Arrange tabs using keyboard.
     + Allow distinct controls settings for full screen
       and windowed application.
-    + Environment inheritage is coming back.
-      Inheritage works now with mono-instance.
-      There is no inheritage when the shell run as administrator
+    + Environment inheritance is coming back.
+      Inheritance works now with mono-instance.
+      There is no inheritance when the shell run as administrator
       or whith another user credentials!
     + Glass effect transparency under Windows 10.
     + Specific ConsoleZxxx environment variables:
-      ConsoleZBaseDir folder containing console.exe
-      ConsoleZVersion current version of ConsoleZ
+      ConsoleZBaseDir = folder containing console.exe
+      ConsoleZVersion = current version of ConsoleZ
     * Hide, when loosing focus, only if the new foreground window
       is not owned by our application.
     * Fix crash when screen buffer size is reduced.

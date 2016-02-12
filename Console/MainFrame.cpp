@@ -1075,8 +1075,6 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 
 		if( !bNoDocking && positionSettings.nSnapDistance >= 0 )
 		{
-			m_dockPosition	= dockNone;
-
 			CRect	rectMonitor;
 			CRect	rectDesktop;
 			CRect	rectWindow;
@@ -1133,14 +1131,27 @@ LRESULT MainFrame::OnWindowPosChanging(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM 
 				nTB = 2;
 			}
 
-			TRACE(
-				L"MainFrame::OnWindowPosChanging snap 2 nLR=%i nTB=%i\n",
-				nLR, nTB);
-
 			if ((nLR != -1) && (nTB != -1))
 			{
 				m_dockPosition = static_cast<DockPosition>(nTB | nLR);
 			}
+			else if( nTB != -1 )
+			{
+				m_dockPosition = nTB? dockBM : dockTM;
+			}
+			else if( nLR != -1 )
+			{
+				m_dockPosition = nLR? dockRM : dockLM;
+			}
+			else
+			{
+				m_dockPosition	= dockNone;
+			}
+
+			TRACE(
+				L"MainFrame::OnWindowPosChanging snap 2 nLR=%i nTB=%i m_dockPosition=%i\n",
+				nLR, nTB,
+				m_dockPosition);
 		}
 
 		if (m_activeTabView)
@@ -3675,13 +3686,18 @@ void MainFrame::DockWindow(DockPosition dockPosition)
 		default : return;
 	}
 
+	// Don't send WM_WINDOWPOSCHANGING
+	// ONWindowPosChanging is not called
+	// That's fixing placement problem
+	// with "snap to desktop edges"
+	// when cursor is in another monitor
 	SetWindowPos(
 		NULL, 
 		nX, 
 		nY, 
 		0, 
 		0, 
-		SWP_NOSIZE|SWP_NOZORDER);
+		SWP_NOSIZE|SWP_NOZORDER|SWP_NOSENDCHANGING);
 }
 
 //////////////////////////////////////////////////////////////////////////////

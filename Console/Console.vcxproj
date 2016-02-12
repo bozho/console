@@ -667,9 +667,11 @@ copy "..\setup\dlls\x64\FreeImagePlus.dll" "..\bin\$(Platform)\$(Configuration)\
     <None Include="..\help\html\settings_appearance_font.html" />
     <None Include="..\help\html\settings_appearance_fullscreen.html" />
     <None Include="..\help\html\settings_appearance_styles.html" />
+    <None Include="..\help\html\settings_appearance_transparency.html" />
     <None Include="..\help\html\settings_behavior_more.html" />
     <None Include="..\help\html\settings_tabs_background.html" />
     <None Include="..\help\html\settings_tabs_colors.html" />
+    <None Include="..\help\html\settings_tabs_environment.html" />
     <None Include="..\help\html\settings_tabs_main.html" />
     <CustomBuild Include="..\README.md">
       <FileType>Document</FileType>

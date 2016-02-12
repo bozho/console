@@ -382,6 +382,12 @@
     <None Include="res\SearchBar.rc2">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\help\html\settings_appearance_transparency.html">
+      <Filter>Help Files\html</Filter>
+    </None>
+    <None Include="..\help\html\settings_tabs_environment.html">
+      <Filter>Help Files\html</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Console.rc">

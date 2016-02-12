@@ -867,6 +867,7 @@ BEGIN
     IDS_ERR_CANT_START_SHELL_AS_ADMIN "Невозможно запустить %1% %2% от администратора (причина:%3%)!"
     IDS_ERR_CANT_GET_ELEVATION_TYPE "Невозможно получить повышенный уровень (причина:%1%)!"
     IDS_ERR_TAB_CREATE_FAILED "Ошибка при открытии вкладки %1%!\nПроцесс %2% может быть всё ещё запущен (используйте Диспетчер задач для завершения его)"
+    IDS_ERR_IS_NOT_A_WIN32_CONSOLE "%1% is not a Win32 console application!"
 END
 
 STRINGTABLE

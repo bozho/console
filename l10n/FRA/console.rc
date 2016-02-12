@@ -225,7 +225,7 @@ BEGIN
     CONTROL         "Redimensionnable",IDC_CHECK_STYLE_RESIZABLE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,27,100,16
     CONTROL         "Bo&rdure",IDC_CHECK_STYLE_BORDER,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,43,100,16
     CONTROL         "Cacher quand inactif",IDC_CHECK_HIDE_WHEN_INACTIVE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,59,100,16
-    CONTROL         "&Quake like",IDC_CHECK_STYLE_QUAKE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,75,100,16
+    CONTROL         "&Quake-style",IDC_CHECK_STYLE_QUAKE,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,10,75,100,16
 
     CONTROL         "Bouton dans la barre des tâches",IDC_CHECK_STYLE_TASKBAR,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,130,11,100,16
     CONTROL         "Zone de notification",IDC_CHECK_STYLE_TRAY,"Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,130,27,100,16
@@ -867,6 +867,7 @@ BEGIN
     IDS_ERR_CANT_START_SHELL_AS_ADMIN "Impossible de démarrer %1% %2% en tant qu'administrator (la raison : %3%) !"
     IDS_ERR_CANT_GET_ELEVATION_TYPE "Impossible d'obtenir le niveau d'élévation (la raison : %1%) !"
     IDS_ERR_TAB_CREATE_FAILED "L'ouverture de l'onglet %1% a échoué !\nLe processus %2% est peut être en cours d'exécution (utilisez le gestionnaire des tâches pour le terminer)"
+    IDS_ERR_IS_NOT_A_WIN32_CONSOLE "%1% n'est pas une application console Win32 !"
 END
 
 STRINGTABLE

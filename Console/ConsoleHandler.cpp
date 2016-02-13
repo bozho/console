@@ -979,14 +979,14 @@ std::wstring ConsoleHandler::GetFontInfo(void) const
 		result += std::to_wstring(m_multipleInfo->consoleFontInfo.FontWeight);
 		result += L"\r\nfont size: width=";
 		result += std::to_wstring(m_multipleInfo->coordFontSize.X);
+		//result += std::to_wstring(m_multipleInfo->consoleFontInfo.dwFontSize.X);
 		result += L" height=";
 		result += std::to_wstring(m_multipleInfo->coordFontSize.Y);
+		//result += std::to_wstring(m_multipleInfo->consoleFontInfo.dwFontSize.Y);
 		result += L"\r\nmax window size: cols=";
 		result += std::to_wstring(m_consoleInfo->csbi.dwMaximumWindowSize.X);
-		//result += std::to_wstring(m_multipleInfo->consoleFontInfo.dwFontSize.X);
 		result += L" rows=";
 		result += std::to_wstring(m_consoleInfo->csbi.dwMaximumWindowSize.Y);
-		//result += std::to_wstring(m_multipleInfo->consoleFontInfo.dwFontSize.Y);
 	}
 
 	return result;

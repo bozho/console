@@ -343,6 +343,30 @@ void ConsoleHandler::RealReadConsoleBuffer()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void ConsoleHandler::SetConsoleFont()
+{
+#ifndef _USING_V110_SDK71_
+	// SetCurrentConsoleFontEx is available only since Vista
+
+	// We set "Lucidia Console" font beacuse:
+	// - this font is availbale everywhere
+	// - we need a True Type font to use Unicode console
+	//   (with RASTER font, chars are restricted to the current code page)
+	// we set the smallest font size because:
+	// - max cols and rows are computed from the primary monitor size and the console font size
+	CONSOLE_FONT_INFOEX cfi = {sizeof(cfi)};
+	cfi.dwFontSize.X = 0x0000;
+	cfi.dwFontSize.Y = 0x0005;
+	::wcscpy_s(cfi.FaceName, ARRAYSIZE(cfi.FaceName), L"Lucida Console");
+	::SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
+#endif
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool ConsoleHandler::GetPowerShellProgress(HANDLE hStdOut, CONSOLE_SCREEN_BUFFER_INFO& csbiConsole, unsigned long long & ullProgressCompleted, unsigned long long & ullProgressTotal)
 {
 	// if we are in another screen buffer
@@ -1799,6 +1823,7 @@ DWORD ConsoleHandler::MonitorThread()
 						0,
 						0);
 
+	SetConsoleFont();
 	SetConsoleParams();
 
 	m_consoleParams.SetReqEvent();

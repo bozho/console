@@ -83,6 +83,8 @@ class ConsoleHandler
 		void ForceReadConsoleBuffer();
 		void RealReadConsoleBuffer();
 
+		void SetConsoleFont();
+
 		void ResizeConsoleWindow(DWORD& dwColumns, DWORD& dwRows, DWORD dwResizeWindowEdge);
 
 		void CopyConsoleText();
